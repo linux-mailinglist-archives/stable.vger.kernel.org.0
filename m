@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8274199B8F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6756E99B93
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391874AbfHVRZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49894 "EHLO mail.kernel.org"
+        id S2404499AbfHVRZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404482AbfHVRZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:43 -0400
+        id S2391871AbfHVRZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:44 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E89952341E;
-        Thu, 22 Aug 2019 17:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 642CF2341A;
+        Thu, 22 Aug 2019 17:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494742;
-        bh=t36UPhkS7v7+v2KG+YnUGO5OS8HNCdTGNZFAPBglJ6E=;
+        s=default; t=1566494743;
+        bh=kFGKgC0gvPqD7KF3DhCZfPMKpv8ou032LeWM4nQGtDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zm4T8pjIxg6Wk+UlXI3h+ln179BQuTKR3R9VCFoeRHWxa8g9gYZAXgPthFpesa+l+
-         F7LZvZySwwiq3Tk7y96zXe5Y2XzaVRczLRFRQAuy4H6AZhcURCwIgV6yEEls0r30Dh
-         PmNkZt1GCI2p4NqQiFMrgzANwoRo8ApnklJhTy48=
+        b=wDeDtjl8MGecr05hziyKXw8dHPNb3s4BYmtEkosxJVmykzd0IbkXrMOc75rSsBkKX
+         wTm7y5FHE2hawyHt79Jlz3EG0blEGADt/P4wHdCsbNx1b+g0g5JPpWHPNfFShcPl0u
+         pGSwspDszLA0JOt6wVwmmmwvbBkzGSyWrKNRqPbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org,
+        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
+        Scott Teel <scott.teel@microsemi.com>,
+        Scott Benesh <scott.benesh@microsemi.com>,
+        Kevin Barnett <kevin.barnett@microsemi.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/85] drm/bridge: lvds-encoder: Fix build error while CONFIG_DRM_KMS_HELPER=m
-Date:   Thu, 22 Aug 2019 10:19:08 -0700
-Message-Id: <20190822171732.863224842@linuxfoundation.org>
+Subject: [PATCH 4.19 37/85] scsi: hpsa: correct scsi command status issue after reset
+Date:   Thu, 22 Aug 2019 10:19:10 -0700
+Message-Id: <20190822171732.932719199@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
 References: <20190822171731.012687054@linuxfoundation.org>
@@ -45,37 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4cc743a98136df3c3763050a0e8223b52d9a960 ]
+[ Upstream commit eeebce1862970653cdf5c01e98bc669edd8f529a ]
 
-If DRM_LVDS_ENCODER=y but CONFIG_DRM_KMS_HELPER=m,
-build fails:
-
-drivers/gpu/drm/bridge/lvds-encoder.o: In function `lvds_encoder_probe':
-lvds-encoder.c:(.text+0x155): undefined reference to `devm_drm_panel_bridge_add'
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: dbb58bfd9ae6 ("drm/bridge: Fix lvds-encoder since the panel_bridge rework.")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190729071216.27488-1-yuehaibing@huawei.com
+Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
+Reviewed-by: Scott Teel <scott.teel@microsemi.com>
+Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
+Signed-off-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/hpsa.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index bf6cad6c9178b..7a3e5a8f6439b 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -46,6 +46,7 @@ config DRM_DUMB_VGA_DAC
- config DRM_LVDS_ENCODER
- 	tristate "Transparent parallel to LVDS encoder support"
- 	depends on OF
-+	select DRM_KMS_HELPER
- 	select DRM_PANEL_BRIDGE
- 	help
- 	  Support for transparent parallel to LVDS encoders that don't require
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index c43eccdea65d2..f570b8c5d857c 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -2320,6 +2320,8 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
+ 	case IOACCEL2_SERV_RESPONSE_COMPLETE:
+ 		switch (c2->error_data.status) {
+ 		case IOACCEL2_STATUS_SR_TASK_COMP_GOOD:
++			if (cmd)
++				cmd->result = 0;
+ 			break;
+ 		case IOACCEL2_STATUS_SR_TASK_COMP_CHK_COND:
+ 			cmd->result |= SAM_STAT_CHECK_CONDITION;
+@@ -2479,8 +2481,10 @@ static void process_ioaccel2_completion(struct ctlr_info *h,
+ 
+ 	/* check for good status */
+ 	if (likely(c2->error_data.serv_response == 0 &&
+-			c2->error_data.status == 0))
++			c2->error_data.status == 0)) {
++		cmd->result = 0;
+ 		return hpsa_cmd_free_and_done(h, c, cmd);
++	}
+ 
+ 	/*
+ 	 * Any RAID offload error results in retry which will use
+@@ -5617,6 +5621,12 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
+ 	}
+ 	c = cmd_tagged_alloc(h, cmd);
+ 
++	/*
++	 * This is necessary because the SML doesn't zero out this field during
++	 * error recovery.
++	 */
++	cmd->result = 0;
++
+ 	/*
+ 	 * Call alternate submit routine for I/O accelerated commands.
+ 	 * Retries always go down the normal I/O path.
 -- 
 2.20.1
 
