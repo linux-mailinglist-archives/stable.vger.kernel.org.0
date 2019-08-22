@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5554199A4C
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B42799A4F
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732146AbfHVRLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:11:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
+        id S2389048AbfHVRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390709AbfHVRJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730641AbfHVRJO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:09:14 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E88D233FE;
+        by mail.kernel.org (Postfix) with ESMTPSA id CEF5623404;
         Thu, 22 Aug 2019 17:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493753;
-        bh=fyVAE4XNe9qmMSfGB/ceKpzDkfDJ1pDLryLwX7dXE9U=;
+        s=default; t=1566493754;
+        bh=oWRieHLty+Rj5FWIVKIVjH/MKr+0xARdLxI9ID2S5yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2YzakKjWu/hQcbYWWG5NrH8giEBd4WM6uDayUWtrsBjAMHDBhbdr9Dy+vt/owLh5
-         Fjb2qrUNMnAyBriSKqynW9ECSGdA/jUMgZ78iERjaF1SklypzpwxSp2DYLyFanUTZO
-         8nHmM1iMmhpR/MUmos+egqu7volpjyi9jAzbAMtA=
+        b=XTM+73UOl/MexJOUpssWSdUxxG1einAMRXSoUTgiiOwHt2NtdQHMj8U0R86SYNZE6
+         OeSuxD+BlBhSQmQAtt+mkk9PRHlbHwdplJtiylKH4pUe8c3upmqNCT2gNq77OfaeTs
+         G0XlXz3RcDsbyVxfMvNVKI7EggYmpObp40bHMJGM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen-Yu Tsai <wens@csie.org>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 109/135] net: dsa: Check existence of .port_mdb_add callback before calling it
-Date:   Thu, 22 Aug 2019 13:07:45 -0400
-Message-Id: <20190822170811.13303-110-sashal@kernel.org>
+Subject: [PATCH 5.2 110/135] net/mlx4_en: fix a memory leak bug
+Date:   Thu, 22 Aug 2019 13:07:46 -0400
+Message-Id: <20190822170811.13303-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,118 +50,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 58799865be84e2a895dab72de0e1b996ed943f22 ]
+[ Upstream commit 48ec7014c56e5eb2fbf6f479896143622d834f3b ]
 
-The dsa framework has optional .port_mdb_{prepare,add,del} callback fields
-for drivers to handle multicast database entries. When adding an entry, the
-framework goes through a prepare phase, then a commit phase. Drivers not
-providing these callbacks should be detected in the prepare phase.
+In mlx4_en_config_rss_steer(), 'rss_map->indir_qp' is allocated through
+kzalloc(). After that, mlx4_qp_alloc() is invoked to configure RSS
+indirection. However, if mlx4_qp_alloc() fails, the allocated
+'rss_map->indir_qp' is not deallocated, leading to a memory leak bug.
 
-DSA core may still bypass the bridge layer and call the dsa_port_mdb_add
-function directly with no prepare phase or no switchdev trans object,
-and the framework ends up calling an undefined .port_mdb_add callback.
-This results in a NULL pointer dereference, as shown in the log below.
+To fix the above issue, add the 'qp_alloc_err' label to free
+'rss_map->indir_qp'.
 
-The other functions seem to be properly guarded. Do the same for
-.port_mdb_add in dsa_switch_mdb_add_bitmap() as well.
-
-    8<--- cut here ---
-    Unable to handle kernel NULL pointer dereference at virtual address 00000000
-    pgd = (ptrval)
-    [00000000] *pgd=00000000
-    Internal error: Oops: 80000005 [#1] SMP ARM
-    Modules linked in: rtl8xxxu rtl8192cu rtl_usb rtl8192c_common rtlwifi mac80211 cfg80211
-    CPU: 1 PID: 134 Comm: kworker/1:2 Not tainted 5.3.0-rc1-00247-gd3519030752a #1
-    Hardware name: Allwinner sun7i (A20) Family
-    Workqueue: events switchdev_deferred_process_work
-    PC is at 0x0
-    LR is at dsa_switch_event+0x570/0x620
-    pc : [<00000000>]    lr : [<c08533ec>]    psr: 80070013
-    sp : ee871db8  ip : 00000000  fp : ee98d0a4
-    r10: 0000000c  r9 : 00000008  r8 : ee89f710
-    r7 : ee98d040  r6 : ee98d088  r5 : c0f04c48  r4 : ee98d04c
-    r3 : 00000000  r2 : ee89f710  r1 : 00000008  r0 : ee98d040
-    Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-    Control: 10c5387d  Table: 6deb406a  DAC: 00000051
-    Process kworker/1:2 (pid: 134, stack limit = 0x(ptrval))
-    Stack: (0xee871db8 to 0xee872000)
-    1da0:                                                       ee871e14 103ace2d
-    1dc0: 00000000 ffffffff 00000000 ee871e14 00000005 00000000 c08524a0 00000000
-    1de0: ffffe000 c014bdfc c0f04c48 ee871e98 c0f04c48 ee9e5000 c0851120 c014bef0
-    1e00: 00000000 b643aea2 ee9b4068 c08509a8 ee2bf940 ee89f710 ee871ecb 00000000
-    1e20: 00000008 103ace2d 00000000 c087e248 ee29c868 103ace2d 00000001 ffffffff
-    1e40: 00000000 ee871e98 00000006 00000000 c0fb2a50 c087e2d0 ffffffff c08523c4
-    1e60: ffffffff c014bdfc 00000006 c0fad2d0 ee871e98 ee89f710 00000000 c014c500
-    1e80: 00000000 ee89f3c0 c0f04c48 00000000 ee9e5000 c087dfb4 ee9e5000 00000000
-    1ea0: ee89f710 ee871ecb 00000001 103ace2d 00000000 c0f04c48 00000000 c087e0a8
-    1ec0: 00000000 efd9a3e0 0089f3c0 103ace2d ee89f700 ee89f710 ee9e5000 00000122
-    1ee0: 00000100 c087e130 ee89f700 c0fad2c8 c1003ef0 c087de4c 2e928000 c0fad2ec
-    1f00: c0fad2ec ee839580 ef7a62c0 ef7a9400 00000000 c087def8 c0fad2ec c01447dc
-    1f20: ef315640 ef7a62c0 00000008 ee839580 ee839594 ef7a62c0 00000008 c0f03d00
-    1f40: ef7a62d8 ef7a62c0 ffffe000 c0145b84 ffffe000 c0fb2420 c0bfaa8c 00000000
-    1f60: ffffe000 ee84b600 ee84b5c0 00000000 ee870000 ee839580 c0145b40 ef0e5ea4
-    1f80: ee84b61c c014a6f8 00000001 ee84b5c0 c014a5b0 00000000 00000000 00000000
-    1fa0: 00000000 00000000 00000000 c01010e8 00000000 00000000 00000000 00000000
-    1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-    1fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
-    [<c08533ec>] (dsa_switch_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
-    [<c014bdfc>] (notifier_call_chain) from [<c014bef0>] (raw_notifier_call_chain+0x18/0x20)
-    [<c014bef0>] (raw_notifier_call_chain) from [<c08509a8>] (dsa_port_mdb_add+0x48/0x74)
-    [<c08509a8>] (dsa_port_mdb_add) from [<c087e248>] (__switchdev_handle_port_obj_add+0x54/0xd4)
-    [<c087e248>] (__switchdev_handle_port_obj_add) from [<c087e2d0>] (switchdev_handle_port_obj_add+0x8/0x14)
-    [<c087e2d0>] (switchdev_handle_port_obj_add) from [<c08523c4>] (dsa_slave_switchdev_blocking_event+0x94/0xa4)
-    [<c08523c4>] (dsa_slave_switchdev_blocking_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
-    [<c014bdfc>] (notifier_call_chain) from [<c014c500>] (blocking_notifier_call_chain+0x50/0x68)
-    [<c014c500>] (blocking_notifier_call_chain) from [<c087dfb4>] (switchdev_port_obj_notify+0x44/0xa8)
-    [<c087dfb4>] (switchdev_port_obj_notify) from [<c087e0a8>] (switchdev_port_obj_add_now+0x90/0x104)
-    [<c087e0a8>] (switchdev_port_obj_add_now) from [<c087e130>] (switchdev_port_obj_add_deferred+0x14/0x5c)
-    [<c087e130>] (switchdev_port_obj_add_deferred) from [<c087de4c>] (switchdev_deferred_process+0x64/0x104)
-    [<c087de4c>] (switchdev_deferred_process) from [<c087def8>] (switchdev_deferred_process_work+0xc/0x14)
-    [<c087def8>] (switchdev_deferred_process_work) from [<c01447dc>] (process_one_work+0x218/0x50c)
-    [<c01447dc>] (process_one_work) from [<c0145b84>] (worker_thread+0x44/0x5bc)
-    [<c0145b84>] (worker_thread) from [<c014a6f8>] (kthread+0x148/0x150)
-    [<c014a6f8>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-    Exception stack(0xee871fb0 to 0xee871ff8)
-    1fa0:                                     00000000 00000000 00000000 00000000
-    1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-    1fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-    Code: bad PC value
-    ---[ end trace 1292c61abd17b130 ]---
-
-    [<c08533ec>] (dsa_switch_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
-    corresponds to
-
-	$ arm-linux-gnueabihf-addr2line -C -i -e vmlinux c08533ec
-
-	linux/net/dsa/switch.c:156
-	linux/net/dsa/switch.c:178
-	linux/net/dsa/switch.c:328
-
-Fixes: e6db98db8a95 ("net: dsa: add switch mdb bitmap functions")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4931c6ef04b4 ("net/mlx4_en: Optimized single ring steering")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/switch.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx4/en_rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/dsa/switch.c b/net/dsa/switch.c
-index 4ec5b7f85d51e..09d9286b27ccb 100644
---- a/net/dsa/switch.c
-+++ b/net/dsa/switch.c
-@@ -153,6 +153,9 @@ static void dsa_switch_mdb_add_bitmap(struct dsa_switch *ds,
- {
- 	int port;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_rx.c b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+index 6c01314e87b09..db3552f2d0877 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+@@ -1187,7 +1187,7 @@ int mlx4_en_config_rss_steer(struct mlx4_en_priv *priv)
+ 	err = mlx4_qp_alloc(mdev->dev, priv->base_qpn, rss_map->indir_qp);
+ 	if (err) {
+ 		en_err(priv, "Failed to allocate RSS indirection QP\n");
+-		goto rss_err;
++		goto qp_alloc_err;
+ 	}
  
-+	if (!ds->ops->port_mdb_add)
-+		return;
-+
- 	for_each_set_bit(port, bitmap, ds->num_ports)
- 		ds->ops->port_mdb_add(ds, port, mdb);
- }
+ 	rss_map->indir_qp->event = mlx4_en_sqp_event;
+@@ -1241,6 +1241,7 @@ int mlx4_en_config_rss_steer(struct mlx4_en_priv *priv)
+ 		       MLX4_QP_STATE_RST, NULL, 0, 0, rss_map->indir_qp);
+ 	mlx4_qp_remove(mdev->dev, rss_map->indir_qp);
+ 	mlx4_qp_free(mdev->dev, rss_map->indir_qp);
++qp_alloc_err:
+ 	kfree(rss_map->indir_qp);
+ 	rss_map->indir_qp = NULL;
+ rss_err:
 -- 
 2.20.1
 
