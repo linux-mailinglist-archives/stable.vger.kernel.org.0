@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E1799CF8
+	by mail.lfdr.de (Postfix) with ESMTP id 3E40799CF7
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404187AbfHVRia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389878AbfHVRia (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Aug 2019 13:38:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45978 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404177AbfHVRY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:26 -0400
+        id S2404183AbfHVRY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:27 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9098723427;
-        Thu, 22 Aug 2019 17:24:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4905223407;
+        Thu, 22 Aug 2019 17:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494665;
-        bh=ii7J26mbMS8o2pBqtUdI769wui2RSoYije8ccFFnpAk=;
+        s=default; t=1566494666;
+        bh=T/cO9sSANSOj2sVm3GHrDKOf5nGOMHkGGaYdGq+hUCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkDK1llKlUXMxeWOG7EnscoDh5XTHZ7Z+Y5BQzQtNt6NLG3HiCmils5dOyc6+cbZi
-         2zK9GOc6esXKpwQ440g3JNoqDWeqU1G3ussel5ZY9gw7tsNSjvsjLxV41MfYICVZ+P
-         amQIQaNqWDclpyQdioFIb8NpQMQghm+PRxoL/lqY=
+        b=Dcw73NGD4KK9kRia0ao5SIAvycHfJ9ioECfr55vtigZsYrcZ2eojbwoJBX6l+oERs
+         AIdeMRSUqB+pg9BrMgMYUe2Q7wVbLeeR9fkUSWST5heW1K2gqFIRpzOcvoMYM9j/iD
+         dn2YX/85KEoRb1aGVO2xxr+JB3uD1d/pcGzsjt6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Lars Melin <larsm17@gmail.com>,
-        Marcel Partap <mpartap@gmx.net>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Michael Scott <hashcode0f@gmail.com>,
-        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 089/103] USB: serial: option: Add Motorola modem UARTs
-Date:   Thu, 22 Aug 2019 10:19:17 -0700
-Message-Id: <20190822171732.777078118@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        David Howells <dhowells@redhat.com>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Bill Wendling <morbo@google.com>,
+        James Y Knight <jyknight@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 090/103] asm-generic: fix -Wtype-limits compiler warnings
+Date:   Thu, 22 Aug 2019 10:19:18 -0700
+Message-Id: <20190822171732.812246728@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
 References: <20190822171728.445189830@linuxfoundation.org>
@@ -52,172 +53,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+[ Upstream commit cbedfe11347fe418621bd188d58a206beb676218 ]
 
-commit 6caf0be40a707689e8ff8824fdb96ef77685b1ba upstream.
+Commit d66acc39c7ce ("bitops: Optimise get_order()") introduced a
+compilation warning because "rx_frag_size" is an "ushort" while
+PAGE_SHIFT here is 16.
 
-On Motorola Mapphone devices such as Droid 4 there are five USB ports
-that do not use the same layout as Gobi 1K/2K/etc devices listed in
-qcserial.c. So we should use qcaux.c or option.c as noted by
-Dan Williams <dan.j.williams@intel.com>.
+The commit changed the get_order() to be a multi-line macro where
+compilers insist to check all statements in the macro even when
+__builtin_constant_p(rx_frag_size) will return false as "rx_frag_size"
+is a module parameter.
 
-As the Motorola USB serial ports have an interrupt endpoint as shown
-with lsusb -v, we should use option.c instead of qcaux.c as pointed out
-by Johan Hovold <johan@kernel.org>.
+In file included from ./arch/powerpc/include/asm/page_64.h:107,
+                 from ./arch/powerpc/include/asm/page.h:242,
+                 from ./arch/powerpc/include/asm/mmu.h:132,
+                 from ./arch/powerpc/include/asm/lppaca.h:47,
+                 from ./arch/powerpc/include/asm/paca.h:17,
+                 from ./arch/powerpc/include/asm/current.h:13,
+                 from ./include/linux/thread_info.h:21,
+                 from ./arch/powerpc/include/asm/processor.h:39,
+                 from ./include/linux/prefetch.h:15,
+                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
+drivers/net/ethernet/emulex/benet/be_main.c: In function 'be_rx_cqs_create':
+./include/asm-generic/getorder.h:54:9: warning: comparison is always
+true due to limited range of data type [-Wtype-limits]
+   (((n) < (1UL << PAGE_SHIFT)) ? 0 :  \
+         ^
+drivers/net/ethernet/emulex/benet/be_main.c:3138:33: note: in expansion
+of macro 'get_order'
+  adapter->big_page_size = (1 << get_order(rx_frag_size)) * PAGE_SIZE;
+                                 ^~~~~~~~~
 
-The ff/ff/ff interfaces seem to always be UARTs on Motorola devices.
-For the other interfaces, class 0x0a (CDC Data) should not in general
-be added as they are typically part of a multi-interface function as
-noted earlier by Bjørn Mork <bjorn@mork.no>.
+Fix it by moving all of this multi-line macro into a proper function,
+and killing __get_order() off.
 
-However, looking at the Motorola mapphone kernel code, the mdm6600 0x0a
-class is only used for flashing the modem firmware, and there are no
-other interfaces. So I've added that too with more details below as it
-works just fine.
-
-The ttyUSB ports on Droid 4 are:
-
-ttyUSB0 DIAG, CQDM-capable
-ttyUSB1 MUX or NMEA, no response
-ttyUSB2 MUX or NMEA, no response
-ttyUSB3 TCMD
-ttyUSB4 AT-capable
-
-The ttyUSB0 is detected as QCDM capable by ModemManager. I think
-it's only used for debugging with ModemManager --debug for sending
-custom AT commands though. ModemManager already can manage data
-connection using the USB QMI ports that are already handled by the
-qmi_wwan.c driver.
-
-To enable the MUX or NMEA ports, it seems that something needs to be
-done additionally to enable them, maybe via the DIAG or TCMD port.
-It might be just a NVRAM setting somewhere, but I have no idea what
-NVRAM settings may need changing for that.
-
-The TCMD port seems to be a Motorola custom protocol for testing
-the modem and to configure it's NVRAM and seems to work just fine
-based on a quick test with a minimal tcmdrw tool I wrote.
-
-The voice modem AT-capable port seems to provide only partial
-support, and no PM support compared to the TS 27.010 based UART
-wired directly to the modem.
-
-The UARTs added with this change are the same product IDs as the
-Motorola Mapphone Android Linux kernel mdm6600_id_table. I don't
-have any mdm9600 based devices, so I have only tested these on
-mdm6600 based droid 4.
-
-Then for the class 0x0a (CDC Data) mode, the Motorola Mapphone Android
-Linux kernel driver moto_flashqsc.c just seems to change the
-port->bulk_out_size to 8K from the default. And is only used for
-flashing the modem firmware it seems.
-
-I've verified that flashing the modem with signed firmware works just
-fine with the option driver after manually toggling the GPIO pins, so
-I've added droid 4 modem flashing mode to the option driver. I've not
-added the other devices listed in moto_flashqsc.c in case they really
-need different port->bulk_out_size. Those can be added as they get
-tested to work for flashing the modem.
-
-After this patch the output of /sys/kernel/debug/usb/devices has
-the following for normal 22b8:2a70 mode including the related qmi_wwan
-interfaces:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=2a70 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=06(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=07(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8b(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8c(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=08(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8d(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=09(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-In 22b8:900e "qc_dload" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=900e Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-And in 22b8:4281 "ram_downloader" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=4281 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=fc Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-Cc: Bjørn Mork <bjorn@mork.no>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Lars Melin <larsm17@gmail.com>
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[akpm@linux-foundation.org: remove __get_order() altogether]
+[cai@lca.pw: v2]
+  Link: http://lkml.kernel.org/r/1564000166-31428-1-git-send-email-cai@lca.pw
+Link: http://lkml.kernel.org/r/1563914986-26502-1-git-send-email-cai@lca.pw
+Fixes: d66acc39c7ce ("bitops: Optimise get_order()")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jakub Jelinek <jakub@redhat.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Bill Wendling <morbo@google.com>
+Cc: James Y Knight <jyknight@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/asm-generic/getorder.h | 50 ++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 30 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -967,6 +967,11 @@ static const struct usb_device_id option
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7B) },
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7C) },
+diff --git a/include/asm-generic/getorder.h b/include/asm-generic/getorder.h
+index 65e4468ac53da..52fbf236a90ea 100644
+--- a/include/asm-generic/getorder.h
++++ b/include/asm-generic/getorder.h
+@@ -6,24 +6,6 @@
+ #include <linux/compiler.h>
+ #include <linux/log2.h>
  
-+	/* Motorola devices */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2a70, 0xff, 0xff, 0xff) },	/* mdm6600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2e0a, 0xff, 0xff, 0xff) },	/* mdm9600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x4281, 0x0a, 0x00, 0xfc) },	/* mdm ram dl */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x900e, 0xff, 0xff, 0xff) },	/* mdm qc dl */
+-/*
+- * Runtime evaluation of get_order()
+- */
+-static inline __attribute_const__
+-int __get_order(unsigned long size)
+-{
+-	int order;
+-
+-	size--;
+-	size >>= PAGE_SHIFT;
+-#if BITS_PER_LONG == 32
+-	order = fls(size);
+-#else
+-	order = fls64(size);
+-#endif
+-	return order;
+-}
+-
+ /**
+  * get_order - Determine the allocation order of a memory size
+  * @size: The size for which to get the order
+@@ -42,19 +24,27 @@ int __get_order(unsigned long size)
+  * to hold an object of the specified size.
+  *
+  * The result is undefined if the size is 0.
+- *
+- * This function may be used to initialise variables with compile time
+- * evaluations of constants.
+  */
+-#define get_order(n)						\
+-(								\
+-	__builtin_constant_p(n) ? (				\
+-		((n) == 0UL) ? BITS_PER_LONG - PAGE_SHIFT :	\
+-		(((n) < (1UL << PAGE_SHIFT)) ? 0 :		\
+-		 ilog2((n) - 1) - PAGE_SHIFT + 1)		\
+-	) :							\
+-	__get_order(n)						\
+-)
++static inline __attribute_const__ int get_order(unsigned long size)
++{
++	if (__builtin_constant_p(size)) {
++		if (!size)
++			return BITS_PER_LONG - PAGE_SHIFT;
++
++		if (size < (1UL << PAGE_SHIFT))
++			return 0;
++
++		return ilog2((size) - 1) - PAGE_SHIFT + 1;
++	}
++
++	size--;
++	size >>= PAGE_SHIFT;
++#if BITS_PER_LONG == 32
++	return fls(size);
++#else
++	return fls64(size);
++#endif
++}
  
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V640) },
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V620) },
+ #endif	/* __ASSEMBLY__ */
+ 
+-- 
+2.20.1
+
 
 
