@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5071899C28
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED4399CBE
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391077AbfHVRbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49832 "EHLO mail.kernel.org"
+        id S2391556AbfHVRYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404502AbfHVRZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:48 -0400
+        id S2388119AbfHVRYr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:47 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC6FC23426;
-        Thu, 22 Aug 2019 17:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77EBF21743;
+        Thu, 22 Aug 2019 17:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494747;
-        bh=1CYKAXKiR3PGLBCt5Dk6Fs+ZXrw2tCHPPNW8OOeyh4c=;
+        s=default; t=1566494686;
+        bh=vCnG6nfAkHenqBbOG37dUmz84sjUM/PCLY/Ncld4Su4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4Z7JKX8rvKL9LDtkyOdxOiEvpJ85I1lBFy9eL92Mthfjo8GkKwRqrTWXH7gNzaP5
-         Q/dIevPTyQEYZmc+KooCzSJ9+nxvnAu5s8I/kBtOGZDX2VUsUXL8qsYZaRTxih/uez
-         ueXKw72twzaVGDTIs6d0LTM7VivrhYoMr1+bUMn4=
+        b=gwPyqHt64CQbCCAr7qPXFNaurOGGy52UmqqV4aU0WZX/EM7IgUB8EtlN+AbP32GB6
+         xG64d1U7LA2/9cUS3qFtZwcy7zuODQ0pefT+U/OU+OnmZJtXfs+CYhCr9KY02n5Z56
+         PJlIHGrrJ8Kr+giNrDpS8Jpyv+sutRTT6xLEshxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
-        "Isaac J. Manjarres" <isaacm@codeaurora.org>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Kees Cook <keescook@chromium.org>,
-        Trilok Soni <tsoni@codeaurora.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 07/85] mm/usercopy: use memory range to be accessed for wraparound check
-Date:   Thu, 22 Aug 2019 10:18:40 -0700
-Message-Id: <20190822171731.333203615@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.14 06/71] bpf: restrict access to core bpf sysctls
+Date:   Thu, 22 Aug 2019 10:18:41 -0700
+Message-Id: <20190822171726.829659211@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacm@codeaurora.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 951531691c4bcaa59f56a316e018bc2ff1ddf855 upstream.
+commit 2e4a30983b0f9b19b59e38bbf7427d7fdd480d98 upstream.
 
-Currently, when checking to see if accessing n bytes starting at address
-"ptr" will cause a wraparound in the memory addresses, the check in
-check_bogus_address() adds an extra byte, which is incorrect, as the
-range of addresses that will be accessed is [ptr, ptr + (n - 1)].
+Given BPF reaches far beyond just networking these days, it was
+never intended to allow setting and in some cases reading those
+knobs out of a user namespace root running without CAP_SYS_ADMIN,
+thus tighten such access.
 
-This can lead to incorrectly detecting a wraparound in the memory
-address, when trying to read 4 KB from memory that is mapped to the the
-last possible page in the virtual address space, when in fact, accessing
-that range of memory would not cause a wraparound to occur.
+Also the bpf_jit_enable = 2 debugging mode should only be allowed
+if kptr_restrict is not set since it otherwise can leak addresses
+to the kernel log. Dump a note to the kernel log that this is for
+debugging JITs only when enabled.
 
-Use the memory range that will actually be accessed when considering if
-accessing a certain amount of bytes will cause the memory address to
-wrap around.
-
-Link: http://lkml.kernel.org/r/1564509253-23287-1-git-send-email-isaacm@codeaurora.org
-Fixes: f5509cc18daa ("mm: Hardened usercopy")
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-Co-developed-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Trilok Soni <tsoni@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[bwh: Backported to 4.14: We don't have bpf_dump_raw_ok(), so drop the
+ condition based on it. This condition only made it a bit harder for a
+ privileged user to do something silly.]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/usercopy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/sysctl_net_core.c |   41 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 3 deletions(-)
 
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -151,7 +151,7 @@ static inline void check_bogus_address(c
- 				       bool to_user)
- {
- 	/* Reject if object wraps past end of memory. */
--	if (ptr + n < ptr)
-+	if (ptr + (n - 1) < ptr)
- 		usercopy_abort("wrapped address", NULL, to_user, 0, ptr + n);
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -251,6 +251,41 @@ static int proc_do_rss_key(struct ctl_ta
+ 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
+ }
  
- 	/* Reject if NULL or ZERO-allocation. */
++#ifdef CONFIG_BPF_JIT
++static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
++					   void __user *buffer, size_t *lenp,
++					   loff_t *ppos)
++{
++	int ret, jit_enable = *(int *)table->data;
++	struct ctl_table tmp = *table;
++
++	if (write && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	tmp.data = &jit_enable;
++	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
++	if (write && !ret) {
++		*(int *)table->data = jit_enable;
++		if (jit_enable == 2)
++			pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
++	}
++	return ret;
++}
++
++# ifdef CONFIG_HAVE_EBPF_JIT
++static int
++proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
++				    void __user *buffer, size_t *lenp,
++				    loff_t *ppos)
++{
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++}
++# endif
++#endif
++
+ static struct ctl_table net_core_table[] = {
+ #ifdef CONFIG_NET
+ 	{
+@@ -326,7 +361,7 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_enable,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec_minmax,
++		.proc_handler	= proc_dointvec_minmax_bpf_enable,
+ # ifdef CONFIG_BPF_JIT_ALWAYS_ON
+ 		.extra1		= &one,
+ 		.extra2		= &one,
+@@ -341,7 +376,7 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_harden,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec_minmax,
++		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
+ 		.extra1		= &zero,
+ 		.extra2		= &two,
+ 	},
+@@ -350,7 +385,7 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_kallsyms,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec_minmax,
++		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
+ 		.extra1		= &zero,
+ 		.extra2		= &one,
+ 	},
 
 
