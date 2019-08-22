@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3430199A5E
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 269D299A47
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389236AbfHVRMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:12:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
+        id S2390647AbfHVRJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390668AbfHVRJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:09:07 -0400
+        id S2390673AbfHVRJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:09:08 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CF0C23404;
+        by mail.kernel.org (Postfix) with ESMTPSA id 074F223406;
         Thu, 22 Aug 2019 17:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493746;
-        bh=QP3HuzaSzdQSwx9etGMNtBBAU3azKIgzaKrJyoa/5Nk=;
+        s=default; t=1566493747;
+        bh=nIjJKHeNEvGgEnQO4HTGcN074YQkaMe++jyaTSfgJXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEDrZktsrQ9kbwxnok09Dmwv35efG1cF00XytJTPqh0BN+HaM+tYMjNJ0Uk/KFjd6
-         yL6E32DbAjrWSZ9UJhZZ2O8x9BVHmM2RcW5RzxtBpZTizsI5sAwlHDgxh0EH48GOPT
-         TywfX6h8dOfl97RYGLBE8nUdoX+kg/Qo/Fx/jhWk=
+        b=wjkXBp3E+YxgSFPk+ossmyx9sTQIG7G3dudAn2RWtpWvriCd3EzdC0pJdEn7RdN8D
+         NAPkiRNY3Oad/+Zx2ifWnpkBmhGqegMF/5YLeEZ+2Ml/H/OsbE5koGfpiI2sOFHlHi
+         NOGPQTQpKgleljoj1EmlA4mqwfLIRoxGPnb2BvL0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+1b2449b7b5dc240d107a@syzkaller.appspotmail.com,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 096/135] usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
-Date:   Thu, 22 Aug 2019 13:07:32 -0400
-Message-Id: <20190822170811.13303-97-sashal@kernel.org>
+Subject: [PATCH 5.2 097/135] usb: cdc-acm: make sure a refcount is taken early enough
+Date:   Thu, 22 Aug 2019 13:07:33 -0400
+Message-Id: <20190822170811.13303-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,48 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 5dac665cf403967bb79a7aeb8c182a621fe617ff upstream.
+commit c52873e5a1ef72f845526d9f6a50704433f9c625 upstream.
 
-Since the role_store() uses strncmp(), it's possible to refer
-out-of-memory if the sysfs data size is smaller than strlen("host").
-This patch fixes it by using sysfs_streq() instead of strncmp().
+destroy() will decrement the refcount on the interface, so that
+it needs to be taken so early that it never undercounts.
 
-Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
-Cc: <stable@vger.kernel.org> # v4.12+
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: 7fb57a019f94e ("USB: cdc-acm: Fix potential deadlock (lockdep warning)")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+1b2449b7b5dc240d107a@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20190808142119.7998-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
-index 7dc248546fd4f..b6eec81b6a40f 100644
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -19,6 +19,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-+#include <linux/string.h>
- #include <linux/sys_soc.h>
- #include <linux/uaccess.h>
- #include <linux/usb/ch9.h>
-@@ -2378,9 +2379,9 @@ static ssize_t role_store(struct device *dev, struct device_attribute *attr,
- 	if (usb3->forced_b_device)
- 		return -EBUSY;
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 183b41753c982..62f4fb9b362f1 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1301,10 +1301,6 @@ static int acm_probe(struct usb_interface *intf,
+ 	tty_port_init(&acm->port);
+ 	acm->port.ops = &acm_port_ops;
  
--	if (!strncmp(buf, "host", strlen("host")))
-+	if (sysfs_streq(buf, "host"))
- 		new_mode_is_host = true;
--	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
-+	else if (sysfs_streq(buf, "peripheral"))
- 		new_mode_is_host = false;
- 	else
- 		return -EINVAL;
+-	minor = acm_alloc_minor(acm);
+-	if (minor < 0)
+-		goto alloc_fail1;
+-
+ 	ctrlsize = usb_endpoint_maxp(epctrl);
+ 	readsize = usb_endpoint_maxp(epread) *
+ 				(quirks == SINGLE_RX_URB ? 1 : 2);
+@@ -1312,6 +1308,13 @@ static int acm_probe(struct usb_interface *intf,
+ 	acm->writesize = usb_endpoint_maxp(epwrite) * 20;
+ 	acm->control = control_interface;
+ 	acm->data = data_interface;
++
++	usb_get_intf(acm->control); /* undone in destruct() */
++
++	minor = acm_alloc_minor(acm);
++	if (minor < 0)
++		goto alloc_fail1;
++
+ 	acm->minor = minor;
+ 	acm->dev = usb_dev;
+ 	if (h.usb_cdc_acm_descriptor)
+@@ -1458,7 +1461,6 @@ static int acm_probe(struct usb_interface *intf,
+ 	usb_driver_claim_interface(&acm_driver, data_interface, acm);
+ 	usb_set_intfdata(data_interface, acm);
+ 
+-	usb_get_intf(control_interface);
+ 	tty_dev = tty_port_register_device(&acm->port, acm_tty_driver, minor,
+ 			&control_interface->dev);
+ 	if (IS_ERR(tty_dev)) {
 -- 
 2.20.1
 
