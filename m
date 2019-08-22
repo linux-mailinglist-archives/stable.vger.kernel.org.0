@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3263599A4E
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5554199A4C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390936AbfHVRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
+        id S1732146AbfHVRLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:11:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390702AbfHVRJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:09:13 -0400
+        id S2390709AbfHVRJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:09:14 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1979233FC;
-        Thu, 22 Aug 2019 17:09:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E88D233FE;
+        Thu, 22 Aug 2019 17:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493753;
-        bh=ugLRNjODFh7NeHT6ZUhx8WzYAdA9XRdwr1KBbcJHyaw=;
+        bh=fyVAE4XNe9qmMSfGB/ceKpzDkfDJ1pDLryLwX7dXE9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoke+pYDUIgaJFrilzCkfHyZfxEixYhtmVrpKn8BM6uix6GzLI96qpEQa7amAZRVp
-         +cMYrXZ4TCRaH0/qfcPJJXYF+dZkiv2ib2ASozv4kYbtabZAw0OrlvVD1ff+5PEImn
-         aw8JLjc8iRobP0nZet8msKKE0BOlvHbHTizegKZI=
+        b=p2YzakKjWu/hQcbYWWG5NrH8giEBd4WM6uDayUWtrsBjAMHDBhbdr9Dy+vt/owLh5
+         Fjb2qrUNMnAyBriSKqynW9ECSGdA/jUMgZ78iERjaF1SklypzpwxSp2DYLyFanUTZO
+         8nHmM1iMmhpR/MUmos+egqu7volpjyi9jAzbAMtA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 108/135] bonding: Add vlan tx offload to hw_enc_features
-Date:   Thu, 22 Aug 2019 13:07:44 -0400
-Message-Id: <20190822170811.13303-109-sashal@kernel.org>
+Subject: [PATCH 5.2 109/135] net: dsa: Check existence of .port_mdb_add callback before calling it
+Date:   Thu, 22 Aug 2019 13:07:45 -0400
+Message-Id: <20190822170811.13303-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,63 +50,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit d595b03de2cb0bdf9bcdf35ff27840cc3a37158f ]
+[ Upstream commit 58799865be84e2a895dab72de0e1b996ed943f22 ]
 
-As commit 30d8177e8ac7 ("bonding: Always enable vlan tx offload")
-said, we should always enable bonding's vlan tx offload, pass the
-vlan packets to the slave devices with vlan tci, let them to handle
-vlan implementation.
+The dsa framework has optional .port_mdb_{prepare,add,del} callback fields
+for drivers to handle multicast database entries. When adding an entry, the
+framework goes through a prepare phase, then a commit phase. Drivers not
+providing these callbacks should be detected in the prepare phase.
 
-Now if encapsulation protocols like VXLAN is used, skb->encapsulation
-may be set, then the packet is passed to vlan device which based on
-bonding device. However in netif_skb_features(), the check of
-hw_enc_features:
+DSA core may still bypass the bridge layer and call the dsa_port_mdb_add
+function directly with no prepare phase or no switchdev trans object,
+and the framework ends up calling an undefined .port_mdb_add callback.
+This results in a NULL pointer dereference, as shown in the log below.
 
-	 if (skb->encapsulation)
-                 features &= dev->hw_enc_features;
+The other functions seem to be properly guarded. Do the same for
+.port_mdb_add in dsa_switch_mdb_add_bitmap() as well.
 
-clears NETIF_F_HW_VLAN_CTAG_TX/NETIF_F_HW_VLAN_STAG_TX. This results
-in same issue in commit 30d8177e8ac7 like this:
+    8<--- cut here ---
+    Unable to handle kernel NULL pointer dereference at virtual address 00000000
+    pgd = (ptrval)
+    [00000000] *pgd=00000000
+    Internal error: Oops: 80000005 [#1] SMP ARM
+    Modules linked in: rtl8xxxu rtl8192cu rtl_usb rtl8192c_common rtlwifi mac80211 cfg80211
+    CPU: 1 PID: 134 Comm: kworker/1:2 Not tainted 5.3.0-rc1-00247-gd3519030752a #1
+    Hardware name: Allwinner sun7i (A20) Family
+    Workqueue: events switchdev_deferred_process_work
+    PC is at 0x0
+    LR is at dsa_switch_event+0x570/0x620
+    pc : [<00000000>]    lr : [<c08533ec>]    psr: 80070013
+    sp : ee871db8  ip : 00000000  fp : ee98d0a4
+    r10: 0000000c  r9 : 00000008  r8 : ee89f710
+    r7 : ee98d040  r6 : ee98d088  r5 : c0f04c48  r4 : ee98d04c
+    r3 : 00000000  r2 : ee89f710  r1 : 00000008  r0 : ee98d040
+    Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+    Control: 10c5387d  Table: 6deb406a  DAC: 00000051
+    Process kworker/1:2 (pid: 134, stack limit = 0x(ptrval))
+    Stack: (0xee871db8 to 0xee872000)
+    1da0:                                                       ee871e14 103ace2d
+    1dc0: 00000000 ffffffff 00000000 ee871e14 00000005 00000000 c08524a0 00000000
+    1de0: ffffe000 c014bdfc c0f04c48 ee871e98 c0f04c48 ee9e5000 c0851120 c014bef0
+    1e00: 00000000 b643aea2 ee9b4068 c08509a8 ee2bf940 ee89f710 ee871ecb 00000000
+    1e20: 00000008 103ace2d 00000000 c087e248 ee29c868 103ace2d 00000001 ffffffff
+    1e40: 00000000 ee871e98 00000006 00000000 c0fb2a50 c087e2d0 ffffffff c08523c4
+    1e60: ffffffff c014bdfc 00000006 c0fad2d0 ee871e98 ee89f710 00000000 c014c500
+    1e80: 00000000 ee89f3c0 c0f04c48 00000000 ee9e5000 c087dfb4 ee9e5000 00000000
+    1ea0: ee89f710 ee871ecb 00000001 103ace2d 00000000 c0f04c48 00000000 c087e0a8
+    1ec0: 00000000 efd9a3e0 0089f3c0 103ace2d ee89f700 ee89f710 ee9e5000 00000122
+    1ee0: 00000100 c087e130 ee89f700 c0fad2c8 c1003ef0 c087de4c 2e928000 c0fad2ec
+    1f00: c0fad2ec ee839580 ef7a62c0 ef7a9400 00000000 c087def8 c0fad2ec c01447dc
+    1f20: ef315640 ef7a62c0 00000008 ee839580 ee839594 ef7a62c0 00000008 c0f03d00
+    1f40: ef7a62d8 ef7a62c0 ffffe000 c0145b84 ffffe000 c0fb2420 c0bfaa8c 00000000
+    1f60: ffffe000 ee84b600 ee84b5c0 00000000 ee870000 ee839580 c0145b40 ef0e5ea4
+    1f80: ee84b61c c014a6f8 00000001 ee84b5c0 c014a5b0 00000000 00000000 00000000
+    1fa0: 00000000 00000000 00000000 c01010e8 00000000 00000000 00000000 00000000
+    1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+    1fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+    [<c08533ec>] (dsa_switch_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
+    [<c014bdfc>] (notifier_call_chain) from [<c014bef0>] (raw_notifier_call_chain+0x18/0x20)
+    [<c014bef0>] (raw_notifier_call_chain) from [<c08509a8>] (dsa_port_mdb_add+0x48/0x74)
+    [<c08509a8>] (dsa_port_mdb_add) from [<c087e248>] (__switchdev_handle_port_obj_add+0x54/0xd4)
+    [<c087e248>] (__switchdev_handle_port_obj_add) from [<c087e2d0>] (switchdev_handle_port_obj_add+0x8/0x14)
+    [<c087e2d0>] (switchdev_handle_port_obj_add) from [<c08523c4>] (dsa_slave_switchdev_blocking_event+0x94/0xa4)
+    [<c08523c4>] (dsa_slave_switchdev_blocking_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
+    [<c014bdfc>] (notifier_call_chain) from [<c014c500>] (blocking_notifier_call_chain+0x50/0x68)
+    [<c014c500>] (blocking_notifier_call_chain) from [<c087dfb4>] (switchdev_port_obj_notify+0x44/0xa8)
+    [<c087dfb4>] (switchdev_port_obj_notify) from [<c087e0a8>] (switchdev_port_obj_add_now+0x90/0x104)
+    [<c087e0a8>] (switchdev_port_obj_add_now) from [<c087e130>] (switchdev_port_obj_add_deferred+0x14/0x5c)
+    [<c087e130>] (switchdev_port_obj_add_deferred) from [<c087de4c>] (switchdev_deferred_process+0x64/0x104)
+    [<c087de4c>] (switchdev_deferred_process) from [<c087def8>] (switchdev_deferred_process_work+0xc/0x14)
+    [<c087def8>] (switchdev_deferred_process_work) from [<c01447dc>] (process_one_work+0x218/0x50c)
+    [<c01447dc>] (process_one_work) from [<c0145b84>] (worker_thread+0x44/0x5bc)
+    [<c0145b84>] (worker_thread) from [<c014a6f8>] (kthread+0x148/0x150)
+    [<c014a6f8>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+    Exception stack(0xee871fb0 to 0xee871ff8)
+    1fa0:                                     00000000 00000000 00000000 00000000
+    1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+    1fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+    Code: bad PC value
+    ---[ end trace 1292c61abd17b130 ]---
 
-vlan_dev_hard_start_xmit
-  -->dev_queue_xmit
-    -->validate_xmit_skb
-      -->netif_skb_features //NETIF_F_HW_VLAN_CTAG_TX is cleared
-      -->validate_xmit_vlan
-        -->__vlan_hwaccel_push_inside //skb->tci is cleared
-...
- --> bond_start_xmit
-   --> bond_xmit_hash //BOND_XMIT_POLICY_ENCAP34
-     --> __skb_flow_dissect // nhoff point to IP header
-        -->  case htons(ETH_P_8021Q)
-             // skb_vlan_tag_present is false, so
-             vlan = __skb_header_pointer(skb, nhoff, sizeof(_vlan),
-             //vlan point to ip header wrongly
+    [<c08533ec>] (dsa_switch_event) from [<c014bdfc>] (notifier_call_chain+0x48/0x84)
+    corresponds to
 
-Fixes: b2a103e6d0af ("bonding: convert to ndo_fix_features")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+	$ arm-linux-gnueabihf-addr2line -C -i -e vmlinux c08533ec
+
+	linux/net/dsa/switch.c:156
+	linux/net/dsa/switch.c:178
+	linux/net/dsa/switch.c:328
+
+Fixes: e6db98db8a95 ("net: dsa: add switch mdb bitmap functions")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/dsa/switch.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index b0aab3a0a1bfa..f183cadd14e3d 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1113,6 +1113,8 @@ static void bond_compute_features(struct bonding *bond)
- done:
- 	bond_dev->vlan_features = vlan_features;
- 	bond_dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
-+				    NETIF_F_HW_VLAN_CTAG_TX |
-+				    NETIF_F_HW_VLAN_STAG_TX |
- 				    NETIF_F_GSO_UDP_L4;
- 	bond_dev->gso_max_segs = gso_max_segs;
- 	netif_set_gso_max_size(bond_dev, gso_max_size);
+diff --git a/net/dsa/switch.c b/net/dsa/switch.c
+index 4ec5b7f85d51e..09d9286b27ccb 100644
+--- a/net/dsa/switch.c
++++ b/net/dsa/switch.c
+@@ -153,6 +153,9 @@ static void dsa_switch_mdb_add_bitmap(struct dsa_switch *ds,
+ {
+ 	int port;
+ 
++	if (!ds->ops->port_mdb_add)
++		return;
++
+ 	for_each_set_bit(port, bitmap, ds->num_ports)
+ 		ds->ops->port_mdb_add(ds, port, mdb);
+ }
 -- 
 2.20.1
 
