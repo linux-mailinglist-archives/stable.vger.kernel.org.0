@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 520CB99DF3
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C0499D67
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391422AbfHVRWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
+        id S2392629AbfHVRmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391411AbfHVRWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:38 -0400
+        id S2404012AbfHVRXu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:50 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A282C23400;
-        Thu, 22 Aug 2019 17:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0504423766;
+        Thu, 22 Aug 2019 17:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494557;
-        bh=wmOdyM7qu6MZj6p+db67ADtj4fezjw0RJGL3SrM3QJs=;
+        s=default; t=1566494629;
+        bh=B7kkM0ZlWxR9GSrJ+E7aG9eJznkgKGpsBWxZ7RuDDjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjZ0tNTG6VYLufCbFR8KgnSCj2hdU+0LakzP5yCo6xbbpdLx6FU/ximxHx+YXQ9Ay
-         i9Js17JdpHlPhl+puDseIy2Lw0gkHRFKn9+/MuzY1GqiD2HW9100U2Ws41l+t8upbQ
-         GkvqKnUFoqLtjF8veO2syfYb0HFTH3P/T+52nXR8=
+        b=AOQVwJHxX2IdjXS7nIi1VZgFJxO/LPSuLv8CtMJpYMse4wzA6qzxpCdnsDc2zgPWW
+         3QylI4qzRnwKYZujQ/MbwQe762tp2HiDCr2qsexGnvCs9Igj8itPKwtcTMl7TTdyqm
+         ouLKQ56kdw16wPwe/YHvDSczhRQq8KC8GCGwL1DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 44/78] xen/pciback: remove set but not used variable old_state
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 060/103] ALSA: hda - Add a generic reboot_notify
 Date:   Thu, 22 Aug 2019 10:18:48 -0700
-Message-Id: <20190822171833.316469779@linuxfoundation.org>
+Message-Id: <20190822171731.220559115@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 09e088a4903bd0dd911b4f1732b250130cdaffed ]
+From: Hui Wang <hui.wang@canonical.com>
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+commit 871b9066027702e6e6589da0e1edd3b7dede7205 upstream.
 
-drivers/xen/xen-pciback/conf_space_capability.c: In function pm_ctrl_write:
-drivers/xen/xen-pciback/conf_space_capability.c:119:25: warning:
- variable old_state set but not used [-Wunused-but-set-variable]
+Make codec enter D3 before rebooting or poweroff can fix the noise
+issue on some laptops. And in theory it is harmless for all codecs
+to enter D3 before rebooting or poweroff, let us add a generic
+reboot_notify, then realtek and conexant drivers can call this
+function.
 
-It is never used so can be removed.
+Cc: stable@vger.kernel.org
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/conf_space_capability.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/hda/hda_generic.c    |   19 +++++++++++++++++++
+ sound/pci/hda/hda_generic.h    |    1 +
+ sound/pci/hda/patch_conexant.c |    6 +-----
+ sound/pci/hda/patch_realtek.c  |   11 +----------
+ 4 files changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
-index 7f83e9083e9dd..b1a1d7de0894e 100644
---- a/drivers/xen/xen-pciback/conf_space_capability.c
-+++ b/drivers/xen/xen-pciback/conf_space_capability.c
-@@ -115,13 +115,12 @@ static int pm_ctrl_write(struct pci_dev *dev, int offset, u16 new_value,
- {
- 	int err;
- 	u16 old_value;
--	pci_power_t new_state, old_state;
-+	pci_power_t new_state;
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -5849,6 +5849,24 @@ void snd_hda_gen_free(struct hda_codec *
+ }
+ EXPORT_SYMBOL_GPL(snd_hda_gen_free);
  
- 	err = pci_read_config_word(dev, offset, &old_value);
- 	if (err)
- 		goto out;
++/**
++ * snd_hda_gen_reboot_notify - Make codec enter D3 before rebooting
++ * @codec: the HDA codec
++ *
++ * This can be put as patch_ops reboot_notify function.
++ */
++void snd_hda_gen_reboot_notify(struct hda_codec *codec)
++{
++	/* Make the codec enter D3 to avoid spurious noises from the internal
++	 * speaker during (and after) reboot
++	 */
++	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
++	snd_hda_codec_write(codec, codec->core.afg, 0,
++			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
++	msleep(10);
++}
++EXPORT_SYMBOL_GPL(snd_hda_gen_reboot_notify);
++
+ #ifdef CONFIG_PM
+ /**
+  * snd_hda_gen_check_power_status - check the loopback power save state
+@@ -5876,6 +5894,7 @@ static const struct hda_codec_ops generi
+ 	.init = snd_hda_gen_init,
+ 	.free = snd_hda_gen_free,
+ 	.unsol_event = snd_hda_jack_unsol_event,
++	.reboot_notify = snd_hda_gen_reboot_notify,
+ #ifdef CONFIG_PM
+ 	.check_power_status = snd_hda_gen_check_power_status,
+ #endif
+--- a/sound/pci/hda/hda_generic.h
++++ b/sound/pci/hda/hda_generic.h
+@@ -322,6 +322,7 @@ int snd_hda_gen_parse_auto_config(struct
+ 				  struct auto_pin_cfg *cfg);
+ int snd_hda_gen_build_controls(struct hda_codec *codec);
+ int snd_hda_gen_build_pcms(struct hda_codec *codec);
++void snd_hda_gen_reboot_notify(struct hda_codec *codec);
  
--	old_state = (pci_power_t)(old_value & PCI_PM_CTRL_STATE_MASK);
- 	new_state = (pci_power_t)(new_value & PCI_PM_CTRL_STATE_MASK);
+ /* standard jack event callbacks */
+ void snd_hda_gen_hp_automute(struct hda_codec *codec,
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -216,11 +216,7 @@ static void cx_auto_reboot_notify(struct
+ 	/* Turn the problematic codec into D3 to avoid spurious noises
+ 	   from the internal speaker during (and after) reboot */
+ 	cx_auto_turn_eapd(codec, spec->num_eapds, spec->eapds, false);
+-
+-	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
+-	snd_hda_codec_write(codec, codec->core.afg, 0,
+-			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
+-	msleep(10);
++	snd_hda_gen_reboot_notify(codec);
+ }
  
- 	new_value &= PM_OK_BITS;
--- 
-2.20.1
-
+ static void cx_auto_free(struct hda_codec *codec)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -802,15 +802,6 @@ static void alc_reboot_notify(struct hda
+ 		alc_shutup(codec);
+ }
+ 
+-/* power down codec to D3 at reboot/shutdown; set as reboot_notify ops */
+-static void alc_d3_at_reboot(struct hda_codec *codec)
+-{
+-	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
+-	snd_hda_codec_write(codec, codec->core.afg, 0,
+-			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
+-	msleep(10);
+-}
+-
+ #define alc_free	snd_hda_gen_free
+ 
+ #ifdef CONFIG_PM
+@@ -4473,7 +4464,7 @@ static void alc_fixup_tpt440_dock(struct
+ 	struct alc_spec *spec = codec->spec;
+ 
+ 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
+-		spec->reboot_notify = alc_d3_at_reboot; /* reduce noise */
++		spec->reboot_notify = snd_hda_gen_reboot_notify; /* reduce noise */
+ 		spec->parse_flags = HDA_PINCFG_NO_HP_FIXUP;
+ 		codec->power_save_node = 0; /* avoid click noises */
+ 		snd_hda_apply_pincfgs(codec, pincfgs);
 
 
