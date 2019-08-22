@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E266F99A83
+	by mail.lfdr.de (Postfix) with ESMTP id 0CAFE99A81
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388484AbfHVROD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58956 "EHLO mail.kernel.org"
+        id S1731661AbfHVRN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:13:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390573AbfHVRIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:55 -0400
+        id S2390574AbfHVRI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:56 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8996E2342D;
-        Thu, 22 Aug 2019 17:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C23023406;
+        Thu, 22 Aug 2019 17:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493734;
-        bh=iaM43qCCC5bNlVt7SIRVxodUFhg3MptrAPwcX2CNjwo=;
+        s=default; t=1566493735;
+        bh=3A6m9fMUKPW0uA/L4zOoMyYo00AiR3KuJVo9+xKS1CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=igNX2G/kBizOptsdzVGNtzazbj7h+sDYyokn1FQOk/4rbPXAxDws+XhZmWJ0vkc3P
-         odZEUXFlxdCbff0VGaj012ZUM5tVi0QOuGShA8RFLCjg3fehALBW6puYHCJb0POiQ8
-         W87oxO2gXQIL6b0TiWpZz0/RR0whSgn1lvRPmTds=
+        b=V9RDPz/1wAmFIEaQl2NhgCSPMk5Mju20gZmfQ552c+YfSy7wbYrS304Tjv/w98rP+
+         1tTvEEMxrVQC08cE+nFAKg/yZIU858ifFo2jsfr06XE5QkJG2x8VrA0eYDT92d6gX+
+         cQaWCS0NFB76j8hMYU0c2F8gZXhkm+ypaK60VeDA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Qian Cai <cai@lca.pw>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 074/135] arm64/mm: fix variable 'pud' set but not used
-Date:   Thu, 22 Aug 2019 13:07:10 -0400
-Message-Id: <20190822170811.13303-75-sashal@kernel.org>
+Subject: [PATCH 5.2 075/135] arm64/mm: fix variable 'tag' set but not used
+Date:   Thu, 22 Aug 2019 13:07:11 -0400
+Message-Id: <20190822170811.13303-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,41 +50,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 7d4e2dcf311d3b98421d1f119efe5964cafa32fc ]
+[ Upstream commit 7732d20a160c76006c7fe7bca5178aea6af1d2e8 ]
 
-GCC throws a warning,
+When CONFIG_KASAN_SW_TAGS=n, set_tag() is compiled away. GCC throws a
+warning,
 
-arch/arm64/mm/mmu.c: In function 'pud_free_pmd_page':
-arch/arm64/mm/mmu.c:1033:8: warning: variable 'pud' set but not used
+mm/kasan/common.c: In function '__kasan_kmalloc':
+mm/kasan/common.c:464:5: warning: variable 'tag' set but not used
 [-Wunused-but-set-variable]
-  pud_t pud;
-        ^~~
+  u8 tag = 0xff;
+     ^~~
 
-because pud_table() is a macro and compiled away. Fix it by making it a
-static inline function and for pud_sect() as well.
+Fix it by making __tag_set() a static inline function the same as
+arch_kasan_set_tag() in mm/kasan/kasan.h for consistency because there
+is a macro in arch/arm64/include/asm/kasan.h,
+
+ #define arch_kasan_set_tag(addr, tag) __tag_set(addr, tag)
+
+However, when CONFIG_DEBUG_VIRTUAL=n and CONFIG_SPARSEMEM_VMEMMAP=y,
+page_to_virt() will call __tag_set() with incorrect type of a
+parameter, so fix that as well. Also, still let page_to_virt() return
+"void *" instead of "const void *", so will not need to add a similar
+cast in lowmem_page_address().
 
 Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/memory.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index fca26759081a7..b9574d850f14f 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -419,8 +419,8 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
- 				 PMD_TYPE_SECT)
- 
- #if defined(CONFIG_ARM64_64K_PAGES) || CONFIG_PGTABLE_LEVELS < 3
--#define pud_sect(pud)		(0)
--#define pud_table(pud)		(1)
-+static inline bool pud_sect(pud_t pud) { return false; }
-+static inline bool pud_table(pud_t pud) { return true; }
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index b7ba75809751e..fb04f10a78ab3 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -210,7 +210,11 @@ extern u64			vabits_user;
+ #define __tag_reset(addr)	untagged_addr(addr)
+ #define __tag_get(addr)		(__u8)((u64)(addr) >> 56)
  #else
- #define pud_sect(pud)		((pud_val(pud) & PUD_TYPE_MASK) == \
- 				 PUD_TYPE_SECT)
+-#define __tag_set(addr, tag)	(addr)
++static inline const void *__tag_set(const void *addr, u8 tag)
++{
++	return addr;
++}
++
+ #define __tag_reset(addr)	(addr)
+ #define __tag_get(addr)		0
+ #endif
+@@ -301,8 +305,8 @@ static inline void *phys_to_virt(phys_addr_t x)
+ #define page_to_virt(page)	({					\
+ 	unsigned long __addr =						\
+ 		((__page_to_voff(page)) | PAGE_OFFSET);			\
+-	unsigned long __addr_tag =					\
+-		 __tag_set(__addr, page_kasan_tag(page));		\
++	const void *__addr_tag =					\
++		__tag_set((void *)__addr, page_kasan_tag(page));	\
+ 	((void *)__addr_tag);						\
+ })
+ 
 -- 
 2.20.1
 
