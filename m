@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD1599A71
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1557899A6E
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388569AbfHVRNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:13:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59014 "EHLO mail.kernel.org"
+        id S1730796AbfHVRNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390616AbfHVRJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:09:01 -0400
+        id S2390624AbfHVRJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:09:02 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65D9A233FD;
-        Thu, 22 Aug 2019 17:09:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E38623407;
+        Thu, 22 Aug 2019 17:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493740;
-        bh=RJ/mBnQ9yApPExC7G9QkBrupCdlJeI8/8KL7fi+0rj8=;
+        s=default; t=1566493741;
+        bh=8eiQAAiot3lKz22lYGS7QHSgMck+Aovg7d6oIfpVbzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aaX7hgwypGx6NKIpLue6tpsQbxyIFt73LNjR9H3vrf4d7rvXZGkZRrg6x5zH+39s7
-         WHr6UezxoS3ewRDkBCCNbUzTS88QEpbqXhs2YBNIAL8CesS0RXpKt8oYPNpCTWhUkD
-         NJcZqv1LhPCSCkHNXuppb86sTF1YE8Jy+D7//N9Q=
+        b=0hahZBIxSAwFPCGjaDnjw2yG+UNDNsef5jx1TSVo76N2U8lJ/1iHURa/LUnUfxbtM
+         8dl22RrXDjf8zD4FUY2fUs2M0v6AElHrv5gLATjaBdrJfPO6iOfMI5/WxrUC6eROnX
+         C+6SHnUjvn60hpcf5+7QdHBvWcl0skiDtawISr+Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Shi <yang.shi@linux.alibaba.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Matthew Wilcox <willy@infradead.org>, Qian Cai <cai@lca.pw>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 086/135] Revert "kmemleak: allow to coexist with fault injection"
-Date:   Thu, 22 Aug 2019 13:07:22 -0400
-Message-Id: <20190822170811.13303-87-sashal@kernel.org>
+Subject: [PATCH 5.2 087/135] ocfs2: remove set but not used variable 'last_hash'
+Date:   Thu, 22 Aug 2019 13:07:23 -0400
+Message-Id: <20190822170811.13303-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -55,70 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit df9576def004d2cd5beedc00cb6e8901427634b9 ]
+[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
 
-When running ltp's oom test with kmemleak enabled, the below warning was
-triggerred since kernel detects __GFP_NOFAIL & ~__GFP_DIRECT_RECLAIM is
-passed in:
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-  WARNING: CPU: 105 PID: 2138 at mm/page_alloc.c:4608 __alloc_pages_nodemask+0x1c31/0x1d50
-  Modules linked in: loop dax_pmem dax_pmem_core ip_tables x_tables xfs virtio_net net_failover virtio_blk failover ata_generic virtio_pci virtio_ring virtio libata
-  CPU: 105 PID: 2138 Comm: oom01 Not tainted 5.2.0-next-20190710+ #7
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
-  RIP: 0010:__alloc_pages_nodemask+0x1c31/0x1d50
-  ...
-   kmemleak_alloc+0x4e/0xb0
-   kmem_cache_alloc+0x2a7/0x3e0
-   mempool_alloc_slab+0x2d/0x40
-   mempool_alloc+0x118/0x2b0
-   bio_alloc_bioset+0x19d/0x350
-   get_swap_bio+0x80/0x230
-   __swap_writepage+0x5ff/0xb20
+  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
+  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
 
-The mempool_alloc_slab() clears __GFP_DIRECT_RECLAIM, however kmemleak
-has __GFP_NOFAIL set all the time due to d9570ee3bd1d4f2 ("kmemleak:
-allow to coexist with fault injection").  But, it doesn't make any sense
-to have __GFP_NOFAIL and ~__GFP_DIRECT_RECLAIM specified at the same
-time.
+It's never used and can be removed.
 
-According to the discussion on the mailing list, the commit should be
-reverted for short term solution.  Catalin Marinas would follow up with
-a better solution for longer term.
-
-The failure rate of kmemleak metadata allocation may increase in some
-circumstances, but this should be expected side effect.
-
-Link: http://lkml.kernel.org/r/1563299431-111710-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: d9570ee3bd1d4f2 ("kmemleak: allow to coexist with fault injection")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Qian Cai <cai@lca.pw>
+Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/xattr.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 3e147ea831826..3afb01bce736a 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -114,7 +114,7 @@
- /* GFP bitmask for kmemleak internal allocations */
- #define gfp_kmemleak_mask(gfp)	(((gfp) & (GFP_KERNEL | GFP_ATOMIC)) | \
- 				 __GFP_NORETRY | __GFP_NOMEMALLOC | \
--				 __GFP_NOWARN | __GFP_NOFAIL)
-+				 __GFP_NOWARN)
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 385f3aaa24480..90c830e3758e2 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -3825,7 +3825,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
+ 	int low_bucket = 0, bucket, high_bucket;
+ 	struct ocfs2_xattr_bucket *search;
+-	u32 last_hash;
+ 	u64 blkno, lower_blkno = 0;
  
- /* scanning area inside a memory block */
- struct kmemleak_scan_area {
+ 	search = ocfs2_xattr_bucket_new(inode);
+@@ -3869,8 +3868,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 		if (xh->xh_count)
+ 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
+ 
+-		last_hash = le32_to_cpu(xe->xe_name_hash);
+-
+ 		/* record lower_blkno which may be the insert place. */
+ 		lower_blkno = blkno;
+ 
 -- 
 2.20.1
 
