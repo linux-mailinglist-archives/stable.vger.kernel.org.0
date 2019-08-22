@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E15DA99B51
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6A199B53
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403983AbfHVRXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
+        id S2403990AbfHVRXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403970AbfHVRXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:39 -0400
+        id S2403980AbfHVRXk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:40 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD9AB23426;
-        Thu, 22 Aug 2019 17:23:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E95A23405;
+        Thu, 22 Aug 2019 17:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494617;
-        bh=FaT5FQecb8EjfqwtrvETdTKkobJhqQVNVnVT3NtjbAc=;
+        s=default; t=1566494619;
+        bh=6DYQE+1R7IQvpF3fAifJcj3NciHz5naE1Vm4B1MTcyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDplekty9t3uYV+Fub7I6ak5gaAzWrANWgl8/3p7GgjiSjsYNg4sxsDYcMCPh4RCJ
-         2bbG1Ucsve+laUWeHFmfhyEnrLPOZFrFuzGdF4ecPVqgX1R4wdHhO0BMIG2QyxgT2y
-         mGnXDvrM9T//ye8tbhXblA8S/EXZZhH128CXfdVQ=
+        b=HNAZFYnb0nKkijWtVaDQ9EMbZJde99EAK7bJsnQtTmMwXjsX2q0HkAbM4hA6lYkH6
+         gMdT9HAIVIpuvPpwHLhOmMIOXYTVF/8393ajQzsYlR4g4GPiYbJB4cWsDx3Bqytw2d
+         afx59gY8KD/AJH0z7RlsFPy4Zi81HnvePs2iU6cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Haibin Zhang <haibinzhang@tencent.com>,
+        Yunfang Tai <yunfangtai@tencent.com>,
+        Lidong Chen <lidongchen@tencent.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 046/103] bpf: restrict access to core bpf sysctls
-Date:   Thu, 22 Aug 2019 10:18:34 -0700
-Message-Id: <20190822171730.662419102@linuxfoundation.org>
+Subject: [PATCH 4.9 048/103] vhost-net: set packet weight of tx polling to 2 * vq size
+Date:   Thu, 22 Aug 2019 10:18:36 -0700
+Message-Id: <20190822171730.736833456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
 References: <20190822171728.445189830@linuxfoundation.org>
@@ -44,95 +47,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: haibinzhang(张海斌) <haibinzhang@tencent.com>
 
-commit 2e4a30983b0f9b19b59e38bbf7427d7fdd480d98 upstream.
+commit a2ac99905f1ea8b15997a6ec39af69aa28a3653b upstream.
 
-Given BPF reaches far beyond just networking these days, it was
-never intended to allow setting and in some cases reading those
-knobs out of a user namespace root running without CAP_SYS_ADMIN,
-thus tighten such access.
+handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
+polling udp packets with small length(e.g. 1byte udp payload), because setting
+VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
 
-Also the bpf_jit_enable = 2 debugging mode should only be allowed
-if kptr_restrict is not set since it otherwise can leak addresses
-to the kernel log. Dump a note to the kernel log that this is for
-debugging JITs only when enabled.
+Ping-Latencies shown below were tested between two Virtual Machines using
+netperf (UDP_STREAM, len=1), and then another machine pinged the client:
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-[bwh: Backported to 4.9:
- - We don't have bpf_dump_raw_ok(), so drop the condition based on it. This
-   condition only made it a bit harder for a privileged user to do something
-   silly.
- - Drop change to bpf_jit_kallsyms]
+vq size=256
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           3.319   18.489    57.303
+64               1.643    2.021     2.552
+128              1.825    2.600     3.224
+256              1.997    2.710     4.295
+512              1.860    3.171     4.631
+1024             2.002    4.173     9.056
+2048             2.257    5.650     9.688
+4096             2.093    8.508    15.943
+
+vq size=512
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           6.537   29.177    66.245
+64               2.798    3.614     4.403
+128              2.861    3.820     4.775
+256              3.008    4.018     4.807
+512              3.254    4.523     5.824
+1024             3.079    5.335     7.747
+2048             3.944    8.201    12.762
+4096             4.158   11.057    19.985
+
+Seems pretty consistent, a small dip at 2 VQ sizes.
+Ring size is a hint from device about a burst size it can tolerate. Based on
+benchmarks, set the weight to 2 * vq size.
+
+To evaluate this change, another tests were done using netperf(RR, TX) between
+two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
+tweaked through qemu. Results shown below does not show obvious changes.
+
+vq size=256 TCP_RR                vq size=512 TCP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
+   1/       4/  +1%/         0%      1/       4/  +1%/         0%
+   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
+  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
+  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
+  64/       8/   0%/         0%     64/       8/  -1%/        -2%
+ 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
+ 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
+ 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
+
+vq size=256 UDP_RR                vq size=512 UDP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
+   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
+   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
+  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
+  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
+  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
+ 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
+ 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
+ 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
+
+vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+  64/       1/   0%/        -3%     64/       1/   0%/         0%
+  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
+  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
+ 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
+ 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
+ 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
+ 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
+ 512/       4/  +1%/        -1%    512/       4/   0%/         0%
+ 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
+1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
+1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
+1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
+2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
+2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
+2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
+4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
+4096/       4/  +2%/         0%   4096/       4/   0%/         0%
+4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
+Signed-off-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sysctl_net_core.c |   39 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 37 insertions(+), 2 deletions(-)
+ drivers/vhost/net.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -232,6 +232,41 @@ static int proc_do_rss_key(struct ctl_ta
- 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
- }
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -39,6 +39,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_NET_WEIGHT 0x80000
  
-+#ifdef CONFIG_BPF_JIT
-+static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
-+					   void __user *buffer, size_t *lenp,
-+					   loff_t *ppos)
-+{
-+	int ret, jit_enable = *(int *)table->data;
-+	struct ctl_table tmp = *table;
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving rx. */
++#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
 +
-+	if (write && !capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
-+	tmp.data = &jit_enable;
-+	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
-+	if (write && !ret) {
-+		*(int *)table->data = jit_enable;
-+		if (jit_enable == 2)
-+			pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
-+	}
-+	return ret;
-+}
-+
-+# ifdef CONFIG_HAVE_EBPF_JIT
-+static int
-+proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
-+				    void __user *buffer, size_t *lenp,
-+				    loff_t *ppos)
-+{
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
-+	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
-+}
-+# endif
-+#endif
-+
- static struct ctl_table net_core_table[] = {
- #ifdef CONFIG_NET
- 	{
-@@ -293,7 +328,7 @@ static struct ctl_table net_core_table[]
- 		.data		= &bpf_jit_enable,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec_minmax,
-+		.proc_handler	= proc_dointvec_minmax_bpf_enable,
- # ifdef CONFIG_BPF_JIT_ALWAYS_ON
- 		.extra1		= &one,
- 		.extra2		= &one,
-@@ -308,7 +343,7 @@ static struct ctl_table net_core_table[]
- 		.data		= &bpf_jit_harden,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0600,
--		.proc_handler	= proc_dointvec_minmax,
-+		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
- 		.extra1		= &zero,
- 		.extra2		= &two,
- 	},
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+ #define VHOST_GOODCOPY_LEN 256
+@@ -372,6 +376,7 @@ static void handle_tx(struct vhost_net *
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int sent_pkts = 0;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -474,7 +479,8 @@ static void handle_tx(struct vhost_net *
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
 
 
