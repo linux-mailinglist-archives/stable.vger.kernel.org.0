@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6247299E18
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE2799D2F
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390646AbfHVRWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
+        id S2392702AbfHVRkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:40:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390280AbfHVRWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:24 -0400
+        id S2404086AbfHVRYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:08 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4090A233FD;
-        Thu, 22 Aug 2019 17:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76AA123400;
+        Thu, 22 Aug 2019 17:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494544;
-        bh=l0WcdKM9midXBSgbS0kuvCLb/a3DAIBaazN2F+3+060=;
+        s=default; t=1566494647;
+        bh=1hKRuByecVlVLfQQ6iosXpCA9hG/cgMqUCWA0P8Ptts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVDtOGmeixsynIokytC2oRnHONprsDT27tEK5k+XxBaU/xfM7CgOEJK0dWECeIdqM
-         ZrwoaWxopXqrTq4qUCwDgrm4lZLkCM6sKiyZXdSfneYCSJW7OGZZ6F52Y29oBusOto
-         Vho85inNpJn2hyDMi3+FrQIaDFil+NG5gZ5kaooA=
+        b=NQLERfQyJGNQM9RYMVN3gk+HftnBjMWfM3d9jyCDvKaI8A8alYwR6eGVs481PGV1b
+         rv7u3n0/Idnp0rwOyupVwwNB/mVTQ4TmXyrhvhTyDgpdN0I9ui25nWts7GgmzouUfi
+         n0dPKMcRuiyR87y+9aTmiFcwB4LTIUjri/Ois2wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 25/78] can: peak_usb: pcan_usb_fd: Fix info-leaks to USB devices
+        stable@vger.kernel.org,
+        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 041/103] scsi: mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
 Date:   Thu, 22 Aug 2019 10:18:29 -0700
-Message-Id: <20190822171832.771598059@linuxfoundation.org>
+Message-Id: <20190822171730.468258675@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-commit 30a8beeb3042f49d0537b7050fd21b490166a3d9 upstream.
+commit df9a606184bfdb5ae3ca9d226184e9489f5c24f7 upstream.
 
-Uninitialized Kernel memory can leak to USB devices.
+Although SAS3 & SAS3.5 IT HBA controllers support 64-bit DMA addressing, as
+per hardware design, if DMA-able range contains all 64-bits
+set (0xFFFFFFFF-FFFFFFFF) then it results in a firmware fault.
 
-Fix by using kzalloc() instead of kmalloc() on the affected buffers.
+E.g. SGE's start address is 0xFFFFFFFF-FFFF000 and data length is 0x1000
+bytes. when HBA tries to DMA the data at 0xFFFFFFFF-FFFFFFFF location then
+HBA will fault the firmware.
 
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com
-Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Driver will set 63-bit DMA mask to ensure the above address will not be
+used.
+
+Cc: <stable@vger.kernel.org> # 5.1.20+
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -851,7 +851,7 @@ static int pcan_usb_fd_init(struct peak_
- 			goto err_out;
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -1707,9 +1707,11 @@ _base_config_dma_addressing(struct MPT3S
+ {
+ 	struct sysinfo s;
+ 	u64 consistent_dma_mask;
++	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
++	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
  
- 		/* allocate command buffer once for all for the interface */
--		pdev->cmd_buffer_addr = kmalloc(PCAN_UFD_CMD_BUFFER_SIZE,
-+		pdev->cmd_buffer_addr = kzalloc(PCAN_UFD_CMD_BUFFER_SIZE,
- 						GFP_KERNEL);
- 		if (!pdev->cmd_buffer_addr)
- 			goto err_out_1;
+ 	if (ioc->dma_mask)
+-		consistent_dma_mask = DMA_BIT_MASK(64);
++		consistent_dma_mask = DMA_BIT_MASK(dma_mask);
+ 	else
+ 		consistent_dma_mask = DMA_BIT_MASK(32);
+ 
+@@ -1717,11 +1719,11 @@ _base_config_dma_addressing(struct MPT3S
+ 		const uint64_t required_mask =
+ 		    dma_get_required_mask(&pdev->dev);
+ 		if ((required_mask > DMA_BIT_MASK(32)) &&
+-		    !pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) &&
++		    !pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_mask)) &&
+ 		    !pci_set_consistent_dma_mask(pdev, consistent_dma_mask)) {
+ 			ioc->base_add_sg_single = &_base_add_sg_single_64;
+ 			ioc->sge_size = sizeof(Mpi2SGESimple64_t);
+-			ioc->dma_mask = 64;
++			ioc->dma_mask = dma_mask;
+ 			goto out;
+ 		}
+ 	}
+@@ -1747,7 +1749,7 @@ static int
+ _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
+ 				      struct pci_dev *pdev)
+ {
+-	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
++	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
+ 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
+ 			return -ENODEV;
+ 	}
+@@ -3381,7 +3383,7 @@ _base_allocate_memory_pools(struct MPT3S
+ 		total_sz += sz;
+ 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
+ 
+-	if (ioc->dma_mask == 64) {
++	if (ioc->dma_mask > 32) {
+ 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
+ 			pr_warn(MPT3SAS_FMT
+ 			    "no suitable consistent DMA mask for %s\n",
 
 
