@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8286B99A33
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61870999FE
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388572AbfHVRKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59656 "EHLO mail.kernel.org"
+        id S2390739AbfHVRJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:09:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390730AbfHVRJU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390732AbfHVRJU (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:09:20 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 074F2233FC;
-        Thu, 22 Aug 2019 17:09:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C1322342F;
+        Thu, 22 Aug 2019 17:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493759;
-        bh=fJ3azQZ1DCnkjLnuIEYjspKZxSeuc1mE32jQfEX269s=;
+        bh=4qbaXH5sM+XOTj+157enUJeOpnIDsLrcUa+ZqSU4zWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsrZzXn3UKpgojFf5/bob3yQcTq5Go20xNVcf5d/ECG4tMzUFJ6iPJWq+yDkXxCpZ
-         KBdgI10zMh2kZ8Eotf9VDXFhL+QpFKBzn11rkIFRHYnZY28+AMkKSWgDh3VkoOUP/t
-         aVBhN1/2CAP0u6uZwWRhxJbp/mqbXQv6W2yxkGQQ=
+        b=WDQ8WDvrLwBFH54VvDCNwIun9FmBxYXX6mewZNMtzQER7FYR4GmQ65rkRzItoM2Ao
+         RrvlAJQ10OGtIIaNU6EVi5z4eykhjRw+6K6hI5SRfxXnRzNeBvDoeUCWxIi/WrLV1+
+         dIv1XVs8qduqdGIm8ZnyzAtdTGR3w/qgFIXRyIDk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 120/135] bnxt_en: Improve RX doorbell sequence.
-Date:   Thu, 22 Aug 2019 13:07:56 -0400
-Message-Id: <20190822170811.13303-121-sashal@kernel.org>
+Subject: [PATCH 5.2 121/135] bnxt_en: Fix handling FRAG_ERR when NVM_INSTALL_UPDATE cmd fails
+Date:   Thu, 22 Aug 2019 13:07:57 -0400
+Message-Id: <20190822170811.13303-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -49,81 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit e8f267b063208372f7a329c6d5288d58944d873c ]
+[ Upstream commit dd2ebf3404c7c295014bc025dea23960960ceb1a ]
 
-When both RX buffers and RX aggregation buffers have to be
-replenished at the end of NAPI, post the RX aggregation buffers first
-before RX buffers.  Otherwise, we may run into a situation where
-there are only RX buffers without RX aggregation buffers for a split
-second.  This will cause the hardware to abort the RX packet and
-report buffer errors, which will cause unnecessary cleanup by the
-driver.
+If FW returns FRAG_ERR in response error code, driver is resending the
+command only when HWRM command returns success. Fix the code to resend
+NVM_INSTALL_UPDATE command with DEFRAG install flags, if FW returns
+FRAG_ERR in its response error code.
 
-Ringing the Aggregation ring doorbell first before the RX ring doorbell
-will prevent some of these buffer errors.  Use the same sequence during
-ring initialization as well.
-
-Fixes: 697197e5a173 ("bnxt_en: Re-structure doorbells.")
+Fixes: cb4d1d626145 ("bnxt_en: Retry failed NVM_INSTALL_UPDATE with defragmentation flag enabled.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index d9eaafa93970b..36fe4f161cf1c 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -2015,9 +2015,9 @@ static void __bnxt_poll_work_done(struct bnxt *bp, struct bnxt_napi *bnapi)
- 	if (bnapi->events & BNXT_RX_EVENT) {
- 		struct bnxt_rx_ring_info *rxr = bnapi->rx_ring;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index a6c7baf38036a..b761a2e28a101 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2016,21 +2016,19 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 	mutex_lock(&bp->hwrm_cmd_lock);
+ 	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
+ 				      INSTALL_PACKAGE_TIMEOUT);
+-	if (hwrm_err)
+-		goto flash_pkg_exit;
+-
+-	if (resp->error_code) {
++	if (hwrm_err) {
+ 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
  
--		bnxt_db_write(bp, &rxr->rx_db, rxr->rx_prod);
- 		if (bnapi->events & BNXT_AGG_EVENT)
- 			bnxt_db_write(bp, &rxr->rx_agg_db, rxr->rx_agg_prod);
-+		bnxt_db_write(bp, &rxr->rx_db, rxr->rx_prod);
- 	}
- 	bnapi->events = 0;
- }
-@@ -5011,6 +5011,7 @@ static void bnxt_set_db(struct bnxt *bp, struct bnxt_db_info *db, u32 ring_type,
- 
- static int bnxt_hwrm_ring_alloc(struct bnxt *bp)
- {
-+	bool agg_rings = !!(bp->flags & BNXT_FLAG_AGG_RINGS);
- 	int i, rc = 0;
- 	u32 type;
- 
-@@ -5086,7 +5087,9 @@ static int bnxt_hwrm_ring_alloc(struct bnxt *bp)
- 		if (rc)
- 			goto err_out;
- 		bnxt_set_db(bp, &rxr->rx_db, type, map_idx, ring->fw_ring_id);
--		bnxt_db_write(bp, &rxr->rx_db, rxr->rx_prod);
-+		/* If we have agg rings, post agg buffers first. */
-+		if (!agg_rings)
-+			bnxt_db_write(bp, &rxr->rx_db, rxr->rx_prod);
- 		bp->grp_info[map_idx].rx_fw_ring_id = ring->fw_ring_id;
- 		if (bp->flags & BNXT_FLAG_CHIP_P5) {
- 			struct bnxt_cp_ring_info *cpr = &bnapi->cp_ring;
-@@ -5105,7 +5108,7 @@ static int bnxt_hwrm_ring_alloc(struct bnxt *bp)
+-		if (error_code == NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
++		if (resp->error_code && error_code ==
++		    NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
+ 			install.flags |= cpu_to_le16(
+ 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
+ 			hwrm_err = _hwrm_send_message(bp, &install,
+ 						      sizeof(install),
+ 						      INSTALL_PACKAGE_TIMEOUT);
+-			if (hwrm_err)
+-				goto flash_pkg_exit;
  		}
++		if (hwrm_err)
++			goto flash_pkg_exit;
  	}
  
--	if (bp->flags & BNXT_FLAG_AGG_RINGS) {
-+	if (agg_rings) {
- 		type = HWRM_RING_ALLOC_AGG;
- 		for (i = 0; i < bp->rx_nr_rings; i++) {
- 			struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
-@@ -5121,6 +5124,7 @@ static int bnxt_hwrm_ring_alloc(struct bnxt *bp)
- 			bnxt_set_db(bp, &rxr->rx_agg_db, type, map_idx,
- 				    ring->fw_ring_id);
- 			bnxt_db_write(bp, &rxr->rx_agg_db, rxr->rx_agg_prod);
-+			bnxt_db_write(bp, &rxr->rx_db, rxr->rx_prod);
- 			bp->grp_info[grp_idx].agg_fw_ring_id = ring->fw_ring_id;
- 		}
- 	}
+ 	if (resp->result) {
 -- 
 2.20.1
 
