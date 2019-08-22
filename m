@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6012F99DFE
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6EE99D4B
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732357AbfHVRq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41352 "EHLO mail.kernel.org"
+        id S2391749AbfHVRXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732661AbfHVRWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:42 -0400
+        id S2390102AbfHVRXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:54 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14D8723406;
-        Thu, 22 Aug 2019 17:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39CF22342A;
+        Thu, 22 Aug 2019 17:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494562;
-        bh=oxdxb3+q5l4YKRxmcQH3c+7PvrvDkfftZOxp4GEsiiI=;
+        s=default; t=1566494634;
+        bh=8YuwYjJzQhn4cLB3olIy40BOVZ1hEpJxinnUGLJp2HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQStUWK9QPcm5V6i2UihfrIp5PjDJHXkHd1IzyyCwmatK4y41ssZk5BjfW2dBQfO1
-         BVbx7tlo8lld9VkTCLuqIqq6XQfWA4hb6spDdZkN1yk2uScYXpWaF7wzR6w1kOpL0L
-         6i5qEm/O/htLUN2em9HVas/+Rk/uhqFegZCq5lY0=
+        b=dvuMz6i6G3gu7JbnrIC9DyC7B0nZ+GM6B2z/Hs0xs+/VjugFqAi41cTgNVi6hEDmP
+         AX8Y4hukW7L9Spt+WFTq8Nk3TPPtF0bsM7V/7SvRoPHK2kbPXGld/w7PEDNfIZ4Qjt
+         2z7j3M1+chVRtaw4XLQj2t9IgGi6Eh6J5/rm4dEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 50/78] ata: libahci: do not complain in case of deferred probe
+        stable@vger.kernel.org,
+        syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 066/103] Input: iforce - add sanity checks
 Date:   Thu, 22 Aug 2019 10:18:54 -0700
-Message-Id: <20190822171833.492407824@linuxfoundation.org>
+Message-Id: <20190822171731.465137146@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 090bb803708198e5ab6b0046398c7ed9f4d12d6b ]
+From: Oliver Neukum <oneukum@suse.com>
 
-Retrieving PHYs can defer the probe, do not spawn an error when
--EPROBE_DEFER is returned, it is normal behavior.
+commit 849f5ae3a513c550cad741c68dd3d7eb2bcc2a2c upstream.
 
-Fixes: b1a9edbda040 ("ata: libahci: allow to use multiple PHYs")
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The endpoint type should also be checked before a device
+is accepted.
+
+Reported-by: syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/ata/libahci_platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/joystick/iforce/iforce-usb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index cd2eab6aa92ea..65371e1befe8a 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -300,6 +300,9 @@ static int ahci_platform_get_phy(struct ahci_host_priv *hpriv, u32 port,
- 		hpriv->phys[port] = NULL;
- 		rc = 0;
- 		break;
-+	case -EPROBE_DEFER:
-+		/* Do not complain yet */
-+		break;
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -145,7 +145,12 @@ static int iforce_usb_probe(struct usb_i
+ 		return -ENODEV;
  
- 	default:
- 		dev_err(dev,
--- 
-2.20.1
-
+ 	epirq = &interface->endpoint[0].desc;
++	if (!usb_endpoint_is_int_in(epirq))
++		return -ENODEV;
++
+ 	epout = &interface->endpoint[1].desc;
++	if (!usb_endpoint_is_int_out(epout))
++		return -ENODEV;
+ 
+ 	if (!(iforce = kzalloc(sizeof(struct iforce) + 32, GFP_KERNEL)))
+ 		goto fail;
 
 
