@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0449999A3D
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7FA99A34
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389067AbfHVRL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732111AbfHVRL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Aug 2019 13:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59506 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390714AbfHVRJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390716AbfHVRJQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:09:16 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8C9023427;
-        Thu, 22 Aug 2019 17:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85A4B23407;
+        Thu, 22 Aug 2019 17:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493755;
-        bh=k0NJEKzqa1CBSiBvOVHMb37rNO2LtfFkZtZBp8TITlc=;
+        bh=Gff5SQSPmRmvtp8vZDvZq7goePM271B+gwda976FxFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsJOb3iNEHQgMRoGmhmZLykcxgf0Crt9bjKdeBG3NaAXF6uFlE50ZjtlZaQtdDTJO
-         RBKqBtQ7hvp0cjQORlLuDddtMePiExOm6/WjHzarg21j/285z9tbbxEaskqDCh0xB+
-         NMLr1A5Md3R8g6Jv7OtVjRXLm67TCfuQfOFFXyYw=
+        b=C2acb7KXMRi0oKpTKDOoiJCjAgggkKSP7K1edUK2AdpFwl7N/56u+bIuZGMF4hsSZ
+         q7FZXdL5sPSuNbGzNjyTAh+Zm8U/0Co35n/BZJxHxMjeyarOG0BLFYEqqKlGi1td/G
+         8d6nhNrTiSp0XMzgyvlJCX6fdqxFQx15FXEaLXpw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 112/135] net: sched: sch_taprio: fix memleak in error path for sched list parse
-Date:   Thu, 22 Aug 2019 13:07:48 -0400
-Message-Id: <20190822170811.13303-113-sashal@kernel.org>
+Subject: [PATCH 5.2 113/135] sctp: fix memleak in sctp_send_reset_streams
+Date:   Thu, 22 Aug 2019 13:07:49 -0400
+Message-Id: <20190822170811.13303-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,36 +51,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 51650d33b2771acd505068da669cf85cffac369a ]
+[ Upstream commit 6d5afe20397b478192ed8c38ec0ee10fa3aec649 ]
 
-In error case, all entries should be freed from the sched list
-before deleting it. For simplicity use rcu way.
+If the stream outq is not empty, need to kfree nstr_list.
 
-Fixes: 5a781ccbd19e46 ("tc: Add support for configuring the taprio scheduler")
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d570a59c5b5f ("sctp: only allow the out stream reset when the stream outq is empty")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sctp/stream.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 9ecfb8f5902a4..8be89aa52b6e8 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -849,7 +849,8 @@ static int taprio_change(struct Qdisc *sch, struct nlattr *opt,
- 	spin_unlock_bh(qdisc_lock(sch));
+diff --git a/net/sctp/stream.c b/net/sctp/stream.c
+index 25946604af85c..e83cdaa2ab765 100644
+--- a/net/sctp/stream.c
++++ b/net/sctp/stream.c
+@@ -316,6 +316,7 @@ int sctp_send_reset_streams(struct sctp_association *asoc,
+ 		nstr_list[i] = htons(str_list[i]);
  
- free_sched:
--	kfree(new_admin);
-+	if (new_admin)
-+		call_rcu(&new_admin->rcu, taprio_free_sched_cb);
- 
- 	return err;
- }
+ 	if (out && !sctp_stream_outq_is_empty(stream, str_nums, nstr_list)) {
++		kfree(nstr_list);
+ 		retval = -EAGAIN;
+ 		goto out;
+ 	}
 -- 
 2.20.1
 
