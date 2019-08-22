@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC99899B77
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 673D399B65
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391811AbfHVRZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S2391506AbfHVRYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391798AbfHVRZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:02 -0400
+        id S2404167AbfHVRYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:20 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A06E2341B;
-        Thu, 22 Aug 2019 17:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78DDC2341A;
+        Thu, 22 Aug 2019 17:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494700;
-        bh=bjI3TAnklTxKLBlWhrY4M+f2n06gNS3cMlNpQ1wXhqo=;
+        s=default; t=1566494659;
+        bh=Alprxcc+QmZyxQfHhL5lUNZK1dBM0xD3R+2hCoaI0eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aQ1iATIhruPMlcvEMoLa41NVTmvtmVINddSQ6+NirormzRc9/ueffUTIwWprPOxi
-         +qMEEnzgV1YftVudLKl/EmWn/FU+Z7ZnTZujUVvJTMhxGrQFdOayy2DsCT6Rg0sgZP
-         5BKMDlVNEJu8LY1gBWA9p9YzE3rQ45M6KlbpyXqo=
+        b=SBk1myXB7W9H1c5bLIxXn0wE2Kk0L7dn1U+hKrO024WwjpC74+ZVlr2TIDY6Lm4yS
+         pC/QktZMSNHELZl+KcOwWaOeYb/WBAYvrOPYhBd1/ba8XnoXIYHdNMRa2vy/A77qLu
+         g3SgcE8lp6d+a6N71qlGFHYtw2oq+6HDCAt7vs1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Lars Melin <larsm17@gmail.com>,
-        Marcel Partap <mpartap@gmx.net>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Michael Scott <hashcode0f@gmail.com>,
-        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 53/71] USB: serial: option: Add Motorola modem UARTs
-Date:   Thu, 22 Aug 2019 10:19:28 -0700
-Message-Id: <20190822171730.115321567@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.9 101/103] net/mlx5e: Use flow keys dissector to parse packets for ARFS
+Date:   Thu, 22 Aug 2019 10:19:29 -0700
+Message-Id: <20190822171733.230660092@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,172 +44,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-commit 6caf0be40a707689e8ff8824fdb96ef77685b1ba upstream.
+[ Upstream commit 405b93eb764367a670e729da18e54dc42db32620 ]
 
-On Motorola Mapphone devices such as Droid 4 there are five USB ports
-that do not use the same layout as Gobi 1K/2K/etc devices listed in
-qcserial.c. So we should use qcaux.c or option.c as noted by
-Dan Williams <dan.j.williams@intel.com>.
+The current ARFS code relies on certain fields to be set in the SKB
+(e.g. transport_header) and extracts IP addresses and ports by custom
+code that parses the packet. The necessary SKB fields, however, are not
+always set at that point, which leads to an out-of-bounds access. Use
+skb_flow_dissect_flow_keys() to get the necessary information reliably,
+fix the out-of-bounds access and reuse the code.
 
-As the Motorola USB serial ports have an interrupt endpoint as shown
-with lsusb -v, we should use option.c instead of qcaux.c as pointed out
-by Johan Hovold <johan@kernel.org>.
-
-The ff/ff/ff interfaces seem to always be UARTs on Motorola devices.
-For the other interfaces, class 0x0a (CDC Data) should not in general
-be added as they are typically part of a multi-interface function as
-noted earlier by Bjørn Mork <bjorn@mork.no>.
-
-However, looking at the Motorola mapphone kernel code, the mdm6600 0x0a
-class is only used for flashing the modem firmware, and there are no
-other interfaces. So I've added that too with more details below as it
-works just fine.
-
-The ttyUSB ports on Droid 4 are:
-
-ttyUSB0 DIAG, CQDM-capable
-ttyUSB1 MUX or NMEA, no response
-ttyUSB2 MUX or NMEA, no response
-ttyUSB3 TCMD
-ttyUSB4 AT-capable
-
-The ttyUSB0 is detected as QCDM capable by ModemManager. I think
-it's only used for debugging with ModemManager --debug for sending
-custom AT commands though. ModemManager already can manage data
-connection using the USB QMI ports that are already handled by the
-qmi_wwan.c driver.
-
-To enable the MUX or NMEA ports, it seems that something needs to be
-done additionally to enable them, maybe via the DIAG or TCMD port.
-It might be just a NVRAM setting somewhere, but I have no idea what
-NVRAM settings may need changing for that.
-
-The TCMD port seems to be a Motorola custom protocol for testing
-the modem and to configure it's NVRAM and seems to work just fine
-based on a quick test with a minimal tcmdrw tool I wrote.
-
-The voice modem AT-capable port seems to provide only partial
-support, and no PM support compared to the TS 27.010 based UART
-wired directly to the modem.
-
-The UARTs added with this change are the same product IDs as the
-Motorola Mapphone Android Linux kernel mdm6600_id_table. I don't
-have any mdm9600 based devices, so I have only tested these on
-mdm6600 based droid 4.
-
-Then for the class 0x0a (CDC Data) mode, the Motorola Mapphone Android
-Linux kernel driver moto_flashqsc.c just seems to change the
-port->bulk_out_size to 8K from the default. And is only used for
-flashing the modem firmware it seems.
-
-I've verified that flashing the modem with signed firmware works just
-fine with the option driver after manually toggling the GPIO pins, so
-I've added droid 4 modem flashing mode to the option driver. I've not
-added the other devices listed in moto_flashqsc.c in case they really
-need different port->bulk_out_size. Those can be added as they get
-tested to work for flashing the modem.
-
-After this patch the output of /sys/kernel/debug/usb/devices has
-the following for normal 22b8:2a70 mode including the related qmi_wwan
-interfaces:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=2a70 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=06(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=07(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8b(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8c(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=08(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8d(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=09(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-In 22b8:900e "qc_dload" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=900e Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-And in 22b8:4281 "ram_downloader" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=4281 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=fc Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-Cc: Bjørn Mork <bjorn@mork.no>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Lars Melin <larsm17@gmail.com>
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 18c908e477dc ("net/mlx5e: Add accelerated RFS support")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c |   97 +++++++---------------
+ 1 file changed, 34 insertions(+), 63 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -971,6 +971,11 @@ static const struct usb_device_id option
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7B) },
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7C) },
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
+@@ -441,12 +441,6 @@ arfs_hash_bucket(struct arfs_table *arfs
+ 	return &arfs_t->rules_hash[bucket_idx];
+ }
  
-+	/* Motorola devices */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2a70, 0xff, 0xff, 0xff) },	/* mdm6600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2e0a, 0xff, 0xff, 0xff) },	/* mdm9600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x4281, 0x0a, 0x00, 0xfc) },	/* mdm ram dl */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x900e, 0xff, 0xff, 0xff) },	/* mdm qc dl */
+-static u8 arfs_get_ip_proto(const struct sk_buff *skb)
+-{
+-	return (skb->protocol == htons(ETH_P_IP)) ?
+-		ip_hdr(skb)->protocol : ipv6_hdr(skb)->nexthdr;
+-}
+-
+ static struct arfs_table *arfs_get_table(struct mlx5e_arfs_tables *arfs,
+ 					 u8 ip_proto, __be16 etype)
+ {
+@@ -605,31 +599,9 @@ out:
+ 	arfs_may_expire_flow(priv);
+ }
  
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V640) },
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V620) },
+-/* return L4 destination port from ip4/6 packets */
+-static __be16 arfs_get_dst_port(const struct sk_buff *skb)
+-{
+-	char *transport_header;
+-
+-	transport_header = skb_transport_header(skb);
+-	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
+-		return ((struct tcphdr *)transport_header)->dest;
+-	return ((struct udphdr *)transport_header)->dest;
+-}
+-
+-/* return L4 source port from ip4/6 packets */
+-static __be16 arfs_get_src_port(const struct sk_buff *skb)
+-{
+-	char *transport_header;
+-
+-	transport_header = skb_transport_header(skb);
+-	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
+-		return ((struct tcphdr *)transport_header)->source;
+-	return ((struct udphdr *)transport_header)->source;
+-}
+-
+ static struct arfs_rule *arfs_alloc_rule(struct mlx5e_priv *priv,
+ 					 struct arfs_table *arfs_t,
+-					 const struct sk_buff *skb,
++					 const struct flow_keys *fk,
+ 					 u16 rxq, u32 flow_id)
+ {
+ 	struct arfs_rule *rule;
+@@ -644,19 +616,19 @@ static struct arfs_rule *arfs_alloc_rule
+ 	INIT_WORK(&rule->arfs_work, arfs_handle_work);
+ 
+ 	tuple = &rule->tuple;
+-	tuple->etype = skb->protocol;
++	tuple->etype = fk->basic.n_proto;
++	tuple->ip_proto = fk->basic.ip_proto;
+ 	if (tuple->etype == htons(ETH_P_IP)) {
+-		tuple->src_ipv4 = ip_hdr(skb)->saddr;
+-		tuple->dst_ipv4 = ip_hdr(skb)->daddr;
++		tuple->src_ipv4 = fk->addrs.v4addrs.src;
++		tuple->dst_ipv4 = fk->addrs.v4addrs.dst;
+ 	} else {
+-		memcpy(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
++		memcpy(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
+ 		       sizeof(struct in6_addr));
+-		memcpy(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
++		memcpy(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
+ 		       sizeof(struct in6_addr));
+ 	}
+-	tuple->ip_proto = arfs_get_ip_proto(skb);
+-	tuple->src_port = arfs_get_src_port(skb);
+-	tuple->dst_port = arfs_get_dst_port(skb);
++	tuple->src_port = fk->ports.src;
++	tuple->dst_port = fk->ports.dst;
+ 
+ 	rule->flow_id = flow_id;
+ 	rule->filter_id = priv->fs.arfs.last_filter_id++ % RPS_NO_FILTER;
+@@ -667,37 +639,33 @@ static struct arfs_rule *arfs_alloc_rule
+ 	return rule;
+ }
+ 
+-static bool arfs_cmp_ips(struct arfs_tuple *tuple,
+-			 const struct sk_buff *skb)
++static bool arfs_cmp(const struct arfs_tuple *tuple, const struct flow_keys *fk)
+ {
+-	if (tuple->etype == htons(ETH_P_IP) &&
+-	    tuple->src_ipv4 == ip_hdr(skb)->saddr &&
+-	    tuple->dst_ipv4 == ip_hdr(skb)->daddr)
+-		return true;
+-	if (tuple->etype == htons(ETH_P_IPV6) &&
+-	    (!memcmp(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
+-		     sizeof(struct in6_addr))) &&
+-	    (!memcmp(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
+-		     sizeof(struct in6_addr))))
+-		return true;
++	if (tuple->src_port != fk->ports.src || tuple->dst_port != fk->ports.dst)
++		return false;
++	if (tuple->etype != fk->basic.n_proto)
++		return false;
++	if (tuple->etype == htons(ETH_P_IP))
++		return tuple->src_ipv4 == fk->addrs.v4addrs.src &&
++		       tuple->dst_ipv4 == fk->addrs.v4addrs.dst;
++	if (tuple->etype == htons(ETH_P_IPV6))
++		return !memcmp(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
++			       sizeof(struct in6_addr)) &&
++		       !memcmp(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
++			       sizeof(struct in6_addr));
+ 	return false;
+ }
+ 
+ static struct arfs_rule *arfs_find_rule(struct arfs_table *arfs_t,
+-					const struct sk_buff *skb)
++					const struct flow_keys *fk)
+ {
+ 	struct arfs_rule *arfs_rule;
+ 	struct hlist_head *head;
+-	__be16 src_port = arfs_get_src_port(skb);
+-	__be16 dst_port = arfs_get_dst_port(skb);
+ 
+-	head = arfs_hash_bucket(arfs_t, src_port, dst_port);
++	head = arfs_hash_bucket(arfs_t, fk->ports.src, fk->ports.dst);
+ 	hlist_for_each_entry(arfs_rule, head, hlist) {
+-		if (arfs_rule->tuple.src_port == src_port &&
+-		    arfs_rule->tuple.dst_port == dst_port &&
+-		    arfs_cmp_ips(&arfs_rule->tuple, skb)) {
++		if (arfs_cmp(&arfs_rule->tuple, fk))
+ 			return arfs_rule;
+-		}
+ 	}
+ 
+ 	return NULL;
+@@ -710,20 +678,24 @@ int mlx5e_rx_flow_steer(struct net_devic
+ 	struct mlx5e_arfs_tables *arfs = &priv->fs.arfs;
+ 	struct arfs_table *arfs_t;
+ 	struct arfs_rule *arfs_rule;
++	struct flow_keys fk;
++
++	if (!skb_flow_dissect_flow_keys(skb, &fk, 0))
++		return -EPROTONOSUPPORT;
+ 
+-	if (skb->protocol != htons(ETH_P_IP) &&
+-	    skb->protocol != htons(ETH_P_IPV6))
++	if (fk.basic.n_proto != htons(ETH_P_IP) &&
++	    fk.basic.n_proto != htons(ETH_P_IPV6))
+ 		return -EPROTONOSUPPORT;
+ 
+ 	if (skb->encapsulation)
+ 		return -EPROTONOSUPPORT;
+ 
+-	arfs_t = arfs_get_table(arfs, arfs_get_ip_proto(skb), skb->protocol);
++	arfs_t = arfs_get_table(arfs, fk.basic.ip_proto, fk.basic.n_proto);
+ 	if (!arfs_t)
+ 		return -EPROTONOSUPPORT;
+ 
+ 	spin_lock_bh(&arfs->arfs_lock);
+-	arfs_rule = arfs_find_rule(arfs_t, skb);
++	arfs_rule = arfs_find_rule(arfs_t, &fk);
+ 	if (arfs_rule) {
+ 		if (arfs_rule->rxq == rxq_index) {
+ 			spin_unlock_bh(&arfs->arfs_lock);
+@@ -731,8 +703,7 @@ int mlx5e_rx_flow_steer(struct net_devic
+ 		}
+ 		arfs_rule->rxq = rxq_index;
+ 	} else {
+-		arfs_rule = arfs_alloc_rule(priv, arfs_t, skb,
+-					    rxq_index, flow_id);
++		arfs_rule = arfs_alloc_rule(priv, arfs_t, &fk, rxq_index, flow_id);
+ 		if (!arfs_rule) {
+ 			spin_unlock_bh(&arfs->arfs_lock);
+ 			return -ENOMEM;
 
 
