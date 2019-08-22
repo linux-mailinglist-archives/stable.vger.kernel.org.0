@@ -2,73 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ACBD988AF
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 02:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F38FC98911
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 03:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729041AbfHVArb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 20:47:31 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:37532 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727493AbfHVArb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 20:47:31 -0400
-Received: by mail-ot1-f68.google.com with SMTP id f17so3893354otq.4;
-        Wed, 21 Aug 2019 17:47:31 -0700 (PDT)
+        id S1726785AbfHVBrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 21:47:00 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:46080 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727617AbfHVBrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 21:47:00 -0400
+Received: by mail-pf1-f193.google.com with SMTP id q139so2705784pfc.13
+        for <stable@vger.kernel.org>; Wed, 21 Aug 2019 18:47:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=p5+8V3eJWfGGDoM+IoGi8PvkamL+iQCdi1rQoKthzls=;
-        b=VC4S9hTFe2NMNT+NR6RJSwaryBnEIZOo9KBE05W4eqXmpufXycj0tFoZZAVxBXtkuS
-         xgwkYC85pjHmSrOmYTvGrYS4O1pYB7wM67YmTJEeSsTDB14S8f/SRIUv5fN1QbGKzmU7
-         6UEY1dNlIGm5fN/Mo1ZSrXaIQjOlsMOOn25chYGV4nhBeEQqKmZ6kPr4psq0s39Vz47B
-         p/F8KlIYS7RfH0/4gucRql7iV7PofXa0mNE+Y7Xrg4+fqgCAH78nxSO1bu9x3TC67X+z
-         2mZORlLmQAek2qImmOIPUNBrjesPTc+YJDOBgctxox95cm1bORcVYCvBrVO21AypqUY3
-         UYJQ==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=RdxKL1dPvs4eqhjlv3uZAUE21ZttRHMY9QEWG6r7QBI=;
+        b=jY0DRLU15rFRwyK9jVvnCLtG+SR4L9WluRqAq8IKH+nLqfK2jRJLRvEaYIQ2yYFOv2
+         n2rANRGGuHTZVkLTQ6UCChtw71Zk54AkNqZeo4H5I/M7goXVIK/qTc9o1IGxL9RIvJtq
+         4zZeZyPYOVTXbgRRql82X4b6IXO+tfYj4Fc0U=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=p5+8V3eJWfGGDoM+IoGi8PvkamL+iQCdi1rQoKthzls=;
-        b=ZQsF/fbW4DzLsDDgOn9klcSPCeO0NGxGEivCTA1HOk6EGoem4vlniST0oeHuYlvfjl
-         nU/dDrkyoErTlCbSXkKHOKMr8nAQ0rYZ1nwhTRg3fz+9U62yItx5aUlBjwd5xU9GTPDr
-         IkbY1QvGCBCbeeb9uzlp7hx5uJOjTBPrY1TimWvHlPVYYEw5UklW2NEgob3cTr3Wrf6k
-         G5SISQK81lEpT7ZKQDqqMuF+06ZYVWF0AkFXifTXM7+AH4jhwNxwk9ryvbYfLZshezHR
-         6J8SjwXDAbcCCie5dGmdSa939xkHL5wfQp86G/f8U7MhVQixrY+06S4Y/s8eaMcvZ/Tz
-         hfnA==
-X-Gm-Message-State: APjAAAXMSu2T3abFYKekQkasebl/wL6zJU22DiyMNrdpuJSIrSpthTKP
-        Adh57l4kwZ4ApQ/OgPQtjNjMbT7y4SbNhMhioBs=
-X-Google-Smtp-Source: APXvYqx1ubxmdTzLEQJe8vEwiBwjrYjEbwhI0GFJNumYWCLD2E6HSMOS2uc/P0Wmp89hRIcF4zjFhZmu9oqKzebqNKU=
-X-Received: by 2002:a9d:4590:: with SMTP id x16mr77827ote.254.1566434850855;
- Wed, 21 Aug 2019 17:47:30 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=RdxKL1dPvs4eqhjlv3uZAUE21ZttRHMY9QEWG6r7QBI=;
+        b=OnAWKRm2vc6KcLNERG96AjN+LzIyD8nVJESeoe16Hr8e46e+jRULvAmla0fImqugo4
+         5fCBAt7fJRFbGjhaM2SjZSt9Vq+SPhKx/vmsge/inhsnJ4toBaz4VskIXmVYadlfIuPz
+         QyGQC1MKZMlEfpblHQSM6ddAGmCedMEaGTOpUgA152ZMpekv8zsttERuR1bvpANS/xJ5
+         kAH9KPaYtcaZShIJ3JhcaYSA7dCZffYfevOBDkXi6rvZdMgnI/kIEjZIbcTSlelpLxqZ
+         KmgPvLiYEUecRDXfetKb/hjbzP1Ih/gJnTcVGhqdklEg0o4+fWARpselkZLyyWzF7/om
+         mZxg==
+X-Gm-Message-State: APjAAAVKxufhEdMz63+pKxB5WPXRFItWkI/51P+0Bfuqyl7Jqee3gZ+d
+        fpxi096Gz8YUoMZquQJMvnZ1BQ==
+X-Google-Smtp-Source: APXvYqw62UWND7zkAXSmqnXHz3SP+ZmoQVq6Bi59XPfG53fPwpSJK4wNIvMYYgh7jUzU/r+aiZG1Zg==
+X-Received: by 2002:a65:4546:: with SMTP id x6mr30995170pgr.266.1566438419522;
+        Wed, 21 Aug 2019 18:46:59 -0700 (PDT)
+Received: from google.com ([2620:15c:202:1:534:b7c0:a63c:460c])
+        by smtp.gmail.com with ESMTPSA id s7sm999101pjn.28.2019.08.21.18.46.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2019 18:46:58 -0700 (PDT)
+Date:   Wed, 21 Aug 2019 18:46:56 -0700
+From:   Brian Norris <briannorris@chromium.org>
+To:     Michael Nosthoff <committed@heine.so>
+Cc:     linux-pm@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] power: supply: sbs-battery: only return health when
+ battery present
+Message-ID: <20190822014655.GA165945@google.com>
+References: <20190816075842.27333-1-committed@heine.so>
 MIME-Version: 1.0
-References: <1564970604-10044-1-git-send-email-wanpengli@tencent.com>
- <9acbc733-442f-0f65-9b56-ff800a3fa0f5@redhat.com> <CANRm+CwH54S555nw-Zik-3NFDH9yqe+SOZrGc3mPoAU_qGxP-A@mail.gmail.com>
- <e7b84893-42bf-e80e-61c9-ef5d1b200064@redhat.com>
-In-Reply-To: <e7b84893-42bf-e80e-61c9-ef5d1b200064@redhat.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Thu, 22 Aug 2019 08:46:57 +0800
-Message-ID: <CANRm+CzJf9Or_45frTe9ivFx9QDfx6Nou7uLT6tm1NmcPKDn8A@mail.gmail.com>
-Subject: Re: [PATCH v4 1/6] KVM: Fix leak vCPU's VMCS value into other pCPU
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Marc Zyngier <Marc.Zyngier@arm.com>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190816075842.27333-1-committed@heine.so>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 6 Aug 2019 at 14:20, Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 06/08/19 02:35, Wanpeng Li wrote:
-> > Thank you, Paolo! Btw, how about other 5 patches?
->
-> Queued everything else too.
+On Fri, Aug 16, 2019 at 09:58:42AM +0200, Michael Nosthoff wrote:
+> when the battery is set to sbs-mode and  no gpio detection is enabled
+> "health" is always returning a value even when the battery is not present.
+> All other fields return "not present".
+> This leads to a scenario where the driver is constantly switching between
+> "present" and "not present" state. This generates a lot of constant
+> traffic on the i2c.
 
-How about patch 4/6~5/6, they are not in kvm/queue. :)
+That depends on how often you're checking the "health" attribute,
+doesn't it? But anyway, the bug is real.
 
-Regards,
-Wanpeng Li
+> This commit changes the response of "health" to an error when the battery
+> is not responding leading to a consistent "not present" state.
+
+Ack, and thanks for the fix.
+
+> Fixes: 76b16f4cdfb8 ("power: supply: sbs-battery: don't assume
+> MANUFACTURER_DATA formats")
+> 
+> Signed-off-by: Michael Nosthoff <committed@heine.so>
+> Cc: Brian Norris <briannorris@chromium.org>
+> Cc: <stable@vger.kernel.org>
+
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Tested-by: Brian Norris <briannorris@chromium.org>
+
+> ---
+>  drivers/power/supply/sbs-battery.c | 25 ++++++++++++++++---------
+>  1 file changed, 16 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sbs-battery.c
+> index 2e86cc1e0e35..f8d74e9f7931 100644
+> --- a/drivers/power/supply/sbs-battery.c
+> +++ b/drivers/power/supply/sbs-battery.c
+> @@ -314,17 +314,22 @@ static int sbs_get_battery_presence_and_health(
+>  {
+>  	int ret;
+>  
+> -	if (psp == POWER_SUPPLY_PROP_PRESENT) {
+> -		/* Dummy command; if it succeeds, battery is present. */
+> -		ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
+> -		if (ret < 0)
+> -			val->intval = 0; /* battery disconnected */
+> -		else
+> -			val->intval = 1; /* battery present */
+> -	} else { /* POWER_SUPPLY_PROP_HEALTH */
+> +	/* Dummy command; if it succeeds, battery is present. */
+> +	ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
+> +
+> +	if (ret < 0) { /* battery not present*/
+> +		if (psp == POWER_SUPPLY_PROP_PRESENT) {
+> +			val->intval = 0;
+> +			return 0;
+
+Technically, you don't need the 'return 0' (and if we care about
+symmetry: the TI version doesn't), since the caller knows that "not
+present" will yield errors. I'm not sure which version makes more sense.
+
+> +		}
+> +		return ret;
+> +	}
+> +
+> +	if (psp == POWER_SUPPLY_PROP_PRESENT)
+> +		val->intval = 1; /* battery present */
+> +	else /* POWER_SUPPLY_PROP_HEALTH */
+>  		/* SBS spec doesn't have a general health command. */
+>  		val->intval = POWER_SUPPLY_HEALTH_UNKNOWN;
+> -	}
+>  
+>  	return 0;
+>  }
+> @@ -626,6 +631,8 @@ static int sbs_get_property(struct power_supply *psy,
+>  		else
+>  			ret = sbs_get_battery_presence_and_health(client, psp,
+>  								  val);
+> +
+> +		/* this can only be true if no gpio is used */
+>  		if (psp == POWER_SUPPLY_PROP_PRESENT)
+>  			return 0;
+>  		break;
+> -- 
+> 2.20.1
+> 
