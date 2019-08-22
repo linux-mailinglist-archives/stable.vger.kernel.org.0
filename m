@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7210A99B50
+	by mail.lfdr.de (Postfix) with ESMTP id E15DA99B51
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403931AbfHVRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
+        id S2403983AbfHVRXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403959AbfHVRXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:38 -0400
+        id S2403970AbfHVRXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:39 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38CDB23405;
-        Thu, 22 Aug 2019 17:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD9AB23426;
+        Thu, 22 Aug 2019 17:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494616;
-        bh=p0O9ZmMrU+N0e9HKSmidKwAo4BQzKzXIxJ/Ie0hOM/M=;
+        s=default; t=1566494617;
+        bh=FaT5FQecb8EjfqwtrvETdTKkobJhqQVNVnVT3NtjbAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gT/5X3VBZ5Y/5S1k0ASBHRo/d7tnV8ZnqpFeB9jVVXKiKcD/8sXFXIBdy4A9JKTRK
-         RrbVUyQtuK9RB2PHie6PJAo2UBYUh0U+ETyjrDFch3QFBTrxMQoOUD8nFGD9TsJTK8
-         6t6otHlRby3co9Lz4mpKxpMP5qKfD1Jr+RvCcm+I=
+        b=uDplekty9t3uYV+Fub7I6ak5gaAzWrANWgl8/3p7GgjiSjsYNg4sxsDYcMCPh4RCJ
+         2bbG1Ucsve+laUWeHFmfhyEnrLPOZFrFuzGdF4ecPVqgX1R4wdHhO0BMIG2QyxgT2y
+         mGnXDvrM9T//ye8tbhXblA8S/EXZZhH128CXfdVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 044/103] mm/memcontrol.c: fix use after free in mem_cgroup_iter()
-Date:   Thu, 22 Aug 2019 10:18:32 -0700
-Message-Id: <20190822171730.588097810@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 046/103] bpf: restrict access to core bpf sysctls
+Date:   Thu, 22 Aug 2019 10:18:34 -0700
+Message-Id: <20190822171730.662419102@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
 References: <20190822171728.445189830@linuxfoundation.org>
@@ -47,226 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 54a83d6bcbf8f4700013766b974bf9190d40b689 upstream.
+commit 2e4a30983b0f9b19b59e38bbf7427d7fdd480d98 upstream.
 
-This patch is sent to report an use after free in mem_cgroup_iter()
-after merging commit be2657752e9e ("mm: memcg: fix use after free in
-mem_cgroup_iter()").
+Given BPF reaches far beyond just networking these days, it was
+never intended to allow setting and in some cases reading those
+knobs out of a user namespace root running without CAP_SYS_ADMIN,
+thus tighten such access.
 
-I work with android kernel tree (4.9 & 4.14), and commit be2657752e9e
-("mm: memcg: fix use after free in mem_cgroup_iter()") has been merged
-to the trees.  However, I can still observe use after free issues
-addressed in the commit be2657752e9e.  (on low-end devices, a few times
-this month)
+Also the bpf_jit_enable = 2 debugging mode should only be allowed
+if kptr_restrict is not set since it otherwise can leak addresses
+to the kernel log. Dump a note to the kernel log that this is for
+debugging JITs only when enabled.
 
-backtrace:
-        css_tryget <- crash here
-        mem_cgroup_iter
-        shrink_node
-        shrink_zones
-        do_try_to_free_pages
-        try_to_free_pages
-        __perform_reclaim
-        __alloc_pages_direct_reclaim
-        __alloc_pages_slowpath
-        __alloc_pages_nodemask
-
-To debug, I poisoned mem_cgroup before freeing it:
-
-  static void __mem_cgroup_free(struct mem_cgroup *memcg)
-        for_each_node(node)
-        free_mem_cgroup_per_node_info(memcg, node);
-        free_percpu(memcg->stat);
-  +     /* poison memcg before freeing it */
-  +     memset(memcg, 0x78, sizeof(struct mem_cgroup));
-        kfree(memcg);
-  }
-
-The coredump shows the position=0xdbbc2a00 is freed.
-
-  (gdb) p/x ((struct mem_cgroup_per_node *)0xe5009e00)->iter[8]
-  $13 = {position = 0xdbbc2a00, generation = 0x2efd}
-
-  0xdbbc2a00:     0xdbbc2e00      0x00000000      0xdbbc2800      0x00000100
-  0xdbbc2a10:     0x00000200      0x78787878      0x00026218      0x00000000
-  0xdbbc2a20:     0xdcad6000      0x00000001      0x78787800      0x00000000
-  0xdbbc2a30:     0x78780000      0x00000000      0x0068fb84      0x78787878
-  0xdbbc2a40:     0x78787878      0x78787878      0x78787878      0xe3fa5cc0
-  0xdbbc2a50:     0x78787878      0x78787878      0x00000000      0x00000000
-  0xdbbc2a60:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a70:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a80:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a90:     0x00000001      0x00000000      0x00000000      0x00100000
-  0xdbbc2aa0:     0x00000001      0xdbbc2ac8      0x00000000      0x00000000
-  0xdbbc2ab0:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2ac0:     0x00000000      0x00000000      0xe5b02618      0x00001000
-  0xdbbc2ad0:     0x00000000      0x78787878      0x78787878      0x78787878
-  0xdbbc2ae0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2af0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b00:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b10:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b20:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b30:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b40:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b50:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b60:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b70:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b80:     0x78787878      0x78787878      0x00000000      0x78787878
-  0xdbbc2b90:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2ba0:     0x78787878      0x78787878      0x78787878      0x78787878
-
-In the reclaim path, try_to_free_pages() does not setup
-sc.target_mem_cgroup and sc is passed to do_try_to_free_pages(), ...,
-shrink_node().
-
-In mem_cgroup_iter(), root is set to root_mem_cgroup because
-sc->target_mem_cgroup is NULL.  It is possible to assign a memcg to
-root_mem_cgroup.nodeinfo.iter in mem_cgroup_iter().
-
-        try_to_free_pages
-        	struct scan_control sc = {...}, target_mem_cgroup is 0x0;
-        do_try_to_free_pages
-        shrink_zones
-        shrink_node
-        	 mem_cgroup *root = sc->target_mem_cgroup;
-        	 memcg = mem_cgroup_iter(root, NULL, &reclaim);
-        mem_cgroup_iter()
-        	if (!root)
-        		root = root_mem_cgroup;
-        	...
-
-        	css = css_next_descendant_pre(css, &root->css);
-        	memcg = mem_cgroup_from_css(css);
-        	cmpxchg(&iter->position, pos, memcg);
-
-My device uses memcg non-hierarchical mode.  When we release a memcg:
-invalidate_reclaim_iterators() reaches only dead_memcg and its parents.
-If non-hierarchical mode is used, invalidate_reclaim_iterators() never
-reaches root_mem_cgroup.
-
-  static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-  {
-        struct mem_cgroup *memcg = dead_memcg;
-
-        for (; memcg; memcg = parent_mem_cgroup(memcg)
-        ...
-  }
-
-So the use after free scenario looks like:
-
-  CPU1						CPU2
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      css = css_next_descendant_pre(css, &root->css);
-      memcg = mem_cgroup_from_css(css);
-      cmpxchg(&iter->position, pos, memcg);
-
-        				invalidate_reclaim_iterators(memcg);
-        				...
-        				__mem_cgroup_free()
-        					kfree(memcg);
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
-      iter = &mz->iter[reclaim->priority];
-      pos = READ_ONCE(iter->position);
-      css_tryget(&pos->css) <- use after free
-
-To avoid this, we should also invalidate root_mem_cgroup.nodeinfo.iter
-in invalidate_reclaim_iterators().
-
-[cai@lca.pw: fix -Wparentheses compilation warning]
-  Link: http://lkml.kernel.org/r/1564580753-17531-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/20190730015729.4406-1-miles.chen@mediatek.com
-Fixes: 5ac8fb31ad2e ("mm: memcontrol: convert reclaim iterator to simple css refcounting")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[bwh: Backported to 4.9:
+ - We don't have bpf_dump_raw_ok(), so drop the condition based on it. This
+   condition only made it a bit harder for a privileged user to do something
+   silly.
+ - Drop change to bpf_jit_kallsyms]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- mm/memcontrol.c |   39 +++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+ net/core/sysctl_net_core.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 37 insertions(+), 2 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -887,26 +887,45 @@ void mem_cgroup_iter_break(struct mem_cg
- 		css_put(&prev->css);
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -232,6 +232,41 @@ static int proc_do_rss_key(struct ctl_ta
+ 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
  }
  
--static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
-+					struct mem_cgroup *dead_memcg)
- {
--	struct mem_cgroup *memcg = dead_memcg;
- 	struct mem_cgroup_reclaim_iter *iter;
- 	struct mem_cgroup_per_node *mz;
- 	int nid;
- 	int i;
- 
--	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
--		for_each_node(nid) {
--			mz = mem_cgroup_nodeinfo(memcg, nid);
--			for (i = 0; i <= DEF_PRIORITY; i++) {
--				iter = &mz->iter[i];
--				cmpxchg(&iter->position,
--					dead_memcg, NULL);
--			}
-+	for_each_node(nid) {
-+		mz = mem_cgroup_nodeinfo(from, nid);
-+		for (i = 0; i <= DEF_PRIORITY; i++) {
-+			iter = &mz->iter[i];
-+			cmpxchg(&iter->position,
-+				dead_memcg, NULL);
- 		}
- 	}
- }
- 
-+static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
++#ifdef CONFIG_BPF_JIT
++static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
++					   void __user *buffer, size_t *lenp,
++					   loff_t *ppos)
 +{
-+	struct mem_cgroup *memcg = dead_memcg;
-+	struct mem_cgroup *last;
++	int ret, jit_enable = *(int *)table->data;
++	struct ctl_table tmp = *table;
 +
-+	do {
-+		__invalidate_reclaim_iterators(memcg, dead_memcg);
-+		last = memcg;
-+	} while ((memcg = parent_mem_cgroup(memcg)));
++	if (write && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
 +
-+	/*
-+	 * When cgruop1 non-hierarchy mode is used,
-+	 * parent_mem_cgroup() does not walk all the way up to the
-+	 * cgroup root (root_mem_cgroup). So we have to handle
-+	 * dead_memcg from cgroup root separately.
-+	 */
-+	if (last != root_mem_cgroup)
-+		__invalidate_reclaim_iterators(root_mem_cgroup,
-+						dead_memcg);
++	tmp.data = &jit_enable;
++	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
++	if (write && !ret) {
++		*(int *)table->data = jit_enable;
++		if (jit_enable == 2)
++			pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
++	}
++	return ret;
 +}
 +
- /*
-  * Iteration constructs for visiting all cgroups (under a tree).  If
-  * loops are exited prematurely (break), mem_cgroup_iter_break() must
++# ifdef CONFIG_HAVE_EBPF_JIT
++static int
++proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
++				    void __user *buffer, size_t *lenp,
++				    loff_t *ppos)
++{
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++}
++# endif
++#endif
++
+ static struct ctl_table net_core_table[] = {
+ #ifdef CONFIG_NET
+ 	{
+@@ -293,7 +328,7 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_enable,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec_minmax,
++		.proc_handler	= proc_dointvec_minmax_bpf_enable,
+ # ifdef CONFIG_BPF_JIT_ALWAYS_ON
+ 		.extra1		= &one,
+ 		.extra2		= &one,
+@@ -308,7 +343,7 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_harden,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec_minmax,
++		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
+ 		.extra1		= &zero,
+ 		.extra2		= &two,
+ 	},
 
 
