@@ -2,123 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3B09A3C7
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 01:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F939A3DA
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 01:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391134AbfHVXYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 19:24:01 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:43242 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731012AbfHVXYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 19:24:01 -0400
-Received: by mail-pg1-f193.google.com with SMTP id k3so4564073pgb.10
-        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 16:24:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:in-reply-to:references:date:message-id
-         :mime-version;
-        bh=Xrv/K8dQ89ELPWp5GIeJvc/tKU1hE0fADZZT0Rp4xCw=;
-        b=oHQtK7cWF4YNNlGFX4Lou7Tvf5M6/BkXy7GynBMfRPexYBZiYMeznIpW0OEEMlYOvO
-         h9FRRAdhuHWA69cBYNVMLsSpA0lLfGO1Vme9nN+wiZwpWn0Bkdo6KZ/80U1+uSjgWWpu
-         MhHBCysvmoJvK6dkijFMjPDvC/846PpdnyhE4AqP9XQlCBkGmUhoMLtg+90YXqGWpXKS
-         B4XwVx8ERhHdNl4h7RyoXWP8YYGz5OFuh5Pm0s5n7qtQhnY7N9AkSOY1KGPpikrGf9xX
-         axyZfS8wUK3VLfhWjIYpsq3n12IGgJJO/dv3dRVP8FqN0FvyhDGz+L4cBxZvz1LSDVAf
-         U9zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=Xrv/K8dQ89ELPWp5GIeJvc/tKU1hE0fADZZT0Rp4xCw=;
-        b=DYroQIvt9as+uYkq07gm7IfF3KWwPHR8+uD+miAbCgPIjczxsFKR+nyQHmUOIGSbEF
-         PNABr/2DZlvfnp76kVnrIbRSuMdGXgcVa6CiIqcqfikib+KQDw3mbWuwa8euBauQ3Ivf
-         vQlKSugZVIiBh2cNCFm524GEz/RLGdiu8CLUjzQdRXGtPOf4sTtDUdgdL8NDZgFBsccK
-         hcdeMxseghgwX3cjG6aVrsY1VIE/yYkRtj3v+7GQx+8m9FkbCVgMebacxzeOS57WF/74
-         6W/ivaHOnlErqI3pjioZlRMuCOhmZ5gitjAsSN37zkhXhiouthk+toMUroE8xQJi8Orl
-         7RSA==
-X-Gm-Message-State: APjAAAXiGXBUN6hzmzVwGa4EjD+NC2eG+vBLF2hWiYRQmy78APvOUw1g
-        L5vxmIiAO9Fblag73IhHN9ihzQ==
-X-Google-Smtp-Source: APXvYqwa+nxDVJoq0CNmukkf7aMafMYxPRJadiw+6g6zA2gNsoqH1hxioLg6agDSoWaVzexljZ8jNA==
-X-Received: by 2002:a63:e148:: with SMTP id h8mr1392722pgk.275.1566516240065;
-        Thu, 22 Aug 2019 16:24:00 -0700 (PDT)
-Received: from localhost ([2601:602:9200:a1a5:89d4:68d1:fc04:721])
-        by smtp.gmail.com with ESMTPSA id s7sm474003pfb.138.2019.08.22.16.23.59
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 22 Aug 2019 16:23:59 -0700 (PDT)
-From:   Kevin Hilman <khilman@baylibre.com>
-To:     "kernelci.org bot" <bot@kernelci.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/71] 4.14.140-stable review
-In-Reply-To: <5d5f064d.1c69fb81.ab35c.8cfd@mx.google.com>
-References: <20190822171726.131957995@linuxfoundation.org> <5d5f064d.1c69fb81.ab35c.8cfd@mx.google.com>
-Date:   Thu, 22 Aug 2019 16:23:58 -0700
-Message-ID: <7h8srk238x.fsf@baylibre.com>
+        id S1726545AbfHVXd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 19:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726533AbfHVXd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 19:33:29 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8C0620578;
+        Thu, 22 Aug 2019 23:33:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566516808;
+        bh=0NwQlsSziZJaMCck4H2ZDnpQ9eTyWEWyigid55n9zcg=;
+        h=Date:From:To:Subject:From;
+        b=EilHSMAzyulLGdMxQl+0Aozr8iSP9rr0OAvZnJzV+GRXIfFNh/lLZcxHibS7+rUab
+         ekxlhuwHAv+A3RY2gSU71XwJ6yuyrImYHx4pLYPAM+BloanCy19PKtx5wk2RtudM8y
+         LzNd7cHvfJEJy08DL7DVAuc3dhByw8yoknlxh8JI=
+Date:   Thu, 22 Aug 2019 16:33:27 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, will.deacon@arm.com,
+        walter-zh.wu@mediatek.com, stable@vger.kernel.org,
+        mark.rutland@arm.com, glider@google.com, dvyukov@google.com,
+        catalin.marinas@arm.com, andreyknvl@google.com,
+        aryabinin@virtuozzo.com
+Subject:  +
+ =?us-ascii?Q?mm-kasan-fix-false-positive-invalid-free-reports-with-conf?=
+ =?us-ascii?Q?ig=5Fkasan=5Fsw=5Ftags=3Dy.patch?= added to -mm tree
+Message-ID: <20190822233327.IzyVh%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"kernelci.org bot" <bot@kernelci.org> writes:
 
-> stable-rc/linux-4.14.y boot: 124 boots: 2 failed, 106 passed with 16 offline (v4.14.139-72-g6c641edcbe64)
+The patch titled
+     Subject: mm/kasan: fix false positive invalid-free reports with CONFIG_KASAN_SW_TAGS=y
+has been added to the -mm tree.  Its filename is
+     mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags=y.patch
 
-TL;DR;  All is well.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags%3Dy.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags%3Dy.patch
 
-> Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux-4.14.y/kernel/v4.14.139-72-g6c641edcbe64/
-> Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.y/kernel/v4.14.139-72-g6c641edcbe64/
->
-> Tree: stable-rc
-> Branch: linux-4.14.y
-> Git Describe: v4.14.139-72-g6c641edcbe64
-> Git Commit: 6c641edcbe649a2aa866356ffd24f595edb17bea
-> Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> Tested: 67 unique boards, 25 SoC families, 16 builds out of 201
->
-> Boot Regressions Detected:
->
-> arm:
->
->     bcm2835_defconfig:
->         gcc-8:
->           bcm2835-rpi-b:
->               lab-baylibre-seattle: new failure (last pass: v4.14.139-62-g3f2d1f5446a4)
->
->     qcom_defconfig:
->         gcc-8:
->           qcom-apq8064-cm-qs600:
->               lab-baylibre-seattle: failing since 6 days (last pass: v4.14.138 - first fail: v4.14.138-70-g736c2f07319a)
->           qcom-apq8064-ifc6410:
->               lab-baylibre-seattle: failing since 6 days (last pass: v4.14.138 - first fail: v4.14.138-70-g736c2f07319a)
->
->     sama5_defconfig:
->         gcc-8:
->           at91-sama5d4_xplained:
->               lab-baylibre-seattle: new failure (last pass: v4.14.139-62-g3f2d1f5446a4)
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Again, regression detector failure...
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-> Boot Failures Detected:
->
-> arc:
->     hsdk_defconfig:
->         gcc-8:
->             hsdk: 1 failed lab
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-This is known broken on v4.14, will blacklist.
+------------------------------------------------------
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Subject: mm/kasan: fix false positive invalid-free reports with CONFIG_KASAN_SW_TAGS=y
 
-> arm64:
->     defconfig:
->         gcc-8:
->             rk3399-firefly: 1 failed lab
+The code like this:
 
-Hmm, this appears to have never worked on v4.14 either.  Blacklisting
-until someone else cares to debug why.
+	ptr = kmalloc(size, GFP_KERNEL);
+	page = virt_to_page(ptr);
+	offset = offset_in_page(ptr);
+	kfree(page_address(page) + offset);
 
-Kevin
+may produce false-positive invalid-free reports on the kernel with
+CONFIG_KASAN_SW_TAGS=y.
+
+In the example above we lose the original tag assigned to 'ptr', so
+kfree() gets the pointer with 0xFF tag.  In kfree() we check that 0xFF tag
+is different from the tag in shadow hence print false report.
+
+Instead of just comparing tags, do the following:
+
+1) Check that shadow doesn't contain KASAN_TAG_INVALID.  Otherwise it's
+   double-free and it doesn't matter what tag the pointer have.
+
+2) If pointer tag is different from 0xFF, make sure that tag in the
+   shadow is the same as in the pointer.
+
+Link: http://lkml.kernel.org/r/20190819172540.19581-1-aryabinin@virtuozzo.com
+Fixes: 7f94ffbc4c6a ("kasan: add hooks implementation for tag-based mode")
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/kasan/common.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+--- a/mm/kasan/common.c~mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags=y
++++ a/mm/kasan/common.c
+@@ -407,8 +407,14 @@ static inline bool shadow_invalid(u8 tag
+ 	if (IS_ENABLED(CONFIG_KASAN_GENERIC))
+ 		return shadow_byte < 0 ||
+ 			shadow_byte >= KASAN_SHADOW_SCALE_SIZE;
+-	else
+-		return tag != (u8)shadow_byte;
++
++	/* else CONFIG_KASAN_SW_TAGS: */
++	if ((u8)shadow_byte == KASAN_TAG_INVALID)
++		return true;
++	if ((tag != KASAN_TAG_KERNEL) && (tag != (u8)shadow_byte))
++		return true;
++
++	return false;
+ }
+ 
+ static bool __kasan_slab_free(struct kmem_cache *cache, void *object,
+_
+
+Patches currently in -mm which might be from aryabinin@virtuozzo.com are
+
+mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags=y.patch
+mm-vmscan-remove-unused-lru_pages-argument.patch
+
