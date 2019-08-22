@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B01B99D6D
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CCE999DC3
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405196AbfHVRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:42:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
+        id S2392907AbfHVRpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391622AbfHVRXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:47 -0400
+        id S2403829AbfHVRXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:09 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349972343B;
-        Thu, 22 Aug 2019 17:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CC362342A;
+        Thu, 22 Aug 2019 17:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494625;
-        bh=kDzDlYLn3bCOUbdifUUcd4ZCcAOJTJ6iQYhXQkL6oZU=;
+        s=default; t=1566494587;
+        bh=RdNceqvIMpPHqjQP+dUZ/sCr6bsnCPl9H8YoShPv3PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fukiJc44EB1g/lRiJzr0BYiIao/RCwnzRhTJGbkZG0r5aCUcEvPnAfYwjmC344F3b
-         EhMqBvPE6J0m6sefZz1GRJD5dv2szy3/rccy3xWfgBJjJVYbGpcH+nQEfaKfIq4v0n
-         huTYifuLhSXc/MHSLmKd4HEN7wM6IZl1OuUmyOtE=
+        b=yWCQCbiXhuMVA1AHQ6bzw2xn1aUDPu2kf7151FcKQrP0Fct/iAENtwiAG3PBnU3FQ
+         sQIZRMuJJ7bzj/tEYj2tYpXVTPmEyVbOvDalwyITSUMCng060K/lNelpU9hQ4LGz9e
+         jv4LbDePo+mNzn2253kFcZqydKD9IasK0jJ6vt1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 055/103] siphash: implement HalfSipHash1-3 for hash tables
+        stable@vger.kernel.org,
+        syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Hillf Danton <hdanton@sina.com>, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.4 39/78] HID: hiddev: avoid opening a disconnected device
 Date:   Thu, 22 Aug 2019 10:18:43 -0700
-Message-Id: <20190822171731.020880240@linuxfoundation.org>
+Message-Id: <20190822171833.173038866@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,673 +45,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Hillf Danton <hdanton@sina.com>
 
-commit 1ae2324f732c9c4e2fa4ebd885fa1001b70d52e1 upstream.
+commit 9c09b214f30e3c11f9b0b03f89442df03643794d upstream.
 
-HalfSipHash, or hsiphash, is a shortened version of SipHash, which
-generates 32-bit outputs using a weaker 64-bit key. It has *much* lower
-security margins, and shouldn't be used for anything too sensitive, but
-it could be used as a hashtable key function replacement, if the output
-is never exposed, and if the security requirement is not too high.
+syzbot found the following crash on:
 
-The goal is to make this something that performance-critical jhash users
-would be willing to use.
+HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=147ac20c600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
+dashboard link: https://syzkaller.appspot.com/bug?extid=62a1e04fd3ec2abf099e
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 
-On 64-bit machines, HalfSipHash1-3 is slower than SipHash1-3, so we alias
-SipHash1-3 to HalfSipHash1-3 on those systems.
+==================================================================
+BUG: KASAN: use-after-free in __lock_acquire+0x302a/0x3b50
+kernel/locking/lockdep.c:3753
+Read of size 8 at addr ffff8881cf591a08 by task syz-executor.1/26260
 
-64-bit x86_64:
-[    0.509409] test_siphash:     SipHash2-4 cycles: 4049181
-[    0.510650] test_siphash:     SipHash1-3 cycles: 2512884
-[    0.512205] test_siphash: HalfSipHash1-3 cycles: 3429920
-[    0.512904] test_siphash:    JenkinsHash cycles:  978267
-So, we map hsiphash() -> SipHash1-3
+CPU: 1 PID: 26260 Comm: syz-executor.1 Not tainted 5.3.0-rc2+ #24
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  __lock_acquire+0x302a/0x3b50 kernel/locking/lockdep.c:3753
+  lock_acquire+0x127/0x320 kernel/locking/lockdep.c:4412
+  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+  _raw_spin_lock_irqsave+0x32/0x50 kernel/locking/spinlock.c:159
+  hiddev_release+0x82/0x520 drivers/hid/usbhid/hiddev.c:221
+  __fput+0x2d7/0x840 fs/file_table.c:280
+  task_work_run+0x13f/0x1c0 kernel/task_work.c:113
+  exit_task_work include/linux/task_work.h:22 [inline]
+  do_exit+0x8ef/0x2c50 kernel/exit.c:878
+  do_group_exit+0x125/0x340 kernel/exit.c:982
+  get_signal+0x466/0x23d0 kernel/signal.c:2728
+  do_signal+0x88/0x14e0 arch/x86/kernel/signal.c:815
+  exit_to_usermode_loop+0x1a2/0x200 arch/x86/entry/common.c:159
+  prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
+  syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
+  do_syscall_64+0x45f/0x580 arch/x86/entry/common.c:299
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459829
+Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f75b2a6ccf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
+RAX: fffffffffffffe00 RBX: 000000000075c078 RCX: 0000000000459829
+RDX: 0000000000000000 RSI: 0000000000000080 RDI: 000000000075c078
+RBP: 000000000075c070 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000075c07c
+R13: 00007ffcdfe1023f R14: 00007f75b2a6d9c0 R15: 000000000075c07c
 
-32-bit x86:
-[    0.509868] test_siphash:     SipHash2-4 cycles: 14812892
-[    0.513601] test_siphash:     SipHash1-3 cycles:  9510710
-[    0.515263] test_siphash: HalfSipHash1-3 cycles:  3856157
-[    0.515952] test_siphash:    JenkinsHash cycles:  1148567
-So, we map hsiphash() -> HalfSipHash1-3
+Allocated by task 104:
+  save_stack+0x1b/0x80 mm/kasan/common.c:69
+  set_track mm/kasan/common.c:77 [inline]
+  __kasan_kmalloc mm/kasan/common.c:487 [inline]
+  __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:460
+  kmalloc include/linux/slab.h:552 [inline]
+  kzalloc include/linux/slab.h:748 [inline]
+  hiddev_connect+0x242/0x5b0 drivers/hid/usbhid/hiddev.c:900
+  hid_connect+0x239/0xbb0 drivers/hid/hid-core.c:1882
+  hid_hw_start drivers/hid/hid-core.c:1981 [inline]
+  hid_hw_start+0xa2/0x130 drivers/hid/hid-core.c:1972
+  appleir_probe+0x13e/0x1a0 drivers/hid/hid-appleir.c:308
+  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  hid_add_device+0x33c/0x990 drivers/hid/hid-core.c:2365
+  usbhid_probe+0xa81/0xfa0 drivers/hid/usbhid/hid-core.c:1386
+  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
+  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
+  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  usb_new_device.cold+0x6a4/0xe79 drivers/usb/core/hub.c:2536
+  hub_port_connect drivers/usb/core/hub.c:5098 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x1b5c/0x3640 drivers/usb/core/hub.c:5441
+  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
+  kthread+0x318/0x420 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
 
-hsiphash() is roughly 3 times slower than jhash(), but comes with a
-considerable security improvement.
+Freed by task 104:
+  save_stack+0x1b/0x80 mm/kasan/common.c:69
+  set_track mm/kasan/common.c:77 [inline]
+  __kasan_slab_free+0x130/0x180 mm/kasan/common.c:449
+  slab_free_hook mm/slub.c:1423 [inline]
+  slab_free_freelist_hook mm/slub.c:1470 [inline]
+  slab_free mm/slub.c:3012 [inline]
+  kfree+0xe4/0x2f0 mm/slub.c:3953
+  hiddev_connect.cold+0x45/0x5c drivers/hid/usbhid/hiddev.c:914
+  hid_connect+0x239/0xbb0 drivers/hid/hid-core.c:1882
+  hid_hw_start drivers/hid/hid-core.c:1981 [inline]
+  hid_hw_start+0xa2/0x130 drivers/hid/hid-core.c:1972
+  appleir_probe+0x13e/0x1a0 drivers/hid/hid-appleir.c:308
+  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  hid_add_device+0x33c/0x990 drivers/hid/hid-core.c:2365
+  usbhid_probe+0xa81/0xfa0 drivers/hid/usbhid/hid-core.c:1386
+  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
+  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
+  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
+  really_probe+0x281/0x650 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:882
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2114
+  usb_new_device.cold+0x6a4/0xe79 drivers/usb/core/hub.c:2536
+  hub_port_connect drivers/usb/core/hub.c:5098 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x1b5c/0x3640 drivers/usb/core/hub.c:5441
+  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
+  kthread+0x318/0x420 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.9 to avoid regression for WireGuard with only half
- the siphash API present]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+The buggy address belongs to the object at ffff8881cf591900
+  which belongs to the cache kmalloc-512 of size 512
+The buggy address is located 264 bytes inside of
+  512-byte region [ffff8881cf591900, ffff8881cf591b00)
+The buggy address belongs to the page:
+page:ffffea00073d6400 refcount:1 mapcount:0 mapping:ffff8881da002500
+index:0x0 compound_mapcount: 0
+flags: 0x200000000010200(slab|head)
+raw: 0200000000010200 0000000000000000 0000000100000001 ffff8881da002500
+raw: 0000000000000000 00000000000c000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8881cf591900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881cf591980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ffff8881cf591a00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                       ^
+  ffff8881cf591a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881cf591b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+In order to avoid opening a disconnected device, we need to check exist
+again after acquiring the existance lock, and bail out if necessary.
+
+Reported-by: syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Documentation/siphash.txt |   75 ++++++++++
- include/linux/siphash.h   |   57 ++++++++
- lib/siphash.c             |  321 +++++++++++++++++++++++++++++++++++++++++++++-
- lib/test_siphash.c        |   98 +++++++++++++-
- 4 files changed, 546 insertions(+), 5 deletions(-)
 
---- a/Documentation/siphash.txt
-+++ b/Documentation/siphash.txt
-@@ -98,3 +98,78 @@ u64 h = siphash(&combined, offsetofend(t
+---
+ drivers/hid/usbhid/hiddev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -308,6 +308,14 @@ static int hiddev_open(struct inode *ino
+ 	spin_unlock_irq(&list->hiddev->list_lock);
  
- Read the SipHash paper if you're interested in learning more:
- https://131002.net/siphash/siphash.pdf
-+
-+
-+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
-+
-+HalfSipHash - SipHash's insecure younger cousin
-+-----------------------------------------------
-+Written by Jason A. Donenfeld <jason@zx2c4.com>
-+
-+On the off-chance that SipHash is not fast enough for your needs, you might be
-+able to justify using HalfSipHash, a terrifying but potentially useful
-+possibility. HalfSipHash cuts SipHash's rounds down from "2-4" to "1-3" and,
-+even scarier, uses an easily brute-forcable 64-bit key (with a 32-bit output)
-+instead of SipHash's 128-bit key. However, this may appeal to some
-+high-performance `jhash` users.
-+
-+Danger!
-+
-+Do not ever use HalfSipHash except for as a hashtable key function, and only
-+then when you can be absolutely certain that the outputs will never be
-+transmitted out of the kernel. This is only remotely useful over `jhash` as a
-+means of mitigating hashtable flooding denial of service attacks.
-+
-+1. Generating a key
-+
-+Keys should always be generated from a cryptographically secure source of
-+random numbers, either using get_random_bytes or get_random_once:
-+
-+hsiphash_key_t key;
-+get_random_bytes(&key, sizeof(key));
-+
-+If you're not deriving your key from here, you're doing it wrong.
-+
-+2. Using the functions
-+
-+There are two variants of the function, one that takes a list of integers, and
-+one that takes a buffer:
-+
-+u32 hsiphash(const void *data, size_t len, const hsiphash_key_t *key);
-+
-+And:
-+
-+u32 hsiphash_1u32(u32, const hsiphash_key_t *key);
-+u32 hsiphash_2u32(u32, u32, const hsiphash_key_t *key);
-+u32 hsiphash_3u32(u32, u32, u32, const hsiphash_key_t *key);
-+u32 hsiphash_4u32(u32, u32, u32, u32, const hsiphash_key_t *key);
-+
-+If you pass the generic hsiphash function something of a constant length, it
-+will constant fold at compile-time and automatically choose one of the
-+optimized functions.
-+
-+3. Hashtable key function usage:
-+
-+struct some_hashtable {
-+	DECLARE_HASHTABLE(hashtable, 8);
-+	hsiphash_key_t key;
-+};
-+
-+void init_hashtable(struct some_hashtable *table)
-+{
-+	get_random_bytes(&table->key, sizeof(table->key));
-+}
-+
-+static inline hlist_head *some_hashtable_bucket(struct some_hashtable *table, struct interesting_input *input)
-+{
-+	return &table->hashtable[hsiphash(input, sizeof(*input), &table->key) & (HASH_SIZE(table->hashtable) - 1)];
-+}
-+
-+You may then iterate like usual over the returned hash bucket.
-+
-+4. Performance
-+
-+HalfSipHash is roughly 3 times slower than JenkinsHash. For many replacements,
-+this will not be a problem, as the hashtable lookup isn't the bottleneck. And
-+in general, this is probably a good sacrifice to make for the security and DoS
-+resistance of HalfSipHash.
---- a/include/linux/siphash.h
-+++ b/include/linux/siphash.h
-@@ -5,7 +5,9 @@
-  * SipHash: a fast short-input PRF
-  * https://131002.net/siphash/
-  *
-- * This implementation is specifically for SipHash2-4.
-+ * This implementation is specifically for SipHash2-4 for a secure PRF
-+ * and HalfSipHash1-3/SipHash1-3 for an insecure PRF only suitable for
-+ * hashtables.
-  */
- 
- #ifndef _LINUX_SIPHASH_H
-@@ -82,4 +84,57 @@ static inline u64 siphash(const void *da
- 	return ___siphash_aligned(data, len, key);
- }
- 
-+#define HSIPHASH_ALIGNMENT __alignof__(unsigned long)
-+typedef struct {
-+	unsigned long key[2];
-+} hsiphash_key_t;
-+
-+u32 __hsiphash_aligned(const void *data, size_t len,
-+		       const hsiphash_key_t *key);
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+u32 __hsiphash_unaligned(const void *data, size_t len,
-+			 const hsiphash_key_t *key);
-+#endif
-+
-+u32 hsiphash_1u32(const u32 a, const hsiphash_key_t *key);
-+u32 hsiphash_2u32(const u32 a, const u32 b, const hsiphash_key_t *key);
-+u32 hsiphash_3u32(const u32 a, const u32 b, const u32 c,
-+		  const hsiphash_key_t *key);
-+u32 hsiphash_4u32(const u32 a, const u32 b, const u32 c, const u32 d,
-+		  const hsiphash_key_t *key);
-+
-+static inline u32 ___hsiphash_aligned(const __le32 *data, size_t len,
-+				      const hsiphash_key_t *key)
-+{
-+	if (__builtin_constant_p(len) && len == 4)
-+		return hsiphash_1u32(le32_to_cpu(data[0]), key);
-+	if (__builtin_constant_p(len) && len == 8)
-+		return hsiphash_2u32(le32_to_cpu(data[0]), le32_to_cpu(data[1]),
-+				     key);
-+	if (__builtin_constant_p(len) && len == 12)
-+		return hsiphash_3u32(le32_to_cpu(data[0]), le32_to_cpu(data[1]),
-+				     le32_to_cpu(data[2]), key);
-+	if (__builtin_constant_p(len) && len == 16)
-+		return hsiphash_4u32(le32_to_cpu(data[0]), le32_to_cpu(data[1]),
-+				     le32_to_cpu(data[2]), le32_to_cpu(data[3]),
-+				     key);
-+	return __hsiphash_aligned(data, len, key);
-+}
-+
-+/**
-+ * hsiphash - compute 32-bit hsiphash PRF value
-+ * @data: buffer to hash
-+ * @size: size of @data
-+ * @key: the hsiphash key
-+ */
-+static inline u32 hsiphash(const void *data, size_t len,
-+			   const hsiphash_key_t *key)
-+{
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+	if (!IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
-+		return __hsiphash_unaligned(data, len, key);
-+#endif
-+	return ___hsiphash_aligned(data, len, key);
-+}
-+
- #endif /* _LINUX_SIPHASH_H */
---- a/lib/siphash.c
-+++ b/lib/siphash.c
-@@ -5,7 +5,9 @@
-  * SipHash: a fast short-input PRF
-  * https://131002.net/siphash/
-  *
-- * This implementation is specifically for SipHash2-4.
-+ * This implementation is specifically for SipHash2-4 for a secure PRF
-+ * and HalfSipHash1-3/SipHash1-3 for an insecure PRF only suitable for
-+ * hashtables.
-  */
- 
- #include <linux/siphash.h>
-@@ -230,3 +232,320 @@ u64 siphash_3u32(const u32 first, const
- 	POSTAMBLE
- }
- EXPORT_SYMBOL(siphash_3u32);
-+
-+#if BITS_PER_LONG == 64
-+/* Note that on 64-bit, we make HalfSipHash1-3 actually be SipHash1-3, for
-+ * performance reasons. On 32-bit, below, we actually implement HalfSipHash1-3.
-+ */
-+
-+#define HSIPROUND SIPROUND
-+#define HPREAMBLE(len) PREAMBLE(len)
-+#define HPOSTAMBLE \
-+	v3 ^= b; \
-+	HSIPROUND; \
-+	v0 ^= b; \
-+	v2 ^= 0xff; \
-+	HSIPROUND; \
-+	HSIPROUND; \
-+	HSIPROUND; \
-+	return (v0 ^ v1) ^ (v2 ^ v3);
-+
-+u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
-+{
-+	const u8 *end = data + len - (len % sizeof(u64));
-+	const u8 left = len & (sizeof(u64) - 1);
-+	u64 m;
-+	HPREAMBLE(len)
-+	for (; data != end; data += sizeof(u64)) {
-+		m = le64_to_cpup(data);
-+		v3 ^= m;
-+		HSIPROUND;
-+		v0 ^= m;
+ 	mutex_lock(&hiddev->existancelock);
++	/*
++	 * recheck exist with existance lock held to
++	 * avoid opening a disconnected device
++	 */
++	if (!list->hiddev->exist) {
++		res = -ENODEV;
++		goto bail_unlock;
 +	}
-+#if defined(CONFIG_DCACHE_WORD_ACCESS) && BITS_PER_LONG == 64
-+	if (left)
-+		b |= le64_to_cpu((__force __le64)(load_unaligned_zeropad(data) &
-+						  bytemask_from_count(left)));
-+#else
-+	switch (left) {
-+	case 7: b |= ((u64)end[6]) << 48;
-+	case 6: b |= ((u64)end[5]) << 40;
-+	case 5: b |= ((u64)end[4]) << 32;
-+	case 4: b |= le32_to_cpup(data); break;
-+	case 3: b |= ((u64)end[2]) << 16;
-+	case 2: b |= le16_to_cpup(data); break;
-+	case 1: b |= end[0];
-+	}
-+#endif
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(__hsiphash_aligned);
-+
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+u32 __hsiphash_unaligned(const void *data, size_t len,
-+			 const hsiphash_key_t *key)
-+{
-+	const u8 *end = data + len - (len % sizeof(u64));
-+	const u8 left = len & (sizeof(u64) - 1);
-+	u64 m;
-+	HPREAMBLE(len)
-+	for (; data != end; data += sizeof(u64)) {
-+		m = get_unaligned_le64(data);
-+		v3 ^= m;
-+		HSIPROUND;
-+		v0 ^= m;
-+	}
-+#if defined(CONFIG_DCACHE_WORD_ACCESS) && BITS_PER_LONG == 64
-+	if (left)
-+		b |= le64_to_cpu((__force __le64)(load_unaligned_zeropad(data) &
-+						  bytemask_from_count(left)));
-+#else
-+	switch (left) {
-+	case 7: b |= ((u64)end[6]) << 48;
-+	case 6: b |= ((u64)end[5]) << 40;
-+	case 5: b |= ((u64)end[4]) << 32;
-+	case 4: b |= get_unaligned_le32(end); break;
-+	case 3: b |= ((u64)end[2]) << 16;
-+	case 2: b |= get_unaligned_le16(end); break;
-+	case 1: b |= end[0];
-+	}
-+#endif
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(__hsiphash_unaligned);
-+#endif
-+
-+/**
-+ * hsiphash_1u32 - compute 64-bit hsiphash PRF value of a u32
-+ * @first: first u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_1u32(const u32 first, const hsiphash_key_t *key)
-+{
-+	HPREAMBLE(4)
-+	b |= first;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_1u32);
-+
-+/**
-+ * hsiphash_2u32 - compute 32-bit hsiphash PRF value of 2 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_2u32(const u32 first, const u32 second, const hsiphash_key_t *key)
-+{
-+	u64 combined = (u64)second << 32 | first;
-+	HPREAMBLE(8)
-+	v3 ^= combined;
-+	HSIPROUND;
-+	v0 ^= combined;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_2u32);
-+
-+/**
-+ * hsiphash_3u32 - compute 32-bit hsiphash PRF value of 3 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @third: third u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_3u32(const u32 first, const u32 second, const u32 third,
-+		  const hsiphash_key_t *key)
-+{
-+	u64 combined = (u64)second << 32 | first;
-+	HPREAMBLE(12)
-+	v3 ^= combined;
-+	HSIPROUND;
-+	v0 ^= combined;
-+	b |= third;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_3u32);
-+
-+/**
-+ * hsiphash_4u32 - compute 32-bit hsiphash PRF value of 4 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @third: third u32
-+ * @forth: forth u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_4u32(const u32 first, const u32 second, const u32 third,
-+		  const u32 forth, const hsiphash_key_t *key)
-+{
-+	u64 combined = (u64)second << 32 | first;
-+	HPREAMBLE(16)
-+	v3 ^= combined;
-+	HSIPROUND;
-+	v0 ^= combined;
-+	combined = (u64)forth << 32 | third;
-+	v3 ^= combined;
-+	HSIPROUND;
-+	v0 ^= combined;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_4u32);
-+#else
-+#define HSIPROUND \
-+	do { \
-+	v0 += v1; v1 = rol32(v1, 5); v1 ^= v0; v0 = rol32(v0, 16); \
-+	v2 += v3; v3 = rol32(v3, 8); v3 ^= v2; \
-+	v0 += v3; v3 = rol32(v3, 7); v3 ^= v0; \
-+	v2 += v1; v1 = rol32(v1, 13); v1 ^= v2; v2 = rol32(v2, 16); \
-+	} while (0)
-+
-+#define HPREAMBLE(len) \
-+	u32 v0 = 0; \
-+	u32 v1 = 0; \
-+	u32 v2 = 0x6c796765U; \
-+	u32 v3 = 0x74656462U; \
-+	u32 b = ((u32)(len)) << 24; \
-+	v3 ^= key->key[1]; \
-+	v2 ^= key->key[0]; \
-+	v1 ^= key->key[1]; \
-+	v0 ^= key->key[0];
-+
-+#define HPOSTAMBLE \
-+	v3 ^= b; \
-+	HSIPROUND; \
-+	v0 ^= b; \
-+	v2 ^= 0xff; \
-+	HSIPROUND; \
-+	HSIPROUND; \
-+	HSIPROUND; \
-+	return v1 ^ v3;
-+
-+u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
-+{
-+	const u8 *end = data + len - (len % sizeof(u32));
-+	const u8 left = len & (sizeof(u32) - 1);
-+	u32 m;
-+	HPREAMBLE(len)
-+	for (; data != end; data += sizeof(u32)) {
-+		m = le32_to_cpup(data);
-+		v3 ^= m;
-+		HSIPROUND;
-+		v0 ^= m;
-+	}
-+	switch (left) {
-+	case 3: b |= ((u32)end[2]) << 16;
-+	case 2: b |= le16_to_cpup(data); break;
-+	case 1: b |= end[0];
-+	}
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(__hsiphash_aligned);
-+
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+u32 __hsiphash_unaligned(const void *data, size_t len,
-+			 const hsiphash_key_t *key)
-+{
-+	const u8 *end = data + len - (len % sizeof(u32));
-+	const u8 left = len & (sizeof(u32) - 1);
-+	u32 m;
-+	HPREAMBLE(len)
-+	for (; data != end; data += sizeof(u32)) {
-+		m = get_unaligned_le32(data);
-+		v3 ^= m;
-+		HSIPROUND;
-+		v0 ^= m;
-+	}
-+	switch (left) {
-+	case 3: b |= ((u32)end[2]) << 16;
-+	case 2: b |= get_unaligned_le16(end); break;
-+	case 1: b |= end[0];
-+	}
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(__hsiphash_unaligned);
-+#endif
-+
-+/**
-+ * hsiphash_1u32 - compute 32-bit hsiphash PRF value of a u32
-+ * @first: first u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_1u32(const u32 first, const hsiphash_key_t *key)
-+{
-+	HPREAMBLE(4)
-+	v3 ^= first;
-+	HSIPROUND;
-+	v0 ^= first;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_1u32);
-+
-+/**
-+ * hsiphash_2u32 - compute 32-bit hsiphash PRF value of 2 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_2u32(const u32 first, const u32 second, const hsiphash_key_t *key)
-+{
-+	HPREAMBLE(8)
-+	v3 ^= first;
-+	HSIPROUND;
-+	v0 ^= first;
-+	v3 ^= second;
-+	HSIPROUND;
-+	v0 ^= second;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_2u32);
-+
-+/**
-+ * hsiphash_3u32 - compute 32-bit hsiphash PRF value of 3 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @third: third u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_3u32(const u32 first, const u32 second, const u32 third,
-+		  const hsiphash_key_t *key)
-+{
-+	HPREAMBLE(12)
-+	v3 ^= first;
-+	HSIPROUND;
-+	v0 ^= first;
-+	v3 ^= second;
-+	HSIPROUND;
-+	v0 ^= second;
-+	v3 ^= third;
-+	HSIPROUND;
-+	v0 ^= third;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_3u32);
-+
-+/**
-+ * hsiphash_4u32 - compute 32-bit hsiphash PRF value of 4 u32
-+ * @first: first u32
-+ * @second: second u32
-+ * @third: third u32
-+ * @forth: forth u32
-+ * @key: the hsiphash key
-+ */
-+u32 hsiphash_4u32(const u32 first, const u32 second, const u32 third,
-+		  const u32 forth, const hsiphash_key_t *key)
-+{
-+	HPREAMBLE(16)
-+	v3 ^= first;
-+	HSIPROUND;
-+	v0 ^= first;
-+	v3 ^= second;
-+	HSIPROUND;
-+	v0 ^= second;
-+	v3 ^= third;
-+	HSIPROUND;
-+	v0 ^= third;
-+	v3 ^= forth;
-+	HSIPROUND;
-+	v0 ^= forth;
-+	HPOSTAMBLE
-+}
-+EXPORT_SYMBOL(hsiphash_4u32);
-+#endif
---- a/lib/test_siphash.c
-+++ b/lib/test_siphash.c
-@@ -7,7 +7,9 @@
-  * SipHash: a fast short-input PRF
-  * https://131002.net/siphash/
-  *
-- * This implementation is specifically for SipHash2-4.
-+ * This implementation is specifically for SipHash2-4 for a secure PRF
-+ * and HalfSipHash1-3/SipHash1-3 for an insecure PRF only suitable for
-+ * hashtables.
-  */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-@@ -18,8 +20,8 @@
- #include <linux/errno.h>
- #include <linux/module.h>
- 
--/* Test vectors taken from official reference source available at:
-- *     https://131002.net/siphash/siphash24.c
-+/* Test vectors taken from reference source available at:
-+ *     https://github.com/veorq/SipHash
-  */
- 
- static const siphash_key_t test_key_siphash =
-@@ -50,6 +52,64 @@ static const u64 test_vectors_siphash[64
- 	0x958a324ceb064572ULL
- };
- 
-+#if BITS_PER_LONG == 64
-+static const hsiphash_key_t test_key_hsiphash =
-+	{{ 0x0706050403020100ULL, 0x0f0e0d0c0b0a0908ULL }};
-+
-+static const u32 test_vectors_hsiphash[64] = {
-+	0x050fc4dcU, 0x7d57ca93U, 0x4dc7d44dU,
-+	0xe7ddf7fbU, 0x88d38328U, 0x49533b67U,
-+	0xc59f22a7U, 0x9bb11140U, 0x8d299a8eU,
-+	0x6c063de4U, 0x92ff097fU, 0xf94dc352U,
-+	0x57b4d9a2U, 0x1229ffa7U, 0xc0f95d34U,
-+	0x2a519956U, 0x7d908b66U, 0x63dbd80cU,
-+	0xb473e63eU, 0x8d297d1cU, 0xa6cce040U,
-+	0x2b45f844U, 0xa320872eU, 0xdae6c123U,
-+	0x67349c8cU, 0x705b0979U, 0xca9913a5U,
-+	0x4ade3b35U, 0xef6cd00dU, 0x4ab1e1f4U,
-+	0x43c5e663U, 0x8c21d1bcU, 0x16a7b60dU,
-+	0x7a8ff9bfU, 0x1f2a753eU, 0xbf186b91U,
-+	0xada26206U, 0xa3c33057U, 0xae3a36a1U,
-+	0x7b108392U, 0x99e41531U, 0x3f1ad944U,
-+	0xc8138825U, 0xc28949a6U, 0xfaf8876bU,
-+	0x9f042196U, 0x68b1d623U, 0x8b5114fdU,
-+	0xdf074c46U, 0x12cc86b3U, 0x0a52098fU,
-+	0x9d292f9aU, 0xa2f41f12U, 0x43a71ed0U,
-+	0x73f0bce6U, 0x70a7e980U, 0x243c6d75U,
-+	0xfdb71513U, 0xa67d8a08U, 0xb7e8f148U,
-+	0xf7a644eeU, 0x0f1837f2U, 0x4b6694e0U,
-+	0xb7bbb3a8U
-+};
-+#else
-+static const hsiphash_key_t test_key_hsiphash =
-+	{{ 0x03020100U, 0x07060504U }};
-+
-+static const u32 test_vectors_hsiphash[64] = {
-+	0x5814c896U, 0xe7e864caU, 0xbc4b0e30U,
-+	0x01539939U, 0x7e059ea6U, 0x88e3d89bU,
-+	0xa0080b65U, 0x9d38d9d6U, 0x577999b1U,
-+	0xc839caedU, 0xe4fa32cfU, 0x959246eeU,
-+	0x6b28096cU, 0x66dd9cd6U, 0x16658a7cU,
-+	0xd0257b04U, 0x8b31d501U, 0x2b1cd04bU,
-+	0x06712339U, 0x522aca67U, 0x911bb605U,
-+	0x90a65f0eU, 0xf826ef7bU, 0x62512debU,
-+	0x57150ad7U, 0x5d473507U, 0x1ec47442U,
-+	0xab64afd3U, 0x0a4100d0U, 0x6d2ce652U,
-+	0x2331b6a3U, 0x08d8791aU, 0xbc6dda8dU,
-+	0xe0f6c934U, 0xb0652033U, 0x9b9851ccU,
-+	0x7c46fb7fU, 0x732ba8cbU, 0xf142997aU,
-+	0xfcc9aa1bU, 0x05327eb2U, 0xe110131cU,
-+	0xf9e5e7c0U, 0xa7d708a6U, 0x11795ab1U,
-+	0x65671619U, 0x9f5fff91U, 0xd89c5267U,
-+	0x007783ebU, 0x95766243U, 0xab639262U,
-+	0x9c7e1390U, 0xc368dda6U, 0x38ddc455U,
-+	0xfa13d379U, 0x979ea4e8U, 0x53ecd77eU,
-+	0x2ee80657U, 0x33dbb66aU, 0xae3f0577U,
-+	0x88b4c4ccU, 0x3e7f480bU, 0x74c1ebf8U,
-+	0x87178304U
-+};
-+#endif
-+
- static int __init siphash_test_init(void)
- {
- 	u8 in[64] __aligned(SIPHASH_ALIGNMENT);
-@@ -70,6 +130,16 @@ static int __init siphash_test_init(void
- 			pr_info("siphash self-test unaligned %u: FAIL\n", i + 1);
- 			ret = -EINVAL;
- 		}
-+		if (hsiphash(in, i, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[i]) {
-+			pr_info("hsiphash self-test aligned %u: FAIL\n", i + 1);
-+			ret = -EINVAL;
-+		}
-+		if (hsiphash(in_unaligned + 1, i, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[i]) {
-+			pr_info("hsiphash self-test unaligned %u: FAIL\n", i + 1);
-+			ret = -EINVAL;
-+		}
- 	}
- 	if (siphash_1u64(0x0706050403020100ULL, &test_key_siphash) !=
- 						test_vectors_siphash[8]) {
-@@ -115,6 +185,28 @@ static int __init siphash_test_init(void
- 		pr_info("siphash self-test 4u32: FAIL\n");
- 		ret = -EINVAL;
- 	}
-+	if (hsiphash_1u32(0x03020100U, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[4]) {
-+		pr_info("hsiphash self-test 1u32: FAIL\n");
-+		ret = -EINVAL;
-+	}
-+	if (hsiphash_2u32(0x03020100U, 0x07060504U, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[8]) {
-+		pr_info("hsiphash self-test 2u32: FAIL\n");
-+		ret = -EINVAL;
-+	}
-+	if (hsiphash_3u32(0x03020100U, 0x07060504U,
-+			  0x0b0a0908U, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[12]) {
-+		pr_info("hsiphash self-test 3u32: FAIL\n");
-+		ret = -EINVAL;
-+	}
-+	if (hsiphash_4u32(0x03020100U, 0x07060504U,
-+			  0x0b0a0908U, 0x0f0e0d0cU, &test_key_hsiphash) !=
-+						test_vectors_hsiphash[16]) {
-+		pr_info("hsiphash self-test 4u32: FAIL\n");
-+		ret = -EINVAL;
-+	}
- 	if (!ret)
- 		pr_info("self-tests: pass\n");
- 	return ret;
+ 	if (!list->hiddev->open++)
+ 		if (list->hiddev->exist) {
+ 			struct hid_device *hid = hiddev->hid;
 
 
