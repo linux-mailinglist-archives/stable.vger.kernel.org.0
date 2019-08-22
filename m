@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4257B99B97
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3742399B78
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404551AbfHVRZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+        id S2391817AbfHVRZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404540AbfHVRZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:57 -0400
+        id S2391813AbfHVRZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:02 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 639E82341C;
-        Thu, 22 Aug 2019 17:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 576DB2341F;
+        Thu, 22 Aug 2019 17:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494756;
-        bh=seQynoquBhsfEosIOR5PXp3K4/WUQdH/99onwZUV/c0=;
+        s=default; t=1566494702;
+        bh=KuskfuOVKjAGPbfOzSzo+A3xQaCkC16TE+yWvdw1T8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1cuA3pCNB9Ym7IY05W+W4x3IrODtpSx9HYqi8XoDW8cgMtGyMfLGw57C2X3IJwq+
-         o9ESguAgHBZiKnA8Z6jrToEklMhOO/A2Ol9SeK+uuOry2I6PmS8rCyPNDcVIKZ3Qxx
-         CrdRhzOtXrr8bBCOpwxbOhxoNI2eHKb+y4oU+x8k=
+        b=flKXRFg1vB/2r95saO/2oFqmZOZYRr0rvNA17CghGqveTSSVS4pjN0clMDgYTA48T
+         vBFqI+moro6+9XPAi8P1hY4oCzosdrKdEtC/ILvU7nzQrKjWsGIqJTmxmY274fdrXE
+         +YBhtK9aaZ3wqo7YIG3Sz9erpk9UD6LdzLwHSkww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.19 57/85] staging: comedi: dt3000: Fix rounding up of timer divisor
-Date:   Thu, 22 Aug 2019 10:19:30 -0700
-Message-Id: <20190822171733.691612184@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 56/71] arm64: compat: Allow single-byte watchpoints on all addresses
+Date:   Thu, 22 Aug 2019 10:19:31 -0700
+Message-Id: <20190822171730.217037945@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Will Deacon <will@kernel.org>
 
-commit 8e2a589a3fc36ce858d42e767c3bcd8fc62a512b upstream.
+commit 849adec41203ac5837c40c2d7e08490ffdef3c2c upstream.
 
-`dt3k_ns_to_timer()` determines the prescaler and divisor to use to
-produce a desired timing period.  It is influenced by a rounding mode
-and can round the divisor up, down, or to the nearest value.  However,
-the code for rounding up currently does the same as rounding down!  Fix
-ir by using the `DIV_ROUND_UP()` macro to calculate the divisor when
-rounding up.
+Commit d968d2b801d8 ("ARM: 7497/1: hw_breakpoint: allow single-byte
+watchpoints on all addresses") changed the validation requirements for
+hardware watchpoints on arch/arm/. Update our compat layer to implement
+the same relaxation.
 
-Also, change the types of the `divider`, `base` and `prescale` variables
-from `int` to `unsigned int` to avoid mixing signed and unsigned types
-in the calculations.
-
-Also fix a typo in a nearby comment: "improvment" => "improvement".
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190812120814.21188-1-abbotti@mev.co.uk
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt3000.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/hw_breakpoint.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/comedi/drivers/dt3000.c
-+++ b/drivers/staging/comedi/drivers/dt3000.c
-@@ -342,9 +342,9 @@ static irqreturn_t dt3k_interrupt(int ir
- static int dt3k_ns_to_timer(unsigned int timer_base, unsigned int *nanosec,
- 			    unsigned int flags)
- {
--	int divider, base, prescale;
-+	unsigned int divider, base, prescale;
- 
--	/* This function needs improvment */
-+	/* This function needs improvement */
- 	/* Don't know if divider==0 works. */
- 
- 	for (prescale = 0; prescale < 16; prescale++) {
-@@ -358,7 +358,7 @@ static int dt3k_ns_to_timer(unsigned int
- 			divider = (*nanosec) / base;
+--- a/arch/arm64/kernel/hw_breakpoint.c
++++ b/arch/arm64/kernel/hw_breakpoint.c
+@@ -548,13 +548,14 @@ int arch_validate_hwbkpt_settings(struct
+ 			/* Aligned */
  			break;
- 		case CMDF_ROUND_UP:
--			divider = (*nanosec) / base;
-+			divider = DIV_ROUND_UP(*nanosec, base);
- 			break;
+ 		case 1:
+-			/* Allow single byte watchpoint. */
+-			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
+-				break;
+ 		case 2:
+ 			/* Allow halfword watchpoints and breakpoints. */
+ 			if (info->ctrl.len == ARM_BREAKPOINT_LEN_2)
+ 				break;
++		case 3:
++			/* Allow single byte watchpoint. */
++			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
++				break;
+ 		default:
+ 			return -EINVAL;
  		}
- 		if (divider < 65536) {
 
 
