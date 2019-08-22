@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FC7999EC
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6783899AE3
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390376AbfHVRIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:08:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57996 "EHLO mail.kernel.org"
+        id S2391248AbfHVRQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:16:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390363AbfHVRIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:31 -0400
+        id S2390367AbfHVRIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:32 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7474E2341D;
+        by mail.kernel.org (Postfix) with ESMTPSA id E668723405;
         Thu, 22 Aug 2019 17:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493710;
-        bh=QbEZQBkyRzh5gb4inivLOKwAYp/yyLAyxOPGsojb4jc=;
+        s=default; t=1566493711;
+        bh=Pi5oWISMQ3clPukYbzRDrIssXpOIiF0xTx9td2Nxsno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1AXiv8wrraoMVBaL5m7m6s3rWZc7TC1C+CzEpAuuUutFJ9KlQISs0pvJvSANBkaB
-         oyEViYyh5/2mcrhUufOM5aGqoTZpMvlX7gYrYptxlBQlm1LdPURjVlfjpxWNf6Wobc
-         I0xjX/OiEAO15AsYnu/r8/gVPRZR5BofkiOlTor0=
+        b=b2swMwEt7laZSW6sYMxAgbtS9As+rzJVCVE64+F0AMJluIlEXp/wT3E8HuMomzfu6
+         XGlHsBvjUxb8WVHrZDY+8HA/pt44M2QFjURd6blxX7NAiKNtmRNmUFo/ObwEGunwrb
+         McicPEoyZELVL9PB+aXlom7Bot/rGw+ViC0BMxhE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+Cc:     Florian Westphal <fw@strlen.de>,
+        syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 030/135] bpf: fix access to skb_shared_info->gso_segs
-Date:   Thu, 22 Aug 2019 13:06:26 -0400
-Message-Id: <20190822170811.13303-31-sashal@kernel.org>
+Subject: [PATCH 5.2 031/135] netfilter: ebtables: also count base chain policies
+Date:   Thu, 22 Aug 2019 13:06:27 -0400
+Message-Id: <20190822170811.13303-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,67 +50,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 06a22d897d82f12776d44dbf0850f5895469cb2a upstream.
+commit 3b48300d5cc7c7bed63fddb006c4046549ed4aec upstream.
 
-It is possible we reach bpf_convert_ctx_access() with
-si->dst_reg == si->src_reg
+ebtables doesn't include the base chain policies in the rule count,
+so we need to add them manually when we call into the x_tables core
+to allocate space for the comapt offset table.
 
-Therefore, we need to load BPF_REG_AX before eventually
-mangling si->src_reg.
+This lead syzbot to trigger:
+WARNING: CPU: 1 PID: 9012 at net/netfilter/x_tables.c:649
+xt_compat_add_offset.cold+0x11/0x36 net/netfilter/x_tables.c:649
 
-syzbot generated this x86 code :
-   3:   55                      push   %rbp
-   4:   48 89 e5                mov    %rsp,%rbp
-   7:   48 81 ec 00 00 00 00    sub    $0x0,%rsp // Might be avoided ?
-   e:   53                      push   %rbx
-   f:   41 55                   push   %r13
-  11:   41 56                   push   %r14
-  13:   41 57                   push   %r15
-  15:   6a 00                   pushq  $0x0
-  17:   31 c0                   xor    %eax,%eax
-  19:   48 8b bf c0 00 00 00    mov    0xc0(%rdi),%rdi
-  20:   44 8b 97 bc 00 00 00    mov    0xbc(%rdi),%r10d
-  27:   4c 01 d7                add    %r10,%rdi
-  2a:   48 0f b7 7f 06          movzwq 0x6(%rdi),%rdi // Crash
-  2f:   5b                      pop    %rbx
-  30:   41 5f                   pop    %r15
-  32:   41 5e                   pop    %r14
-  34:   41 5d                   pop    %r13
-  36:   5b                      pop    %rbx
-  37:   c9                      leaveq
-  38:   c3                      retq
-
-Fixes: d9ff286a0f59 ("bpf: allow BPF programs access skb_shared_info->gso_segs field")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com
+Fixes: 2035f3ff8eaa ("netfilter: ebtables: compat: un-break 32bit setsockopt when no rules are present")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/bridge/netfilter/ebtables.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index f681fb772940c..534c310bb0893 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -7325,12 +7325,12 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
- 	case offsetof(struct __sk_buff, gso_segs):
- 		/* si->dst_reg = skb_shinfo(SKB); */
- #ifdef NET_SKBUFF_DATA_USES_OFFSET
--		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
--				      si->dst_reg, si->src_reg,
--				      offsetof(struct sk_buff, head));
- 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
- 				      BPF_REG_AX, si->src_reg,
- 				      offsetof(struct sk_buff, end));
-+		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
-+				      si->dst_reg, si->src_reg,
-+				      offsetof(struct sk_buff, head));
- 		*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
- #else
- 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 963dfdc148272..1fa9ac483173d 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1770,20 +1770,28 @@ static int compat_calc_entry(const struct ebt_entry *e,
+ 	return 0;
+ }
+ 
++static int ebt_compat_init_offsets(unsigned int number)
++{
++	if (number > INT_MAX)
++		return -EINVAL;
++
++	/* also count the base chain policies */
++	number += NF_BR_NUMHOOKS;
++
++	return xt_compat_init_offsets(NFPROTO_BRIDGE, number);
++}
+ 
+ static int compat_table_info(const struct ebt_table_info *info,
+ 			     struct compat_ebt_replace *newinfo)
+ {
+ 	unsigned int size = info->entries_size;
+ 	const void *entries = info->entries;
++	int ret;
+ 
+ 	newinfo->entries_size = size;
+-	if (info->nentries) {
+-		int ret = xt_compat_init_offsets(NFPROTO_BRIDGE,
+-						 info->nentries);
+-		if (ret)
+-			return ret;
+-	}
++	ret = ebt_compat_init_offsets(info->nentries);
++	if (ret)
++		return ret;
+ 
+ 	return EBT_ENTRY_ITERATE(entries, size, compat_calc_entry, info,
+ 							entries, newinfo);
+@@ -2234,11 +2242,9 @@ static int compat_do_replace(struct net *net, void __user *user,
+ 
+ 	xt_compat_lock(NFPROTO_BRIDGE);
+ 
+-	if (tmp.nentries) {
+-		ret = xt_compat_init_offsets(NFPROTO_BRIDGE, tmp.nentries);
+-		if (ret < 0)
+-			goto out_unlock;
+-	}
++	ret = ebt_compat_init_offsets(tmp.nentries);
++	if (ret < 0)
++		goto out_unlock;
+ 
+ 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
+ 	if (ret < 0)
 -- 
 2.20.1
 
