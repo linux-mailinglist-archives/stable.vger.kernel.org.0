@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A530499C5E
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBEA99CD3
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392390AbfHVRdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49388 "EHLO mail.kernel.org"
+        id S2392598AbfHVRhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391857AbfHVRZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:33 -0400
+        id S2404279AbfHVRYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:39 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 108FA23400;
-        Thu, 22 Aug 2019 17:25:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E981F2342A;
+        Thu, 22 Aug 2019 17:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494733;
-        bh=fVOfMDhv67/fWY9m59BiAVg7e25aNXujUHQmhfjO+cM=;
+        s=default; t=1566494679;
+        bh=F2s4r3Dc85Wwzv9Jk0wTHcyEYqKnxm5Uoi84WZ3ZM+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvUK+2bBRwmeA8dRa0FQQln1nwjtMRv86lFAlq84hwUsuFJYZ3Vpal9vBycOxcw1j
-         col3jfibPBykD1PLa3LtsDPcfv5R7JGTLVyApml05swUBmDT7qGaHk1kPSknTJWfo6
-         91h+3UVPtREv13cnT6QiYUHxUZmjpH8TkycUP36s=
+        b=dY1hno2Z6m1r7XWQ0a/q4fBvN5S32O+9xnG8VuKYLYSwOSON1fjONVvS7MU/z6wa5
+         VlyPA9mPIqpm7P/zeA5Cw7M3g/FYjcMpN/NqNPk+3S8djLBy2h+9rzJ8J2jdVFswu+
+         WFQUmfcf6mcQnwnRmTTwGZ+ehxpEq5vmXFkG67Fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 24/85] netfilter: ebtables: also count base chain policies
-Date:   Thu, 22 Aug 2019 10:18:57 -0700
-Message-Id: <20190822171732.213000750@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/71] xen/pciback: remove set but not used variable old_state
+Date:   Thu, 22 Aug 2019 10:18:58 -0700
+Message-Id: <20190822171728.703706007@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+[ Upstream commit 09e088a4903bd0dd911b4f1732b250130cdaffed ]
 
-commit 3b48300d5cc7c7bed63fddb006c4046549ed4aec upstream.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-ebtables doesn't include the base chain policies in the rule count,
-so we need to add them manually when we call into the x_tables core
-to allocate space for the comapt offset table.
+drivers/xen/xen-pciback/conf_space_capability.c: In function pm_ctrl_write:
+drivers/xen/xen-pciback/conf_space_capability.c:119:25: warning:
+ variable old_state set but not used [-Wunused-but-set-variable]
 
-This lead syzbot to trigger:
-WARNING: CPU: 1 PID: 9012 at net/netfilter/x_tables.c:649
-xt_compat_add_offset.cold+0x11/0x36 net/netfilter/x_tables.c:649
+It is never used so can be removed.
 
-Reported-by: syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com
-Fixes: 2035f3ff8eaa ("netfilter: ebtables: compat: un-break 32bit setsockopt when no rules are present")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/netfilter/ebtables.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/xen/xen-pciback/conf_space_capability.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1779,20 +1779,28 @@ static int compat_calc_entry(const struc
- 	return 0;
- }
- 
-+static int ebt_compat_init_offsets(unsigned int number)
-+{
-+	if (number > INT_MAX)
-+		return -EINVAL;
-+
-+	/* also count the base chain policies */
-+	number += NF_BR_NUMHOOKS;
-+
-+	return xt_compat_init_offsets(NFPROTO_BRIDGE, number);
-+}
- 
- static int compat_table_info(const struct ebt_table_info *info,
- 			     struct compat_ebt_replace *newinfo)
+diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
+index 73427d8e01161..e5694133ebe57 100644
+--- a/drivers/xen/xen-pciback/conf_space_capability.c
++++ b/drivers/xen/xen-pciback/conf_space_capability.c
+@@ -116,13 +116,12 @@ static int pm_ctrl_write(struct pci_dev *dev, int offset, u16 new_value,
  {
- 	unsigned int size = info->entries_size;
- 	const void *entries = info->entries;
-+	int ret;
+ 	int err;
+ 	u16 old_value;
+-	pci_power_t new_state, old_state;
++	pci_power_t new_state;
  
- 	newinfo->entries_size = size;
--	if (info->nentries) {
--		int ret = xt_compat_init_offsets(NFPROTO_BRIDGE,
--						 info->nentries);
--		if (ret)
--			return ret;
--	}
-+	ret = ebt_compat_init_offsets(info->nentries);
-+	if (ret)
-+		return ret;
+ 	err = pci_read_config_word(dev, offset, &old_value);
+ 	if (err)
+ 		goto out;
  
- 	return EBT_ENTRY_ITERATE(entries, size, compat_calc_entry, info,
- 							entries, newinfo);
-@@ -2241,11 +2249,9 @@ static int compat_do_replace(struct net
+-	old_state = (pci_power_t)(old_value & PCI_PM_CTRL_STATE_MASK);
+ 	new_state = (pci_power_t)(new_value & PCI_PM_CTRL_STATE_MASK);
  
- 	xt_compat_lock(NFPROTO_BRIDGE);
- 
--	if (tmp.nentries) {
--		ret = xt_compat_init_offsets(NFPROTO_BRIDGE, tmp.nentries);
--		if (ret < 0)
--			goto out_unlock;
--	}
-+	ret = ebt_compat_init_offsets(tmp.nentries);
-+	if (ret < 0)
-+		goto out_unlock;
- 
- 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
- 	if (ret < 0)
+ 	new_value &= PM_OK_BITS;
+-- 
+2.20.1
+
 
 
