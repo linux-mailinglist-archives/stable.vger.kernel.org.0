@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE8A99CD9
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077A399C52
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388627AbfHVRYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:24:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46426 "EHLO mail.kernel.org"
+        id S2391860AbfHVRZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404254AbfHVRYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:36 -0400
+        id S2391853AbfHVRZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:33 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBE422341A;
-        Thu, 22 Aug 2019 17:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5160D23427;
+        Thu, 22 Aug 2019 17:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494676;
-        bh=c/dyECxWAgWxwsyMz9BzdMR/CNkJHimGDLvGM5AJOGU=;
+        s=default; t=1566494732;
+        bh=Hx/oTr1LiKPxSvknHAXUYWhatBWqSa8VofgNXmS2oX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNrL+l/zlvi3pWha3bp0ZVzQe9Imk2LJJVoLXp774gBXaXbjPzqm9PnI/XVSrSK5v
-         ff7Hu3SRPvLcFnY88y94ZgtGSWflGxyVcSnAXXhd3ZBWCcuHMtpDDn3mQx0feXLQ6z
-         Gk2bhKNkswpWzIeXeC7DTw3m06evKi9vvEOPRwNs=
+        b=ZdzL05H5w+1oCU9fnbltB1oULIlHxMDAPvrXxGLpoDgCpmhDSfgfWjKHwIFlU6PrS
+         HxR/cD6RFKvYMsPzEhhpdL+eOWy3ttXGivFUAExxeMkGhEtsifXhC5uboRbAFpf1FH
+         Q2BV9uqibBDEqkx8643jOLxfr3wVlwMEnsIVOnuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 20/71] netfilter: ebtables: also count base chain policies
-Date:   Thu, 22 Aug 2019 10:18:55 -0700
-Message-Id: <20190822171728.463455924@linuxfoundation.org>
+        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
+        Denis Kirjanov <kda@linux-powerpc.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 23/85] net: usb: pegasus: fix improper read if get_registers() fail
+Date:   Thu, 22 Aug 2019 10:18:56 -0700
+Message-Id: <20190822171732.175012031@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Denis Kirjanov <kda@linux-powerpc.org>
 
-commit 3b48300d5cc7c7bed63fddb006c4046549ed4aec upstream.
+commit 224c04973db1125fcebefffd86115f99f50f8277 upstream.
 
-ebtables doesn't include the base chain policies in the rule count,
-so we need to add them manually when we call into the x_tables core
-to allocate space for the comapt offset table.
+get_registers() may fail with -ENOMEM and in this
+case we can read a garbage from the status variable tmp.
 
-This lead syzbot to trigger:
-WARNING: CPU: 1 PID: 9012 at net/netfilter/x_tables.c:649
-xt_compat_add_offset.cold+0x11/0x36 net/netfilter/x_tables.c:649
-
-Reported-by: syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com
-Fixes: 2035f3ff8eaa ("netfilter: ebtables: compat: un-break 32bit setsockopt when no rules are present")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
+Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/netfilter/ebtables.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/net/usb/pegasus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1779,20 +1779,28 @@ static int compat_calc_entry(const struc
- 	return 0;
- }
- 
-+static int ebt_compat_init_offsets(unsigned int number)
-+{
-+	if (number > INT_MAX)
-+		return -EINVAL;
-+
-+	/* also count the base chain policies */
-+	number += NF_BR_NUMHOOKS;
-+
-+	return xt_compat_init_offsets(NFPROTO_BRIDGE, number);
-+}
- 
- static int compat_table_info(const struct ebt_table_info *info,
- 			     struct compat_ebt_replace *newinfo)
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -285,7 +285,7 @@ static void mdio_write(struct net_device
+ static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
  {
- 	unsigned int size = info->entries_size;
- 	const void *entries = info->entries;
-+	int ret;
+ 	int i;
+-	__u8 tmp;
++	__u8 tmp = 0;
+ 	__le16 retdatai;
+ 	int ret;
  
- 	newinfo->entries_size = size;
--	if (info->nentries) {
--		int ret = xt_compat_init_offsets(NFPROTO_BRIDGE,
--						 info->nentries);
--		if (ret)
--			return ret;
--	}
-+	ret = ebt_compat_init_offsets(info->nentries);
-+	if (ret)
-+		return ret;
- 
- 	return EBT_ENTRY_ITERATE(entries, size, compat_calc_entry, info,
- 							entries, newinfo);
-@@ -2240,11 +2248,9 @@ static int compat_do_replace(struct net
- 
- 	xt_compat_lock(NFPROTO_BRIDGE);
- 
--	if (tmp.nentries) {
--		ret = xt_compat_init_offsets(NFPROTO_BRIDGE, tmp.nentries);
--		if (ret < 0)
--			goto out_unlock;
--	}
-+	ret = ebt_compat_init_offsets(tmp.nentries);
-+	if (ret < 0)
-+		goto out_unlock;
- 
- 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
- 	if (ret < 0)
 
 
