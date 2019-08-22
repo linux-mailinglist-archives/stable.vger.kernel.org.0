@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DF6F999FB
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3263599A4E
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390708AbfHVRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:09:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59506 "EHLO mail.kernel.org"
+        id S2390936AbfHVRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390699AbfHVRJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390702AbfHVRJN (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:09:13 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19FCE2343A;
+        by mail.kernel.org (Postfix) with ESMTPSA id B1979233FC;
         Thu, 22 Aug 2019 17:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493752;
-        bh=1+cD3yyBs8vg4X+NKzUB2ZuYtAnjfvDsOU5GLpaTueE=;
+        s=default; t=1566493753;
+        bh=ugLRNjODFh7NeHT6ZUhx8WzYAdA9XRdwr1KBbcJHyaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7tuL4OfEQE3YeyN37YX0vVNrL5uvwvuxGkRenGAjCF/sDK/ZUdYZpOt5nckfuq27
-         UNTr/mvHBJuu+xZ2vRz/N6qcw7ZQQFOtn90xtx4sqZHcevux4ICgMod4z0Mp5YjlbP
-         j/gZ7mXG31CHYxx3nytw/dnrx8aILdXWaDxnxGWY=
+        b=zoke+pYDUIgaJFrilzCkfHyZfxEixYhtmVrpKn8BM6uix6GzLI96qpEQa7amAZRVp
+         +cMYrXZ4TCRaH0/qfcPJJXYF+dZkiv2ib2ASozv4kYbtabZAw0OrlvVD1ff+5PEImn
+         aw8JLjc8iRobP0nZet8msKKE0BOlvHbHTizegKZI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manish Chopra <manishc@marvell.com>,
-        Sudarsana Kalluru <skalluru@marvell.com>,
-        Shahed Shaikh <shshaikh@marvell.com>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 107/135] bnx2x: Fix VF's VLAN reconfiguration in reload.
-Date:   Thu, 22 Aug 2019 13:07:43 -0400
-Message-Id: <20190822170811.13303-108-sashal@kernel.org>
+Subject: [PATCH 5.2 108/135] bonding: Add vlan tx offload to hw_enc_features
+Date:   Thu, 22 Aug 2019 13:07:44 -0400
+Message-Id: <20190822170811.13303-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -51,105 +50,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 4a4d2d372fb9b9229327e2ed01d5d9572eddf4de ]
+[ Upstream commit d595b03de2cb0bdf9bcdf35ff27840cc3a37158f ]
 
-Commit 04f05230c5c13 ("bnx2x: Remove configured vlans as
-part of unload sequence."), introduced a regression in driver
-that as a part of VF's reload flow, VLANs created on the VF
-doesn't get re-configured in hardware as vlan metadata/info
-was not getting cleared for the VFs which causes vlan PING to stop.
+As commit 30d8177e8ac7 ("bonding: Always enable vlan tx offload")
+said, we should always enable bonding's vlan tx offload, pass the
+vlan packets to the slave devices with vlan tci, let them to handle
+vlan implementation.
 
-This patch clears the vlan metadata/info so that VLANs gets
-re-configured back in the hardware in VF's reload flow and
-PING/traffic continues for VLANs created over the VFs.
+Now if encapsulation protocols like VXLAN is used, skb->encapsulation
+may be set, then the packet is passed to vlan device which based on
+bonding device. However in netif_skb_features(), the check of
+hw_enc_features:
 
-Fixes: 04f05230c5c13 ("bnx2x: Remove configured vlans as part of unload sequence.")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
-Signed-off-by: Shahed Shaikh <shshaikh@marvell.com>
+	 if (skb->encapsulation)
+                 features &= dev->hw_enc_features;
+
+clears NETIF_F_HW_VLAN_CTAG_TX/NETIF_F_HW_VLAN_STAG_TX. This results
+in same issue in commit 30d8177e8ac7 like this:
+
+vlan_dev_hard_start_xmit
+  -->dev_queue_xmit
+    -->validate_xmit_skb
+      -->netif_skb_features //NETIF_F_HW_VLAN_CTAG_TX is cleared
+      -->validate_xmit_vlan
+        -->__vlan_hwaccel_push_inside //skb->tci is cleared
+...
+ --> bond_start_xmit
+   --> bond_xmit_hash //BOND_XMIT_POLICY_ENCAP34
+     --> __skb_flow_dissect // nhoff point to IP header
+        -->  case htons(ETH_P_8021Q)
+             // skb_vlan_tag_present is false, so
+             vlan = __skb_header_pointer(skb, nhoff, sizeof(_vlan),
+             //vlan point to ip header wrongly
+
+Fixes: b2a103e6d0af ("bonding: convert to ndo_fix_features")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |  7 ++++---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h |  2 ++
- .../net/ethernet/broadcom/bnx2x/bnx2x_main.c    | 17 ++++++++++++-----
- 3 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/net/bonding/bond_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-index 4039a9599d79c..9d582b3ebc88d 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -3057,12 +3057,13 @@ int bnx2x_nic_unload(struct bnx2x *bp, int unload_mode, bool keep_link)
- 	/* if VF indicate to PF this function is going down (PF will delete sp
- 	 * elements and clear initializations
- 	 */
--	if (IS_VF(bp))
-+	if (IS_VF(bp)) {
-+		bnx2x_clear_vlan_info(bp);
- 		bnx2x_vfpf_close_vf(bp);
--	else if (unload_mode != UNLOAD_RECOVERY)
-+	} else if (unload_mode != UNLOAD_RECOVERY) {
- 		/* if this is a normal/close unload need to clean up chip*/
- 		bnx2x_chip_cleanup(bp, unload_mode, keep_link);
--	else {
-+	} else {
- 		/* Send the UNLOAD_REQUEST to the MCP */
- 		bnx2x_send_unload_req(bp, unload_mode);
- 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-index c2f6e44e9a3f7..8b08cb18e3638 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-@@ -425,6 +425,8 @@ void bnx2x_set_reset_global(struct bnx2x *bp);
- void bnx2x_disable_close_the_gate(struct bnx2x *bp);
- int bnx2x_init_hw_func_cnic(struct bnx2x *bp);
- 
-+void bnx2x_clear_vlan_info(struct bnx2x *bp);
-+
- /**
-  * bnx2x_sp_event - handle ramrods completion.
-  *
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-index 2cc14db8f0ec9..192ff8d5da324 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-@@ -8482,11 +8482,21 @@ int bnx2x_set_vlan_one(struct bnx2x *bp, u16 vlan,
- 	return rc;
- }
- 
-+void bnx2x_clear_vlan_info(struct bnx2x *bp)
-+{
-+	struct bnx2x_vlan_entry *vlan;
-+
-+	/* Mark that hw forgot all entries */
-+	list_for_each_entry(vlan, &bp->vlan_reg, link)
-+		vlan->hw = false;
-+
-+	bp->vlan_cnt = 0;
-+}
-+
- static int bnx2x_del_all_vlans(struct bnx2x *bp)
- {
- 	struct bnx2x_vlan_mac_obj *vlan_obj = &bp->sp_objs[0].vlan_obj;
- 	unsigned long ramrod_flags = 0, vlan_flags = 0;
--	struct bnx2x_vlan_entry *vlan;
- 	int rc;
- 
- 	__set_bit(RAMROD_COMP_WAIT, &ramrod_flags);
-@@ -8495,10 +8505,7 @@ static int bnx2x_del_all_vlans(struct bnx2x *bp)
- 	if (rc)
- 		return rc;
- 
--	/* Mark that hw forgot all entries */
--	list_for_each_entry(vlan, &bp->vlan_reg, link)
--		vlan->hw = false;
--	bp->vlan_cnt = 0;
-+	bnx2x_clear_vlan_info(bp);
- 
- 	return 0;
- }
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index b0aab3a0a1bfa..f183cadd14e3d 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1113,6 +1113,8 @@ static void bond_compute_features(struct bonding *bond)
+ done:
+ 	bond_dev->vlan_features = vlan_features;
+ 	bond_dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
++				    NETIF_F_HW_VLAN_CTAG_TX |
++				    NETIF_F_HW_VLAN_STAG_TX |
+ 				    NETIF_F_GSO_UDP_L4;
+ 	bond_dev->gso_max_segs = gso_max_segs;
+ 	netif_set_gso_max_size(bond_dev, gso_max_size);
 -- 
 2.20.1
 
