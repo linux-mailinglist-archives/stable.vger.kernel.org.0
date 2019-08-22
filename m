@@ -2,374 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE60A9A343
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 00:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 797FA9A359
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 00:58:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394185AbfHVWsu convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 22 Aug 2019 18:48:50 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:52596 "EHLO mx1.redhat.com"
+        id S2394137AbfHVW6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 18:58:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731896AbfHVWsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 18:48:50 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727461AbfHVW6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 18:58:32 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A67B83086213
-        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 22:48:49 +0000 (UTC)
-Received: from [172.54.99.226] (cpt-1058.paas.prod.upshift.rdu2.redhat.com [10.0.19.75])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 44E8E1001947;
-        Thu, 22 Aug 2019 22:48:41 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id BD2E5205C9;
+        Thu, 22 Aug 2019 22:58:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566514711;
+        bh=pk/gf4q5QaGlLDCKQoP8DAczlMcx4jBdG7/AhpHSMnU=;
+        h=Date:From:To:Subject:From;
+        b=0o85AGLTiHbi/NXmVrRm9Ea+FP1gK+2BkTnf+g8fnUE04GvlvsActfx76YB/FfH/4
+         wf4geV6qCeCtGkkUO4tp7l75iqWN1tAB6jVXF/Qk/CPo6csruQb8tC3xpOB3TwCYTS
+         lRdiROlEEtflcAlw61W8mkTWyoRJzIA3FwEKqnc4=
+Date:   Thu, 22 Aug 2019 15:58:30 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, wangkefeng.wang@huawei.com,
+        stable@vger.kernel.org, rppt@linux.ibm.com, peterx@redhat.com,
+        penguin-kernel@I-love.SAKURA.ne.jp, mhocko@suse.com,
+        jgg@mellanox.com, jannh@google.com, aarcange@redhat.com,
+        oleg@redhat.com
+Subject:  +
+ =?us-ascii?Q?userfaultfd=5Frelease-always-remove-uffd-flags-and-clear-?=
+ =?us-ascii?Q?vm=5Fuserfaultfd=5Fctx.patch?= added to -mm tree
+Message-ID: <20190822225830.pMW2W%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.A52B1C532D.YEFB2VN58T@redhat.com>
-X-Gitlab-Pipeline-ID: 116984
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/116984
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Thu, 22 Aug 2019 22:48:49 +0000 (UTC)
-Date:   Thu, 22 Aug 2019 18:48:50 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+The patch titled
+     Subject: userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
+has been added to the -mm tree.  Its filename is
+     userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aad39e30fb9e - Linux 5.2.9
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-The results of these automated tests are provided below.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-All kernel binaries, config files, and logs are available for download here:
+------------------------------------------------------
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
 
-  https://artifacts.cki-project.org/pipelines/116984
+userfaultfd_release() should clear vm_flags/vm_userfaultfd_ctx even
+if mm->core_state != NULL.
 
+Otherwise a page fault can see userfaultfd_missing() == T and use an
+already freed userfaultfd_ctx.
 
+Link: http://lkml.kernel.org/r/20190820160237.GB4983@redhat.com
+Fixes: 04f5866e41fb ("coredump: fix race condition between mmget_not_zero()/get_task_mm() and core dumping")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-One or more kernel tests failed:
+ fs/userfaultfd.c |   25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-  aarch64:
-    ❌ LTP lite
-    ❌ Loopdev Sanity
+--- a/fs/userfaultfd.c~userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx
++++ a/fs/userfaultfd.c
+@@ -880,6 +880,7 @@ static int userfaultfd_release(struct in
+ 	/* len == 0 means wake all */
+ 	struct userfaultfd_wake_range range = { .len = 0, };
+ 	unsigned long new_flags;
++	bool still_valid;
+ 
+ 	WRITE_ONCE(ctx->released, true);
+ 
+@@ -895,8 +896,7 @@ static int userfaultfd_release(struct in
+ 	 * taking the mmap_sem for writing.
+ 	 */
+ 	down_write(&mm->mmap_sem);
+-	if (!mmget_still_valid(mm))
+-		goto skip_mm;
++	still_valid = mmget_still_valid(mm);
+ 	prev = NULL;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		cond_resched();
+@@ -907,19 +907,20 @@ static int userfaultfd_release(struct in
+ 			continue;
+ 		}
+ 		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
+-		prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
+-				 new_flags, vma->anon_vma,
+-				 vma->vm_file, vma->vm_pgoff,
+-				 vma_policy(vma),
+-				 NULL_VM_UFFD_CTX);
+-		if (prev)
+-			vma = prev;
+-		else
+-			prev = vma;
++		if (still_valid) {
++			prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
++					 new_flags, vma->anon_vma,
++					 vma->vm_file, vma->vm_pgoff,
++					 vma_policy(vma),
++					 NULL_VM_UFFD_CTX);
++			if (prev)
++				vma = prev;
++			else
++				prev = vma;
++		}
+ 		vma->vm_flags = new_flags;
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+ 	}
+-skip_mm:
+ 	up_write(&mm->mmap_sem);
+ 	mmput(mm);
+ wakeup:
+_
 
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
+Patches currently in -mm which might be from oleg@redhat.com are
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
+aio-simplify-read_events.patch
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aad39e30fb9e - Linux 5.2.9
-
-
-We grabbed the 8a2474fee8e4 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
-  sh-kernel-hw_breakpoint-fix-missing-break-in-switch-statement.patch
-  seq_file-fix-problem-when-seeking-mid-record.patch
-  mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
-  mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
-  mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
-  mm-z3fold.c-fix-z3fold_destroy_pool-ordering.patch
-  mm-z3fold.c-fix-z3fold_destroy_pool-race-condition.patch
-  mm-memcontrol.c-fix-use-after-free-in-mem_cgroup_iter.patch
-  mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
-  mm-vmscan-do-not-special-case-slab-reclaim-when-watermarks-are-boosted.patch
-  cpufreq-schedutil-don-t-skip-freq-update-when-limits-change.patch
-  drm-amdgpu-fix-gfx9-soft-recovery.patch
-  drm-nouveau-only-recalculate-pbn-vcpi-on-mode-connector-changes.patch
-  xtensa-add-missing-isync-to-the-cpu_reset-tlb-code.patch
-  arm64-ftrace-ensure-module-ftrace-trampoline-is-coherent-with-i-side.patch
-  alsa-hda-realtek-add-quirk-for-hp-envy-x360.patch
-  alsa-usb-audio-fix-a-stack-buffer-overflow-bug-in-check_input_term.patch
-  alsa-usb-audio-fix-an-oob-bug-in-parse_audio_mixer_unit.patch
-  alsa-hda-apply-workaround-for-another-amd-chip-1022-1487.patch
-  alsa-hda-fix-a-memory-leak-bug.patch
-  alsa-hda-add-a-generic-reboot_notify.patch
-  alsa-hda-let-all-conexant-codec-enter-d3-when-rebooting.patch
-  hid-holtek-test-for-sanity-of-intfdata.patch
-  hid-hiddev-avoid-opening-a-disconnected-device.patch
-  hid-hiddev-do-cleanup-in-failure-of-opening-a-device.patch
-  input-kbtab-sanity-check-for-endpoint-type.patch
-  input-iforce-add-sanity-checks.patch
-  net-usb-pegasus-fix-improper-read-if-get_registers-fail.patch
-  bpf-fix-access-to-skb_shared_info-gso_segs.patch
-  netfilter-ebtables-also-count-base-chain-policies.patch
-  riscv-correct-the-initialized-flow-of-fp-register.patch
-  riscv-make-__fstate_clean-work-correctly.patch
-  revert-i2c-imx-improve-the-error-handling-in-i2c_imx_dma_request.patch
-  blk-mq-move-cancel-of-requeue_work-to-the-front-of-blk_exit_queue.patch
-  io_uring-fix-manual-setup-of-iov_iter-for-fixed-buffers.patch
-  rdma-hns-fix-sg-offset-non-zero-issue.patch
-  ib-mlx5-replace-kfree-with-kvfree.patch
-  clk-at91-generated-truncate-divisor-to-generated_max.patch
-  clk-sprd-select-regmap_mmio-to-avoid-compile-errors.patch
-  clk-renesas-cpg-mssr-fix-reset-control-race-conditio.patch
-  dma-mapping-check-pfn-validity-in-dma_common_-mmap-g.patch
-  platform-x86-pcengines-apuv2-fix-softdep-statement.patch
-  platform-x86-intel_pmc_core-add-icl-nnpi-support-to-.patch
-  mm-hmm-always-return-ebusy-for-invalid-ranges-in-hmm.patch
-  xen-pciback-remove-set-but-not-used-variable-old_sta.patch
-  irqchip-gic-v3-its-free-unused-vpt_page-when-alloc-v.patch
-  irqchip-irq-imx-gpcv2-forward-irq-type-to-parent.patch
-  f2fs-fix-to-read-source-block-before-invalidating-it.patch
-  tools-perf-beauty-fix-usbdevfs_ioctl-table-generator.patch
-  perf-header-fix-divide-by-zero-error-if-f_header.att.patch
-  perf-header-fix-use-of-unitialized-value-warning.patch
-  rdma-qedr-fix-the-hca_type-and-hca_rev-returned-in-d.patch
-  alsa-pcm-fix-lost-wakeup-event-scenarios-in-snd_pcm_.patch
-  libata-zpodd-fix-small-read-overflow-in-zpodd_get_me.patch
-  powerpc-nvdimm-pick-nearby-online-node-if-the-device.patch
-  drm-bridge-lvds-encoder-fix-build-error-while-config.patch
-  drm-bridge-tc358764-fix-build-error.patch
-  btrfs-fix-deadlock-between-fiemap-and-transaction-co.patch
-  scsi-hpsa-correct-scsi-command-status-issue-after-re.patch
-  scsi-qla2xxx-fix-possible-fcport-null-pointer-derefe.patch
-  tracing-fix-header-include-guards-in-trace-event-hea.patch
-  drm-amdkfd-fix-byte-align-on-vegam.patch
-  drm-amd-powerplay-fix-null-pointer-dereference-aroun.patch
-  drm-amdgpu-fix-error-handling-in-amdgpu_cs_process_f.patch
-  drm-amdgpu-fix-a-potential-information-leaking-bug.patch
-  ata-libahci-do-not-complain-in-case-of-deferred-prob.patch
-  kbuild-modpost-handle-kbuild_extra_symbols-only-for-.patch
-  kbuild-check-for-unknown-options-with-cc-option-usag.patch
-  arm64-efi-fix-variable-si-set-but-not-used.patch
-  riscv-fix-perf-record-without-libelf-support.patch
-  arm64-lower-priority-mask-for-gic_prio_irqon.patch
-  arm64-unwind-prohibit-probing-on-return_address.patch
-  arm64-mm-fix-variable-pud-set-but-not-used.patch
-  arm64-mm-fix-variable-tag-set-but-not-used.patch
-  ib-core-add-mitigation-for-spectre-v1.patch
-  ib-mlx5-fix-mr-registration-flow-to-use-umr-properly.patch
-  rdma-restrack-track-driver-qp-types-in-resource-trac.patch
-  ib-mad-fix-use-after-free-in-ib-mad-completion-handl.patch
-  rdma-mlx5-release-locks-during-notifier-unregister.patch
-  drm-msm-fix-add_gpu_components.patch
-  rdma-hns-fix-error-return-code-in-hns_roce_v1_rsv_lp.patch
-  drm-exynos-fix-missing-decrement-of-retry-counter.patch
-  arm64-kprobes-recover-pstate.d-in-single-step-except.patch
-  arm64-make-debug-exception-handlers-visible-from-rcu.patch
-  revert-kmemleak-allow-to-coexist-with-fault-injectio.patch
-  ocfs2-remove-set-but-not-used-variable-last_hash.patch
-  page-flags-prioritize-kasan-bits-over-last-cpuid.patch
-  asm-generic-fix-wtype-limits-compiler-warnings.patch
-  tpm-tpm_ibm_vtpm-fix-unallocated-banks.patch
-  arm64-kvm-regmap-fix-unexpected-switch-fall-through.patch
-  staging-comedi-dt3000-fix-signed-integer-overflow-divider-base.patch
-  staging-comedi-dt3000-fix-rounding-up-of-timer-divisor.patch
-  iio-adc-max9611-fix-temperature-reading-in-probe.patch
-  usb-core-fix-races-in-character-device-registration-and-deregistraion.patch
-  usb-gadget-udc-renesas_usb3-fix-sysfs-interface-of-role.patch
-  usb-cdc-acm-make-sure-a-refcount-is-taken-early-enough.patch
-  usb-cdc-fix-sanity-checks-in-cdc-union-parser.patch
-  usb-serial-option-add-d-link-dwm-222-device-id.patch
-  usb-serial-option-add-support-for-zte-mf871a.patch
-  usb-serial-option-add-the-broadmobi-bm818-card.patch
-  usb-serial-option-add-motorola-modem-uarts.patch
-  usb-setup-authorized_default-attributes-using-usb_bus_notify.patch
-  netfilter-conntrack-use-consistent-ct-id-hash-calculation.patch
-  iwlwifi-add-support-for-sar-south-korea-limitation.patch
-  input-psmouse-fix-build-error-of-multiple-definition.patch
-  bnx2x-fix-vf-s-vlan-reconfiguration-in-reload.patch
-  bonding-add-vlan-tx-offload-to-hw_enc_features.patch
-  net-dsa-check-existence-of-.port_mdb_add-callback-before-calling-it.patch
-  net-mlx4_en-fix-a-memory-leak-bug.patch
-  net-packet-fix-race-in-tpacket_snd.patch
-  net-sched-sch_taprio-fix-memleak-in-error-path-for-sched-list-parse.patch
-  sctp-fix-memleak-in-sctp_send_reset_streams.patch
-  sctp-fix-the-transport-error_count-check.patch
-  team-add-vlan-tx-offload-to-hw_enc_features.patch
-  tipc-initialise-addr_trail_end-when-setting-node-addresses.patch
-  xen-netback-reset-nr_frags-before-freeing-skb.patch
-  net-mlx5e-only-support-tx-rx-pause-setting-for-port-owner.patch
-  bnxt_en-fix-vnic-clearing-logic-for-57500-chips.patch
-  bnxt_en-improve-rx-doorbell-sequence.patch
-  bnxt_en-fix-handling-frag_err-when-nvm_install_update-cmd-fails.patch
-  bnxt_en-suppress-hwrm-errors-for-hwrm_nvm_get_variable-command.patch
-  bnxt_en-use-correct-src_fid-to-determine-direction-of-the-flow.patch
-  bnxt_en-fix-to-include-flow-direction-in-l2-key.patch
-  net-sched-update-skbedit-action-for-batched-events-operations.patch
-  tc-testing-updated-skbedit-action-tests-with-batch-create-delete.patch
-  netdevsim-restore-per-network-namespace-accounting-for-fib-entries.patch
-  net-mlx5e-ethtool-avoid-setting-speed-to-56gbase-when-autoneg-off.patch
-  net-mlx5e-fix-false-negative-indication-on-tx-reporter-cqe-recovery.patch
-  net-mlx5e-remove-redundant-check-in-cqe-recovery-flow-of-tx-reporter.patch
-  net-mlx5e-use-flow-keys-dissector-to-parse-packets-for-arfs.patch
-  net-tls-prevent-skb_orphan-from-leaking-tls-plain-text-with-offload.patch
-  net-phy-consider-an_restart-status-when-reading-link-status.patch
-  netlink-fix-nlmsg_parse-as-a-wrapper-for-strict-message-parsing.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ❌ LTP lite [7]
-         ❌ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking TCP: keepalive test [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ Usex - version 1.9-29 [20]
-         ✅ storage: SCSI VPD [21]
-         ✅ stress: stress-ng [22]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking TCP: keepalive test [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ Usex - version 1.9-29 [20]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking TCP: keepalive test [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ pciutils: sanity smoke test [23]
-         ✅ Usex - version 1.9-29 [20]
-         ✅ storage: SCSI VPD [21]
-         ✅ stress: stress-ng [22]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
