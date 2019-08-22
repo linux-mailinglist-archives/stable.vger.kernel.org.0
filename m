@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C53099D5D
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DCBC99E00
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391751AbfHVRlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S2392931AbfHVRrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391740AbfHVRXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:54 -0400
+        id S2391408AbfHVRWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:41 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B47723428;
-        Thu, 22 Aug 2019 17:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DD1723426;
+        Thu, 22 Aug 2019 17:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494633;
-        bh=1wM/SEQJfDfuIKMxA3jc2vKJwCSpwRpH0U615cu6rx4=;
+        s=default; t=1566494561;
+        bh=kx4HX+vTfePcu6oVlY5CbjcYGbJQMNgVz4t6j7HmeLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeXA2lWyG1brnZBqNDvnKiuaPQD6JEwHHwftqudgN0s6QFnrRGceyqaUTn+/LmiE9
-         ODhNYCJXdhdWQ5I8pBchDP1J2k5QhrHcbybSeqZJE8mEah6K0C8X/PEhqVFC6xvBLV
-         3yoquUJZrAD2d/qRPhayqUoNbIw/SlxHAj5lCGJM=
+        b=HQ0f7YjTdfGB1KfjtASDiEYkMsCN3gH1YVwu399ODk+gJSJHkBg23snZ79bMCu6Dx
+         csNPU7QUVvL3K3zojVCz56uz/FyNCPXbAPeFZ0Qhe3Py3Mo4au62sRwYv42fbQGrxW
+         5CbtAj0Xe1Atus38O9k1IUe0F0AAzQDawGPIAEbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 065/103] Input: kbtab - sanity check for endpoint type
+        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
+        Scott Teel <scott.teel@microsemi.com>,
+        Scott Benesh <scott.benesh@microsemi.com>,
+        Kevin Barnett <kevin.barnett@microsemi.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 49/78] scsi: hpsa: correct scsi command status issue after reset
 Date:   Thu, 22 Aug 2019 10:18:53 -0700
-Message-Id: <20190822171731.406317755@linuxfoundation.org>
+Message-Id: <20190822171833.464324948@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+[ Upstream commit eeebce1862970653cdf5c01e98bc669edd8f529a ]
 
-commit c88090dfc84254fa149174eb3e6a8458de1912c4 upstream.
-
-The driver should check whether the endpoint it uses has the correct
-type.
-
-Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
+Reviewed-by: Scott Teel <scott.teel@microsemi.com>
+Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
+Signed-off-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/tablet/kbtab.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/hpsa.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/input/tablet/kbtab.c
-+++ b/drivers/input/tablet/kbtab.c
-@@ -125,6 +125,10 @@ static int kbtab_probe(struct usb_interf
- 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
- 		return -ENODEV;
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index e0952882e1320..fcce3ae119fa4 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -2153,6 +2153,8 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
+ 	case IOACCEL2_SERV_RESPONSE_COMPLETE:
+ 		switch (c2->error_data.status) {
+ 		case IOACCEL2_STATUS_SR_TASK_COMP_GOOD:
++			if (cmd)
++				cmd->result = 0;
+ 			break;
+ 		case IOACCEL2_STATUS_SR_TASK_COMP_CHK_COND:
+ 			cmd->result |= SAM_STAT_CHECK_CONDITION;
+@@ -2320,8 +2322,10 @@ static void process_ioaccel2_completion(struct ctlr_info *h,
  
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(endpoint))
-+		return -ENODEV;
+ 	/* check for good status */
+ 	if (likely(c2->error_data.serv_response == 0 &&
+-			c2->error_data.status == 0))
++			c2->error_data.status == 0)) {
++		cmd->result = 0;
+ 		return hpsa_cmd_free_and_done(h, c, cmd);
++	}
+ 
+ 	/*
+ 	 * Any RAID offload error results in retry which will use
+@@ -5236,6 +5240,12 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
+ 	}
+ 	c = cmd_tagged_alloc(h, cmd);
+ 
++	/*
++	 * This is necessary because the SML doesn't zero out this field during
++	 * error recovery.
++	 */
++	cmd->result = 0;
 +
- 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!kbtab || !input_dev)
-@@ -163,8 +167,6 @@ static int kbtab_probe(struct usb_interf
- 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
- 
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
--
- 	usb_fill_int_urb(kbtab->irq, dev,
- 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
- 			 kbtab->data, 8,
+ 	/*
+ 	 * Call alternate submit routine for I/O accelerated commands.
+ 	 * Retries always go down the normal I/O path.
+-- 
+2.20.1
+
 
 
