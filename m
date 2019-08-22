@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE63B99A4B
+	by mail.lfdr.de (Postfix) with ESMTP id 75DF299A4A
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390704AbfHVRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390706AbfHVRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Aug 2019 13:09:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390691AbfHVRJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390696AbfHVRJM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:09:12 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6F2923407;
-        Thu, 22 Aug 2019 17:09:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20CC223427;
+        Thu, 22 Aug 2019 17:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493751;
-        bh=iiHpQG4H/gYs9ZpuGOv5Qyo2mnP/gHrFNQJ+ePLCwvU=;
+        bh=E7dDbYlCbqrli8DEiyYIi2FFj2BDiNINEV8DC8CpJwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcmfXojBtUNwEmDqM3VoN/y9FQJTaI8UNaQmLL2cwOJqkvHQRCvzedwz5Ep8H2ZU3
-         1MlziILPShMTLGibaC95Ipd1DSnmMtTOYlhYTgcgxemblWRvNgbWmvsA/jCo0d2WSV
-         Vm1xH18TghgBRmeTmxHlATg61H+YaA679ggdIzvs=
+        b=htKm+7qWsCV2pK6U1duia0dpNB+k4N9Rww+lZPvdELS8Rk9xuSlsBx3bgtRiYWeva
+         Vv5bAD/Z8HtgYtGjXkAuvR/zvRWmWtYyZssRAJXlGp1ZcQOadUpeKEM1qWMAHK80R4
+         ac44diTqsQdfJCUUETmcgq60OvtuzMACGLCColp0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dirk Morris <dmorris@metaloft.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+Cc:     Haim Dreyfuss <haim.dreyfuss@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 104/135] netfilter: conntrack: Use consistent ct id hash calculation
-Date:   Thu, 22 Aug 2019 13:07:40 -0400
-Message-Id: <20190822170811.13303-105-sashal@kernel.org>
+Subject: [PATCH 5.2 105/135] iwlwifi: Add support for SAR South Korea limitation
+Date:   Thu, 22 Aug 2019 13:07:41 -0400
+Message-Id: <20190822170811.13303-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,67 +49,331 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Morris <dmorris@metaloft.com>
+From: Haim Dreyfuss <haim.dreyfuss@intel.com>
 
-commit 656c8e9cc1badbc18eefe6ba01d33ebbcae61b9a upstream.
+commit 0c3d7282233c7b02c74400b49981d6fff1d683a8 upstream.
 
-Change ct id hash calculation to only use invariants.
+South Korea is adding a more strict SAR limit called "Limb SAR".
+Currently, WGDS SAR offset group 3 is not used (not mapped to any country).
+In order to be able to comply with South Korea new restriction:
+- OEM will use WGDS SAR offset group 3 to South Korea limitation.
+- OEM will change WGDS revision to 1 (currently latest revision is 0)
+	to notify that Korea Limb SAR applied.
+- Driver will read the WGDS table and pass the values to FW (as usual)
+- Driver will pass to FW an indication that Korea Limb SAR is applied
+	in case table revision is 1.
 
-Currently the ct id hash calculation is based on some fields that can
-change in the lifetime on a conntrack entry in some corner cases. The
-current hash uses the whole tuple which contains an hlist pointer which
-will change when the conntrack is placed on the dying list resulting in
-a ct id change.
-
-This patch also removes the reply-side tuple and extension pointer from
-the hash calculation so that the ct id will will not change from
-initialization until confirmation.
-
-Fixes: 3c79107631db1f7 ("netfilter: ctnetlink: don't use conntrack/expect object addresses as id")
-Signed-off-by: Dirk Morris <dmorris@metaloft.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Haim Dreyfuss <haim.dreyfuss@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.c  | 28 ++++++----
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.h  |  5 +-
+ .../net/wireless/intel/iwlwifi/fw/api/power.h | 12 ++++
+ drivers/net/wireless/intel/iwlwifi/fw/file.h  |  3 +
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c   | 55 ++++++++++++++-----
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h  |  1 +
+ 6 files changed, 76 insertions(+), 28 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index f4f9b8344a32d..e343a030ec262 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -453,13 +453,12 @@ EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
-  * table location, we assume id gets exposed to userspace.
-  *
-  * Following nf_conn items do not change throughout lifetime
-- * of the nf_conn after it has been committed to main hash table:
-+ * of the nf_conn:
-  *
-  * 1. nf_conn address
-- * 2. nf_conn->ext address
-- * 3. nf_conn->master address (normally NULL)
-- * 4. tuple
-- * 5. the associated net namespace
-+ * 2. nf_conn->master address (normally NULL)
-+ * 3. the associated net namespace
-+ * 4. the original direction tuple
-  */
- u32 nf_ct_get_id(const struct nf_conn *ct)
- {
-@@ -469,9 +468,10 @@ u32 nf_ct_get_id(const struct nf_conn *ct)
- 	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+index 405038ce98d68..7573af2d88ce7 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+@@ -97,7 +97,7 @@ IWL_EXPORT_SYMBOL(iwl_acpi_get_object);
  
- 	a = (unsigned long)ct;
--	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
--	c = (unsigned long)ct->ext;
--	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
-+	b = (unsigned long)ct->master;
-+	c = (unsigned long)nf_ct_net(ct);
-+	d = (unsigned long)siphash(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
-+				   sizeof(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple),
- 				   &ct_id_seed);
- #ifdef CONFIG_64BIT
- 	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
+ union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
+ 					 union acpi_object *data,
+-					 int data_size)
++					 int data_size, int *tbl_rev)
+ {
+ 	int i;
+ 	union acpi_object *wifi_pkg;
+@@ -113,16 +113,19 @@ union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
+ 	/*
+ 	 * We need at least two packages, one for the revision and one
+ 	 * for the data itself.  Also check that the revision is valid
+-	 * (i.e. it is an integer set to 0).
++	 * (i.e. it is an integer smaller than 2, as we currently support only
++	 * 2 revisions).
+ 	 */
+ 	if (data->type != ACPI_TYPE_PACKAGE ||
+ 	    data->package.count < 2 ||
+ 	    data->package.elements[0].type != ACPI_TYPE_INTEGER ||
+-	    data->package.elements[0].integer.value != 0) {
++	    data->package.elements[0].integer.value > 1) {
+ 		IWL_DEBUG_DEV_RADIO(dev, "Unsupported packages structure\n");
+ 		return ERR_PTR(-EINVAL);
+ 	}
+ 
++	*tbl_rev = data->package.elements[0].integer.value;
++
+ 	/* loop through all the packages to find the one for WiFi */
+ 	for (i = 1; i < data->package.count; i++) {
+ 		union acpi_object *domain;
+@@ -151,14 +154,15 @@ int iwl_acpi_get_mcc(struct device *dev, char *mcc)
+ {
+ 	union acpi_object *wifi_pkg, *data;
+ 	u32 mcc_val;
+-	int ret;
++	int ret, tbl_rev;
+ 
+ 	data = iwl_acpi_get_object(dev, ACPI_WRDD_METHOD);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
+-	wifi_pkg = iwl_acpi_get_wifi_pkg(dev, data, ACPI_WRDD_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg)) {
++	wifi_pkg = iwl_acpi_get_wifi_pkg(dev, data, ACPI_WRDD_WIFI_DATA_SIZE,
++					 &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev != 0) {
+ 		ret = PTR_ERR(wifi_pkg);
+ 		goto out_free;
+ 	}
+@@ -185,6 +189,7 @@ u64 iwl_acpi_get_pwr_limit(struct device *dev)
+ {
+ 	union acpi_object *data, *wifi_pkg;
+ 	u64 dflt_pwr_limit;
++	int tbl_rev;
+ 
+ 	data = iwl_acpi_get_object(dev, ACPI_SPLC_METHOD);
+ 	if (IS_ERR(data)) {
+@@ -193,8 +198,8 @@ u64 iwl_acpi_get_pwr_limit(struct device *dev)
+ 	}
+ 
+ 	wifi_pkg = iwl_acpi_get_wifi_pkg(dev, data,
+-					 ACPI_SPLC_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg) ||
++					 ACPI_SPLC_WIFI_DATA_SIZE, &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev != 0 ||
+ 	    wifi_pkg->package.elements[1].integer.value != ACPI_TYPE_INTEGER) {
+ 		dflt_pwr_limit = 0;
+ 		goto out_free;
+@@ -211,14 +216,15 @@ IWL_EXPORT_SYMBOL(iwl_acpi_get_pwr_limit);
+ int iwl_acpi_get_eckv(struct device *dev, u32 *extl_clk)
+ {
+ 	union acpi_object *wifi_pkg, *data;
+-	int ret;
++	int ret, tbl_rev;
+ 
+ 	data = iwl_acpi_get_object(dev, ACPI_ECKV_METHOD);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
+-	wifi_pkg = iwl_acpi_get_wifi_pkg(dev, data, ACPI_ECKV_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg)) {
++	wifi_pkg = iwl_acpi_get_wifi_pkg(dev, data, ACPI_ECKV_WIFI_DATA_SIZE,
++					 &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev != 0) {
+ 		ret = PTR_ERR(wifi_pkg);
+ 		goto out_free;
+ 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.h b/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
+index f5704e16643fc..991a234509994 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
+@@ -97,7 +97,7 @@
+ void *iwl_acpi_get_object(struct device *dev, acpi_string method);
+ union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
+ 					 union acpi_object *data,
+-					 int data_size);
++					 int data_size, int *tbl_rev);
+ 
+ /**
+  * iwl_acpi_get_mcc - read MCC from ACPI, if available
+@@ -131,7 +131,8 @@ static inline void *iwl_acpi_get_object(struct device *dev, acpi_string method)
+ 
+ static inline union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
+ 						       union acpi_object *data,
+-						       int data_size)
++						       int data_size,
++						       int *tbl_rev)
+ {
+ 	return ERR_PTR(-ENOENT);
+ }
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/power.h b/drivers/net/wireless/intel/iwlwifi/fw/api/power.h
+index 01f003c6cff9f..f195db398bedb 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/api/power.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/api/power.h
+@@ -419,14 +419,26 @@ struct iwl_per_chain_offset_group {
+ 	struct iwl_per_chain_offset hb;
+ } __packed; /* PER_CHAIN_LIMIT_OFFSET_GROUP_S_VER_1 */
+ 
++/**
++ * struct iwl_geo_tx_power_profile_cmd_v1 - struct for GEO_TX_POWER_LIMIT cmd.
++ * @ops: operations, value from &enum iwl_geo_per_chain_offset_operation
++ * @table: offset profile per band.
++ */
++struct iwl_geo_tx_power_profiles_cmd_v1 {
++	__le32 ops;
++	struct iwl_per_chain_offset_group table[IWL_NUM_GEO_PROFILES];
++} __packed; /* GEO_TX_POWER_LIMIT_VER_1 */
++
+ /**
+  * struct iwl_geo_tx_power_profile_cmd - struct for GEO_TX_POWER_LIMIT cmd.
+  * @ops: operations, value from &enum iwl_geo_per_chain_offset_operation
+  * @table: offset profile per band.
++ * @table_revision: BIOS table revision.
+  */
+ struct iwl_geo_tx_power_profiles_cmd {
+ 	__le32 ops;
+ 	struct iwl_per_chain_offset_group table[IWL_NUM_GEO_PROFILES];
++	__le32 table_revision;
+ } __packed; /* GEO_TX_POWER_LIMIT */
+ 
+ /**
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/file.h b/drivers/net/wireless/intel/iwlwifi/fw/file.h
+index de9243d301352..a74f34a8dffb0 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/file.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/file.h
+@@ -286,6 +286,8 @@ typedef unsigned int __bitwise iwl_ucode_tlv_api_t;
+  *	SCAN_OFFLOAD_PROFILES_QUERY_RSP_S.
+  * @IWL_UCODE_TLV_API_MBSSID_HE: This ucode supports v2 of
+  *	STA_CONTEXT_DOT11AX_API_S
++ * @IWL_UCODE_TLV_CAPA_SAR_TABLE_VER: This ucode supports different sar
++ *	version tables.
+  *
+  * @NUM_IWL_UCODE_TLV_API: number of bits used
+  */
+@@ -318,6 +320,7 @@ enum iwl_ucode_tlv_api {
+ 	IWL_UCODE_TLV_API_MBSSID_HE		= (__force iwl_ucode_tlv_api_t)52,
+ 	IWL_UCODE_TLV_API_WOWLAN_TCP_SYN_WAKE	= (__force iwl_ucode_tlv_api_t)53,
+ 	IWL_UCODE_TLV_API_FTM_RTT_ACCURACY      = (__force iwl_ucode_tlv_api_t)54,
++	IWL_UCODE_TLV_API_SAR_TABLE_VER         = (__force iwl_ucode_tlv_api_t)55,
+ 
+ 	NUM_IWL_UCODE_TLV_API
+ #ifdef __CHECKER__
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 5af9959d05e52..8892707050d5a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -682,15 +682,15 @@ static int iwl_mvm_sar_get_wrds_table(struct iwl_mvm *mvm)
+ {
+ 	union acpi_object *wifi_pkg, *table, *data;
+ 	bool enabled;
+-	int ret;
++	int ret, tbl_rev;
+ 
+ 	data = iwl_acpi_get_object(mvm->dev, ACPI_WRDS_METHOD);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
+ 	wifi_pkg = iwl_acpi_get_wifi_pkg(mvm->dev, data,
+-					 ACPI_WRDS_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg)) {
++					 ACPI_WRDS_WIFI_DATA_SIZE, &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev != 0) {
+ 		ret = PTR_ERR(wifi_pkg);
+ 		goto out_free;
+ 	}
+@@ -719,15 +719,15 @@ static int iwl_mvm_sar_get_ewrd_table(struct iwl_mvm *mvm)
+ {
+ 	union acpi_object *wifi_pkg, *data;
+ 	bool enabled;
+-	int i, n_profiles, ret;
++	int i, n_profiles, ret, tbl_rev;
+ 
+ 	data = iwl_acpi_get_object(mvm->dev, ACPI_EWRD_METHOD);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
+ 	wifi_pkg = iwl_acpi_get_wifi_pkg(mvm->dev, data,
+-					 ACPI_EWRD_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg)) {
++					 ACPI_EWRD_WIFI_DATA_SIZE, &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev != 0) {
+ 		ret = PTR_ERR(wifi_pkg);
+ 		goto out_free;
+ 	}
+@@ -778,7 +778,7 @@ static int iwl_mvm_sar_get_ewrd_table(struct iwl_mvm *mvm)
+ static int iwl_mvm_sar_get_wgds_table(struct iwl_mvm *mvm)
+ {
+ 	union acpi_object *wifi_pkg, *data;
+-	int i, j, ret;
++	int i, j, ret, tbl_rev;
+ 	int idx = 1;
+ 
+ 	data = iwl_acpi_get_object(mvm->dev, ACPI_WGDS_METHOD);
+@@ -786,12 +786,13 @@ static int iwl_mvm_sar_get_wgds_table(struct iwl_mvm *mvm)
+ 		return PTR_ERR(data);
+ 
+ 	wifi_pkg = iwl_acpi_get_wifi_pkg(mvm->dev, data,
+-					 ACPI_WGDS_WIFI_DATA_SIZE);
+-	if (IS_ERR(wifi_pkg)) {
++					 ACPI_WGDS_WIFI_DATA_SIZE, &tbl_rev);
++	if (IS_ERR(wifi_pkg) || tbl_rev > 1) {
+ 		ret = PTR_ERR(wifi_pkg);
+ 		goto out_free;
+ 	}
+ 
++	mvm->geo_rev = tbl_rev;
+ 	for (i = 0; i < ACPI_NUM_GEO_PROFILES; i++) {
+ 		for (j = 0; j < ACPI_GEO_TABLE_SIZE; j++) {
+ 			union acpi_object *entry;
+@@ -894,15 +895,29 @@ int iwl_mvm_get_sar_geo_profile(struct iwl_mvm *mvm)
+ {
+ 	struct iwl_geo_tx_power_profiles_resp *resp;
+ 	int ret;
++	u16 len;
++	void *data;
++	struct iwl_geo_tx_power_profiles_cmd geo_cmd;
++	struct iwl_geo_tx_power_profiles_cmd_v1 geo_cmd_v1;
++	struct iwl_host_cmd cmd;
++
++	if (fw_has_api(&mvm->fw->ucode_capa, IWL_UCODE_TLV_API_SAR_TABLE_VER)) {
++		geo_cmd.ops =
++			cpu_to_le32(IWL_PER_CHAIN_OFFSET_GET_CURRENT_TABLE);
++		len = sizeof(geo_cmd);
++		data = &geo_cmd;
++	} else {
++		geo_cmd_v1.ops =
++			cpu_to_le32(IWL_PER_CHAIN_OFFSET_GET_CURRENT_TABLE);
++		len = sizeof(geo_cmd_v1);
++		data = &geo_cmd_v1;
++	}
+ 
+-	struct iwl_geo_tx_power_profiles_cmd geo_cmd = {
+-		.ops = cpu_to_le32(IWL_PER_CHAIN_OFFSET_GET_CURRENT_TABLE),
+-	};
+-	struct iwl_host_cmd cmd = {
++	cmd = (struct iwl_host_cmd){
+ 		.id =  WIDE_ID(PHY_OPS_GROUP, GEO_TX_POWER_LIMIT),
+-		.len = { sizeof(geo_cmd), },
++		.len = { len, },
+ 		.flags = CMD_WANT_SKB,
+-		.data = { &geo_cmd },
++		.data = { data },
+ 	};
+ 
+ 	if (!iwl_mvm_sar_geo_support(mvm))
+@@ -969,6 +984,16 @@ static int iwl_mvm_sar_geo_init(struct iwl_mvm *mvm)
+ 					i, j, value[1], value[2], value[0]);
+ 		}
+ 	}
++
++	cmd.table_revision = cpu_to_le32(mvm->geo_rev);
++
++	if (!fw_has_api(&mvm->fw->ucode_capa,
++		       IWL_UCODE_TLV_API_SAR_TABLE_VER)) {
++		return iwl_mvm_send_cmd_pdu(mvm, cmd_wide_id, 0,
++				sizeof(struct iwl_geo_tx_power_profiles_cmd_v1),
++				&cmd);
++	}
++
+ 	return iwl_mvm_send_cmd_pdu(mvm, cmd_wide_id, 0, sizeof(cmd), &cmd);
+ }
+ 
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+index 88af1f0ba3f0f..ed8fc9a9204ca 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -1184,6 +1184,7 @@ struct iwl_mvm {
+ #ifdef CONFIG_ACPI
+ 	struct iwl_mvm_sar_profile sar_profiles[ACPI_SAR_PROFILE_NUM];
+ 	struct iwl_mvm_geo_profile geo_profiles[ACPI_NUM_GEO_PROFILES];
++	u32 geo_rev;
+ #endif
+ };
+ 
 -- 
 2.20.1
 
