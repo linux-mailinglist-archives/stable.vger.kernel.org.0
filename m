@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B97F99B7C
+	by mail.lfdr.de (Postfix) with ESMTP id 7B24799B7D
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404343AbfHVRZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404345AbfHVRZL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Aug 2019 13:25:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48216 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404336AbfHVRZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:10 -0400
+        id S2404341AbfHVRZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:11 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E39A12341B;
-        Thu, 22 Aug 2019 17:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABC5923426;
+        Thu, 22 Aug 2019 17:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566494710;
-        bh=Gj847P+qXm8y51Qcuet4CDKDoDTyJYgVLrmfPsIq1Ik=;
+        bh=lWiXdrFpPl+47r/41TiMavfsdsKGVAwGSJYGPTvESsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbNTuj2YGTJ1cLJ0a7ZWXZ9L6VkVzX9C6NNieh9r52/PhYSygCHss5aOVJh7awuJ1
-         MGl2QKy202rntimVr2ByetT5hnZ6fgzQA8m9qyBKQbwVoxkvQdK49nYhtiIaBITP9j
-         XRslscbZSRMz3Ezurvgl0v6X2vWCtM9NqF1+tLMQ=
+        b=xaTAXD96acXN2YWsryEW5H38MZyXpXxqbVZ01QOrgcftw/H3QhOkjM1aPO1B7SL/l
+         A0SE6WMaqEfSh/YzZRW20QRA9JfT1ZWfac/DqXo/CNXADwC0BzRJqpV9NOTZzM6UE4
+         y92H/2kdT87z+HVL8Cb78WpTjB2oKO6xbeu5MkvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 65/71] xen/netback: Reset nr_frags before freeing skb
-Date:   Thu, 22 Aug 2019 10:19:40 -0700
-Message-Id: <20190822171730.557817012@linuxfoundation.org>
+        stable@vger.kernel.org, Huy Nguyen <huyn@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 66/71] net/mlx5e: Only support tx/rx pause setting for port owner
+Date:   Thu, 22 Aug 2019 10:19:41 -0700
+Message-Id: <20190822171730.590818002@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
 References: <20190822171726.131957995@linuxfoundation.org>
@@ -43,38 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Lagerwall <ross.lagerwall@citrix.com>
+From: Huy Nguyen <huyn@mellanox.com>
 
-[ Upstream commit 3a0233ddec554b886298de2428edb5c50a20e694 ]
+[ Upstream commit 466df6eb4a9e813b3cfc674363316450c57a89c5 ]
 
-At this point nr_frags has been incremented but the frag does not yet
-have a page assigned so freeing the skb results in a crash. Reset
-nr_frags before freeing the skb to prevent this.
+Only support changing tx/rx pause frame setting if the net device
+is the vport group manager.
 
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3c2d18ef22df ("net/mlx5e: Support ethtool get/set_pauseparam")
+Signed-off-by: Huy Nguyen <huyn@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/netback.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -927,6 +927,7 @@ static void xenvif_tx_build_gops(struct
- 			skb_shinfo(skb)->nr_frags = MAX_SKB_FRAGS;
- 			nskb = xenvif_alloc_skb(0);
- 			if (unlikely(nskb == NULL)) {
-+				skb_shinfo(skb)->nr_frags = 0;
- 				kfree_skb(skb);
- 				xenvif_tx_err(queue, &txreq, extra_count, idx);
- 				if (net_ratelimit())
-@@ -942,6 +943,7 @@ static void xenvif_tx_build_gops(struct
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1400,6 +1400,9 @@ static int mlx5e_set_pauseparam(struct n
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int err;
  
- 			if (xenvif_set_skb_gso(queue->vif, skb, gso)) {
- 				/* Failure in xenvif_set_skb_gso is fatal. */
-+				skb_shinfo(skb)->nr_frags = 0;
- 				kfree_skb(skb);
- 				kfree_skb(nskb);
- 				break;
++	if (!MLX5_CAP_GEN(mdev, vport_group_manager))
++		return -EOPNOTSUPP;
++
+ 	if (pauseparam->autoneg)
+ 		return -EINVAL;
+ 
 
 
