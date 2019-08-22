@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C2A399DAD
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC1599E36
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392816AbfHVRo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42856 "EHLO mail.kernel.org"
+        id S2389876AbfHVRWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387958AbfHVRXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:16 -0400
+        id S2389950AbfHVRWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:20 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BEB123405;
-        Thu, 22 Aug 2019 17:23:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC37233FC;
+        Thu, 22 Aug 2019 17:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494596;
-        bh=1ZwtHgzaqpOXK7ILaSAJBsleTmCMydPzY4GoucyH5yM=;
+        s=default; t=1566494540;
+        bh=Mh1/bHNMSZxjSXWuCew94BhzmXBwks+dNsCioYr3Aqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abP2dWa19fThZTnCRK/2Tlt7LY+PW7n17oJklti8PK1C/I0diiQNxNn6tRGKB5fEc
-         q/IQ4zg1AXwZBURtIzUS8sXkBEs5aTcdE/mpX6NHyJnXaZexrg20frKEvQcPtkO2V/
-         cvh0SSkBeeygtYIA0yBvsZ3lBqc0XYG7QCzZu44o=
+        b=yK6iTG5nCEwS8x9IKn/ei8i/YhnlkaSJCIuaqHXX45r8j+WRkeuNMjgKReC9d07Qd
+         6x7PgEgmILwDmpp9zQhrVwjfdcB/fNbHzievtc+SXX81T2FXinszh3BeN//br52vPl
+         MBkA4sWUGSiidamOo+8hbZD+2NXnQQoNt0HWY+ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 017/103] s390/qdio: add sanity checks to the fast-requeue path
-Date:   Thu, 22 Aug 2019 10:18:05 -0700
-Message-Id: <20190822171729.547275416@linuxfoundation.org>
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 02/78] sound: fix a memory leak bug
+Date:   Thu, 22 Aug 2019 10:18:06 -0700
+Message-Id: <20190822171832.115851286@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-If the device driver were to send out a full queue's worth of SBALs,
-current code would end up discovering the last of those SBALs as PRIMED
-and erroneously skip the SIGA-w. This immediately stalls the queue.
+commit c7cd7c748a3250ca33509f9235efab9c803aca09 upstream.
 
-Add a check to not attempt fast-requeue in this case. While at it also
-make sure that the state of the previous SBAL was successfully extracted
-before inspecting it.
+In sound_insert_unit(), the controlling structure 's' is allocated through
+kmalloc(). Then it is added to the sound driver list by invoking
+__sound_insert_unit(). Later on, if __register_chrdev() fails, 's' is
+removed from the list through __sound_remove_unit(). If 'index' is not less
+than 0, -EBUSY is returned to indicate the error. However, 's' is not
+deallocated on this execution path, leading to a memory leak bug.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix the above issue, free 's' before -EBUSY is returned.
+
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/s390/cio/qdio_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/sound_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 58cd0e0c9680b..b65cab4448021 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1576,13 +1576,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		rc = qdio_kick_outbound_q(q, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
-+	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-+		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
-+		   state == SLSB_CU_OUTPUT_PRIMED) {
-+		/* The previous buffer is not processed yet, tack on. */
-+		qperf_inc(q, fast_requeue);
- 	} else {
--		/* try to fast requeue buffers */
--		get_buf_state(q, prev_buf(bufnr), &state, 0);
--		if (state != SLSB_CU_OUTPUT_PRIMED)
--			rc = qdio_kick_outbound_q(q, 0);
--		else
--			qperf_inc(q, fast_requeue);
-+		rc = qdio_kick_outbound_q(q, 0);
+--- a/sound/sound_core.c
++++ b/sound/sound_core.c
+@@ -287,7 +287,8 @@ retry:
+ 				goto retry;
+ 			}
+ 			spin_unlock(&sound_loader_lock);
+-			return -EBUSY;
++			r = -EBUSY;
++			goto fail;
+ 		}
  	}
  
- 	/* in case of SIGA errors we must process the error immediately */
--- 
-2.20.1
-
 
 
