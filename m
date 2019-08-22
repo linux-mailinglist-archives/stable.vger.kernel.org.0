@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E14A099D04
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E4399CA1
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404981AbfHVRjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:39:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45688 "EHLO mail.kernel.org"
+        id S2391594AbfHVRYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404162AbfHVRYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:19 -0400
+        id S2391580AbfHVRYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:50 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7CAC23400;
-        Thu, 22 Aug 2019 17:24:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6120123427;
+        Thu, 22 Aug 2019 17:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494658;
-        bh=M9oSlkNrPBEj8KJA4XQkLxsl4QF+2z9r0fl09esqPzI=;
+        s=default; t=1566494689;
+        bh=Sfy/bhHD66O2/SrzsnfJdaIleikMV8sKXefKq7lE1VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gB1N/F59pwFsiYnUCOPj4RNAxbRAG5vjS10w4+9etOGIJMQAYVejzP7wqp1Vee/8C
-         ZNQ7G2QaLg7tR7y6518homfdCGV+b2vFGBt54YLkl6mOO91WpeypMrdjqBTYi1F2sv
-         nHKBFyVep35J5/3zsg5ezEKTStVJ7ZAvnNqUTJGo=
+        b=zu5zJdreDhahWWa6cY7UNSyQbvluoL6np3B/efHv/q17rGnvaGkxLk8ldLRAUtZGE
+         LIWrEoH6VtryUq7G1LdkV7KAVK9Zs0fyMT/hVYqAPgK57qzX1eZ7FTXNfN8j2DyHq0
+         gL8c7Q31vxfSfbq3AxR/yCCSMppe2L4NBbhKxLkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+30cf45ebfe0b0c4847a1@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 083/103] USB: core: Fix races in character device registration and deregistraion
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 36/71] arm64/mm: fix variable pud set but not used
 Date:   Thu, 22 Aug 2019 10:19:11 -0700
-Message-Id: <20190822171732.351246670@linuxfoundation.org>
+Message-Id: <20190822171729.480688834@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+[ Upstream commit 7d4e2dcf311d3b98421d1f119efe5964cafa32fc ]
 
-commit 303911cfc5b95d33687d9046133ff184cf5043ff upstream.
+GCC throws a warning,
 
-The syzbot fuzzer has found two (!) races in the USB character device
-registration and deregistration routines.  This patch fixes the races.
+arch/arm64/mm/mmu.c: In function 'pud_free_pmd_page':
+arch/arm64/mm/mmu.c:1033:8: warning: variable 'pud' set but not used
+[-Wunused-but-set-variable]
+  pud_t pud;
+        ^~~
 
-The first race results from the fact that usb_deregister_dev() sets
-usb_minors[intf->minor] to NULL before calling device_destroy() on the
-class device.  This leaves a window during which another thread can
-allocate the same minor number but will encounter a duplicate name
-error when it tries to register its own class device.  A typical error
-message in the system log would look like:
+because pud_table() is a macro and compiled away. Fix it by making it a
+static inline function and for pud_sect() as well.
 
-    sysfs: cannot create duplicate filename '/class/usbmisc/ldusb0'
-
-The patch fixes this race by destroying the class device first.
-
-The second race is in usb_register_dev().  When that routine runs, it
-first allocates a minor number, then drops minor_rwsem, and then
-creates the class device.  If the device creation fails, the minor
-number is deallocated and the whole routine returns an error.  But
-during the time while minor_rwsem was dropped, there is a window in
-which the minor number is allocated and so another thread can
-successfully open the device file.  Typically this results in
-use-after-free errors or invalid accesses when the other thread closes
-its open file reference, because the kernel then tries to release
-resources that were already deallocated when usb_register_dev()
-failed.  The patch fixes this race by keeping minor_rwsem locked
-throughout the entire routine.
-
-Reported-and-tested-by: syzbot+30cf45ebfe0b0c4847a1@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1908121607590.1659-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/file.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/include/asm/pgtable.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/file.c
-+++ b/drivers/usb/core/file.c
-@@ -191,9 +191,10 @@ int usb_register_dev(struct usb_interfac
- 		intf->minor = minor;
- 		break;
- 	}
--	up_write(&minor_rwsem);
--	if (intf->minor < 0)
-+	if (intf->minor < 0) {
-+		up_write(&minor_rwsem);
- 		return -EXFULL;
-+	}
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index ee77556b01243..4cf248185e6f9 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -394,8 +394,8 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ 				 PMD_TYPE_SECT)
  
- 	/* create a usb class device for this usb interface */
- 	snprintf(name, sizeof(name), class_driver->name, minor - minor_base);
-@@ -201,12 +202,11 @@ int usb_register_dev(struct usb_interfac
- 				      MKDEV(USB_MAJOR, minor), class_driver,
- 				      "%s", kbasename(name));
- 	if (IS_ERR(intf->usb_dev)) {
--		down_write(&minor_rwsem);
- 		usb_minors[minor] = NULL;
- 		intf->minor = -1;
--		up_write(&minor_rwsem);
- 		retval = PTR_ERR(intf->usb_dev);
- 	}
-+	up_write(&minor_rwsem);
- 	return retval;
- }
- EXPORT_SYMBOL_GPL(usb_register_dev);
-@@ -232,12 +232,12 @@ void usb_deregister_dev(struct usb_inter
- 		return;
- 
- 	dev_dbg(&intf->dev, "removing %d minor\n", intf->minor);
-+	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
- 
- 	down_write(&minor_rwsem);
- 	usb_minors[intf->minor] = NULL;
- 	up_write(&minor_rwsem);
- 
--	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
- 	intf->usb_dev = NULL;
- 	intf->minor = -1;
- 	destroy_usb_class();
+ #if defined(CONFIG_ARM64_64K_PAGES) || CONFIG_PGTABLE_LEVELS < 3
+-#define pud_sect(pud)		(0)
+-#define pud_table(pud)		(1)
++static inline bool pud_sect(pud_t pud) { return false; }
++static inline bool pud_table(pud_t pud) { return true; }
+ #else
+ #define pud_sect(pud)		((pud_val(pud) & PUD_TYPE_MASK) == \
+ 				 PUD_TYPE_SECT)
+-- 
+2.20.1
+
 
 
