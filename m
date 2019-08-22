@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7012E99DE4
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B154999DE0
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391566AbfHVRqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
+        id S2393050AbfHVRqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:46:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391674AbfHVRW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391676AbfHVRW5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:22:57 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3C7523406;
-        Thu, 22 Aug 2019 17:22:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CDDA2341A;
+        Thu, 22 Aug 2019 17:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566494576;
-        bh=G8LchBmt1VAVngPgsDs7T/u2yerKpz+40DXVd0aEkhU=;
+        bh=nu3Cf9luCnSo7c0WYrSHpGfz7d81vlFh2rBuHMHkdPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcKURPDmWq7FK8pqSs6ZCxU20iUaTpO2E5j3OyOWXRYqV/1qY2/wS9rMwxUexmXnZ
-         brkbMGZexCdDOZNKDdw56J86vOv2vAajl17UslEDZwdxSW4+kEmpqSqaXTjdgMC/zm
-         +MyvPtjmEwMScbww/NSkfw8FAVyeQi1S8Vc6mzQk=
+        b=LH57xKSjQENaw1hZ3caTCS8sI39Ho00rMrkoKkzhhmKYtKd/7bZTuPpe9CTyfrfzH
+         +TH++mMjwMlB0iNHJR1lR6tHi6wMpoZZc8GpQf0JUchfXP1SzDdc2eJWpArTAxjSh1
+         /xY4U7umV4D273H2EXTu2mT7FKbqhGhNAMCUfWbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.4 67/78] asm-generic: default BUG_ON(x) to if(x)BUG()
-Date:   Thu, 22 Aug 2019 10:19:11 -0700
-Message-Id: <20190822171833.970801534@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 68/78] scsi: fcoe: Embed fc_rport_priv in fcoe_rport structure
+Date:   Thu, 22 Aug 2019 10:19:12 -0700
+Message-Id: <20190822171833.998724002@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
 References: <20190822171832.012773482@linuxfoundation.org>
@@ -42,76 +43,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hannes Reinecke <hare@suse.de>
 
-commit 3c047057d1206ec0f3b88c7809cacba478067a0c upstream.
+commit 023358b136d490ca91735ac6490db3741af5a8bd upstream.
 
-When CONFIG_BUG is disabled, BUG_ON() will only evaluate the condition,
-but will not actually stop the current thread. GCC warns about a couple
-of BUG_ON() users where this actually leads to further undefined
-behavior:
+Gcc-9 complains for a memset across pointer boundaries, which happens as
+the code tries to allocate a flexible array on the stack.  Turns out we
+cannot do this without relying on gcc-isms, so with this patch we'll embed
+the fc_rport_priv structure into fcoe_rport, can use the normal
+'container_of' outcast, and will only have to do a memset over one
+structure.
 
-include/linux/ceph/osdmap.h: In function 'ceph_can_shift_osds':
-include/linux/ceph/osdmap.h:54:1: warning: control reaches end of non-void function
-fs/ext4/inode.c: In function 'ext4_map_blocks':
-fs/ext4/inode.c:548:5: warning: 'retval' may be used uninitialized in this function
-drivers/mfd/db8500-prcmu.c: In function 'prcmu_config_clkout':
-drivers/mfd/db8500-prcmu.c:762:10: warning: 'div_mask' may be used uninitialized in this function
-drivers/mfd/db8500-prcmu.c:769:13: warning: 'mask' may be used uninitialized in this function
-drivers/mfd/db8500-prcmu.c:757:7: warning: 'bits' may be used uninitialized in this function
-drivers/tty/serial/8250/8250_core.c: In function 'univ8250_release_irq':
-drivers/tty/serial/8250/8250_core.c:252:18: warning: 'i' may be used uninitialized in this function
-drivers/tty/serial/8250/8250_core.c:235:19: note: 'i' was declared here
-
-There is an obvious conflict of interest here: on the one hand, someone
-who disables CONFIG_BUG() will want the kernel to be as small as possible
-and doesn't care about printing error messages to a console that nobody
-looks at. On the other hand, running into a BUG_ON() condition means that
-something has gone wrong, and we probably want to also stop doing things
-that might cause data corruption.
-
-This patch picks the second choice, and changes the NOP to BUG(), which
-normally stops the execution of the current thread in some form (endless
-loop or a trap). This follows the logic we applied in a4b5d580e078 ("bug:
-Make BUG() always stop the machine").
-
-For ARM multi_v7_defconfig, the size slightly increases:
-
-section		CONFIG_BUG=y	CONFIG_BUG=n	CONFIG_BUG=n+patch
-
-  .text            8320248   |     8180944   |     8207688
-  .rodata          3633720   |     3567144   |     3570648
-  __bug_table        32508   |         ---   |         ---
-  __modver             692   |        1584   |        2176
-  .init.text        558132   |      548300   |      550088
-  .exit.text         12380   |       12256   |       12380
-  .data            1016672   |     1016064   |     1016128
-  Total           14622556   |    14374510   |    14407326
-
-So instead of saving 1.70% of the total image size, we only save 1.48%
-by turning off CONFIG_BUG, but in return we can ensure that we don't run
-into cases of uninitialized variable or return code uses when something
-bad happens. Aside from that, we significantly reduce the number of
-warnings in randconfig builds, which makes it easier to fix the warnings
-about other problems.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/asm-generic/bug.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/fcoe/fcoe_ctlr.c |   33 ++++++++++++++-------------------
+ drivers/scsi/libfc/fc_rport.c |    5 ++++-
+ include/scsi/libfcoe.h        |    1 +
+ 3 files changed, 19 insertions(+), 20 deletions(-)
 
---- a/include/asm-generic/bug.h
-+++ b/include/asm-generic/bug.h
-@@ -143,7 +143,7 @@ extern void warn_slowpath_null(const cha
- #endif
+--- a/drivers/scsi/fcoe/fcoe_ctlr.c
++++ b/drivers/scsi/fcoe/fcoe_ctlr.c
+@@ -1973,7 +1973,7 @@ EXPORT_SYMBOL_GPL(fcoe_wwn_from_mac);
+  */
+ static inline struct fcoe_rport *fcoe_ctlr_rport(struct fc_rport_priv *rdata)
+ {
+-	return (struct fcoe_rport *)(rdata + 1);
++	return container_of(rdata, struct fcoe_rport, rdata);
+ }
  
- #ifndef HAVE_ARCH_BUG_ON
--#define BUG_ON(condition) do { if (condition) ; } while (0)
-+#define BUG_ON(condition) do { if (condition) BUG(); } while (0)
- #endif
+ /**
+@@ -2233,7 +2233,7 @@ static void fcoe_ctlr_vn_start(struct fc
+  */
+ static int fcoe_ctlr_vn_parse(struct fcoe_ctlr *fip,
+ 			      struct sk_buff *skb,
+-			      struct fc_rport_priv *rdata)
++			      struct fcoe_rport *frport)
+ {
+ 	struct fip_header *fiph;
+ 	struct fip_desc *desc = NULL;
+@@ -2241,16 +2241,12 @@ static int fcoe_ctlr_vn_parse(struct fco
+ 	struct fip_wwn_desc *wwn = NULL;
+ 	struct fip_vn_desc *vn = NULL;
+ 	struct fip_size_desc *size = NULL;
+-	struct fcoe_rport *frport;
+ 	size_t rlen;
+ 	size_t dlen;
+ 	u32 desc_mask = 0;
+ 	u32 dtype;
+ 	u8 sub;
  
- #ifndef HAVE_ARCH_WARN_ON
+-	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
+-	frport = fcoe_ctlr_rport(rdata);
+-
+ 	fiph = (struct fip_header *)skb->data;
+ 	frport->flags = ntohs(fiph->fip_flags);
+ 
+@@ -2313,15 +2309,17 @@ static int fcoe_ctlr_vn_parse(struct fco
+ 			if (dlen != sizeof(struct fip_wwn_desc))
+ 				goto len_err;
+ 			wwn = (struct fip_wwn_desc *)desc;
+-			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
++			frport->rdata.ids.node_name =
++				get_unaligned_be64(&wwn->fd_wwn);
+ 			break;
+ 		case FIP_DT_VN_ID:
+ 			if (dlen != sizeof(struct fip_vn_desc))
+ 				goto len_err;
+ 			vn = (struct fip_vn_desc *)desc;
+ 			memcpy(frport->vn_mac, vn->fd_mac, ETH_ALEN);
+-			rdata->ids.port_id = ntoh24(vn->fd_fc_id);
+-			rdata->ids.port_name = get_unaligned_be64(&vn->fd_wwpn);
++			frport->rdata.ids.port_id = ntoh24(vn->fd_fc_id);
++			frport->rdata.ids.port_name =
++				get_unaligned_be64(&vn->fd_wwpn);
+ 			break;
+ 		case FIP_DT_FC4F:
+ 			if (dlen != sizeof(struct fip_fc4_feat))
+@@ -2664,16 +2662,13 @@ static int fcoe_ctlr_vn_recv(struct fcoe
+ {
+ 	struct fip_header *fiph;
+ 	enum fip_vn2vn_subcode sub;
+-	struct {
+-		struct fc_rport_priv rdata;
+-		struct fcoe_rport frport;
+-	} buf;
++	struct fcoe_rport frport = { };
+ 	int rc;
+ 
+ 	fiph = (struct fip_header *)skb->data;
+ 	sub = fiph->fip_subcode;
+ 
+-	rc = fcoe_ctlr_vn_parse(fip, skb, &buf.rdata);
++	rc = fcoe_ctlr_vn_parse(fip, skb, &frport);
+ 	if (rc) {
+ 		LIBFCOE_FIP_DBG(fip, "vn_recv vn_parse error %d\n", rc);
+ 		goto drop;
+@@ -2682,19 +2677,19 @@ static int fcoe_ctlr_vn_recv(struct fcoe
+ 	mutex_lock(&fip->ctlr_mutex);
+ 	switch (sub) {
+ 	case FIP_SC_VN_PROBE_REQ:
+-		fcoe_ctlr_vn_probe_req(fip, &buf.rdata);
++		fcoe_ctlr_vn_probe_req(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_PROBE_REP:
+-		fcoe_ctlr_vn_probe_reply(fip, &buf.rdata);
++		fcoe_ctlr_vn_probe_reply(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_CLAIM_NOTIFY:
+-		fcoe_ctlr_vn_claim_notify(fip, &buf.rdata);
++		fcoe_ctlr_vn_claim_notify(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_CLAIM_REP:
+-		fcoe_ctlr_vn_claim_resp(fip, &buf.rdata);
++		fcoe_ctlr_vn_claim_resp(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_BEACON:
+-		fcoe_ctlr_vn_beacon(fip, &buf.rdata);
++		fcoe_ctlr_vn_beacon(fip, &frport.rdata);
+ 		break;
+ 	default:
+ 		LIBFCOE_FIP_DBG(fip, "vn_recv unknown subcode %d\n", sub);
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -121,12 +121,15 @@ static struct fc_rport_priv *fc_rport_cr
+ 					     u32 port_id)
+ {
+ 	struct fc_rport_priv *rdata;
++	size_t rport_priv_size = sizeof(*rdata);
+ 
+ 	rdata = lport->tt.rport_lookup(lport, port_id);
+ 	if (rdata)
+ 		return rdata;
+ 
+-	rdata = kzalloc(sizeof(*rdata) + lport->rport_priv_size, GFP_KERNEL);
++	if (lport->rport_priv_size > 0)
++		rport_priv_size = lport->rport_priv_size;
++	rdata = kzalloc(rport_priv_size, GFP_KERNEL);
+ 	if (!rdata)
+ 		return NULL;
+ 
+--- a/include/scsi/libfcoe.h
++++ b/include/scsi/libfcoe.h
+@@ -236,6 +236,7 @@ struct fcoe_fcf {
+  * @vn_mac:	VN_Node assigned MAC address for data
+  */
+ struct fcoe_rport {
++	struct fc_rport_priv rdata;
+ 	unsigned long time;
+ 	u16 fcoe_len;
+ 	u16 flags;
 
 
