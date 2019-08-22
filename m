@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3678F99C21
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7DC799C1A
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731500AbfHVRbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50290 "EHLO mail.kernel.org"
+        id S2389667AbfHVRbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404531AbfHVRZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2404534AbfHVRZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:25:56 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 018502341A;
-        Thu, 22 Aug 2019 17:25:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A79A52342B;
+        Thu, 22 Aug 2019 17:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566494755;
-        bh=L6Ts5bftaZf21xQLuA/uTS+x4IavQms4A2KBRy6TvT4=;
+        bh=dj7mEkG4videPuN9hCV/MWfKJniVmyHGSAILoiUiZLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTwDVALFYLGwS3BiTSasnEUrlTmTHOHzhgVLZ/NKLYT8GYqZGpCbmP9m6EO4o3skO
-         D5jgzAzlxk4FcmWxzjagzQ2QR571QWkf0gfVa+bIjtPYHCOAuaLzUlw987kk9kJjSi
-         r4BIJnRX48DXOF7dYezERJX9s5pMLSgs4RblnrgQ=
+        b=ijfkt63oRWWACijW6697/D9l7LVsKcN0Ii0pOa2FdnPSdhd8cZxD1HAOJqF1LNsNQ
+         D5Md/WIp4Q2V9vQat/EmZn7aovuXl/0T9Iqr8547kOQrHYJj8jecLp+lEahFBt+2Ho
+         2w85P0OVMC65osWAQ0LMQXjfTaWGohln0zYYS8hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 55/85] KVM: arm/arm64: Sync ICH_VMCR_EL2 back when about to block
-Date:   Thu, 22 Aug 2019 10:19:28 -0700
-Message-Id: <20190822171733.610647908@linuxfoundation.org>
+        stable@vger.kernel.org, David Binderman <dcb314@hotmail.com>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 56/85] staging: comedi: dt3000: Fix signed integer overflow divider * base
+Date:   Thu, 22 Aug 2019 10:19:29 -0700
+Message-Id: <20190822171733.646826894@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
 References: <20190822171731.012687054@linuxfoundation.org>
@@ -42,172 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 5eeaf10eec394b28fad2c58f1f5c3a5da0e87d1c upstream.
+commit b4d98bc3fc93ec3a58459948a2c0e0c9b501cd88 upstream.
 
-Since commit commit 328e56647944 ("KVM: arm/arm64: vgic: Defer
-touching GICH_VMCR to vcpu_load/put"), we leave ICH_VMCR_EL2 (or
-its GICv2 equivalent) loaded as long as we can, only syncing it
-back when we're scheduled out.
+In `dt3k_ns_to_timer()` the following lines near the end of the function
+result in a signed integer overflow:
 
-There is a small snag with that though: kvm_vgic_vcpu_pending_irq(),
-which is indirectly called from kvm_vcpu_check_block(), needs to
-evaluate the guest's view of ICC_PMR_EL1. At the point were we
-call kvm_vcpu_check_block(), the vcpu is still loaded, and whatever
-changes to PMR is not visible in memory until we do a vcpu_put().
+	prescale = 15;
+	base = timer_base * (1 << prescale);
+	divider = 65535;
+	*nanosec = divider * base;
 
-Things go really south if the guest does the following:
+(`divider`, `base` and `prescale` are type `int`, `timer_base` and
+`*nanosec` are type `unsigned int`.  The value of `timer_base` will be
+either 50 or 100.)
 
-	mov x0, #0	// or any small value masking interrupts
-	msr ICC_PMR_EL1, x0
+The main reason for the overflow is that the calculation for `base` is
+completely wrong.  It should be:
 
-	[vcpu preempted, then rescheduled, VMCR sampled]
+	base = timer_base * (prescale + 1);
 
-	mov x0, #ff	// allow all interrupts
-	msr ICC_PMR_EL1, x0
-	wfi		// traps to EL2, so samping of VMCR
+which matches an earlier instance of this calculation in the same
+function.
 
-	[interrupt arrives just after WFI]
-
-Here, the hypervisor's view of PMR is zero, while the guest has enabled
-its interrupts. kvm_vgic_vcpu_pending_irq() will then say that no
-interrupts are pending (despite an interrupt being received) and we'll
-block for no reason. If the guest doesn't have a periodic interrupt
-firing once it has blocked, it will stay there forever.
-
-To avoid this unfortuante situation, let's resync VMCR from
-kvm_arch_vcpu_blocking(), ensuring that a following kvm_vcpu_check_block()
-will observe the latest value of PMR.
-
-This has been found by booting an arm64 Linux guest with the pseudo NMI
-feature, and thus using interrupt priorities to mask interrupts instead
-of the usual PSTATE masking.
-
-Cc: stable@vger.kernel.org # 4.12
-Fixes: 328e56647944 ("KVM: arm/arm64: vgic: Defer touching GICH_VMCR to vcpu_load/put")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reported-by: David Binderman <dcb314@hotmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20190812111517.26803-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- include/kvm/arm_vgic.h      |    1 +
- virt/kvm/arm/arm.c          |   11 +++++++++++
- virt/kvm/arm/vgic/vgic-v2.c |    9 ++++++++-
- virt/kvm/arm/vgic/vgic-v3.c |    7 ++++++-
- virt/kvm/arm/vgic/vgic.c    |   11 +++++++++++
- virt/kvm/arm/vgic/vgic.h    |    2 ++
- 6 files changed, 39 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/dt3000.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/kvm/arm_vgic.h
-+++ b/include/kvm/arm_vgic.h
-@@ -361,6 +361,7 @@ int kvm_vgic_vcpu_pending_irq(struct kvm
+--- a/drivers/staging/comedi/drivers/dt3000.c
++++ b/drivers/staging/comedi/drivers/dt3000.c
+@@ -368,7 +368,7 @@ static int dt3k_ns_to_timer(unsigned int
+ 	}
  
- void kvm_vgic_load(struct kvm_vcpu *vcpu);
- void kvm_vgic_put(struct kvm_vcpu *vcpu);
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- #define irqchip_in_kernel(k)	(!!((k)->arch.vgic.in_kernel))
- #define vgic_initialized(k)	((k)->arch.vgic.initialized)
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -338,6 +338,17 @@ int kvm_cpu_has_pending_timer(struct kvm
- void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu)
- {
- 	kvm_timer_schedule(vcpu);
-+	/*
-+	 * If we're about to block (most likely because we've just hit a
-+	 * WFI), we need to sync back the state of the GIC CPU interface
-+	 * so that we have the lastest PMR and group enables. This ensures
-+	 * that kvm_arch_vcpu_runnable has up-to-date data to decide
-+	 * whether we have pending interrupts.
-+	 */
-+	preempt_disable();
-+	kvm_vgic_vmcr_sync(vcpu);
-+	preempt_enable();
-+
- 	kvm_vgic_v4_enable_doorbell(vcpu);
- }
- 
---- a/virt/kvm/arm/vgic/vgic-v2.c
-+++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -495,10 +495,17 @@ void vgic_v2_load(struct kvm_vcpu *vcpu)
- 		       kvm_vgic_global_state.vctrl_base + GICH_APR);
- }
- 
--void vgic_v2_put(struct kvm_vcpu *vcpu)
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
- 
- 	cpu_if->vgic_vmcr = readl_relaxed(kvm_vgic_global_state.vctrl_base + GICH_VMCR);
-+}
-+
-+void vgic_v2_put(struct kvm_vcpu *vcpu)
-+{
-+	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
-+
-+	vgic_v2_vmcr_sync(vcpu);
- 	cpu_if->vgic_apr = readl_relaxed(kvm_vgic_global_state.vctrl_base + GICH_APR);
- }
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -674,12 +674,17 @@ void vgic_v3_load(struct kvm_vcpu *vcpu)
- 		__vgic_v3_activate_traps(vcpu);
- }
- 
--void vgic_v3_put(struct kvm_vcpu *vcpu)
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v3_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v3;
- 
- 	if (likely(cpu_if->vgic_sre))
- 		cpu_if->vgic_vmcr = kvm_call_hyp(__vgic_v3_read_vmcr);
-+}
-+
-+void vgic_v3_put(struct kvm_vcpu *vcpu)
-+{
-+	vgic_v3_vmcr_sync(vcpu);
- 
- 	kvm_call_hyp(__vgic_v3_save_aprs, vcpu);
- 
---- a/virt/kvm/arm/vgic/vgic.c
-+++ b/virt/kvm/arm/vgic/vgic.c
-@@ -902,6 +902,17 @@ void kvm_vgic_put(struct kvm_vcpu *vcpu)
- 		vgic_v3_put(vcpu);
- }
- 
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu)
-+{
-+	if (unlikely(!irqchip_in_kernel(vcpu->kvm)))
-+		return;
-+
-+	if (kvm_vgic_global_state.type == VGIC_V2)
-+		vgic_v2_vmcr_sync(vcpu);
-+	else
-+		vgic_v3_vmcr_sync(vcpu);
-+}
-+
- int kvm_vgic_vcpu_pending_irq(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_cpu *vgic_cpu = &vcpu->arch.vgic_cpu;
---- a/virt/kvm/arm/vgic/vgic.h
-+++ b/virt/kvm/arm/vgic/vgic.h
-@@ -204,6 +204,7 @@ int vgic_register_dist_iodev(struct kvm
- void vgic_v2_init_lrs(void);
- void vgic_v2_load(struct kvm_vcpu *vcpu);
- void vgic_v2_put(struct kvm_vcpu *vcpu);
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- void vgic_v2_save_state(struct kvm_vcpu *vcpu);
- void vgic_v2_restore_state(struct kvm_vcpu *vcpu);
-@@ -234,6 +235,7 @@ bool vgic_v3_check_base(struct kvm *kvm)
- 
- void vgic_v3_load(struct kvm_vcpu *vcpu);
- void vgic_v3_put(struct kvm_vcpu *vcpu);
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- bool vgic_has_its(struct kvm *kvm);
- int kvm_vgic_register_its_device(void);
+ 	prescale = 15;
+-	base = timer_base * (1 << prescale);
++	base = timer_base * (prescale + 1);
+ 	divider = 65535;
+ 	*nanosec = divider * base;
+ 	return (prescale << 16) | (divider);
 
 
