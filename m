@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D07F99C9B
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B8D99C18
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392427AbfHVRfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
+        id S2390428AbfHVRbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391821AbfHVRZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:04 -0400
+        id S2404555AbfHVRZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:59 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19EE223427;
-        Thu, 22 Aug 2019 17:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D70F82341A;
+        Thu, 22 Aug 2019 17:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494703;
-        bh=23yLYRYpZScSgWCIO/+4mT49aq0tGCkThcNRFW6pIUc=;
+        s=default; t=1566494758;
+        bh=s0ApEAcmL3TT3fBlquZB8oeVyf6DwCkBqIEm+2y66aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDsq8zZTcdcZlTWDSaUL6EjIlDmPJgGXgDwomnuu34ne+hZBcvvj7lo8zM8XAJLkB
-         jIrOxGAhkT9TsDel8fLcEcE4/A4UNK7LLnV2zCRA7HMsJj2CUS0OjwgzSGJeQa1In/
-         4qaT8Pr4EYWvf60w1qk5Fz64GXfDg0HV4uptqOXM=
+        b=VIbekyjkmeP4Jkq/L5K+JiEDsFgg8R6lsQVnT0VZWHVdcw90LCWxl3HvmAm1Q89sN
+         vj/n5d+d0TkIu3hq+xJntaRUKfdUzSNwCJM3evTLln40LHRI8EspBvsAYFC+C65F9G
+         zAYC1lZ0FCq31g5H8fimcFxMzqfimRe5U3tkJ0/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.14 57/71] arm64: ftrace: Ensure module ftrace trampoline is coherent with I-side
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+30cf45ebfe0b0c4847a1@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 59/85] USB: core: Fix races in character device registration and deregistraion
 Date:   Thu, 22 Aug 2019 10:19:32 -0700
-Message-Id: <20190822171730.254380401@linuxfoundation.org>
+Message-Id: <20190822171733.779726452@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit b6143d10d23ebb4a77af311e8b8b7f019d0163e6 upstream.
+commit 303911cfc5b95d33687d9046133ff184cf5043ff upstream.
 
-The initial support for dynamic ftrace trampolines in modules made use
-of an indirect branch which loaded its target from the beginning of
-a special section (e71a4e1bebaf7 ("arm64: ftrace: add support for far
-branches to dynamic ftrace")). Since no instructions were being patched,
-no cache maintenance was needed. However, later in be0f272bfc83 ("arm64:
-ftrace: emit ftrace-mod.o contents through code") this code was reworked
-to output the trampoline instructions directly into the PLT entry but,
-unfortunately, the necessary cache maintenance was overlooked.
+The syzbot fuzzer has found two (!) races in the USB character device
+registration and deregistration routines.  This patch fixes the races.
 
-Add a call to __flush_icache_range() after writing the new trampoline
-instructions but before patching in the branch to the trampoline.
+The first race results from the fact that usb_deregister_dev() sets
+usb_minors[intf->minor] to NULL before calling device_destroy() on the
+class device.  This leaves a window during which another thread can
+allocate the same minor number but will encounter a duplicate name
+error when it tries to register its own class device.  A typical error
+message in the system log would look like:
 
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: <stable@vger.kernel.org>
-Fixes: be0f272bfc83 ("arm64: ftrace: emit ftrace-mod.o contents through code")
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+    sysfs: cannot create duplicate filename '/class/usbmisc/ldusb0'
+
+The patch fixes this race by destroying the class device first.
+
+The second race is in usb_register_dev().  When that routine runs, it
+first allocates a minor number, then drops minor_rwsem, and then
+creates the class device.  If the device creation fails, the minor
+number is deallocated and the whole routine returns an error.  But
+during the time while minor_rwsem was dropped, there is a window in
+which the minor number is allocated and so another thread can
+successfully open the device file.  Typically this results in
+use-after-free errors or invalid accesses when the other thread closes
+its open file reference, because the kernel then tries to release
+resources that were already deallocated when usb_register_dev()
+failed.  The patch fixes this race by keeping minor_rwsem locked
+throughout the entire routine.
+
+Reported-and-tested-by: syzbot+30cf45ebfe0b0c4847a1@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1908121607590.1659-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- arch/arm64/kernel/ftrace.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/usb/core/file.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -76,7 +76,7 @@ int ftrace_make_call(struct dyn_ftrace *
+--- a/drivers/usb/core/file.c
++++ b/drivers/usb/core/file.c
+@@ -193,9 +193,10 @@ int usb_register_dev(struct usb_interfac
+ 		intf->minor = minor;
+ 		break;
+ 	}
+-	up_write(&minor_rwsem);
+-	if (intf->minor < 0)
++	if (intf->minor < 0) {
++		up_write(&minor_rwsem);
+ 		return -EXFULL;
++	}
  
- 	if (offset < -SZ_128M || offset >= SZ_128M) {
- #ifdef CONFIG_ARM64_MODULE_PLTS
--		struct plt_entry trampoline;
-+		struct plt_entry trampoline, *dst;
- 		struct module *mod;
+ 	/* create a usb class device for this usb interface */
+ 	snprintf(name, sizeof(name), class_driver->name, minor - minor_base);
+@@ -203,12 +204,11 @@ int usb_register_dev(struct usb_interfac
+ 				      MKDEV(USB_MAJOR, minor), class_driver,
+ 				      "%s", kbasename(name));
+ 	if (IS_ERR(intf->usb_dev)) {
+-		down_write(&minor_rwsem);
+ 		usb_minors[minor] = NULL;
+ 		intf->minor = -1;
+-		up_write(&minor_rwsem);
+ 		retval = PTR_ERR(intf->usb_dev);
+ 	}
++	up_write(&minor_rwsem);
+ 	return retval;
+ }
+ EXPORT_SYMBOL_GPL(usb_register_dev);
+@@ -234,12 +234,12 @@ void usb_deregister_dev(struct usb_inter
+ 		return;
  
- 		/*
-@@ -104,24 +104,27 @@ int ftrace_make_call(struct dyn_ftrace *
- 		 * is added in the future, but for now, the pr_err() below
- 		 * deals with a theoretical issue only.
- 		 */
-+		dst = mod->arch.ftrace_trampoline;
- 		trampoline = get_plt_entry(addr);
--		if (!plt_entries_equal(mod->arch.ftrace_trampoline,
--				       &trampoline)) {
--			if (!plt_entries_equal(mod->arch.ftrace_trampoline,
--					       &(struct plt_entry){})) {
-+		if (!plt_entries_equal(dst, &trampoline)) {
-+			if (!plt_entries_equal(dst, &(struct plt_entry){})) {
- 				pr_err("ftrace: far branches to multiple entry points unsupported inside a single module\n");
- 				return -EINVAL;
- 			}
+ 	dev_dbg(&intf->dev, "removing %d minor\n", intf->minor);
++	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
  
- 			/* point the trampoline to our ftrace entry point */
- 			module_disable_ro(mod);
--			*mod->arch.ftrace_trampoline = trampoline;
-+			*dst = trampoline;
- 			module_enable_ro(mod, true);
+ 	down_write(&minor_rwsem);
+ 	usb_minors[intf->minor] = NULL;
+ 	up_write(&minor_rwsem);
  
--			/* update trampoline before patching in the branch */
--			smp_wmb();
-+			/*
-+			 * Ensure updated trampoline is visible to instruction
-+			 * fetch before we patch in the branch.
-+			 */
-+			flush_icache_range((unsigned long)&dst[0],
-+					   (unsigned long)&dst[1]);
- 		}
--		addr = (unsigned long)(void *)mod->arch.ftrace_trampoline;
-+		addr = (unsigned long)dst;
- #else /* CONFIG_ARM64_MODULE_PLTS */
- 		return -EINVAL;
- #endif /* CONFIG_ARM64_MODULE_PLTS */
+-	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
+ 	intf->usb_dev = NULL;
+ 	intf->minor = -1;
+ 	destroy_usb_class();
 
 
