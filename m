@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5AE899E43
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5854D99DA2
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389815AbfHVRt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S2405361AbfHVRni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389710AbfHVRWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:14 -0400
+        id S2403939AbfHVRX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:26 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B60721743;
-        Thu, 22 Aug 2019 17:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40596233FC;
+        Thu, 22 Aug 2019 17:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494534;
-        bh=tkEmI7RqUTaTZ6SsqJB23aw8Lx/Dj950ZxCE59nDzs0=;
+        s=default; t=1566494605;
+        bh=JX6JZiFduZL1RbwgocS2aKYXQ6qfNiVs9XHvKjHVfMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlJPWqs4N11ADUTCaMiW9+Rn6YjeGXNxzmNntS9bDCNnMPXEn2O9QfxTgGZaGdDMq
-         AOwZB3gAOqYTCptuf0dCQXOiJqLmRcLdLGSWf32xBe1LTjzNBOZNtC4dvdZAbrnUl/
-         5HBBCKZZhz6Lo92a9Oq8POGuwm5mOXpwQVO50ei0=
+        b=wIJM0rhi8HahpuPgnvv5cyXJQdfeq11uYXv68H6QBrDrpYQwL7jfeZIJge0D5Bbn1
+         WNTo5QBqWOtxhX2TZRKHs+sIzPVytbtROT5Yvr+HAnzKGevpYCh5RmxJ2etuPtv9In
+         2VVAT/ycLxrz6OcG8OYfBAjkX9CEvgb7Quav9TY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjoern Gerhart <gerhart@posteo.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Zhangguanghui <zhang.guanghui@h3c.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/78] hwmon: (nct6775) Fix register address and added missed tolerance for nct6106
+Subject: [PATCH 4.9 028/103] scsi: scsi_dh_alua: always use a 2 second delay before retrying RTPG
 Date:   Thu, 22 Aug 2019 10:18:16 -0700
-Message-Id: <20190822171832.398069261@linuxfoundation.org>
+Message-Id: <20190822171729.983660050@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f3d43e2e45fd9d44ba52d20debd12cd4ee9c89bf ]
+[ Upstream commit 20122994e38aef0ae50555884d287adde6641c94 ]
 
-Fixed address of third NCT6106_REG_WEIGHT_DUTY_STEP, and
-added missed NCT6106_REG_TOLERANCE_H.
+Retrying immediately after we've received a 'transitioning' sense code is
+pretty much pointless, we should always use a delay before retrying.  So
+ensure the default delay is applied before retrying.
 
-Fixes: 6c009501ff200 ("hwmon: (nct6775) Add support for NCT6102D/6106D")
-Signed-off-by: Bjoern Gerhart <gerhart@posteo.de>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Tested-by: Zhangguanghui <zhang.guanghui@h3c.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/nct6775.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/nct6775.c b/drivers/hwmon/nct6775.c
-index d3c6115f16b90..db38dff3f9867 100644
---- a/drivers/hwmon/nct6775.c
-+++ b/drivers/hwmon/nct6775.c
-@@ -696,7 +696,7 @@ static const u16 NCT6106_REG_TARGET[] = { 0x111, 0x121, 0x131 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_SEL[] = { 0x168, 0x178, 0x188 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_STEP[] = { 0x169, 0x179, 0x189 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_STEP_TOL[] = { 0x16a, 0x17a, 0x18a };
--static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x17c };
-+static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x18b };
- static const u16 NCT6106_REG_WEIGHT_TEMP_BASE[] = { 0x16c, 0x17c, 0x18c };
- static const u16 NCT6106_REG_WEIGHT_DUTY_BASE[] = { 0x16d, 0x17d, 0x18d };
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index d3145799b92fa..98787588247bf 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -53,6 +53,7 @@
+ #define ALUA_FAILOVER_TIMEOUT		60
+ #define ALUA_FAILOVER_RETRIES		5
+ #define ALUA_RTPG_DELAY_MSECS		5
++#define ALUA_RTPG_RETRY_DELAY		2
  
-@@ -3478,6 +3478,7 @@ static int nct6775_probe(struct platform_device *pdev)
- 		data->REG_FAN_TIME[0] = NCT6106_REG_FAN_STOP_TIME;
- 		data->REG_FAN_TIME[1] = NCT6106_REG_FAN_STEP_UP_TIME;
- 		data->REG_FAN_TIME[2] = NCT6106_REG_FAN_STEP_DOWN_TIME;
-+		data->REG_TOLERANCE_H = NCT6106_REG_TOLERANCE_H;
- 		data->REG_PWM[0] = NCT6106_REG_PWM;
- 		data->REG_PWM[1] = NCT6106_REG_FAN_START_OUTPUT;
- 		data->REG_PWM[2] = NCT6106_REG_FAN_STOP_OUTPUT;
+ /* device handler flags */
+ #define ALUA_OPTIMIZE_STPG		0x01
+@@ -681,7 +682,7 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 	case SCSI_ACCESS_STATE_TRANSITIONING:
+ 		if (time_before(jiffies, pg->expiry)) {
+ 			/* State transition, retry */
+-			pg->interval = 2;
++			pg->interval = ALUA_RTPG_RETRY_DELAY;
+ 			err = SCSI_DH_RETRY;
+ 		} else {
+ 			struct alua_dh_data *h;
+@@ -809,6 +810,8 @@ static void alua_rtpg_work(struct work_struct *work)
+ 				spin_lock_irqsave(&pg->lock, flags);
+ 				pg->flags &= ~ALUA_PG_RUNNING;
+ 				pg->flags |= ALUA_PG_RUN_RTPG;
++				if (!pg->interval)
++					pg->interval = ALUA_RTPG_RETRY_DELAY;
+ 				spin_unlock_irqrestore(&pg->lock, flags);
+ 				queue_delayed_work(alua_wq, &pg->rtpg_work,
+ 						   pg->interval * HZ);
+@@ -820,6 +823,8 @@ static void alua_rtpg_work(struct work_struct *work)
+ 		spin_lock_irqsave(&pg->lock, flags);
+ 		if (err == SCSI_DH_RETRY || pg->flags & ALUA_PG_RUN_RTPG) {
+ 			pg->flags &= ~ALUA_PG_RUNNING;
++			if (!pg->interval && !(pg->flags & ALUA_PG_RUN_RTPG))
++				pg->interval = ALUA_RTPG_RETRY_DELAY;
+ 			pg->flags |= ALUA_PG_RUN_RTPG;
+ 			spin_unlock_irqrestore(&pg->lock, flags);
+ 			queue_delayed_work(alua_wq, &pg->rtpg_work,
 -- 
 2.20.1
 
