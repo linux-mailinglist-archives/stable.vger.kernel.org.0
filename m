@@ -2,37 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A947F99C8E
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E1799CF8
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391837AbfHVRZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47994 "EHLO mail.kernel.org"
+        id S2404187AbfHVRia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:38:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391831AbfHVRZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:06 -0400
+        id S2404177AbfHVRY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:26 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 521E42343D;
-        Thu, 22 Aug 2019 17:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9098723427;
+        Thu, 22 Aug 2019 17:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494705;
-        bh=70IBQmYceIx3NyES1L3VkXVI4Y7yX2XPoGekW2rJ6DQ=;
+        s=default; t=1566494665;
+        bh=ii7J26mbMS8o2pBqtUdI769wui2RSoYije8ccFFnpAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTLDcCsNJo7VOkIQVbJ6eMatekJMRYy1vo4zsO2ZLROPXwz3PhQQB8dGBSyENXUIZ
-         Xwmh8UeotMsLxslH/N7cxqOhkWswGPvnu1LlC+nY93VA20Wvr2nHoBTNh/5srXtt9q
-         8t6zyDJxSkxKoHFb8A9QRu3qHgRpUib2Wc9zbOa0=
+        b=BkDK1llKlUXMxeWOG7EnscoDh5XTHZ7Z+Y5BQzQtNt6NLG3HiCmils5dOyc6+cbZi
+         2zK9GOc6esXKpwQ440g3JNoqDWeqU1G3ussel5ZY9gw7tsNSjvsjLxV41MfYICVZ+P
+         amQIQaNqWDclpyQdioFIb8NpQMQghm+PRxoL/lqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.14 42/71] KVM: arm/arm64: Sync ICH_VMCR_EL2 back when about to block
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Lars Melin <larsm17@gmail.com>,
+        Marcel Partap <mpartap@gmx.net>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Michael Scott <hashcode0f@gmail.com>,
+        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 089/103] USB: serial: option: Add Motorola modem UARTs
 Date:   Thu, 22 Aug 2019 10:19:17 -0700
-Message-Id: <20190822171729.714313634@linuxfoundation.org>
+Message-Id: <20190822171732.777078118@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,171 +52,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 5eeaf10eec394b28fad2c58f1f5c3a5da0e87d1c upstream.
+commit 6caf0be40a707689e8ff8824fdb96ef77685b1ba upstream.
 
-Since commit commit 328e56647944 ("KVM: arm/arm64: vgic: Defer
-touching GICH_VMCR to vcpu_load/put"), we leave ICH_VMCR_EL2 (or
-its GICv2 equivalent) loaded as long as we can, only syncing it
-back when we're scheduled out.
+On Motorola Mapphone devices such as Droid 4 there are five USB ports
+that do not use the same layout as Gobi 1K/2K/etc devices listed in
+qcserial.c. So we should use qcaux.c or option.c as noted by
+Dan Williams <dan.j.williams@intel.com>.
 
-There is a small snag with that though: kvm_vgic_vcpu_pending_irq(),
-which is indirectly called from kvm_vcpu_check_block(), needs to
-evaluate the guest's view of ICC_PMR_EL1. At the point were we
-call kvm_vcpu_check_block(), the vcpu is still loaded, and whatever
-changes to PMR is not visible in memory until we do a vcpu_put().
+As the Motorola USB serial ports have an interrupt endpoint as shown
+with lsusb -v, we should use option.c instead of qcaux.c as pointed out
+by Johan Hovold <johan@kernel.org>.
 
-Things go really south if the guest does the following:
+The ff/ff/ff interfaces seem to always be UARTs on Motorola devices.
+For the other interfaces, class 0x0a (CDC Data) should not in general
+be added as they are typically part of a multi-interface function as
+noted earlier by Bjørn Mork <bjorn@mork.no>.
 
-	mov x0, #0	// or any small value masking interrupts
-	msr ICC_PMR_EL1, x0
+However, looking at the Motorola mapphone kernel code, the mdm6600 0x0a
+class is only used for flashing the modem firmware, and there are no
+other interfaces. So I've added that too with more details below as it
+works just fine.
 
-	[vcpu preempted, then rescheduled, VMCR sampled]
+The ttyUSB ports on Droid 4 are:
 
-	mov x0, #ff	// allow all interrupts
-	msr ICC_PMR_EL1, x0
-	wfi		// traps to EL2, so samping of VMCR
+ttyUSB0 DIAG, CQDM-capable
+ttyUSB1 MUX or NMEA, no response
+ttyUSB2 MUX or NMEA, no response
+ttyUSB3 TCMD
+ttyUSB4 AT-capable
 
-	[interrupt arrives just after WFI]
+The ttyUSB0 is detected as QCDM capable by ModemManager. I think
+it's only used for debugging with ModemManager --debug for sending
+custom AT commands though. ModemManager already can manage data
+connection using the USB QMI ports that are already handled by the
+qmi_wwan.c driver.
 
-Here, the hypervisor's view of PMR is zero, while the guest has enabled
-its interrupts. kvm_vgic_vcpu_pending_irq() will then say that no
-interrupts are pending (despite an interrupt being received) and we'll
-block for no reason. If the guest doesn't have a periodic interrupt
-firing once it has blocked, it will stay there forever.
+To enable the MUX or NMEA ports, it seems that something needs to be
+done additionally to enable them, maybe via the DIAG or TCMD port.
+It might be just a NVRAM setting somewhere, but I have no idea what
+NVRAM settings may need changing for that.
 
-To avoid this unfortuante situation, let's resync VMCR from
-kvm_arch_vcpu_blocking(), ensuring that a following kvm_vcpu_check_block()
-will observe the latest value of PMR.
+The TCMD port seems to be a Motorola custom protocol for testing
+the modem and to configure it's NVRAM and seems to work just fine
+based on a quick test with a minimal tcmdrw tool I wrote.
 
-This has been found by booting an arm64 Linux guest with the pseudo NMI
-feature, and thus using interrupt priorities to mask interrupts instead
-of the usual PSTATE masking.
+The voice modem AT-capable port seems to provide only partial
+support, and no PM support compared to the TS 27.010 based UART
+wired directly to the modem.
 
-Cc: stable@vger.kernel.org # 4.12
-Fixes: 328e56647944 ("KVM: arm/arm64: vgic: Defer touching GICH_VMCR to vcpu_load/put")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+The UARTs added with this change are the same product IDs as the
+Motorola Mapphone Android Linux kernel mdm6600_id_table. I don't
+have any mdm9600 based devices, so I have only tested these on
+mdm6600 based droid 4.
+
+Then for the class 0x0a (CDC Data) mode, the Motorola Mapphone Android
+Linux kernel driver moto_flashqsc.c just seems to change the
+port->bulk_out_size to 8K from the default. And is only used for
+flashing the modem firmware it seems.
+
+I've verified that flashing the modem with signed firmware works just
+fine with the option driver after manually toggling the GPIO pins, so
+I've added droid 4 modem flashing mode to the option driver. I've not
+added the other devices listed in moto_flashqsc.c in case they really
+need different port->bulk_out_size. Those can be added as they get
+tested to work for flashing the modem.
+
+After this patch the output of /sys/kernel/debug/usb/devices has
+the following for normal 22b8:2a70 mode including the related qmi_wwan
+interfaces:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=2a70 Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8a(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=8b(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8c(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=8d(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=09(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+In 22b8:900e "qc_dload" mode the device shows up as:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=900e Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+And in 22b8:4281 "ram_downloader" mode the device shows up as:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=4281 Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=fc Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+Cc: Bjørn Mork <bjorn@mork.no>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Lars Melin <larsm17@gmail.com>
+Cc: Marcel Partap <mpartap@gmx.net>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Michael Scott <hashcode0f@gmail.com>
+Cc: NeKit <nekit1000@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Tested-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- include/kvm/arm_vgic.h      |    1 +
- virt/kvm/arm/arm.c          |   10 ++++++++++
- virt/kvm/arm/vgic/vgic-v2.c |   11 ++++++++++-
- virt/kvm/arm/vgic/vgic-v3.c |    7 ++++++-
- virt/kvm/arm/vgic/vgic.c    |   11 +++++++++++
- virt/kvm/arm/vgic/vgic.h    |    2 ++
- 6 files changed, 40 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/kvm/arm_vgic.h
-+++ b/include/kvm/arm_vgic.h
-@@ -315,6 +315,7 @@ int kvm_vgic_vcpu_pending_irq(struct kvm
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -967,6 +967,11 @@ static const struct usb_device_id option
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7B) },
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7C) },
  
- void kvm_vgic_load(struct kvm_vcpu *vcpu);
- void kvm_vgic_put(struct kvm_vcpu *vcpu);
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu);
++	/* Motorola devices */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2a70, 0xff, 0xff, 0xff) },	/* mdm6600 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2e0a, 0xff, 0xff, 0xff) },	/* mdm9600 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x4281, 0x0a, 0x00, 0xfc) },	/* mdm ram dl */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x900e, 0xff, 0xff, 0xff) },	/* mdm qc dl */
  
- #define irqchip_in_kernel(k)	(!!((k)->arch.vgic.in_kernel))
- #define vgic_initialized(k)	((k)->arch.vgic.initialized)
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -317,6 +317,16 @@ int kvm_cpu_has_pending_timer(struct kvm
- void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu)
- {
- 	kvm_timer_schedule(vcpu);
-+	/*
-+	 * If we're about to block (most likely because we've just hit a
-+	 * WFI), we need to sync back the state of the GIC CPU interface
-+	 * so that we have the lastest PMR and group enables. This ensures
-+	 * that kvm_arch_vcpu_runnable has up-to-date data to decide
-+	 * whether we have pending interrupts.
-+	 */
-+	preempt_disable();
-+	kvm_vgic_vmcr_sync(vcpu);
-+	preempt_enable();
- }
- 
- void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu)
---- a/virt/kvm/arm/vgic/vgic-v2.c
-+++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -407,10 +407,19 @@ void vgic_v2_load(struct kvm_vcpu *vcpu)
- 	writel_relaxed(cpu_if->vgic_vmcr, vgic->vctrl_base + GICH_VMCR);
- }
- 
--void vgic_v2_put(struct kvm_vcpu *vcpu)
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
- 	struct vgic_dist *vgic = &vcpu->kvm->arch.vgic;
- 
- 	cpu_if->vgic_vmcr = readl_relaxed(vgic->vctrl_base + GICH_VMCR);
- }
-+
-+void vgic_v2_put(struct kvm_vcpu *vcpu)
-+{
-+	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
-+	struct vgic_dist *vgic = &vcpu->kvm->arch.vgic;
-+
-+	vgic_v2_vmcr_sync(vcpu);
-+	cpu_if->vgic_apr = readl_relaxed(vgic->vctrl_base + GICH_APR);
-+}
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -547,10 +547,15 @@ void vgic_v3_load(struct kvm_vcpu *vcpu)
- 		kvm_call_hyp(__vgic_v3_write_vmcr, cpu_if->vgic_vmcr);
- }
- 
--void vgic_v3_put(struct kvm_vcpu *vcpu)
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v3_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v3;
- 
- 	if (likely(cpu_if->vgic_sre))
- 		cpu_if->vgic_vmcr = kvm_call_hyp(__vgic_v3_read_vmcr);
- }
-+
-+void vgic_v3_put(struct kvm_vcpu *vcpu)
-+{
-+	vgic_v3_vmcr_sync(vcpu);
-+}
---- a/virt/kvm/arm/vgic/vgic.c
-+++ b/virt/kvm/arm/vgic/vgic.c
-@@ -764,6 +764,17 @@ void kvm_vgic_put(struct kvm_vcpu *vcpu)
- 		vgic_v3_put(vcpu);
- }
- 
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu)
-+{
-+	if (unlikely(!irqchip_in_kernel(vcpu->kvm)))
-+		return;
-+
-+	if (kvm_vgic_global_state.type == VGIC_V2)
-+		vgic_v2_vmcr_sync(vcpu);
-+	else
-+		vgic_v3_vmcr_sync(vcpu);
-+}
-+
- int kvm_vgic_vcpu_pending_irq(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_cpu *vgic_cpu = &vcpu->arch.vgic_cpu;
---- a/virt/kvm/arm/vgic/vgic.h
-+++ b/virt/kvm/arm/vgic/vgic.h
-@@ -168,6 +168,7 @@ int vgic_register_dist_iodev(struct kvm
- void vgic_v2_init_lrs(void);
- void vgic_v2_load(struct kvm_vcpu *vcpu);
- void vgic_v2_put(struct kvm_vcpu *vcpu);
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- static inline void vgic_get_irq_kref(struct vgic_irq *irq)
- {
-@@ -195,6 +196,7 @@ bool vgic_v3_check_base(struct kvm *kvm)
- 
- void vgic_v3_load(struct kvm_vcpu *vcpu);
- void vgic_v3_put(struct kvm_vcpu *vcpu);
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- bool vgic_has_its(struct kvm *kvm);
- int kvm_vgic_register_its_device(void);
+ 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V640) },
+ 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V620) },
 
 
