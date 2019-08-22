@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B35DB99E3D
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EEA199D86
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393338AbfHVRtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40142 "EHLO mail.kernel.org"
+        id S2405238AbfHVRnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:43:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389818AbfHVRWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:17 -0400
+        id S2391477AbfHVRX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:29 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0EE523400;
-        Thu, 22 Aug 2019 17:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D8623407;
+        Thu, 22 Aug 2019 17:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494537;
-        bh=c2aGwSnqIaoyFvTTMzz/8AWODC8ihLJ526QwK1gtMRQ=;
+        s=default; t=1566494609;
+        bh=l0WcdKM9midXBSgbS0kuvCLb/a3DAIBaazN2F+3+060=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQwVQ86IW0JfQBKuajV0Tm5ZOn0atZ359lBDIPYZW9MhROrTOKSJhxKpgzMSgixPh
-         M+4QKLB0AZHwdwXT3eQOa7hTX+rfaOrAIjNytIDhA4r2ddyJQIQS9wdIZINRkIVUKI
-         8glCi7GnCxGZG2NB7JANhbhNf3DdRdGgoC42GFCI=
+        b=IxCCCLeMgCyE2n0e/qJIVkFGa8pOmx8pq6MOQ+IiiLiYfmbGul5ru/aQtamm7XPSr
+         cSWEg9yLMrQWOeI8LmZo/D2cNmr0IFSVO9MhuZIan1hx9Z8hdCYOoiTcrToBTnA1hn
+         xmeximZn2RBca3+OKAPD2I3GToUHiLFgygVbVAFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/78] ALSA: compress: Prevent bypasses of set_params
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 032/103] can: peak_usb: pcan_usb_fd: Fix info-leaks to USB devices
 Date:   Thu, 22 Aug 2019 10:18:20 -0700
-Message-Id: <20190822171832.514498053@linuxfoundation.org>
+Message-Id: <20190822171730.137376675@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 26c3f1542f5064310ad26794c09321780d00c57d ]
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-Currently, whilst in SNDRV_PCM_STATE_OPEN it is possible to call
-snd_compr_stop, snd_compr_drain and snd_compr_partial_drain, which
-allow a transition to SNDRV_PCM_STATE_SETUP. The stream should
-only be able to move to the setup state once it has received a
-SNDRV_COMPRESS_SET_PARAMS ioctl. Fix this issue by not allowing
-those ioctls whilst in the open state.
+commit 30a8beeb3042f49d0537b7050fd21b490166a3d9 upstream.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Uninitialized Kernel memory can leak to USB devices.
+
+Fix by using kzalloc() instead of kmalloc() on the affected buffers.
+
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com
+Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/compress_offload.c | 30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 16269e7ff3904..d0a21a5867673 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -688,9 +688,15 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
- {
- 	int retval;
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -851,7 +851,7 @@ static int pcan_usb_fd_init(struct peak_
+ 			goto err_out;
  
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
-+	}
-+
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
- 		snd_compr_drain_notify(stream);
-@@ -739,9 +745,14 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
- 
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
-+	}
- 
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
- 	if (retval) {
-@@ -778,9 +789,16 @@ static int snd_compr_next_track(struct snd_compr_stream *stream)
- static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
-+	}
-+
- 	/* stream can be drained only when next track has been signalled */
- 	if (stream->next_track == false)
- 		return -EPERM;
--- 
-2.20.1
-
+ 		/* allocate command buffer once for all for the interface */
+-		pdev->cmd_buffer_addr = kmalloc(PCAN_UFD_CMD_BUFFER_SIZE,
++		pdev->cmd_buffer_addr = kzalloc(PCAN_UFD_CMD_BUFFER_SIZE,
+ 						GFP_KERNEL);
+ 		if (!pdev->cmd_buffer_addr)
+ 			goto err_out_1;
 
 
