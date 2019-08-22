@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2399799E60
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B2399E63
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731977AbfHVSBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 14:01:01 -0400
-Received: from paleale.coelho.fi ([176.9.41.70]:38124 "EHLO
+        id S1732341AbfHVSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 14:02:03 -0400
+Received: from paleale.coelho.fi ([176.9.41.70]:38128 "EHLO
         farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1732288AbfHVSBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:01:01 -0400
+        with ESMTP id S1731752AbfHVSCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:02:03 -0400
 Received: from [91.156.6.193] (helo=redipa.ger.corp.intel.com)
         by farmhouse.coelho.fi with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.92)
         (envelope-from <luca@coelho.fi>)
-        id 1i0rON-0003S9-6b
-        for stable@vger.kernel.org; Thu, 22 Aug 2019 21:01:00 +0300
+        id 1i0rPO-0003SF-2N
+        for stable@vger.kernel.org; Thu, 22 Aug 2019 21:02:02 +0300
 From:   Luca Coelho <luca@coelho.fi>
 To:     stable@vger.kernel.org
-Date:   Thu, 22 Aug 2019 21:00:54 +0300
-Message-Id: <20190822180054.22422-1-luca@coelho.fi>
+Date:   Thu, 22 Aug 2019 21:01:57 +0300
+Message-Id: <20190822180157.22587-1-luca@coelho.fi>
 X-Mailer: git-send-email 2.23.0.rc1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -28,7 +28,7 @@ X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on farmhouse.coelho.fi
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
         URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.2
-Subject: [PATCH 5.2] iwlwifi: mvm: disable TX-AMSDU on older NICs
+Subject: [PATCH 5.1] iwlwifi: mvm: disable TX-AMSDU on older NICs
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -58,10 +58,10 @@ Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 964c7baabede..3905770b8a1f 100644
+index 5caadaef707d..a74079b3e4bb 100644
 --- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
 +++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -474,7 +474,19 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
+@@ -473,7 +473,19 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
  	ieee80211_hw_set(hw, SUPPORTS_VHT_EXT_NSS_BW);
  	ieee80211_hw_set(hw, BUFF_MMPDU_TXQ);
  	ieee80211_hw_set(hw, STA_MMPDU_TXQ);
