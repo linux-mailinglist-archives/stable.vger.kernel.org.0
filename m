@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CEA99C8C
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E2D99C0A
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390162AbfHVRfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:35:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
+        id S1732070AbfHVRas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404333AbfHVRZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:09 -0400
+        id S2404594AbfHVR0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:05 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E2B823400;
-        Thu, 22 Aug 2019 17:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AC502341A;
+        Thu, 22 Aug 2019 17:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494708;
-        bh=V/iiuI8Wppd6VLPF38NEuEcD2efPXh8k7EKBn3Uupbk=;
+        s=default; t=1566494763;
+        bh=Sg0haMqgjXsJAgIbQ7gcuu/O3t6jW77Ew/Kj/LwiUvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4qMt2JJCnLBonIbBK7rDEaatfZrfAkLiuDeKbcwEVYnqFTfXqCGZ8493VfjKScQD
-         v8LWSgbZe7KOwwC8QapZp9S2j/c47dYCYYvGHEoHowMnb/v6UFwpjuCWZc4rUq6Cv+
-         mNYOQoc7fcVUUQLH3T0U7I2/00TlF3cKt6GCfPbU=
+        b=tAMG+VpJKdbAIU85W0uFT7xs4h81ryHqik5gmVyb94OeXJfk48+BBs6bYTPKyAb6g
+         kl4QiJCHQd2dvt2XF3iDxyVpcG8KDxl+bpzdXZ87yO4cGIerZyTd2MYabzBsvIwvob
+         s2RNI6o38+OZgXQqbNAQZPVpeYiAN+pb0BsXr2ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 63/71] net/packet: fix race in tpacket_snd()
-Date:   Thu, 22 Aug 2019 10:19:38 -0700
-Message-Id: <20190822171730.475123825@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Lars Melin <larsm17@gmail.com>,
+        Marcel Partap <mpartap@gmx.net>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Michael Scott <hashcode0f@gmail.com>,
+        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 66/85] USB: serial: option: Add Motorola modem UARTs
+Date:   Thu, 22 Aug 2019 10:19:39 -0700
+Message-Id: <20190822171734.064664147@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +52,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 32d3182cd2cd29b2e7e04df7b0db350fbe11289f ]
+commit 6caf0be40a707689e8ff8824fdb96ef77685b1ba upstream.
 
-packet_sendmsg() checks tx_ring.pg_vec to decide
-if it must call tpacket_snd().
+On Motorola Mapphone devices such as Droid 4 there are five USB ports
+that do not use the same layout as Gobi 1K/2K/etc devices listed in
+qcserial.c. So we should use qcaux.c or option.c as noted by
+Dan Williams <dan.j.williams@intel.com>.
 
-Problem is that the check is lockless, meaning another thread
-can issue a concurrent setsockopt(PACKET_TX_RING ) to flip
-tx_ring.pg_vec back to NULL.
+As the Motorola USB serial ports have an interrupt endpoint as shown
+with lsusb -v, we should use option.c instead of qcaux.c as pointed out
+by Johan Hovold <johan@kernel.org>.
 
-Given that tpacket_snd() grabs pg_vec_lock mutex, we can
-perform the check again to solve the race.
+The ff/ff/ff interfaces seem to always be UARTs on Motorola devices.
+For the other interfaces, class 0x0a (CDC Data) should not in general
+be added as they are typically part of a multi-interface function as
+noted earlier by Bjørn Mork <bjorn@mork.no>.
 
-syzbot reported :
+However, looking at the Motorola mapphone kernel code, the mdm6600 0x0a
+class is only used for flashing the modem firmware, and there are no
+other interfaces. So I've added that too with more details below as it
+works just fine.
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 11429 Comm: syz-executor394 Not tainted 5.3.0-rc4+ #101
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:packet_lookup_frame+0x8d/0x270 net/packet/af_packet.c:474
-Code: c1 ee 03 f7 73 0c 80 3c 0e 00 0f 85 cb 01 00 00 48 8b 0b 89 c0 4c 8d 24 c1 48 b8 00 00 00 00 00 fc ff df 4c 89 e1 48 c1 e9 03 <80> 3c 01 00 0f 85 94 01 00 00 48 8d 7b 10 4d 8b 3c 24 48 b8 00 00
-RSP: 0018:ffff88809f82f7b8 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffff8880a45c7030 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffff110148b8e06 RDI: ffff8880a45c703c
-RBP: ffff88809f82f7e8 R08: ffff888087aea200 R09: fffffbfff134ae50
-R10: fffffbfff134ae4f R11: ffffffff89a5727f R12: 0000000000000000
-R13: 0000000000000001 R14: ffff8880a45c6ac0 R15: 0000000000000000
-FS:  00007fa04716f700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa04716edb8 CR3: 0000000091eb4000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- packet_current_frame net/packet/af_packet.c:487 [inline]
- tpacket_snd net/packet/af_packet.c:2667 [inline]
- packet_sendmsg+0x590/0x6250 net/packet/af_packet.c:2975
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
- __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
- __do_sys_sendmmsg net/socket.c:2442 [inline]
- __se_sys_sendmmsg net/socket.c:2439 [inline]
- __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
- do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The ttyUSB ports on Droid 4 are:
 
-Fixes: 69e3c75f4d54 ("net: TX_RING and packet mmap")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ttyUSB0 DIAG, CQDM-capable
+ttyUSB1 MUX or NMEA, no response
+ttyUSB2 MUX or NMEA, no response
+ttyUSB3 TCMD
+ttyUSB4 AT-capable
+
+The ttyUSB0 is detected as QCDM capable by ModemManager. I think
+it's only used for debugging with ModemManager --debug for sending
+custom AT commands though. ModemManager already can manage data
+connection using the USB QMI ports that are already handled by the
+qmi_wwan.c driver.
+
+To enable the MUX or NMEA ports, it seems that something needs to be
+done additionally to enable them, maybe via the DIAG or TCMD port.
+It might be just a NVRAM setting somewhere, but I have no idea what
+NVRAM settings may need changing for that.
+
+The TCMD port seems to be a Motorola custom protocol for testing
+the modem and to configure it's NVRAM and seems to work just fine
+based on a quick test with a minimal tcmdrw tool I wrote.
+
+The voice modem AT-capable port seems to provide only partial
+support, and no PM support compared to the TS 27.010 based UART
+wired directly to the modem.
+
+The UARTs added with this change are the same product IDs as the
+Motorola Mapphone Android Linux kernel mdm6600_id_table. I don't
+have any mdm9600 based devices, so I have only tested these on
+mdm6600 based droid 4.
+
+Then for the class 0x0a (CDC Data) mode, the Motorola Mapphone Android
+Linux kernel driver moto_flashqsc.c just seems to change the
+port->bulk_out_size to 8K from the default. And is only used for
+flashing the modem firmware it seems.
+
+I've verified that flashing the modem with signed firmware works just
+fine with the option driver after manually toggling the GPIO pins, so
+I've added droid 4 modem flashing mode to the option driver. I've not
+added the other devices listed in moto_flashqsc.c in case they really
+need different port->bulk_out_size. Those can be added as they get
+tested to work for flashing the modem.
+
+After this patch the output of /sys/kernel/debug/usb/devices has
+the following for normal 22b8:2a70 mode including the related qmi_wwan
+interfaces:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=2a70 Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8a(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=8b(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8c(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
+E:  Ad=8d(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=09(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+In 22b8:900e "qc_dload" mode the device shows up as:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=900e Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+And in 22b8:4281 "ram_downloader" mode the device shows up as:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=22b8 ProdID=4281 Rev= 0.00
+S:  Manufacturer=Motorola, Incorporated
+S:  Product=Flash MZ600
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=fc Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+Cc: Bjørn Mork <bjorn@mork.no>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Lars Melin <larsm17@gmail.com>
+Cc: Marcel Partap <mpartap@gmx.net>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Michael Scott <hashcode0f@gmail.com>
+Cc: NeKit <nekit1000@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Tested-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |    7 +++++++
- 1 file changed, 7 insertions(+)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2654,6 +2654,13 @@ static int tpacket_snd(struct packet_soc
+---
+ drivers/usb/serial/option.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -968,6 +968,11 @@ static const struct usb_device_id option
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7B) },
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7C) },
  
- 	mutex_lock(&po->pg_vec_lock);
++	/* Motorola devices */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2a70, 0xff, 0xff, 0xff) },	/* mdm6600 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2e0a, 0xff, 0xff, 0xff) },	/* mdm9600 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x4281, 0x0a, 0x00, 0xfc) },	/* mdm ram dl */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x900e, 0xff, 0xff, 0xff) },	/* mdm qc dl */
  
-+	/* packet_sendmsg() check on tx_ring.pg_vec was lockless,
-+	 * we need to confirm it under protection of pg_vec_lock.
-+	 */
-+	if (unlikely(!po->tx_ring.pg_vec)) {
-+		err = -EBUSY;
-+		goto out;
-+	}
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
+ 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V640) },
+ 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V620) },
 
 
