@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3231C99B9B
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF7E99BD8
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404597AbfHVR0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
+        id S1731752AbfHVR3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:29:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404591AbfHVR0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:26:03 -0400
+        id S2404751AbfHVR0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:49 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB239206DD;
-        Thu, 22 Aug 2019 17:26:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A96B2064A;
+        Thu, 22 Aug 2019 17:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494763;
-        bh=Lvq8rNLJsqaM/EklCJ4Ukw7thBl3zII0/AfzDhOLAp0=;
+        s=default; t=1566494809;
+        bh=5u86D2mnbw9aSHt54t/7AtwNfywdza/lGyREW78gyl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=havpBHlx6Sy7LAfvbbvx+56GkSJdTbxLgqcimbllDjORLqSPF0FZE2sv0HNheEDTU
-         /XKCIU4eowHQywLlriVRPQQ42inSfDXxBEI3SpBY/XjGbawycAcgwVIvpiFlmekfi1
-         Nc8pZJLaQjJ/uFjT+wYU6n6mjWst3F5UjtGqhfGo=
+        b=I+7oz9QuupO7tkC6XOwZ1kSavWUyGLz52jh56rFCFsI+UrsFX2FFlWYJb3P/MrwGi
+         HaZ++k9fF7skZPFE3TIhr8UAYABYkSpZ13gBiz8tFKbtN194fsPey502LtIGw5z5Sl
+         V2F9nFX5E0tAq/swsLj/ROXu8X1Ef6sMzX/tOxqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Ham <bob.ham@puri.sm>,
-        "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 65/85] USB: serial: option: add the BroadMobi BM818 card
-Date:   Thu, 22 Aug 2019 10:19:38 -0700
-Message-Id: <20190822171734.030555831@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        "Wan Yusof, Wan Fahim AsqalaniX" 
+        <wan.fahim.asqalanix.wan.yusof@intel.com>
+Subject: [PATCH 4.19 67/85] drm/i915/cfl: Add a new CFL PCI ID.
+Date:   Thu, 22 Aug 2019 10:19:40 -0700
+Message-Id: <20190822171734.100250801@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
 References: <20190822171731.012687054@linuxfoundation.org>
@@ -44,45 +46,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Ham <bob.ham@puri.sm>
+From: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-commit e5d8badf37e6b547842f2fcde10361b29e08bd36 upstream.
+commit d0e062ebb3a44b56a7e672da568334c76f763552 upstream.
 
-Add a VID:PID for the BroadMobi BM818 M.2 card
+One more CFL ID added to spec.
 
-T:  Bus=01 Lev=03 Prnt=40 Port=03 Cnt=01 Dev#= 44 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2020 ProdID=2060 Rev=00.00
-S:  Manufacturer=Qualcomm, Incorporated
-S:  Product=Qualcomm CDMA Technologies MSM
-C:  #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-
-Signed-off-by: Bob Ham <bob.ham@puri.sm>
-Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
-Cc: stable <stable@vger.kernel.org>
-[ johan: use USB_DEVICE_INTERFACE_CLASS() ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180803232721.20038-1-rodrigo.vivi@intel.com
+Signed-off-by: Wan Yusof, Wan Fahim AsqalaniX <wan.fahim.asqalanix.wan.yusof@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/drm/i915_pciids.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1960,6 +1960,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },			/* OLICARD300 - MT6225 */
- 	{ USB_DEVICE(INOVIA_VENDOR_ID, INOVIA_SEW858) },
- 	{ USB_DEVICE(VIATELECOM_VENDOR_ID, VIATELECOM_PRODUCT_CDS7) },
+--- a/include/drm/i915_pciids.h
++++ b/include/drm/i915_pciids.h
+@@ -386,6 +386,7 @@
+ 	INTEL_VGA_DEVICE(0x3E91, info), /* SRV GT2 */ \
+ 	INTEL_VGA_DEVICE(0x3E92, info), /* SRV GT2 */ \
+ 	INTEL_VGA_DEVICE(0x3E96, info), /* SRV GT2 */ \
++	INTEL_VGA_DEVICE(0x3E98, info), /* SRV GT2 */ \
+ 	INTEL_VGA_DEVICE(0x3E9A, info)  /* SRV GT2 */
+ 
+ /* CFL H */
 
 
