@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1E299D25
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E61D99DD1
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391144AbfHVRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:39:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S2393002AbfHVRpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404117AbfHVRYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:12 -0400
+        id S2403790AbfHVRXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:03 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E665921743;
-        Thu, 22 Aug 2019 17:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6423223407;
+        Thu, 22 Aug 2019 17:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494652;
-        bh=vAxN4LcP1t22yKu+PwrsNMiJe85M6FUxg3JUwmu9NT0=;
+        s=default; t=1566494583;
+        bh=LGNaU8+gwT1lUJF7Cp5Zz30pkN0Csrayl+Ce2Av5jlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+Auk55KP2lO0MdnvX21tPcxpJtfNol7oqSe2R90F5HnK7DCSkeMliMl8TbDJzpw2
-         WF69UC5zHsPBw4yvOf1tjSB2P4paY65SFATgTrgU30zyZi0CBHy8QalcX901xuv2Dp
-         uYpI/RGBG5LiA4Quq2ds0EhquNDr2za9u5BNOhSI=
+        b=tQikkChu+K0GEplOeLzSLtok/mZtftLp2ngnYhRiKV2+O4VoXdQlDewzQudpzviEh
+         XEuddMqT1B+rTt2ydMdHNlFwYUr55+wqbDMphbXvFa9hH2KoXU8Xq612zjFRG2E7/G
+         xC11c2FHyZpHRu0JIe+ZuGd8Q6PPcCc8QAX0m57U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 092/103] arm64: compat: Allow single-byte watchpoints on all addresses
+        stable@vger.kernel.org, Huy Nguyen <huyn@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.4 76/78] net/mlx5e: Only support tx/rx pause setting for port owner
 Date:   Thu, 22 Aug 2019 10:19:20 -0700
-Message-Id: <20190822171732.894197823@linuxfoundation.org>
+Message-Id: <20190822171834.232407289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Huy Nguyen <huyn@mellanox.com>
 
-commit 849adec41203ac5837c40c2d7e08490ffdef3c2c upstream.
+[ Upstream commit 466df6eb4a9e813b3cfc674363316450c57a89c5 ]
 
-Commit d968d2b801d8 ("ARM: 7497/1: hw_breakpoint: allow single-byte
-watchpoints on all addresses") changed the validation requirements for
-hardware watchpoints on arch/arm/. Update our compat layer to implement
-the same relaxation.
+Only support changing tx/rx pause frame setting if the net device
+is the vport group manager.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 3c2d18ef22df ("net/mlx5e: Support ethtool get/set_pauseparam")
+Signed-off-by: Huy Nguyen <huyn@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/kernel/hw_breakpoint.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm64/kernel/hw_breakpoint.c
-+++ b/arch/arm64/kernel/hw_breakpoint.c
-@@ -508,13 +508,14 @@ int arch_validate_hwbkpt_settings(struct
- 			/* Aligned */
- 			break;
- 		case 1:
--			/* Allow single byte watchpoint. */
--			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
--				break;
- 		case 2:
- 			/* Allow halfword watchpoints and breakpoints. */
- 			if (info->ctrl.len == ARM_BREAKPOINT_LEN_2)
- 				break;
-+		case 3:
-+			/* Allow single byte watchpoint. */
-+			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
-+				break;
- 		default:
- 			return -EINVAL;
- 		}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -855,6 +855,9 @@ static int mlx5e_set_pauseparam(struct n
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int err;
+ 
++	if (!MLX5_CAP_GEN(mdev, vport_group_manager))
++		return -EOPNOTSUPP;
++
+ 	if (pauseparam->autoneg)
+ 		return -EINVAL;
+ 
 
 
