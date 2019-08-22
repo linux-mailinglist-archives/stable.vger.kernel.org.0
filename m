@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2233D99C83
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382F099C04
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391639AbfHVRe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48416 "EHLO mail.kernel.org"
+        id S1733285AbfHVRa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391839AbfHVRZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:15 -0400
+        id S2404626AbfHVR0J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:09 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A4242064A;
-        Thu, 22 Aug 2019 17:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2EF32064A;
+        Thu, 22 Aug 2019 17:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494714;
-        bh=L8KNJQqZq4g+oYpcWRJKSAmbT9LsK86v1HqLWj25K2M=;
+        s=default; t=1566494768;
+        bh=Q94eA7juBZ1wPh7HFqVy/uB0bkDoo3w9xL16ej9JAEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zET46HfAtL4Z0CoFoFlB387D4AbfTPDvzlbGkah9KuZ3WQ3i/kxpYIt+sX9FzZ5Gq
-         TsmF1b7QaBAdViU1r5EJuNBoQAMl//inW7fGEnUGg4u3Ng8Mi3P15v6Jazt037NCHq
-         XK9l1A3lDkwwAMu5Jxe6g+rpLgK2WOl1rWJm7H0M=
+        b=CMcmtFtTTwc5M1PVig+ZmrMn08f0quu6Bpls345uqw/br1cq5TNVBTL40Kb2AB1I0
+         WhJmMKj7hytQ9Z9fZbRmkfRwv6pApnAf+YW/mU+yJZPPLzjnf54Ka+DPxW6gJjF8Pz
+         7ed1sayjyNjV3uiibx2QGjzylSypzxwzOPNJtdB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 70/71] mmc: sdhci-of-arasan: Do now show error message in case of deffered probe
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.19 72/85] iommu/amd: Move iommu_init_pci() to .init section
 Date:   Thu, 22 Aug 2019 10:19:45 -0700
-Message-Id: <20190822171730.744747146@linuxfoundation.org>
+Message-Id: <20190822171734.281810393@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +42,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Simek <michal.simek@xilinx.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 60208a267208c27fa3f23dfd36cbda180471fa98 upstream.
+commit 24d2c521749d8547765b555b7a85cca179bb2275 upstream.
 
-When mmc-pwrseq property is passed mmc_pwrseq_alloc() can return
--EPROBE_DEFER because driver for power sequence provider is not probed
-yet. Do not show error message when this situation happens.
+The function is only called from another __init function, so
+it should be moved to .init too.
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-arasan.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-of-arasan.c
-+++ b/drivers/mmc/host/sdhci-of-arasan.c
-@@ -638,7 +638,8 @@ static int sdhci_arasan_probe(struct pla
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -1710,7 +1710,7 @@ static const struct attribute_group *amd
+ 	NULL,
+ };
  
- 	ret = mmc_of_parse(host->mmc);
- 	if (ret) {
--		dev_err(&pdev->dev, "parsing dt failed (%d)\n", ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "parsing dt failed (%d)\n", ret);
- 		goto unreg_clk;
- 	}
- 
+-static int iommu_init_pci(struct amd_iommu *iommu)
++static int __init iommu_init_pci(struct amd_iommu *iommu)
+ {
+ 	int cap_ptr = iommu->cap_ptr;
+ 	u32 range, misc, low, high;
 
 
