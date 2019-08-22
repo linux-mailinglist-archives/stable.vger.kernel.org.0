@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DB399B36
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9B499B88
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388431AbfHVRWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
+        id S2404441AbfHVRZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391343AbfHVRWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:40 -0400
+        id S2404434AbfHVRZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:28 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2568F233FD;
-        Thu, 22 Aug 2019 17:22:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D685723400;
+        Thu, 22 Aug 2019 17:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494559;
-        bh=LCYHX6/+MmhDWR7YgKpX0H0dBEI3H2iLTyfTGTr/wEQ=;
+        s=default; t=1566494728;
+        bh=6fU+9PuammxkfJEvmn0ipo4sM2/Oi5xnKuBsX/DqtLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBImv9/TAPTy7nwAFfZVBrT3A1PDQbF7CNCIvw6Rx1xpE5RFcjKumjSkMH9OgyPuP
-         z8jctPUdbBo5Y2lD2hu+q4s83TmN52quytbtIxJubcG1li17mtnIxQPlYGNKPy7s/1
-         3JmJ7zJ8RyGFMfNhSI4Z4Qub11irfcz6TrwnQarM=
+        b=xGJCFRiVGia2LFi6c06JndezKJkr3da6KfQCV8j0tEpGuXcK85dtuiS3l2+dt2FJy
+         1H0elRxPWQ98VFZTU+aulT6X2OvcaC169RzlzwIbvTdikGcwtKoXOnJBTRzRIyBTNj
+         S7ZplhWk/STWKfXkc0ikXKNs4lERSpIpqQMncQhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 46/78] perf header: Fix divide by zero error if f_header.attr_size==0
-Date:   Thu, 22 Aug 2019 10:18:50 -0700
-Message-Id: <20190822171833.373316491@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+965152643a75a56737be@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 18/85] HID: holtek: test for sanity of intfdata
+Date:   Thu, 22 Aug 2019 10:18:51 -0700
+Message-Id: <20190822171731.920793574@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
+From: Oliver Neukum <oneukum@suse.com>
 
-So I have been having lots of trouble with hand-crafted perf.data files
-causing segfaults and the like, so I have started fuzzing the perf tool.
+commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 upstream.
 
-First issue found:
+The ioctl handler uses the intfdata of a second interface,
+which may not be present in a broken or malicious device, hence
+the intfdata needs to be checked for NULL.
 
-If f_header.attr_size is 0 in the perf.data file, then perf will crash
-with a divide-by-zero error.
+[jkosina@suse.cz: fix newly added spurious space]
+Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Committer note:
-
-Added a pr_err() to tell the user why the command failed.
-
-Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/hid-holtek-kbd.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 304f5d7101436..0102dd46fb6da 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -2591,6 +2591,13 @@ int perf_session__read_header(struct perf_session *session)
- 			   file->path);
- 	}
+--- a/drivers/hid/hid-holtek-kbd.c
++++ b/drivers/hid/hid-holtek-kbd.c
+@@ -126,9 +126,14 @@ static int holtek_kbd_input_event(struct
  
-+	if (f_header.attr_size == 0) {
-+		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
-+		       "Was the 'perf record' command properly terminated?\n",
-+		       file->path);
-+		return -EINVAL;
-+	}
+ 	/* Locate the boot interface, to receive the LED change events */
+ 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
++	struct hid_device *boot_hid;
++	struct hid_input *boot_hid_input;
+ 
+-	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
+-	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
++	if (unlikely(boot_interface == NULL))
++		return -ENODEV;
 +
- 	nr_attrs = f_header.attrs.size / f_header.attr_size;
- 	lseek(fd, f_header.attrs.offset, SEEK_SET);
++	boot_hid = usb_get_intfdata(boot_interface);
++	boot_hid_input = list_first_entry(&boot_hid->inputs,
+ 		struct hid_input, list);
  
--- 
-2.20.1
-
+ 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
 
 
