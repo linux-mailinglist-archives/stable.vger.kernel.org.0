@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3D3999E4
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4818699B0B
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388852AbfHVRIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:08:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57570 "EHLO mail.kernel.org"
+        id S1726687AbfHVRS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388840AbfHVRIO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:14 -0400
+        id S2388846AbfHVRIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:15 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4C8D233FD;
-        Thu, 22 Aug 2019 17:08:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F72223402;
+        Thu, 22 Aug 2019 17:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493694;
-        bh=39w8n/1pv/4HYY2jT72oApsPLmgL6U5shpRM4SjZM+w=;
+        bh=5j8eSVDxtdl+CJ7xV2ee7Pj08LtadYXJ6WneXT9Kpf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9DKAnxmmgqPzL8RypYGreVlcZN4EhsDggBXp10IhPhtiaJQ13VEZmZKsWL6C9vd+
-         G7RrqY1Tb/k2uJRa+WZt60ABDwEATOXfs17f5IRRFVVwRQ4hGOUoM96j4l672Cxo7C
-         sUJM0MYQruD6COxxCnK45ixKt04U8URlrRg4Hpog=
+        b=uqynQSxKdSrnPndUog4JDQMHYth6RLSbR/k7qppL2GjEunhNgsk4SPCKZ+o8OTr+Y
+         aN9jUIA5/rAuxHVirzIFOzViOMiFR6SUq7IzZbjz9Hyzmf848fDj2dKBmDWjoScPpH
+         vFN1LhZjsyGURYdV0KIUlPJQzFMt2ISRrnSPpAzw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Guenter Roeck <linux@roeck-us.net>,
+Cc:     NeilBrown <neilb@suse.com>,
+        Sergei Turchanov <turchanov@farpost.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Markus Elfring <Markus.Elfring@web.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 002/135] sh: kernel: hw_breakpoint: Fix missing break in switch statement
-Date:   Thu, 22 Aug 2019 13:05:58 -0400
-Message-Id: <20190822170811.13303-3-sashal@kernel.org>
+Subject: [PATCH 5.2 003/135] seq_file: fix problem when seeking mid-record
+Date:   Thu, 22 Aug 2019 13:05:59 -0400
+Message-Id: <20190822170811.13303-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,36 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: NeilBrown <neilb@suse.com>
 
-commit 1ee1119d184bb06af921b48c3021d921bbd85bac upstream.
+commit 6a2aeab59e97101b4001bac84388fc49a992f87e upstream.
 
-Add missing break statement in order to prevent the code from falling
-through to case SH_BREAKPOINT_WRITE.
+If you use lseek or similar (e.g.  pread) to access a location in a
+seq_file file that is within a record, rather than at a record boundary,
+then the first read will return the remainder of the record, and the
+second read will return the whole of that same record (instead of the
+next record).  When seeking to a record boundary, the next record is
+correctly returned.
 
-Fixes: 09a072947791 ("sh: hw-breakpoints: Add preliminary support for SH-4A UBC.")
-Cc: stable@vger.kernel.org
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+This bug was introduced by a recent patch (identified below).  Before
+that patch, seq_read() would increment m->index when the last of the
+buffer was returned (m->count == 0).  After that patch, we rely on
+->next to increment m->index after filling the buffer - but there was
+one place where that didn't happen.
+
+Link: https://lkml.kernel.org/lkml/877e7xl029.fsf@notabene.neil.brown.name/
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+Signed-off-by: NeilBrown <neilb@suse.com>
+Reported-by: Sergei Turchanov <turchanov@farpost.com>
+Tested-by: Sergei Turchanov <turchanov@farpost.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Cc: <stable@vger.kernel.org>	[4.19+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sh/kernel/hw_breakpoint.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/seq_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sh/kernel/hw_breakpoint.c b/arch/sh/kernel/hw_breakpoint.c
-index bc96b16288c1a..af6a65ac04cf3 100644
---- a/arch/sh/kernel/hw_breakpoint.c
-+++ b/arch/sh/kernel/hw_breakpoint.c
-@@ -157,6 +157,7 @@ int arch_bp_generic_fields(int sh_len, int sh_type,
- 	switch (sh_type) {
- 	case SH_BREAKPOINT_READ:
- 		*gen_type = HW_BREAKPOINT_R;
-+		break;
- 	case SH_BREAKPOINT_WRITE:
- 		*gen_type = HW_BREAKPOINT_W;
- 		break;
+diff --git a/fs/seq_file.c b/fs/seq_file.c
+index abe27ec431766..225bf9239b329 100644
+--- a/fs/seq_file.c
++++ b/fs/seq_file.c
+@@ -119,6 +119,7 @@ static int traverse(struct seq_file *m, loff_t offset)
+ 		}
+ 		if (seq_has_overflowed(m))
+ 			goto Eoverflow;
++		p = m->op->next(m, p, &m->index);
+ 		if (pos + m->count > offset) {
+ 			m->from = offset - pos;
+ 			m->count -= m->from;
+@@ -126,7 +127,6 @@ static int traverse(struct seq_file *m, loff_t offset)
+ 		}
+ 		pos += m->count;
+ 		m->count = 0;
+-		p = m->op->next(m, p, &m->index);
+ 		if (pos == offset)
+ 			break;
+ 	}
 -- 
 2.20.1
 
