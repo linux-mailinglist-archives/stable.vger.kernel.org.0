@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6CA99E04
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D3999D5C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391428AbfHVRrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S2404976AbfHVRlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391421AbfHVRWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:40 -0400
+        id S2391735AbfHVRXx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:53 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D09F32341D;
-        Thu, 22 Aug 2019 17:22:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7AD42341C;
+        Thu, 22 Aug 2019 17:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494560;
-        bh=eRi135xqg5cAdxKSzrpkWfbDgI3AVSQeoWbwquYOEXQ=;
+        s=default; t=1566494632;
+        bh=c7ZAd2AV/yp4LCIViPLn6jGQ3zJo7OK6ViAB11Kblik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnzpbIcwXvXL0aJnFr/xcvdC1JP9xs7zhToOccm/bt/GQ8gWi4I8Sw5AcS1voWmP1
-         HRvL0z97FiRU+mjRUW5mHoyPyFmvusukACYSQ2cuETgE9qlzn5Hg3h0FYA67tHLjKb
-         WLw19zi2bsDi51B6cQGDFqaUk+RvfDYUVcphZBOw=
+        b=VQ4IGVygmjK2GMf+RgMv5IR5qxd//NQdNfUyNaS02z/f7BQvd28nPNVmq1lhJO7Wt
+         D8NI4grWJJiK74oNtKb4ntbqJnbY8XiYdC09O0Fp+qZc3FoUK5cu5rnM1aKhNYWkU6
+         wNsKu8ntnXMNnccClJhY6XGtPJcO4gAGxhKk3+Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Numfor Mbiziwo-Tiapo <nums@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Drayton <mbd@fb.com>, Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 47/78] perf header: Fix use of unitialized value warning
-Date:   Thu, 22 Aug 2019 10:18:51 -0700
-Message-Id: <20190822171833.401778819@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Hillf Danton <hdanton@sina.com>, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 064/103] HID: hiddev: do cleanup in failure of opening a device
+Date:   Thu, 22 Aug 2019 10:18:52 -0700
+Message-Id: <20190822171731.370428664@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,68 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20f9781f491360e7459c589705a2e4b1f136bee9 ]
+From: Hillf Danton <hdanton@sina.com>
 
-When building our local version of perf with MSAN (Memory Sanitizer) and
-running the perf record command, MSAN throws a use of uninitialized
-value warning in "tools/perf/util/util.c:333:6".
+commit 6d4472d7bec39917b54e4e80245784ea5d60ce49 upstream.
 
-This warning stems from the "buf" variable being passed into "write".
-It originated as the variable "ev" with the type union perf_event*
-defined in the "perf_event__synthesize_attr" function in
-"tools/perf/util/header.c".
+Undo what we did for opening before releasing the memory slice.
 
-In the "perf_event__synthesize_attr" function they allocate space with a malloc
-call using ev, then go on to only assign some of the member variables before
-passing "ev" on as a parameter to the "process" function therefore "ev"
-contains uninitialized memory. Changing the malloc call to zalloc to initialize
-all the members of "ev" which gets rid of the warning.
+Reported-by: syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-To reproduce this warning, build perf by running:
-make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-fsanitize=memory\
- -fsanitize-memory-track-origins"
-
-(Additionally, llvm might have to be installed and clang might have to
-be specified as the compiler - export CC=/usr/bin/clang)
-
-then running:
-tools/perf/perf record -o - ls / | tools/perf/perf --no-pager annotate\
- -i - --stdio
-
-Please see the cover letter for why false positive warnings may be
-generated.
-
-Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Drayton <mbd@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lkml.kernel.org/r/20190724234500.253358-2-nums@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/usbhid/hiddev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 0102dd46fb6da..bcb8e85a40f90 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -2680,7 +2680,7 @@ int perf_event__synthesize_attr(struct perf_tool *tool,
- 	size += sizeof(struct perf_event_header);
- 	size += ids * sizeof(u64);
- 
--	ev = malloc(size);
-+	ev = zalloc(size);
- 
- 	if (ev == NULL)
- 		return -ENOMEM;
--- 
-2.20.1
-
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -330,6 +330,10 @@ static int hiddev_open(struct inode *ino
+ 	return 0;
+ bail_unlock:
+ 	mutex_unlock(&hiddev->existancelock);
++
++	spin_lock_irq(&list->hiddev->list_lock);
++	list_del(&list->node);
++	spin_unlock_irq(&list->hiddev->list_lock);
+ bail:
+ 	file->private_data = NULL;
+ 	vfree(list);
 
 
