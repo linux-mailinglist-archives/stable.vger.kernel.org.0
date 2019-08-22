@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 271F399AD3
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF4E99ACD
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389039AbfHVRQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58282 "EHLO mail.kernel.org"
+        id S2388086AbfHVRPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:15:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390363AbfHVRIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390417AbfHVRIh (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:08:37 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6591523426;
+        by mail.kernel.org (Postfix) with ESMTPSA id D767723405;
         Thu, 22 Aug 2019 17:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493716;
-        bh=9ROhGXK6rd4BaOKuMuPMhYS46hgPSYfBc0TGKxduK+g=;
+        s=default; t=1566493717;
+        bh=fc+CB2Ssrn59WPr6z/hOAw7WWXrO2WuzYj3CQEMvPIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgfHfATZzyYDC7fYotNy6YDe54bP9lGpQ6E4MggLaEp7lHA/aFhP0C63XIemm1UVI
-         pYdJk/FmV8LbXM6AlkknjAZrIUvXkiz8391gGXO8olRVDUqpMo0p8AE+5MsRbt4B0f
-         201Cl/DSph1vUdPVsfEHlhRwm5alM6FD6KdiD9iY=
+        b=Fdg2oED7s9ErkhuGLE8mj/5sue9BAuNrtGIBKpc946feHbvhoBJDavsvc3bzvKQmm
+         c1xsvfDOlaUxkGlsZkbujwcvXpRBX+e0pIrZSo6YPGi2oUa3wORPH9bFlrc8wgwubB
+         Fchdz9iDBoUpXuee6c4nybkIOY5gwwiAL4oAO/Nw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+Cc:     Jean Delvare <jdelvare@suse.de>,
+        "Enrico Weigelt, metux IT consult" <info@metux.net>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 042/135] dma-mapping: check pfn validity in dma_common_{mmap,get_sgtable}
-Date:   Thu, 22 Aug 2019 13:06:38 -0400
-Message-Id: <20190822170811.13303-43-sashal@kernel.org>
+Subject: [PATCH 5.2 043/135] platform/x86: pcengines-apuv2: Fix softdep statement
+Date:   Thu, 22 Aug 2019 13:06:39 -0400
+Message-Id: <20190822170811.13303-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -49,57 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit 66d7780f18eae0232827fcffeaded39a6a168236 ]
+[ Upstream commit edbfe83def34153a05439ecb3352ae0bb65024de ]
 
-Check that the pfn returned from arch_dma_coherent_to_pfn refers to
-a valid page and reject the mmap / get_sgtable requests otherwise.
+Only first MODULE_SOFTDEP statement is handled per module.
+Multiple dependencies must be expressed in a single statement.
 
-Based on the arm implementation of the mmap and get_sgtable methods.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Andy Shevchenko <andy@infradead.org>
+[andy: massaged commit message]
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/mapping.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/platform/x86/pcengines-apuv2.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index f7afdadb6770b..3401382bbca2f 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -116,11 +116,16 @@ int dma_common_get_sgtable(struct device *dev, struct sg_table *sgt,
- 	int ret;
- 
- 	if (!dev_is_dma_coherent(dev)) {
-+		unsigned long pfn;
-+
- 		if (!IS_ENABLED(CONFIG_ARCH_HAS_DMA_COHERENT_TO_PFN))
- 			return -ENXIO;
- 
--		page = pfn_to_page(arch_dma_coherent_to_pfn(dev, cpu_addr,
--				dma_addr));
-+		/* If the PFN is not valid, we do not have a struct page */
-+		pfn = arch_dma_coherent_to_pfn(dev, cpu_addr, dma_addr);
-+		if (!pfn_valid(pfn))
-+			return -ENXIO;
-+		page = pfn_to_page(pfn);
- 	} else {
- 		page = virt_to_page(cpu_addr);
- 	}
-@@ -170,7 +175,11 @@ int dma_common_mmap(struct device *dev, struct vm_area_struct *vma,
- 	if (!dev_is_dma_coherent(dev)) {
- 		if (!IS_ENABLED(CONFIG_ARCH_HAS_DMA_COHERENT_TO_PFN))
- 			return -ENXIO;
-+
-+		/* If the PFN is not valid, we do not have a struct page */
- 		pfn = arch_dma_coherent_to_pfn(dev, cpu_addr, dma_addr);
-+		if (!pfn_valid(pfn))
-+			return -ENXIO;
- 	} else {
- 		pfn = page_to_pfn(virt_to_page(cpu_addr));
- 	}
+diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
+index c1ca931e1fab8..7a8cbfb5d2135 100644
+--- a/drivers/platform/x86/pcengines-apuv2.c
++++ b/drivers/platform/x86/pcengines-apuv2.c
+@@ -255,6 +255,4 @@ MODULE_DESCRIPTION("PC Engines APUv2/APUv3 board GPIO/LED/keys driver");
+ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(dmi, apu_gpio_dmi_table);
+ MODULE_ALIAS("platform:pcengines-apuv2");
+-MODULE_SOFTDEP("pre: platform:" AMD_FCH_GPIO_DRIVER_NAME);
+-MODULE_SOFTDEP("pre: platform:leds-gpio");
+-MODULE_SOFTDEP("pre: platform:gpio_keys_polled");
++MODULE_SOFTDEP("pre: platform:" AMD_FCH_GPIO_DRIVER_NAME " platform:leds-gpio platform:gpio_keys_polled");
 -- 
 2.20.1
 
