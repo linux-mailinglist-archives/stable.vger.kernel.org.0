@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D650D99E19
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A9199D2E
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390086AbfHVRW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
+        id S2392420AbfHVRkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391300AbfHVRW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:26 -0400
+        id S2404092AbfHVRYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:08 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0443423405;
-        Thu, 22 Aug 2019 17:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31DF023407;
+        Thu, 22 Aug 2019 17:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494545;
-        bh=Z9vCoxmg1F0JBLGhQ5ys9J4j4m/T7XhF6spaclXJU8A=;
+        s=default; t=1566494648;
+        bh=9o44ulriWXXkwnJBjHg4oBd96Y4y2e/U4b3CT7RffeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=salJL7muNwtBCZTe9aXy2P1lDoRMIuPwm+7G/6M1Ci2dk5s+JfSKC1aY/oLB/wE9G
-         ryPX7HiCUO9VxYe5CM9+jclCl1+4Pi2H01WLOwiI7LErqqy2cPwCiGcTgvJJx6KvUe
-         8Irit3EUQtMJC+2gB9VymUH+RR305N2TcnSm7p8o=
+        b=WrEhNMiCObfSeddDZ0OZF4UeAkBuTT6QwCFt+FieN2Wi5i0SeitHdl14mxv16+OHd
+         INjA2HUJH1KPiWHaW2408XaL5tjlmrTaKcClA3K5UrRngH7xPex7otDteYqwN0rTpu
+         r072T36etop2+nk5kUd2Jmz7bQ6xDuxpnmMnC52A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilles Buloz <Gilles.Buloz@kontron.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 26/78] hwmon: (nct7802) Fix wrong detection of in4 presence
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH 4.9 042/103] sh: kernel: hw_breakpoint: Fix missing break in switch statement
 Date:   Thu, 22 Aug 2019 10:18:30 -0700
-Message-Id: <20190822171832.801503128@linuxfoundation.org>
+Message-Id: <20190822171730.506906597@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 38ada2f406a9b81fb1249c5c9227fa657e7d5671 upstream.
+commit 1ee1119d184bb06af921b48c3021d921bbd85bac upstream.
 
-The code to detect if in4 is present is wrong; if in4 is not present,
-the in4_input sysfs attribute is still present.
+Add missing break statement in order to prevent the code from falling
+through to case SH_BREAKPOINT_WRITE.
 
-In detail:
-
-- Ihen RTD3_MD=11 (VSEN3 present), everything is as expected (no bug).
-- If we have RTD3_MD!=11 (no VSEN3), we unexpectedly have a in4_input
-  file under /sys and the "sensors" command displays in4_input.
-  But as expected, we have no in4_min, in4_max, in4_alarm, in4_beep.
-
-Fix is_visible function to detect and report in4_input visibility
-as expected.
-
-Reported-by: Gilles Buloz <Gilles.Buloz@kontron.com>
-Cc: Gilles Buloz <Gilles.Buloz@kontron.com>
+Fixes: 09a072947791 ("sh: hw-breakpoints: Add preliminary support for SH-4A UBC.")
 Cc: stable@vger.kernel.org
-Fixes: 3434f37835804 ("hwmon: Driver for Nuvoton NCT7802Y")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/nct7802.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/sh/kernel/hw_breakpoint.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwmon/nct7802.c
-+++ b/drivers/hwmon/nct7802.c
-@@ -768,7 +768,7 @@ static struct attribute *nct7802_in_attr
- 	&sensor_dev_attr_in3_alarm.dev_attr.attr,
- 	&sensor_dev_attr_in3_beep.dev_attr.attr,
- 
--	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 17 */
-+	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 16 */
- 	&sensor_dev_attr_in4_min.dev_attr.attr,
- 	&sensor_dev_attr_in4_max.dev_attr.attr,
- 	&sensor_dev_attr_in4_alarm.dev_attr.attr,
-@@ -794,9 +794,9 @@ static umode_t nct7802_in_is_visible(str
- 
- 	if (index >= 6 && index < 11 && (reg & 0x03) != 0x03)	/* VSEN1 */
- 		return 0;
--	if (index >= 11 && index < 17 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
-+	if (index >= 11 && index < 16 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
- 		return 0;
--	if (index >= 17 && (reg & 0x30) != 0x30)		/* VSEN3 */
-+	if (index >= 16 && (reg & 0x30) != 0x30)		/* VSEN3 */
- 		return 0;
- 
- 	return attr->mode;
+--- a/arch/sh/kernel/hw_breakpoint.c
++++ b/arch/sh/kernel/hw_breakpoint.c
+@@ -160,6 +160,7 @@ int arch_bp_generic_fields(int sh_len, i
+ 	switch (sh_type) {
+ 	case SH_BREAKPOINT_READ:
+ 		*gen_type = HW_BREAKPOINT_R;
++		break;
+ 	case SH_BREAKPOINT_WRITE:
+ 		*gen_type = HW_BREAKPOINT_W;
+ 		break;
 
 
