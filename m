@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B8C99E1F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D867899DA1
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391361AbfHVRWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S2403933AbfHVRXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391343AbfHVRWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:33 -0400
+        id S2403928AbfHVRXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:22 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 893482341B;
-        Thu, 22 Aug 2019 17:22:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AD6323405;
+        Thu, 22 Aug 2019 17:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494552;
-        bh=g7i6WLTZ5rxEErYhZhpqbhfqKOn6PGX5ztul/t3P0PU=;
+        s=default; t=1566494602;
+        bh=v1qJUyEw14ffyTtAkJ2MRHYdOutA6FVC35Hnd5dLXyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUF5MOr9N87hQ4zSYl9HV6PNUXISrJSRtZ8zpmDyh541PFdViehQIYOjiaardu8Ed
-         PlEJ9BENsMasYEoaUArgQ4ixUH4F2ALfdFiHmomkGbdrrQXCaA9v6alKtPsTm39K4z
-         6SrRw8tT/DS1bAL8rxwmJt+SShmezIC5c5nElFS4=
+        b=Oav2r/vitdIrmKCRvSE09WZtHfC2ag8RE4bEI1aJUfiN5cvn2Qt9UYorGMC9DKea5
+         OF+41jO+gCDrgNrje3uQNA7MLiDFtcSajx6R4Am7tyKjT/WSK3wgw99EAZ/Hms2PVH
+         osHicVlYP8wsXfRpNqJbxbMH6+qUXhPZZRUE9wAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 08/78] can: peak_usb: fix potential double kfree_skb()
+        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 024/103] ACPI/IORT: Fix off-by-one check in iort_dev_find_its_id()
 Date:   Thu, 22 Aug 2019 10:18:12 -0700
-Message-Id: <20190822171832.285306006@linuxfoundation.org>
+Message-Id: <20190822171729.831400354@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+[ Upstream commit 5a46d3f71d5e5a9f82eabc682f996f1281705ac7 ]
 
-commit fee6a8923ae0d318a7f7950c6c6c28a96cea099b upstream.
+Static analysis identified that index comparison against ITS entries in
+iort_dev_find_its_id() is off by one.
 
-When closing the CAN device while tx skbs are inflight, echo skb could
-be released twice. By calling close_candev() before unlinking all
-pending tx urbs, then the internal echo_skb[] array is fully and
-correctly cleared before the USB write callback and, therefore,
-can_get_echo_skb() are called, for each aborted URB.
+Update the comparison condition and clarify the resulting error
+message.
 
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4bf2efd26d76 ("ACPI: Add new IORT functions to support MSI domain handling")
+Link: https://lore.kernel.org/linux-arm-kernel/20190613065410.GB16334@mwanda/
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/arm64/iort.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -592,16 +592,16 @@ static int peak_usb_ndo_stop(struct net_
- 	dev->state &= ~PCAN_USB_STATE_STARTED;
- 	netif_stop_queue(netdev);
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index 6b81746cd13c8..e5b1b3f1c2319 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -324,8 +324,8 @@ static int iort_dev_find_its_id(struct device *dev, u32 req_id,
  
-+	close_candev(netdev);
-+
-+	dev->can.state = CAN_STATE_STOPPED;
-+
- 	/* unlink all pending urbs and free used memory */
- 	peak_usb_unlink_all_urbs(dev);
- 
- 	if (dev->adapter->dev_stop)
- 		dev->adapter->dev_stop(dev);
- 
--	close_candev(netdev);
--
--	dev->can.state = CAN_STATE_STOPPED;
--
- 	/* can set bus off now */
- 	if (dev->adapter->dev_set_bus) {
- 		int err = dev->adapter->dev_set_bus(dev, 0);
+ 	/* Move to ITS specific data */
+ 	its = (struct acpi_iort_its_group *)node->node_data;
+-	if (idx > its->its_count) {
+-		dev_err(dev, "requested ITS ID index [%d] is greater than available [%d]\n",
++	if (idx >= its->its_count) {
++		dev_err(dev, "requested ITS ID index [%d] overruns ITS entries [%d]\n",
+ 			idx, its->its_count);
+ 		return -ENXIO;
+ 	}
+-- 
+2.20.1
+
 
 
