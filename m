@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D1999D58
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF2899D68
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730788AbfHVRlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:41:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44658 "EHLO mail.kernel.org"
+        id S2404005AbfHVRXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391751AbfHVRXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:55 -0400
+        id S2391454AbfHVRWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:45 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB70C23402;
-        Thu, 22 Aug 2019 17:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42CEE233FD;
+        Thu, 22 Aug 2019 17:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494635;
-        bh=Hx/oTr1LiKPxSvknHAXUYWhatBWqSa8VofgNXmS2oX8=;
+        s=default; t=1566494564;
+        bh=vBxPfPKj+SsMCAA09XAgHduQ2I76vkPQwHl0VU0fJcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQ5mGaOuiro7kvl4kP08gm/1HHmnc4+B4jzPJ89YXY5zX1PWxOO7yDxIgddEFDthy
-         55lHPQQC/IhLneIHw5tabM9lYJ+2ok3ptrGLwzjZwVKA52aTCKSjqcpBG4Tqfeqhtf
-         crLyqVYj27+KMAzsBatdtBDWpXsZdobHOwcu9rVI=
+        b=sRzN7Ex823ZdJLp6Ak42xUQ786phUFgc9z1Xes/HrwmES+Im3jTwl6OvcfU6YYkFX
+         FWqfjvnZOuCMQR4lkO+fJwYTdInYoa5ldyRJRn6lzBnEydTrkOEIXKbdhLE6CwBhY+
+         zGwLZBaCjubNqmYdG5wY8u64TOoIxzztfYSBGvus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
-        Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 067/103] net: usb: pegasus: fix improper read if get_registers() fail
-Date:   Thu, 22 Aug 2019 10:18:55 -0700
-Message-Id: <20190822171731.556979488@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 52/78] IB/core: Add mitigation for Spectre V1
+Date:   Thu, 22 Aug 2019 10:18:56 -0700
+Message-Id: <20190822171833.548577018@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kirjanov <kda@linux-powerpc.org>
+[ Upstream commit 61f259821dd3306e49b7d42a3f90fb5a4ff3351b ]
 
-commit 224c04973db1125fcebefffd86115f99f50f8277 upstream.
+Some processors may mispredict an array bounds check and
+speculatively access memory that they should not. With
+a user supplied array index we like to play things safe
+by masking the value with the array size before it is
+used as an index.
 
-get_registers() may fail with -ENOMEM and in this
-case we can read a garbage from the status variable tmp.
-
-Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
-Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20190731043957.GA1600@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/pegasus.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/user_mad.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -285,7 +285,7 @@ static void mdio_write(struct net_device
- static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
- {
- 	int i;
--	__u8 tmp;
-+	__u8 tmp = 0;
- 	__le16 retdatai;
- 	int ret;
+diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
+index 57f281f8d6862..e9e75f40714cb 100644
+--- a/drivers/infiniband/core/user_mad.c
++++ b/drivers/infiniband/core/user_mad.c
+@@ -49,6 +49,7 @@
+ #include <linux/sched.h>
+ #include <linux/semaphore.h>
+ #include <linux/slab.h>
++#include <linux/nospec.h>
  
+ #include <asm/uaccess.h>
+ 
+@@ -842,11 +843,14 @@ static int ib_umad_unreg_agent(struct ib_umad_file *file, u32 __user *arg)
+ 
+ 	if (get_user(id, arg))
+ 		return -EFAULT;
++	if (id >= IB_UMAD_MAX_AGENTS)
++		return -EINVAL;
+ 
+ 	mutex_lock(&file->port->file_mutex);
+ 	mutex_lock(&file->mutex);
+ 
+-	if (id >= IB_UMAD_MAX_AGENTS || !__get_agent(file, id)) {
++	id = array_index_nospec(id, IB_UMAD_MAX_AGENTS);
++	if (!__get_agent(file, id)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-- 
+2.20.1
+
 
 
