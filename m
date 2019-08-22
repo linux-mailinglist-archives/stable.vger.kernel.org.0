@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDCB99E34
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B745499D7A
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389616AbfHVRsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:48:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40332 "EHLO mail.kernel.org"
+        id S2391619AbfHVRXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389988AbfHVRWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:21 -0400
+        id S2391593AbfHVRXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:44 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C2EF23400;
-        Thu, 22 Aug 2019 17:22:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8D2D2343B;
+        Thu, 22 Aug 2019 17:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494540;
-        bh=m5NZwnBFJYJ2c4JlcSy4JuljsJe7navc+ij5rqPDI6U=;
+        s=default; t=1566494623;
+        bh=3vY7gfu8Om2/Ihu0LNva6UVJSVIfcWzeCtnx0YAVeko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUN9WvuJmtMepgCENBgotxhU8QkP60L1X1O5FqxHt/shmxpIEM4+dzVHXYV620fJv
-         lMZaGTgbScGysSwoFHjyz/XHhiSniPSqqOVNEwdYIEt3117Zd2I+s/2PefBkB5amcQ
-         k5GXRcXoX0dQQh6NvTvfQIlcZw8eYOm3ny59pNuE=
+        b=QgVUx816K4aq1OGeo/0y5BfNdkKJGQezH0JHNLhLtFEL+AypRSHDvGqu48VWoelw5
+         0Xv9tJJ3kCKpisIiJfe5DFo5nZEqBhANWn7+O/rcSrmKfAPgdwQnj41eepH8kGYMN6
+         /Qnwb/piF18jPS65OD2xqH13io1nvFmOPAKrFtc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 20/78] scsi: megaraid_sas: fix panic on loading firmware crashdump
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 036/103] mac80211: dont WARN on short WMM parameters from AP
 Date:   Thu, 22 Aug 2019 10:18:24 -0700
-Message-Id: <20190822171832.629738393@linuxfoundation.org>
+Message-Id: <20190822171730.274790320@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b5f307ef3cb5022bfe3c8ca5b8f2114d5bf6c29 ]
+From: Brian Norris <briannorris@chromium.org>
 
-While loading fw crashdump in function fw_crash_buffer_show(), left bytes
-in one dma chunk was not checked, if copying size over it, overflow access
-will cause kernel panic.
+commit 05aaa5c97dce4c10a9e7eae2f1569a684e0c5ced upstream.
 
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In a very similar spirit to commit c470bdc1aaf3 ("mac80211: don't WARN
+on bad WMM parameters from buggy APs"), an AP may not transmit a
+fully-formed WMM IE. For example, it may miss or repeat an Access
+Category. The above loop won't catch that and will instead leave one of
+the four ACs zeroed out. This triggers the following warning in
+drv_conf_tx()
+
+  wlan0: invalid CW_min/CW_max: 0/0
+
+and it may leave one of the hardware queues unconfigured. If we detect
+such a case, let's just print a warning and fall back to the defaults.
+
+Tested with a hacked version of hostapd, intentionally corrupting the
+IEs in hostapd_eid_wmm().
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20190726224758.210953-1-briannorris@chromium.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/mlme.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 2422094f1f15c..5e0bac8de6381 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -2752,6 +2752,7 @@ megasas_fw_crash_buffer_show(struct device *cdev,
- 	u32 size;
- 	unsigned long buff_addr;
- 	unsigned long dmachunk = CRASH_DMA_BUF_SIZE;
-+	unsigned long chunk_left_bytes;
- 	unsigned long src_addr;
- 	unsigned long flags;
- 	u32 buff_offset;
-@@ -2777,6 +2778,8 @@ megasas_fw_crash_buffer_show(struct device *cdev,
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1873,6 +1873,16 @@ static bool ieee80211_sta_wmm_params(str
+ 		}
  	}
  
- 	size = (instance->fw_crash_buffer_size * dmachunk) - buff_offset;
-+	chunk_left_bytes = dmachunk - (buff_offset % dmachunk);
-+	size = (size > chunk_left_bytes) ? chunk_left_bytes : size;
- 	size = (size >= PAGE_SIZE) ? (PAGE_SIZE - 1) : size;
- 
- 	src_addr = (unsigned long)instance->crash_buf[buff_offset / dmachunk] +
--- 
-2.20.1
-
++	/* WMM specification requires all 4 ACIs. */
++	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++) {
++		if (params[ac].cw_min == 0) {
++			sdata_info(sdata,
++				   "AP has invalid WMM params (missing AC %d), using defaults\n",
++				   ac);
++			return false;
++		}
++	}
++
+ 	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++) {
+ 		mlme_dbg(sdata,
+ 			 "WMM AC=%d acm=%d aifs=%d cWmin=%d cWmax=%d txop=%d uapsd=%d, downgraded=%d\n",
 
 
