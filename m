@@ -2,66 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F69299395
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 14:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8150993B7
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 14:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732949AbfHVMaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 08:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726645AbfHVMaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 08:30:55 -0400
-Received: from localhost (unknown [12.166.174.5])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50FB8206BB;
-        Thu, 22 Aug 2019 12:30:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566477054;
-        bh=nnLd0ca321zcCp1UOcKyv0fRgu4H2HqkuFST/nYvp0I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JSLemMNcBM/FceM+Q02WJF8r7HVkdw9hmqciBJlavQfSOF0YbbNPPO+0UPOvT3Nxm
-         UkwuBAaGyYD5Ul+sVqN3Ir1g0eQRR5n5gW8Ydod106dl183i4w1UR+q+Cm+/YQ+B5K
-         i8+EyqwRusAf48a9DKJrIMnSJvkQCYGXdZKHpwIY=
-Date:   Thu, 22 Aug 2019 05:30:53 -0700
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Neil MacLeod <neil@nmacleod.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/boot: Fix boot failure regression
-Message-ID: <20190822123053.GC12941@kroah.com>
-References: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
- <20190821192513.20126-1-jhubbard@nvidia.com>
- <CAFbqK8=BodLiMr4pdHjdqsZtk8iHUC_9oyRRALJt0xLz4y_4sQ@mail.gmail.com>
- <alpine.DEB.2.21.1908212323290.1983@nanos.tec.linutronix.de>
+        id S2388618AbfHVMd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 08:33:27 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:38159 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388616AbfHVMdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 08:33:25 -0400
+Received: by mail-lj1-f195.google.com with SMTP id x3so5388206lji.5
+        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 05:33:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=aWwEGZ7IKPwlD1SyN53LweuoS+rG8j2WBRgPDxMagPA=;
+        b=iVbicIO0p0gRad2mojfMoXPK1bvee8m7TQDWF1D1ACPE9HqmNhL2GBY+oHjfleXep+
+         wlwnOwIGGXywTfWnwFY2sQ2+h7NA0iPrPVMp/fpPZz0TCkDtzEkceGvTPOs+5VsA+PDA
+         bog9JENsSaOIYx1EC+/cR0/9HBbgj+daWMstdn5zms4O325GD0AQaD/ms3ETHmSt6uto
+         Q6665qufcUQQcAyfjYrg0fnfHXit5ax05ENYUjOrRwG/w//Vr5t0ubPdCTC7BmhWIJWz
+         mQQKKeL+2FnzNGwY3o/OwTiNkaLGMTHC1jVl8gl5NMf5tKp3Dcziy6EpzKOnIMzsAz/Z
+         Gt/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=aWwEGZ7IKPwlD1SyN53LweuoS+rG8j2WBRgPDxMagPA=;
+        b=a/RxAiaXR9GK51A6tLpRZX/HwBf4rNNjR+s916Z/7bpTzErOgksGjD9hMXWvb8Rd+2
+         Cwtv6SkZ/3fpJU8Yv/U3ZGrLjhxOa6EHJZWvxMJfk9H5JpA5HuUbtpp44lIz9ZKxS9FT
+         Emd/UwwYt1/SZxUhR3mUlN/hIJU1N0vDPQVhkkVhft5NtO+G3LFxApf6TujqzXg3LIYs
+         5SE7txLA1SPFP5NO7tE7PKccllsMQE7WfsFd6SExDJlRtOf/txUeELmqFyKfncSCEX3q
+         81n0ojN6LWtkVsaKo+ahJy5JtRZpUsu7EA12fBIf4WrDPOO2tJCKZuVKy9QZUIJoMeIy
+         erYg==
+X-Gm-Message-State: APjAAAUFZHji8mfj3wOiKBMhbx1Ini7wYRRiPuek0QeHESvmbRPz8EMB
+        FgvcKrUtG6xc/a6cnSEkvOO1RaKvCgbVPWan1SI=
+X-Google-Smtp-Source: APXvYqzw94KeAGRPQVwAh+UJFBQ7DOYzf35Giv9H76e1wjU00JCNb63boziaVgpph5IBHV5hsn94tmvSTLyQYtVZmJc=
+X-Received: by 2002:a2e:63cd:: with SMTP id s74mr17881307lje.3.1566477203899;
+ Thu, 22 Aug 2019 05:33:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.1908212323290.1983@nanos.tec.linutronix.de>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Received: by 2002:ab3:6a0f:0:0:0:0:0 with HTTP; Thu, 22 Aug 2019 05:33:23
+ -0700 (PDT)
+Reply-To: eku.lawfirm@gmail.com
+From:   "Law firm(Eku and Associates)" <ezeobodo1@gmail.com>
+Date:   Thu, 22 Aug 2019 12:33:23 +0000
+Message-ID: <CAN-_bTaBz=R_5Eq36MajojFPC316zxdyXEEVzKzzZgeSdGG98A@mail.gmail.com>
+Subject: MY $25,000,000.00 INVESTMENT PROPOSAL WITH YOU AND IN YOUR COUNTRY.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 21, 2019 at 11:24:28PM +0200, Thomas Gleixner wrote:
-> On Wed, 21 Aug 2019, Neil MacLeod wrote:
-> 
-> > I can confirm 5.3-rc5 is booting again from internal M2 drive on
-> > Skylake i5 NUC with this commit - many thanks!
-> 
-> I've queued that in x86/urgent and it's en route for rc6 and stable.
+--=20
+Dear,
+With due respect this is not spam or Scam mail, because I have
+contacted you before and there was no response from you,I apologise if
+the contents of this mail are contrary to your moral ethics, which I
+feel may be of great disturbance to your person, but please treat this
+with absolute confidentiality, believing that this email reaches you
+in good faith. My contacting you is not a mistake or a coincidence
+because God can use any person known or unknown to accomplish great
+things.
+I am a lawyer and I have an investment business proposal to offer you.
+It is not official but should be considered as legal and confidential
+business. I have a customer's deposit of $US25 million dollars ready
+to be moved for investment if you can partner with us. We are ready to
+offer you 10% of this total amount as your compensation for supporting
+the transaction to completion. If you are interested to help me please
+reply me with your full details as stated below:
+(1) Your full names:
+(2) Your address:
+(3) Your occupation:
+(4) Your mobile telephone number:
+(5) Your nationality:
+(6) Your present location:
+(7) Your age:
+So that I will provide you more details on what to do and what is
+required for successful completion.
+Note: DO NOT REPLY ME IF YOU ARE NOT INTERESTED AND WITHOUT THE ABOVE
+MENTIONED DETAILS
 
-I've dropped the original patch from the stable trees now to wait for
-this fix to hit Linus's tree.
-
-Also the original doesn't seem to have fixed the build warning I'm
-seeing on my Fedora test build systems, which is odd, I need to dig into
-that...
-
-thanks,
-
-greg k-h
+Sinc=C3=A8rement v=C3=B4tre,
+Avocat Etienne Eku Esq.(Lawfirm)
+Procureur principal. De Cabinet d=E2=80=99avocats de l=E2=80=99Afrique de l=
+=E2=80=99ouest.
+Skype:westafricalawfirm
