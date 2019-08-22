@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B4199DEC
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FB799D38
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389238AbfHVRqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41752 "EHLO mail.kernel.org"
+        id S2405075AbfHVRkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:40:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391645AbfHVRWw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:52 -0400
+        id S2404041AbfHVRYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:03 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7024523406;
-        Thu, 22 Aug 2019 17:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1791221743;
+        Thu, 22 Aug 2019 17:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494571;
-        bh=Gv9SpT7C102kTxQHbe84H989Ug/F93A8ih90SP3pqk0=;
+        s=default; t=1566494643;
+        bh=lpQUJvtrEWcWG9LI+iNv9hSV93QIliF30ECel6c4tsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nlm/cbSl0etfIOOZ39nETy6xpNXXGmxOYVkZBDgPspBzUDh58KOPOn5PoeK1laGUf
-         3VYDmIbWav1kDAPWpET9Wtp8wxvAvlVdPCNw1+3Gc9WP0Dpvnf7HJ4efZAZRvKpcpx
-         +l1Ycp7Ucu7dIJDXD6w4c4JuYauHmZO5MJgOdbx4=
+        b=fezNPXas4HQzqq8StAIP+uwveIGEyKPJ+3/nvSVbUy1i4JAUnRncPqEGElX/uo9zS
+         /QEUrUXV3r7+w2xiOF6e7fE8gTtx8A4Dbol/D1AdD/c+MSZJSDtSjjnDDJarOq+mdl
+         cziOvZaVFcChLZsU0GrH9N2otlAv+sm1wEYrIHKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Ham <bob.ham@puri.sm>,
-        "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 61/78] USB: serial: option: add the BroadMobi BM818 card
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 077/103] arm64/mm: fix variable pud set but not used
 Date:   Thu, 22 Aug 2019 10:19:05 -0700
-Message-Id: <20190822171833.801405501@linuxfoundation.org>
+Message-Id: <20190822171732.082304129@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Ham <bob.ham@puri.sm>
+[ Upstream commit 7d4e2dcf311d3b98421d1f119efe5964cafa32fc ]
 
-commit e5d8badf37e6b547842f2fcde10361b29e08bd36 upstream.
+GCC throws a warning,
 
-Add a VID:PID for the BroadMobi BM818 M.2 card
+arch/arm64/mm/mmu.c: In function 'pud_free_pmd_page':
+arch/arm64/mm/mmu.c:1033:8: warning: variable 'pud' set but not used
+[-Wunused-but-set-variable]
+  pud_t pud;
+        ^~~
 
-T:  Bus=01 Lev=03 Prnt=40 Port=03 Cnt=01 Dev#= 44 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2020 ProdID=2060 Rev=00.00
-S:  Manufacturer=Qualcomm, Incorporated
-S:  Product=Qualcomm CDMA Technologies MSM
-C:  #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+because pud_table() is a macro and compiled away. Fix it by making it a
+static inline function and for pud_sect() as well.
 
-Signed-off-by: Bob Ham <bob.ham@puri.sm>
-Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
-Cc: stable <stable@vger.kernel.org>
-[ johan: use USB_DEVICE_INTERFACE_CLASS() ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/include/asm/pgtable.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1957,6 +1957,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },			/* OLICARD300 - MT6225 */
- 	{ USB_DEVICE(INOVIA_VENDOR_ID, INOVIA_SEW858) },
- 	{ USB_DEVICE(VIATELECOM_VENDOR_ID, VIATELECOM_PRODUCT_CDS7) },
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 73e3718356b05..edb2c359480db 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -387,8 +387,8 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ 				 PMD_TYPE_SECT)
+ 
+ #if defined(CONFIG_ARM64_64K_PAGES) || CONFIG_PGTABLE_LEVELS < 3
+-#define pud_sect(pud)		(0)
+-#define pud_table(pud)		(1)
++static inline bool pud_sect(pud_t pud) { return false; }
++static inline bool pud_table(pud_t pud) { return true; }
+ #else
+ #define pud_sect(pud)		((pud_val(pud) & PUD_TYPE_MASK) == \
+ 				 PUD_TYPE_SECT)
+-- 
+2.20.1
+
 
 
