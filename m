@@ -2,165 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C5D99EB5
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B10399F28
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388749AbfHVSZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 14:25:02 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:35475 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388743AbfHVSZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:25:02 -0400
-Received: by mail-wr1-f65.google.com with SMTP id k2so6335756wrq.2
-        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 11:25:01 -0700 (PDT)
+        id S1728671AbfHVSs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 14:48:28 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:36352 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730918AbfHVSs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:48:27 -0400
+Received: by mail-pg1-f196.google.com with SMTP id l21so4176221pgm.3
+        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 11:48:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JXgFg85dZHZEnnD7WQXs9gXAOtdzngXWL4jdrsUNdbM=;
-        b=GmX1AqBPet8r79jDjJi8hF5vQKrbbCbw5FMZ+8hp3/jXlP3GYuPptXMUNxQMe34TO+
-         AyLOfC/h1y2mnMy5C/v98b7PTZcIQ30xKt96Bk7l5SgUYv/lSduMgsMvjtYEdz7RSUVC
-         vYLzTxD0eW/+CmGdz1NedvyYZewbs/Tiv6/lbvXpT2KKbjpz1Sq5ANZ2SDEU7qio04f+
-         NgzbHx8FdDHgOvK/gm5rO0sVGw22L5Yu+OAUkPwCriPFXJVcx9+ZT9jUUKGezw5CD4EQ
-         zQ8hilJq47pjOAgiHCeVISkXd3aNHKDBUxzebNW02VzfwO+gqeS+wkiRvKlXWOnQTgmL
-         6T0Q==
+        d=google.com; s=20161025;
+        h=from:to:cc:subject:references:date:in-reply-to:message-id
+         :user-agent:mime-version;
+        bh=knLIZp+zbOlNhuJ4IK30KG/S108pFq9/fsx7RaEndME=;
+        b=Y/3Bzjx68Z/0x/qyRf5TmSwdU/l3KYW+FJAfKio/i72CU6lYkPg+uQR+uvH3HPQHZF
+         yiwVw8oDBsgK1c59LZNoizarw0s5UBRbbNViBSwmovomkF1xVgU1E0hg+2WA1aN9VWB6
+         kNmBksdx8HzIQrWBw88JvqCZJONM/r4afd4OIvxtUpoW+EkqxiJ6F8cUQ2HoP6iX7AC0
+         t7B5khxe+/5zrEso8b4AW2JTHA4OUnLvbM7P2lcgep2yeh0PHWpEricbYlnxEvEQGrfs
+         4jA9sjkxwhsaJNLmMjA+6f+KbtwdwNlzS2EbBmAeGcx3ndmC0SCsLlvOvPQmB+64q2Dd
+         seQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JXgFg85dZHZEnnD7WQXs9gXAOtdzngXWL4jdrsUNdbM=;
-        b=l+XsmtqHnrg7we2f1lRGwlo8SfWoT8ZGKusC24sCdyg8LYBL03QKo6/1kJo7C6OkLz
-         /MLcGIDVm62aOOOTPawEl0jcHAdr+hPdfQeLbSFG6TqiAXcBnZVpKjnPOCiLKkdwW05/
-         Q/2Ifk+iUI9BgDbLxGA3WuuR14lONXAS328bZAf+zxtekncp6mcxDi550IFLg5KaXyQz
-         hz+qS3C7plCmqirmJO9aRTm5l2Z2TQ+vmgSgUJRVKl575vVQOXdqaAP9pdIRq8R1KlV7
-         EXG66GCg6BTBA0PZ9/+P6HRTh3YHGlZ7h5uScbJCqDU7hp8Gk6tvNdeM+fQ2vK4YaZ7/
-         92JQ==
-X-Gm-Message-State: APjAAAWJ35PDrfgS42T7VFsH2pfV5gcWif/QfooF/auzVbqC0Ja8e4ab
-        Jj//Yn3dWykeIU46n3ri6cogdpSCKbTGiA==
-X-Google-Smtp-Source: APXvYqxPJyUjBrPbUQUgVbeRuGC/4xe5kpstyHaKa5tsNWe7wap/L2lRMV3H8ONj97FfDvq0NEnr9g==
-X-Received: by 2002:adf:e8c3:: with SMTP id k3mr385016wrn.8.1566498300297;
-        Thu, 22 Aug 2019 11:25:00 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id p9sm828180wru.61.2019.08.22.11.24.58
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 22 Aug 2019 11:24:58 -0700 (PDT)
-Message-ID: <5d5eddfa.1c69fb81.bb131.456e@mx.google.com>
-Date:   Thu, 22 Aug 2019 11:24:58 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
+         :message-id:user-agent:mime-version;
+        bh=knLIZp+zbOlNhuJ4IK30KG/S108pFq9/fsx7RaEndME=;
+        b=AAHlraKEdvfRtk0awBJTZjVZ42jiq/t8mJg3lcyYA42wmzM9MZMUCd51rWscfuCvU0
+         DNVXa6/3NQzgpvA/9qoq80E5KdhSWiwBlc7OJUiTkQt55Z2WT3dlGP5hY+n/OMKZwaR6
+         Y82LlEHsPeCKzZS5mDXGaY98TfZOizRgUtbDjUtB657WlhpzsDcCIsvXXQqy42yO+Dob
+         YMCnEzS18wheZlAsOaohcau9pFhchYTQuXzn9fZ6qYioj0uzXvTuL6pUBcRLn/pOhk+l
+         xPG99+77Nr/H8em8arWe+wM3HgkjgJZ4JF5xnmFnK2SNa5jd0h5tMID5QSmwhDwdozvT
+         nVNw==
+X-Gm-Message-State: APjAAAVZI8acRmC91dkMhbkpbkQTGiKpoeRIvg2eEfpWlZVnmw/vFM5O
+        ba427+FlCVIR0Au6zf7AyaZIKJ9ycgbq1g==
+X-Google-Smtp-Source: APXvYqx9ItZpsQA3aP7c+m+ExOGac4lh9311IY90jGMZ4xk/1RTlPD477snAzdaXSWuU6Y7AlalpEA==
+X-Received: by 2002:a63:2148:: with SMTP id s8mr570768pgm.336.1566499706029;
+        Thu, 22 Aug 2019 11:48:26 -0700 (PDT)
+Received: from bsegall-linux.svl.corp.google.com.localhost ([2620:15c:2cd:202:39d7:98b3:2536:e93f])
+        by smtp.gmail.com with ESMTPSA id j10sm110010pfn.188.2019.08.22.11.48.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Aug 2019 11:48:25 -0700 (PDT)
+From:   bsegall@google.com
+To:     Valentin Schneider <valentin.schneider@arm.com>
+Cc:     linux-kernel@vger.kernel.org, mingo@kernel.org,
+        peterz@infradead.org, liangyan.peng@linux.alibaba.com,
+        shanpeic@linux.alibaba.com, xlpang@linux.alibaba.com,
+        pjt@google.com, stable@vger.kernel.org
+Subject: Re: [PATCH] sched/fair: Add missing unthrottle_cfs_rq()
+References: <0004fb54-cdee-2197-1cbf-6e2111d39ed9@arm.com>
+        <20190820105420.7547-1-valentin.schneider@arm.com>
+Date:   Thu, 22 Aug 2019 11:48:24 -0700
+In-Reply-To: <20190820105420.7547-1-valentin.schneider@arm.com> (Valentin
+        Schneider's message of "Tue, 20 Aug 2019 11:54:20 +0100")
+Message-ID: <xm26lfvlhw93.fsf@bsegall-linux.svl.corp.google.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.189-104-gfefc589434fc
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 110 boots: 0 failed,
- 94 passed with 15 offline, 1 untried/unknown (v4.9.189-104-gfefc589434fc)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 110 boots: 0 failed, 94 passed with 15 offline,=
- 1 untried/unknown (v4.9.189-104-gfefc589434fc)
+Valentin Schneider <valentin.schneider@arm.com> writes:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.189-104-gfefc589434fc/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.189-104-gfefc589434fc/
+> Turns out a cfs_rq->runtime_remaining can become positive in
+> assign_cfs_rq_runtime(), but this codepath has no call to
+> unthrottle_cfs_rq().
+>
+> This can leave us in a situation where we have a throttled cfs_rq with
+> positive ->runtime_remaining, which breaks the math in
+> distribute_cfs_runtime(): this function expects a negative value so that
+> it may safely negate it into a positive value.
+>
+> Add the missing unthrottle_cfs_rq(). While at it, add a WARN_ON where
+> we expect negative values, and pull in a comment from the mailing list
+> that didn't make it in [1].
+>
+> [1]: https://lkml.kernel.org/r/BANLkTi=NmCxKX6EbDQcJYDJ5kKyG2N1ssw@mail.gmail.com
+>
+> Cc: <stable@vger.kernel.org>
+> Fixes: ec12cb7f31e2 ("sched: Accumulate per-cfs_rq cpu usage and charge against bandwidth")
+> Reported-by: Liangyan <liangyan.peng@linux.alibaba.com>
+> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.189-104-gfefc589434fc
-Git Commit: fefc589434fcd4cf95d9dc24271b21e7913ef6e4
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 54 unique boards, 21 SoC families, 15 builds out of 197
+Having now seen the rest of the thread:
 
-Boot Regressions Detected:
+Could you send the repro, as it doesn't seem to have reached lkml, so
+that I can confirm my guess as to what's going on?
 
-arm:
+It seems most likely we throttle during one of the remove-change-adds in
+set_cpus_allowed and friends or during the put half of pick_next_task
+followed by idle balance to drop the lock. Then distribute races with a
+later assign_cfs_rq_runtime so that the account finds runtime in the
+cfs_b.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
+Re clock_task, it's only frozen for the purposes of pelt, not delta_exec
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-drue: new failure (last pass: v4.9.189-105-g9c965ba1a288)
+The other possible way to fix this would be to skip assign if throttled,
+since the only time it could succeed is if we're racing with a
+distribute that will unthrottle use anyways.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
+The main advantage of that is the risk of screwy behavior due to unthrottling
+in the middle of pick_next/put_prev. The disadvantage is that we already
+have the lock, if it works we don't need an ipi to trigger a preempt,
+etc. (But I think one of the issues is that we may trigger the preempt
+on the previous task, not the next, and I'm not 100% sure that will
+carry over correctly)
 
-    socfpga_defconfig:
-        gcc-8:
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
 
-arm64:
 
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
-          juno-r2:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
-          meson-gxbb-odroidc2:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
-9-96-g4cd56b7fcd6f - first fail: v4.9.189-97-g6971d2d959e5)
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> ---
+>  kernel/sched/fair.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
+>
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index 1054d2cf6aaa..219ff3f328e5 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -4385,6 +4385,11 @@ static inline u64 cfs_rq_clock_task(struct cfs_rq *cfs_rq)
+>  	return rq_clock_task(rq_of(cfs_rq)) - cfs_rq->throttled_clock_task_time;
+>  }
+>  
+> +static inline int cfs_rq_throttled(struct cfs_rq *cfs_rq)
+> +{
+> +	return cfs_bandwidth_used() && cfs_rq->throttled;
+> +}
+> +
+>  /* returns 0 on failure to allocate runtime */
+>  static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+>  {
+> @@ -4411,6 +4416,9 @@ static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+>  
+>  	cfs_rq->runtime_remaining += amount;
+>  
+> +	if (cfs_rq->runtime_remaining > 0 && cfs_rq_throttled(cfs_rq))
+> +		unthrottle_cfs_rq(cfs_rq);
+> +
+>  	return cfs_rq->runtime_remaining > 0;
+>  }
+>  
+> @@ -4439,11 +4447,6 @@ void account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
+>  	__account_cfs_rq_runtime(cfs_rq, delta_exec);
+>  }
+>  
+> -static inline int cfs_rq_throttled(struct cfs_rq *cfs_rq)
+> -{
+> -	return cfs_bandwidth_used() && cfs_rq->throttled;
+> -}
+> -
+>  /* check whether cfs_rq, or any parent, is throttled */
+>  static inline int throttled_hierarchy(struct cfs_rq *cfs_rq)
+>  {
+> @@ -4628,6 +4631,10 @@ static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b, u64 remaining)
+>  		if (!cfs_rq_throttled(cfs_rq))
+>  			goto next;
+>  
+> +		/* By the above check, this should never be true */
+> +		WARN_ON(cfs_rq->runtime_remaining > 0);
+> +
+> +		/* Pick the minimum amount to return to a positive quota state */
+>  		runtime = -cfs_rq->runtime_remaining + 1;
+>  		if (runtime > remaining)
+>  			runtime = remaining;
