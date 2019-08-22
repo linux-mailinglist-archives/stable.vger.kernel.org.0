@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E01299CCB
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8D099C6C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392572AbfHVRhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:37:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
+        id S2392389AbfHVRdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404283AbfHVRYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:41 -0400
+        id S2404450AbfHVRZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:36 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D1C123407;
-        Thu, 22 Aug 2019 17:24:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3978C2341E;
+        Thu, 22 Aug 2019 17:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494680;
-        bh=da+FIGqymv0BJw686Xw4cpNKNezmZCzAbdkgFdjolxI=;
+        s=default; t=1566494735;
+        bh=8y6LThwS1iDw3wBEKn53hyWVhA31tU2OGD4DW8G0fX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uC5Z4AjjICzS1B+BTaieBsMOVqNPs8RtpE9/bLPDOtb2ASp22iUsY738w2n0geDmm
-         /MrjPw56Tkz6g4dunWZPR34HDxFe9eUqJSIObPFMa6xo+YXCcTaYIvwroxlsNR+jDA
-         5wA24RYORLbQaCdXgR6mEg0sR4c0epDuc2SwrYO4=
+        b=QTWLhetXD3/t3Bcwmf3YVzmOY7LZsc3twNT91e6WgufTu8OIoba9Phyz42+8TxTBU
+         ywf29F1UKTzCY1pCOBqo7+OQdTwAgSvpaisRF1rgs1ovBdVJMkqHSe5v+HwSRVaLQ8
+         fQtpDH6clemLAhGrdebIW6MsbmEFAiU0ZWEyIKB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/71] irqchip/irq-imx-gpcv2: Forward irq type to parent
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/85] clk: sprd: Select REGMAP_MMIO to avoid compile errors
 Date:   Thu, 22 Aug 2019 10:19:00 -0700
-Message-Id: <20190822171728.830100834@linuxfoundation.org>
+Message-Id: <20190822171732.337800878@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a446ef08f3bfc0c3deb9c6be840af2528ef8cf8 ]
+[ Upstream commit c9a67cbb5189e966c70451562b2ca4c3876ab546 ]
 
-The GPCv2 is a stacked IRQ controller below the ARM GIC. It doesn't
-care about the IRQ type itself, but needs to forward the type to the
-parent IRQ controller, so this one can be configured correctly.
+Make REGMAP_MMIO selected to avoid undefined reference to regmap symbols.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-imx-gpcv2.c | 1 +
+ drivers/clk/sprd/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-imx-gpcv2.c b/drivers/irqchip/irq-imx-gpcv2.c
-index 675eda5ff2b85..e4831491a3c49 100644
---- a/drivers/irqchip/irq-imx-gpcv2.c
-+++ b/drivers/irqchip/irq-imx-gpcv2.c
-@@ -145,6 +145,7 @@ static struct irq_chip gpcv2_irqchip_data_chip = {
- 	.irq_unmask		= imx_gpcv2_irq_unmask,
- 	.irq_set_wake		= imx_gpcv2_irq_set_wake,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
-+	.irq_set_type		= irq_chip_set_type_parent,
- #ifdef CONFIG_SMP
- 	.irq_set_affinity	= irq_chip_set_affinity_parent,
- #endif
+diff --git a/drivers/clk/sprd/Kconfig b/drivers/clk/sprd/Kconfig
+index 87892471eb96c..bad8099832d48 100644
+--- a/drivers/clk/sprd/Kconfig
++++ b/drivers/clk/sprd/Kconfig
+@@ -2,6 +2,7 @@ config SPRD_COMMON_CLK
+ 	tristate "Clock support for Spreadtrum SoCs"
+ 	depends on ARCH_SPRD || COMPILE_TEST
+ 	default ARCH_SPRD
++	select REGMAP_MMIO
+ 
+ if SPRD_COMMON_CLK
+ 
 -- 
 2.20.1
 
