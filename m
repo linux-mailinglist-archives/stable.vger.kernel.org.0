@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF4E99ACD
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A00399AC7
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388086AbfHVRPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
+        id S2390437AbfHVRIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390417AbfHVRIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:37 -0400
+        id S2390422AbfHVRIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:38 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D767723405;
-        Thu, 22 Aug 2019 17:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A58B2342A;
+        Thu, 22 Aug 2019 17:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493717;
-        bh=fc+CB2Ssrn59WPr6z/hOAw7WWXrO2WuzYj3CQEMvPIU=;
+        bh=v6CLPFTPD9bw6DudDkxxB588VZFuwJvTzq5aEVjbx3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fdg2oED7s9ErkhuGLE8mj/5sue9BAuNrtGIBKpc946feHbvhoBJDavsvc3bzvKQmm
-         c1xsvfDOlaUxkGlsZkbujwcvXpRBX+e0pIrZSo6YPGi2oUa3wORPH9bFlrc8wgwubB
-         Fchdz9iDBoUpXuee6c4nybkIOY5gwwiAL4oAO/Nw=
+        b=l2xr8I9aJZmL3RiVmd0mfaFU11Q1BsUI3U82hv3kXoraV7Ynijbe1pQUtQEa0M+fy
+         sOZd/SMgXph00gBOziYezCBhCH+3JZzj19+OhM5r9ePSaQSp0a5KRstRsAqJ0OcG+n
+         X9ImhLcJqGV9X2hELbTB0y+DiPKXQLDA20TXxtU4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean Delvare <jdelvare@suse.de>,
-        "Enrico Weigelt, metux IT consult" <info@metux.net>,
+Cc:     Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
         Darren Hart <dvhart@infradead.org>,
         Andy Shevchenko <andy@infradead.org>,
+        platform-driver-x86@vger.kernel.org,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 043/135] platform/x86: pcengines-apuv2: Fix softdep statement
-Date:   Thu, 22 Aug 2019 13:06:39 -0400
-Message-Id: <20190822170811.13303-44-sashal@kernel.org>
+Subject: [PATCH 5.2 044/135] platform/x86: intel_pmc_core: Add ICL-NNPI support to PMC Core
+Date:   Thu, 22 Aug 2019 13:06:40 -0400
+Message-Id: <20190822170811.13303-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -52,36 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
 
-[ Upstream commit edbfe83def34153a05439ecb3352ae0bb65024de ]
+[ Upstream commit 66013e8ec6850f9c62df6aea555fe7668e84dc3c ]
 
-Only first MODULE_SOFTDEP statement is handled per module.
-Multiple dependencies must be expressed in a single statement.
+Ice Lake Neural Network Processor for deep learning inference a.k.a.
+ICL-NNPI can re-use Ice Lake Mobile regmap to enable Intel PMC Core
+driver on it.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>
 Cc: Darren Hart <dvhart@infradead.org>
 Cc: Andy Shevchenko <andy@infradead.org>
-[andy: massaged commit message]
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lkml.org/lkml/2019/6/5/1034
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/pcengines-apuv2.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/platform/x86/intel_pmc_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/pcengines-apuv2.c b/drivers/platform/x86/pcengines-apuv2.c
-index c1ca931e1fab8..7a8cbfb5d2135 100644
---- a/drivers/platform/x86/pcengines-apuv2.c
-+++ b/drivers/platform/x86/pcengines-apuv2.c
-@@ -255,6 +255,4 @@ MODULE_DESCRIPTION("PC Engines APUv2/APUv3 board GPIO/LED/keys driver");
- MODULE_LICENSE("GPL");
- MODULE_DEVICE_TABLE(dmi, apu_gpio_dmi_table);
- MODULE_ALIAS("platform:pcengines-apuv2");
--MODULE_SOFTDEP("pre: platform:" AMD_FCH_GPIO_DRIVER_NAME);
--MODULE_SOFTDEP("pre: platform:leds-gpio");
--MODULE_SOFTDEP("pre: platform:gpio_keys_polled");
-+MODULE_SOFTDEP("pre: platform:" AMD_FCH_GPIO_DRIVER_NAME " platform:leds-gpio platform:gpio_keys_polled");
+diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
+index 1d902230ba611..be6cda89dcf5b 100644
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -815,6 +815,7 @@ static const struct x86_cpu_id intel_pmc_core_ids[] = {
+ 	INTEL_CPU_FAM6(KABYLAKE_DESKTOP, spt_reg_map),
+ 	INTEL_CPU_FAM6(CANNONLAKE_MOBILE, cnp_reg_map),
+ 	INTEL_CPU_FAM6(ICELAKE_MOBILE, icl_reg_map),
++	INTEL_CPU_FAM6(ICELAKE_NNPI, icl_reg_map),
+ 	{}
+ };
+ 
 -- 
 2.20.1
 
