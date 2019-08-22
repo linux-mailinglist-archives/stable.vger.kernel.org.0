@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 919E199DCD
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E46C999D1D
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392980AbfHVRpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42344 "EHLO mail.kernel.org"
+        id S2404150AbfHVRjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403809AbfHVRXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:04 -0400
+        id S2404127AbfHVRYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:14 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22C0123402;
-        Thu, 22 Aug 2019 17:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C22621743;
+        Thu, 22 Aug 2019 17:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494584;
-        bh=kPZgBqXK1ec+E6PhqpNX2CR9zt1hXQLy8RSEqu1PTYQ=;
+        s=default; t=1566494653;
+        bh=LDLY9fVEYlckPoMp5njUIgWaniUMPrNb/kq0sauyZjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMr2XEPF09rY4VbWcb7IozB0RCkRFR5e/RXbvXFbWy+Wyx1ZMF+bdxlwoIJ6SD8z8
-         StzRSVI9Xa8zxmxVvx2v8TRkGiMwIQ3T5uHv/G7HBQJRUbSYsO5FPx4e504WsWD7cE
-         QuAN8JoQBAJGqjkQzV4wf9ioTzil9jrXzE0hm3Ns=
+        b=j41uWBzadN21I5I16KNREowAS7qVBnIgPeGv5wDBnrGdv9fgY8mIFT3LXTfaFtfEq
+         nTtmfVaw2nCbJGCKpuo4r8jHHAJK3Z37T2ULl1roML0RDUAzEz3lvAaWHuhpwB+ClZ
+         HcK7FQLUyTBad9sSyJA/sCD0Mtc4Neux6cHG0eVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.4 77/78] sctp: fix the transport error_count check
-Date:   Thu, 22 Aug 2019 10:19:21 -0700
-Message-Id: <20190822171834.261598070@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Hui Wang <hui.wang@canonical.com>
+Subject: [PATCH 4.9 094/103] Input: psmouse - fix build error of multiple definition
+Date:   Thu, 22 Aug 2019 10:19:22 -0700
+Message-Id: <20190822171732.969248878@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit a1794de8b92ea6bc2037f445b296814ac826693e ]
+commit 49e6979e7e92cf496105b5636f1df0ac17c159c0 upstream.
 
-As the annotation says in sctp_do_8_2_transport_strike():
+trackpoint_detect() should be static inline while
+CONFIG_MOUSE_PS2_TRACKPOINT is not set, otherwise, we build fails:
 
-  "If the transport error count is greater than the pf_retrans
-   threshold, and less than pathmaxrtx ..."
+drivers/input/mouse/alps.o: In function `trackpoint_detect':
+alps.c:(.text+0x8e00): multiple definition of `trackpoint_detect'
+drivers/input/mouse/psmouse-base.o:psmouse-base.c:(.text+0x1b50): first defined here
 
-It should be transport->error_count checked with pathmaxrxt,
-instead of asoc->pf_retrans.
-
-Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 55e3d9224b60 ("Input: psmouse - allow disabing certain protocol extensions")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hui Wang <hui.wang@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/sm_sideeffect.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -504,7 +504,7 @@ static void sctp_do_8_2_transport_strike
- 	 * see SCTP Quick Failover Draft, section 5.1
- 	 */
- 	if ((transport->state == SCTP_ACTIVE) &&
--	   (asoc->pf_retrans < transport->pathmaxrxt) &&
-+	   (transport->error_count < transport->pathmaxrxt) &&
- 	   (transport->error_count > asoc->pf_retrans)) {
- 
- 		sctp_assoc_control_transport(asoc, transport,
+---
+ drivers/input/mouse/trackpoint.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -153,7 +153,8 @@ struct trackpoint_data
+ #ifdef CONFIG_MOUSE_PS2_TRACKPOINT
+ int trackpoint_detect(struct psmouse *psmouse, bool set_properties);
+ #else
+-inline int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
++static inline int trackpoint_detect(struct psmouse *psmouse,
++				    bool set_properties)
+ {
+ 	return -ENOSYS;
+ }
 
 
