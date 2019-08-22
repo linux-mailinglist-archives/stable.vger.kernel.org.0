@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6A799CBB
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA87A99C55
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404317AbfHVRYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46610 "EHLO mail.kernel.org"
+        id S2392293AbfHVRcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404311AbfHVRYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:44 -0400
+        id S2404472AbfHVRZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:40 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26E2F23426;
-        Thu, 22 Aug 2019 17:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F342341A;
+        Thu, 22 Aug 2019 17:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494684;
-        bh=Bs8dqzPgeMnC/DyyXQe3A2jAYl71NSYWfolTte+15Gk=;
+        s=default; t=1566494739;
+        bh=DEa2f5Kl4GaZdgsTftJx7On0Vljmvv4AXnwwTBOYOWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=no0ErYIHedf5D4IOl/slrHxEJtCCIWb80T6S/22I+HajTfeHnWQ7386o5yECD6u/+
-         OYX7rfjPEvUbT6vq6qq5xPqMKnnXxucNrnv+xYTATnOrenS9tQpz41sPsUPJHDliBD
-         7TPGXMiicrB1OobDEtA0mKONHRh3zSVrjgdFc4qE=
+        b=rSxhDAJvd68T9H59wUXYXTkPqE5mQvbbPbWhIXqXiDPbpHWjnT1402rtzzF3UZnYQ
+         9GtFPF3kCTKi+4KDQ3NkSTQVJgB8NvcN5Lbs3keFyURsP8V2nm8qU6UE1QfsvjqlIT
+         F77QqnWUTs4O+l4oosdIvL0tvKAVDmp6RUh1JOcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Scott Benesh <scott.benesh@microsemi.com>,
-        Kevin Barnett <kevin.barnett@microsemi.com>,
-        Don Brace <don.brace@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/71] scsi: hpsa: correct scsi command status issue after reset
+Subject: [PATCH 4.19 32/85] perf header: Fix divide by zero error if f_header.attr_size==0
 Date:   Thu, 22 Aug 2019 10:19:05 -0700
-Message-Id: <20190822171729.264126833@linuxfoundation.org>
+Message-Id: <20190822171732.744139636@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,57 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eeebce1862970653cdf5c01e98bc669edd8f529a ]
+[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+So I have been having lots of trouble with hand-crafted perf.data files
+causing segfaults and the like, so I have started fuzzing the perf tool.
+
+First issue found:
+
+If f_header.attr_size is 0 in the perf.data file, then perf will crash
+with a divide-by-zero error.
+
+Committer note:
+
+Added a pr_err() to tell the user why the command failed.
+
+Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ tools/perf/util/header.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 6d520e8945f73..3b892918d8219 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -2266,6 +2266,8 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
- 	case IOACCEL2_SERV_RESPONSE_COMPLETE:
- 		switch (c2->error_data.status) {
- 		case IOACCEL2_STATUS_SR_TASK_COMP_GOOD:
-+			if (cmd)
-+				cmd->result = 0;
- 			break;
- 		case IOACCEL2_STATUS_SR_TASK_COMP_CHK_COND:
- 			cmd->result |= SAM_STAT_CHECK_CONDITION;
-@@ -2425,8 +2427,10 @@ static void process_ioaccel2_completion(struct ctlr_info *h,
- 
- 	/* check for good status */
- 	if (likely(c2->error_data.serv_response == 0 &&
--			c2->error_data.status == 0))
-+			c2->error_data.status == 0)) {
-+		cmd->result = 0;
- 		return hpsa_cmd_free_and_done(h, c, cmd);
-+	}
- 
- 	/*
- 	 * Any RAID offload error results in retry which will use
-@@ -5494,6 +5498,12 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index a94bd6850a0b2..4a5e1907a7ab3 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3285,6 +3285,13 @@ int perf_session__read_header(struct perf_session *session)
+ 			   data->file.path);
  	}
- 	c = cmd_tagged_alloc(h, cmd);
  
-+	/*
-+	 * This is necessary because the SML doesn't zero out this field during
-+	 * error recovery.
-+	 */
-+	cmd->result = 0;
++	if (f_header.attr_size == 0) {
++		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
++		       "Was the 'perf record' command properly terminated?\n",
++		       data->file.path);
++		return -EINVAL;
++	}
 +
- 	/*
- 	 * Call alternate submit routine for I/O accelerated commands.
- 	 * Retries always go down the normal I/O path.
+ 	nr_attrs = f_header.attrs.size / f_header.attr_size;
+ 	lseek(fd, f_header.attrs.offset, SEEK_SET);
+ 
 -- 
 2.20.1
 
