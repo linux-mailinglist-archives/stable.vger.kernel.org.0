@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A001999D54
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B98399D6A
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392478AbfHVRlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
+        id S2391709AbfHVRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391756AbfHVRX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:56 -0400
+        id S2391343AbfHVRWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:45 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6834723402;
-        Thu, 22 Aug 2019 17:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDFD721743;
+        Thu, 22 Aug 2019 17:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494636;
-        bh=UQ8Ck8beOoAG5unTjjmxqkGlgJyFjjAtdvlh3GDzJVw=;
+        s=default; t=1566494565;
+        bh=nJyMM1t0uV8gdvWpzjioIKjwPDWu2tgojeBNJygO+HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOSa8ZXOvEkrGOmEftgmzdcBeM9FTPGD1GKRKl9hUGLsHm5lZaT1xh8uFUjlmODuj
-         gb57SKD8mqqI1ur1Y1Sf5KZw+m5LKrvKxnf1vCAImGly7RmxdiR+hhhnfhLa1L0sZH
-         jWlhE5emIxwo2bfZQ1jbGXHKyrtEinW9KcQx9L1c=
+        b=Bp9e3d6ph/Onk2SfhsDVskDEYFytEDh5fJ17IRwdbPtjfN+VB67ZtD6LpKFUswRaE
+         w4+qveA7FS1ehjyPnPm434Qc49nDMXOKnH6iyKfPDEOqPeagUDC0vIIthO9LU9UZUP
+         5Q5fCEAVf40RozNwATYXA5TA3X6Xk/nWuu1gO7iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/103] irqchip/irq-imx-gpcv2: Forward irq type to parent
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 53/78] ocfs2: remove set but not used variable last_hash
 Date:   Thu, 22 Aug 2019 10:18:57 -0700
-Message-Id: <20190822171731.657020191@linuxfoundation.org>
+Message-Id: <20190822171833.576608679@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a446ef08f3bfc0c3deb9c6be840af2528ef8cf8 ]
+[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
 
-The GPCv2 is a stacked IRQ controller below the ARM GIC. It doesn't
-care about the IRQ type itself, but needs to forward the type to the
-parent IRQ controller, so this one can be configured correctly.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
+  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
+
+It's never used and can be removed.
+
+Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-imx-gpcv2.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ocfs2/xattr.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/irqchip/irq-imx-gpcv2.c b/drivers/irqchip/irq-imx-gpcv2.c
-index 2d203b422129e..c56da0b13da5d 100644
---- a/drivers/irqchip/irq-imx-gpcv2.c
-+++ b/drivers/irqchip/irq-imx-gpcv2.c
-@@ -145,6 +145,7 @@ static struct irq_chip gpcv2_irqchip_data_chip = {
- 	.irq_unmask		= imx_gpcv2_irq_unmask,
- 	.irq_set_wake		= imx_gpcv2_irq_set_wake,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
-+	.irq_set_type		= irq_chip_set_type_parent,
- #ifdef CONFIG_SMP
- 	.irq_set_affinity	= irq_chip_set_affinity_parent,
- #endif
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 4f0788232f2f9..06faa608e5622 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -3808,7 +3808,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
+ 	int low_bucket = 0, bucket, high_bucket;
+ 	struct ocfs2_xattr_bucket *search;
+-	u32 last_hash;
+ 	u64 blkno, lower_blkno = 0;
+ 
+ 	search = ocfs2_xattr_bucket_new(inode);
+@@ -3852,8 +3851,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 		if (xh->xh_count)
+ 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
+ 
+-		last_hash = le32_to_cpu(xe->xe_name_hash);
+-
+ 		/* record lower_blkno which may be the insert place. */
+ 		lower_blkno = blkno;
+ 
 -- 
 2.20.1
 
