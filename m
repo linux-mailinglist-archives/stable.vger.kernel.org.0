@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9B499B88
+	by mail.lfdr.de (Postfix) with ESMTP id 7B92899B89
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404441AbfHVRZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
+        id S2391500AbfHVRZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404434AbfHVRZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:28 -0400
+        id S2404445AbfHVRZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:30 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D685723400;
-        Thu, 22 Aug 2019 17:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17B3423400;
+        Thu, 22 Aug 2019 17:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494728;
-        bh=6fU+9PuammxkfJEvmn0ipo4sM2/Oi5xnKuBsX/DqtLI=;
+        s=default; t=1566494730;
+        bh=RwIlGsY5UpAFUdjUsjZdVdMjzCqIzdQG2xcWQDnjdI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGJCFRiVGia2LFi6c06JndezKJkr3da6KfQCV8j0tEpGuXcK85dtuiS3l2+dt2FJy
-         1H0elRxPWQ98VFZTU+aulT6X2OvcaC169RzlzwIbvTdikGcwtKoXOnJBTRzRIyBTNj
-         S7ZplhWk/STWKfXkc0ikXKNs4lERSpIpqQMncQhE=
+        b=2U0QtRAzHnyEUPh+Z7G+bgy38xXKmLQiKmjPAg/j/pOgwT9Ih8csq/1xdFkZIDroe
+         ngbiTaF20u1rkR8V2IAIb9qAiBGEmHMvSqxz2EO15iTwQDq6l/r0dplgE7Ytv9VWRw
+         ClaIbluVmncLTlYs+WLDrC8b95UbPwOA/kRa4Aa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+965152643a75a56737be@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>, Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 18/85] HID: holtek: test for sanity of intfdata
-Date:   Thu, 22 Aug 2019 10:18:51 -0700
-Message-Id: <20190822171731.920793574@linuxfoundation.org>
+        syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Hillf Danton <hdanton@sina.com>, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 20/85] HID: hiddev: do cleanup in failure of opening a device
+Date:   Thu, 22 Aug 2019 10:18:53 -0700
+Message-Id: <20190822171732.018807591@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
 References: <20190822171731.012687054@linuxfoundation.org>
@@ -44,42 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Hillf Danton <hdanton@sina.com>
 
-commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 upstream.
+commit 6d4472d7bec39917b54e4e80245784ea5d60ce49 upstream.
 
-The ioctl handler uses the intfdata of a second interface,
-which may not be present in a broken or malicious device, hence
-the intfdata needs to be checked for NULL.
+Undo what we did for opening before releasing the memory slice.
 
-[jkosina@suse.cz: fix newly added spurious space]
-Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-holtek-kbd.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/hid/usbhid/hiddev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/hid/hid-holtek-kbd.c
-+++ b/drivers/hid/hid-holtek-kbd.c
-@@ -126,9 +126,14 @@ static int holtek_kbd_input_event(struct
- 
- 	/* Locate the boot interface, to receive the LED change events */
- 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
-+	struct hid_device *boot_hid;
-+	struct hid_input *boot_hid_input;
- 
--	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
--	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
-+	if (unlikely(boot_interface == NULL))
-+		return -ENODEV;
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -321,6 +321,10 @@ bail_normal_power:
+ 	hid_hw_power(hid, PM_HINT_NORMAL);
+ bail_unlock:
+ 	mutex_unlock(&hiddev->existancelock);
 +
-+	boot_hid = usb_get_intfdata(boot_interface);
-+	boot_hid_input = list_first_entry(&boot_hid->inputs,
- 		struct hid_input, list);
- 
- 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
++	spin_lock_irq(&list->hiddev->list_lock);
++	list_del(&list->node);
++	spin_unlock_irq(&list->hiddev->list_lock);
+ bail:
+ 	file->private_data = NULL;
+ 	vfree(list);
 
 
