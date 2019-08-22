@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C966499E06
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0341D99D6E
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393172AbfHVRrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:47:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
+        id S2405201AbfHVRma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391398AbfHVRWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:37 -0400
+        id S2404002AbfHVRXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:47 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29FA821743;
-        Thu, 22 Aug 2019 17:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74E3A23427;
+        Thu, 22 Aug 2019 17:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494556;
-        bh=8YuwYjJzQhn4cLB3olIy40BOVZ1hEpJxinnUGLJp2HQ=;
+        s=default; t=1566494627;
+        bh=us8t8FZaxlpy3EoUzjVp7bS/5o23Op4UE1+ikVze0I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1E+AQJ0k2IyYr1tCs7wnqeH997bF5HjENWAgOPVB8KuDbJP6wkL+k/fzeiIAjW8o
-         2H5ri93DWiAIN2KjfeQ/ztnXOokHEFrO+KmaGmnWpvqcKeRoidXMlPPZBfu3Y1w9+4
-         diohf2HjbeB9Pgd4cXGczblwIpegFImpWQcppmjw=
+        b=cpjLeacJXQ9dGCejCPUq2C9oRx7m7a+3i9isYKTNZbRmXPe0I5dReudhC2RvHkb7v
+         DDWj/wvtmSkrdhFOKNhr87U2emASRmf5oP3u8cp+94Qdzb5iTMyoTwB4Z/V71hFZ8G
+         yFEhIQLCi5gFIKUiq84BTe+4j3id1UofqkMHvcdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 42/78] Input: iforce - add sanity checks
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.9 058/103] xtensa: add missing isync to the cpu_reset TLB code
 Date:   Thu, 22 Aug 2019 10:18:46 -0700
-Message-Id: <20190822171833.259340360@linuxfoundation.org>
+Message-Id: <20190822171731.137216556@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 849f5ae3a513c550cad741c68dd3d7eb2bcc2a2c upstream.
+commit cd8869f4cb257f22b89495ca40f5281e58ba359c upstream.
 
-The endpoint type should also be checked before a device
-is accepted.
+ITLB entry modifications must be followed by the isync instruction
+before the new entries are possibly used. cpu_reset lacks one isync
+between ITLB way 6 initialization and jump to the identity mapping.
+Add missing isync to xtensa cpu_reset.
 
-Reported-by: syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/joystick/iforce/iforce-usb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/xtensa/kernel/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -145,7 +145,12 @@ static int iforce_usb_probe(struct usb_i
- 		return -ENODEV;
- 
- 	epirq = &interface->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(epirq))
-+		return -ENODEV;
-+
- 	epout = &interface->endpoint[1].desc;
-+	if (!usb_endpoint_is_int_out(epout))
-+		return -ENODEV;
- 
- 	if (!(iforce = kzalloc(sizeof(struct iforce) + 32, GFP_KERNEL)))
- 		goto fail;
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -626,6 +626,7 @@ void cpu_reset(void)
+ 				      "add	%2, %2, %7\n\t"
+ 				      "addi	%0, %0, -1\n\t"
+ 				      "bnez	%0, 1b\n\t"
++				      "isync\n\t"
+ 				      /* Jump to identity mapping */
+ 				      "jx	%3\n"
+ 				      "2:\n\t"
 
 
