@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F4799B35
+	by mail.lfdr.de (Postfix) with ESMTP id 98DB399B36
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391418AbfHVRWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41070 "EHLO mail.kernel.org"
+        id S2388431AbfHVRWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:22:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391408AbfHVRWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:38 -0400
+        id S2391343AbfHVRWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:40 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB41223406;
-        Thu, 22 Aug 2019 17:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2568F233FD;
+        Thu, 22 Aug 2019 17:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494557;
-        bh=Hx/oTr1LiKPxSvknHAXUYWhatBWqSa8VofgNXmS2oX8=;
+        s=default; t=1566494559;
+        bh=LCYHX6/+MmhDWR7YgKpX0H0dBEI3H2iLTyfTGTr/wEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRPVii60cRiQci+D4Tv2JtMXv3P/x2EXvC5gMD1UBhmkqGIZ3LbU5/+ta5G1zaamm
-         DI7Y2YLJfLxjnV9dlECVxThIq063LB8MaMF2CTs1auS1XpY55PX+Abw59EuDKppvFQ
-         6g2DzrbCnyfZ2zCfV+Ifjcmcv1ZJ54FzYZxRR9uQ=
+        b=YBImv9/TAPTy7nwAFfZVBrT3A1PDQbF7CNCIvw6Rx1xpE5RFcjKumjSkMH9OgyPuP
+         z8jctPUdbBo5Y2lD2hu+q4s83TmN52quytbtIxJubcG1li17mtnIxQPlYGNKPy7s/1
+         3JmJ7zJ8RyGFMfNhSI4Z4Qub11irfcz6TrwnQarM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
-        Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 43/78] net: usb: pegasus: fix improper read if get_registers() fail
-Date:   Thu, 22 Aug 2019 10:18:47 -0700
-Message-Id: <20190822171833.287668797@linuxfoundation.org>
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 46/78] perf header: Fix divide by zero error if f_header.attr_size==0
+Date:   Thu, 22 Aug 2019 10:18:50 -0700
+Message-Id: <20190822171833.373316491@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
 References: <20190822171832.012773482@linuxfoundation.org>
@@ -45,32 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kirjanov <kda@linux-powerpc.org>
+[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
 
-commit 224c04973db1125fcebefffd86115f99f50f8277 upstream.
+So I have been having lots of trouble with hand-crafted perf.data files
+causing segfaults and the like, so I have started fuzzing the perf tool.
 
-get_registers() may fail with -ENOMEM and in this
-case we can read a garbage from the status variable tmp.
+First issue found:
 
-Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
-Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If f_header.attr_size is 0 in the perf.data file, then perf will crash
+with a divide-by-zero error.
 
+Committer note:
+
+Added a pr_err() to tell the user why the command failed.
+
+Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/pegasus.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/header.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -285,7 +285,7 @@ static void mdio_write(struct net_device
- static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
- {
- 	int i;
--	__u8 tmp;
-+	__u8 tmp = 0;
- 	__le16 retdatai;
- 	int ret;
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 304f5d7101436..0102dd46fb6da 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2591,6 +2591,13 @@ int perf_session__read_header(struct perf_session *session)
+ 			   file->path);
+ 	}
  
++	if (f_header.attr_size == 0) {
++		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
++		       "Was the 'perf record' command properly terminated?\n",
++		       file->path);
++		return -EINVAL;
++	}
++
+ 	nr_attrs = f_header.attrs.size / f_header.attr_size;
+ 	lseek(fd, f_header.attrs.offset, SEEK_SET);
+ 
+-- 
+2.20.1
+
 
 
