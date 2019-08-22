@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5874999B62
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3901199B83
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404147AbfHVRYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:24:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
+        id S2404389AbfHVRZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404135AbfHVRYQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:16 -0400
+        id S2404376AbfHVRZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:20 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0357D2341D;
-        Thu, 22 Aug 2019 17:24:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC64F2064A;
+        Thu, 22 Aug 2019 17:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494655;
-        bh=bW1g/fBVXLbz31tBrsOcMvh5V2C7AsoLRIxH3c0QeLM=;
+        s=default; t=1566494719;
+        bh=sihiTipHc8/WKfVhvkAVkcyT3aK0UieUNF3eUbU5xMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vf12lv+wzJYB53pfD/7r/MJ7It6GNyE5xaX5yXS5SAFNG6QC45J4VIXB1tbvms+9w
-         eZleEFbzH2xBDv0k/VAAwtTqfv7w6JFgxq42IEyPW345xOgq4tXlEYB5c5OqR034kF
-         AMHJctCcvuI09C3VOX556eP+YE0VMYuG7eOBl0EQ=
+        b=miEsIWqVoUi+zmG7J2ZDcXJgQE47voPLiLAsHUlq2pj3Pf4MqduXicF5GPxESOeGa
+         DdTU7InFy3GiYZ+ujvFZo62gp5rbSZd0dSBF+mwGNvHhQ+81ixxqCN9zPjZFenVvIo
+         nhhPUeeBPX2wBtHlBrsmMyyxfDPUTUbyBs3qeB2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Sudarsana Kalluru <skalluru@marvell.com>,
-        Shahed Shaikh <shshaikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 096/103] bnx2x: Fix VFs VLAN reconfiguration in reload.
+        stable@vger.kernel.org,
+        syzbot+45a53506b65321c1fe91@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.14 49/71] USB: CDC: fix sanity checks in CDC union parser
 Date:   Thu, 22 Aug 2019 10:19:24 -0700
-Message-Id: <20190822171733.044363085@linuxfoundation.org>
+Message-Id: <20190822171729.971517249@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 4a4d2d372fb9b9229327e2ed01d5d9572eddf4de ]
+commit 54364278fb3cabdea51d6398b07c87415065b3fc upstream.
 
-Commit 04f05230c5c13 ("bnx2x: Remove configured vlans as
-part of unload sequence."), introduced a regression in driver
-that as a part of VF's reload flow, VLANs created on the VF
-doesn't get re-configured in hardware as vlan metadata/info
-was not getting cleared for the VFs which causes vlan PING to stop.
+A few checks checked for the size of the pointer to a structure
+instead of the structure itself. Copy & paste issue presumably.
 
-This patch clears the vlan metadata/info so that VLANs gets
-re-configured back in the hardware in VF's reload flow and
-PING/traffic continues for VLANs created over the VFs.
-
-Fixes: 04f05230c5c13 ("bnx2x: Remove configured vlans as part of unload sequence.")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
-Signed-off-by: Shahed Shaikh <shshaikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e4c6fb7794982 ("usbnet: move the CDC parser into USB core")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+45a53506b65321c1fe91@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20190813093541.18889-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c  |    7 ++++---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h  |    2 ++
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c |   17 ++++++++++++-----
- 3 files changed, 18 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -3062,12 +3062,13 @@ int bnx2x_nic_unload(struct bnx2x *bp, i
- 	/* if VF indicate to PF this function is going down (PF will delete sp
- 	 * elements and clear initializations
- 	 */
--	if (IS_VF(bp))
-+	if (IS_VF(bp)) {
-+		bnx2x_clear_vlan_info(bp);
- 		bnx2x_vfpf_close_vf(bp);
--	else if (unload_mode != UNLOAD_RECOVERY)
-+	} else if (unload_mode != UNLOAD_RECOVERY) {
- 		/* if this is a normal/close unload need to clean up chip*/
- 		bnx2x_chip_cleanup(bp, unload_mode, keep_link);
--	else {
-+	} else {
- 		/* Send the UNLOAD_REQUEST to the MCP */
- 		bnx2x_send_unload_req(bp, unload_mode);
- 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-@@ -425,6 +425,8 @@ void bnx2x_set_reset_global(struct bnx2x
- void bnx2x_disable_close_the_gate(struct bnx2x *bp);
- int bnx2x_init_hw_func_cnic(struct bnx2x *bp);
- 
-+void bnx2x_clear_vlan_info(struct bnx2x *bp);
-+
- /**
-  * bnx2x_sp_event - handle ramrods completion.
-  *
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-@@ -8488,11 +8488,21 @@ int bnx2x_set_vlan_one(struct bnx2x *bp,
- 	return rc;
- }
- 
-+void bnx2x_clear_vlan_info(struct bnx2x *bp)
-+{
-+	struct bnx2x_vlan_entry *vlan;
-+
-+	/* Mark that hw forgot all entries */
-+	list_for_each_entry(vlan, &bp->vlan_reg, link)
-+		vlan->hw = false;
-+
-+	bp->vlan_cnt = 0;
-+}
-+
- static int bnx2x_del_all_vlans(struct bnx2x *bp)
- {
- 	struct bnx2x_vlan_mac_obj *vlan_obj = &bp->sp_objs[0].vlan_obj;
- 	unsigned long ramrod_flags = 0, vlan_flags = 0;
--	struct bnx2x_vlan_entry *vlan;
- 	int rc;
- 
- 	__set_bit(RAMROD_COMP_WAIT, &ramrod_flags);
-@@ -8501,10 +8511,7 @@ static int bnx2x_del_all_vlans(struct bn
- 	if (rc)
- 		return rc;
- 
--	/* Mark that hw forgot all entries */
--	list_for_each_entry(vlan, &bp->vlan_reg, link)
--		vlan->hw = false;
--	bp->vlan_cnt = 0;
-+	bnx2x_clear_vlan_info(bp);
- 
- 	return 0;
- }
+---
+ drivers/usb/core/message.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -2143,14 +2143,14 @@ int cdc_parse_cdc_header(struct usb_cdc_
+ 				(struct usb_cdc_dmm_desc *)buffer;
+ 			break;
+ 		case USB_CDC_MDLM_TYPE:
+-			if (elength < sizeof(struct usb_cdc_mdlm_desc *))
++			if (elength < sizeof(struct usb_cdc_mdlm_desc))
+ 				goto next_desc;
+ 			if (desc)
+ 				return -EINVAL;
+ 			desc = (struct usb_cdc_mdlm_desc *)buffer;
+ 			break;
+ 		case USB_CDC_MDLM_DETAIL_TYPE:
+-			if (elength < sizeof(struct usb_cdc_mdlm_detail_desc *))
++			if (elength < sizeof(struct usb_cdc_mdlm_detail_desc))
+ 				goto next_desc;
+ 			if (detail)
+ 				return -EINVAL;
 
 
