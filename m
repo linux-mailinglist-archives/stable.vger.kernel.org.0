@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 238CD99482
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 15:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D29F9948C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 15:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388895AbfHVNI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 09:08:58 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:35489 "EHLO ozlabs.org"
+        id S1731102AbfHVNJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 09:09:16 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:47091 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388893AbfHVNI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 09:08:57 -0400
+        id S2388972AbfHVNJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 09:09:15 -0400
 Received: by ozlabs.org (Postfix, from userid 1034)
-        id 46DlGb4DCwz9sP6; Thu, 22 Aug 2019 23:08:55 +1000 (AEST)
+        id 46DlGw6ltlz9sPg; Thu, 22 Aug 2019 23:09:12 +1000 (AEST)
 X-powerpc-patch-notification: thanks
-X-powerpc-patch-commit: 56090a3902c80c296e822d11acdb6a101b322c52
-In-Reply-To: <20190718051139.74787-2-aik@ozlabs.ru>
-To:     Alexey Kardashevskiy <aik@ozlabs.ru>, linuxppc-dev@lists.ozlabs.org
+X-powerpc-patch-commit: b5bda6263cad9a927e1a4edb7493d542da0c1410
+In-Reply-To: <20190820081352.8641-2-santosh@fossix.org>
+To:     Santosh Sivaraj <santosh@fossix.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
 From:   Michael Ellerman <patch-notifications@ellerman.id.au>
-Cc:     Sam Bobroff <sbobroff@linux.ibm.com>,
-        Alistair Popple <alistair@popple.id.au>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH kernel v5 1/4] powerpc/powernv/ioda: Fix race in TCE level allocation
-Message-Id: <46DlGb4DCwz9sP6@ozlabs.org>
-Date:   Thu, 22 Aug 2019 23:08:55 +1000 (AEST)
+Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
+        Chandan Rajendra <chandan@linux.ibm.com>,
+        stable@vger.kernel.org, Reza Arbab <arbab@linux.ibm.com>
+Subject: Re: [PATCH v11 1/7] powerpc/mce: Schedule work from irq_work
+Message-Id: <46DlGw6ltlz9sPg@ozlabs.org>
+Date:   Thu, 22 Aug 2019 23:09:12 +1000 (AEST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2019-07-18 at 05:11:36 UTC, Alexey Kardashevskiy wrote:
-> pnv_tce() returns a pointer to a TCE entry and originally a TCE table
-> would be pre-allocated. For the default case of 2GB window the table
-> needs only a single level and that is fine. However if more levels are
-> requested, it is possible to get a race when 2 threads want a pointer
-> to a TCE entry from the same page of TCEs.
+On Tue, 2019-08-20 at 08:13:46 UTC, Santosh Sivaraj wrote:
+> schedule_work() cannot be called from MCE exception context as MCE can
+> interrupt even in interrupt disabled context.
 > 
-> This adds cmpxchg to handle the race. Note that once TCE is non-zero,
-> it cannot become zero again.
-> 
-> CC: stable@vger.kernel.org # v4.19+
-> Fixes: a68bd1267b72 ("powerpc/powernv/ioda: Allocate indirect TCE levels on demand")
-> Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+> fixes: 733e4a4c ("powerpc/mce: hookup memory_failure for UE errors")
+> Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+> Acked-by: Balbir Singh <bsingharora@gmail.com>
+> Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
+> Cc: stable@vger.kernel.org # v4.15+
 
 Series applied to powerpc next, thanks.
 
-https://git.kernel.org/powerpc/c/56090a3902c80c296e822d11acdb6a101b322c52
+https://git.kernel.org/powerpc/c/b5bda6263cad9a927e1a4edb7493d542da0c1410
 
 cheers
