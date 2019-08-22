@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C5399D82
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0620899D83
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405462AbfHVRnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403996AbfHVRnH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Aug 2019 13:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43532 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391494AbfHVRXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:31 -0400
+        id S2391504AbfHVRXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:33 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15DEC23406;
+        by mail.kernel.org (Postfix) with ESMTPSA id BF5062341A;
         Thu, 22 Aug 2019 17:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566494611;
-        bh=b0aCbWO7BBEEMuz1CaPk9B3H8UIz8O29Qy3+OQF4CpQ=;
+        bh=JZ6Sf3a+pIFF1SIbjHDeFrhCvQM0pZiPYq1z2S42460=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6IszvUtBpUttICxscWBQVkgFgA2y6oBNTI7nx1rahS7YfYkBJJ5REevAKX84JMLQ
-         mAGu7rL8I0t46EPvpP6FBAMR5lDPJj/Bqwg2FzJriaEk0ikvigbEMLGfEvdBrxRWDM
-         fW6PWd1STsz+rDIu7+IN8mdfanOmOk7W0z0b72CQ=
+        b=kHfsy0GvaRnJpJsJ6jnp7PmJZn9tYyf/zgRvj9bNwZoGb1TI1ilmSfRC+Rbh5RhlL
+         9woUkH+0H9cwR16ubPznSfw6kpezKcUi6KZ9Dp2gV3yaCZ095TDWxvk9Pc9NkUDCbI
+         rBFDaZ8TZdAoKTEP+faSB2KNjKUCPwP2QmMvEPgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 4.9 005/103] x86/mm: Sync also unmappings in vmalloc_sync_all()
-Date:   Thu, 22 Aug 2019 10:17:53 -0700
-Message-Id: <20190822171728.829608283@linuxfoundation.org>
+Subject: [PATCH 4.9 006/103] mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()
+Date:   Thu, 22 Aug 2019 10:17:54 -0700
+Message-Id: <20190822171728.887859917@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
 References: <20190822171728.445189830@linuxfoundation.org>
@@ -46,63 +46,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-commit 8e998fc24de47c55b47a887f6c95ab91acd4a720 upstream.
+commit 3f8fd02b1bf1d7ba964485a56f2f4b53ae88c167 upstream.
 
-With huge-page ioremap areas the unmappings also need to be synced between
-all page-tables. Otherwise it can cause data corruption when a region is
-unmapped and later re-used.
+On x86-32 with PTI enabled, parts of the kernel page-tables are not shared
+between processes. This can cause mappings in the vmalloc/ioremap area to
+persist in some page-tables after the region is unmapped and released.
 
-Make the vmalloc_sync_one() function ready to sync unmappings and make sure
-vmalloc_sync_all() iterates over all page-tables even when an unmapped PMD
-is found.
+When the region is re-used the processes with the old mappings do not fault
+in the new mappings but still access the old ones.
+
+This causes undefined behavior, in reality often data corruption, kernel
+oopses and panics and even spontaneous reboots.
+
+Fix this problem by activly syncing unmaps in the vmalloc/ioremap area to
+all page-tables in the system before the regions can be re-used.
 
 Fixes: 5d72b4fba40ef ('x86, mm: support huge I/O mapping capability I/F')
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20190719184652.11391-3-joro@8bytes.org
+Link: https://lkml.kernel.org/r/20190719184652.11391-4-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/fault.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ mm/vmalloc.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -273,11 +273,12 @@ static inline pmd_t *vmalloc_sync_one(pg
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1708,6 +1708,12 @@ void *__vmalloc_node_range(unsigned long
+ 		return NULL;
  
- 	pmd = pmd_offset(pud, address);
- 	pmd_k = pmd_offset(pud_k, address);
--	if (!pmd_present(*pmd_k))
--		return NULL;
- 
--	if (!pmd_present(*pmd))
-+	if (pmd_present(*pmd) != pmd_present(*pmd_k))
- 		set_pmd(pmd, *pmd_k);
+ 	/*
++	 * First make sure the mappings are removed from all page-tables
++	 * before they are freed.
++	 */
++	vmalloc_sync_all();
 +
-+	if (!pmd_present(*pmd_k))
-+		return NULL;
- 	else
- 		BUG_ON(pmd_pfn(*pmd) != pmd_pfn(*pmd_k));
- 
-@@ -299,17 +300,13 @@ void vmalloc_sync_all(void)
- 		spin_lock(&pgd_lock);
- 		list_for_each_entry(page, &pgd_list, lru) {
- 			spinlock_t *pgt_lock;
--			pmd_t *ret;
- 
- 			/* the pgt_lock only for Xen */
- 			pgt_lock = &pgd_page_get_mm(page)->page_table_lock;
- 
- 			spin_lock(pgt_lock);
--			ret = vmalloc_sync_one(page_address(page), address);
-+			vmalloc_sync_one(page_address(page), address);
- 			spin_unlock(pgt_lock);
--
--			if (!ret)
--				break;
- 		}
- 		spin_unlock(&pgd_lock);
- 	}
++	/*
+ 	 * In this function, newly allocated vm_struct has VM_UNINITIALIZED
+ 	 * flag. It means that vm_struct is not fully initialized.
+ 	 * Now, it is fully initialized, so remove this flag here.
+@@ -2243,6 +2249,9 @@ EXPORT_SYMBOL(remap_vmalloc_range);
+ /*
+  * Implement a stub for vmalloc_sync_all() if the architecture chose not to
+  * have one.
++ *
++ * The purpose of this function is to make sure the vmalloc area
++ * mappings are identical in all page-tables in the system.
+  */
+ void __weak vmalloc_sync_all(void)
+ {
 
 
