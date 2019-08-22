@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B1D99AF7
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9898499AFB
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390303AbfHVRIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:08:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57922 "EHLO mail.kernel.org"
+        id S1731560AbfHVRRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390293AbfHVRIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:24 -0400
+        id S2390308AbfHVRIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:25 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22D2123426;
-        Thu, 22 Aug 2019 17:08:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 614872341D;
+        Thu, 22 Aug 2019 17:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493702;
-        bh=0LTmTNwpvJLRBvXUOxICpyUtLuayTAWdXmzMpq08Kmo=;
+        s=default; t=1566493704;
+        bh=xXQt8UGofUcuwu2F6gVS6aa86ztULV+z4Wq+Gjv1c0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8gfdprQfxpC0d1dVvYYlw6E/656L6jlUXkKhCCspBxSI8JOb2Yj/VHe5g+FSOn+4
-         OnayP2hAhcJZRpP6omKmsxW2TP54kxX4KJDLC9MFrlMKEO3rpW7nrq4WzA5diwN/JT
-         E+pVr3BhnPrcb68h6qGRxLwgfY+BozoOM0IrtQmo=
+        b=YTFmOhqKy6jCmTOAgjPPKHbmA7mhNUMzQQuLz93raEeoDXVL5qAPAL6TfMdc2RtZZ
+         704vshF38/qvispwpkT/EjQVGXrG0QleuM4kZVcMy2U0IB1Rhx8pK+llZU0TR/P5k2
+         ihPHbpYbs5jnVaA923to5ZMB+5XvJ8XVaqn8yUSE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>, Bohdan Milar <bmilar@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        David Airlie <airlied@redhat.com>,
-        Jerry Zuo <Jerry.Zuo@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Juston Li <juston.li@intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Karol Herbst <karolherbst@gmail.com>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
+Cc:     Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 014/135] drm/nouveau: Only recalculate PBN/VCPI on mode/connector changes
-Date:   Thu, 22 Aug 2019 13:06:10 -0400
-Message-Id: <20190822170811.13303-15-sashal@kernel.org>
+Subject: [PATCH 5.2 018/135] ALSA: usb-audio: Fix a stack buffer overflow bug in check_input_term
+Date:   Thu, 22 Aug 2019 13:06:14 -0400
+Message-Id: <20190822170811.13303-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.10-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.2.y
@@ -58,96 +50,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Hui Peng <benquike@gmail.com>
 
-commit db1231ddc04682f60d56ff42447f13099c6c4a4c upstream.
+commit 19bce474c45be69a284ecee660aa12d8f1e88f18 upstream.
 
-I -thought- I had fixed this entirely, but it looks like that I didn't
-test this thoroughly enough as we apparently still make one big mistake
-with nv50_msto_atomic_check() - we don't handle the following scenario:
+`check_input_term` recursively calls itself with input from
+device side (e.g., uac_input_terminal_descriptor.bCSourceID)
+as argument (id). In `check_input_term`, if `check_input_term`
+is called with the same `id` argument as the caller, it triggers
+endless recursive call, resulting kernel space stack overflow.
 
-* CRTC #1 has n VCPI allocated to it, is attached to connector DP-4
-  which is attached to encoder #1. enabled=y active=n
-* CRTC #1 is changed from DP-4 to DP-5, causing:
-  * DP-4 crtc=#1→NULL (VCPI n→0)
-  * DP-5 crtc=NULL→#1
-  * CRTC #1 steals encoder #1 back from DP-4 and gives it to DP-5
-  * CRTC #1 maintains the same mode as before, just with a different
-    connector
-* mode_changed=n connectors_changed=y
-  (we _SHOULD_ do VCPI 0→n here, but don't)
+This patch fixes the bug by adding a bitmap to `struct mixer_build`
+to keep track of the checked ids and stop the execution if some id
+has been checked (similar to how parse_audio_unit handles unitid
+argument).
 
-Once the above scenario is repeated once, we'll attempt freeing VCPI
-from the connector that we didn't allocate due to the connectors
-changing, but the mode staying the same. Sigh.
-
-Since nv50_msto_atomic_check() has broken a few times now, let's rethink
-things a bit to be more careful: limit both VCPI/PBN allocations to
-mode_changed || connectors_changed, since neither VCPI or PBN should
-ever need to change outside of routing and mode changes.
-
-Changes since v1:
-* Fix accidental reversal of clock and bpp arguments in
-  drm_dp_calc_pbn_mode() - William Lewis
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reported-by: Bohdan Milar <bmilar@redhat.com>
-Tested-by: Bohdan Milar <bmilar@redhat.com>
-Fixes: 232c9eec417a ("drm/nouveau: Use atomic VCPI helpers for MST")
-References: 412e85b60531 ("drm/nouveau: Only release VCPI slots on mode changes")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Airlie <airlied@redhat.com>
-Cc: Jerry Zuo <Jerry.Zuo@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Juston Li <juston.li@intel.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Karol Herbst <karolherbst@gmail.com>
-Cc: Ilia Mirkin <imirkin@alum.mit.edu>
-Cc: <stable@vger.kernel.org> # v5.1+
-Acked-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190809005307.18391-1-lyude@redhat.com
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Signed-off-by: Hui Peng <benquike@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ sound/usb/mixer.c | 35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index 847b7866137dd..bdaf5ffd25045 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -766,16 +766,20 @@ nv50_msto_atomic_check(struct drm_encoder *encoder,
- 	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
- 	int slots;
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 7498b5191b68e..2051a64fa2904 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -68,6 +68,7 @@ struct mixer_build {
+ 	unsigned char *buffer;
+ 	unsigned int buflen;
+ 	DECLARE_BITMAP(unitbitmap, MAX_ID_ELEMS);
++	DECLARE_BITMAP(termbitmap, MAX_ID_ELEMS);
+ 	struct usb_audio_term oterm;
+ 	const struct usbmix_name_map *map;
+ 	const struct usbmix_selector_map *selector_map;
+@@ -773,16 +774,25 @@ static int uac_mixer_unit_get_channels(struct mixer_build *state,
+  * parse the source unit recursively until it reaches to a terminal
+  * or a branched unit.
+  */
+-static int check_input_term(struct mixer_build *state, int id,
++static int __check_input_term(struct mixer_build *state, int id,
+ 			    struct usb_audio_term *term)
+ {
+ 	int protocol = state->mixer->protocol;
+ 	int err;
+ 	void *p1;
++	unsigned char *hdr;
  
--	/* When restoring duplicated states, we need to make sure that the
--	 * bw remains the same and avoid recalculating it, as the connector's
--	 * bpc may have changed after the state was duplicated
--	 */
--	if (!state->duplicated)
--		asyh->dp.pbn =
--			drm_dp_calc_pbn_mode(crtc_state->adjusted_mode.clock,
--					     connector->display_info.bpc * 3);
-+	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
-+		/*
-+		 * When restoring duplicated states, we need to make sure that
-+		 * the bw remains the same and avoid recalculating it, as the
-+		 * connector's bpc may have changed after the state was
-+		 * duplicated
-+		 */
-+		if (!state->duplicated) {
-+			const int bpp = connector->display_info.bpc * 3;
-+			const int clock = crtc_state->adjusted_mode.clock;
+ 	memset(term, 0, sizeof(*term));
+-	while ((p1 = find_audio_control_unit(state, id)) != NULL) {
+-		unsigned char *hdr = p1;
++	for (;;) {
++		/* a loop in the terminal chain? */
++		if (test_and_set_bit(id, state->termbitmap))
++			return -EINVAL;
 +
-+			asyh->dp.pbn = drm_dp_calc_pbn_mode(clock, bpp);
-+		}
++		p1 = find_audio_control_unit(state, id);
++		if (!p1)
++			break;
++
++		hdr = p1;
+ 		term->id = id;
  
--	if (crtc_state->mode_changed) {
- 		slots = drm_dp_atomic_find_vcpi_slots(state, &mstm->mgr,
- 						      mstc->port,
- 						      asyh->dp.pbn);
+ 		if (protocol == UAC_VERSION_1 || protocol == UAC_VERSION_2) {
+@@ -800,7 +810,7 @@ static int check_input_term(struct mixer_build *state, int id,
+ 
+ 					/* call recursively to verify that the
+ 					 * referenced clock entity is valid */
+-					err = check_input_term(state, d->bCSourceID, term);
++					err = __check_input_term(state, d->bCSourceID, term);
+ 					if (err < 0)
+ 						return err;
+ 
+@@ -834,7 +844,7 @@ static int check_input_term(struct mixer_build *state, int id,
+ 			case UAC2_CLOCK_SELECTOR: {
+ 				struct uac_selector_unit_descriptor *d = p1;
+ 				/* call recursively to retrieve the channel info */
+-				err = check_input_term(state, d->baSourceID[0], term);
++				err = __check_input_term(state, d->baSourceID[0], term);
+ 				if (err < 0)
+ 					return err;
+ 				term->type = UAC3_SELECTOR_UNIT << 16; /* virtual type */
+@@ -897,7 +907,7 @@ static int check_input_term(struct mixer_build *state, int id,
+ 
+ 				/* call recursively to verify that the
+ 				 * referenced clock entity is valid */
+-				err = check_input_term(state, d->bCSourceID, term);
++				err = __check_input_term(state, d->bCSourceID, term);
+ 				if (err < 0)
+ 					return err;
+ 
+@@ -948,7 +958,7 @@ static int check_input_term(struct mixer_build *state, int id,
+ 			case UAC3_CLOCK_SELECTOR: {
+ 				struct uac_selector_unit_descriptor *d = p1;
+ 				/* call recursively to retrieve the channel info */
+-				err = check_input_term(state, d->baSourceID[0], term);
++				err = __check_input_term(state, d->baSourceID[0], term);
+ 				if (err < 0)
+ 					return err;
+ 				term->type = UAC3_SELECTOR_UNIT << 16; /* virtual type */
+@@ -964,7 +974,7 @@ static int check_input_term(struct mixer_build *state, int id,
+ 					return -EINVAL;
+ 
+ 				/* call recursively to retrieve the channel info */
+-				err = check_input_term(state, d->baSourceID[0], term);
++				err = __check_input_term(state, d->baSourceID[0], term);
+ 				if (err < 0)
+ 					return err;
+ 
+@@ -982,6 +992,15 @@ static int check_input_term(struct mixer_build *state, int id,
+ 	return -ENODEV;
+ }
+ 
++
++static int check_input_term(struct mixer_build *state, int id,
++			    struct usb_audio_term *term)
++{
++	memset(term, 0, sizeof(*term));
++	memset(state->termbitmap, 0, sizeof(state->termbitmap));
++	return __check_input_term(state, id, term);
++}
++
+ /*
+  * Feature Unit
+  */
 -- 
 2.20.1
 
