@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0117A999E9
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DF899AEF
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390348AbfHVRI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58076 "EHLO mail.kernel.org"
+        id S1728125AbfHVRRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390334AbfHVRI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390336AbfHVRI2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:08:28 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37D1123405;
+        by mail.kernel.org (Postfix) with ESMTPSA id C677F2341B;
         Thu, 22 Aug 2019 17:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493706;
-        bh=0gj6fwyrbSi5XYaMoU1UMe+hHqXJx+3UvPBxqN/CmoY=;
+        s=default; t=1566493707;
+        bh=6ZRKZTDtFpcHuGYbyiowH588bgrykE4wVjMA0sDld/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JsR465WYVYs/ofMpMwnhLtx8nMtN1mGNdZikHUGtHsb3EXVjTtWL6YyQCA9i5xhq
-         zcgSD4JGB7eexDZzlyZVv0ZSVuToSA4r75t7ZEUbzUgVf6QyCY0zQzyXKSgq2qixuQ
-         gFy94GmW+RNNUf8VMKbpOHNlNAqnftxoKS2RTcX0=
+        b=hQkHWtETU03TKiVl4Z5lITjU//Ti6wxQvFkPzHh5/1Ljyxu/qTioIU9mo9jhUdrJP
+         TBLryTeM+iP5OmLMNnNzzFOy43/hxmii+MMnWJhmoCQ9RVFBSWcYVMprziRWaVZGXz
+         a/GX5X2k56GmzHx/wAhxX21C6vZiNLd8WAvIgSPg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 022/135] ALSA: hda - Add a generic reboot_notify
-Date:   Thu, 22 Aug 2019 13:06:18 -0400
-Message-Id: <20190822170811.13303-23-sashal@kernel.org>
+Subject: [PATCH 5.2 023/135] ALSA: hda - Let all conexant codec enter D3 when rebooting
+Date:   Thu, 22 Aug 2019 13:06:19 -0400
+Message-Id: <20190822170811.13303-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,120 +50,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hui Wang <hui.wang@canonical.com>
 
-commit 871b9066027702e6e6589da0e1edd3b7dede7205 upstream.
+commit 401714d9534aad8c24196b32600da683116bbe09 upstream.
 
-Make codec enter D3 before rebooting or poweroff can fix the noise
-issue on some laptops. And in theory it is harmless for all codecs
-to enter D3 before rebooting or poweroff, let us add a generic
-reboot_notify, then realtek and conexant drivers can call this
-function.
+We have 3 new lenovo laptops which have conexant codec 0x14f11f86,
+these 3 laptops also have the noise issue when rebooting, after
+letting the codec enter D3 before rebooting or poweroff, the noise
+disappers.
+
+Instead of adding a new ID again in the reboot_notify(), let us make
+this function apply to all conexant codec. In theory make codec enter
+D3 before rebooting or poweroff is harmless, and I tested this change
+on a couple of other Lenovo laptops which have different conexant
+codecs, there is no side effect so far.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Hui Wang <hui.wang@canonical.com>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_generic.c    | 19 +++++++++++++++++++
- sound/pci/hda/hda_generic.h    |  1 +
- sound/pci/hda/patch_conexant.c |  6 +-----
- sound/pci/hda/patch_realtek.c  | 11 +----------
- 4 files changed, 22 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_conexant.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index 8f2beb1f3ae48..5bf24fb819d28 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -6051,6 +6051,24 @@ void snd_hda_gen_free(struct hda_codec *codec)
- }
- EXPORT_SYMBOL_GPL(snd_hda_gen_free);
- 
-+/**
-+ * snd_hda_gen_reboot_notify - Make codec enter D3 before rebooting
-+ * @codec: the HDA codec
-+ *
-+ * This can be put as patch_ops reboot_notify function.
-+ */
-+void snd_hda_gen_reboot_notify(struct hda_codec *codec)
-+{
-+	/* Make the codec enter D3 to avoid spurious noises from the internal
-+	 * speaker during (and after) reboot
-+	 */
-+	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
-+	snd_hda_codec_write(codec, codec->core.afg, 0,
-+			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
-+	msleep(10);
-+}
-+EXPORT_SYMBOL_GPL(snd_hda_gen_reboot_notify);
-+
- #ifdef CONFIG_PM
- /**
-  * snd_hda_gen_check_power_status - check the loopback power save state
-@@ -6078,6 +6096,7 @@ static const struct hda_codec_ops generic_patch_ops = {
- 	.init = snd_hda_gen_init,
- 	.free = snd_hda_gen_free,
- 	.unsol_event = snd_hda_jack_unsol_event,
-+	.reboot_notify = snd_hda_gen_reboot_notify,
- #ifdef CONFIG_PM
- 	.check_power_status = snd_hda_gen_check_power_status,
- #endif
-diff --git a/sound/pci/hda/hda_generic.h b/sound/pci/hda/hda_generic.h
-index 35a670a71c423..5f199dcb0d188 100644
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -332,6 +332,7 @@ int snd_hda_gen_parse_auto_config(struct hda_codec *codec,
- 				  struct auto_pin_cfg *cfg);
- int snd_hda_gen_build_controls(struct hda_codec *codec);
- int snd_hda_gen_build_pcms(struct hda_codec *codec);
-+void snd_hda_gen_reboot_notify(struct hda_codec *codec);
- 
- /* standard jack event callbacks */
- void snd_hda_gen_hp_automute(struct hda_codec *codec,
 diff --git a/sound/pci/hda/patch_conexant.c b/sound/pci/hda/patch_conexant.c
-index f299f137eaea2..0b0f24d24f8fd 100644
+index 0b0f24d24f8fd..14298ef45b21b 100644
 --- a/sound/pci/hda/patch_conexant.c
 +++ b/sound/pci/hda/patch_conexant.c
-@@ -175,11 +175,7 @@ static void cx_auto_reboot_notify(struct hda_codec *codec)
+@@ -163,15 +163,6 @@ static void cx_auto_reboot_notify(struct hda_codec *codec)
+ {
+ 	struct conexant_spec *spec = codec->spec;
+ 
+-	switch (codec->core.vendor_id) {
+-	case 0x14f12008: /* CX8200 */
+-	case 0x14f150f2: /* CX20722 */
+-	case 0x14f150f4: /* CX20724 */
+-		break;
+-	default:
+-		return;
+-	}
+-
  	/* Turn the problematic codec into D3 to avoid spurious noises
  	   from the internal speaker during (and after) reboot */
  	cx_auto_turn_eapd(codec, spec->num_eapds, spec->eapds, false);
--
--	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
--	snd_hda_codec_write(codec, codec->core.afg, 0,
--			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
--	msleep(10);
-+	snd_hda_gen_reboot_notify(codec);
- }
- 
- static void cx_auto_free(struct hda_codec *codec)
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 8aaf1d9c55cfd..e333b3e30e316 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -869,15 +869,6 @@ static void alc_reboot_notify(struct hda_codec *codec)
- 		alc_shutup(codec);
- }
- 
--/* power down codec to D3 at reboot/shutdown; set as reboot_notify ops */
--static void alc_d3_at_reboot(struct hda_codec *codec)
--{
--	snd_hda_codec_set_power_to_all(codec, codec->core.afg, AC_PWRST_D3);
--	snd_hda_codec_write(codec, codec->core.afg, 0,
--			    AC_VERB_SET_POWER_STATE, AC_PWRST_D3);
--	msleep(10);
--}
--
- #define alc_free	snd_hda_gen_free
- 
- #ifdef CONFIG_PM
-@@ -5152,7 +5143,7 @@ static void alc_fixup_tpt440_dock(struct hda_codec *codec,
- 	struct alc_spec *spec = codec->spec;
- 
- 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
--		spec->reboot_notify = alc_d3_at_reboot; /* reduce noise */
-+		spec->reboot_notify = snd_hda_gen_reboot_notify; /* reduce noise */
- 		spec->parse_flags = HDA_PINCFG_NO_HP_FIXUP;
- 		codec->power_save_node = 0; /* avoid click noises */
- 		snd_hda_apply_pincfgs(codec, pincfgs);
 -- 
 2.20.1
 
