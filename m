@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE2799D2F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D650D99E19
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392702AbfHVRkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:40:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45180 "EHLO mail.kernel.org"
+        id S2390086AbfHVRW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404086AbfHVRYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:08 -0400
+        id S2391300AbfHVRW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:26 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76AA123400;
-        Thu, 22 Aug 2019 17:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0443423405;
+        Thu, 22 Aug 2019 17:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494647;
-        bh=1hKRuByecVlVLfQQ6iosXpCA9hG/cgMqUCWA0P8Ptts=;
+        s=default; t=1566494545;
+        bh=Z9vCoxmg1F0JBLGhQ5ys9J4j4m/T7XhF6spaclXJU8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQLERfQyJGNQM9RYMVN3gk+HftnBjMWfM3d9jyCDvKaI8A8alYwR6eGVs481PGV1b
-         rv7u3n0/Idnp0rwOyupVwwNB/mVTQ4TmXyrhvhTyDgpdN0I9ui25nWts7GgmzouUfi
-         n0dPKMcRuiyR87y+9aTmiFcwB4LTIUjri/Ois2wE=
+        b=salJL7muNwtBCZTe9aXy2P1lDoRMIuPwm+7G/6M1Ci2dk5s+JfSKC1aY/oLB/wE9G
+         ryPX7HiCUO9VxYe5CM9+jclCl1+4Pi2H01WLOwiI7LErqqy2cPwCiGcTgvJJx6KvUe
+         8Irit3EUQtMJC+2gB9VymUH+RR305N2TcnSm7p8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 041/103] scsi: mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Date:   Thu, 22 Aug 2019 10:18:29 -0700
-Message-Id: <20190822171730.468258675@linuxfoundation.org>
+        stable@vger.kernel.org, Gilles Buloz <Gilles.Buloz@kontron.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 26/78] hwmon: (nct7802) Fix wrong detection of in4 presence
+Date:   Thu, 22 Aug 2019 10:18:30 -0700
+Message-Id: <20190822171832.801503128@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit df9a606184bfdb5ae3ca9d226184e9489f5c24f7 upstream.
+commit 38ada2f406a9b81fb1249c5c9227fa657e7d5671 upstream.
 
-Although SAS3 & SAS3.5 IT HBA controllers support 64-bit DMA addressing, as
-per hardware design, if DMA-able range contains all 64-bits
-set (0xFFFFFFFF-FFFFFFFF) then it results in a firmware fault.
+The code to detect if in4 is present is wrong; if in4 is not present,
+the in4_input sysfs attribute is still present.
 
-E.g. SGE's start address is 0xFFFFFFFF-FFFF000 and data length is 0x1000
-bytes. when HBA tries to DMA the data at 0xFFFFFFFF-FFFFFFFF location then
-HBA will fault the firmware.
+In detail:
 
-Driver will set 63-bit DMA mask to ensure the above address will not be
-used.
+- Ihen RTD3_MD=11 (VSEN3 present), everything is as expected (no bug).
+- If we have RTD3_MD!=11 (no VSEN3), we unexpectedly have a in4_input
+  file under /sys and the "sensors" command displays in4_input.
+  But as expected, we have no in4_min, in4_max, in4_alarm, in4_beep.
 
-Cc: <stable@vger.kernel.org> # 5.1.20+
-Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix is_visible function to detect and report in4_input visibility
+as expected.
+
+Reported-by: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: stable@vger.kernel.org
+Fixes: 3434f37835804 ("hwmon: Driver for Nuvoton NCT7802Y")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/hwmon/nct7802.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -1707,9 +1707,11 @@ _base_config_dma_addressing(struct MPT3S
- {
- 	struct sysinfo s;
- 	u64 consistent_dma_mask;
-+	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
-+	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
+--- a/drivers/hwmon/nct7802.c
++++ b/drivers/hwmon/nct7802.c
+@@ -768,7 +768,7 @@ static struct attribute *nct7802_in_attr
+ 	&sensor_dev_attr_in3_alarm.dev_attr.attr,
+ 	&sensor_dev_attr_in3_beep.dev_attr.attr,
  
- 	if (ioc->dma_mask)
--		consistent_dma_mask = DMA_BIT_MASK(64);
-+		consistent_dma_mask = DMA_BIT_MASK(dma_mask);
- 	else
- 		consistent_dma_mask = DMA_BIT_MASK(32);
+-	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 17 */
++	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 16 */
+ 	&sensor_dev_attr_in4_min.dev_attr.attr,
+ 	&sensor_dev_attr_in4_max.dev_attr.attr,
+ 	&sensor_dev_attr_in4_alarm.dev_attr.attr,
+@@ -794,9 +794,9 @@ static umode_t nct7802_in_is_visible(str
  
-@@ -1717,11 +1719,11 @@ _base_config_dma_addressing(struct MPT3S
- 		const uint64_t required_mask =
- 		    dma_get_required_mask(&pdev->dev);
- 		if ((required_mask > DMA_BIT_MASK(32)) &&
--		    !pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) &&
-+		    !pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_mask)) &&
- 		    !pci_set_consistent_dma_mask(pdev, consistent_dma_mask)) {
- 			ioc->base_add_sg_single = &_base_add_sg_single_64;
- 			ioc->sge_size = sizeof(Mpi2SGESimple64_t);
--			ioc->dma_mask = 64;
-+			ioc->dma_mask = dma_mask;
- 			goto out;
- 		}
- 	}
-@@ -1747,7 +1749,7 @@ static int
- _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
- 				      struct pci_dev *pdev)
- {
--	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
-+	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
- 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
- 			return -ENODEV;
- 	}
-@@ -3381,7 +3383,7 @@ _base_allocate_memory_pools(struct MPT3S
- 		total_sz += sz;
- 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
+ 	if (index >= 6 && index < 11 && (reg & 0x03) != 0x03)	/* VSEN1 */
+ 		return 0;
+-	if (index >= 11 && index < 17 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
++	if (index >= 11 && index < 16 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
+ 		return 0;
+-	if (index >= 17 && (reg & 0x30) != 0x30)		/* VSEN3 */
++	if (index >= 16 && (reg & 0x30) != 0x30)		/* VSEN3 */
+ 		return 0;
  
--	if (ioc->dma_mask == 64) {
-+	if (ioc->dma_mask > 32) {
- 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
- 			pr_warn(MPT3SAS_FMT
- 			    "no suitable consistent DMA mask for %s\n",
+ 	return attr->mode;
 
 
