@@ -2,131 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 990AD9B3B8
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 17:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00CA9B3C3
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 17:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405921AbfHWPoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Aug 2019 11:44:34 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:36025 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405914AbfHWPod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Aug 2019 11:44:33 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1i1Bjn-0005MO-Bu; Fri, 23 Aug 2019 17:44:27 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id E85AF1C04F3;
-        Fri, 23 Aug 2019 17:44:26 +0200 (CEST)
-Date:   Fri, 23 Aug 2019 15:44:26 -0000
-From:   tip-bot2 for Sean Christopherson <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/retpoline: Don't clobber RFLAGS during
- CALL_NOSPEC on i386
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra (Intel) <peterz@infradead.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20190822211122.27579-1-sean.j.christopherson@intel.com>
-References: <20190822211122.27579-1-sean.j.christopherson@intel.com>
+        id S2436512AbfHWPpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Aug 2019 11:45:02 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:45233 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387803AbfHWPpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Aug 2019 11:45:02 -0400
+Received: by mail-pl1-f195.google.com with SMTP id y8so5789331plr.12;
+        Fri, 23 Aug 2019 08:45:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=d13wUvTcGWm9qSA2DfjkIYqexwd152oPkAxpgbt/a/I=;
+        b=tDSDgmSyi6YM9EItP+kOQqNgXFZo0vBq8/cdixyj8xNQLRzo6tD5QnxiJqPGiNaKdA
+         7mc74NXbtSd/0bfxsfqMNQR40a+ZxvOB8FSqIWgbThQ12AgbUSF8xFgVh7ilBCQrd/8O
+         bqKhxX8Xky7kJS4vX/D32G8oPcGRPRva8jtr/jSRa3A5PpwqRHNq/KXks79qTPx5m79u
+         MqG7s0huwOvdSqkwe+x+0nM5DWFfzVFQqBRKEmxOe+XHJyLTtWZmCRxzcKU/LXsAVaS3
+         3EJVgjYJzwC4y/bULzKOQgawKvMj4YW/dkWswQFTRzHOT7q0yh1CLDLf+mRCx5iZ6wP4
+         gx9w==
+X-Gm-Message-State: APjAAAUruNWKIsQLTZwwfR317OUVX0T6ciHRVml+wByB5Vw4HVWTAL4o
+        8863b9TeR7iC0L5d+acmW7w=
+X-Google-Smtp-Source: APXvYqzAgJ2AiT/6zWW+CtjuC3MArI9xkF4kBmeHNBX25UKeZChWozqkKMIWPCp8GYzSK9JZS2e2vg==
+X-Received: by 2002:a17:902:543:: with SMTP id 61mr5585600plf.20.1566575101259;
+        Fri, 23 Aug 2019 08:45:01 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id x128sm6465741pfd.52.2019.08.23.08.44.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Aug 2019 08:45:00 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 56568404D5; Fri, 23 Aug 2019 15:44:59 +0000 (UTC)
+Date:   Fri, 23 Aug 2019 15:44:59 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, Alexander.Levin@microsoft.com
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        amir73il@gmail.com
+Subject: Re: [PATCH 0/6] xfs: stable fixes for v4.19.y - circa v4.19.60
+Message-ID: <20190823154459.GU16384@42.do-not-panic.com>
+References: <20190724063451.26190-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-Message-ID: <156657506681.13327.12784359764644509478.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+In-Reply-To: <20190724063451.26190-1-mcgrof@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Wed, Jul 24, 2019 at 06:34:45AM +0000, Luis Chamberlain wrote:
+> Sasha,
+> 
+> you merged my last set of XFS fixes. I asked for one patch to not be
+> merged yet as one issue was not yet properly fixed. After some further
+> review I have identified commits which do fix the kernel crash reported
+> on kz#204223 [0] with generic/388, this patch set applies on top of the
+> last one I sent you.
+> 
+> These commits do quite a bit of code refactoring, and the actual fix
+> lies hidden in the last commit by Darrick. Due to the amount of changes
+> trying to extract the fix is riskier than just carring the code
+> refactoring. If we're OK with the code refactor for stable, its my
+> recommendation we keep the changes to match more with upstream and
+> benefit from other fixes. The code refactoring was merged on v4.20 and
+> Darrick's fix is the only fix upstream since the code was merged.
+> 
+> If others disagree with this approach please speak up.
+> 
+> I've run a full set of fstests against the following sections 12 times and
+> have found no regressions against the baseline:
+> 
+> xfs
+> xfs_logdev
+> xfs_nocrc_512
+> xfs_nocrc
+> xfs_realtimedev
+> xfs_reflink_1024
+> xfs_reflink_dev
+> 
+> Review from others is appreciated.
+> 
+> [0] https://bugzilla.kernel.org/show_bug.cgi?id=204223
+> 
+> Allison Henderson (4):
+>   xfs: Move fs/xfs/xfs_attr.h to fs/xfs/libxfs/xfs_attr.h
+>   xfs: Add helper function xfs_attr_try_sf_addname
+>   xfs: Add attibute set and helper functions
+>   xfs: Add attibute remove and helper functions
+> 
+> Brian Foster (1):
+>   xfs: don't trip over uninitialized buffer on extent read of corrupted
+>     inode
+> 
+> Darrick J. Wong (1):
+>   xfs: always rejoin held resources during defer roll
+> 
+>  fs/xfs/libxfs/xfs_attr.c       | 231 ++++++++++++++++++---------------
+>  fs/xfs/{ => libxfs}/xfs_attr.h |   2 +
+>  fs/xfs/libxfs/xfs_bmap.c       |  54 +++++---
+>  fs/xfs/libxfs/xfs_bmap.h       |   1 +
+>  fs/xfs/libxfs/xfs_defer.c      |  14 +-
+>  fs/xfs/xfs_dquot.c             |  17 +--
+>  6 files changed, 183 insertions(+), 136 deletions(-)
+>  rename fs/xfs/{ => libxfs}/xfs_attr.h (98%)
 
-Commit-ID:     b63f20a778c88b6a04458ed6ffc69da953d3a109
-Gitweb:        https://git.kernel.org/tip/b63f20a778c88b6a04458ed6ffc69da953d3a109
-Author:        Sean Christopherson <sean.j.christopherson@intel.com>
-AuthorDate:    Thu, 22 Aug 2019 14:11:22 -07:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 23 Aug 2019 17:38:13 +02:00
+*poke*
 
-x86/retpoline: Don't clobber RFLAGS during CALL_NOSPEC on i386
+BTW I'm off on vacation for a while after today.
 
-Use 'lea' instead of 'add' when adjusting %rsp in CALL_NOSPEC so as to
-avoid clobbering flags.
-
-KVM's emulator makes indirect calls into a jump table of sorts, where
-the destination of the CALL_NOSPEC is a small blob of code that performs
-fast emulation by executing the target instruction with fixed operands.
-
-  adcb_al_dl:
-     0x000339f8 <+0>:   adc    %dl,%al
-     0x000339fa <+2>:   ret
-
-A major motiviation for doing fast emulation is to leverage the CPU to
-handle consumption and manipulation of arithmetic flags, i.e. RFLAGS is
-both an input and output to the target of CALL_NOSPEC.  Clobbering flags
-results in all sorts of incorrect emulation, e.g. Jcc instructions often
-take the wrong path.  Sans the nops...
-
-  asm("push %[flags]; popf; " CALL_NOSPEC " ; pushf; pop %[flags]\n"
-     0x0003595a <+58>:  mov    0xc0(%ebx),%eax
-     0x00035960 <+64>:  mov    0x60(%ebx),%edx
-     0x00035963 <+67>:  mov    0x90(%ebx),%ecx
-     0x00035969 <+73>:  push   %edi
-     0x0003596a <+74>:  popf
-     0x0003596b <+75>:  call   *%esi
-     0x000359a0 <+128>: pushf
-     0x000359a1 <+129>: pop    %edi
-     0x000359a2 <+130>: mov    %eax,0xc0(%ebx)
-     0x000359b1 <+145>: mov    %edx,0x60(%ebx)
-
-  ctxt->eflags = (ctxt->eflags & ~EFLAGS_MASK) | (flags & EFLAGS_MASK);
-     0x000359a8 <+136>: mov    -0x10(%ebp),%eax
-     0x000359ab <+139>: and    $0x8d5,%edi
-     0x000359b4 <+148>: and    $0xfffff72a,%eax
-     0x000359b9 <+153>: or     %eax,%edi
-     0x000359bd <+157>: mov    %edi,0x4(%ebx)
-
-For the most part this has gone unnoticed as emulation of guest code
-that can trigger fast emulation is effectively limited to MMIO when
-running on modern hardware, and MMIO is rarely, if ever, accessed by
-instructions that affect or consume flags.
-
-Breakage is almost instantaneous when running with unrestricted guest
-disabled, in which case KVM must emulate all instructions when the guest
-has invalid state, e.g. when the guest is in Big Real Mode during early
-BIOS.
-
-Fixes: 776b043848fd2 ("x86/retpoline: Add initial retpoline support")
-Fixes: 1a29b5b7f347a ("KVM: x86: Make indirect calls in emulator speculation safe")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190822211122.27579-1-sean.j.christopherson@intel.com
-
----
- arch/x86/include/asm/nospec-branch.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 109f974..80bc209 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -192,7 +192,7 @@
- 	"    	lfence;\n"					\
- 	"       jmp    902b;\n"					\
- 	"       .align 16\n"					\
--	"903:	addl   $4, %%esp;\n"				\
-+	"903:	lea    4(%%esp), %%esp;\n"			\
- 	"       pushl  %[thunk_target];\n"			\
- 	"       ret;\n"						\
- 	"       .align 16\n"					\
+  Luis
