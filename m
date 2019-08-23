@@ -2,70 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E9A9B5BA
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 19:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0369B649
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 20:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbfHWRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Aug 2019 13:48:22 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:34648 "EHLO mx1.redhat.com"
+        id S2390592AbfHWSlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Aug 2019 14:41:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725892AbfHWRsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Aug 2019 13:48:21 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2390289AbfHWSlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Aug 2019 14:41:06 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AC5973058E0A;
-        Fri, 23 Aug 2019 17:48:21 +0000 (UTC)
-Received: from dhcp-44-196.space.revspace.nl (unknown [10.36.112.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 05B705D9CA;
-        Fri, 23 Aug 2019 17:48:19 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        by mail.kernel.org (Postfix) with ESMTPSA id 9773C21874;
+        Fri, 23 Aug 2019 18:41:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566585665;
+        bh=VM+OYc/SUZhk1E669gVwpgQdtu7CqZ2mSkTDahzPDIs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=qDnT51Nl/3OwNQxMEg/6TTVghnSir4vH9HLM3x+CWYce9vWNCsWhxUXkJl50hFW+N
+         BhAnvKKex0dKsXRFtr5eSWPtEixhytVxKnQJOkgBTOhOcOwePOUF65dSkVjJ8zfH0i
+         ej1NXzg8PSkfP9mXbhiuOI3g93S7tZv+6tBJgUv0=
+Subject: Re: [PATCH 5.2 000/135] 5.2.10-stable review
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] platform/x86: intel_int0002_vgpio: Fix wakeups not working on Cherry Trail
-Date:   Fri, 23 Aug 2019 19:48:14 +0200
-Message-Id: <20190823174815.27861-1-hdegoede@redhat.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        shuah <shuah@kernel.org>
+References: <20190822170811.13303-1-sashal@kernel.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <00216731-a088-7d47-eafb-70409f876bda@kernel.org>
+Date:   Fri, 23 Aug 2019 12:41:03 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 23 Aug 2019 17:48:21 +0000 (UTC)
+In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
-irq_set_wake on Bay Trail") removed the irq_set_wake method from the
-struct irq_chip used on Cherry Trail, but it did not set
-IRQCHIP_SKIP_SET_WAKE causing  kernel/irq/manage.c: set_irq_wake_real()
-to return -ENXIO.
+On 8/22/19 11:05 AM, Sasha Levin wrote:
+> 
+> This is the start of the stable review cycle for the 5.2.10 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat 24 Aug 2019 05:07:10 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+>          https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.2.10-rc1.gz
 
-This causes the kernel to no longer see PME events reported through the
-INT0002 device as wakeup events. Which e.g. breaks wakeup by the (USB)
-keyboard on many Cherry Trail 2-in-1 devices.
+I am seeing "Sorry I can't find your kernels". Is this posted?
 
-Cc: stable@vger.kernel.org
-Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement irq_set_wake on Bay Trail")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/platform/x86/intel_int0002_vgpio.c | 1 +
- 1 file changed, 1 insertion(+)
+> or in the git tree and branch at:
+>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> and the diffstat can be found below.
+>
 
-diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
-index d9542c661ddc..9ea1a2a19f86 100644
---- a/drivers/platform/x86/intel_int0002_vgpio.c
-+++ b/drivers/platform/x86/intel_int0002_vgpio.c
-@@ -144,6 +144,7 @@ static struct irq_chip int0002_cht_irqchip = {
- 	 * No set_wake, on CHT the IRQ is typically shared with the ACPI SCI
- 	 * and we don't want to mess with the ACPI SCI irq settings.
- 	 */
-+	.flags			= IRQCHIP_SKIP_SET_WAKE,
- };
- 
- static const struct x86_cpu_id int0002_cpu_ids[] = {
--- 
-2.22.0
+thanks,
+-- Shuah
 
