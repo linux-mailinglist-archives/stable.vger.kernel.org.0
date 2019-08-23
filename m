@@ -2,85 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7039B200
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 16:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985819B386
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 17:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393831AbfHWO3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Aug 2019 10:29:41 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:44962 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390586AbfHWO3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Aug 2019 10:29:40 -0400
-Received: by mail-pf1-f196.google.com with SMTP id c81so6559744pfc.11;
-        Fri, 23 Aug 2019 07:29:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6jaVskNErW3LY0WFDOmWXPyAuGD4ddrw6oahAqMg7m0=;
-        b=c1zuBrWR3SNem1/xZ+/uIoNgFklIKkjvs9CFO2OVgDAHTO6b7+HydzGvuubeO+xMGV
-         2+N8mApqFpK+vxbX2Db95PRLX2l6DBPEKyzUW4eUWv/wfvy2qlTz6Z4jq2bdGrBze0t+
-         IJjsFEpv+dCrARaOqeyrcRyNVAAE7NRjQovdLqJ2pWbQUvjZ6uCJNZMUQ1BS8WSas3I4
-         /ZdDtyAtQyMNTLhuGJgGlOmNJvpQiemJFUMUv7FNO7UNRvFfUqOU4arb5+TsBsDFHnZS
-         PQ+Epz5XMVabrh8HR9xDN2dC2/RfbBzHO1ZXLm8x/DIVgjgGpzz09RL8UK/cFPI6wbSO
-         KC1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6jaVskNErW3LY0WFDOmWXPyAuGD4ddrw6oahAqMg7m0=;
-        b=hTYZ5AWAnyFLlJscxBcQgMEgSty6BHSSK6Z9s9q3xRkfcGUzAU3EGN6ylImmd2HtpP
-         bgfB1TkKfRmiKuwqwWjn46Vz/QL8rqU9AU08T5WcTl0GmUVnkR/1RJERxb8cXlHgcyRQ
-         +wfCOswswE85LwhsnZ2SOCqHqRYyVDi9w1OM9bO5Jdj2OWo7bA8Aqdorc/HSMAORpLWX
-         lgGHe8/yFDmCWOZmV/b6YJ2qv9fzcqi28xsnCE8uzFMPnnigSKwwfIR27BO8cGzz2ISX
-         dNnSHd7Puiq9E6mgaI+VhV0OyhtonHL4OXwDW6JyfhVUi+zWMFows957vxQArUC2e/4z
-         kXlw==
-X-Gm-Message-State: APjAAAWauWy9NUhPTg/tPodw6WycOdndY1FO1+oLD3gTCi5AOS9oQRK9
-        9RYQHigngEQltYiOlOTr+HxS4sJ7
-X-Google-Smtp-Source: APXvYqx76qtBpWtHrhNIgLOnEYkNdnrOyFKNbQBd6Mb81PcPczxIQ+WSI1eOzGTCv5PU1ZyAdF9lYQ==
-X-Received: by 2002:aa7:8193:: with SMTP id g19mr5513945pfi.16.1566570580192;
-        Fri, 23 Aug 2019 07:29:40 -0700 (PDT)
-Received: from server.roeck-us.net (108-223-40-66.lightspeed.sntcca.sbcglobal.net. [108.223.40.66])
-        by smtp.gmail.com with ESMTPSA id p10sm2542672pjr.14.2019.08.23.07.29.38
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 23 Aug 2019 07:29:39 -0700 (PDT)
-Subject: Re: [PATCH 5.2 000/135] 5.2.10-stable review
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
-References: <20190822170811.13303-1-sashal@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <b3ad905c-62c9-85c5-13b9-6dda48a8624e@roeck-us.net>
-Date:   Fri, 23 Aug 2019 07:29:38 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S2405862AbfHWPiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Aug 2019 11:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726964AbfHWPiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Aug 2019 11:38:07 -0400
+Received: from localhost (unknown [12.236.144.82])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9733121726;
+        Fri, 23 Aug 2019 15:38:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566574686;
+        bh=VA1ZiaQZX4KwPmP2agYkzSplsL+J6b11+mfxePrt3jk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i3831KWdpPley/W5ozTytDpqX07vK78qPizycnS7u2yOvy9EG5bDkqDtLrDJztyY4
+         fINHp195FnOPw16A0Z5Jh8KNMYnm/FZJ09cXFDPE7LXZR07CJ2R3to8qVl3/xDd5us
+         LL51jfxgB7/9cfdJ6ycCYCA85hI1/n+2A+nJ6drM=
+Date:   Fri, 23 Aug 2019 11:38:05 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jan Stancek <jstancek@redhat.com>
+Cc:     Greg KH <greg@kroah.com>, CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Xiong Zhou <xzhou@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.2
+Message-ID: <20190823153805.GD1581@sasha-vm>
+References: <cki.A52B1C532D.YEFB2VN58T@redhat.com>
+ <20190822233717.GA24034@kroah.com>
+ <900819847.7915389.1566543455477.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <900819847.7915389.1566543455477.JavaMail.zimbra@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/22/19 10:05 AM, Sasha Levin wrote:
-> 
-> This is the start of the stable review cycle for the 5.2.10 release.
-> There are 135 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 24 Aug 2019 05:07:10 PM UTC.
-> Anything received after that time might be too late.
-> 
+On Fri, Aug 23, 2019 at 02:57:35AM -0400, Jan Stancek wrote:
+>
+>
+>----- Original Message -----
+>> On Thu, Aug 22, 2019 at 06:48:50PM -0400, CKI Project wrote:
+>> >
+>> > Hello,
+>> >
+>> > We ran automated tests on a patchset that was proposed for merging into
+>> > this
+>> > kernel tree. The patches were applied to:
+>> >
+>> >        Kernel repo:
+>> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+>> >             Commit: aad39e30fb9e - Linux 5.2.9
+>> >
+>> > The results of these automated tests are provided below.
+>> >
+>> >     Overall result: FAILED (see details below)
+>> >              Merge: OK
+>> >            Compile: OK
+>> >              Tests: FAILED
+>> >
+>> > All kernel binaries, config files, and logs are available for download
+>> > here:
+>> >
+>> >   https://artifacts.cki-project.org/pipelines/116984
+>> >
+>> >
+>> >
+>> > One or more kernel tests failed:
+>> >
+>> >   aarch64:
+>> >     ❌ LTP lite
+>> >     ❌ Loopdev Sanity
+>>
+>> Odd, what suddenly broke?  No new patches had been added to the queue
+>> since Tuesday, except I removed a single patch.  Removing a patch
+>> shouldn't break anything, right?
+>
+>It's a race:
+>  [ 1289.578972] LTP: starting mtest06 (  mmap1)
+>  ...
+>  [ 1455.794564] kernel BUG at mm/filemap.c:171!
+>
+>Here's a verbose description:
+>  https://lore.kernel.org/lkml/50b8914e20d1d62bb2dee42d342836c2c16ebee7.1563438048.git.jstancek@redhat.com/
+>
+>Final (less verbose) patch:
+>  e1b98fa31664 ("locking/rwsem: Add missing ACQUIRE to read_slowpath exit when queue is empty")
+>
+>Code review found also this issue, which is theoretical and very unlikely, but it's a small patch:
+>  99143f82a255 ("lcoking/rwsem: Add missing ACQUIRE to read_slowpath sleep loop")
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 390 pass: 390 fail: 0
+Okay, so this is not a new regression in 5.2 but rather something that
+we just ended up hitting now.
 
-Guenter
+We can queue up the fixes for the next release.
+
+--
+Thanks,
+Sasha
