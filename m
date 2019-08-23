@@ -2,124 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4F29A9A7
-	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 10:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A13E9A9B5
+	for <lists+stable@lfdr.de>; Fri, 23 Aug 2019 10:09:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388841AbfHWIHG convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 23 Aug 2019 04:07:06 -0400
-Received: from mga11.intel.com ([192.55.52.93]:15376 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731543AbfHWIHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Aug 2019 04:07:06 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Aug 2019 01:07:05 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,420,1559545200"; 
-   d="scan'208";a="170058264"
-Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
-  by orsmga007.jf.intel.com with ESMTP; 23 Aug 2019 01:07:05 -0700
-Received: from fmsmsx601.amr.corp.intel.com (10.18.126.81) by
- fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Fri, 23 Aug 2019 01:07:05 -0700
-Received: from fmsmsx601.amr.corp.intel.com (10.18.126.81) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Fri, 23 Aug 2019 01:07:04 -0700
-Received: from shsmsx101.ccr.corp.intel.com (10.239.4.153) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
- via Frontend Transport; Fri, 23 Aug 2019 01:07:03 -0700
-Received: from shsmsx107.ccr.corp.intel.com ([169.254.9.65]) by
- SHSMSX101.ccr.corp.intel.com ([169.254.1.80]) with mapi id 14.03.0439.000;
- Fri, 23 Aug 2019 16:07:02 +0800
-From:   "Zhang, Xiaolin" <xiaolin.zhang@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: to make vgpu ppgtt
- notificaiton as atomic operation
-Thread-Topic: [Intel-gfx] [PATCH v2] drm/i915: to make vgpu ppgtt
- notificaiton as atomic operation
-Thread-Index: AQHVWYAStc1z8bkPQE+oDmYb7X55Dg==
-Date:   Fri, 23 Aug 2019 08:07:01 +0000
-Message-ID: <073732E20AE4C540AE91DBC3F07D4460876D3410@SHSMSX107.ccr.corp.intel.com>
-References: <1566543451-13955-1-git-send-email-xiaolin.zhang@intel.com>
- <156654711627.27716.4474982727513548344@skylake-alporthouse-com>
-Accept-Language: en-US, zh-CN
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.239.4.101]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S2389306AbfHWIJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Aug 2019 04:09:31 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41437 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389276AbfHWIJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Aug 2019 04:09:31 -0400
+Received: by mail-lj1-f194.google.com with SMTP id m24so8017574ljg.8
+        for <stable@vger.kernel.org>; Fri, 23 Aug 2019 01:09:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1oC9ul/byHaTj9kHAFt1syinUgIIsihUipkOTFXN1b4=;
+        b=g6xQgguIn8bkm+g/kORDgmq94PQSpmT9mRwB2slFoDsxvCtKMbAqIpSxU69hy9dGLY
+         Iwsd533mpLn9km1zbGwGgNEiC54wgReNQW6p0lP8uodnTpHug2jHGqaYeUuWniPpFoNa
+         9t+wY2hsx0HULPQpywmAKWyvWJnVkhEDJFxV+WqLfL4yNBXquK23I4Oq9g+9BX/sRq1W
+         9qBZ5bpZ0gSZRiiaphmc+kKcor1P21KOcz0NNWHbtUDr5N15oeFVtXYqWVJ4CPKiuuET
+         81X6osZDFIAlSIbRiewNJGoK88AUMLzFgtT/J71X3wFVAEfPJQW8W0DuSSvo/bjmCUpL
+         VI2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1oC9ul/byHaTj9kHAFt1syinUgIIsihUipkOTFXN1b4=;
+        b=CqJCS9kMU3DnD9JRs/D7n+gxIbcW6AerOqC2CRkqVC7Nmr8Ag9PQ5hjCReQKZ8/73e
+         9Pc0YJtBijGKuPTsEFdnY3aeYkHr+8x54lTUVIF5dicSNJVr8voYuA01clmY1E8GxlL+
+         3XeQ8wfJ7c6nuV4TGUdFyUAGkPD9WB+A45gr3+mNQTZI2cWJ1/JaCbC7CmNkTP3cB4yh
+         zREj6vpBuyncoaZh+Kts/URQkG954yXT6FI6kyQt2suBwgkrpLoorkX9dnqV7p+57Ak3
+         D5YOjUzboUIbliig+OqcJAPwLKVzfqdiZCc8JjaZygIhK/fydz+U7KBvLUbwbOcQ+24Y
+         p/5g==
+X-Gm-Message-State: APjAAAVeBXR7wWlTfWWKyXlSpED4zeJCyRXg6vmjxEsnWYGngZ/+ahk1
+        mZjoh2E9x8KccFj5g4Z+9M3eu7eV2q9jObpRgYirHg==
+X-Google-Smtp-Source: APXvYqzOceqFYC1iSqtfJx6cr3uKsvLAa0r7BzZjT2fFOV/Yn++jandiwJ+bVFVhqOEY+1t/OjeEWsM4x5TFGO6dguI=
+X-Received: by 2002:a2e:a0c3:: with SMTP id f3mr2101512ljm.123.1566547769296;
+ Fri, 23 Aug 2019 01:09:29 -0700 (PDT)
 MIME-Version: 1.0
+References: <20190822170811.13303-1-sashal@kernel.org>
+In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 23 Aug 2019 13:39:18 +0530
+Message-ID: <CA+G9fYtuPOCnmua59DDVCQ9ueJRz=Q0bgh_QYZ7Ct-OtH0DZ7A@mail.gmail.com>
+Subject: Re: [PATCH 5.2 000/135] 5.2.10-stable review
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/23/2019 03:58 PM, Chris Wilson wrote:
-> Quoting Xiaolin Zhang (2019-08-23 07:57:31)
->> vgpu ppgtt notification was split into 2 steps, the first step is to
->> update PVINFO's pdp register and then write PVINFO's g2v_notify register
->> with action code to tirgger ppgtt notification to GVT side.
->>
->> currently these steps were not atomic operations due to no any protection,
->> so it is easy to enter race condition state during the MTBF, stress and
->> IGT test to cause GPU hang.
->>
->> the solution is to add a lock to make vgpu ppgtt notication as atomic
->> operation.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
->> ---
->>  drivers/gpu/drm/i915/i915_drv.h     | 1 +
->>  drivers/gpu/drm/i915/i915_gem_gtt.c | 4 ++++
->>  drivers/gpu/drm/i915/i915_vgpu.c    | 1 +
->>  3 files changed, 6 insertions(+)
->>
->> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
->> index eb31c16..32e17c4 100644
->> --- a/drivers/gpu/drm/i915/i915_drv.h
->> +++ b/drivers/gpu/drm/i915/i915_drv.h
->> @@ -961,6 +961,7 @@ struct i915_frontbuffer_tracking {
->>  };
->>  
->>  struct i915_virtual_gpu {
->> +       struct mutex lock;
->>         bool active;
->>         u32 caps;
->>  };
->> diff --git a/drivers/gpu/drm/i915/i915_gem_gtt.c b/drivers/gpu/drm/i915/i915_gem_gtt.c
->> index 2cd2dab..ff0b178 100644
->> --- a/drivers/gpu/drm/i915/i915_gem_gtt.c
->> +++ b/drivers/gpu/drm/i915/i915_gem_gtt.c
->> @@ -833,6 +833,8 @@ static int gen8_ppgtt_notify_vgt(struct i915_ppgtt *ppgtt, bool create)
->>         enum vgt_g2v_type msg;
->>         int i;
->>  
->> +       mutex_lock(&dev_priv->vgpu.lock);
->> +
->>         if (create)
->>                 atomic_inc(px_used(ppgtt->pd)); /* never remove */
->>         else
->> @@ -860,6 +862,8 @@ static int gen8_ppgtt_notify_vgt(struct i915_ppgtt *ppgtt, bool create)
->>  
->>         I915_WRITE(vgtif_reg(g2v_notify), msg);
->>  
-> How do you know the operation is complete and it is now safe to
-> overwrite the data regs?
-> -Chris
+On Thu, 22 Aug 2019 at 22:38, Sasha Levin <sashal@kernel.org> wrote:
 >
-by design, the data reg value is copied out to use, so as long as the
-action and data is operated together, how long the operation is not a
-issue and  it is safe to overwrite the data regs with new action next time.
+>
+> This is the start of the stable review cycle for the 5.2.10 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 24 Aug 2019 05:07:10 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+5.2.10-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.2.y
+> and the diffstat can be found below.
+>
+> --
+> Thanks,
+> Sasha
 
--BRs, Xiaolin
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.2.10-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.2.y
+git commit: f5284fbdcd34b923c32f702a0d46a00b9e744d71
+git describe: v5.2.9-135-gf5284fbdcd34
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/bui=
+ld/v5.2.9-135-gf5284fbdcd34
+
+
+No regressions (compared to build v5.2.9)
+
+
+No fixes (compared to build v5.2.9)
+
+Ran 22639 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
