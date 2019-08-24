@@ -2,62 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7679C089
-	for <lists+stable@lfdr.de>; Sat, 24 Aug 2019 23:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 401789C097
+	for <lists+stable@lfdr.de>; Sat, 24 Aug 2019 23:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728294AbfHXVge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Aug 2019 17:36:34 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:39725 "EHLO
-        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727708AbfHXVgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 24 Aug 2019 17:36:33 -0400
-Received: from carbon-x1.hos.anvin.org ([IPv6:2601:646:8600:3281:e7ea:4585:74bd:2ff0])
-        (authenticated bits=0)
-        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id x7OLZlZI1693806
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Sat, 24 Aug 2019 14:35:47 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com x7OLZlZI1693806
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019081901; t=1566682550;
-        bh=2gQzKPo4WrQnlvDY26oni/RH8wMNjOHmljo2FnAYqSQ=;
+        id S1727950AbfHXVtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Aug 2019 17:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727956AbfHXVtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 24 Aug 2019 17:49:33 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FA312133F;
+        Sat, 24 Aug 2019 21:49:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566683372;
+        bh=AEi9xsN3Xx/abMEbB13bCDWDcwoVz1r6hZ6AC4FqEgY=;
         h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=jfa8ujf6Bo1t5AdTUjdpXdAFm8XuC39+BjMNqj+VUJ3I53oJo8pLL8aqGEuCFFlpF
-         mwuiVt5W4twlgKdrwazMwd/61MKfTF4NAY11XuCMz/Ej1knheH/Kqod+N3MIPMcnIK
-         cktpL1xZjdX5eoOtI9MknxvSwHVr1fI8qBSoNC3LNQYeNSnmeD84o3whZzxDwNPfwG
-         gh/3M8807qmCeoj0hhRip3VMQkcUT2k058MR72yR9RAETn0/4FIKzK3WhJgnwoAar5
-         HnEPzDPWJwws1MytshNO8EJOiF+QUagVUh1dO3bzXlhf83JKnsGzcKS+aVx/usQ/fp
-         EvEO265n3vcaQ==
-Subject: Re: [tip: x86/urgent] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
- family 15h/16h
-To:     Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Cc:     linux-tip-commits@vger.kernel.org,
-        "x86@kernel.org" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Juergen Gross <jgross@suse.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ingo Molnar <mingo@redhat.com>, Chen Yu <yu.c.chen@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-References: <7543af91666f491547bd86cebb1e17c66824ab9f.1566229943.git.thomas.lendacky@amd.com>
- <156652264945.9541.4969272027980914591.tip-bot2@tip-bot2>
- <20190824181929.GA18551@amd>
-From:   "H. Peter Anvin" <hpa@zytor.com>
-Message-ID: <409703ae-6d70-3f6a-d6fc-b7dada3c2797@zytor.com>
-Date:   Sat, 24 Aug 2019 14:35:40 -0700
+        b=td9MUgrzMnGqZn8/N5xZvEi0gIOVZV3AvIn1KQJ7zBX8PGr99ohGoM4Wt75d2ETHb
+         JfeTD51UFPo3o0k2Wna5faSJehIXN1pHRJfeIbMUl4G0okK/vKCivoABjEbf62EQqC
+         AL8/GEPjceVscqgtEAvoQ3ezoWLbWhj55F2dvvXI=
+Subject: Re: [PATCH 5.2 000/135] 5.2.10-stable review
+To:     Greg KH <greg@kroah.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, shuah <shuah@kernel.org>
+References: <20190822170811.13303-1-sashal@kernel.org>
+ <00216731-a088-7d47-eafb-70409f876bda@kernel.org>
+ <20190824023829.GE9862@kroah.com>
+ <e4d5ba59-8e38-a267-8a14-3c6bc03f77bd@kernel.org>
+ <20190824153348.GA27505@kroah.com>
+ <93850e40-7df9-b5db-bda4-5b4354d2c3f3@kernel.org>
+ <20190824181445.GA10804@kroah.com>
+From:   shuah <shuah@kernel.org>
+Message-ID: <bf9b854f-0144-1260-9bab-d9d2ea455864@kernel.org>
+Date:   Sat, 24 Aug 2019 15:49:30 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190824181929.GA18551@amd>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20190824181445.GA10804@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -65,34 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/24/19 11:19 AM, Pavel Machek wrote:
-> On Fri 2019-08-23 01:10:49, tip-bot2 for Tom Lendacky wrote:
->> The following commit has been merged into the x86/urgent branch of tip:
+On 8/24/19 12:14 PM, Greg KH wrote:
+> On Sat, Aug 24, 2019 at 11:01:19AM -0600, shuah wrote:
+>> On 8/24/19 9:33 AM, Greg KH wrote:
+>>> On Sat, Aug 24, 2019 at 09:21:53AM -0600, shuah wrote:
+>>>> On 8/23/19 8:38 PM, Greg KH wrote:
+>>>>> On Fri, Aug 23, 2019 at 12:41:03PM -0600, shuah wrote:
+>>>>>> On 8/22/19 11:05 AM, Sasha Levin wrote:
+>>>>>>>
+>>>>>>> This is the start of the stable review cycle for the 5.2.10 release.
+>>>>>>> There are 135 patches in this series, all will be posted as a response
+>>>>>>> to this one.  If anyone has any issues with these being applied, please
+>>>>>>> let me know.
+>>>>>>>
+>>>>>>> Responses should be made by Sat 24 Aug 2019 05:07:10 PM UTC.
+>>>>>>> Anything received after that time might be too late.
+>>>>>>>
+>>>>>>> The whole patch series can be found in one patch at:
+>>>>>>>             https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.2.10-rc1.gz
+>>>>>>
+>>>>>> I am seeing "Sorry I can't find your kernels". Is this posted?
+>>>>>
+>>>>> Ah, Sasha didn't generate the patch but it was still listed here, oops.
+>>>>> He copied my format and we didn't notice this, sorry about that.
+>>>>>
+>>>>> As the thread shows, we didn't generate this file this time to see what
+>>>>> would happen.  If your test process requires it, we can generate it as I
+>>>>> don't want to break it.
+>>>>>
+>>>>
+>>>> It will make it lot easier for me to have continued support for patch
+>>>> generation. My scripts do "wget" to pull the patch and apply.
+>>>
+>>> Ok, we will get this back and working, sorry about that.
+>>>
 >>
->> Commit-ID:     c49a0a80137c7ca7d6ced4c812c9e07a949f6f24
->> Gitweb:        https://git.kernel.org/tip/c49a0a80137c7ca7d6ced4c812c9e07a949f6f24
->> Author:        Tom Lendacky <thomas.lendacky@amd.com>
->> AuthorDate:    Mon, 19 Aug 2019 15:52:35 
->> Committer:     Borislav Petkov <bp@suse.de>
->> CommitterDate: Mon, 19 Aug 2019 19:42:52 +02:00
->>
->> x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h
->>
->> There have been reports of RDRAND issues after resuming from suspend on
->> some AMD family 15h and family 16h systems. This issue stems from a BIOS
->> not performing the proper steps during resume to ensure RDRAND continues
->> to function properly.
+>> Great. Thanks for accommodating my workflow.
 > 
-> There are quite a few unanswered questions here.
-> 
-> a) Is there/should there be CVE for this?
-> 
-> b) Can we perform proper steps in kernel, thus making RDRAND usable
-> even when BIOS is buggy?
+> I have uploaded it to kernel.org now, should show up on the "public
+> side" in 15 minutes or so.
 > 
 
-The kernel should at least be able to set its internal "CPUID" bit, visible
-through /proc/cpuinfo.
+Great. Downloaded successfully.
 
-	-hpa
+thanks,
+-- Shuah
 
