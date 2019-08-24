@@ -2,135 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B916C9BAE4
-	for <lists+stable@lfdr.de>; Sat, 24 Aug 2019 04:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FAB29BAE9
+	for <lists+stable@lfdr.de>; Sat, 24 Aug 2019 04:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725924AbfHXCdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Aug 2019 22:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50700 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725807AbfHXCdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Aug 2019 22:33:00 -0400
+        id S1726739AbfHXCic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Aug 2019 22:38:32 -0400
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:48705 "EHLO
+        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725807AbfHXCic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Aug 2019 22:38:32 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id E857246C5;
+        Fri, 23 Aug 2019 22:38:30 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 23 Aug 2019 22:38:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=uwo5KC6cm7RwrFdHorEZcbCanbJ
+        1Veh3/B8otgcZu4s=; b=ou5uENMjrJS43V17e1R/ele998tAPPEx8KBaa5M7Zec
+        8qdkE4/iak5DuLaMKsMfnrsYCeQ0hX5IpUfxoIEfQLMclQdS9wIITEFoHx6mNeBd
+        q49dbb2vUjigJnih4zedCL+k2MP/p7GyBbiC2DbUnhwtqGp1NzfRj4TmFIjmI5ya
+        9Giga/ZmE+PMKRKNialDqXCr5KWcitg23x2ZVPQ2nEQW+n+OFazyPnwp69vi1pCS
+        D2/h4A98vaYmJTtOXo/xWUD/7iqfDGcROuQBh8HQ4DJpNcvH0qOSJdPnp2QUPb9p
+        0/jLcBf7EddhQlEQgdLJDobhj6YiMYzc8UqqL9wU0/g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uwo5KC
+        6cm7RwrFdHorEZcbCanbJ1Veh3/B8otgcZu4s=; b=L9at2VRZ2lTHgtJBXoBpEQ
+        qNchxgB05BMyBBWxZNEjHdEytMqASE0G5m9G02liIYPMF1KuBxJJbP6hJa41nb8u
+        6l3Mzz73wEoAluriPH0CgSley0HlsP94KxBlduZ3snRybEv3/PxIdUtx+mBTQJ8u
+        Bl5+vRKN9DganC5x/ZMeYLkC5niEhchkqBZOhzF7Te5aRSZrPKEpkI4biMfvO6Jd
+        dXt22MCnZ3Dm96Q2FPWEkbRl3uBi1J8OdGkPVXPN/IykIIgrLyMgfCkLWlxKw4b2
+        QM7gBTaIVZ/9Ga8E8fDRQAD1bYT1FLyIJvvdXdBM/OUbeY7po3lJPii9tJw9REww
+        ==
+X-ME-Sender: <xms:JqNgXXTUVoXBa7H3AVc31lQROQtD8bdd19WjqvFb4zf7yKhL3HGDpA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudegledgiedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    goufhprghmkfhpqdhouhhtucdlhedttddmnecujfgurhepfffhvffukfhfgggtuggjfges
+    thdtredttdervdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtg
+    homheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepieehrdduudegrdel
+    tddrudelnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+    enucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:JqNgXSHfJi19z9xm4CA2g33LKwwVQqPS6Uc6_VVaNc_vkdkJafIvUg>
+    <xmx:JqNgXU0QQsBuC9IO3378tUI3LCJNPqTXuH1OobM7xcMoOy_ryqqgWg>
+    <xmx:JqNgXQt-0UeDrg0cNPurNCeo-l54NIHkblURt9HJKbgZcm8EIicMVw>
+    <xmx:JqNgXfWsv-rPNVxhXg7ih0HA4CxN_M5L9JReA5X5Em8lhBMUAK5HnA>
 Received: from localhost (65-114-90-19.dia.static.qwest.net [65.114.90.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5FF21670;
-        Sat, 24 Aug 2019 02:32:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566613979;
-        bh=bIZr2EfqJP+oA7d2q9aSr2i35w3Q3/VnBY7KY54whTg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nW2dot+22aws5M2vIfV+U682OQ2Yy3jF0732IK8djjLjS/EhRXgAhCI0k95IoMO8N
-         rG6usWOBIMsg/1Y2MGbMyBQlDaluwTdmLbpKN062Nn8cFeuhNtF+1fUcxssIUPc6sd
-         Xk15GD9aKmAzfktDd542Yl0TN4ETn+Q/72XAmrvg=
-Date:   Fri, 23 Aug 2019 19:32:58 -0700
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Stefan Lippers-Hollmann <s.l-h@gmx.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D8B918005B;
+        Fri, 23 Aug 2019 22:38:29 -0400 (EDT)
+Date:   Fri, 23 Aug 2019 19:38:29 -0700
+From:   Greg KH <greg@kroah.com>
+To:     shuah <shuah@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org
 Subject: Re: [PATCH 5.2 000/135] 5.2.10-stable review
-Message-ID: <20190824023258.GA9862@kroah.com>
+Message-ID: <20190824023829.GE9862@kroah.com>
 References: <20190822170811.13303-1-sashal@kernel.org>
- <20190822172619.GA22458@kroah.com>
- <20190823000527.0ea91c6b@mir>
- <20190822233847.GB24034@kroah.com>
- <20190823024248.11e2dac3@mir>
- <20190823062853.GC1581@sasha-vm>
- <20190823173627.GA1040@kroah.com>
- <20190824011805.GH1581@sasha-vm>
+ <00216731-a088-7d47-eafb-70409f876bda@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190824011805.GH1581@sasha-vm>
+In-Reply-To: <00216731-a088-7d47-eafb-70409f876bda@kernel.org>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 23, 2019 at 09:18:05PM -0400, Sasha Levin wrote:
-> On Fri, Aug 23, 2019 at 10:36:27AM -0700, Greg KH wrote:
-> > On Fri, Aug 23, 2019 at 02:28:53AM -0400, Sasha Levin wrote:
-> > > On Fri, Aug 23, 2019 at 02:42:48AM +0200, Stefan Lippers-Hollmann wrote:
-> > > > Hi
-> > > >
-> > > > On 2019-08-22, Greg KH wrote:
-> > > > > On Fri, Aug 23, 2019 at 12:05:27AM +0200, Stefan Lippers-Hollmann wrote:
-> > > > > > On 2019-08-22, Greg KH wrote:
-> > > > > > > On Thu, Aug 22, 2019 at 01:05:56PM -0400, Sasha Levin wrote:
-> > > > [...]
-> > > > > > It might be down to kernel.org mirroring, but the patch file doesn't
-> > > > > > seem to be available yet (404), both in the wrong location listed
-> > > > > > above - and the expected one under
-> > > > > >
-> > > > > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.10-rc1.gz
-> > > > [...]
-> > > > > Ah, no, it's not a mirroring problem, Sasha and I didn't know if anyone
-> > > > > was actually using the patch files anymore, so it was simpler to do a
-> > > > > release without them to see what happens. :)
-> > > > >
-> > > > > Do you rely on these, or can you use the -rc git tree or the quilt
-> > > > > series?  If you do rely on them, we will work to fix this, it just
-> > > > > involves some scripting that we didn't get done this morning.
-> > > >
-> > > > "Rely" is a strong word, I can adapt if they're going away, but
-> > > > I've been using them so far, as in (slightly simplified):
-> > > >
-> > > > $ cd patches/upstream/
-> > > > $ wget https://cdn.kernel.org/pub/linux/kernel/v5.x/patch-5.2.9.xz
-> > > > $ xz -d patch-5.2.9.xz
-> > > > $ wget https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.10-rc1.gz
-> > > > $ gunzip patch-5.2.10-rc1.gz
-> > > > $ vim ../series
-> > > > $ quilt ...
-> > > >
-> > > > I can switch to importing the quilt queue with some sed magic (and I
-> > > > already do that, if interesting or just a larger amounts of patches are
-> > > > queuing up for more than a day or two), but using the -rc patches has
-> > > > been convenient in that semi-manual workflow, also to make sure to really
-> > > > get and test the formal -rc patch, rather than something inbetween.
-> > > 
-> > > An easy way to generate a patch is to just use the git.kernel.org web
-> > > interface. A patch for 5.2.10-rc1 would be:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.2.y&id2=v5.2.9
-> > > 
-> > > Personally this patch upload story sounded to me like a pre-git era
-> > > artifact...
+On Fri, Aug 23, 2019 at 12:41:03PM -0600, shuah wrote:
+> On 8/22/19 11:05 AM, Sasha Levin wrote:
 > > 
-> > Given that we no longer do patches for Linus's -rc releases for the past
-> > few years, maybe it is time to move to do the same for the stable
-> > releases to be consistent.
+> > This is the start of the stable review cycle for the 5.2.10 release.
+> > There are 135 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat 24 Aug 2019 05:07:10 PM UTC.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> >          https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.2.10-rc1.gz
 > 
-> Or tarballs? Why do we generate tarballs (and go through kup)?
-> git.kernel.org already does it for us.
+> I am seeing "Sorry I can't find your kernels". Is this posted?
 
-As I mentioned yesterday, but writing it down here for posterity,
-there's a number of reasons.
+Ah, Sasha didn't generate the patch but it was still listed here, oops.
+He copied my format and we didn't notice this, sorry about that.
 
-First off, the release process doesn't require kup for when a "real"
-release happens, that's all now donw on git.kernel.org with a process
-involving a signed note and some other fun backend stuff.  We are
-working on expanding that in the future with some other signature
-validation as well, to make it easier to verify tarballs are "correct"
-as what we do today is a bit different than other projects.
-
-As for the tarball itself, it's still needed for the same reasons we do
-so on Linus's releases:
-	- distros use these.  Don't want all Gentoo users hammering on
-	  git.kernel.org for their updated builds, that's a huge waste.
-	- mirroring works _so_ much better around the world for tarballs
-	- legal reasons.  git is not yet "recognized" as being something
-	  that properly is reflective of a specific point in time while
-	  as online tarballs that are mirrored and stored around the
-	  world are finally almost properly recognized for this.
-	- historical, people are used to using them, and workflows are
-	  built up around them.  People don't like rewriting scripts, as
-	  can be seen in my monstrosity of a mess that I use for
-	  releases :)
-
-there are probably others, I know it came up when Linus stopped doing it
-for the -rc releases and it was considered to do the same for the "real"
-releases.
+As the thread shows, we didn't generate this file this time to see what
+would happen.  If your test process requires it, we can generate it as I
+don't want to break it.
 
 thanks,
 
