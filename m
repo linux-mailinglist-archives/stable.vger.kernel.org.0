@@ -2,265 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D857A9C5F7
-	for <lists+stable@lfdr.de>; Sun, 25 Aug 2019 21:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 465369C66E
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 00:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728733AbfHYTyD convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 25 Aug 2019 15:54:03 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41402 "EHLO mx1.redhat.com"
+        id S1728961AbfHYWfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Aug 2019 18:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728730AbfHYTyD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 25 Aug 2019 15:54:03 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728944AbfHYWfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 25 Aug 2019 18:35:40 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 019D0190C100
-        for <stable@vger.kernel.org>; Sun, 25 Aug 2019 19:54:03 +0000 (UTC)
-Received: from [172.54.99.226] (cpt-1058.paas.prod.upshift.rdu2.redhat.com [10.0.19.75])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 994C85DA8C;
-        Sun, 25 Aug 2019 19:54:00 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E8942070B;
+        Sun, 25 Aug 2019 22:35:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566772539;
+        bh=fWYAPG+1006AeWWBWjdG72l6elL2X09zkjVtE8i+LMM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pG5I1EzAHntwN3s4m3gHH+8/TIlRnVM79XmNAIeWYXWplYBB58l/xUs6H+05dt4J+
+         XwS+Kv4zcbRXT6HXgyUm0ANczl6MpluKFQVQGaY7qzBGzGd2xtvheXcoDfCXxWI5JD
+         Rb5Z4SErUlv2gPPlzL6m+NyWJ7KnHKZ59CnCW+Yg=
+Date:   Sun, 25 Aug 2019 18:35:38 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     =?iso-8859-1?Q?J=F6rg-Volker?= Peetz <jvpeetz@web.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 5.2.10
+Message-ID: <20190825223537.GB5281@sasha-vm>
+References: <20190825144703.6518-1-sashal@kernel.org>
+ <qju9bd$47qi$1@blaine.gmane.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.2.10-f7d5b3d.cki
- (stable)
-Message-ID: <cki.30E49AB30B.N9Z4WPODT7@redhat.com>
-X-Gitlab-Pipeline-ID: 123341
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/123341
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Sun, 25 Aug 2019 19:54:03 +0000 (UTC)
-Date:   Sun, 25 Aug 2019 15:54:03 -0400
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <qju9bd$47qi$1@blaine.gmane.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Thanks for looking into this!
 
-Hello,
+On Sun, Aug 25, 2019 at 05:26:37PM +0200, J�rg-Volker Peetz wrote:
+>Where can I find your public gpg key and it's fingerprint?
+>It's not yet documented on https://www.kernel.org/category/signatures.html .
 
-We ran automated tests on a recent commit from this kernel tree:
+You're right, I'll send a patch to add my fingerprint as well.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: f7d5b3dc4792 - Linux 5.2.10
+>I'm asking because the "gpg --locate-keys" method does not work for me.
 
-The results of these automated tests are provided below.
+I can confirm this, and this is weird... I see a kernel.org UID on the
+key, and gpg seems to confirm that as well:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+$ gpg --quick-add-uid DEA66FF797772CDC 'Sasha Levin <sashal@kernel.org>'
+gpg: Such a user ID already exists on this key!
 
-All kernel binaries, config files, and logs are available for download here:
+Let me contact kernel.org support to see what I'm doing wrong...
 
-  https://artifacts.cki-project.org/pipelines/123341
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ LTP lite [2]
-         ✅ Loopdev Sanity [3]
-         ✅ jvm test suite [4]
-         ✅ Memory function: memfd_create [5]
-         ✅ AMTU (Abstract Machine Test Utility) [6]
-         ✅ LTP: openposix test suite [7]
-         ✅ Ethernet drivers sanity [8]
-         ✅ Networking socket: fuzz [9]
-         ✅ Networking sctp-auth: sockopts test [10]
-         ✅ Networking: igmp conformance test [11]
-         ✅ Networking TCP: keepalive test [12]
-         ✅ Networking UDP: socket [13]
-         ✅ Networking tunnel: gre basic [14]
-         ✅ Networking tunnel: vxlan basic [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ Usex - version 1.9-29 [20]
-         ✅ storage: SCSI VPD [21]
-         ✅ stress: stress-ng [22]
-         🚧 ✅ Networking route: pmtu [23]
-         🚧 ✅ Networking route_func: local [24]
-         🚧 ✅ Networking route_func: forward [24]
-         🚧 ✅ Networking tunnel: geneve basic test [25]
-         🚧 ✅ Networking ipsec: basic netns transport [26]
-         🚧 ✅ Networking ipsec: basic netns tunnel [26]
-         🚧 ✅ Networking vnic: ipvlan/basic [27]
-         🚧 ✅ trace: ftrace/tracer [28]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [29]
-         ✅ xfstests: xfs [29]
-         ✅ selinux-policy: serge-testsuite [30]
-         ✅ lvm thinp sanity [31]
-         ✅ storage: software RAID testing [32]
-         🚧 ✅ Storage blktests [33]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ LTP lite [2]
-         ✅ Loopdev Sanity [3]
-         ✅ jvm test suite [4]
-         ✅ Memory function: memfd_create [5]
-         ✅ AMTU (Abstract Machine Test Utility) [6]
-         ✅ LTP: openposix test suite [7]
-         ✅ Ethernet drivers sanity [8]
-         ✅ Networking socket: fuzz [9]
-         ✅ Networking sctp-auth: sockopts test [10]
-         ✅ Networking TCP: keepalive test [12]
-         ✅ Networking UDP: socket [13]
-         ✅ Networking tunnel: gre basic [14]
-         ✅ Networking tunnel: vxlan basic [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ Usex - version 1.9-29 [20]
-         🚧 ✅ Networking route: pmtu [23]
-         🚧 ✅ Networking route_func: local [24]
-         🚧 ✅ Networking route_func: forward [24]
-         🚧 ✅ Networking tunnel: geneve basic test [25]
-         🚧 ✅ Networking ipsec: basic netns tunnel [26]
-         🚧 ✅ Networking vnic: ipvlan/basic [27]
-         🚧 ✅ trace: ftrace/tracer [28]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [29]
-         ✅ xfstests: xfs [29]
-         ✅ selinux-policy: serge-testsuite [30]
-         ✅ lvm thinp sanity [31]
-         ✅ storage: software RAID testing [32]
-         🚧 ✅ Storage blktests [33]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [29]
-         ✅ xfstests: xfs [29]
-         ✅ selinux-policy: serge-testsuite [30]
-         ✅ lvm thinp sanity [31]
-         ✅ storage: software RAID testing [32]
-         🚧 ✅ Storage blktests [33]
-         🚧 ✅ IOMMU boot test [34]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ LTP lite [2]
-         ✅ Loopdev Sanity [3]
-         ✅ jvm test suite [4]
-         ✅ Memory function: memfd_create [5]
-         ✅ AMTU (Abstract Machine Test Utility) [6]
-         ✅ LTP: openposix test suite [7]
-         ✅ Ethernet drivers sanity [8]
-         ✅ Networking socket: fuzz [9]
-         ✅ Networking sctp-auth: sockopts test [10]
-         ✅ Networking: igmp conformance test [11]
-         ✅ Networking TCP: keepalive test [12]
-         ✅ Networking UDP: socket [13]
-         ✅ Networking tunnel: gre basic [14]
-         ✅ Networking tunnel: vxlan basic [15]
-         ✅ audit: audit testsuite test [16]
-         ✅ httpd: mod_ssl smoke sanity [17]
-         ✅ iotop: sanity [18]
-         ✅ tuned: tune-processes-through-perf [19]
-         ✅ pciutils: sanity smoke test [35]
-         ✅ Usex - version 1.9-29 [20]
-         ✅ storage: SCSI VPD [21]
-         ✅ stress: stress-ng [22]
-         🚧 ✅ Networking route: pmtu [23]
-         🚧 ✅ Networking route_func: local [24]
-         🚧 ✅ Networking route_func: forward [24]
-         🚧 ✅ Networking tunnel: geneve basic test [25]
-         🚧 ✅ Networking ipsec: basic netns transport [26]
-         🚧 ✅ Networking ipsec: basic netns tunnel [26]
-         🚧 ✅ Networking vnic: ipvlan/basic [27]
-         🚧 ✅ trace: ftrace/tracer [28]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/vnic/ipvlan/basic
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [32]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [33]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [34]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
-    [35]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+--
+Thanks,
+Sasha
