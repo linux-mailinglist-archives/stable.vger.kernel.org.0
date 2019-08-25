@@ -2,46 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D16919C4FF
-	for <lists+stable@lfdr.de>; Sun, 25 Aug 2019 19:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D169C525
+	for <lists+stable@lfdr.de>; Sun, 25 Aug 2019 19:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbfHYRIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Aug 2019 13:08:04 -0400
-Received: from 195-159-176-226.customer.powertech.no ([195.159.176.226]:51046
-        "EHLO blaine.gmane.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728293AbfHYRIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Aug 2019 13:08:04 -0400
-Received: from list by blaine.gmane.org with local (Exim 4.89)
-        (envelope-from <glks-stable4@m.gmane.org>)
-        id 1i1vzm-000508-P3
-        for stable@vger.kernel.org; Sun, 25 Aug 2019 19:08:02 +0200
-X-Injected-Via-Gmane: http://gmane.org/
-To:     stable@vger.kernel.org
-From:   =?UTF-8?Q?J=c3=b6rg-Volker_Peetz?= <jvpeetz@web.de>
+        id S1728645AbfHYRdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Aug 2019 13:33:43 -0400
+Received: from lb2-smtp-cloud7.xs4all.net ([194.109.24.28]:39897 "EHLO
+        lb2-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725971AbfHYRdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Aug 2019 13:33:43 -0400
+Received: from xps13 ([83.160.161.190])
+        by smtp-cloud7.xs4all.net with ESMTPSA
+        id 1wOWi1kpFThuu1wOZix6bZ; Sun, 25 Aug 2019 19:33:41 +0200
+Message-ID: <dd3a1ec7d03888dade78db1e4c45ec1347c0815b.camel@tiscali.nl>
 Subject: Re: Linux 5.2.10
-Date:   Sun, 25 Aug 2019 19:07:55 +0200
-Message-ID: <62a9ce57-c362-9d83-5679-4c21ef07b758@web.de>
-References: <20190825144703.6518-1-sashal@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From:   Paul Bolle <pebolle@tiscali.nl>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org
+Cc:     jslaby@suse.cz, lwn@lwn.net
+Date:   Sun, 25 Aug 2019 19:33:36 +0200
 In-Reply-To: <20190825144703.6518-1-sashal@kernel.org>
-Content-Language: de-DE-frami
-Cc:     linux-kernel@vger.kernel.org
+References: <20190825144703.6518-1-sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4wfN42HIq+T3e6Uv/dme3AG85mTGT+JGuflqMTtz8RstCz+SUKfVyH8XVdG0FXfkAryY22SyVhHtjulJ79HbQDNe1awwJLteU8Y7LgtSsSPfLXbMgMLpMr
+ dgFYqzbuSXKMhe9vwA9WY8kLcI+r58Sko2XPfQ58bIiDF+ZfuwkM8bEXlAYTA8uFwiT6iI2+5h63KEt6VHtL9ZXWb6cDC4zdmHf5ceiYaTroGdeXSgsNZH/v
+ crvnRkoCdz1TpplAHdpGY6fWxkBYP/QKf4kmBciEgfCB4saYsEMvTnVliLkleDSQ6GRt3W6W8HiJCXbETaBtPQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[forgot to address you directly]
+Sasha,
 
-Where can I find your public gpg key and it's fingerprint?
-It's not yet documented on https://www.kernel.org/category/signatures.html .
-I'm asking because the "gpg --locate-keys" method does not work for me.
+Sasha Levin schreef op zo 25-08-2019 om 10:47 [-0400]:
+> I'm announcing the release of the 5.2.10 kernel.
+> 
+> All users of the 5.2 kernel series must upgrade.
+> 
+> The updated 5.2.y git tree can be found at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.2.y
+> and can be browsed at the normal kernel.org git web browser:
+>         https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Thanks for your work.
-Best regards,
-Jörg.
+v5.2.10 was tagged by sashal@kernel.org but signed by 
+alexander.levin@verizon.com. Perhaps you could use one of gpg2's many options
+to add an
+    aka "Sasha Levin <sashal@kernel.org>"
+
+line to that key. (I assume "--recv-key" then would have found your key.)
+
+Or would that be a sin against kernel.org policy, state-of-the-art
+cryptographic practices, or whatever?
+
+Thanks,
 
 
+Paul Bolle
 
