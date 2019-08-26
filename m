@@ -2,96 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B1F9CB79
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 10:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB169CB81
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 10:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729569AbfHZIYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 04:24:06 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58058 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727798AbfHZIYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 04:24:06 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 71C5310C696C;
-        Mon, 26 Aug 2019 08:24:06 +0000 (UTC)
-Received: from [10.36.116.118] (ovpn-116-118.ams2.redhat.com [10.36.116.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C3075600C4;
-        Mon, 26 Aug 2019 08:24:00 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e2?=
-To:     Greg KH <greg@kroah.com>, CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-References: <cki.FF1370FEA1.W4XGF3MDGN@redhat.com>
- <20190825144122.GA27775@kroah.com>
-From:   Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
-Message-ID: <d0567d4e-6bbe-4a93-d657-0ee7f6e4625d@redhat.com>
-Date:   Mon, 26 Aug 2019 11:23:58 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1729582AbfHZI3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 04:29:14 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:38956 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729523AbfHZI3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 04:29:14 -0400
+Received: by mail-pg1-f194.google.com with SMTP id u17so10147306pgi.6;
+        Mon, 26 Aug 2019 01:29:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=7nQNofdNPA0V1tQFGi6EuiXnb+AcRnunYAP+c0aUwnQ=;
+        b=O46FQAxCgM01hf0RK+D1QTP9Z4bpcm6iSXU1AsuYjaI/HhYvWQRyFUg346Jtdm9P5k
+         W5PhHPKdBWom2AvvVFmtv0bwhhL89KazYQZNGmiKHuulCoiyy7MFvDxrgkST2167y61B
+         oZm9xvGGiBDSIKgXktfgB/4kkfgBhezmIC7U9Jb9dOKqo3tnU4IHOzW71zG2OoVjFTt3
+         IOTXDjyArz+FItOU9xNGbKQmK4qdbhs9d0cGoDhzJ/hX4RthM0Zp3gyoC6gB0672oaa/
+         /iiGXlb6ylbcn1+RRt3q3GW/xdTWhKTlD/Iu4SoYQsrZVexId487SHY9VPrNB7347aOy
+         rRog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=7nQNofdNPA0V1tQFGi6EuiXnb+AcRnunYAP+c0aUwnQ=;
+        b=AoRrDtRlqZJPrWoibkjU5o0+1g9SVNKNTEgjER/n4avEvCozmtjNp9lR3JoVT68+s7
+         ZJQygLrrnlT7QVQ0N95Rebzktu78asJeM78RBnfvypqeE6tqJJNBP5ql0Z+Kzu9rch1J
+         sMBSOeB9BQYvdpvF446uCcrcdOQVN1onCbtlPlWBjtvbXe/ZwjTE4vp/fz3Rfw4K0PnU
+         d3NtGUEGunP64SoBl1Y9OnZ6AeVT7Hf+00Cq3e42h8Au1fHG3WR9dm/JQTLVw4PbAH7J
+         YPHWZIWLDghIJf8843EWKzGQTXpsUicKdn2HU3iPQbzt3TneFVLwdsHaUk3ivXvJoNQk
+         BC8w==
+X-Gm-Message-State: APjAAAVOwJXBnbzRniKyb0ImkC8Ji3L1LISTa7rUgwvEyeM0Xmp2MyM8
+        t/CiMIkzwLBS/pbk4F9gkRs=
+X-Google-Smtp-Source: APXvYqzEFo/9132jFUKd5RLlKtIRUdOHvpdHS4+SIU3SVhuKafxKsOPWgnDw/5AcMmq/nHXsoUe8Cw==
+X-Received: by 2002:a65:500a:: with SMTP id f10mr15350698pgo.105.1566808153696;
+        Mon, 26 Aug 2019 01:29:13 -0700 (PDT)
+Received: from Gentoo ([103.231.91.35])
+        by smtp.gmail.com with ESMTPSA id ce20sm14409379pjb.16.2019.08.26.01.29.07
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Aug 2019 01:29:12 -0700 (PDT)
+Date:   Mon, 26 Aug 2019 13:58:59 +0530
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org, jslaby@suse.cz,
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Subject: Re: Linux 5.2.10
+Message-ID: <20190826082857.GE31983@Gentoo>
+References: <20190825144703.6518-1-sashal@kernel.org>
+ <20190826063834.GD31983@Gentoo>
+ <20190826080107.GB30396@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190825144122.GA27775@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.65]); Mon, 26 Aug 2019 08:24:06 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190826080107.GB30396@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/25/19 5:41 PM, Greg KH wrote:
-> On Sun, Aug 25, 2019 at 10:37:26AM -0400, CKI Project wrote:
->> Merge testing
->> -------------
->>
->> We cloned this repository and checked out the following commit:
->>
->>    Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->>    Commit: f7d5b3dc4792 - Linux 5.2.10
->>
->>
->> We grabbed the cc88f4442e50 commit of the stable queue repository.
->>
->> We then merged the patchset with `git am`:
->>
->>    keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
-> 
-> That file is not in the repo, I think your system is messed up :(
+On 10:01 Mon 26 Aug 2019, Greg KH wrote:
+>On Mon, Aug 26, 2019 at 12:08:38PM +0530, Bhaskar Chowdhury wrote:
+>
+><snip>
+>
+>Due, learn to properly trim emails...
+>
+>> For some unknown reason kernel.org still showing me 5.2.9 ..Please refer
+>> to the attached screenshot.
+>
+>What mirror are you hitting here?  There is a way somehow to see that on
+>your end, I thought it was at the bottom of the page.
+>
+>You are not seeing any of the releases that happened yesterday, which is
+>really odd, it's not just a 5.2.10 issue.
+>
+>thanks,
+>
+>greg k-h
 
-Sorry for the trouble, Greg, but I think it's a race between the changes to
-the two repos.
 
-The job which triggered this message was started right before the moment this
-commit was made:
+>Due, learn to properly trim emails...
+ 
+ Agreed.
 
-     https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=af2f46e26e770b3aa0bc304a13ecd24763f3b452
+>
+>What mirror are you hitting here?  There is a way somehow to see that
+>on
+>your end,
 
-At that moment, the repo was still on this commit, about five hours old:
+I can see it very well at lkml.org  web page ..top right corner box ...all
+the release happen yesterday.
 
-     https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=cc88f4442e505e9f1f21c8c119debe89cbf63ab2
+>You are not seeing any of the releases that happened yesterday, which
+>is
+>really odd, it's not just a 5.2.10 issue.
 
-which still had the file. And when the job finished, and the message reached
-you, yes, the repo no longer contained it.
+Hmmm ...that indeed odd. I have tried that in "private browser
+window,firefox) and in cosole mode with w3m ...same result..
 
-At the moment the job started, the latest commit to stable/linux.git
-was about 22 minutes old:
+I can see that straight right here :
 
-     https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y
 
-and the repo already contained the patches from the queue, including the one
-the job tried to merge:
+..wondering!
 
-     https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f820ecf609cc38676071ec6c6d3e96b26c73b747
-
-IIRC, we agreed to not start testing both of the repos until the latest
-commits are at least 5 minutes old. In this situation the latest commit was 22
-minutes old, so the system started testing.
-
-We could increase the window to, say, 30 minutes (or something else), to avoid
-misfires like this, but then the response time would be increased accordingly.
-
-It's your pick :)
-
-Nick
+Thanks,
+Bhaskar
