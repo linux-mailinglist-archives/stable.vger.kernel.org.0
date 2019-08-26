@@ -2,88 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF699C86B
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 06:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258A79C86E
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 06:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727086AbfHZEdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 00:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726150AbfHZEdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 00:33:31 -0400
+        id S1726944AbfHZEeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 00:34:06 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:42773 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726150AbfHZEeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 00:34:06 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 931422F0;
+        Mon, 26 Aug 2019 00:34:04 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 26 Aug 2019 00:34:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=i+YJVaoCdNp985rRk2d+jlhfmVC
+        mqssOEbRx507HeRk=; b=BbUYK5lQnu4JfkUP6IwuSnsuY/foEIDAOrf5eUP7EjV
+        Ta6Uf/44n/22C+a+iyGO8qzaO0SFtQa3gbucc2RqMoVF6y7OlXyFTYDYhyteFzTq
+        CAgg4gGyQO2I4o1AIOd+sMQxH6+4yzm1xbiWO8sN4I8V6tOa73twFSnaa+44x8Bx
+        ari/19eCllHHrqMwWzOuAcLwb7bRvhuJYCLrH0P2f8zK3raYLrFrb0siMx2tHSb3
+        LkWpmZzO+o0fAk7xsT9GN+CU8mzVe78wNzBjIErtnR74dC+sV2TVNBO8TwLqJT4y
+        J6q0kWf4nTCR9bz1VlscLuYsn5+zqYBBMIeiXQsar0w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=i+YJVa
+        oCdNp985rRk2d+jlhfmVCmqssOEbRx507HeRk=; b=SqCgFehCMG/PCtKLoyaFFt
+        QeYclyCXN3blkj9VBeX+WB3x3Do2uY4mAn8SmfWTvSOpEP7IS08J1k1ahSN0t1qG
+        E+Bv+QP47fPijCMV90uAwg4++UbEFTLVuMiTSeJqtvnkONUpaqaLdY7yKkgjNe6U
+        N6HpU8SrIGZBjULSGW9fdD+PQYSWz989iTi56lPkeK2QyPPsN8sdnkIz1PVoqy2w
+        lvkPixQuhUj3bh/8rvaSqv+kjldeIScT1/ny+VByaibOUbtz0fpnMeocDmG48ip6
+        1PUHpwKV7/E1v0c7ejzkz8pDBwGo3coqqgNMbliK+k4wb6lZ9pfYSehs1uKeQbvw
+        ==
+X-ME-Sender: <xms:O2FjXc-cn7UQkSKC7-3M3MCW-wFGAkUeDx5kjNzl15IIBypX1fFYtw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehfedgkeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:O2FjXY-z0G35_x80tYhWXAhtvd8Ef1DFCH6nJB8sbXYgOQIKQsdqfg>
+    <xmx:O2FjXdDarY4wmZB0sBMD1KSjIVbBj16OhqsIJoVKy96vW09uzFTeQQ>
+    <xmx:O2FjXQwUXBlhp4a7gkRIc0kcNkKpaaRwL2YUT20R-cgX86E-31ceQQ>
+    <xmx:PGFjXW3CWNExABMzfTvcQvuRHG8jDF1eBEHf8-dZFc8nNLktafjY3g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D9DA2173E;
-        Mon, 26 Aug 2019 04:33:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566794010;
-        bh=hDYReKEPGspzFUUPfzXNaCQ4GuAxPqI+ynR0ZpkD4Ks=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pklW81/xTOLbHe5ZowzFgNPmnovbhHLSRAbRCjcJUDCLKCaSPaBmWC55jmJ3bCtOG
-         SoUgoclYIW5tnl0FmlarwRKi57TsV+A5/sOK55BNOnMqmlDK7/W2ABy1aF+Tie4jzX
-         Bmxv7yqIBkNssnM5PIg+6033VmGL/FNADap+uQwM=
-Date:   Mon, 26 Aug 2019 06:33:28 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     =?iso-8859-1?Q?J=F6rg-Volker?= Peetz <jvpeetz@web.de>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4E2E6D60063;
+        Mon, 26 Aug 2019 00:34:03 -0400 (EDT)
+Date:   Mon, 26 Aug 2019 06:34:01 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Paul Bolle <pebolle@tiscali.nl>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org, jslaby@suse.cz,
+        lwn@lwn.net
 Subject: Re: Linux 5.2.10
-Message-ID: <20190826043328.GB26547@kroah.com>
+Message-ID: <20190826043401.GC26547@kroah.com>
 References: <20190825144703.6518-1-sashal@kernel.org>
- <qju9bd$47qi$1@blaine.gmane.org>
- <20190825223537.GB5281@sasha-vm>
+ <dd3a1ec7d03888dade78db1e4c45ec1347c0815b.camel@tiscali.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190825223537.GB5281@sasha-vm>
+In-Reply-To: <dd3a1ec7d03888dade78db1e4c45ec1347c0815b.camel@tiscali.nl>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 25, 2019 at 06:35:38PM -0400, Sasha Levin wrote:
-> Thanks for looking into this!
+On Sun, Aug 25, 2019 at 07:33:36PM +0200, Paul Bolle wrote:
+> Sasha,
 > 
-> On Sun, Aug 25, 2019 at 05:26:37PM +0200, Jörg-Volker Peetz wrote:
-> > Where can I find your public gpg key and it's fingerprint?
-> > It's not yet documented on https://www.kernel.org/category/signatures.html .
+> Sasha Levin schreef op zo 25-08-2019 om 10:47 [-0400]:
+> > I'm announcing the release of the 5.2.10 kernel.
+> > 
+> > All users of the 5.2 kernel series must upgrade.
+> > 
+> > The updated 5.2.y git tree can be found at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.2.y
+> > and can be browsed at the normal kernel.org git web browser:
+> >         https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 > 
-> You're right, I'll send a patch to add my fingerprint as well.
+> v5.2.10 was tagged by sashal@kernel.org but signed by 
+> alexander.levin@verizon.com. Perhaps you could use one of gpg2's many options
+> to add an
+>     aka "Sasha Levin <sashal@kernel.org>"
 > 
-> > I'm asking because the "gpg --locate-keys" method does not work for me.
-> 
-> I can confirm this, and this is weird... I see a kernel.org UID on the
-> key, and gpg seems to confirm that as well:
-> 
-> $ gpg --quick-add-uid DEA66FF797772CDC 'Sasha Levin <sashal@kernel.org>'
-> gpg: Such a user ID already exists on this key!
-> 
-> Let me contact kernel.org support to see what I'm doing wrong...
+> line to that key. (I assume "--recv-key" then would have found your key.)
 
-Looks like everything is correct from my end:
-
-$ git tag -v v5.2.10
-object f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
-type commit
-tag v5.2.10
-tagger Sasha Levin <sashal@kernel.org> 1566742490 -0400
-
-This is the 5.2.10 stable release
-gpg: Signature made Sun 25 Aug 2019 04:14:50 PM CEST
-gpg:                using RSA key E27E5D8A3403A2EF66873BBCDEA66FF797772CDC
-gpg: Good signature from "Sasha Levin <sashal@kernel.org>" [unknown]
-gpg:                 aka "Sasha Levin <sasha.levin@oracle.com>" [undefined]
-gpg:                 aka "Sasha Levin <alexander.levin@verizon.com>" [unknown]
-gpg:                 aka "Sasha Levin <alexander.levin@microsoft.com>" [unknown]
-gpg: WARNING: This key is not certified with a trusted signature!
-gpg:          There is no indication that the signature belongs to the owner.
-Primary key fingerprint: E27E 5D8A 3403 A2EF 6687  3BBC DEA6 6FF7 9777 2CDC
-
-I'll go add yours and Ben's fingerprints to the kernel.org website so
-that others can verify it there.
+It's on that key already, have you refreshed your version of it?
 
 thanks,
 
