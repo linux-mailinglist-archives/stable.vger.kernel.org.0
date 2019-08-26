@@ -2,175 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4689CC55
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 11:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0027E9CC81
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 11:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730767AbfHZJN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 05:13:29 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:49696 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730747AbfHZJN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 05:13:29 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BA7A7A2F6A0;
-        Mon, 26 Aug 2019 09:13:28 +0000 (UTC)
-Received: from [10.36.116.118] (ovpn-116-118.ams2.redhat.com [10.36.116.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 56ED85D704;
-        Mon, 26 Aug 2019 09:13:25 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e2?=
-To:     Greg KH <greg@kroah.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-References: <cki.FF1370FEA1.W4XGF3MDGN@redhat.com>
- <20190825144122.GA27775@kroah.com>
- <d0567d4e-6bbe-4a93-d657-0ee7f6e4625d@redhat.com>
- <20190826083309.GA32549@kroah.com>
-From:   Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
-Message-ID: <1e9a3221-f044-a3a0-bbe1-34e6f8a468f0@redhat.com>
-Date:   Mon, 26 Aug 2019 12:13:23 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1730769AbfHZJXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 05:23:15 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:59618 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729753AbfHZJXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 05:23:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=2KBUYcIEMh8CbI2PPoE5kOoIKtOGa1DHFxKeskY4Qlk=; b=aZd6f2fvSGtnTzhxj37lD+Gdd
+        feaLc4us57oYUJCpRf63+PtXp2xoF+FsBuCKvxUA8q7t+RXVGH6KWS+75mPQnH39rHMiFNGewlQzY
+        u6Kq1C4ysxWRUTbnm/SrJt4VpgJHSHy5sNzOdyCnSCVAx6dBftJQ+fN7K0ntkcTLgE2Kc7qIA5dpc
+        ZsBa9RgPe886KK58t75r8hhXisol3nilmufWhLyY+mt3wi8yUxmc5VlVIeIoEOZp/ojdGRSwuuNGt
+        CZiQYyH7P/jB6CDfKjVOpZiElQyFtkjLjhBhXpJkYAyB8d3M7rf0lEUJZ3vEs33VaGxS/k8hm4Iix
+        plKHNfhxA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1i2BDL-0005j9-6Z; Mon, 26 Aug 2019 09:23:03 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 03BA8301FF9;
+        Mon, 26 Aug 2019 11:22:26 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 3F8602022F842; Mon, 26 Aug 2019 11:23:00 +0200 (CEST)
+Date:   Mon, 26 Aug 2019 11:23:00 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Song Liu <songliubraving@fb.com>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        "sbsiddha@gmail.com" <sbsiddha@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH] x86/mm: Do not split_large_page() for
+ set_kernel_text_rw()
+Message-ID: <20190826092300.GN2369@hirez.programming.kicks-ass.net>
+References: <20190823052335.572133-1-songliubraving@fb.com>
+ <20190823093637.GH2369@hirez.programming.kicks-ass.net>
+ <164D1F08-80F7-4E13-94FC-78F33B3E299F@fb.com>
 MIME-Version: 1.0
-In-Reply-To: <20190826083309.GA32549@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Mon, 26 Aug 2019 09:13:28 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <164D1F08-80F7-4E13-94FC-78F33B3E299F@fb.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/26/19 11:33 AM, Greg KH wrote:
-> On Mon, Aug 26, 2019 at 11:23:58AM +0300, Nikolai Kondrashov wrote:
->> On 8/25/19 5:41 PM, Greg KH wrote:
->>> On Sun, Aug 25, 2019 at 10:37:26AM -0400, CKI Project wrote:
->>>> Merge testing
->>>> -------------
->>>>
->>>> We cloned this repository and checked out the following commit:
->>>>
->>>>     Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->>>>     Commit: f7d5b3dc4792 - Linux 5.2.10
->>>>
->>>>
->>>> We grabbed the cc88f4442e50 commit of the stable queue repository.
->>>>
->>>> We then merged the patchset with `git am`:
->>>>
->>>>     keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
->>>
->>> That file is not in the repo, I think your system is messed up :(
->>
->> Sorry for the trouble, Greg, but I think it's a race between the changes to
->> the two repos.
->>
->> The job which triggered this message was started right before the moment this
->> commit was made:
->>
->>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=af2f46e26e770b3aa0bc304a13ecd24763f3b452
->>
->> At that moment, the repo was still on this commit, about five hours old:
->>
->>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=cc88f4442e505e9f1f21c8c119debe89cbf63ab2
->>
->> which still had the file. And when the job finished, and the message reached
->> you, yes, the repo no longer contained it.
->>
->> At the moment the job started, the latest commit to stable/linux.git
->> was about 22 minutes old:
->>
->>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
->>
->> and the repo already contained the patches from the queue, including the one
->> the job tried to merge:
->>
->>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f820ecf609cc38676071ec6c6d3e96b26c73b747
+On Mon, Aug 26, 2019 at 04:40:23AM +0000, Song Liu wrote:
+> Cc: Steven Rostedt and Suresh Siddha
 > 
-> How in the world are you seeing such a messed up tree?
+> Hi Peter, 
 > 
-> The 5.2.10 commit moved things around, in one single atomic move.
+> > On Aug 23, 2019, at 2:36 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+> > 
+> > On Thu, Aug 22, 2019 at 10:23:35PM -0700, Song Liu wrote:
+> >> As 4k pages check was removed from cpa [1], set_kernel_text_rw() leads to
+> >> split_large_page() for all kernel text pages. This means a single kprobe
+> >> will put all kernel text in 4k pages:
+> >> 
+> >>  root@ ~# grep ffff81000000- /sys/kernel/debug/page_tables/kernel
+> >>  0xffffffff81000000-0xffffffff82400000     20M  ro    PSE      x  pmd
+> >> 
+> >>  root@ ~# echo ONE_KPROBE >> /sys/kernel/debug/tracing/kprobe_events
+> >>  root@ ~# echo 1 > /sys/kernel/debug/tracing/events/kprobes/enable
+> >> 
+> >>  root@ ~# grep ffff81000000- /sys/kernel/debug/page_tables/kernel
+> >>  0xffffffff81000000-0xffffffff82400000     20M  ro             x  pte
+> >> 
+> >> To fix this issue, introduce CPA_FLIP_TEXT_RW to bypass "Text RO" check
+> >> in static_protections().
+> >> 
+> >> Two helper functions set_text_rw() and set_text_ro() are added to flip
+> >> _PAGE_RW bit for kernel text.
+> >> 
+> >> [1] commit 585948f4f695 ("x86/mm/cpa: Avoid the 4k pages check completely")
+> > 
+> > ARGH; so this is because ftrace flips the whole kernel range to RW and
+> > back for giggles? I'm thinking _that_ is a bug, it's a clear W^X
+> > violation.
 > 
->> IIRC, we agreed to not start testing both of the repos until the latest
->> commits are at least 5 minutes old. In this situation the latest commit was 22
->> minutes old, so the system started testing.
->>
->> We could increase the window to, say, 30 minutes (or something else), to avoid
->> misfires like this, but then the response time would be increased accordingly.
->>
->> It's your pick :)
+> Thanks for your comments. Yes, it is related to ftrace, as we have
+> CONFIG_KPROBES_ON_FTRACE. However, after digging around, I am not sure
+> what is the expected behavior.
+
+It changed recently; that is we got a lot more strict wrt W^X mappings.
+IIRC ftrace is the only known violator of W^X at this time.
+
+> Kernel text region has two mappings to it. For x86_64 and four-level 
+> page table, there are: 
 > 
-> Why is there any race at all?
+> 	1. kernel identity mapping, from 0xffff888000100000; 
+> 	2. kernel text mapping, from 0xffffffff81000000, 
+
+Right; AFAICT this is so that kernel text fits in s32 immediates.
+
+> Per comments in arch/x86/mm/init_64.c:set_kernel_text_rw():
 > 
-> Why do you not have a local mirror of the repo?  When it updates, then
-> run the tests.  Every commit in the tree is "stand alone" and things
-> should work at that point in time.  Don't use a commit as a "time to go
-> mirror something at a later point in time", as you are ending up with
-> trees that are obviously not correct at all.
+>         /*
+>          * Make the kernel identity mapping for text RW. Kernel text
+>          * mapping will always be RO. Refer to the comment in
+>          * static_protections() in pageattr.c
+>          */
+> 	set_memory_rw(start, (end - start) >> PAGE_SHIFT);
+
+So only the high mapping is ever executable; the identity map should not
+be. Both should be RO.
+
+> kprobe (with CONFIG_KPROBES_ON_FTRACE) should work on kernel identity
+> mapping. 
+
+Please provide more information; kprobes shouldn't be touching either
+mapping. That is, afaict kprobes uses text_poke() which uses a temporary
+mapping (in 'userspace' even) to alias the high text mapping.
+
+I'm also not sure how it would then result in any 4k text maps. Yes the
+alias is 4k, but it should not affect the actual high text map in any
+way.
+
+kprobes also allocates executable slots, but it does that in the module
+range (afaict), so that, again, should not affect the high text mapping.
+
+> We found with 5.2 kernel (no CONFIG_PAGE_TABLE_ISOLATION, w/ 
+> CONFIG_KPROBES_ON_FTRACE), a single kprobe will split _all_ PMDs in 
+> kernel text mapping into pte-mapped pages. This increases iTLB 
+> miss rate from about 300 per million instructions to about 700 per
+> million instructions (for the application I test with). 
 > 
-> I think you need to rework your systems as no one else seems to have
-> this "stale random tree state" issue.
+> Per bisect, we found this behavior happens after commit 585948f4f695 
+> ("x86/mm/cpa: Avoid the 4k pages check completely"). That's why I 
+> proposed this PATCH to fix/workaround this issue. However, per
+> Peter's comment and my study of the code, this doesn't seem the 
+> real problem or the only here. 
 > 
-> Git does commits in an atomic fashion, how you all are messing that up
-> shows you are doing _way_ more work than you probably need to :)
+> I also tested that the PMD split issue doesn't happen w/o 
+> CONFIG_KPROBES_ON_FTRACE. 
 
-Sorry, I'm not the one who implemented and maintains the system, I'm just
-generally aware of how it works and am looking at the code right now, so I
-could be misunderstanding something. Please bear with me :)
+Right, because then ftrace doesn't flip the whole kernel map writable;
+which it _really_ should stop doing anyway.
 
-However, I don't see how anything could be done, if we have two git repos,
-which are inconsistent with each other, when CI comes to test them.
-
-I'll try to draw the timeline of what was happening to explain what I think is
-the problem. All times are in my timezone (UTC+03:00).
-
-Time            stable/linux.git    stable/stable-queue.git Comments
-                 branch linux-5.2.y  branch master
-                                     subdir queue-5.2
---------------- ------------------- ----------------------- -----------------
-Aug 5 19:44:27  aad39e30fb9e6e72,                           Repos are
-                 "Linux 5.2.9",                              consistent
-                 *doesn't have* the
-                 patch that failed
-
-Aug 25 11:53:25                     cc88f4442e505e9f,       Repos are
-                                     "Linux 4.4.190",        consistent
-                                     *has* the patch
-                                     that failed
-
-Aug 25 17:13:54 f7d5b3dc4792a5,                             Repos are
-                 "Linux 5.2.10",                             inconsistent,
-                 contains patches                            both contain
-                 from the queue                              the same patches
-                 above, including
-                 the failed one
-
-Aug 25 17:36:18                                             Our CI job starts
-
-Aug 25 17:36:19                     af2f46e26e770b3a        Repos are
-                                     "Linux 5.2.10",         consistent
-                                     "queue-5.2" dir is
-                                     removed, doesn't
-                                     have the failed
-                                     patch
-
-Aug 25 17:37:23                                             Our CI sends
-                                                             failure report
-
-I.e. I think the problem was that both linux-5.2.y branch of stable/linux.git,
-and the queue-5.2 subdir of master branch of stable/stable-queue.git contained
-the same patches for about 22 minutes on Aug 25, when our CI started.
-
-We sample the latest commits from both repos at the same time (well, as close
-as Python and HTTP allow us), and we update our clones to those before
-testing.
-
-We also don't start testing if the commits in either are less than 5 minutes
-old to avoid testing inconsistent repos, assuming that 5 minutes are enough to
-update them both to keep them in consistency. We can increase that time to
-what you think best fits your workflow, to avoid hitting these problems.
-
-Nick
+But I'm still wondering what causes that first 4k split...
