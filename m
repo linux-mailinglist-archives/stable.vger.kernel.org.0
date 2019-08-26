@@ -2,192 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BFE9CDD4
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 13:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F5C9CDF0
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 13:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbfHZLNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 07:13:02 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:37168 "EHLO mx1.redhat.com"
+        id S1730670AbfHZLTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 07:19:50 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40790 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727123AbfHZLNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 07:13:02 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727102AbfHZLTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 07:19:50 -0400
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C7CA8A909;
-        Mon, 26 Aug 2019 11:13:01 +0000 (UTC)
-Received: from [10.36.116.118] (ovpn-116-118.ams2.redhat.com [10.36.116.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2690C5C72E;
-        Mon, 26 Aug 2019 11:12:57 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e2?=
-From:   Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
-To:     Greg KH <greg@kroah.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-References: <cki.FF1370FEA1.W4XGF3MDGN@redhat.com>
- <20190825144122.GA27775@kroah.com>
- <d0567d4e-6bbe-4a93-d657-0ee7f6e4625d@redhat.com>
- <20190826083309.GA32549@kroah.com>
- <1e9a3221-f044-a3a0-bbe1-34e6f8a468f0@redhat.com>
- <8badf977-5af5-d5cb-82d1-61f3596f7ec8@redhat.com>
-Message-ID: <a00e47ca-12a4-2792-2391-a2b599f51ecb@redhat.com>
-Date:   Mon, 26 Aug 2019 14:12:56 +0300
+        by mx1.redhat.com (Postfix) with ESMTPS id DA78B796E4
+        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 11:19:49 +0000 (UTC)
+Received: by mail-ed1-f71.google.com with SMTP id r25so9401159edp.20
+        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 04:19:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=4qUpb3wCTHM1fU96ef9SzrMItNaS4Q9j1q67CV3ibIA=;
+        b=fFyQ/o5FqVRYVSf3nmlKSJ43vy0HE4q+8GEg4tt4ffiNfcVVDh+Mub4or4lDE8UAF8
+         +XXvKsGcTK8UlmavJI8bZOyKo/7YzdT/MBJBmakaxungoSSe225vBrz0X60LIPazJdwm
+         Xbbr6WIRSqbh6hGlkI2CrR7ErTtouEafFqx8z2dSL8WuIOR5G3y6KCh2Ue2o1QwRh7IS
+         TZwa6vgBVejvZ6zak7UcfhDHHAc/HlCkDNc3bz1AzUOPVnYGk1uF64AptCeUaobSXf8d
+         S5PdGNwNf3QjyLUuz6lr5Z/qn9PDIPNEaw/4ylMEYXVl8lC089XeE8/ffchF8kheqsaK
+         EOKQ==
+X-Gm-Message-State: APjAAAVNY8pBZBOAaGTMct8xh2+Pk69kgqjdAQZBo3mnNzh28qYH2had
+        PzYpsd4QH1KyI0EoTKcQ8vsFizGrTb2L1VNOc1AiBG9fqIr0E6t+Mg6vqr87FLqqcq75BiervHT
+        E57u8mSOIozJZUMeg
+X-Received: by 2002:aa7:db12:: with SMTP id t18mr17977145eds.266.1566818387960;
+        Mon, 26 Aug 2019 04:19:47 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxCnmDjJvCgvjFutK+znlJJJ7Z0I6CqQEM58WMaQufI5WwMO9+UW2qewF1kOS1EpCoRFSvzHA==
+X-Received: by 2002:aa7:db12:: with SMTP id t18mr17977124eds.266.1566818387703;
+        Mon, 26 Aug 2019 04:19:47 -0700 (PDT)
+Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id p5sm1258651edr.72.2019.08.26.04.19.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Aug 2019 04:19:47 -0700 (PDT)
+Subject: Re: [PATCH] HID: logitech-dj: Fix crash when initial
+ logi_dj_recv_query_paired_devices fails
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>
+References: <20190825153542.79245-1-hdegoede@redhat.com>
+ <CAO-hwJ+AiViJg34dNKz05HfvnPVqigD7ZLyJpfsviBH8Rs0L2g@mail.gmail.com>
+ <d5ff19d7-4a0c-6c38-2d97-fcc33a8cdedb@redhat.com>
+ <CAO-hwJ+O34__f2CFH7-kBQc_95ur1A_yyBe7PXDmGAsQA8ZR7w@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <6f29a4b3-4aac-fc42-7b6c-9e0f8e019d9c@redhat.com>
+Date:   Mon, 26 Aug 2019 13:19:46 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <8badf977-5af5-d5cb-82d1-61f3596f7ec8@redhat.com>
+In-Reply-To: <CAO-hwJ+O34__f2CFH7-kBQc_95ur1A_yyBe7PXDmGAsQA8ZR7w@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Mon, 26 Aug 2019 11:13:01 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/26/19 12:40 PM, Nikolai Kondrashov wrote:
-> On 8/26/19 12:13 PM, Nikolai Kondrashov wrote:
->> On 8/26/19 11:33 AM, Greg KH wrote:
->>> On Mon, Aug 26, 2019 at 11:23:58AM +0300, Nikolai Kondrashov wrote:
->>>> On 8/25/19 5:41 PM, Greg KH wrote:
->>>>> On Sun, Aug 25, 2019 at 10:37:26AM -0400, CKI Project wrote:
->>>>>> Merge testing
->>>>>> -------------
->>>>>>
->>>>>> We cloned this repository and checked out the following commit:
->>>>>>
->>>>>>     Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->>>>>>     Commit: f7d5b3dc4792 - Linux 5.2.10
->>>>>>
->>>>>>
->>>>>> We grabbed the cc88f4442e50 commit of the stable queue repository.
->>>>>>
->>>>>> We then merged the patchset with `git am`:
->>>>>>
->>>>>>     keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
->>>>>
->>>>> That file is not in the repo, I think your system is messed up :(
->>>>
->>>> Sorry for the trouble, Greg, but I think it's a race between the changes to
->>>> the two repos.
->>>>
->>>> The job which triggered this message was started right before the moment this
->>>> commit was made:
->>>>
->>>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=af2f46e26e770b3aa0bc304a13ecd24763f3b452
->>>>
->>>> At that moment, the repo was still on this commit, about five hours old:
->>>>
->>>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=cc88f4442e505e9f1f21c8c119debe89cbf63ab2
->>>>
->>>> which still had the file. And when the job finished, and the message reached
->>>> you, yes, the repo no longer contained it.
->>>>
->>>> At the moment the job started, the latest commit to stable/linux.git
->>>> was about 22 minutes old:
->>>>
->>>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
->>>>
->>>> and the repo already contained the patches from the queue, including the one
->>>> the job tried to merge:
->>>>
->>>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f820ecf609cc38676071ec6c6d3e96b26c73b747
+Hi,
+
+On 26-08-19 11:41, Benjamin Tissoires wrote:
+> On Mon, Aug 26, 2019 at 11:04 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> Hi,
+>>
+>> On 26-08-19 09:46, Benjamin Tissoires wrote:
+>>> Hi Hans,
 >>>
->>> How in the world are you seeing such a messed up tree?
->>>
->>> The 5.2.10 commit moved things around, in one single atomic move.
->>>
->>>> IIRC, we agreed to not start testing both of the repos until the latest
->>>> commits are at least 5 minutes old. In this situation the latest commit was 22
->>>> minutes old, so the system started testing.
+>>> On Sun, Aug 25, 2019 at 5:35 PM Hans de Goede <hdegoede@redhat.com> wrote:
 >>>>
->>>> We could increase the window to, say, 30 minutes (or something else), to avoid
->>>> misfires like this, but then the response time would be increased accordingly.
+>>>> Before this commit dj_probe would exit with an error if the initial
+>>>> logi_dj_recv_query_paired_devices fails. The initial call may fail
+>>>> when the receiver is connected through a kvm and the focus is away.
 >>>>
->>>> It's your pick :)
+>>>> When the call fails this causes 2 problems:
+>>>>
+>>>> 1) dj_probe calls logi_dj_recv_query_paired_devices after calling
+>>>> hid_device_io_start() so a HID report may have been received in between
+>>>> and our delayedwork_callback may be running. It seems that the initial
+>>>> logi_dj_recv_query_paired_devices failure happening with some KVMs triggers
+>>>> this exact scenario, causing the work-queue to run on free-ed memory,
+>>>> leading to:
+>>>>
+>>>>    BUG: unable to handle page fault for address: 0000000000001e88
+>>>>    #PF: supervisor read access in kernel mode
+>>>>    #PF: error_code(0x0000) - not-present page
+>>>>    PGD 0 P4D 0
+>>>>    Oops: 0000 [#1] SMP PTI
+>>>>    CPU: 3 PID: 257 Comm: kworker/3:3 Tainted: G           OE     5.3.0-rc5+ #100
+>>>>    Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./B150M Pro4S/D3, BIOS P7.10 12/06/2016
+>>>>    Workqueue: events 0xffffffffc02ba200
+>>>>    RIP: 0010:0xffffffffc02ba1bd
+>>>>    Code: e8 e8 13 00 d8 48 89 c5 48 85 c0 74 4c 48 8b 7b 10 48 89 ea b9 07 00 00 00 41 b9 09 00 00 00 41 b8 01 00 00 00 be 10 00 00 00 <48> 8b 87 88 1e 00 00 48 8b 40 40 e8 b3 6b b4 d8 48 89 ef 41 89 c4
+>>>>    RSP: 0018:ffffb760c046bdb8 EFLAGS: 00010286
+>>>>    RAX: ffff935038ea4550 RBX: ffff935046778000 RCX: 0000000000000007
+>>>>    RDX: ffff935038ea4550 RSI: 0000000000000010 RDI: 0000000000000000
+>>>>    RBP: ffff935038ea4550 R08: 0000000000000001 R09: 0000000000000009
+>>>>    R10: 000000000000e011 R11: 0000000000000001 R12: ffff9350467780e8
+>>>>    R13: ffff935046778000 R14: 0000000000000000 R15: ffff935046778070
+>>>>    FS:  0000000000000000(0000) GS:ffff935054e00000(0000) knlGS:0000000000000000
+>>>>    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>>    CR2: 0000000000001e88 CR3: 000000075a612002 CR4: 00000000003606e0
+>>>>    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>>>>    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>>>>    Call Trace:
+>>>>     0xffffffffc02ba2f7
+>>>>     ? process_one_work+0x1b1/0x560
+>>>>     process_one_work+0x234/0x560
+>>>>     worker_thread+0x50/0x3b0
+>>>>     kthread+0x10a/0x140
+>>>>     ? process_one_work+0x560/0x560
+>>>>     ? kthread_park+0x80/0x80
+>>>>     ret_from_fork+0x3a/0x50
+>>>>    Modules linked in: vboxpci(O) vboxnetadp(O) vboxnetflt(O) vboxdrv(O) bnep vfat fat btusb btrtl btbcm btintel bluetooth intel_rapl_msr ecdh_generic rfkill ecc snd_usb_audio snd_usbmidi_lib intel_rapl_common snd_rawmidi mc x86_pkg_temp_thermal intel_powerclamp coretemp iTCO_wdt iTCO_vendor_support mei_wdt mei_hdcp ppdev kvm_intel kvm irqbypass crct10dif_pclmul crc32_generic crc32_pclmul snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio ghash_clmulni_intel intel_cstate snd_hda_intel snd_hda_codec intel_uncore snd_hda_core snd_hwdep intel_rapl_perf snd_seq snd_seq_device snd_pcm snd_timer intel_wmi_thunderbolt snd e1000e soundcore mxm_wmi i2c_i801 bfq mei_me mei intel_pch_thermal parport_pc parport acpi_pad binfmt_misc hid_lg_g15(E) hid_logitech_dj(E) i915 crc32c_intel i2c_algo_bit drm_kms_helper nvme nvme_core drm wmi video uas usb_storage i2c_dev
+>>>>    CR2: 0000000000001e88
+>>>>    ---[ end trace 1d3f8afdcfcbd842 ]---
+>>>>
+>>>> 2) Even if we were to fix 1. by making sure the work is stopped before
+>>>> failing probe, failing probe is the wrong thing to do, we have
+>>>> logi_dj_recv_queue_unknown_work to deal with the initial
+>>>> logi_dj_recv_query_paired_devices failure.
+>>>>
+>>>> Rather then error-ing out of the probe, causing the receiver to not work at
+>>>> all we should rely on this, so that the attached devices will get properly
+>>>> enumerated once the KVM focus is switched back.
+>>>>
+>>>> Cc: stable@vger.kernel.org
+>>>> Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
+>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>> ---
 >>>
->>> Why is there any race at all?
->>>
->>> Why do you not have a local mirror of the repo?  When it updates, then
->>> run the tests.  Every commit in the tree is "stand alone" and things
->>> should work at that point in time.  Don't use a commit as a "time to go
->>> mirror something at a later point in time", as you are ending up with
->>> trees that are obviously not correct at all.
->>>
->>> I think you need to rework your systems as no one else seems to have
->>> this "stale random tree state" issue.
->>>
->>> Git does commits in an atomic fashion, how you all are messing that up
->>> shows you are doing _way_ more work than you probably need to :)
+>>> Patch looks good to me, but doesn't logi_dj_recv_switch_to_dj_mode()
+>>> has the same potential issue?
 >>
->> Sorry, I'm not the one who implemented and maintains the system, I'm just
->> generally aware of how it works and am looking at the code right now, so I
->> could be misunderstanding something. Please bear with me :)
->>
->> However, I don't see how anything could be done, if we have two git repos,
->> which are inconsistent with each other, when CI comes to test them.
->>
->> I'll try to draw the timeline of what was happening to explain what I think is
->> the problem. All times are in my timezone (UTC+03:00).
->>
->> Time            stable/linux.git    stable/stable-queue.git Comments
->>                  branch linux-5.2.y  branch master
->>                                      subdir queue-5.2
->> --------------- ------------------- ----------------------- -----------------
->> Aug 5 19:44:27  aad39e30fb9e6e72,                           Repos are
->>                  "Linux 5.2.9",                              consistent
->>                  *doesn't have* the
->>                  patch that failed
->>
->> Aug 25 11:53:25                     cc88f4442e505e9f,       Repos are
->>                                      "Linux 4.4.190",        consistent
->>                                      *has* the patch
->>                                      that failed
->>
->> Aug 25 17:13:54 f7d5b3dc4792a5,                             Repos are
->>                  "Linux 5.2.10",                             inconsistent,
->>                  contains patches                            both contain
->>                  from the queue                              the same patches
->>                  above, including
->>                  the failed one
->>
->> Aug 25 17:36:18                                             Our CI job starts
->>
->> Aug 25 17:36:19                     af2f46e26e770b3a        Repos are
->>                                      "Linux 5.2.10",         consistent
->>                                      "queue-5.2" dir is
->>                                      removed, doesn't
->>                                      have the failed
->>                                      patch
->>
->> Aug 25 17:37:23                                             Our CI sends
->>                                                              failure report
->>
->> I.e. I think the problem was that both linux-5.2.y branch of stable/linux.git,
->> and the queue-5.2 subdir of master branch of stable/stable-queue.git contained
->> the same patches for about 22 minutes on Aug 25, when our CI started.
->>
->> We sample the latest commits from both repos at the same time (well, as close
->> as Python and HTTP allow us), and we update our clones to those before
->> testing.
->>
->> We also don't start testing if the commits in either are less than 5 minutes
->> old to avoid testing inconsistent repos, assuming that 5 minutes are enough to
->> update them both to keep them in consistency. We can increase that time to
->> what you think best fits your workflow, to avoid hitting these problems.
+>> logi_dj_recv_query_paired_devices() solicits data being send from the
+>> device, so we do: hid_device_io_start(hdev); just before calling it.
 > 
-> OK, I keep forgetting about the fact that commit and push times are different,
-> and I have no idea what was pushed when. I'll go check our code and logs
-> a little closer.
+> Right, so the patch is just about fixing the workqueue item (and a
+> little bit of the device too)
+> 
+> [/me tries to understand the KVM implications]
+> 
+>>
+>> logi_dj_recv_switch_to_dj_mode() is done before the hid_device_io_start()
+>> so it cannot cause the work to get queued.
+>>
+>> Also logi_dj_recv_switch_to_dj_mode() failing is something we cannot
+>> recover from.
+> 
+> There is one thing I do not get.
+> When the KVM hadn't the focus on the device, how can it not forward
+> reports when you can actually call logi_dj_recv_switch_to_dj_mode()?
+> Does it present the device to all the hosts connected to it and just
+> filter the input reports to the "focused" one, or is it something
+> different?
 
-OK, regardless whether the repo conflict was made public or not, we might have a
-problem in the way we check the age of the latest commits. We're using cgit's
-patch view for the corresponding branch, since the normal tools don't show the
-commit dates without cloning the repo. Since cgit normally caches most of what
-it shows, I suspect we might have hit a stale cache there.
+I honestly do not know, I have tested with this exact same kvm before and
+then the logi_dj_recv_query_paired_devices() call worked, but the
+input-reports send in response to it where forwarded to the wrong machine.
 
-I'll see what we can do. Either we'll keep a clone cached just for determining
-when to start the CI job, or find a way to fresher data.
+And later when focus got restored the unknown handler would redo
+logi_dj_recv_query_paired_devices() and all was well.
 
-Nick
+For some reason, yesterday when I hit this bug and it crashes my workstation
+as well as another machine attached to the KVM also running 5.3-rc5, I am now
+getting -32 (EPIPE / USB endpoint stalled) errors from the
+logi_dj_recv_switch_to_dj_mode() call. I think it may have something TODO
+with which of the 2 USB ports on the KVM for mouse and kbd the dongle is in,
+but I have not confirmed this yet.
+
+Also I did do a firmware update of the KVM a while ago, I would like to think
+that that was done before my previous round of testing. But I'm not sure.
+
+TL;DR: The logi_dj_recv_query_paired_devices() call failing with EPIPE
+when the focus is switched away is new and I do not know why this is
+happening, but it does crash my machine(s) without the fix.
+
+logi_dj_recv_switch_to_dj_mode() OTOH seems to not care where the focus is...
+
+> And in the case logi_dj_recv_switch_to_dj_mode() failed, on a kvm it
+> should not have much implications, because as long as one host
+> converts the receiver to the DJ mode and the receiver keeps being
+> powered on, it won't change back to the non DJ mode...
+
+True.
+
+> Anyway, I have queued the patch locally for testing, and will push it soon.
+
+Thanks.
+
+Regards,
+
+Hans
+
+
+
+>>>>    drivers/hid/hid-logitech-dj.c | 10 +++++-----
+>>>>    1 file changed, 5 insertions(+), 5 deletions(-)
+>>>>
+>>>> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+>>>> index cc47f948c1d0..7badbaa18878 100644
+>>>> --- a/drivers/hid/hid-logitech-dj.c
+>>>> +++ b/drivers/hid/hid-logitech-dj.c
+>>>> @@ -1734,14 +1734,14 @@ static int logi_dj_probe(struct hid_device *hdev,
+>>>>                   if (retval < 0) {
+>>>>                           hid_err(hdev, "%s: logi_dj_recv_query_paired_devices error:%d\n",
+>>>>                                   __func__, retval);
+>>>> -                       goto logi_dj_recv_query_paired_devices_failed;
+>>>> +                       /*
+>>>> +                        * This can happen with a KVM, let the probe succeed,
+>>>> +                        * logi_dj_recv_queue_unknown_work will retry later.
+>>>> +                        */
+>>>>                   }
+>>>>           }
+>>>>
+>>>> -       return retval;
+>>>> -
+>>>> -logi_dj_recv_query_paired_devices_failed:
+>>>> -       hid_hw_close(hdev);
+>>>> +       return 0;
+>>>>
+>>>>    llopen_failed:
+>>>>    switch_to_dj_mode_fail:
+>>>> --
+>>>> 2.23.0
+>>>>
