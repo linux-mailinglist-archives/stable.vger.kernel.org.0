@@ -2,83 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 476179D13F
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 16:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5291E9D142
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 16:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730998AbfHZOCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 10:02:06 -0400
-Received: from mout.web.de ([212.227.17.12]:56473 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730327AbfHZOCG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 10:02:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1566828121;
-        bh=Qv3uyLd2KlSZy39uaz7mOwlYiQyqmI4dnV5Xs9vVO0s=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=Qa9lMlG1GFv0PCJgRXCgNoXTnrSD8YCvDCe2/0vQE/eLKR2secbRErCnIuNM42fV6
-         mc7Pba/N45Jgy3TuX11GsLDgEVC1So8HKRN4VGw9XlNoci+4COdgz8klnIMrAOdMIv
-         ii8jNOw/VYLqdoGE6l9Bhb+5zjrL9RtYx2ZXl9KU=
-X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
-Received: from uruz.dynato.kyma ([84.175.169.160]) by smtp.web.de (mrweb103
- [213.165.67.124]) with ESMTPSA (Nemesis) id 0MZUS9-1hnc1s2hqP-00LEkz; Mon, 26
- Aug 2019 16:02:01 +0200
-Received: from [127.0.0.1]
-        by uruz.dynato.kyma with esmtp (Exim 4.92.1)
-        (envelope-from <jvpeetz@web.de>)
-        id 1i2FZJ-0007KO-2s; Mon, 26 Aug 2019 16:02:01 +0200
-Subject: Re: Linux 5.2.10
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Newsgroups: gmane.linux.kernel,gmane.linux.kernel.stable
-References: <20190825144703.6518-1-sashal@kernel.org>
- <qju9bd$47qi$1@blaine.gmane.org> <20190825223537.GB5281@sasha-vm>
- <20190826043328.GB26547@kroah.com>
-From:   =?UTF-8?Q?J=c3=b6rg-Volker_Peetz?= <jvpeetz@web.de>
-Message-ID: <8e4c772e-c0b7-c2d4-9301-67702c003dff@web.de>
-Date:   Mon, 26 Aug 2019 16:02:00 +0200
+        id S1730327AbfHZOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 10:02:57 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40242 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727091AbfHZOC4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 10:02:56 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1i2Fa4-0005AA-H1; Mon, 26 Aug 2019 16:02:48 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F104F1C0DAE;
+        Mon, 26 Aug 2019 16:02:47 +0200 (CEST)
+Date:   Mon, 26 Aug 2019 14:02:47 -0000
+From:   tip-bot2 for Sebastian Mayr <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] uprobes/x86: Fix detection of 32-bit user mode
+Cc:     Sebastian Mayr <me@sam.st>, Thomas Gleixner <tglx@linutronix.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Dmitry Safonov <dsafonov@virtuozzo.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20190728152617.7308-1-me@sam.st>
+References: <20190728152617.7308-1-me@sam.st>
 MIME-Version: 1.0
-In-Reply-To: <20190826043328.GB26547@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: de-DE-frami
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:+AtXaQBOwKNtzJWH6tZACFlGzX6yhAEdC/nJZFXmXwiqgNtCXJ1
- dwiLy3jlvwbFbSSO0eUmmmhzWbRFoJfpPrJYEX0QQYn9X/RtOfwMN6+BjdHH9Ytx2nOo0Fp
- WF0pNqNCFX9x2Xhd1gjQnhg8q8awCLNg2vZG0d2PNGT6hNzkqyWDJSpG5notpCnm3K5Ov7m
- fCEIF+iTN/oivrCnQvbBQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:uT9DTtUComE=:YBmWyZVI4JavBpioix348J
- yz+CmNP7Nn60Izfog8gX4ckm32k2nUJzddMTgpSr00q4wMb5WtmBaRRgzJi6SixI6+IntHWwl
- 0kr9DF2/5Mix9ncwNj/7icefSYMZoXE97vUK35Y1uTp3Lvl3dpBTBSBqS8pbq0SKGaQVDzz0l
- RaTEWg4OLyHwu40YHNCaCgkkQ3xBUdWjeSRO2MoN1I3qQsE50zg/xlUoI4NPY6yRft/uwswfc
- rGNV4Z6xImvFzLDFmibXw87rdQqWiT7ZNyaxAwINChYxU05iWpKi4a2IjDjuOAhJT4Dud7ffy
- rdZAaotlXF3/6+eqpEBVMK1TXCFx58xkofyvjuDfMngq2kf558kqG7F/qASPrl2rVhgDUvpq6
- siNfoVZ8WeMHOBoZ530Ewh3tUJMB4t+ZTqfiTtC1xV0LW/WWNQMnlViziny6Pc3VJChxKxXOa
- Id6/857E+x08euSmTiXCx5oEnMbSnaPtsH6SHLMoMQDNsNcDkqWognpOqb0etU18nV0hW21Qa
- BvZ1gS8kCvmkyzWcb2AqlzmgHfTMBDUkGklvoPNKTAAh5zMf1DdGbnBGSu36T+Owu1UwTBzFi
- xiAdEDRJC0/m7VJ5iJepKjShUJSSMC5Z04uwU2nJ3WoWJaKRUW1W1fuBHGwUHQSPL2dlG66Sv
- kx1UKpZwnL0qoS4HXHucXLN+S3yHSjEu2qIfKhuLJJur+4jNy7dU8/gokR6kKpMlJy7ATDFea
- 1LcpjDNsHAELDLTpCe6OY1hCbu+g/JhsB6DlGNV2cS+BscnGlQ+SukscLvDWAn4rIiHT3lqb7
- fpQW9dLJGglJ/Tl5GDWtsstUO3KGEhPsNywqGIIk8/AfVMEy3Pi7v25dOS68tzWXA1iV1yVQh
- DL+imRqBgyt7iE0w+gaJWfnPL19NeT2qVLtck7b8PhtLChobGff2OHiR7cOk7AeTaNVT/tZa+
- YkRXcMhA4fXqt0btudi+M2Z4XUvmnEM71PeN0PmIPVpr9uAtthCeV2J7l4JzO63tH25D/CHw4
- SIzfmezcar4De/lgJ0xp2v/6soxdMx4zYADkZCo9TkLAFTU4c8EzliMb1w/KcF1gDlRMlT0Nj
- iZnCV3uCwq4YQ+9ySzC1VZMsmg+/jEVJ1BagMk4eNe2ijvkEPU5TNfFmAWNqDR9SqPbGhft2p
- Cspis=
+Message-ID: <156682816785.22183.13288779592609885843.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For me the command
+The following commit has been merged into the x86/urgent branch of tip:
 
-$ gpg --receive-keys DEA66FF797772CDC
+Commit-ID:     9212ec7d8357ea630031e89d0d399c761421c83b
+Gitweb:        https://git.kernel.org/tip/9212ec7d8357ea630031e89d0d399c761421c83b
+Author:        Sebastian Mayr <me@sam.st>
+AuthorDate:    Sun, 28 Jul 2019 17:26:17 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Mon, 26 Aug 2019 15:55:09 +02:00
 
-did the key import and I was able to verify the signature via
-https://www.kernel.org/category/signatures.html
-and then the git tag v5.2.10.
+uprobes/x86: Fix detection of 32-bit user mode
 
-Thank you both very much.
+32-bit processes running on a 64-bit kernel are not always detected
+correctly, causing the process to crash when uretprobes are installed.
 
-Best regards,
-J=C3=B6rg.
+The reason for the crash is that in_ia32_syscall() is used to determine the
+process's mode, which only works correctly when called from a syscall.
+
+In the case of uretprobes, however, the function is called from a exception
+and always returns 'false' on a 64-bit kernel. In consequence this leads to
+corruption of the process's return address.
+
+Fix this by using user_64bit_mode() instead of in_ia32_syscall(), which
+is correct in any situation.
+
+[ tglx: Add a comment and the following historical info ]
+
+This should have been detected by the rename which happened in commit
+
+  abfb9498ee13 ("x86/entry: Rename is_{ia32,x32}_task() to in_{ia32,x32}_syscall()")
+
+which states in the changelog:
+
+    The is_ia32_task()/is_x32_task() function names are a big misnomer: they
+    suggests that the compat-ness of a system call is a task property, which
+    is not true, the compatness of a system call purely depends on how it
+    was invoked through the system call layer.
+    .....
+
+and then it went and blindly renamed every call site.
+
+Sadly enough this was already mentioned here:
+
+   8faaed1b9f50 ("uprobes/x86: Introduce sizeof_long(), cleanup adjust_ret_addr() and
+arch_uretprobe_hijack_return_addr()")
+
+where the changelog says:
+
+    TODO: is_ia32_task() is not what we actually want, TS_COMPAT does
+    not necessarily mean 32bit. Fortunately syscall-like insns can't be
+    probed so it actually works, but it would be better to rename and
+    use is_ia32_frame().
+
+and goes all the way back to:
+
+    0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
+
+Oh well. 7+ years until someone actually tried a uretprobe on a 32bit
+process on a 64bit kernel....
+
+Fixes: 0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
+Signed-off-by: Sebastian Mayr <me@sam.st>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Dmitry Safonov <dsafonov@virtuozzo.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190728152617.7308-1-me@sam.st
+---
+ arch/x86/kernel/uprobes.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index d8359eb..8cd745e 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -508,9 +508,12 @@ struct uprobe_xol_ops {
+ 	void	(*abort)(struct arch_uprobe *, struct pt_regs *);
+ };
+ 
+-static inline int sizeof_long(void)
++static inline int sizeof_long(struct pt_regs *regs)
+ {
+-	return in_ia32_syscall() ? 4 : 8;
++	/*
++	 * Check registers for mode as in_xxx_syscall() does not apply here.
++	 */
++	return user_64bit_mode(regs) ? 8 : 4;
+ }
+ 
+ static int default_pre_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
+@@ -521,9 +524,9 @@ static int default_pre_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ 
+ static int emulate_push_stack(struct pt_regs *regs, unsigned long val)
+ {
+-	unsigned long new_sp = regs->sp - sizeof_long();
++	unsigned long new_sp = regs->sp - sizeof_long(regs);
+ 
+-	if (copy_to_user((void __user *)new_sp, &val, sizeof_long()))
++	if (copy_to_user((void __user *)new_sp, &val, sizeof_long(regs)))
+ 		return -EFAULT;
+ 
+ 	regs->sp = new_sp;
+@@ -556,7 +559,7 @@ static int default_post_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs
+ 		long correction = utask->vaddr - utask->xol_vaddr;
+ 		regs->ip += correction;
+ 	} else if (auprobe->defparam.fixups & UPROBE_FIX_CALL) {
+-		regs->sp += sizeof_long(); /* Pop incorrect return address */
++		regs->sp += sizeof_long(regs); /* Pop incorrect return address */
+ 		if (emulate_push_stack(regs, utask->vaddr + auprobe->defparam.ilen))
+ 			return -ERESTART;
+ 	}
+@@ -675,7 +678,7 @@ static int branch_post_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ 	 * "call" insn was executed out-of-line. Just restore ->sp and restart.
+ 	 * We could also restore ->ip and try to call branch_emulate_op() again.
+ 	 */
+-	regs->sp += sizeof_long();
++	regs->sp += sizeof_long(regs);
+ 	return -ERESTART;
+ }
+ 
+@@ -1056,7 +1059,7 @@ bool arch_uprobe_skip_sstep(struct arch_uprobe *auprobe, struct pt_regs *regs)
+ unsigned long
+ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs *regs)
+ {
+-	int rasize = sizeof_long(), nleft;
++	int rasize = sizeof_long(regs), nleft;
+ 	unsigned long orig_ret_vaddr = 0; /* clear high bits for 32-bit apps */
+ 
+ 	if (copy_from_user(&orig_ret_vaddr, (void __user *)regs->sp, rasize))
