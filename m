@@ -2,122 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 990229C8BC
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 07:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3919C8F5
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 08:10:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725866AbfHZFmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 01:42:13 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:42938 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725806AbfHZFmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 01:42:13 -0400
-Received: by mail-pg1-f196.google.com with SMTP id p3so9866895pgb.9;
-        Sun, 25 Aug 2019 22:42:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=LHpOT5PJ300gSASvUTzy+HqNdfPhyWzS2boZy8pqZjM=;
-        b=DliSNhEL24x5j4/FLs380QuOYK/6BCZ4Oi27/6qeazJihR64ZlMNzlitHQfOn6Ooj+
-         ZbXve2POs4o7gvxjVlXXsLEvk/WoX0OUIoa1b0lg01iFIIt3DLrOJirjM1V54dWbKjlG
-         uuPq6GSyMTAxb0o8aFTtrdLB5kxFLcWDISQ74UqUc320aDDi2qYtdT/XzXFZpLuZUH3A
-         jKQp5KBvKPCTt4NC8l6xnHKdky2bqS5tBulste6xWfhdj9EVMCKkw6y0swifGeHxkFZJ
-         WqSEVGPeD+iL7238tUXdXAEBZiyzdgz0WZj52IJ3Y5xj6rcbpAYR23B+9rUxKHhlgAaF
-         7Clw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=LHpOT5PJ300gSASvUTzy+HqNdfPhyWzS2boZy8pqZjM=;
-        b=f1HvFf+hxXr/G8eJBVKvVNWWMbTmPKUmfPAv5G91qMyK7oZL/0ld2XDjDRB+IBO+n3
-         Dyee1KKISto74Gk6+aldlrP4a5oJRAMJBtDNKSdY518h5omNeiXMt67t5rtBJV4E3ren
-         rVbTlr9wLbEw7S+IMOhICkNR2zI4mdm+HzhyTvEgSNuMp7uQUOptO7Ux+s8Z3/njMXck
-         E6u/QL+6wNpJVN+3Yl06zSv+zmG5sTOf06Sqp5VFW1iOosA+VOqAFJTA25weGlbhqTIJ
-         4d0B8D4G91gXLbO6/DeN5h/4owQDFZ0i8qzQCHR5J/OCoiwIOq4a5udlh2dmFTJJ1BFX
-         OYgQ==
-X-Gm-Message-State: APjAAAWBGESKGoPVnzWjvjiP8sFx9up9V2zt6TdEiS96IJfgtGy4Pk7/
-        VaF2Pi9ts5E8LFxTxIIYg3Y=
-X-Google-Smtp-Source: APXvYqxxLk7dvE8steWoKmU6uxcpyA322+pTWJ0IxJflLkyYogbCFgb3nolh67radeNPPwr7k2YVNw==
-X-Received: by 2002:a63:4e60:: with SMTP id o32mr15108620pgl.68.1566798132785;
-        Sun, 25 Aug 2019 22:42:12 -0700 (PDT)
-Received: from Gentoo ([103.231.91.35])
-        by smtp.gmail.com with ESMTPSA id i9sm17843064pgo.46.2019.08.25.22.42.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 25 Aug 2019 22:42:12 -0700 (PDT)
-Date:   Mon, 26 Aug 2019 11:11:58 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg KH <greg@kroah.com>
+        id S1729294AbfHZGKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 02:10:25 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:32927 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729303AbfHZGKZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 02:10:25 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8EFF7305;
+        Mon, 26 Aug 2019 02:10:23 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 26 Aug 2019 02:10:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=tzTY97xHrbLWJGenhOBbYuRd29p
+        dIE9dwtl03jKpHYQ=; b=Wd88EIBdXEWiIqbHbDz0mZJ2C6rh7kLDWfMWrvRqq/7
+        dNrmBRhfEN+bSUNcuAiQ9C89OKDSh2y7IexZndv8hAXiV/J07MuVefVLskPWM9BF
+        YQ323BYJmO1CDd5/HASTGU6SnYY4/9J3HfUCaJTXdwuLOBVkXv4JPz9r3xI+Nppu
+        caq0cBZ5dlC56+ItcFMUV3hQyxkRZA1KpdLWlzpfTDiv3lz+yaJAjo8WMuGbn1y9
+        bmNiyMUOJUaJqU1vOqObSqKSG37vePXEGcOYSYvYmhhunZbOxZ5SdNvBw2rTNhT1
+        0EBFDvKEEPF2iMS2SiD/+kZVszDpj+rnMsOyTnEo9QA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tzTY97
+        xHrbLWJGenhOBbYuRd29pdIE9dwtl03jKpHYQ=; b=OlnlOwIse0pIFJUX85+8nm
+        yusOHRTG8prjJAivkdvxIZJg+FmpZ2sE07MNUW830ShElC5Js+ScEiC1UunVcYhm
+        UoixP9PDfvFiQiwQuwcs8gpX8yO1Y0yxl6LUqBC+qHho8WUHsmflvv4i+IElX0sA
+        UKDiSFJHV080EMXr9Eo1loNZNKU67P2cYtH4bSa2ZfAhYoj7PsoE1gzRdQXMgb8V
+        GOshGCagy9dEIxllD+mM4+yUaDSithmjQW390nEZR737q/ULMXG0xvtKrN4D5e2d
+        5LtPH+HF6/H63Gam393JzuGHXh+NCTTMwVZor/sJuZp3mmZgRtlH4KHF/WBr/1kg
+        ==
+X-ME-Sender: <xms:zndjXd-yIVwVWtJG9ferpXwSG2EoLDZZ2Lx3heMRQAhCabR7MR3bhg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehfedguddthecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepuggrrhhinh
+    hgfhhirhgvsggrlhhlrdhnvghtpdhkvghrnhgvlhdrohhrghdpfihikhhiphgvughirgdr
+    ohhrghdpkhgvrhhnvgdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghr
+    ufhiiigvpedt
+X-ME-Proxy: <xmx:zndjXS8IQn5soYMZyOdsC5PF2eQZ48IYQA1UXckWrbD2PInvdNXmNQ>
+    <xmx:zndjXcxalQmw-GW414XMNga42bnFBfg4thKySJrcRXsT3upMae2kkw>
+    <xmx:zndjXa5JuDCC4OPIbYW6-7KDkzzEIqJCln8MSEc1_Jw3PpAUpBMe6Q>
+    <xmx:z3djXbxw3F_yj9Vp0LTK-OLfPl82b9-J4aEAxXN-bGHVC2-G3q9Z7w>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0592D8005B;
+        Mon, 26 Aug 2019 02:10:21 -0400 (EDT)
+Date:   Mon, 26 Aug 2019 08:10:19 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Bhaskar Chowdhury <unixbhaskar@gmail.com>
 Cc:     Paul Bolle <pebolle@tiscali.nl>, Sasha Levin <sashal@kernel.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         akpm@linux-foundation.org, jslaby@suse.cz,
         Konstantin Ryabitsev <konstantin@linuxfoundation.org>
 Subject: Re: Linux 5.2.10
-Message-ID: <20190826054156.GB31983@Gentoo>
+Message-ID: <20190826061019.GB3688@kroah.com>
 References: <20190825144703.6518-1-sashal@kernel.org>
  <dd3a1ec7d03888dade78db1e4c45ec1347c0815b.camel@tiscali.nl>
  <20190826043401.GC26547@kroah.com>
+ <20190826054156.GB31983@Gentoo>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190826043401.GC26547@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190826054156.GB31983@Gentoo>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+A: http://en.wikipedia.org/wiki/Top_post
+Q: Were do I find info about this thing called top-posting?
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Not sure,kerne.org not reflecting the latest number...probably timing
-difference ....looping Kai in this mail ..
+A: No.
+Q: Should I include quotations after my reply?
 
-Thanks,
-Bhaskar
+http://daringfireball.net/2007/07/on_top
 
-On 06:34 Mon 26 Aug 2019, Greg KH wrote:
->On Sun, Aug 25, 2019 at 07:33:36PM +0200, Paul Bolle wrote:
->> Sasha,
->>
->> Sasha Levin schreef op zo 25-08-2019 om 10:47 [-0400]:
->> > I'm announcing the release of the 5.2.10 kernel.
->> >
->> > All users of the 5.2 kernel series must upgrade.
->> >
->> > The updated 5.2.y git tree can be found at:
->> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.2.y
->> > and can be browsed at the normal kernel.org git web browser:
->> >         https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
->>
->> v5.2.10 was tagged by sashal@kernel.org but signed by
->> alexander.levin@verizon.com. Perhaps you could use one of gpg2's many options
->> to add an
->>     aka "Sasha Levin <sashal@kernel.org>"
->>
->> line to that key. (I assume "--recv-key" then would have found your key.)
->
->It's on that key already, have you refreshed your version of it?
->
->thanks,
->
->greg k-h
+On Mon, Aug 26, 2019 at 11:11:58AM +0530, Bhaskar Chowdhury wrote:
+> Not sure,kerne.org not reflecting the latest number...probably timing
+> difference ....looping Kai in this mail ..
 
---eAbsdosE1cNLO4uF
-Content-Type: application/pgp-signature; name="signature.asc"
+I do not know what you are referring to here.
 
------BEGIN PGP SIGNATURE-----
+The front page of kernel.org shows 5.2.10 to me.  I will work today on
+adding Sasha and Ben's gpg signatures to the
+https://www.kernel.org/category/signatures.html page so that people can
+verify them.
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl1jcSQACgkQsjqdtxFL
-KRWY3AgAkTIQxqK2dmHzB0d2R5HYXfgmmaFjLno46j1G34IRf87/hZm3MQsDq/ie
-Lza/nMQYCXlB/xfxrTcPfwrmdJk7MflwqYPhddXAVv7ieLkg1ZBqYEboQ9E80e0E
-7K6wWbkMzfFOzqed7W1dQhZ7ev5mzT/uEE0rX9On/OPuF9NXIvymqQXsftPRyYZ7
-LW5i9jahp57yYXUTfj5RBFtOAacbAQrKyBrGN6PeHQJ2ik3khJXz4fZinWIluOnW
-3UsfkjOSIOqCczqwRjjKIZwtZkboXfRrgmODjFqev9SkvMEaFAwh/b0GlJQ21qN7
-eyvhe9HzBMEz94tiPmSseP+2REK+Qg==
-=oDzp
------END PGP SIGNATURE-----
+thanks,
 
---eAbsdosE1cNLO4uF--
+greg k-h
