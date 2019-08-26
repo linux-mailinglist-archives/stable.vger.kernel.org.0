@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB859D57C
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 20:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1619D580
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 20:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732698AbfHZSJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 14:09:16 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40901 "EHLO
+        id S2387720AbfHZSJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 14:09:17 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40900 "EHLO
         Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731359AbfHZSJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 14:09:15 -0400
+        with ESMTP id S1730228AbfHZSJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 14:09:16 -0400
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1i2JQV-0003AL-71; Mon, 26 Aug 2019 20:09:11 +0200
+        id 1i2JQU-0003AI-N4; Mon, 26 Aug 2019 20:09:10 +0200
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id D514B1C0DDA;
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 4F1271C0DAE;
         Mon, 26 Aug 2019 20:09:10 +0200 (CEST)
 Date:   Mon, 26 Aug 2019 18:09:10 -0000
 From:   tip-bot2 for Bandan Das <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/apic: Include the LDR when clearing out APIC registers
-Cc:     Bandan Das <bsd@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
+Subject: [tip: x86/urgent] x86/apic: Do not initialize LDR and DFR for bigsmp
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Bandan Das <bsd@redhat.com>,
         stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20190826101513.5080-3-bsd@redhat.com>
-References: <20190826101513.5080-3-bsd@redhat.com>
+In-Reply-To: <20190826101513.5080-2-bsd@redhat.com>
+References: <20190826101513.5080-2-bsd@redhat.com>
 MIME-Version: 1.0
-Message-ID: <156684295076.23440.2192639697586451635.tip-bot2@tip-bot2>
+Message-ID: <156684295014.23432.15591194830180888887.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -47,53 +47,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     558682b5291937a70748d36fd9ba757fb25b99ae
-Gitweb:        https://git.kernel.org/tip/558682b5291937a70748d36fd9ba757fb25b99ae
+Commit-ID:     bae3a8d3308ee69a7dbdf145911b18dfda8ade0d
+Gitweb:        https://git.kernel.org/tip/bae3a8d3308ee69a7dbdf145911b18dfda8ade0d
 Author:        Bandan Das <bsd@redhat.com>
-AuthorDate:    Mon, 26 Aug 2019 06:15:13 -04:00
+AuthorDate:    Mon, 26 Aug 2019 06:15:12 -04:00
 Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Mon, 26 Aug 2019 20:00:57 +02:00
+CommitterDate: Mon, 26 Aug 2019 20:00:56 +02:00
 
-x86/apic: Include the LDR when clearing out APIC registers
+x86/apic: Do not initialize LDR and DFR for bigsmp
 
-Although APIC initialization will typically clear out the LDR before
-setting it, the APIC cleanup code should reset the LDR.
+Legacy apic init uses bigsmp for smp systems with 8 and more CPUs. The
+bigsmp APIC implementation uses physical destination mode, but it
+nevertheless initializes LDR and DFR. The LDR even ends up incorrectly with
+multiple bit being set.
 
-This was discovered with a 32-bit KVM guest jumping into a kdump
-kernel. The stale bits in the LDR triggered a bug in the KVM APIC
-implementation which caused the destination mapping for VCPUs to be
-corrupted.
+This does not cause a functional problem because LDR and DFR are ignored
+when physical destination mode is active, but it triggered a problem on a
+32-bit KVM guest which jumps into a kdump kernel.
 
-Note that this isn't intended to paper over the KVM APIC bug. The kernel
-has to clear the LDR when resetting the APIC registers except when X2APIC
-is enabled.
+The multiple bits set unearthed a bug in the KVM APIC implementation. The
+code which creates the logical destination map for VCPUs ignores the
+disabled state of the APIC and ends up overwriting an existing valid entry
+and as a result, APIC calibration hangs in the guest during kdump
+initialization.
 
-This lacks a Fixes tag because missing to clear LDR goes way back into pre
-git history.
+Remove the bogus LDR/DFR initialization.
 
-[ tglx: Made x2apic_enabled a function call as required ]
+This is not intended to work around the KVM APIC bug. The LDR/DFR
+ininitalization is wrong on its own.
 
+The issue goes back into the pre git history. The fixes tag is the commit
+in the bitkeeper import which introduced bigsmp support in 2003.
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Fixes: db7b9e9f26b8 ("[PATCH] Clustered APIC setup for >8 CPU systems")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Bandan Das <bsd@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190826101513.5080-3-bsd@redhat.com
+Link: https://lkml.kernel.org/r/20190826101513.5080-2-bsd@redhat.com
+
 
 ---
- arch/x86/kernel/apic/apic.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/apic/bigsmp_32.c | 24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index aa5495d..dba2828 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1179,6 +1179,10 @@ void clear_local_APIC(void)
- 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
- 	v = apic_read(APIC_LVT1);
- 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
-+	if (!x2apic_enabled()) {
-+		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
-+		apic_write(APIC_LDR, v);
-+	}
- 	if (maxlvt >= 4) {
- 		v = apic_read(APIC_LVTPC);
- 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
+diff --git a/arch/x86/kernel/apic/bigsmp_32.c b/arch/x86/kernel/apic/bigsmp_32.c
+index afee386..caedd8d 100644
+--- a/arch/x86/kernel/apic/bigsmp_32.c
++++ b/arch/x86/kernel/apic/bigsmp_32.c
+@@ -38,32 +38,12 @@ static int bigsmp_early_logical_apicid(int cpu)
+ 	return early_per_cpu(x86_cpu_to_apicid, cpu);
+ }
+ 
+-static inline unsigned long calculate_ldr(int cpu)
+-{
+-	unsigned long val, id;
+-
+-	val = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
+-	id = per_cpu(x86_bios_cpu_apicid, cpu);
+-	val |= SET_APIC_LOGICAL_ID(id);
+-
+-	return val;
+-}
+-
+ /*
+- * Set up the logical destination ID.
+- *
+- * Intel recommends to set DFR, LDR and TPR before enabling
+- * an APIC.  See e.g. "AP-388 82489DX User's Manual" (Intel
+- * document number 292116).  So here it goes...
++ * bigsmp enables physical destination mode
++ * and doesn't use LDR and DFR
+  */
+ static void bigsmp_init_apic_ldr(void)
+ {
+-	unsigned long val;
+-	int cpu = smp_processor_id();
+-
+-	apic_write(APIC_DFR, APIC_DFR_FLAT);
+-	val = calculate_ldr(cpu);
+-	apic_write(APIC_LDR, val);
+ }
+ 
+ static void bigsmp_setup_apic_routing(void)
