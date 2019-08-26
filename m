@@ -2,136 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 107699CC4C
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 11:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4689CC55
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 11:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730715AbfHZJLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 05:11:16 -0400
-Received: from mga01.intel.com ([192.55.52.88]:58104 "EHLO mga01.intel.com"
+        id S1730767AbfHZJN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 05:13:29 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49696 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729753AbfHZJLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 05:11:15 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Aug 2019 02:11:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,431,1559545200"; 
-   d="scan'208";a="380471920"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.145])
-  by fmsmga006.fm.intel.com with ESMTP; 26 Aug 2019 02:11:12 -0700
-Received: from andy by smile with local (Exim 4.92.1)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1i2B1q-0000Le-2U; Mon, 26 Aug 2019 12:11:10 +0300
-Date:   Mon, 26 Aug 2019 12:11:10 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Drake <drake@endlessm.com>,
-        Ian W MORRISON <ianwmorrison@gmail.com>
-Subject: Re: [PATCH] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot
- option and blacklist
-Message-ID: <20190826091110.GY30120@smile.fi.intel.com>
-References: <20190823215255.7631-1-hdegoede@redhat.com>
+        id S1730747AbfHZJN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 05:13:29 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BA7A7A2F6A0;
+        Mon, 26 Aug 2019 09:13:28 +0000 (UTC)
+Received: from [10.36.116.118] (ovpn-116-118.ams2.redhat.com [10.36.116.118])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 56ED85D704;
+        Mon, 26 Aug 2019 09:13:25 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e2?=
+To:     Greg KH <greg@kroah.com>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+References: <cki.FF1370FEA1.W4XGF3MDGN@redhat.com>
+ <20190825144122.GA27775@kroah.com>
+ <d0567d4e-6bbe-4a93-d657-0ee7f6e4625d@redhat.com>
+ <20190826083309.GA32549@kroah.com>
+From:   Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
+Message-ID: <1e9a3221-f044-a3a0-bbe1-34e6f8a468f0@redhat.com>
+Date:   Mon, 26 Aug 2019 12:13:23 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190823215255.7631-1-hdegoede@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190826083309.GA32549@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Mon, 26 Aug 2019 09:13:28 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 23, 2019 at 11:52:55PM +0200, Hans de Goede wrote:
-> Another day; another DSDT bug we need to workaround...
+On 8/26/19 11:33 AM, Greg KH wrote:
+> On Mon, Aug 26, 2019 at 11:23:58AM +0300, Nikolai Kondrashov wrote:
+>> On 8/25/19 5:41 PM, Greg KH wrote:
+>>> On Sun, Aug 25, 2019 at 10:37:26AM -0400, CKI Project wrote:
+>>>> Merge testing
+>>>> -------------
+>>>>
+>>>> We cloned this repository and checked out the following commit:
+>>>>
+>>>>     Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+>>>>     Commit: f7d5b3dc4792 - Linux 5.2.10
+>>>>
+>>>>
+>>>> We grabbed the cc88f4442e50 commit of the stable queue repository.
+>>>>
+>>>> We then merged the patchset with `git am`:
+>>>>
+>>>>     keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
+>>>
+>>> That file is not in the repo, I think your system is messed up :(
+>>
+>> Sorry for the trouble, Greg, but I think it's a race between the changes to
+>> the two repos.
+>>
+>> The job which triggered this message was started right before the moment this
+>> commit was made:
+>>
+>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=af2f46e26e770b3aa0bc304a13ecd24763f3b452
+>>
+>> At that moment, the repo was still on this commit, about five hours old:
+>>
+>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=cc88f4442e505e9f1f21c8c119debe89cbf63ab2
+>>
+>> which still had the file. And when the job finished, and the message reached
+>> you, yes, the repo no longer contained it.
+>>
+>> At the moment the job started, the latest commit to stable/linux.git
+>> was about 22 minutes old:
+>>
+>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
+>>
+>> and the repo already contained the patches from the queue, including the one
+>> the job tried to merge:
+>>
+>>      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.2.y&id=f820ecf609cc38676071ec6c6d3e96b26c73b747
 > 
-> Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
-> at least once on boot") we call _AEI edge handlers at boot.
+> How in the world are you seeing such a messed up tree?
 > 
-> In some rare cases this causes problems. One example of this is the Minix
-> Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
-> and pasted code for dealing with Micro USB-B connector host/device role
-> switching, while the mini PC does not even have a micro-USB connector.
-> This code, which should not be there, messes with the DDC data pin from
-> the HDMI connector (switching it to GPIO mode) breaking HDMI support.
+> The 5.2.10 commit moved things around, in one single atomic move.
 > 
-> To avoid problems like this, this commit adds a new
-> gpiolib_acpi_run_edge_events_on_boot kernel commandline option which
-> can be "on", "off", or "auto" (default).
+>> IIRC, we agreed to not start testing both of the repos until the latest
+>> commits are at least 5 minutes old. In this situation the latest commit was 22
+>> minutes old, so the system started testing.
+>>
+>> We could increase the window to, say, 30 minutes (or something else), to avoid
+>> misfires like this, but then the response time would be increased accordingly.
+>>
+>> It's your pick :)
 > 
-> In auto mode the default is on and a DMI based blacklist is used,
-> the initial version of this blacklist contains the Minix Neo Z83-4
-> fixing the HDMI being broken on this device.
+> Why is there any race at all?
+> 
+> Why do you not have a local mirror of the repo?  When it updates, then
+> run the tests.  Every commit in the tree is "stand alone" and things
+> should work at that point in time.  Don't use a commit as a "time to go
+> mirror something at a later point in time", as you are ending up with
+> trees that are obviously not correct at all.
+> 
+> I think you need to rework your systems as no one else seems to have
+> this "stale random tree state" issue.
+> 
+> Git does commits in an atomic fashion, how you all are messing that up
+> shows you are doing _way_ more work than you probably need to :)
 
-> +static int gpiolib_acpi_run_edge_events_on_boot = -1;
-> +
-> +static int __init gpiolib_acpi_run_edge_events_on_boot_setup(char *arg)
-> +{
+Sorry, I'm not the one who implemented and maintains the system, I'm just
+generally aware of how it works and am looking at the code right now, so I
+could be misunderstanding something. Please bear with me :)
 
-> +	if (!strcmp(arg, "on"))
-> +		gpiolib_acpi_run_edge_events_on_boot = 1;
-> +	else if (!strcmp(arg, "off"))
-> +		gpiolib_acpi_run_edge_events_on_boot = 0;
+However, I don't see how anything could be done, if we have two git repos,
+which are inconsistent with each other, when CI comes to test them.
 
-kstrtobool() ?
+I'll try to draw the timeline of what was happening to explain what I think is
+the problem. All times are in my timezone (UTC+03:00).
 
-> +	else if (!strcmp(arg, "auto"))
-> +		gpiolib_acpi_run_edge_events_on_boot = -1;
-> +
-> +	return 1;
-> +}
+Time            stable/linux.git    stable/stable-queue.git Comments
+                 branch linux-5.2.y  branch master
+                                     subdir queue-5.2
+--------------- ------------------- ----------------------- -----------------
+Aug 5 19:44:27  aad39e30fb9e6e72,                           Repos are
+                 "Linux 5.2.9",                              consistent
+                 *doesn't have* the
+                 patch that failed
 
-> +
-> +__setup("gpiolib_acpi_run_edge_events_on_boot=",
-> +        gpiolib_acpi_run_edge_events_on_boot_setup);
+Aug 25 11:53:25                     cc88f4442e505e9f,       Repos are
+                                     "Linux 4.4.190",        consistent
+                                     *has* the patch
+                                     that failed
 
-Can't we use module_param() ?
-The resulting option would be 'gpiolib_acpi.foo=...'
+Aug 25 17:13:54 f7d5b3dc4792a5,                             Repos are
+                 "Linux 5.2.10",                             inconsistent,
+                 contains patches                            both contain
+                 from the queue                              the same patches
+                 above, including
+                 the failed one
 
-> +{
+Aug 25 17:36:18                                             Our CI job starts
 
-> +	if (gpiolib_acpi_run_edge_events_on_boot == -1) {
-> +		if (dmi_check_system(run_edge_events_on_boot_blacklist))
-> +			gpiolib_acpi_run_edge_events_on_boot = 0;
-> +		else
-> +			gpiolib_acpi_run_edge_events_on_boot = 1;
-> +	}
+Aug 25 17:36:19                     af2f46e26e770b3a        Repos are
+                                     "Linux 5.2.10",         consistent
+                                     "queue-5.2" dir is
+                                     removed, doesn't
+                                     have the failed
+                                     patch
 
-Can we run this at an initcall once and use variable instead of calling a
-method below?
+Aug 25 17:37:23                                             Our CI sends
+                                                             failure report
 
-> +	return gpiolib_acpi_run_edge_events_on_boot;
-> +}
-> +
->  static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
->  				      struct acpi_gpio_event *event)
->  {
-> @@ -170,10 +211,13 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
->  	event->irq_requested = true;
->  
->  	/* Make sure we trigger the initial state of edge-triggered IRQs */
-> -	value = gpiod_get_raw_value_cansleep(event->desc);
-> -	if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
-> -	    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
-> -		event->handler(event->irq, event);
-> +	if (acpi_gpiochip_run_edge_events_on_boot() &&
-> +	    (event->irqflags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING))) {
-> +		value = gpiod_get_raw_value_cansleep(event->desc);
-> +		if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
-> +		    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
-> +			event->handler(event->irq, event);
-> +	}
+I.e. I think the problem was that both linux-5.2.y branch of stable/linux.git,
+and the queue-5.2 subdir of master branch of stable/stable-queue.git contained
+the same patches for about 22 minutes on Aug 25, when our CI started.
 
--- 
-With Best Regards,
-Andy Shevchenko
+We sample the latest commits from both repos at the same time (well, as close
+as Python and HTTP allow us), and we update our clones to those before
+testing.
 
+We also don't start testing if the commits in either are less than 5 minutes
+old to avoid testing inconsistent repos, assuming that 5 minutes are enough to
+update them both to keep them in consistency. We can increase that time to
+what you think best fits your workflow, to avoid hitting these problems.
 
+Nick
