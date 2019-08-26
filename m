@@ -2,204 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4B99CCFB
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 12:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A982D9CDBB
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 13:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbfHZKCM convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 26 Aug 2019 06:02:12 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54420 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726658AbfHZKCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 06:02:11 -0400
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E3CEAC057F31
-        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 10:02:10 +0000 (UTC)
-Received: by mail-qk1-f198.google.com with SMTP id p18so15382887qke.9
-        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 03:02:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nhEGVTcshOP+WgS/eoRRra56nqw40l0yDpcZLkf5V6E=;
-        b=ubRyZtaMrXl0KKChZS0e+yBYmbqy/Rh65lK8V3eJnuD7OGMSbBh21KCCvnQWTWp4WU
-         c86kChdNU1W8p3761sTzy7HDfkgVmIcXF+4jFjny1SxfLG7UR6edMnweWM+BUvRt8GeP
-         W+kPeeciTj8MIjFK3zOhH4UQHRsAlHHLKGILly+yii7aMGhLs0ifmJQeWftaOSLhF45L
-         Ars+9sPhALMt4Q9MCv7DIK5/g3LWogRq7D4GJt76vjXG3PD8Zw/mgrnlC73aUmsB41tu
-         wQ11YKySnZ0BR2kV4ZwbfyKel8qppLNsLe3yU/9QDihrtC7BgcAgI4d1YW8I6CT/Zg9N
-         Jddw==
-X-Gm-Message-State: APjAAAVxOYVc5IyM8145AXXha9jvzghMY++HQ38iV2TCHyW2TW765LbQ
-        +drjTbKmoJnc/XAq6MrBfyWvdcrxkzPSawuge9wpzD9xqoi59a+HiprHkSvFbz1hN5n7jbXWyjc
-        HvqdJCArdaWxvDbALMqwrizBeQf5DRYc8
-X-Received: by 2002:a37:9bce:: with SMTP id d197mr15565252qke.230.1566813729956;
-        Mon, 26 Aug 2019 03:02:09 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqzM8iby3mN1Cl9IHXYQMQZkUB/Jqid9pqTpe1oXI0q93CPMnePLskx/EetGHNKXg4crqxCxdx/7sAG6E5aHvKs=
-X-Received: by 2002:a37:9bce:: with SMTP id d197mr15565232qke.230.1566813729635;
- Mon, 26 Aug 2019 03:02:09 -0700 (PDT)
+        id S1731058AbfHZLFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 07:05:51 -0400
+Received: from mail-eopbgr790105.outbound.protection.outlook.com ([40.107.79.105]:1313
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730553AbfHZLFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 07:05:50 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QFs+lgkkJWWxtndll4coKEdU9qr1BMh5JMNjVa+GmBmTXjxUTSiD/hrGZ9hzb8cOPNXbLzcIWr/whjBywD3s06PAG5WxyF8dC/buZ481fcZHHEnfcj/WwqleC+8z15mfELxTdXibaWJOHoat+UrkjW8tE7ZgE4TBNZx3i0WdOG85R58xAxuPttP+KvD7I8s3Ip0ymeh98aF77WSFrQ4V23+bx4En7cGDEDHqFeNcBVXfBe+OpXrzkFMWo8CfTuXvNjDoE5WQ03ucPaCUPLcUHD+B0FOjqtEbHrTcuDMZBYFF9wcvLzrn5Vwecd1k6S+VuYVi+DMXsNxelOzk7ZX0mQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XJHZKZpUamjKm4MRLFT/wRrk3/rcveY6YN9J0eo1DJw=;
+ b=EFpY7FGlOZFQzY3YfjHCiUJHzo/bAC/BN1NoLfoJqRCElr60bCk5VJOKoANqSiWR0MiriZrvRcWwQkZwq2SgxebuSQe/lzVUyBUOQh0nmUBsaZF3izOFgbVe6xjQjYGIV9UKbgarCuXu1L9p+XXyEfyk0a/6fXjRfi/xo1R0ha0QZUbWNtPb8g2T5NGNtSMQSpjTOxi1jHlXhi0RzwCIi/AbB6MjocvtNZQ1YJkiVbVSvSCirRtM93RpDFRYGKGERuofCtBsZBP8LCD5ceEg4cvd0hknLBOP5Wnu+Miyn0JaxDdAdfJD5zWEmikbBd/75jfs+8bS8Z9ZSOay6Cmk0Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wavecomp.com; dmarc=pass action=none header.from=mips.com;
+ dkim=pass header.d=mips.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wavecomp.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XJHZKZpUamjKm4MRLFT/wRrk3/rcveY6YN9J0eo1DJw=;
+ b=QU9BFs0TD9CnG5Uu588cqWMuXQxu7x2WdAhCh5fYFzcxDCFJSspQTx/IINWFeutn+FwjYjrB1f24uLESjXECNYlh8c3tUmGJ/5H6IkyIq1pHptXRmUDAhZKSTRhsDVLTFMd9FC4GP4XE1mnvCUMND54tZZBSPVtvBTU4gGhDOVs=
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
+ MWHPR2201MB1469.namprd22.prod.outlook.com (10.174.170.142) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2199.20; Mon, 26 Aug 2019 11:05:48 +0000
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::f9e8:5e8c:7194:fad3]) by MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::f9e8:5e8c:7194:fad3%11]) with mapi id 15.20.2199.021; Mon, 26 Aug
+ 2019 11:05:48 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+CC:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        Paul Burton <pburton@wavecomp.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
+Subject: Re: [PATCH v2] MIPS: Treat Loongson Extensions as ASEs
+Thread-Topic: [PATCH v2] MIPS: Treat Loongson Extensions as ASEs
+Thread-Index: AQHVFfqV0yX2/vkQwEWahkz1FhXytKcN0HEA
+Date:   Mon, 26 Aug 2019 11:05:48 +0000
+Message-ID: <MWHPR2201MB127704420DB0B7CA6CE9C390C1A10@MWHPR2201MB1277.namprd22.prod.outlook.com>
+References: <20190529084259.8511-1-jiaxun.yang@flygoat.com>
+In-Reply-To: <20190529084259.8511-1-jiaxun.yang@flygoat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: LO2P265CA0062.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:60::26) To MWHPR2201MB1277.namprd22.prod.outlook.com
+ (2603:10b6:301:18::12)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [79.77.158.32]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 49e0f14c-7420-48bf-74df-08d72a155999
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600166)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MWHPR2201MB1469;
+x-ms-traffictypediagnostic: MWHPR2201MB1469:
+x-ms-exchange-purlcount: 1
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MWHPR2201MB1469EE049BF11E26A16D25B5C1A10@MWHPR2201MB1469.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-forefront-prvs: 01415BB535
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(376002)(346002)(396003)(136003)(39840400004)(366004)(199004)(189003)(478600001)(966005)(5660300002)(14454004)(2906002)(229853002)(6436002)(74316002)(6306002)(9686003)(55016002)(4744005)(25786009)(54906003)(6246003)(53936002)(66946007)(52536014)(7736002)(3846002)(6116002)(4326008)(66446008)(64756008)(66556008)(66476007)(305945005)(316002)(256004)(71190400001)(71200400001)(486006)(44832011)(8676002)(81156014)(81166006)(8936002)(66066001)(186003)(102836004)(99286004)(386003)(6916009)(6506007)(476003)(26005)(11346002)(446003)(42882007)(7696005)(52116002)(76176011)(33656002);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1469;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: vrN0GB2WXQJykdnh9isiRJsO7IlqhVAYQScnLJitoW9AwKO0mH0U6l5kPErMnNKb5KI6bnar57jQDd9ZrdOoNeI+peNZ/8Ss5uwUw+48/qK/pyHZi1q94b6pJNSVe5F5/dy9biAtXUUjchD69fK/cK33jjzrj/aorju6eUTf+QcOktP/9bX2uiLJF6zooJLPQPDl3oTjKePyRpD1Iwtq5vl4zoLn+UM+5DPy7Q0OMZ0Sok1eYouVW60h3RiP4a3f8zdMVaJ3akZOM8/iBZNw60yBxC9kW4Djhng3LtUw5Oq7Gd0+Nu2mv1tT5deshy5Fmnz4Pru+2lSK+3MZ4jvrTxWTrYkLEiDJ4cEV8bDftlUudz18NeMAI6X+PegTNADWauWOAIQyANhBNkAUyh8fksPOdVLIP7DSQOEFKX0wg/c=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20190825153542.79245-1-hdegoede@redhat.com> <CAO-hwJ+AiViJg34dNKz05HfvnPVqigD7ZLyJpfsviBH8Rs0L2g@mail.gmail.com>
- <d5ff19d7-4a0c-6c38-2d97-fcc33a8cdedb@redhat.com> <CAO-hwJ+O34__f2CFH7-kBQc_95ur1A_yyBe7PXDmGAsQA8ZR7w@mail.gmail.com>
-In-Reply-To: <CAO-hwJ+O34__f2CFH7-kBQc_95ur1A_yyBe7PXDmGAsQA8ZR7w@mail.gmail.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Mon, 26 Aug 2019 12:01:58 +0200
-Message-ID: <CAO-hwJJ49WfrB3Oq+MxNfMW_OT=MTcmUO0Qh8Oz6Ve++FUbiuA@mail.gmail.com>
-Subject: Re: [PATCH] HID: logitech-dj: Fix crash when initial
- logi_dj_recv_query_paired_devices fails
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 49e0f14c-7420-48bf-74df-08d72a155999
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Aug 2019 11:05:48.4682
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Ho49ChBP3HwVA9RYk0uXpvsLHH7yu3ZnoBJS96iHCSrdL/P3QidPs8WdiqTZkEZYRM1rdCxwjMOKiPCzOrnw2g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1469
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 26, 2019 at 11:41 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Mon, Aug 26, 2019 at 11:04 AM Hans de Goede <hdegoede@redhat.com> wrote:
-> >
-> > Hi,
-> >
-> > On 26-08-19 09:46, Benjamin Tissoires wrote:
-> > > Hi Hans,
-> > >
-> > > On Sun, Aug 25, 2019 at 5:35 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> > >>
-> > >> Before this commit dj_probe would exit with an error if the initial
-> > >> logi_dj_recv_query_paired_devices fails. The initial call may fail
-> > >> when the receiver is connected through a kvm and the focus is away.
-> > >>
-> > >> When the call fails this causes 2 problems:
-> > >>
-> > >> 1) dj_probe calls logi_dj_recv_query_paired_devices after calling
-> > >> hid_device_io_start() so a HID report may have been received in between
-> > >> and our delayedwork_callback may be running. It seems that the initial
-> > >> logi_dj_recv_query_paired_devices failure happening with some KVMs triggers
-> > >> this exact scenario, causing the work-queue to run on free-ed memory,
-> > >> leading to:
-> > >>
-> > >>   BUG: unable to handle page fault for address: 0000000000001e88
-> > >>   #PF: supervisor read access in kernel mode
-> > >>   #PF: error_code(0x0000) - not-present page
-> > >>   PGD 0 P4D 0
-> > >>   Oops: 0000 [#1] SMP PTI
-> > >>   CPU: 3 PID: 257 Comm: kworker/3:3 Tainted: G           OE     5.3.0-rc5+ #100
-> > >>   Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./B150M Pro4S/D3, BIOS P7.10 12/06/2016
-> > >>   Workqueue: events 0xffffffffc02ba200
-> > >>   RIP: 0010:0xffffffffc02ba1bd
-> > >>   Code: e8 e8 13 00 d8 48 89 c5 48 85 c0 74 4c 48 8b 7b 10 48 89 ea b9 07 00 00 00 41 b9 09 00 00 00 41 b8 01 00 00 00 be 10 00 00 00 <48> 8b 87 88 1e 00 00 48 8b 40 40 e8 b3 6b b4 d8 48 89 ef 41 89 c4
-> > >>   RSP: 0018:ffffb760c046bdb8 EFLAGS: 00010286
-> > >>   RAX: ffff935038ea4550 RBX: ffff935046778000 RCX: 0000000000000007
-> > >>   RDX: ffff935038ea4550 RSI: 0000000000000010 RDI: 0000000000000000
-> > >>   RBP: ffff935038ea4550 R08: 0000000000000001 R09: 0000000000000009
-> > >>   R10: 000000000000e011 R11: 0000000000000001 R12: ffff9350467780e8
-> > >>   R13: ffff935046778000 R14: 0000000000000000 R15: ffff935046778070
-> > >>   FS:  0000000000000000(0000) GS:ffff935054e00000(0000) knlGS:0000000000000000
-> > >>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > >>   CR2: 0000000000001e88 CR3: 000000075a612002 CR4: 00000000003606e0
-> > >>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > >>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > >>   Call Trace:
-> > >>    0xffffffffc02ba2f7
-> > >>    ? process_one_work+0x1b1/0x560
-> > >>    process_one_work+0x234/0x560
-> > >>    worker_thread+0x50/0x3b0
-> > >>    kthread+0x10a/0x140
-> > >>    ? process_one_work+0x560/0x560
-> > >>    ? kthread_park+0x80/0x80
-> > >>    ret_from_fork+0x3a/0x50
-> > >>   Modules linked in: vboxpci(O) vboxnetadp(O) vboxnetflt(O) vboxdrv(O) bnep vfat fat btusb btrtl btbcm btintel bluetooth intel_rapl_msr ecdh_generic rfkill ecc snd_usb_audio snd_usbmidi_lib intel_rapl_common snd_rawmidi mc x86_pkg_temp_thermal intel_powerclamp coretemp iTCO_wdt iTCO_vendor_support mei_wdt mei_hdcp ppdev kvm_intel kvm irqbypass crct10dif_pclmul crc32_generic crc32_pclmul snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio ghash_clmulni_intel intel_cstate snd_hda_intel snd_hda_codec intel_uncore snd_hda_core snd_hwdep intel_rapl_perf snd_seq snd_seq_device snd_pcm snd_timer intel_wmi_thunderbolt snd e1000e soundcore mxm_wmi i2c_i801 bfq mei_me mei intel_pch_thermal parport_pc parport acpi_pad binfmt_misc hid_lg_g15(E) hid_logitech_dj(E) i915 crc32c_intel i2c_algo_bit drm_kms_helper nvme nvme_core drm wmi video uas usb_storage i2c_dev
-> > >>   CR2: 0000000000001e88
-> > >>   ---[ end trace 1d3f8afdcfcbd842 ]---
-> > >>
-> > >> 2) Even if we were to fix 1. by making sure the work is stopped before
-> > >> failing probe, failing probe is the wrong thing to do, we have
-> > >> logi_dj_recv_queue_unknown_work to deal with the initial
-> > >> logi_dj_recv_query_paired_devices failure.
-> > >>
-> > >> Rather then error-ing out of the probe, causing the receiver to not work at
-> > >> all we should rely on this, so that the attached devices will get properly
-> > >> enumerated once the KVM focus is switched back.
-> > >>
-> > >> Cc: stable@vger.kernel.org
-> > >> Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
-> > >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > >> ---
-> > >
-> > > Patch looks good to me, but doesn't logi_dj_recv_switch_to_dj_mode()
-> > > has the same potential issue?
-> >
-> > logi_dj_recv_query_paired_devices() solicits data being send from the
-> > device, so we do: hid_device_io_start(hdev); just before calling it.
->
-> Right, so the patch is just about fixing the workqueue item (and a
-> little bit of the device too)
->
-> [/me tries to understand the KVM implications]
->
-> >
-> > logi_dj_recv_switch_to_dj_mode() is done before the hid_device_io_start()
-> > so it cannot cause the work to get queued.
-> >
-> > Also logi_dj_recv_switch_to_dj_mode() failing is something we cannot
-> > recover from.
->
-> There is one thing I do not get.
-> When the KVM hadn't the focus on the device, how can it not forward
-> reports when you can actually call logi_dj_recv_switch_to_dj_mode()?
-> Does it present the device to all the hosts connected to it and just
-> filter the input reports to the "focused" one, or is it something
-> different?
->
-> And in the case logi_dj_recv_switch_to_dj_mode() failed, on a kvm it
-> should not have much implications, because as long as one host
-> converts the receiver to the DJ mode and the receiver keeps being
-> powered on, it won't change back to the non DJ mode...
->
-> Anyway, I have queued the patch locally for testing, and will push it soon.
+Hello,
 
-FWIW, patch is now applied in f-5.3/upstream/fixes
+Jiaxun Yang wrote:
+> Recently, binutils had split Loongson-3 Extensions into four ASEs:
+> MMI, CAM, EXT, EXT2. This patch do the samething in kernel and expose
+> them in cpuinfo so applications can probe supported ASEs at runtime.
 
-But I still would like to have your input on my KVM questions above :)
+Applied to mips-next.
 
-Cheers,
-Benjamin
+> commit d2f965549006
+> https://git.kernel.org/mips/c/d2f965549006
+>=20
+> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Signed-off-by: Paul Burton <paul.burton@mips.com>
 
->
-> Cheers,
-> Benjamin
->
-> > >>   drivers/hid/hid-logitech-dj.c | 10 +++++-----
-> > >>   1 file changed, 5 insertions(+), 5 deletions(-)
-> > >>
-> > >> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> > >> index cc47f948c1d0..7badbaa18878 100644
-> > >> --- a/drivers/hid/hid-logitech-dj.c
-> > >> +++ b/drivers/hid/hid-logitech-dj.c
-> > >> @@ -1734,14 +1734,14 @@ static int logi_dj_probe(struct hid_device *hdev,
-> > >>                  if (retval < 0) {
-> > >>                          hid_err(hdev, "%s: logi_dj_recv_query_paired_devices error:%d\n",
-> > >>                                  __func__, retval);
-> > >> -                       goto logi_dj_recv_query_paired_devices_failed;
-> > >> +                       /*
-> > >> +                        * This can happen with a KVM, let the probe succeed,
-> > >> +                        * logi_dj_recv_queue_unknown_work will retry later.
-> > >> +                        */
-> > >>                  }
-> > >>          }
-> > >>
-> > >> -       return retval;
-> > >> -
-> > >> -logi_dj_recv_query_paired_devices_failed:
-> > >> -       hid_hw_close(hdev);
-> > >> +       return 0;
-> > >>
-> > >>   llopen_failed:
-> > >>   switch_to_dj_mode_fail:
-> > >> --
-> > >> 2.23.0
-> > >>
+Thanks,
+    Paul
+
+[ This message was auto-generated; if you believe anything is incorrect
+  then please email paul.burton@mips.com to report it. ]
