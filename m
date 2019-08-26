@@ -2,148 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC2D9C7A8
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 05:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF699C86B
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 06:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729193AbfHZDQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Aug 2019 23:16:51 -0400
-Received: from mga05.intel.com ([192.55.52.43]:52782 "EHLO mga05.intel.com"
+        id S1727086AbfHZEdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 00:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726434AbfHZDQv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 25 Aug 2019 23:16:51 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Aug 2019 20:16:50 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,431,1559545200"; 
-   d="asc'?scan'208";a="263804410"
-Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.13.116])
-  by orsmga001.jf.intel.com with ESMTP; 25 Aug 2019 20:16:49 -0700
-Date:   Mon, 26 Aug 2019 11:12:10 +0800
-From:   Zhenyu Wang <zhenyuw@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     "Zhang, Xiaolin" <xiaolin.zhang@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: to make vgpu ppgtt notificaiton
- as atomic operation
-Message-ID: <20190826031210.GB29455@zhen-hp.sh.intel.com>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <1566543451-13955-1-git-send-email-xiaolin.zhang@intel.com>
- <156654711627.27716.4474982727513548344@skylake-alporthouse-com>
- <073732E20AE4C540AE91DBC3F07D4460876D3410@SHSMSX107.ccr.corp.intel.com>
- <156654932243.27716.13325423141754929364@skylake-alporthouse-com>
+        id S1726150AbfHZEdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 00:33:31 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D9DA2173E;
+        Mon, 26 Aug 2019 04:33:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566794010;
+        bh=hDYReKEPGspzFUUPfzXNaCQ4GuAxPqI+ynR0ZpkD4Ks=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pklW81/xTOLbHe5ZowzFgNPmnovbhHLSRAbRCjcJUDCLKCaSPaBmWC55jmJ3bCtOG
+         SoUgoclYIW5tnl0FmlarwRKi57TsV+A5/sOK55BNOnMqmlDK7/W2ABy1aF+Tie4jzX
+         Bmxv7yqIBkNssnM5PIg+6033VmGL/FNADap+uQwM=
+Date:   Mon, 26 Aug 2019 06:33:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     =?iso-8859-1?Q?J=F6rg-Volker?= Peetz <jvpeetz@web.de>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 5.2.10
+Message-ID: <20190826043328.GB26547@kroah.com>
+References: <20190825144703.6518-1-sashal@kernel.org>
+ <qju9bd$47qi$1@blaine.gmane.org>
+ <20190825223537.GB5281@sasha-vm>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <156654932243.27716.13325423141754929364@skylake-alporthouse-com>
-User-Agent: Mutt/1.10.0 (2018-05-17)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190825223537.GB5281@sasha-vm>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Aug 25, 2019 at 06:35:38PM -0400, Sasha Levin wrote:
+> Thanks for looking into this!
+> 
+> On Sun, Aug 25, 2019 at 05:26:37PM +0200, Jörg-Volker Peetz wrote:
+> > Where can I find your public gpg key and it's fingerprint?
+> > It's not yet documented on https://www.kernel.org/category/signatures.html .
+> 
+> You're right, I'll send a patch to add my fingerprint as well.
+> 
+> > I'm asking because the "gpg --locate-keys" method does not work for me.
+> 
+> I can confirm this, and this is weird... I see a kernel.org UID on the
+> key, and gpg seems to confirm that as well:
+> 
+> $ gpg --quick-add-uid DEA66FF797772CDC 'Sasha Levin <sashal@kernel.org>'
+> gpg: Such a user ID already exists on this key!
+> 
+> Let me contact kernel.org support to see what I'm doing wrong...
 
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Looks like everything is correct from my end:
 
-On 2019.08.23 09:35:22 +0100, Chris Wilson wrote:
-> Quoting Zhang, Xiaolin (2019-08-23 09:07:01)
-> > On 08/23/2019 03:58 PM, Chris Wilson wrote:
-> > > Quoting Xiaolin Zhang (2019-08-23 07:57:31)
-> > >> vgpu ppgtt notification was split into 2 steps, the first step is to
-> > >> update PVINFO's pdp register and then write PVINFO's g2v_notify regi=
-ster
-> > >> with action code to tirgger ppgtt notification to GVT side.
-> > >>
-> > >> currently these steps were not atomic operations due to no any prote=
-ction,
-> > >> so it is easy to enter race condition state during the MTBF, stress =
-and
-> > >> IGT test to cause GPU hang.
-> > >>
-> > >> the solution is to add a lock to make vgpu ppgtt notication as atomic
-> > >> operation.
-> > >>
-> > >> Cc: stable@vger.kernel.org
-> > >> Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
-> > >> ---
-> > >>  drivers/gpu/drm/i915/i915_drv.h     | 1 +
-> > >>  drivers/gpu/drm/i915/i915_gem_gtt.c | 4 ++++
-> > >>  drivers/gpu/drm/i915/i915_vgpu.c    | 1 +
-> > >>  3 files changed, 6 insertions(+)
-> > >>
-> > >> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/=
-i915_drv.h
-> > >> index eb31c16..32e17c4 100644
-> > >> --- a/drivers/gpu/drm/i915/i915_drv.h
-> > >> +++ b/drivers/gpu/drm/i915/i915_drv.h
-> > >> @@ -961,6 +961,7 @@ struct i915_frontbuffer_tracking {
-> > >>  };
-> > >> =20
-> > >>  struct i915_virtual_gpu {
-> > >> +       struct mutex lock;
-> > >>         bool active;
-> > >>         u32 caps;
-> > >>  };
-> > >> diff --git a/drivers/gpu/drm/i915/i915_gem_gtt.c b/drivers/gpu/drm/i=
-915/i915_gem_gtt.c
-> > >> index 2cd2dab..ff0b178 100644
-> > >> --- a/drivers/gpu/drm/i915/i915_gem_gtt.c
-> > >> +++ b/drivers/gpu/drm/i915/i915_gem_gtt.c
-> > >> @@ -833,6 +833,8 @@ static int gen8_ppgtt_notify_vgt(struct i915_ppg=
-tt *ppgtt, bool create)
-> > >>         enum vgt_g2v_type msg;
-> > >>         int i;
-> > >> =20
-> > >> +       mutex_lock(&dev_priv->vgpu.lock);
-> > >> +
-> > >>         if (create)
-> > >>                 atomic_inc(px_used(ppgtt->pd)); /* never remove */
-> > >>         else
-> > >> @@ -860,6 +862,8 @@ static int gen8_ppgtt_notify_vgt(struct i915_ppg=
-tt *ppgtt, bool create)
-> > >> =20
-> > >>         I915_WRITE(vgtif_reg(g2v_notify), msg);
-> > >> =20
-> > > How do you know the operation is complete and it is now safe to
-> > > overwrite the data regs?
-> > > -Chris
-> > >
-> > by design, the data reg value is copied out to use, so as long as the
-> > action and data is operated together, how long the operation is not a
-> > issue and  it is safe to overwrite the data regs with new action next t=
-ime.
->=20
-> When and how quickly is it copied? Consider that it will be immediately
-> overwritten by the next packet. Does the vgpu mmio write cause the
-> calling CPU to be trapped?
+$ git tag -v v5.2.10
+object f7d5b3dc4792a5fe0a4d6b8106a8f3eb20c3c24c
+type commit
+tag v5.2.10
+tagger Sasha Levin <sashal@kernel.org> 1566742490 -0400
 
-yeah, mmio write will always be trapped, this data is got in notify
-mmio reg write trap handler. We need to add doc to tell that for
-current gvt notify interface, client needs to ensure serialized write
-but without data overwrite.
+This is the 5.2.10 stable release
+gpg: Signature made Sun 25 Aug 2019 04:14:50 PM CEST
+gpg:                using RSA key E27E5D8A3403A2EF66873BBCDEA66FF797772CDC
+gpg: Good signature from "Sasha Levin <sashal@kernel.org>" [unknown]
+gpg:                 aka "Sasha Levin <sasha.levin@oracle.com>" [undefined]
+gpg:                 aka "Sasha Levin <alexander.levin@verizon.com>" [unknown]
+gpg:                 aka "Sasha Levin <alexander.levin@microsoft.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: E27E 5D8A 3403 A2EF 6687  3BBC DEA6 6FF7 9777 2CDC
 
---=20
-Open Source Technology Center, Intel ltd.
+I'll go add yours and Ben's fingerprints to the kernel.org website so
+that others can verify it there.
 
-$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
+thanks,
 
---qlTNgmc+xy1dBmNv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXWNOCgAKCRCxBBozTXgY
-JzzRAJ0X7LbFKhBwy4X/+yw15A/XA4mnegCdHFH6sMkgG0A4ZdteToz+xg8BFzA=
-=gV9R
------END PGP SIGNATURE-----
-
---qlTNgmc+xy1dBmNv--
+greg k-h
