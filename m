@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8879DA20
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 01:50:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3AAB9DA31
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 01:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbfHZXul convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 26 Aug 2019 19:50:41 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:42198 "EHLO mx1.redhat.com"
+        id S1727113AbfHZXzc convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 26 Aug 2019 19:55:32 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50346 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726278AbfHZXul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 19:50:41 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        id S1726020AbfHZXzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 19:55:32 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A182010C6965
-        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 23:50:40 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id E94CD8CEC66
+        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 23:55:30 +0000 (UTC)
 Received: from [172.54.124.177] (cpt-1056.paas.prod.upshift.rdu2.redhat.com [10.0.19.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AB83F196AE;
-        Mon, 26 Aug 2019 23:50:35 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A1A55DC1B;
+        Mon, 26 Aug 2019 23:55:28 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.E8C2FB7F81.AY6QQ45IT3@redhat.com>
-X-Gitlab-Pipeline-ID: 125799
+Message-ID: <cki.CC0042B675.MD02TPJGRZ@redhat.com>
+X-Gitlab-Pipeline-ID: 125600
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/125799
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.65]); Mon, 26 Aug 2019 23:50:40 +0000 (UTC)
-Date:   Mon, 26 Aug 2019 19:50:41 -0400
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/125600
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.69]); Mon, 26 Aug 2019 23:55:30 +0000 (UTC)
+Date:   Mon, 26 Aug 2019 19:55:32 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -55,7 +55,7 @@ The results of these automated tests are provided below.
 
 All kernel binaries, config files, and logs are available for download here:
 
-  https://artifacts.cki-project.org/pipelines/125799
+  https://artifacts.cki-project.org/pipelines/125600
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -76,7 +76,7 @@ We cloned this repository and checked out the following commit:
   Commit: f7d5b3dc4792 - Linux 5.2.10
 
 
-We grabbed the 2c134019d969 commit of the stable queue repository.
+We grabbed the 5c9d653cac72 commit of the stable queue repository.
 
 We then merged the patchset with `git am`:
 
@@ -235,7 +235,6 @@ We then merged the patchset with `git am`:
   mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags-y.patch
   xfs-fix-missing-ilock-unlock-when-xfs_setattr_nonsize-fails-due-to-edquot.patch
   ib-hfi1-drop-stale-tid-rdma-packets.patch
-  dm-zoned-fix-potential-null-dereference-in-dmz_do_re.patch
 
 Compile testing
 ---------------
@@ -282,11 +281,20 @@ We booted each kernel and ran the following tests:
          ✅ tuned: tune-processes-through-perf [17]
          ✅ Usex - version 1.9-29 [18]
          ✅ storage: SCSI VPD [19]
+         ✅ stress: stress-ng [20]
 
 
   ppc64le:
       Host 1:
          ✅ Boot test [0]
+         ✅ xfstests: xfs [1]
+         ✅ selinux-policy: serge-testsuite [2]
+         ✅ lvm thinp sanity [3]
+         ✅ storage: software RAID testing [4]
+         🚧 ✅ Storage blktests [5]
+
+      Host 2:
+         ✅ Boot test [0]
          ✅ Podman system integration test (as root) [6]
          ✅ Podman system integration test (as user) [6]
          ✅ LTP lite [7]
@@ -301,19 +309,19 @@ We booted each kernel and ran the following tests:
          ✅ iotop: sanity [16]
          ✅ tuned: tune-processes-through-perf [17]
          ✅ Usex - version 1.9-29 [18]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
 
 
   x86_64:
       Host 1:
          ✅ Boot test [0]
+         ✅ xfstests: xfs [1]
+         ✅ selinux-policy: serge-testsuite [2]
+         ✅ lvm thinp sanity [3]
+         ✅ storage: software RAID testing [4]
+         🚧 ✅ Storage blktests [5]
+
+      Host 2:
+         ✅ Boot test [0]
          ✅ Podman system integration test (as root) [6]
          ✅ Podman system integration test (as user) [6]
          ✅ LTP lite [7]
@@ -327,18 +335,10 @@ We booted each kernel and ran the following tests:
          ✅ httpd: mod_ssl smoke sanity [15]
          ✅ iotop: sanity [16]
          ✅ tuned: tune-processes-through-perf [17]
-         ✅ pciutils: sanity smoke test [20]
+         ✅ pciutils: sanity smoke test [21]
          ✅ Usex - version 1.9-29 [18]
          ✅ storage: SCSI VPD [19]
-         ✅ stress: stress-ng [21]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
+         ✅ stress: stress-ng [20]
 
 
   Test source:
@@ -363,8 +363,8 @@ We booted each kernel and ran the following tests:
     [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
     [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
     [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
 
 Waived tests
 ------------
