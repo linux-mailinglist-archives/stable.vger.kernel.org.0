@@ -2,119 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 755D19D861
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 23:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 065749D89E
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 23:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725983AbfHZVb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 17:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40590 "EHLO mail.kernel.org"
+        id S1728402AbfHZVle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 17:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbfHZVb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 17:31:58 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        id S1727013AbfHZVle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 17:41:34 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8FBE21881;
-        Mon, 26 Aug 2019 21:31:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75189217F5;
+        Mon, 26 Aug 2019 21:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566855118;
-        bh=dR/4EmKX1nMvFaGiwsF7XCzuACUxlvQDDE7B2JG0+l0=;
-        h=Date:From:To:Subject:From;
-        b=jNepNvnB9Du3dYxuwloV+trzcGB/+GnWA+ocTY7N+UwTbggbc/uKuJ32/oGSrpRj2
-         yaWwQFE3Xg5aTd4yICeRAogIMkm4iPFHK6SErPHg2q8cbrZykjHFwKOGq41UuMvCLE
-         gLoaM5fXGZPFKgsP3FcTlJNxM971PFa2eimzglVE=
-Date:   Mon, 26 Aug 2019 14:31:57 -0700
-From:   akpm@linux-foundation.org
-To:     andreyknvl@google.com, aryabinin@virtuozzo.com,
-        catalin.marinas@arm.com, dvyukov@google.com, glider@google.com,
-        mark.rutland@arm.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, walter-zh.wu@mediatek.com,
-        will.deacon@arm.com
-Subject:  [merged]
- =?US-ASCII?Q?mm-kasan-fix-false-positive-invalid-free-reports-with-conf?=
- =?US-ASCII?Q?ig=5Fkasan=5Fsw=5Ftags=3Dy.patch?= removed from -mm tree
-Message-ID: <20190826213157.K59PuXBOl%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1566855693;
+        bh=DwV/hMakv11sHXBA7Xl8fXFLh4OTtcE1REwOTduv7Rw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xup+NyCt2VTBDCEnMpWoN1YNKVh5fFtLyh+0mLsMjoAQy8ve2npgz5cBpU0mIfx3a
+         VLtV4A930JD0GKXg4eZCTAUgsUJGeTEZGL9EZAQmdp0WlhPHiFX4AZNI+LzZCNXnve
+         Cd1qa//0+sDj8sTk0RccPwFw6ZgclYEvEP4sACs4=
+Date:   Mon, 26 Aug 2019 17:41:32 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Subject: Re: fs/io_uring.c stable additions
+Message-ID: <20190826214132.GM5281@sasha-vm>
+References: <06ff6a5e-ecaa-ce53-5db0-6ff6e128c119@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <06ff6a5e-ecaa-ce53-5db0-6ff6e128c119@kernel.dk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 26, 2019 at 02:39:28PM -0600, Jens Axboe wrote:
+>Hi,
+>
+>Round two of this show, I forget to add these stable tags sometimes
+>apparently... Can you add these four to 5.2 stable? Again listed
+>in order of how they should be applied.
+>
+>a982eeb09b6030e567b8b815277c8c9197168040
 
-The patch titled
-     Subject: mm/kasan: fix false positive invalid-free reports with CONFIG_KASAN_SW_TAGS=y
-has been removed from the -mm tree.  Its filename was
-     mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags=y.patch
+This one seems to fix sqe links, which were only introduced in the 5.3
+merge window?
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+>500f9fbadef86466a435726192f4ca4df7d94236
+>a3a0e43fd77013819e4b6f55e37e0efe8e35d805
+>08f5439f1df25a6cf6cf4c72cf6c13025599ce67
 
-------------------------------------------------------
-From: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Subject: mm/kasan: fix false positive invalid-free reports with CONFIG_KASAN_SW_TAGS=y
+These 3 look okay, but I haven't queued them up as you were explicit
+with ordering instructions, and as I can't take the first one I'm
+playing it safe.
 
-The code like this:
-
-	ptr = kmalloc(size, GFP_KERNEL);
-	page = virt_to_page(ptr);
-	offset = offset_in_page(ptr);
-	kfree(page_address(page) + offset);
-
-may produce false-positive invalid-free reports on the kernel with
-CONFIG_KASAN_SW_TAGS=y.
-
-In the example above we lose the original tag assigned to 'ptr', so
-kfree() gets the pointer with 0xFF tag.  In kfree() we check that 0xFF tag
-is different from the tag in shadow hence print false report.
-
-Instead of just comparing tags, do the following:
-
-1) Check that shadow doesn't contain KASAN_TAG_INVALID.  Otherwise it's
-   double-free and it doesn't matter what tag the pointer have.
-
-2) If pointer tag is different from 0xFF, make sure that tag in the
-   shadow is the same as in the pointer.
-
-Link: http://lkml.kernel.org/r/20190819172540.19581-1-aryabinin@virtuozzo.com
-Fixes: 7f94ffbc4c6a ("kasan: add hooks implementation for tag-based mode")
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/kasan/common.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
---- a/mm/kasan/common.c~mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags=y
-+++ a/mm/kasan/common.c
-@@ -407,8 +407,14 @@ static inline bool shadow_invalid(u8 tag
- 	if (IS_ENABLED(CONFIG_KASAN_GENERIC))
- 		return shadow_byte < 0 ||
- 			shadow_byte >= KASAN_SHADOW_SCALE_SIZE;
--	else
--		return tag != (u8)shadow_byte;
-+
-+	/* else CONFIG_KASAN_SW_TAGS: */
-+	if ((u8)shadow_byte == KASAN_TAG_INVALID)
-+		return true;
-+	if ((tag != KASAN_TAG_KERNEL) && (tag != (u8)shadow_byte))
-+		return true;
-+
-+	return false;
- }
- 
- static bool __kasan_slab_free(struct kmem_cache *cache, void *object,
-_
-
-Patches currently in -mm which might be from aryabinin@virtuozzo.com are
-
-mm-vmscan-remove-unused-lru_pages-argument.patch
-
+--
+Thanks,
+Sasha
