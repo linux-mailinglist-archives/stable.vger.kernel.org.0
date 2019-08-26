@@ -2,180 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5291E9D142
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 16:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 390E79D1AA
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 16:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730327AbfHZOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 10:02:57 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40242 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727091AbfHZOC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 10:02:56 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1i2Fa4-0005AA-H1; Mon, 26 Aug 2019 16:02:48 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F104F1C0DAE;
-        Mon, 26 Aug 2019 16:02:47 +0200 (CEST)
-Date:   Mon, 26 Aug 2019 14:02:47 -0000
-From:   tip-bot2 for Sebastian Mayr <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] uprobes/x86: Fix detection of 32-bit user mode
-Cc:     Sebastian Mayr <me@sam.st>, Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Dmitry Safonov <dsafonov@virtuozzo.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20190728152617.7308-1-me@sam.st>
-References: <20190728152617.7308-1-me@sam.st>
+        id S1727261AbfHZOb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 10:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41344 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726484AbfHZOb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 10:31:26 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F8E02173E;
+        Mon, 26 Aug 2019 14:31:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566829885;
+        bh=S0V5XzeUw6fLtK+Xw7uttsjbYD3Xydm6LhgGRawrGX0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HdM+S1qfzWCubuHSz6qprslKCDToWduEWGAZnKuGrZAg3ma0tx7ElLj13ud7eZ+in
+         btG6ByNvg67bwAvN/iGinplkOY5WKXOuTXcBA/5EJJ00R7BYBmLOsiaR/m8BlF8ZKb
+         /b6XNqIcvqne7TeArj/U9ZqIUZx5dITtt0zKn9jQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     peterz@infradead.org, will@kernel.org, jstancek@redhat.com,
+        stable@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, tglx@linutronix.de,
+        linux-kernel@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        dbueso@suse.de, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH v5.2 1/2] locking/rwsem: Add missing ACQUIRE to read_slowpath exit when queue is empty
+Date:   Mon, 26 Aug 2019 10:31:13 -0400
+Message-Id: <20190826143114.23471-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Message-ID: <156682816785.22183.13288779592609885843.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+From: Jan Stancek <jstancek@redhat.com>
 
-Commit-ID:     9212ec7d8357ea630031e89d0d399c761421c83b
-Gitweb:        https://git.kernel.org/tip/9212ec7d8357ea630031e89d0d399c761421c83b
-Author:        Sebastian Mayr <me@sam.st>
-AuthorDate:    Sun, 28 Jul 2019 17:26:17 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Mon, 26 Aug 2019 15:55:09 +02:00
+[ Upstream commit e1b98fa316648420d0434d9ff5b92ad6609ba6c3 ]
 
-uprobes/x86: Fix detection of 32-bit user mode
+LTP mtest06 has been observed to occasionally hit "still mapped when
+deleted" and following BUG_ON on arm64.
 
-32-bit processes running on a 64-bit kernel are not always detected
-correctly, causing the process to crash when uretprobes are installed.
+The extra mapcount originated from pagefault handler, which handled
+pagefault for vma that has already been detached. vma is detached
+under mmap_sem write lock by detach_vmas_to_be_unmapped(), which
+also invalidates vmacache.
 
-The reason for the crash is that in_ia32_syscall() is used to determine the
-process's mode, which only works correctly when called from a syscall.
+When the pagefault handler (under mmap_sem read lock) calls
+find_vma(), vmacache_valid() wrongly reports vmacache as valid.
 
-In the case of uretprobes, however, the function is called from a exception
-and always returns 'false' on a 64-bit kernel. In consequence this leads to
-corruption of the process's return address.
+After rwsem down_read() returns via 'queue empty' path (as of v5.2),
+it does so without an ACQUIRE on sem->count:
 
-Fix this by using user_64bit_mode() instead of in_ia32_syscall(), which
-is correct in any situation.
+  down_read()
+    __down_read()
+      rwsem_down_read_failed()
+        __rwsem_down_read_failed_common()
+          raw_spin_lock_irq(&sem->wait_lock);
+          if (list_empty(&sem->wait_list)) {
+            if (atomic_long_read(&sem->count) >= 0) {
+              raw_spin_unlock_irq(&sem->wait_lock);
+              return sem;
 
-[ tglx: Add a comment and the following historical info ]
+The problem can be reproduced by running LTP mtest06 in a loop and
+building the kernel (-j $NCPUS) in parallel. It does reproduces since
+v4.20 on arm64 HPE Apollo 70 (224 CPUs, 256GB RAM, 2 nodes). It
+triggers reliably in about an hour.
 
-This should have been detected by the rename which happened in commit
+The patched kernel ran fine for 10+ hours.
 
-  abfb9498ee13 ("x86/entry: Rename is_{ia32,x32}_task() to in_{ia32,x32}_syscall()")
-
-which states in the changelog:
-
-    The is_ia32_task()/is_x32_task() function names are a big misnomer: they
-    suggests that the compat-ness of a system call is a task property, which
-    is not true, the compatness of a system call purely depends on how it
-    was invoked through the system call layer.
-    .....
-
-and then it went and blindly renamed every call site.
-
-Sadly enough this was already mentioned here:
-
-   8faaed1b9f50 ("uprobes/x86: Introduce sizeof_long(), cleanup adjust_ret_addr() and
-arch_uretprobe_hijack_return_addr()")
-
-where the changelog says:
-
-    TODO: is_ia32_task() is not what we actually want, TS_COMPAT does
-    not necessarily mean 32bit. Fortunately syscall-like insns can't be
-    probed so it actually works, but it would be better to rename and
-    use is_ia32_frame().
-
-and goes all the way back to:
-
-    0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
-
-Oh well. 7+ years until someone actually tried a uretprobe on a 32bit
-process on a 64bit kernel....
-
-Fixes: 0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
-Signed-off-by: Sebastian Mayr <me@sam.st>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Dmitry Safonov <dsafonov@virtuozzo.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190728152617.7308-1-me@sam.st
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Will Deacon <will@kernel.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: dbueso@suse.de
+Fixes: 4b486b535c33 ("locking/rwsem: Exit read lock slowpath if queue empty & no writer")
+Link: https://lkml.kernel.org/r/50b8914e20d1d62bb2dee42d342836c2c16ebee7.1563438048.git.jstancek@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/uprobes.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
-index d8359eb..8cd745e 100644
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -508,9 +508,12 @@ struct uprobe_xol_ops {
- 	void	(*abort)(struct arch_uprobe *, struct pt_regs *);
- };
- 
--static inline int sizeof_long(void)
-+static inline int sizeof_long(struct pt_regs *regs)
- {
--	return in_ia32_syscall() ? 4 : 8;
-+	/*
-+	 * Check registers for mode as in_xxx_syscall() does not apply here.
-+	 */
-+	return user_64bit_mode(regs) ? 8 : 4;
- }
- 
- static int default_pre_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
-@@ -521,9 +524,9 @@ static int default_pre_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
- 
- static int emulate_push_stack(struct pt_regs *regs, unsigned long val)
- {
--	unsigned long new_sp = regs->sp - sizeof_long();
-+	unsigned long new_sp = regs->sp - sizeof_long(regs);
- 
--	if (copy_to_user((void __user *)new_sp, &val, sizeof_long()))
-+	if (copy_to_user((void __user *)new_sp, &val, sizeof_long(regs)))
- 		return -EFAULT;
- 
- 	regs->sp = new_sp;
-@@ -556,7 +559,7 @@ static int default_post_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs
- 		long correction = utask->vaddr - utask->xol_vaddr;
- 		regs->ip += correction;
- 	} else if (auprobe->defparam.fixups & UPROBE_FIX_CALL) {
--		regs->sp += sizeof_long(); /* Pop incorrect return address */
-+		regs->sp += sizeof_long(regs); /* Pop incorrect return address */
- 		if (emulate_push_stack(regs, utask->vaddr + auprobe->defparam.ilen))
- 			return -ERESTART;
- 	}
-@@ -675,7 +678,7 @@ static int branch_post_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
- 	 * "call" insn was executed out-of-line. Just restore ->sp and restart.
- 	 * We could also restore ->ip and try to call branch_emulate_op() again.
- 	 */
--	regs->sp += sizeof_long();
-+	regs->sp += sizeof_long(regs);
- 	return -ERESTART;
- }
- 
-@@ -1056,7 +1059,7 @@ bool arch_uprobe_skip_sstep(struct arch_uprobe *auprobe, struct pt_regs *regs)
- unsigned long
- arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs *regs)
- {
--	int rasize = sizeof_long(), nleft;
-+	int rasize = sizeof_long(regs), nleft;
- 	unsigned long orig_ret_vaddr = 0; /* clear high bits for 32-bit apps */
- 
- 	if (copy_from_user(&orig_ret_vaddr, (void __user *)regs->sp, rasize))
+This is a backport for the v5.2 stable tree. There were multiple reports
+of this issue being hit.
+
+Given that there were a few changes to the code around this, I'd
+appreciate an ack before pulling it in.
+
+ kernel/locking/rwsem-xadd.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 0b1f779572402..397dedc58432d 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -454,6 +454,8 @@ __rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
+ 		 * been set in the count.
+ 		 */
+ 		if (atomic_long_read(&sem->count) >= 0) {
++			/* Provide lock ACQUIRE */
++			smp_acquire__after_ctrl_dep();
+ 			raw_spin_unlock_irq(&sem->wait_lock);
+ 			rwsem_set_reader_owned(sem);
+ 			lockevent_inc(rwsem_rlock_fast);
+-- 
+2.20.1
+
