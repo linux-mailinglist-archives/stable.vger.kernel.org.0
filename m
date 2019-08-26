@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C37D39CC07
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 10:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDDE9CC0B
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 10:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730320AbfHZI7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 04:59:39 -0400
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:47223 "EHLO
+        id S1730365AbfHZI7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 04:59:48 -0400
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:40403 "EHLO
         new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729802AbfHZI7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 04:59:39 -0400
+        by vger.kernel.org with ESMTP id S1729802AbfHZI7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 04:59:47 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id CC3451EAC;
-        Mon, 26 Aug 2019 04:59:37 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 26 Aug 2019 04:59:37 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id 45E5335CD;
+        Mon, 26 Aug 2019 04:59:46 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 26 Aug 2019 04:59:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=EYQTmb
-        VD3CucO9GOAfqghBf89Pz6bGe9naRI2nQkTI0=; b=pqhdDrXxGgV0Px2XPZSaEc
-        JONcGGaCx7MnEy1Lyn9tqpcfGk0VsINL/a1dE8Op5NXmqr+FPmCIRAl7r+6rohWh
-        vS8li5ka2aEOg+9CvPE28Zy0pIyD6oA5AePIfiBG5yem5dVN/C4TFLq8CJ+dGX8Q
-        OEROqsyuTvXr7qCRvl3rb27xmKgOr6xmZHm4OF41Afmm9T2BgOANrC3FoJLixoOG
-        gdczluy5bsbyimEnuApmbS/bfid96bVQL7c8VO0bgg1A9nn2RZ1cORiSmu9/fU7Y
-        iHORjm86xmLl37eIIuqLwwvT1mzDlv2CYmpfYUAJKa93zZYbJRO/mTqsyW4UE6TA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7mE2b8
+        T1rf+44AxBAjyFiQeNC0jH/AAc7aLd9gsixPI=; b=HQpCGZHj/aw3QgLTwsCIbV
+        FGsTenNst9BXRavGf4ni0RNzGv0UoHV/MHwy8BYav8zcM5LchbGBG1voz9B39Z0K
+        c++Za3nB2mvW4DNyLRiZM3iaIBTUHHXJjL/t6sqQFJFZ3JweytT9KSINg2k3lV7n
+        RHK4zUteraywNLudfqffiTg/VVc56yTDclSep5FfdUpCqEbCvNkMaCNWSdTCTNXi
+        d7Md5omaXjxbnT08KejYhVHfUkxWdIA7UTZ5FttNQttleRNbOjB6Y9OQMtuD+zAk
+        QjxDp8l9BzR4QF0WL4fxUUwLkqUqikZKMC5nFE3iPItUTuGgWNzaukMVVkiidycg
         ==
-X-ME-Sender: <xms:d59jXZFg2I-pNn_tBuO9se4QQUz1KfGSEcyyaWxedd9yfShM-51LQQ>
+X-ME-Sender: <xms:gp9jXR-VHY6mRG-7CzhqcaRoAarpCV-t4TihYsi6oeIxisDvRAc46w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehgedgudduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeelrddvtdehrdduvd
     ekrddvgeeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
-    mhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:d59jXV5Q_kPIfB-RWk8NNOvfzB0cYelq2nJzAtaAQJ4hjrKKNByMfQ>
-    <xmx:d59jXdbCL6xnKnUdMxxm1IUeuiykQF2n20DxdkHPygLHQAYCLe1XUw>
-    <xmx:d59jXZvZpRIJu3m-az1zZ6hSqNbvcZNEdC-Z-U2UHm-C16FaZbWGGw>
-    <xmx:eZ9jXekG9F0InlNR5Vu2VF8ga74OfzS1hNOY9zXJ498DBa4DabjJzA>
+    mhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:gp9jXZ9NSxI-nY_cPIu81AseU65wd8EC1rYIjMIDgWvWMu-k43uH5Q>
+    <xmx:gp9jXaDTC6SocpGAhNEBgtRvqWCgUqqDRVTDCFthNDwCq0I_ycjXGw>
+    <xmx:gp9jXZzkqV_3CoxLcfbeP2FPJvsspDcNRQDpS4wruoN9VO7DOYNDGg>
+    <xmx:gp9jXQKIS5UGvGq02YmNFwR1qCo463TefzEOvwLJdgXslrbtFljSrQ>
 Received: from localhost (unknown [89.205.128.246])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2A8DD80059;
-        Mon, 26 Aug 2019 04:59:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 955A4D6005A;
+        Mon, 26 Aug 2019 04:59:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h" failed to apply to 4.9-stable tree
 To:     thomas.lendacky@amd.com, akpm@linux-foundation.org,
         andrew.cooper3@citrix.com, bp@suse.de, corbet@lwn.net,
         hpa@zytor.com, jgross@suse.com, jpoimboe@redhat.com,
@@ -53,8 +53,8 @@ To:     thomas.lendacky@amd.com, akpm@linux-foundation.org,
         x86@kernel.org, yu.c.chen@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Aug 2019 10:59:33 +0200
-Message-ID: <1566809973112223@kroah.com>
+Date:   Mon, 26 Aug 2019 10:59:35 +0200
+Message-ID: <1566809975147242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -64,7 +64,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
