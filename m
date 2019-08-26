@@ -2,39 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDC69CE95
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 13:51:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0459CEEE
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 14:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731260AbfHZLvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 07:51:05 -0400
-Received: from mga07.intel.com ([134.134.136.100]:2495 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727182AbfHZLvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 07:51:05 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Aug 2019 04:51:05 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,433,1559545200"; 
-   d="scan'208";a="174184159"
-Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.122]) ([10.237.72.122])
-  by orsmga008.jf.intel.com with ESMTP; 26 Aug 2019 04:51:03 -0700
-Subject: Re: FAILED: patch "[PATCH] scsi: ufs: Fix NULL pointer dereference
- in" failed to apply to 4.4-stable tree
-To:     gregkh@linuxfoundation.org, martin.petersen@oracle.com
-Cc:     stable@vger.kernel.org
-References: <156680972724494@kroah.com>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Message-ID: <450beed5-281b-be41-029e-fb98d2ba36ba@intel.com>
-Date:   Mon, 26 Aug 2019 14:49:49 +0300
+        id S1726749AbfHZMFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 08:05:20 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:38978 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726945AbfHZMFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 08:05:16 -0400
+Received: by mail-lj1-f194.google.com with SMTP id x4so14807763ljj.6
+        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 05:05:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rasmusvillemoes.dk; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=674zUEpW1qMBR3Wi1BQtNz764/jC32fVo4Wnlz37HVc=;
+        b=Lf7HVzPz79lDRnTThZqVbYKB0aAd2zA1zy/h7fW06v68QWEw1WNy5mQZbXpt842yYq
+         qxTTWJJRBCD2WDttnzkUs5l5niy76+oPT4xj67RbO7fqvEDVN+M2nq24zp3fBjfuRj75
+         EyO5njAJHM6F6xW/gCMI2K0/cA9l5x8hvy6xU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=674zUEpW1qMBR3Wi1BQtNz764/jC32fVo4Wnlz37HVc=;
+        b=JKXSMV94fiMIMu8HeyCy98opsYX5IbfBblsLHbOcUzff5+HaEsfTiEUN2LVIg2JlNv
+         rJKhuIEkQrsckQQ1OLu+q1pF8T5gtIsAQIxNWtClP5jDb/PKBZ8TfOgs07ob7wCtTJgC
+         P+vNpXixRW4G2+oDxqmi9li9pAo2blzh4aeCE5QUE4Do3cF8g0M2jXfy2bJxZn86iwY5
+         iat/kkZVdh6ZYfylSk5aBTihk2aMJYbojD327pHGCbXdUJGxMvOxq4BxaNkUo4gBpSVu
+         hObX4fnRTgmEpwiG379RRzXJ5cDeEBgCTPKJgZE/YV+mH4kX0TnKgm1JjPcwn/felNcF
+         Ibow==
+X-Gm-Message-State: APjAAAUaM46yOwEGA6YlQSb9wM/uaQwY/7rbK8852Raqao+WqWYZyeD/
+        SKmm7b5M7lesym1nLH5Y4khldC/kWrwwp3WC
+X-Google-Smtp-Source: APXvYqx634hTfDpHZkU+yXAO9eBjOGIvulK43Z3s5tUBVD+a3YmY69JSLgMzlfPXQ8Gyo7lOpk7wyw==
+X-Received: by 2002:a05:651c:1111:: with SMTP id d17mr10009917ljo.87.1566821114243;
+        Mon, 26 Aug 2019 05:05:14 -0700 (PDT)
+Received: from [172.16.11.28] ([81.216.59.226])
+        by smtp.gmail.com with ESMTPSA id h16sm1969294ljj.73.2019.08.26.05.05.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Aug 2019 05:05:13 -0700 (PDT)
+Subject: Re: [PATCH] watchdog: imx2_wdt: fix min() calculation in
+ imx2_wdt_set_timeout
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Georg Hofmann <georg@hofmannsweb.com>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20190812131356.23039-1-linux@rasmusvillemoes.dk>
+ <77faf1bd-14cc-831f-e65e-4f2aa74e1843@roeck-us.net>
+From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Message-ID: <8a7a29d4-92ed-1256-6c91-c2e528e58e3b@rasmusvillemoes.dk>
+Date:   Mon, 26 Aug 2019 14:05:12 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <156680972724494@kroah.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <77faf1bd-14cc-831f-e65e-4f2aa74e1843@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -42,98 +66,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Seems to works for me:
+On 12/08/2019 15.28, Guenter Roeck wrote:
+> On 8/12/19 6:13 AM, Rasmus Villemoes wrote:
+>> Converting from ms to s requires dividing by 1000, not multiplying. So
+>> this is currently taking the smaller of new_timeout and 1.28e8,
+>> i.e. effectively new_timeout.
+>>
+>> The driver knows what it set max_hw_heartbeat_ms to, so use that
+>> value instead of doing a division at run-time.
+>>
+>> FWIW, this can easily be tested by booting into a busybox shell and
+>> doing "watchdog -t 5 -T 130 /dev/watchdog" - without this patch, the
+>> watchdog fires after 130&127 == 2 seconds.
+>>
+>> Fixes: b07e228eee69 "watchdog: imx2_wdt: Fix set_timeout for big
+>> timeout values"
+>> Cc: stable@vger.kernel.org # 5.2 plus anything the above got
+>> backported to
+>> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-$ git log | head -5
-commit 5e9f4d704f8698b6d655afa7e9fac3509da253bc
-Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date:   Sun Aug 25 10:53:06 2019 +0200
+I'm not seeing this in v5.3-rc6, did it get picked up?
 
-    Linux 4.4.190
-
-$ git cherry-pick 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1
-warning: inexact rename detection was skipped due to too many files.
-warning: you may want to set your merge.renamelimit variable to at least 22729 and retry the command.
-[linux-4.4.y 9558a3c05149] scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
- Date: Wed Aug 14 15:59:50 2019 +0300
- 1 file changed, 3 insertions(+)
-
-$ git log | head -5
-commit 9558a3c05149ded7136c24325dd3952276fcdaaa
-Author: Adrian Hunter <adrian.hunter@intel.com>
-Date:   Wed Aug 14 15:59:50 2019 +0300
-
-    scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
-
-
-
-On 26/08/19 11:55 AM, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
->>From 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1 Mon Sep 17 00:00:00 2001
-> From: Adrian Hunter <adrian.hunter@intel.com>
-> Date: Wed, 14 Aug 2019 15:59:50 +0300
-> Subject: [PATCH] scsi: ufs: Fix NULL pointer dereference in
->  ufshcd_config_vreg_hpm()
-> 
-> Fix the following BUG:
-> 
->   [ 187.065689] BUG: kernel NULL pointer dereference, address: 000000000000001c
->   [ 187.065790] RIP: 0010:ufshcd_vreg_set_hpm+0x3c/0x110 [ufshcd_core]
->   [ 187.065938] Call Trace:
->   [ 187.065959] ufshcd_resume+0x72/0x290 [ufshcd_core]
->   [ 187.065980] ufshcd_system_resume+0x54/0x140 [ufshcd_core]
->   [ 187.065993] ? pci_pm_restore+0xb0/0xb0
->   [ 187.066005] ufshcd_pci_resume+0x15/0x20 [ufshcd_pci]
->   [ 187.066017] pci_pm_thaw+0x4c/0x90
->   [ 187.066030] dpm_run_callback+0x5b/0x150
->   [ 187.066043] device_resume+0x11b/0x220
-> 
-> Voltage regulators are optional, so functions must check they exist
-> before dereferencing.
-> 
-> Note this issue is hidden if CONFIG_REGULATORS is not set, because the
-> offending code is optimised away.
-> 
-> Notes for stable:
-> 
-> The issue first appears in commit 57d104c153d3 ("ufs: add UFS power
-> management support") but is inadvertently fixed in commit 60f0187031c0
-> ("scsi: ufs: disable vccq if it's not needed by UFS device") which in
-> turn was reverted by commit 730679817d83 ("Revert "scsi: ufs: disable vccq
-> if it's not needed by UFS device""). So fix applies v3.18 to v4.5 and
-> v5.1+
-> 
-> Fixes: 57d104c153d3 ("ufs: add UFS power management support")
-> Fixes: 730679817d83 ("Revert "scsi: ufs: disable vccq if it's not needed by UFS device"")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> 
-> diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-> index e274053109d0..029da74bb2f5 100644
-> --- a/drivers/scsi/ufs/ufshcd.c
-> +++ b/drivers/scsi/ufs/ufshcd.c
-> @@ -7062,6 +7062,9 @@ static inline int ufshcd_config_vreg_lpm(struct ufs_hba *hba,
->  static inline int ufshcd_config_vreg_hpm(struct ufs_hba *hba,
->  					 struct ufs_vreg *vreg)
->  {
-> +	if (!vreg)
-> +		return 0;
-> +
->  	return ufshcd_config_vreg_load(hba->dev, vreg, vreg->max_uA);
->  }
->  
-> 
-> 
-
+Rasmus
