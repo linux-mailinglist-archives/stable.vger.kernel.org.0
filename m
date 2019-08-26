@@ -2,120 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E9D9D39A
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 18:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4A69D39E
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 18:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730725AbfHZQBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 12:01:07 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:60293 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729951AbfHZQBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 12:01:07 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 68C885B9;
-        Mon, 26 Aug 2019 12:01:06 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 26 Aug 2019 12:01:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DQwxlU
-        9pAnEK1XTfm0kEbIefB9+IHsTYFtnzVIH/38c=; b=Af4YQFWFUCYeuAzOu1nLn+
-        qfOzJhjfYfTHGvOQpkVP6sYOB9sAlxKNoVabovitxsEA50+VcLqZ9+XTz5HQRDmx
-        5Vel/Cp+eqMPcbDYgHHF5W5/YQGFw4afwQLR9RC0wd/WFEyyX2cf2DYnlunnznrL
-        iQ7BpBzA5LHpHLHfB1g+pHh/l2J7ROWpzr567wkYW8B476IWqFTQu3KOG8VJnGUQ
-        GFxacq/pp0CQI5LcSgahr+6ia4QIdVPPPuNnrgGTcBbxfEY1viNDdS+wJuG9RExl
-        jFx1WNfu82pIpIE3KYZtCBdBh9q6uRtkCSO+UHaBavZ4MVtIker399LxWlIxw7Yw
-        ==
-X-ME-Sender: <xms:QQJkXaR79whftHvYy6H8kyWy-hHFY-G-HwfLRd6zhG7LfjNxiEUMug>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehgedgleeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:QQJkXTUypWUGOpLLsxbUm9_WyJZxBOY09vTSbbpX1Oyx0CqWB1OBvw>
-    <xmx:QQJkXRGh-ILeK4fpjoO6gbiuBst_X0d_a7uvhfvStwFq6VEnEgQidg>
-    <xmx:QQJkXZ_Un7mMyE5g9xc9NzWszagGhudDT6i-5H7y3LOV0wYV4nTqmA>
-    <xmx:QgJkXVxF6UB85ZL90tmIZkmkq4pNOHpfUZA5JWBXqY4KrytOuNL6DA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6CC188006B;
-        Mon, 26 Aug 2019 12:01:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm, page_owner: handle THP splits correctly" failed to apply to 4.9-stable tree
-To:     vbabka@suse.cz, akpm@linux-foundation.org, kirill@shutemov.name,
-        mgorman@techsingularity.net, mhocko@kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        willy@infradead.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 26 Aug 2019 18:00:56 +0200
-Message-ID: <156683525697160@kroah.com>
+        id S1731987AbfHZQBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 12:01:53 -0400
+Received: from mga18.intel.com ([134.134.136.126]:25531 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731513AbfHZQBx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Aug 2019 12:01:53 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Aug 2019 09:01:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,433,1559545200"; 
+   d="scan'208";a="209417063"
+Received: from sedona.ch.intel.com ([10.2.136.157])
+  by fmsmga002.fm.intel.com with ESMTP; 26 Aug 2019 09:01:51 -0700
+Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x7QG1pVd022102;
+        Mon, 26 Aug 2019 09:01:51 -0700
+Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x7QG1oRV032230;
+        Mon, 26 Aug 2019 12:01:50 -0400
+Subject: [PATCH] IB/hfi1: Drop stale TID RDMA packets
+To:     stable@vger.kernel.org
+From:   Mike Marciniszyn <mike.marciniszyn@intel.com>
+Cc:     linux-rdma@vger.kernel.org, stable-commits@vger.kernel.org
+Date:   Mon, 26 Aug 2019 12:01:50 -0400
+Message-ID: <20190826160149.32208.89081.stgit@awfm-01.aw.intel.com>
+User-Agent: StGit/0.16
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Kaike Wan <kaike.wan@intel.com>
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Upstream commit d58c1834bf0d218a0bc00f8fb44874551b21da84.
 
-thanks,
+In a congested fabric with adaptive routing enabled, traces show that
+the sender could receive stale TID RDMA NAK packets that contain newer
+KDETH PSNs and older Verbs PSNs. If not dropped, these packets could
+cause the incorrect rewinding of the software flows and the incorrect
+completion of TID RDMA WRITE requests, and eventually leading to memory
+corruption and kernel crash.
 
-greg k-h
+The current code drops stale TID RDMA ACK/NAK packets solely based
+on KDETH PSNs, which may lead to erroneous processing. This patch
+fixes the issue by also checking the Verbs PSN. Addition checks are
+added before rewinding the TID RDMA WRITE DATA packets.
 
------------------- original commit in Linus's tree ------------------
+[ported to 5.2 from upstream accounting for fspsn replacing flpsn.]
 
-From f7da677bc6e72033f0981b9d58b5c5d409fa641e Mon Sep 17 00:00:00 2001
-From: Vlastimil Babka <vbabka@suse.cz>
-Date: Sat, 24 Aug 2019 17:54:59 -0700
-Subject: [PATCH] mm, page_owner: handle THP splits correctly
-
-THP splitting path is missing the split_page_owner() call that
-split_page() has.
-
-As a result, split THP pages are wrongly reported in the page_owner file
-as order-9 pages.  Furthermore when the former head page is freed, the
-remaining former tail pages are not listed in the page_owner file at
-all.  This patch fixes that by adding the split_page_owner() call into
-__split_huge_page().
-
-Link: http://lkml.kernel.org/r/20190820131828.22684-2-vbabka@suse.cz
-Fixes: a9627bc5e34e ("mm/page_owner: introduce split_page_owner and replace manual handling")
-Reported-by: Kirill A. Shutemov <kirill@shutemov.name>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Matthew Wilcox <willy@infradead.org>
+Fixes: 9e93e967f7b4 ("IB/hfi1: Add a function to receive TID RDMA ACK packet")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+---
+ 0 files changed
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 738065f765ab..de1f15969e27 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -32,6 +32,7 @@
- #include <linux/shmem_fs.h>
- #include <linux/oom.h>
- #include <linux/numa.h>
-+#include <linux/page_owner.h>
+diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
+index fe7e709..8fcad80 100644
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -4511,7 +4511,7 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi1_packet *packet)
+ 	struct rvt_swqe *wqe;
+ 	struct tid_rdma_request *req;
+ 	struct tid_rdma_flow *flow;
+-	u32 aeth, psn, req_psn, ack_psn, fspsn, resync_psn, ack_kpsn;
++	u32 aeth, psn, req_psn, ack_psn, flpsn, resync_psn, ack_kpsn;
+ 	unsigned long flags;
+ 	u16 fidx;
  
- #include <asm/tlb.h>
- #include <asm/pgalloc.h>
-@@ -2516,6 +2517,9 @@ static void __split_huge_page(struct page *page, struct list_head *list,
+@@ -4540,6 +4540,9 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi1_packet *packet)
+ 		ack_kpsn--;
  	}
  
- 	ClearPageCompound(head);
++	if (unlikely(qp->s_acked == qp->s_tail))
++		goto ack_op_err;
 +
-+	split_page_owner(head, HPAGE_PMD_ORDER);
-+
- 	/* See comment in __split_huge_page_tail() */
- 	if (PageAnon(head)) {
- 		/* Additional pin to swap cache */
+ 	wqe = rvt_get_swqe_ptr(qp, qp->s_acked);
+ 
+ 	if (wqe->wr.opcode != IB_WR_TID_RDMA_WRITE)
+@@ -4552,7 +4555,8 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi1_packet *packet)
+ 	trace_hfi1_tid_flow_rcv_tid_ack(qp, req->acked_tail, flow);
+ 
+ 	/* Drop stale ACK/NAK */
+-	if (cmp_psn(psn, full_flow_psn(flow, flow->flow_state.spsn)) < 0)
++	if (cmp_psn(psn, full_flow_psn(flow, flow->flow_state.spsn)) < 0 ||
++	    cmp_psn(req_psn, flow->flow_state.resp_ib_psn) < 0)
+ 		goto ack_op_err;
+ 
+ 	while (cmp_psn(ack_kpsn,
+@@ -4714,8 +4718,12 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi1_packet *packet)
+ 		switch ((aeth >> IB_AETH_CREDIT_SHIFT) &
+ 			IB_AETH_CREDIT_MASK) {
+ 		case 0: /* PSN sequence error */
++			if (!req->flows)
++				break;
+ 			flow = &req->flows[req->acked_tail];
+-			fspsn = full_flow_psn(flow, flow->flow_state.spsn);
++			flpsn = full_flow_psn(flow, flow->flow_state.lpsn);
++			if (cmp_psn(psn, flpsn) > 0)
++				break;
+ 			trace_hfi1_tid_flow_rcv_tid_ack(qp, req->acked_tail,
+ 							flow);
+ 			req->r_ack_psn = mask_psn(be32_to_cpu(ohdr->bth[2]));
 
