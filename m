@@ -2,49 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2039CB06
-	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 09:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 970979CB30
+	for <lists+stable@lfdr.de>; Mon, 26 Aug 2019 10:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728233AbfHZHzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 03:55:53 -0400
-Received: from lb2-smtp-cloud8.xs4all.net ([194.109.24.25]:52005 "EHLO
-        lb2-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727674AbfHZHzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 03:55:53 -0400
-Received: from xps13 ([83.160.161.190])
-        by smtp-cloud8.xs4all.net with ESMTPSA
-        id 29qni4ECMDqPe29qviAvEL; Mon, 26 Aug 2019 09:55:51 +0200
-Message-ID: <bc7a4421b8615732494e1f7253f4c4fe8843c1ca.camel@tiscali.nl>
-Subject: Re: Linux 5.2.10
-From:   Paul Bolle <pebolle@tiscali.nl>
-To:     Greg KH <greg@kroah.com>
+        id S1726189AbfHZIBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 04:01:13 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:57303 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726875AbfHZIBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 04:01:13 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id A805C37B;
+        Mon, 26 Aug 2019 04:01:11 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 26 Aug 2019 04:01:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=6R15M5gpXp6+t5ucxX5BenurBan
+        iwk5iWP/DzbBg5DU=; b=N4ZkxriL+KWtGKhMDq4zY7SZOQMCRHKmbWr7QXeS4ZC
+        7ccTC8mfuqMp0a/reeq66Rw5E30sFntXklfEIWeh+qIh6L4QJcYxiCQ6TAw0bS2e
+        PEuCtAL+QRa9//uKlzL+83G57ZmH26poWUZ6LC/VxVIqThR02SV5dBeEXjf3KLtK
+        iPhYegS2W290c1vwJdCh+I2Oe17lMURl3dM2LB6JW8OQNhGJEGHSKH60VTzjQiaN
+        SRP5UB77MI4Ru/XB4Hb0EkkvwQviHXkltmkawsbl4IBcEQWBFIJkevpFfiLZk/M9
+        X7ZK9bBKibKv3eQSI/cYSI5+sedM7IVCelFhfB7biyw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6R15M5
+        gpXp6+t5ucxX5BenurBaniwk5iWP/DzbBg5DU=; b=jG6F4Rdh+XZIGvPnoktgO8
+        fFRYrtJsdap6E8xiPtwLLuyQy+0vgpJ/7BdSIRSNkh2wLjCnXrzAbaOyNMkaJv4k
+        8WFxWthRG+nuMiDE6Kbdnf1CjenFwAsFMB38I7DA5R+QGUShtJwMopJAXfV5X7UB
+        psioXqXoEFLP1CuRIMgZZnhqwzVGWibVlbo3eLWLMppu+pK843fW+UqJpd3lJikz
+        Nmt5JCfmMmPDQkUaRcWmtkAGEuerMZTRRXohI8YrXMO909vAtcgIJ/OI0gPWVJCy
+        nIuAjGnWgB3IRLD4RToOJ3PE6z7vLL5/Xdlz1pFCf55myFFo+Tr7fc28kv9MFOgw
+        ==
+X-ME-Sender: <xms:xpFjXc4ZFbe6uLo-OA2gTsNCnPaZZqKk_QuozqFWkQd2Ecu06PRnJA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehfedguddvjecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvg
+    hlrdhorhhgnecukfhppeekledrvddthedruddvkedrvdegieenucfrrghrrghmpehmrghi
+    lhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:xpFjXVhhblGQG1rhTevfJPff4HgH6zC_ocl8Vu6XbARUqhe3DVlIYA>
+    <xmx:xpFjXS2R7zQZgnIQOrdPPlDuslkxlSOhEJ2ThSUb93BsMytomEf46w>
+    <xmx:xpFjXborEjL1SENQrhNcCt_XcxnYEghJ_uexRgKLCQqZxWZgNpp0iA>
+    <xmx:x5FjXbrKkO73fUaGrV-LxbI-1VebKEomHXdVOnNBEyPUn2q0lfODtg>
+Received: from localhost (unknown [89.205.128.246])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2D32C8005C;
+        Mon, 26 Aug 2019 04:01:09 -0400 (EDT)
+Date:   Mon, 26 Aug 2019 10:01:07 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Bhaskar Chowdhury <unixbhaskar@gmail.com>
 Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, akpm@linux-foundation.org, jslaby@suse.cz,
-        lwn@lwn.net
-Date:   Mon, 26 Aug 2019 09:55:41 +0200
-In-Reply-To: <20190826043401.GC26547@kroah.com>
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Subject: Re: Linux 5.2.10
+Message-ID: <20190826080107.GB30396@kroah.com>
 References: <20190825144703.6518-1-sashal@kernel.org>
-         <dd3a1ec7d03888dade78db1e4c45ec1347c0815b.camel@tiscali.nl>
-         <20190826043401.GC26547@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+ <20190826063834.GD31983@Gentoo>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4wfNCRFpFNrDZDVnTeHwqGyboJIt739zLfReiIRtjrR3Sz62MVT2ledFDjxcR2tGdYtkvUgmrA7qqyC/cF/xA5SOTgoPzpS0WzFzV7h9gepJM06DW+fuBz
- 6/qWXnmkDB+u4UJy/pycQ2LHR49BFJjqbWD1cRHqLFZCHL0KeLw+lH5E6mnHmigf2Xbzms7j7sUuw+3zN3YzZ0ZgAPytjBRW3BtXW1NzVUH8Nw5WrGcW2YZ5
- u4TcHTly6BYPck9HvZWiR0pfEV1WXY6hUfKlnOWaPQv5A4l0novbAw8nriw8+6vnNc82d6Os5vVHrh3xJKOdsOYBodry7k4f2xUbR191m2g=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190826063834.GD31983@Gentoo>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg KH schreef op ma 26-08-2019 om 06:34 [+0200]:
-> It's on that key already, have you refreshed your version of it?
+On Mon, Aug 26, 2019 at 12:08:38PM +0530, Bhaskar Chowdhury wrote:
 
-I have now. sashal@kernel.org (and another identity) is now on that key.
+<snip>
 
-Thanks,
+Due, learn to properly trim emails...
 
+> For some unknown reason kernel.org still showing me 5.2.9 ..Please refer
+> to the attached screenshot.
 
-Paul Bolle
+What mirror are you hitting here?  There is a way somehow to see that on
+your end, I thought it was at the bottom of the page.
 
+You are not seeing any of the releases that happened yesterday, which is
+really odd, it's not just a 5.2.10 issue.
+
+thanks,
+
+greg k-h
