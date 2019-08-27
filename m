@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6249E0C2
+	by mail.lfdr.de (Postfix) with ESMTP id A986C9E0C3
 	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732459AbfH0IFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35600 "EHLO mail.kernel.org"
+        id S1732490AbfH0IFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732430AbfH0IFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:05:43 -0400
+        id S1732430AbfH0IFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:05:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132892173E;
-        Tue, 27 Aug 2019 08:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6E7D217F5;
+        Tue, 27 Aug 2019 08:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893142;
-        bh=VXwVDTiltX/zKo5qXYVnCLq9PB59320XB21Bwv/rLUM=;
+        s=default; t=1566893145;
+        bh=l/ljcQ7Xg1mHTeRX5Cvd93e8nuYIhgNkK4LUpGAu6GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfYjY5oFDUSko45BFb1TMMTWf2IO/5raZ02VVIC2RLTwbzLNI5Q53dcCuP//wJGpf
-         EMHMfmbEmL+pw3Ssadnmwzbnf9/ruKFULWUbQsDPVdc/b3ylD72hNcMWGMTRLVucxi
-         668QtAdOWJ7X793esEoUbYVvtiki/XPs9rNd+HDw=
+        b=CgwsRWBwFrhdkfaQhcjCuRBs5Ub/C/OD1cCVEZedgymqKJYx/9yB2Ju91WWzfUeCN
+         Xv2TDLv+I2P6QnGShbWcIkzgO/+kiVYT1cqd2KlTlI8ldxKWvOP/MxZhe+nVHgWb1a
+         PSpEAVVo/mlam3WAZ/bCRoAFuYLq9V8L8L2sPnAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jason Xing <kerneljasonxing@linux.alibaba.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Caspar Zhang <caspar@linux.alibaba.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 134/162] psi: get poll_work to run when calling poll syscall next time
-Date:   Tue, 27 Aug 2019 09:51:02 +0200
-Message-Id: <20190827072743.237942008@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.2 135/162] dm kcopyd: always complete failed jobs
+Date:   Tue, 27 Aug 2019 09:51:03 +0200
+Message-Id: <20190827072743.284931400@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -51,59 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kerneljasonxing@linux.alibaba.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit 7b2b55da1db10a5525460633ae4b6fb0be060c41 upstream.
+commit d1fef41465f0e8cae0693fb184caa6bfafb6cd16 upstream.
 
-Only when calling the poll syscall the first time can user receive
-POLLPRI correctly.  After that, user always fails to acquire the event
-signal.
+This patch fixes a problem in dm-kcopyd that may leave jobs in
+complete queue indefinitely in the event of backing storage failure.
 
-Reproduce case:
- 1. Get the monitor code in Documentation/accounting/psi.txt
- 2. Run it, and wait for the event triggered.
- 3. Kill and restart the process.
+This behavior has been observed while running 100% write file fio
+workload against an XFS volume created on top of a dm-zoned target
+device. If the underlying storage of dm-zoned goes to offline state
+under I/O, kcopyd sometimes never issues the end copy callback and
+dm-zoned reclaim work hangs indefinitely waiting for that completion.
 
-The question is why we can end up with poll_scheduled = 1 but the work
-not running (which would reset it to 0).  And the answer is because the
-scheduling side sees group->poll_kworker under RCU protection and then
-schedules it, but here we cancel the work and destroy the worker.  The
-cancel needs to pair with resetting the poll_scheduled flag.
+This behavior was traced down to the error handling code in
+process_jobs() function that places the failed job to complete_jobs
+queue, but doesn't wake up the job handler. In case of backing device
+failure, all outstanding jobs may end up going to complete_jobs queue
+via this code path and then stay there forever because there are no
+more successful I/O jobs to wake up the job handler.
 
-Link: http://lkml.kernel.org/r/1566357985-97781-1-git-send-email-joseph.qi@linux.alibaba.com
-Signed-off-by: Jason Xing <kerneljasonxing@linux.alibaba.com>
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Caspar Zhang <caspar@linux.alibaba.com>
-Reviewed-by: Suren Baghdasaryan <surenb@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This patch adds a wake() call to always wake up kcopyd job wait queue
+for all I/O jobs that fail before dm_io() gets called for that job.
+
+The patch also sets the write error status in all sub jobs that are
+failed because their master job has failed.
+
+Fixes: b73c67c2cbb00 ("dm kcopyd: add sequential write feature")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/psi.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/md/dm-kcopyd.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1131,7 +1131,15 @@ static void psi_trigger_destroy(struct k
- 	 * deadlock while waiting for psi_poll_work to acquire trigger_lock
+--- a/drivers/md/dm-kcopyd.c
++++ b/drivers/md/dm-kcopyd.c
+@@ -548,8 +548,10 @@ static int run_io_job(struct kcopyd_job
+ 	 * no point in continuing.
  	 */
- 	if (kworker_to_destroy) {
-+		/*
-+		 * After the RCU grace period has expired, the worker
-+		 * can no longer be found through group->poll_kworker.
-+		 * But it might have been already scheduled before
-+		 * that - deschedule it cleanly before destroying it.
-+		 */
- 		kthread_cancel_delayed_work_sync(&group->poll_work);
-+		atomic_set(&group->poll_scheduled, 0);
-+
- 		kthread_destroy_worker(kworker_to_destroy);
- 	}
- 	kfree(t);
+ 	if (test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags) &&
+-	    job->master_job->write_err)
++	    job->master_job->write_err) {
++		job->write_err = job->master_job->write_err;
+ 		return -EIO;
++	}
+ 
+ 	io_job_start(job->kc->throttle);
+ 
+@@ -601,6 +603,7 @@ static int process_jobs(struct list_head
+ 			else
+ 				job->read_err = 1;
+ 			push(&kc->complete_jobs, job);
++			wake(kc);
+ 			break;
+ 		}
+ 
 
 
