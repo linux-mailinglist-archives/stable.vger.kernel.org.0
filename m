@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 194DF9DF6C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D78D9DF6A
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729412AbfH0HyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:54:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
+        id S1729394AbfH0HyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729967AbfH0HyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:04 -0400
+        id S1729374AbfH0HyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB25B206BF;
-        Tue, 27 Aug 2019 07:54:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FF2C2173E;
+        Tue, 27 Aug 2019 07:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892444;
-        bh=//oeRa0uJ7XUOu2d3wq+iG/HBwqW0QTZBAbPSgQ/FLY=;
+        s=default; t=1566892447;
+        bh=CHPUc+8YmOyDGILc8fRBA/IrdQfyFvT+TJty6ANtTvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqfwGY95pO6MR4xpq+RMnr8wHv0W+TDC8MMOHBILoEqVc/u+5s65TLsqwgSeloCYv
-         tCypPfBfWZMx1n7+hJzKXfOSlLbGGI42MY7bH7YIH+k17ZRlEZp25SSp/uhTCw7Zhz
-         yN0oErMUDq85pwezzeSOK+xvDVqAx0aD/tlNP5mw=
+        b=VEGLLcmsvs1mhAebduK7WPKZXZGBdt1HNMri8KMFkiVYeY6ajBnL5YSuFnCclzesy
+         XTU9NVkH3a0ps9YlR26evAzOmyn3lC3p7jbTCCW/oeijlf2uYQHoJsqBIoZMFxJZVj
+         iNH2ispCBmVpF7XCM/IliyUyN/TK93b8bkhqXI6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        stable@vger.kernel.org,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/62] netfilter: ipset: Fix rename concurrency with listing
-Date:   Tue, 27 Aug 2019 09:50:20 +0200
-Message-Id: <20190827072701.219477127@linuxfoundation.org>
+Subject: [PATCH 4.14 16/62] isdn: hfcsusb: Fix mISDN driver crash caused by transfer buffer on the stack
+Date:   Tue, 27 Aug 2019 09:50:21 +0200
+Message-Id: <20190827072701.285285273@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -44,36 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6c1f7e2c1b96ab9b09ac97c4df2bd9dc327206f6 ]
+[ Upstream commit d8a1de3d5bb881507602bc02e004904828f88711 ]
 
-Shijie Luo reported that when stress-testing ipset with multiple concurrent
-create, rename, flush, list, destroy commands, it can result
+Since linux 4.9 it is not possible to use buffers on the stack for DMA transfers.
 
-ipset <version>: Broken LIST kernel message: missing DATA part!
+During usb probe the driver crashes with "transfer buffer is on stack" message.
 
-error messages and broken list results. The problem was the rename operation
-was not properly handled with respect of listing. The patch fixes the issue.
+This fix k-allocates a buffer to be used on "read_reg_atomic", which is a macro
+that calls "usb_control_msg" under the hood.
 
-Reported-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Kernel 4.19 backtrace:
+
+usb_hcd_submit_urb+0x3e5/0x900
+? sched_clock+0x9/0x10
+? log_store+0x203/0x270
+? get_random_u32+0x6f/0x90
+? cache_alloc_refill+0x784/0x8a0
+usb_submit_urb+0x3b4/0x550
+usb_start_wait_urb+0x4e/0xd0
+usb_control_msg+0xb8/0x120
+hfcsusb_probe+0x6bc/0xb40 [hfcsusb]
+usb_probe_interface+0xc2/0x260
+really_probe+0x176/0x280
+driver_probe_device+0x49/0x130
+__driver_attach+0xa9/0xb0
+? driver_probe_device+0x130/0x130
+bus_for_each_dev+0x5a/0x90
+driver_attach+0x14/0x20
+? driver_probe_device+0x130/0x130
+bus_add_driver+0x157/0x1e0
+driver_register+0x51/0xe0
+usb_register_driver+0x5d/0x120
+? 0xf81ed000
+hfcsusb_drv_init+0x17/0x1000 [hfcsusb]
+do_one_initcall+0x44/0x190
+? free_unref_page_commit+0x6a/0xd0
+do_init_module+0x46/0x1c0
+load_module+0x1dc1/0x2400
+sys_init_module+0xed/0x120
+do_fast_syscall_32+0x7a/0x200
+entry_SYSENTER_32+0x6b/0xbe
+
+Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index a3f1dc7cf5382..dbf17d3596a69 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1128,7 +1128,7 @@ static int ip_set_rename(struct net *net, struct sock *ctnl,
- 		return -ENOENT;
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 163bc482b2a78..87588198d68fc 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1701,13 +1701,23 @@ hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel)
+ static int
+ setup_hfcsusb(struct hfcsusb *hw)
+ {
++	void *dmabuf = kmalloc(sizeof(u_char), GFP_KERNEL);
+ 	u_char b;
++	int ret;
  
- 	write_lock_bh(&ip_set_ref_lock);
--	if (set->ref != 0) {
-+	if (set->ref != 0 || set->ref_netlink != 0) {
- 		ret = -IPSET_ERR_REFERENCED;
- 		goto out;
- 	}
+ 	if (debug & DBG_HFC_CALL_TRACE)
+ 		printk(KERN_DEBUG "%s: %s\n", hw->name, __func__);
+ 
++	if (!dmabuf)
++		return -ENOMEM;
++
++	ret = read_reg_atomic(hw, HFCUSB_CHIP_ID, dmabuf);
++
++	memcpy(&b, dmabuf, sizeof(u_char));
++	kfree(dmabuf);
++
+ 	/* check the chip id */
+-	if (read_reg_atomic(hw, HFCUSB_CHIP_ID, &b) != 1) {
++	if (ret != 1) {
+ 		printk(KERN_DEBUG "%s: %s: cannot read chip id\n",
+ 		       hw->name, __func__);
+ 		return 1;
 -- 
 2.20.1
 
