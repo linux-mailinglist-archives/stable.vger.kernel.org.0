@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E69639E19B
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A77D9E1F8
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728928AbfH0INW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
+        id S1729523AbfH0HyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729774AbfH0H6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:19 -0400
+        id S1729536AbfH0HyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABD0620828;
-        Tue, 27 Aug 2019 07:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75E2B206BF;
+        Tue, 27 Aug 2019 07:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892698;
-        bh=BQoWxrPXHX8BCycKMjfBLqvZlT824d107z5VBJa1TOE=;
+        s=default; t=1566892464;
+        bh=oocRzilriowvGwyzD4I+sBipUlHRbO+/i4RBfBsJ4EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tIHvnjdmhkteBTEKAKyCIqEoX0SJbmHx0Z+GbjsmUjUQsOI8pI0dRmRyfz6zzUsNx
-         GZhqCDKEEnTtC8H2NaY4/YcAPrEhzjDAxwCjhb4qd2FqZQ52IYWctBeKU4ULV7qTp1
-         RKQJv3FxQ6pfxx/TBT/NdZQ/ZEBe9gdPcf9He4V4=
+        b=IMsOdXm9QxkcR0LmzRECRHsl/h8cWDxiGEDQi7d3o8B78vIXTgRxWLe4NZsyOn0mg
+         xSv5d5ZeuPAAZT8vWyo6gsIrktzcBkX5P3B91ZgWUzh+aQ78AlOyaYItoHTGIA0xqH
+         8XGJXeMFrrx+aLZKuAqXwRqocLpkrHTY9vGBVLfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 81/98] dm zoned: improve error handling in reclaim
-Date:   Tue, 27 Aug 2019 09:51:00 +0200
-Message-Id: <20190827072722.318146854@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 56/62] genirq: Properly pair kobject_del() with kobject_add()
+Date:   Tue, 27 Aug 2019 09:51:01 +0200
+Message-Id: <20190827072703.716791086@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,153 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-commit b234c6d7a703661b5045c5bf569b7c99d2edbf88 upstream.
+commit d0ff14fdc987303aeeb7de6f1bd72c3749ae2a9b upstream.
 
-There are several places in reclaim code where errors are not
-propagated to the main function, dmz_reclaim(). This function
-is responsible for unlocking zones that might be still locked
-at the end of any failed reclaim iterations. As the result,
-some device zones may be left permanently locked for reclaim,
-degrading target's capability to reclaim zones.
+If alloc_descs() fails before irq_sysfs_init() has run, free_desc() in the
+cleanup path will call kobject_del() even though the kobject has not been
+added with kobject_add().
 
-This patch fixes these issues as follows -
+Fix this by making the call to kobject_del() conditional on whether
+irq_sysfs_init() has run.
 
-Make sure that dmz_reclaim_buf(), dmz_reclaim_seq_data() and
-dmz_reclaim_rnd_data() return error codes to the caller.
+This problem surfaced because commit aa30f47cf666 ("kobject: Add support
+for default attribute groups to kobj_type") makes kobject_del() stricter
+about pairing with kobject_add(). If the pairing is incorrrect, a WARNING
+and backtrace occur in sysfs_remove_group() because there is no parent.
 
-dmz_reclaim() function is renamed to dmz_do_reclaim() to avoid
-clashing with "struct dmz_reclaim" and is modified to return the
-error to the caller.
+[ tglx: Add a comment to the code and make it work with CONFIG_SYSFS=n ]
 
-dmz_get_zone_for_reclaim() now returns an error instead of NULL
-pointer and reclaim code checks for that error.
-
-Error logging/debug messages are added where necessary.
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Fixes: ecb3f394c5db ("genirq: Expose interrupt information through sysfs")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lkml.kernel.org/r/1564703564-4116-1-git-send-email-mikelley@microsoft.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |    4 ++--
- drivers/md/dm-zoned-reclaim.c  |   28 +++++++++++++++++++---------
- 2 files changed, 21 insertions(+), 11 deletions(-)
+ kernel/irq/irqdesc.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1534,7 +1534,7 @@ static struct dm_zone *dmz_get_rnd_zone_
- 	struct dm_zone *zone;
- 
- 	if (list_empty(&zmd->map_rnd_list))
--		return NULL;
-+		return ERR_PTR(-EBUSY);
- 
- 	list_for_each_entry(zone, &zmd->map_rnd_list, link) {
- 		if (dmz_is_buf(zone))
-@@ -1545,7 +1545,7 @@ static struct dm_zone *dmz_get_rnd_zone_
- 			return dzone;
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -277,6 +277,18 @@ static void irq_sysfs_add(int irq, struc
  	}
- 
--	return NULL;
-+	return ERR_PTR(-EBUSY);
  }
  
- /*
---- a/drivers/md/dm-zoned-reclaim.c
-+++ b/drivers/md/dm-zoned-reclaim.c
-@@ -215,7 +215,7 @@ static int dmz_reclaim_buf(struct dmz_re
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -259,7 +259,7 @@ static int dmz_reclaim_seq_data(struct d
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -312,7 +312,7 @@ static int dmz_reclaim_rnd_data(struct d
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -334,7 +334,7 @@ static void dmz_reclaim_empty(struct dmz
- /*
-  * Find a candidate zone for reclaim and process it.
-  */
--static void dmz_reclaim(struct dmz_reclaim *zrc)
-+static int dmz_do_reclaim(struct dmz_reclaim *zrc)
++static void irq_sysfs_del(struct irq_desc *desc)
++{
++	/*
++	 * If irq_sysfs_init() has not yet been invoked (early boot), then
++	 * irq_kobj_base is NULL and the descriptor was never added.
++	 * kobject_del() complains about a object with no parent, so make
++	 * it conditional.
++	 */
++	if (irq_kobj_base)
++		kobject_del(&desc->kobj);
++}
++
+ static int __init irq_sysfs_init(void)
  {
- 	struct dmz_metadata *zmd = zrc->metadata;
- 	struct dm_zone *dzone;
-@@ -344,8 +344,8 @@ static void dmz_reclaim(struct dmz_recla
+ 	struct irq_desc *desc;
+@@ -307,6 +319,7 @@ static struct kobj_type irq_kobj_type =
+ };
  
- 	/* Get a data zone */
- 	dzone = dmz_get_zone_for_reclaim(zmd);
--	if (!dzone)
--		return;
-+	if (IS_ERR(dzone))
-+		return PTR_ERR(dzone);
+ static void irq_sysfs_add(int irq, struct irq_desc *desc) {}
++static void irq_sysfs_del(struct irq_desc *desc) {}
  
- 	start = jiffies;
+ #endif /* CONFIG_SYSFS */
  
-@@ -391,13 +391,20 @@ static void dmz_reclaim(struct dmz_recla
- out:
- 	if (ret) {
- 		dmz_unlock_zone_reclaim(dzone);
--		return;
-+		return ret;
- 	}
+@@ -420,7 +433,7 @@ static void free_desc(unsigned int irq)
+ 	 * The sysfs entry must be serialized against a concurrent
+ 	 * irq_sysfs_init() as well.
+ 	 */
+-	kobject_del(&desc->kobj);
++	irq_sysfs_del(desc);
+ 	delete_irq_desc(irq);
  
--	(void) dmz_flush_metadata(zrc->metadata);
-+	ret = dmz_flush_metadata(zrc->metadata);
-+	if (ret) {
-+		dmz_dev_debug(zrc->dev,
-+			      "Metadata flush for zone %u failed, err %d\n",
-+			      dmz_id(zmd, rzone), ret);
-+		return ret;
-+	}
- 
- 	dmz_dev_debug(zrc->dev, "Reclaimed zone %u in %u ms",
- 		      dmz_id(zmd, rzone), jiffies_to_msecs(jiffies - start));
-+	return 0;
- }
- 
- /*
-@@ -442,6 +449,7 @@ static void dmz_reclaim_work(struct work
- 	struct dmz_metadata *zmd = zrc->metadata;
- 	unsigned int nr_rnd, nr_unmap_rnd;
- 	unsigned int p_unmap_rnd;
-+	int ret;
- 
- 	if (!dmz_should_reclaim(zrc)) {
- 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
-@@ -471,7 +479,9 @@ static void dmz_reclaim_work(struct work
- 		      (dmz_target_idle(zrc) ? "Idle" : "Busy"),
- 		      p_unmap_rnd, nr_unmap_rnd, nr_rnd);
- 
--	dmz_reclaim(zrc);
-+	ret = dmz_do_reclaim(zrc);
-+	if (ret)
-+		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
- 
- 	dmz_schedule_reclaim(zrc);
- }
+ 	/*
 
 
