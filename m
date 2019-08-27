@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5F59E11E
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56ECB9E1D0
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729017AbfH0IJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32812 "EHLO mail.kernel.org"
+        id S1730562AbfH0H4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:56:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732301AbfH0IDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:36 -0400
+        id S1729988AbfH0H4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:56:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67B79206BA;
-        Tue, 27 Aug 2019 08:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27DEB206BA;
+        Tue, 27 Aug 2019 07:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893015;
-        bh=KddyQA3KvgXBt8t5dp3rdHtiGoMWVjy9NourerTxYCo=;
+        s=default; t=1566892578;
+        bh=Nk/rjZVOpy6/x/zI+r3iu7QrtVVzTdoyk3cX/tQ90/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tm5S+vValIeHZbUkXndnF9xijznT1GDNZhqoLhxGDVMDGj8yFEx2n3+1OLO5fmqay
-         aWOoUyRbThweXHIyvymnCy9Ry3uxKmimAItmeg7nPwEavSxrlucfH0ftlWhYsCVxtc
-         Us7YPalfezKAQwwLJOe6/nuu4+yMVIMoIciDE8p4=
+        b=v2LVgwEM0qwNpFgaazHuAIy9gPfugDEdIVl1H7jP6MsmlPwWXlhHI/iee97Z0Miy1
+         +6UEG5AtuQW0I3+wm/GKXBR5iuMfjYYj0hF91Sqc74HTH3XHn5zbv9jR/k4DB3zdkG
+         /e1KiSliXNNNULWjA6cO57nGTgHmY72HyjhNiHvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Sebastien Tisserant <stisserant@wallix.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 090/162] net: stmmac: Fix issues when number of Queues >= 4
-Date:   Tue, 27 Aug 2019 09:50:18 +0200
-Message-Id: <20190827072741.294786459@linuxfoundation.org>
+Subject: [PATCH 4.19 40/98] SMB3: Kernel oops mounting a encryptData share with CONFIG_DEBUG_VIRTUAL
+Date:   Tue, 27 Aug 2019 09:50:19 +0200
+Message-Id: <20190827072720.303622823@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e8df7e8c233a18d2704e37ecff47583b494789d3 ]
+[ Upstream commit ee9d66182392695535cc9fccfcb40c16f72de2a9 ]
 
-When queues >= 4 we use different registers but we were not subtracting
-the offset of 4. Fix this.
+Fix kernel oops when mounting a encryptData CIFS share with
+CONFIG_DEBUG_VIRTUAL
 
-Found out by Coverity.
-
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sebastien Tisserant <stisserant@wallix.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c   | 4 ++++
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ fs/cifs/smb2ops.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index e3850938cf2f3..d7bf0ad954b8c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -85,6 +85,8 @@ static void dwmac4_rx_queue_priority(struct mac_device_info *hw,
- 	u32 value;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 97fdbec54db97..cc9e846a38658 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -2545,7 +2545,15 @@ fill_transform_hdr(struct smb2_transform_hdr *tr_hdr, unsigned int orig_len,
+ static inline void smb2_sg_set_buf(struct scatterlist *sg, const void *buf,
+ 				   unsigned int buflen)
+ {
+-	sg_set_page(sg, virt_to_page(buf), buflen, offset_in_page(buf));
++	void *addr;
++	/*
++	 * VMAP_STACK (at least) puts stack into the vmalloc address space
++	 */
++	if (is_vmalloc_addr(buf))
++		addr = vmalloc_to_page(buf);
++	else
++		addr = virt_to_page(buf);
++	sg_set_page(sg, addr, buflen, offset_in_page(buf));
+ }
  
- 	base_register = (queue < 4) ? GMAC_RXQ_CTRL2 : GMAC_RXQ_CTRL3;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + base_register);
- 
-@@ -102,6 +104,8 @@ static void dwmac4_tx_queue_priority(struct mac_device_info *hw,
- 	u32 value;
- 
- 	base_register = (queue < 4) ? GMAC_TXQ_PRTY_MAP0 : GMAC_TXQ_PRTY_MAP1;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + base_register);
- 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-index 64b8cb88ea45d..d4bd99770f5d1 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-@@ -106,6 +106,8 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
- 	u32 value, reg;
- 
- 	reg = (queue < 4) ? XGMAC_RXQ_CTRL2 : XGMAC_RXQ_CTRL3;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + reg);
- 	value &= ~XGMAC_PSRQ(queue);
-@@ -169,6 +171,8 @@ static void dwxgmac2_map_mtl_to_dma(struct mac_device_info *hw, u32 queue,
- 	u32 value, reg;
- 
- 	reg = (queue < 4) ? XGMAC_MTL_RXQ_DMA_MAP0 : XGMAC_MTL_RXQ_DMA_MAP1;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + reg);
- 	value &= ~XGMAC_QxMDMACH(queue);
+ /* Assumes the first rqst has a transform header as the first iov.
 -- 
 2.20.1
 
