@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5969E19D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7049E10F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731592AbfH0IN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S1732850AbfH0IIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:08:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730976AbfH0H6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:16 -0400
+        id S1732817AbfH0IFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:05:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BBC206BF;
-        Tue, 27 Aug 2019 07:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F6622173E;
+        Tue, 27 Aug 2019 08:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892695;
-        bh=3PHM2/imUAmjiR39qRkqNl74KO+K9Dx8CQk/HwCiYko=;
+        s=default; t=1566893134;
+        bh=qCMxmxgU28Adtb3OCPQ8m5kIGKqy6wzZeC/V8xKHQ30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjSJnMUfDLtP/qXl3UwoTiDMY96ErhK0w938IroznTLTGKE/cK79JGf4maMlT2oin
-         6HfL3cDPzYav+8UsMktpRfYTXOoj/0AdiI3sPr/3vvQAEKcq8F6fOtc90R8PkwBfTX
-         m/ktBpuhxSVQPGVgvKNh5tgssgyQgtgdpTEBh12Q=
+        b=OivOL2W+2HcL7juI9+ZDmQmtL7zoT0hYZpVjyxr0dJecrfTl0Lz4f+VMbXVlt5xIv
+         xui1hSzHlgkAXBLzHx9hqragWxDzOlh94ZHch5PdnSpwVCUZtVZyEBZEodBkuURjwD
+         AWv8EDkFMNduevkh02Nzh2cGntTAv9jgrCavcfts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Tao <kontais@zoho.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 80/98] dm table: fix invalid memory accesses with too high sector number
-Date:   Tue, 27 Aug 2019 09:50:59 +0200
-Message-Id: <20190827072722.286972407@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 5.2 132/162] IB/hfi1: Add additional checks when handling TID RDMA WRITE DATA packet
+Date:   Tue, 27 Aug 2019 09:51:00 +0200
+Message-Id: <20190827072743.146168096@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Kaike Wan <kaike.wan@intel.com>
 
-commit 1cfd5d3399e87167b7f9157ef99daa0e959f395d upstream.
+commit 90fdae66e72bf0381d168f12dca0259617927895 upstream.
 
-If the sector number is too high, dm_table_find_target() should return a
-pointer to a zeroed dm_target structure (the caller should test it with
-dm_target_is_valid).
+In a congested fabric with adaptive routing enabled, traces show that
+packets could be delivered out of order, which could cause incorrect
+processing of stale packets. For stale TID RDMA WRITE DATA packets that
+cause KDETH EFLAGS errors, this patch adds additional checks before
+processing the packets.
 
-However, for some table sizes, the code in dm_table_find_target() that
-performs btree lookup will access out of bound memory structures.
-
-Fix this bug by testing the sector number at the beginning of
-dm_table_find_target(). Also, add an "inline" keyword to the function
-dm_table_get_size() because this is a hot path.
-
-Fixes: 512875bd9661 ("dm: table detect io beyond device")
-Cc: stable@vger.kernel.org
-Reported-by: Zhang Tao <kontais@zoho.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: d72fe7d5008b ("IB/hfi1: Add a function to receive TID RDMA WRITE DATA packet")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Link: https://lore.kernel.org/r/20190815192051.105923.69979.stgit@awfm-01.aw.intel.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-table.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/tid_rdma.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1349,7 +1349,7 @@ void dm_table_event(struct dm_table *t)
- }
- EXPORT_SYMBOL(dm_table_event);
- 
--sector_t dm_table_get_size(struct dm_table *t)
-+inline sector_t dm_table_get_size(struct dm_table *t)
- {
- 	return t->num_targets ? (t->highs[t->num_targets - 1] + 1) : 0;
- }
-@@ -1374,6 +1374,9 @@ struct dm_target *dm_table_find_target(s
- 	unsigned int l, n = 0, k = 0;
- 	sector_t *node;
- 
-+	if (unlikely(sector >= dm_table_get_size(t)))
-+		return &t->targets[t->num_targets];
-+
- 	for (l = 0; l < t->depth; l++) {
- 		n = get_child(n, k);
- 		node = get_node(t, l, n);
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -2947,8 +2947,15 @@ bool hfi1_handle_kdeth_eflags(struct hfi
+ 	 */
+ 	spin_lock(&qp->s_lock);
+ 	qpriv = qp->priv;
++	if (qpriv->r_tid_tail == HFI1_QP_WQE_INVALID ||
++	    qpriv->r_tid_tail == qpriv->r_tid_head)
++		goto unlock;
+ 	e = &qp->s_ack_queue[qpriv->r_tid_tail];
++	if (e->opcode != TID_OP(WRITE_REQ))
++		goto unlock;
+ 	req = ack_to_tid_req(e);
++	if (req->comp_seg == req->cur_seg)
++		goto unlock;
+ 	flow = &req->flows[req->clear_tail];
+ 	trace_hfi1_eflags_err_write(qp, rcv_type, rte, psn);
+ 	trace_hfi1_rsp_handle_kdeth_eflags(qp, psn);
 
 
