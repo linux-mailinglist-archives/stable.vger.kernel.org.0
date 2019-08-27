@@ -2,164 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C7E9E0E7
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A20149E14B
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732800AbfH0IHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732787AbfH0IG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:06:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA8522173E;
-        Tue, 27 Aug 2019 08:06:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893218;
-        bh=pBHbVVwBvslJflaoPCCes5yvLgDQdAX5KjPTw5dVcfs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SM5xjzHW7YsGv+Qk+HqjmpYuWBcAiFmfb1TB4cT6+FcBa5DmP0KAg4fsVpjZ7iCl8
-         8MDoDhN9CzxOI5W13xoaThn0ApGGKCRlis2JTe9VawZm1ifeFU3av3spd46guVRj57
-         A/s+Ex01sTbZxIKLfJ47/6taXVOg+0lsADAbBYCU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+78e71c5bab4f76a6a719@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.2 162/162] rxrpc: Fix read-after-free in rxrpc_queue_local()
-Date:   Tue, 27 Aug 2019 09:51:30 +0200
-Message-Id: <20190827072744.493410292@linuxfoundation.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1731877AbfH0ILB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:11:01 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:46701 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730188AbfH0ILB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 04:11:01 -0400
+Received: by mail-lj1-f194.google.com with SMTP id f9so17528658ljc.13
+        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 01:10:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=3qJR3eEbPiVz2FmPYzrydbvTqAWbk/i6kmfbf4e8EHY=;
+        b=H+4s7dvOeTvfYb55PRAH5Y5ZCJygQG/+kqSWkCuD033l49fUNYRFbCDQpudfRST/kq
+         3MHjCMIkI4SFayn4WqxvDP9zZ2RN0ND5N62qYl9ZhLpb8LHQGVRUvw5RzKlnMbnedFe3
+         PZUBEWOrebrs7Y+Hgl3c8GOD+wPorNsxtKA1fvgaq5CAPexwHdNddc/brDaA3k4Lh9j/
+         HSvxbP5ZbDa9s7S+9w26ifrBZZioCaas1MwzR/knXIBBwjTTjsTgFq0Wkc6vCxeK6aH9
+         Q/ohGfy0alTHZpjHpBLBuYoe1ZBLTLQYv+eG2JvIwkj4yJ1j4SN418JQtWRPLYyNmuH0
+         xIPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=3qJR3eEbPiVz2FmPYzrydbvTqAWbk/i6kmfbf4e8EHY=;
+        b=DIFKS8kaPDIj86C/IDZR3YtMDF6/xHrbvGBr0HBRlO26VNThl7zdyGOfA4jbCXdQDQ
+         EZk0FfQf3Iv0eWHrlBZ0CljpJ5IXOwPuVb7ElmjvQ6OqkFkiypPucLyotoeN35OhCt4Z
+         cSvLcQk75qHsG0YUGypECL7eqGQW2xR4tyHxDmiYsrBfGzhtHPEKvzLVpLLJHesKHrzk
+         FOtIgt0maiBUuUVbl2uZGfjKZTZC2L+SLpTiTPCe3A7KqRPPO8epPl0pl22/MNI4C8w8
+         xD74rhGszJul51IDJyme9j/3SskMHgZuE+MGmZj9IdWNLPr/Cz6bobgdTd4tSRHFw061
+         SeqA==
+X-Gm-Message-State: APjAAAUM0o060j/kABvRvITwJRLcD5ARRXuCELvqmK7PMx4ajuVPp5E2
+        6CpllhxkKs3XzYsgpzK5v9q6ww==
+X-Google-Smtp-Source: APXvYqwyKOIvWgGr3RxKI7Y+eCD9AFakDDHYYy4/gF1Ke3Idl9WgYlkpcfYEjNsDxF4x2MBARyow2g==
+X-Received: by 2002:a05:651c:153:: with SMTP id c19mr13031829ljd.152.1566893455891;
+        Tue, 27 Aug 2019 01:10:55 -0700 (PDT)
+Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
+        by smtp.gmail.com with ESMTPSA id o20sm2373942ljg.31.2019.08.27.01.10.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Aug 2019 01:10:55 -0700 (PDT)
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+To:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Philip Langdale <philipl@overt.org>
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] mmc: core: Fix init of SD cards reporting an invalid VDD range
+Date:   Tue, 27 Aug 2019 10:10:43 +0200
+Message-Id: <20190827081043.15443-1-ulf.hansson@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+The OCR register defines the supported range of VDD voltages for SD cards.
+However, it has turned out that some SD cards reports an invalid voltage
+range, for example having bit7 set.
 
-commit 06d9532fa6b34f12a6d75711162d47c17c1add72 upstream.
+When a host supports MMC_CAP2_FULL_PWR_CYCLE and some of the voltages from
+the invalid VDD range, this triggers the core to run a power cycle of the
+card to try to initialize it at the lowest common supported voltage.
+Obviously this fails, since the card can't support it.
 
-rxrpc_queue_local() attempts to queue the local endpoint it is given and
-then, if successful, prints a trace line.  The trace line includes the
-current usage count - but we're not allowed to look at the local endpoint
-at this point as we passed our ref on it to the workqueue.
+Let's fix this problem, by clearing invalid bits from the read OCR register
+for SD cards, before proceeding with the VDD voltage negotiation.
 
-Fix this by reading the usage count before queuing the work item.
-
-Also fix the reading of local->debug_id for trace lines, which must be done
-with the same consideration as reading the usage count.
-
-Fixes: 09d2bf595db4 ("rxrpc: Add a tracepoint to track rxrpc_local refcounting")
-Reported-by: syzbot+78e71c5bab4f76a6a719@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Reported-by: Philip Langdale <philipl@overt.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- include/trace/events/rxrpc.h |    6 +++---
- net/rxrpc/local_object.c     |   19 ++++++++++---------
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/mmc/core/sd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -498,10 +498,10 @@ rxrpc_tx_points;
- #define E_(a, b)	{ a, b }
- 
- TRACE_EVENT(rxrpc_local,
--	    TP_PROTO(struct rxrpc_local *local, enum rxrpc_local_trace op,
-+	    TP_PROTO(unsigned int local_debug_id, enum rxrpc_local_trace op,
- 		     int usage, const void *where),
- 
--	    TP_ARGS(local, op, usage, where),
-+	    TP_ARGS(local_debug_id, op, usage, where),
- 
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,	local		)
-@@ -511,7 +511,7 @@ TRACE_EVENT(rxrpc_local,
- 			     ),
- 
- 	    TP_fast_assign(
--		    __entry->local = local->debug_id;
-+		    __entry->local = local_debug_id;
- 		    __entry->op = op;
- 		    __entry->usage = usage;
- 		    __entry->where = where;
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -93,7 +93,7 @@ static struct rxrpc_local *rxrpc_alloc_l
- 		local->debug_id = atomic_inc_return(&rxrpc_debug_id);
- 		memcpy(&local->srx, srx, sizeof(*srx));
- 		local->srx.srx_service = 0;
--		trace_rxrpc_local(local, rxrpc_local_new, 1, NULL);
-+		trace_rxrpc_local(local->debug_id, rxrpc_local_new, 1, NULL);
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index d681e8aaca83..fe914ff5f5d6 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -1292,6 +1292,12 @@ int mmc_attach_sd(struct mmc_host *host)
+ 			goto err;
  	}
  
- 	_leave(" = %p", local);
-@@ -321,7 +321,7 @@ struct rxrpc_local *rxrpc_get_local(stru
- 	int n;
++	/*
++	 * Some SD cards claims an out of spec VDD voltage range. Let's treat
++	 * these bits as being in-valid and especially also bit7.
++	 */
++	ocr &= ~0x7FFF;
++
+ 	rocr = mmc_select_voltage(host, ocr);
  
- 	n = atomic_inc_return(&local->usage);
--	trace_rxrpc_local(local, rxrpc_local_got, n, here);
-+	trace_rxrpc_local(local->debug_id, rxrpc_local_got, n, here);
- 	return local;
- }
- 
-@@ -335,7 +335,8 @@ struct rxrpc_local *rxrpc_get_local_mayb
- 	if (local) {
- 		int n = atomic_fetch_add_unless(&local->usage, 1, 0);
- 		if (n > 0)
--			trace_rxrpc_local(local, rxrpc_local_got, n + 1, here);
-+			trace_rxrpc_local(local->debug_id, rxrpc_local_got,
-+					  n + 1, here);
- 		else
- 			local = NULL;
- 	}
-@@ -343,16 +344,16 @@ struct rxrpc_local *rxrpc_get_local_mayb
- }
- 
- /*
-- * Queue a local endpoint unless it has become unreferenced and pass the
-- * caller's reference to the work item.
-+ * Queue a local endpoint and pass the caller's reference to the work item.
-  */
- void rxrpc_queue_local(struct rxrpc_local *local)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = local->debug_id;
-+	int n = atomic_read(&local->usage);
- 
- 	if (rxrpc_queue_work(&local->processor))
--		trace_rxrpc_local(local, rxrpc_local_queued,
--				  atomic_read(&local->usage), here);
-+		trace_rxrpc_local(debug_id, rxrpc_local_queued, n, here);
- 	else
- 		rxrpc_put_local(local);
- }
-@@ -367,7 +368,7 @@ void rxrpc_put_local(struct rxrpc_local
- 
- 	if (local) {
- 		n = atomic_dec_return(&local->usage);
--		trace_rxrpc_local(local, rxrpc_local_put, n, here);
-+		trace_rxrpc_local(local->debug_id, rxrpc_local_put, n, here);
- 
- 		if (n == 0)
- 			call_rcu(&local->rcu, rxrpc_local_rcu);
-@@ -454,7 +455,7 @@ static void rxrpc_local_processor(struct
- 		container_of(work, struct rxrpc_local, processor);
- 	bool again;
- 
--	trace_rxrpc_local(local, rxrpc_local_processing,
-+	trace_rxrpc_local(local->debug_id, rxrpc_local_processing,
- 			  atomic_read(&local->usage), NULL);
- 
- 	do {
-
+ 	/*
+-- 
+2.17.1
 
