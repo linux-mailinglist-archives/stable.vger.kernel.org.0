@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1CC9DFE6
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FC69DFE9
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731031AbfH0H6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
+        id S1730403AbfH0H6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731023AbfH0H6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:33 -0400
+        id S1730990AbfH0H6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A792E2173E;
-        Tue, 27 Aug 2019 07:58:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 250CB20828;
+        Tue, 27 Aug 2019 07:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892712;
-        bh=98BKHUssZiAvVoIeeamna4LlHN+bPH8+OD69xuUHJas=;
+        s=default; t=1566892717;
+        bh=9139bLgvZNJhVU+/KuehRZ88uo1vuy8PX04vIiAa+M4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1oVHI82rCSpKLMXob0mrYDvndfJ3nxPjQ1aUe1IBdCIah0ELlxiPaONf4ynU+y6Z
-         KQGQNXhUNfNlviamAbVZYJ5XULPSNzWljuOYgiFS8egNn528rSJPCMyPBzJ1gIIwlf
-         IFmkdHtlvVB9VGJogabpsK5p+4VVd3/SWRKrMc7g=
+        b=furoQnrJqtEGfAVj39TRqa82AQi2nndI6rVE2qRIv+C0fT1pHzQ93HPCBSJe80+Vi
+         k+Og+w36gsqsQ55BPZ6wQWpgbHjl/u1T+AFxvdC5IrDD4mUhWhn1lImjXsqCjgvzmC
+         bkDcDwh2kWGlB56QYMNIB092dqznbjdrSN04wZd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 86/98] mm/zsmalloc.c: migration can leave pages in ZS_EMPTY indefinitely
-Date:   Tue, 27 Aug 2019 09:51:05 +0200
-Message-Id: <20190827072722.502224783@linuxfoundation.org>
+        stable@vger.kernel.org, benjamin.moody@gmail.com,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH 4.19 88/98] xfs: fix missing ILOCK unlock when xfs_setattr_nonsize fails due to EDQUOT
+Date:   Tue, 27 Aug 2019 09:51:07 +0200
+Message-Id: <20190827072722.653604904@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -49,87 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 1a87aa03597efa9641e92875b883c94c7f872ccb upstream.
+commit 1fb254aa983bf190cfd685d40c64a480a9bafaee upstream.
 
-In zs_page_migrate() we call putback_zspage() after we have finished
-migrating all pages in this zspage.  However, the return value is
-ignored.  If a zs_free() races in between zs_page_isolate() and
-zs_page_migrate(), freeing the last object in the zspage,
-putback_zspage() will leave the page in ZS_EMPTY for potentially an
-unbounded amount of time.
+Benjamin Moody reported to Debian that XFS partially wedges when a chgrp
+fails on account of being out of disk quota.  I ran his reproducer
+script:
 
-To fix this, we need to do the same thing as zs_page_putback() does:
-schedule free_work to occur.
+# adduser dummy
+# adduser dummy plugdev
 
-To avoid duplicated code, move the sequence to a new
-putback_zspage_deferred() function which both zs_page_migrate() and
-zs_page_putback() call.
+# dd if=/dev/zero bs=1M count=100 of=test.img
+# mkfs.xfs test.img
+# mount -t xfs -o gquota test.img /mnt
+# mkdir -p /mnt/dummy
+# chown -c dummy /mnt/dummy
+# xfs_quota -xc 'limit -g bsoft=100k bhard=100k plugdev' /mnt
 
-Link: http://lkml.kernel.org/r/20190809181751.219326-1-henryburns@google.com
-Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
-Signed-off-by: Henry Burns <henryburns@google.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+(and then as user dummy)
+
+$ dd if=/dev/urandom bs=1M count=50 of=/mnt/dummy/foo
+$ chgrp plugdev /mnt/dummy/foo
+
+and saw:
+
+================================================
+WARNING: lock held when returning to user space!
+5.3.0-rc5 #rc5 Tainted: G        W
+------------------------------------------------
+chgrp/47006 is leaving the kernel with locks still held!
+1 lock held by chgrp/47006:
+ #0: 000000006664ea2d (&xfs_nondir_ilock_class){++++}, at: xfs_ilock+0xd2/0x290 [xfs]
+
+...which is clearly caused by xfs_setattr_nonsize failing to unlock the
+ILOCK after the xfs_qm_vop_chown_reserve call fails.  Add the missing
+unlock.
+
+Reported-by: benjamin.moody@gmail.com
+Fixes: 253f4911f297 ("xfs: better xfs_trans_alloc interface")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Tested-by: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/zsmalloc.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ fs/xfs/xfs_iops.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1882,6 +1882,18 @@ static void dec_zspage_isolation(struct
- 	zspage->isolated--;
- }
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -803,6 +803,7 @@ xfs_setattr_nonsize(
  
-+static void putback_zspage_deferred(struct zs_pool *pool,
-+				    struct size_class *class,
-+				    struct zspage *zspage)
-+{
-+	enum fullness_group fg;
-+
-+	fg = putback_zspage(class, zspage);
-+	if (fg == ZS_EMPTY)
-+		schedule_work(&pool->free_work);
-+
-+}
-+
- static void replace_sub_page(struct size_class *class, struct zspage *zspage,
- 				struct page *newpage, struct page *oldpage)
- {
-@@ -2051,7 +2063,7 @@ static int zs_page_migrate(struct addres
- 	 * the list if @page is final isolated subpage in the zspage.
- 	 */
- 	if (!is_zspage_isolated(zspage))
--		putback_zspage(class, zspage);
-+		putback_zspage_deferred(pool, class, zspage);
- 
- 	reset_page(page);
- 	put_page(page);
-@@ -2097,14 +2109,13 @@ static void zs_page_putback(struct page
- 	spin_lock(&class->lock);
- 	dec_zspage_isolation(zspage);
- 	if (!is_zspage_isolated(zspage)) {
--		fg = putback_zspage(class, zspage);
- 		/*
- 		 * Due to page_lock, we cannot free zspage immediately
- 		 * so let's defer.
- 		 */
--		if (fg == ZS_EMPTY)
--			schedule_work(&pool->free_work);
-+		putback_zspage_deferred(pool, class, zspage);
- 	}
-+
- 	spin_unlock(&class->lock);
- }
- 
+ out_cancel:
+ 	xfs_trans_cancel(tp);
++	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ out_dqrele:
+ 	xfs_qm_dqrele(udqp);
+ 	xfs_qm_dqrele(gdqp);
 
 
