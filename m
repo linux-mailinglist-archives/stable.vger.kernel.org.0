@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 468239DFB5
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908779DF38
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730097AbfH0H4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
+        id S1729401AbfH0HwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:52:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729171AbfH0H4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:56:45 -0400
+        id S1729388AbfH0HwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:52:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15928206BF;
-        Tue, 27 Aug 2019 07:56:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B74562173E;
+        Tue, 27 Aug 2019 07:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892604;
-        bh=4k5ZawLjOk0KvC7nDaRZudQNNKznOxkAFASAwaEHZtI=;
+        s=default; t=1566892339;
+        bh=szNqJgC9d5Ndna8YoKeMJQN4lU7/tFfd7KS/NIiUoh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnHq5mne4vnu/tKEH2SIWpAmm8nhV8DT5kuJW/QSf0ornMaz26v47DY1/Gzd6VNqT
-         bWO0IsO+MVbs6qZ44G7cWk3BdWkGQWHS6n5aUyoS2sTQDqwmz+O5c7hJLyHulyYyEJ
-         PVZH3dm9fmKMz3UGs7h96Wr3cLMiN0YQNWE8M/nU=
+        b=C9bG9Weekn2JPMLyjIHFJMiGRih1/Z6lLSg1QjGFigSSq7fvOlgZwx1F1hJasoQLc
+         IiPaONcLgnVWwKd6OQuCbPFKT0ChmPAtkNVxvhNr0uRYmTCOwL04wt7yDbSfzdl0R3
+         NMmziUEyjn38Io78f+o/WeeoBXxnZ3hmTeCgkjsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krishna Ram Prakash R <krp@gtux.in>,
-        Kees Cook <keescook@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/98] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 22/62] HID: input: fix a4tech horizontal wheel custom usage
 Date:   Tue, 27 Aug 2019 09:50:27 +0200
-Message-Id: <20190827072720.874336466@linuxfoundation.org>
+Message-Id: <20190827072701.664140123@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2d7271501720038381d45fb3dcbe4831228fc8cc ]
+[ Upstream commit 1c703b53e5bfb5c2205c30f0fb157ce271fd42fb ]
 
-For passthrough requests, libata-scsi takes what the user passes in
-as gospel. This can be problematic if the user fills in the CDB
-incorrectly. One example of that is in request sizes. For read/write
-commands, the CDB contains fields describing the transfer length of
-the request. These should match with the SG_IO header fields, but
-libata-scsi currently does no validation of that.
+Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
+the previous wheel report was horizontal or vertical. Before
+c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
+usage was being mapped to 'Relative.Misc'. After the patch it's simply
+ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
+hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
+usage->type.
 
-Check that the number of blocks in the CDB for passthrough requests
-matches what was mapped into the request. If the CDB asks for more
-data then the validated SG_IO header fields, error it.
+We shouldn't rely on a mapping for that usage as it's nonstandard and
+doesn't really map to an input event. So we bypass the mapping and make
+sure the custom event handling properly handles both reports.
 
-Reported-by: Krishna Ram Prakash R <krp@gtux.in>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/hid/hid-a4tech.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index 1984fc78c750b..3a64fa4aaf7e3 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -1803,6 +1803,21 @@ nothing_to_do:
- 	return 1;
- }
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a0..c52bd163abb3e 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -26,12 +26,36 @@
+ #define A4_2WHEEL_MOUSE_HACK_7	0x01
+ #define A4_2WHEEL_MOUSE_HACK_B8	0x02
  
-+static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
++#define A4_WHEEL_ORIENTATION	(HID_UP_GENDESK | 0x000000b8)
++
+ struct a4tech_sc {
+ 	unsigned long quirks;
+ 	unsigned int hw_wheel;
+ 	__s32 delayed_value;
+ };
+ 
++static int a4_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++			    struct hid_field *field, struct hid_usage *usage,
++			    unsigned long **bit, int *max)
 +{
-+	struct request *rq = scmd->request;
-+	u32 req_blocks;
++	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
 +
-+	if (!blk_rq_is_passthrough(rq))
-+		return true;
++	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8 &&
++	    usage->hid == A4_WHEEL_ORIENTATION) {
++		/*
++		 * We do not want to have this usage mapped to anything as it's
++		 * nonstandard and doesn't really behave like an HID report.
++		 * It's only selecting the orientation (vertical/horizontal) of
++		 * the previous mouse wheel report. The input_events will be
++		 * generated once both reports are recorded in a4_event().
++		 */
++		return -1;
++	}
 +
-+	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
-+	if (n_blocks > req_blocks)
-+		return false;
++	return 0;
 +
-+	return true;
 +}
 +
- /**
-  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
-  *	@qc: Storage for translated ATA taskfile
-@@ -1847,6 +1862,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_10_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_6:
- 	case WRITE_6:
-@@ -1861,6 +1878,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		 */
- 		if (!n_block)
- 			n_block = 256;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_16:
- 	case WRITE_16:
-@@ -1871,6 +1890,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_16_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	default:
- 		DPRINTK("no-byte command\n");
+ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -53,8 +77,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
+ 	struct input_dev *input;
+ 
+-	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
+-			!usage->type)
++	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
+ 		return 0;
+ 
+ 	input = field->hidinput->input;
+@@ -65,7 +88,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 			return 1;
+ 		}
+ 
+-		if (usage->hid == 0x000100b8) {
++		if (usage->hid == A4_WHEEL_ORIENTATION) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
+ 			return 1;
+@@ -129,6 +152,7 @@ MODULE_DEVICE_TABLE(hid, a4_devices);
+ static struct hid_driver a4_driver = {
+ 	.name = "a4tech",
+ 	.id_table = a4_devices,
++	.input_mapping = a4_input_mapping,
+ 	.input_mapped = a4_input_mapped,
+ 	.event = a4_event,
+ 	.probe = a4_probe,
 -- 
 2.20.1
 
