@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB33E9E186
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225249E184
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731059AbfH0H6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
+        id S1730724AbfH0H6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730706AbfH0H6l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:41 -0400
+        id S1729880AbfH0H6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 025E4206BF;
-        Tue, 27 Aug 2019 07:58:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF652173E;
+        Tue, 27 Aug 2019 07:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892720;
-        bh=x2yaFsxyNtdZbvKQzpaUTp9W7h6k1yHSMcCMiTZWb6A=;
+        s=default; t=1566892729;
+        bh=UCmvr/boJAZd9iWw6T45AHsw+TVfmCjLhuD6urnPtbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HatZyc0wqFWWcIFOPt6gdm+UzdiqIAkj/0Pxk+uaVgxg+qfmsU7VWk/t7mW+dfdE0
-         khQ86GyI5jVgrvEliP74JSH9VxwQb9vKkmNu2tDNDV3W5Ggcd27MSp+DYiiHPG9Z1h
-         tVbRKtR5V5GcyKyeB0FJbstgA07bHFMglxxg49po=
+        b=zlWwF9ofPmtEeHOOpssuwGe7uKv3qhqMg29/qnfSfT6eZXpFMc+tWug/2YYhh5m7F
+         uy2lJB6BFQks0mbSrkAsKB9ndRDAERc2yxgx2exDZQQ3DzOvffVd1Xb+htWvxALUYA
+         Z1KK8VElvbTd3k6VIMniXENXyUbJSHza7xof3rXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org,
+        Allison Henderson <allison.henderson@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 89/98] xfs: dont trip over uninitialized buffer on extent read of corrupted inode
-Date:   Tue, 27 Aug 2019 09:51:08 +0200
-Message-Id: <20190827072722.722033898@linuxfoundation.org>
+Subject: [PATCH 4.19 91/98] xfs: Add helper function xfs_attr_try_sf_addname
+Date:   Tue, 27 Aug 2019 09:51:10 +0200
+Message-Id: <20190827072722.947494361@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -45,74 +47,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6958d11f77d45db80f7e22a21a74d4d5f44dc667 upstream.
+commit 4c74a56b9de76bb6b581274b76b52535ad77c2a7 upstream.
 
-We've had rather rare reports of bmap btree block corruption where
-the bmap root block has a level count of zero. The root cause of the
-corruption is so far unknown. We do have verifier checks to detect
-this form of on-disk corruption, but this doesn't cover a memory
-corruption variant of the problem. The latter is a reasonable
-possibility because the root block is part of the inode fork and can
-reside in-core for some time before inode extents are read.
+This patch adds a subroutine xfs_attr_try_sf_addname
+used by xfs_attr_set.  This subrotine will attempt to
+add the attribute name specified in args in shortform,
+as well and perform error handling previously done in
+xfs_attr_set.
 
-If this occurs, it leads to a system crash such as the following:
+This patch helps to pre-simplify xfs_attr_set for reviewing
+purposes and reduce indentation.  New function will be added
+in the next patch.
 
- BUG: unable to handle kernel paging request at ffffffff00000221
- PF error: [normal kernel read fault]
- ...
- RIP: 0010:xfs_trans_brelse+0xf/0x200 [xfs]
- ...
- Call Trace:
-  xfs_iread_extents+0x379/0x540 [xfs]
-  xfs_file_iomap_begin_delay+0x11a/0xb40 [xfs]
-  ? xfs_attr_get+0xd1/0x120 [xfs]
-  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
-  xfs_file_iomap_begin+0x4c4/0x6d0 [xfs]
-  ? __vfs_getxattr+0x53/0x70
-  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
-  iomap_apply+0x63/0x130
-  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
-  iomap_file_buffered_write+0x62/0x90
-  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
-  xfs_file_buffered_aio_write+0xe4/0x3b0 [xfs]
-  __vfs_write+0x150/0x1b0
-  vfs_write+0xba/0x1c0
-  ksys_pwrite64+0x64/0xa0
-  do_syscall_64+0x5a/0x1d0
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[dgc: moved commit to helper function, too.]
 
-The crash occurs because xfs_iread_extents() attempts to release an
-uninitialized buffer pointer as the level == 0 value prevented the
-buffer from ever being allocated or read. Change the level > 0
-assert to an explicit error check in xfs_iread_extents() to avoid
-crashing the kernel in the event of localized, in-core inode
-corruption.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Allison Henderson <allison.henderson@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_attr.c | 53 +++++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index 3a496ffe6551c..ab2465bc413af 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -1178,7 +1178,10 @@ xfs_iread_extents(
- 	 * Root level must use BMAP_BROOT_PTR_ADDR macro to get ptr out.
- 	 */
- 	level = be16_to_cpu(block->bb_level);
--	ASSERT(level > 0);
-+	if (unlikely(level == 0)) {
-+		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW, mp);
-+		return -EFSCORRUPTED;
-+	}
- 	pp = XFS_BMAP_BROOT_PTR_ADDR(mp, block, 1, ifp->if_broot_bytes);
- 	bno = be64_to_cpu(*pp);
+diff --git a/fs/xfs/libxfs/xfs_attr.c b/fs/xfs/libxfs/xfs_attr.c
+index c6299f82a6e49..c15a1debec907 100644
+--- a/fs/xfs/libxfs/xfs_attr.c
++++ b/fs/xfs/libxfs/xfs_attr.c
+@@ -191,6 +191,33 @@ xfs_attr_calc_size(
+ 	return nblks;
+ }
  
++STATIC int
++xfs_attr_try_sf_addname(
++	struct xfs_inode	*dp,
++	struct xfs_da_args	*args)
++{
++
++	struct xfs_mount	*mp = dp->i_mount;
++	int			error, error2;
++
++	error = xfs_attr_shortform_addname(args);
++	if (error == -ENOSPC)
++		return error;
++
++	/*
++	 * Commit the shortform mods, and we're done.
++	 * NOTE: this is also the error path (EEXIST, etc).
++	 */
++	if (!error && (args->flags & ATTR_KERNOTIME) == 0)
++		xfs_trans_ichgtime(args->trans, dp, XFS_ICHGTIME_CHG);
++
++	if (mp->m_flags & XFS_MOUNT_WSYNC)
++		xfs_trans_set_sync(args->trans);
++
++	error2 = xfs_trans_commit(args->trans);
++	return error ? error : error2;
++}
++
+ int
+ xfs_attr_set(
+ 	struct xfs_inode	*dp,
+@@ -204,7 +231,7 @@ xfs_attr_set(
+ 	struct xfs_da_args	args;
+ 	struct xfs_trans_res	tres;
+ 	int			rsvd = (flags & ATTR_ROOT) != 0;
+-	int			error, err2, local;
++	int			error, local;
+ 
+ 	XFS_STATS_INC(mp, xs_attr_set);
+ 
+@@ -281,30 +308,10 @@ xfs_attr_set(
+ 		 * Try to add the attr to the attribute list in
+ 		 * the inode.
+ 		 */
+-		error = xfs_attr_shortform_addname(&args);
++		error = xfs_attr_try_sf_addname(dp, &args);
+ 		if (error != -ENOSPC) {
+-			/*
+-			 * Commit the shortform mods, and we're done.
+-			 * NOTE: this is also the error path (EEXIST, etc).
+-			 */
+-			ASSERT(args.trans != NULL);
+-
+-			/*
+-			 * If this is a synchronous mount, make sure that
+-			 * the transaction goes to disk before returning
+-			 * to the user.
+-			 */
+-			if (mp->m_flags & XFS_MOUNT_WSYNC)
+-				xfs_trans_set_sync(args.trans);
+-
+-			if (!error && (flags & ATTR_KERNOTIME) == 0) {
+-				xfs_trans_ichgtime(args.trans, dp,
+-							XFS_ICHGTIME_CHG);
+-			}
+-			err2 = xfs_trans_commit(args.trans);
+ 			xfs_iunlock(dp, XFS_ILOCK_EXCL);
+-
+-			return error ? error : err2;
++			return error;
+ 		}
+ 
+ 		/*
 -- 
 2.20.1
 
