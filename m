@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC4F9E1FD
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CA79E200
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730148AbfH0Hys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:54:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46482 "EHLO mail.kernel.org"
+        id S1730164AbfH0Hyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730142AbfH0Hyq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:46 -0400
+        id S1730175AbfH0Hyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C310D2173E;
-        Tue, 27 Aug 2019 07:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4D7F206BF;
+        Tue, 27 Aug 2019 07:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892486;
-        bh=cLlmmAGCVwDgnENcAsbB4Ldr9YL25YNv2N8nZLv1Zok=;
+        s=default; t=1566892492;
+        bh=Xi4giJESAeRgSkyF4todWbjeODr7cInhYrgnxJuonnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cv16O7zkKrHK7nM9pqjezm6a2yKxCzet+oPFHwqJcF9EMqSDVGspYCIZvW25Bt5T0
-         6ItlwqXzN6hhnIg6vhNGKduSVAtROtyZvYqZLZrs4tRyNzpeGz8BgNaQ0cwI5p7Xhp
-         G8aTmQJZZzyY7ACpSWWsP2tYsuURsFutuBXkVsxw=
+        b=TKIzTk6W2AyfMhKLDti7FmyMX95+d0EIKQ4i17gdqpk7hbSnbCU1S6aKtWJ6BXHrG
+         oHGJBN5lvHoWQwoyc6WjWytRJ1FB/LM1aO4Nds2LxafpzctHeFI9qQfPnGKTSs2WLe
+         EAVcfVnffRZnUmcpXdvX2KVOymKYuWIZZUQ+Qtfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/98] MIPS: kernel: only use i8253 clocksource with periodic clockevent
-Date:   Tue, 27 Aug 2019 09:49:41 +0200
-Message-Id: <20190827072718.261794938@linuxfoundation.org>
+Subject: [PATCH 4.19 04/98] netfilter: ebtables: fix a memory leak bug in compat
+Date:   Tue, 27 Aug 2019 09:49:43 +0200
+Message-Id: <20190827072718.359569931@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -47,36 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a07e3324538a989b7cdbf2c679be6a7f9df2544f ]
+[ Upstream commit 15a78ba1844a8e052c1226f930133de4cef4e7ad ]
 
-i8253 clocksource needs a free running timer. This could only
-be used, if i8253 clockevent is set up as periodic.
+In compat_do_replace(), a temporary buffer is allocated through vmalloc()
+to hold entries copied from the user space. The buffer address is firstly
+saved to 'newinfo->entries', and later on assigned to 'entries_tmp'. Then
+the entries in this temporary buffer is copied to the internal kernel
+structure through compat_copy_entries(). If this copy process fails,
+compat_do_replace() should be terminated. However, the allocated temporary
+buffer is not freed on this path, leading to a memory leak.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To fix the bug, free the buffer before returning from compat_do_replace().
+
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/i8253.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/i8253.c b/arch/mips/kernel/i8253.c
-index 5f209f111e59e..df7ddd246eaac 100644
---- a/arch/mips/kernel/i8253.c
-+++ b/arch/mips/kernel/i8253.c
-@@ -32,7 +32,8 @@ void __init setup_pit_timer(void)
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 995b3842ba7c0..62ffc989a44a2 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2274,8 +2274,10 @@ static int compat_do_replace(struct net *net, void __user *user,
+ 	state.buf_kern_len = size64;
  
- static int __init init_pit_clocksource(void)
- {
--	if (num_possible_cpus() > 1) /* PIT does not scale! */
-+	if (num_possible_cpus() > 1 || /* PIT does not scale! */
-+	    !clockevent_state_periodic(&i8253_clockevent))
- 		return 0;
+ 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
+-	if (WARN_ON(ret < 0))
++	if (WARN_ON(ret < 0)) {
++		vfree(entries_tmp);
+ 		goto out_unlock;
++	}
  
- 	return clocksource_i8253_init();
+ 	vfree(entries_tmp);
+ 	tmp.entries_size = size64;
 -- 
 2.20.1
 
