@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 920C09E077
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BC69E075
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730958AbfH0IEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33142 "EHLO mail.kernel.org"
+        id S1731247AbfH0ID5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730764AbfH0IDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:53 -0400
+        id S1730723AbfH0ID4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44FF8206BF;
-        Tue, 27 Aug 2019 08:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CDD5206BF;
+        Tue, 27 Aug 2019 08:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893032;
-        bh=RC199nhAYZRtj3va6zftvMHOLXIDuyiqPEEpAliMEkk=;
+        s=default; t=1566893035;
+        bh=x13b0bhLspyWjAcJ1/Iahk8nLasSgH+cdoPMoU/33/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoXyzm8DG395oCe1crAKyEX1RvIE1wEqAMaQmBHfmEWEOagkj9mH+E/eSFLrjll6/
-         lmtFMzwwXICfIQUPOiF6TN64AuNl8+SMHM2DYojRKJIa0YmITzbZ7z0cdYTVOVTLii
-         lNNxv9k+w00A3H9bV19pz0mfRGG2/cDf9wSWSrjs=
+        b=SG+hKVaTm4qFMEpDyCInf7yPdyJDV0wYaxkiMb7nx5EGF2gwQnt1kmJ2pPyX6FNXI
+         c5zroOVnjZjir+RZZCUMzYhvwGudWO+3cZwAzJ6M4l1eYqX0b0Ocl/BzfeEbxIay4j
+         JpawUiS1t2l3PzMGsy/hyr4XtRKapMItTf0j54Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 096/162] NFSv4: Ensure state recovery handles ETIMEDOUT correctly
-Date:   Tue, 27 Aug 2019 09:50:24 +0200
-Message-Id: <20190827072741.557647315@linuxfoundation.org>
+        stable@vger.kernel.org, Krishna Ram Prakash R <krp@gtux.in>,
+        Kees Cook <keescook@chromium.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 097/162] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
+Date:   Tue, 27 Aug 2019 09:50:25 +0200
+Message-Id: <20190827072741.598307291@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,89 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 67e7b52d44e3d539dfbfcd866c3d3d69da23a909 ]
+[ Upstream commit 2d7271501720038381d45fb3dcbe4831228fc8cc ]
 
-Ensure that the state recovery code handles ETIMEDOUT correctly,
-and also that we set RPC_TASK_TIMEOUT when recovering open state.
+For passthrough requests, libata-scsi takes what the user passes in
+as gospel. This can be problematic if the user fills in the CDB
+incorrectly. One example of that is in request sizes. For read/write
+commands, the CDB contains fields describing the transfer length of
+the request. These should match with the SG_IO header fields, but
+libata-scsi currently does no validation of that.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Check that the number of blocks in the CDB for passthrough requests
+matches what was mapped into the request. If the CDB asks for more
+data then the validated SG_IO header fields, error it.
+
+Reported-by: Krishna Ram Prakash R <krp@gtux.in>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c  | 2 ++
- fs/nfs/nfs4state.c | 7 +++++--
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/ata/libata-scsi.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 74e1732a4bd01..2023011c7a8fe 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -2150,6 +2150,7 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
- 		case -ENOENT:
- 		case -EAGAIN:
- 		case -ESTALE:
-+		case -ETIMEDOUT:
- 			break;
- 		case -NFS4ERR_BADSESSION:
- 		case -NFS4ERR_BADSLOT:
-@@ -2470,6 +2471,7 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
- 	if (!ctx) {
- 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 1);
- 		data->is_recover = true;
-+		task_setup_data.flags |= RPC_TASK_TIMEOUT;
- 	} else {
- 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 0);
- 		pnfs_lgopen_prepare(data, ctx);
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 261de26d897f7..0e69cd846afb5 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1528,6 +1528,7 @@ restart:
- 		switch (status) {
- 		case 0:
- 			break;
-+		case -ETIMEDOUT:
- 		case -ESTALE:
- 		case -NFS4ERR_ADMIN_REVOKED:
- 		case -NFS4ERR_STALE_STATEID:
-@@ -1681,11 +1682,13 @@ restart:
- 		case -NFS4ERR_EXPIRED:
- 		case -NFS4ERR_NO_GRACE:
- 			nfs4_state_mark_reclaim_nograce(sp->so_server->nfs_client, state);
-+			/* Fall through */
- 		case -NFS4ERR_STALE_CLIENTID:
- 		case -NFS4ERR_BADSESSION:
- 		case -NFS4ERR_BADSLOT:
- 		case -NFS4ERR_BAD_HIGH_SLOT:
- 		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
-+		case -ETIMEDOUT:
- 			goto out_err;
- 		}
- 		nfs4_put_open_state(state);
-@@ -1970,7 +1973,6 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
- 		return -EPERM;
- 	case -EACCES:
- 	case -NFS4ERR_DELAY:
--	case -ETIMEDOUT:
- 	case -EAGAIN:
- 		ssleep(1);
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index 391ac0503dc07..76d0f9de767bc 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -1786,6 +1786,21 @@ nothing_to_do:
+ 	return 1;
+ }
+ 
++static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
++{
++	struct request *rq = scmd->request;
++	u32 req_blocks;
++
++	if (!blk_rq_is_passthrough(rq))
++		return true;
++
++	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
++	if (n_blocks > req_blocks)
++		return false;
++
++	return true;
++}
++
+ /**
+  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
+  *	@qc: Storage for translated ATA taskfile
+@@ -1830,6 +1845,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		scsi_10_lba_len(cdb, &block, &n_block);
+ 		if (cdb[1] & (1 << 3))
+ 			tf_flags |= ATA_TFLAG_FUA;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
  		break;
-@@ -2599,7 +2601,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 		}
- 
- 		/* Now recover expired state... */
--		if (test_and_clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
-+		if (test_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
- 			section = "reclaim nograce";
- 			status = nfs4_do_reclaim(clp,
- 				clp->cl_mvops->nograce_recovery_ops);
-@@ -2607,6 +2609,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 				continue;
- 			if (status < 0)
- 				goto out_error;
-+			clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state);
- 		}
- 
- 		nfs4_end_drain_session(clp);
+ 	case READ_6:
+ 	case WRITE_6:
+@@ -1844,6 +1861,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		 */
+ 		if (!n_block)
+ 			n_block = 256;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
+ 		break;
+ 	case READ_16:
+ 	case WRITE_16:
+@@ -1854,6 +1873,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		scsi_16_lba_len(cdb, &block, &n_block);
+ 		if (cdb[1] & (1 << 3))
+ 			tf_flags |= ATA_TFLAG_FUA;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
+ 		break;
+ 	default:
+ 		DPRINTK("no-byte command\n");
 -- 
 2.20.1
 
