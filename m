@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BB49DFAA
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194DF9DF6C
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbfH0H4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48310 "EHLO mail.kernel.org"
+        id S1729412AbfH0HyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730574AbfH0H4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:56:22 -0400
+        id S1729967AbfH0HyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E88D0206BF;
-        Tue, 27 Aug 2019 07:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB25B206BF;
+        Tue, 27 Aug 2019 07:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892581;
-        bh=IMouhFbAtyRnrffhXqdRzpnr6dJAf9xPKL2fxq5ru5Q=;
+        s=default; t=1566892444;
+        bh=//oeRa0uJ7XUOu2d3wq+iG/HBwqW0QTZBAbPSgQ/FLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCk4XJ0PopMCAmwlHh/ow2TnReX3NG8poNWX4cPgKKN8GRv1Nfl+DTIuM3LIdcZ4s
-         XdDlu/cE9AaSFa2208iE+yj6GFQ2TruiBhO+6qIMrwXvlz4HMEedL8wGCKKlOfltJX
-         7l/Gq96UVxuyhzpg2poOgHVx86qZSDRivhYVzg/g=
+        b=ZqfwGY95pO6MR4xpq+RMnr8wHv0W+TDC8MMOHBILoEqVc/u+5s65TLsqwgSeloCYv
+         tCypPfBfWZMx1n7+hJzKXfOSlLbGGI42MY7bH7YIH+k17ZRlEZp25SSp/uhTCw7Zhz
+         yN0oErMUDq85pwezzeSOK+xvDVqAx0aD/tlNP5mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/98] s390: put _stext and _etext into .text section
+Subject: [PATCH 4.14 15/62] netfilter: ipset: Fix rename concurrency with listing
 Date:   Tue, 27 Aug 2019 09:50:20 +0200
-Message-Id: <20190827072720.380385106@linuxfoundation.org>
+Message-Id: <20190827072701.219477127@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 24350fdadbdec780406a1ef988e6cd3875e374a8 ]
+[ Upstream commit 6c1f7e2c1b96ab9b09ac97c4df2bd9dc327206f6 ]
 
-Perf relies on _etext and _stext symbols being one of 't', 'T', 'v' or
-'V'. Put them into .text section to guarantee that.
+Shijie Luo reported that when stress-testing ipset with multiple concurrent
+create, rename, flush, list, destroy commands, it can result
 
-Also moves padding to page boundary inside .text which has an effect that
-.text section is now padded with nops rather than 0's, which apparently
-has been the initial intention for specifying 0x0700 fill expression.
+ipset <version>: Broken LIST kernel message: missing DATA part!
 
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Suggested-by: Andreas Krebbel <krebbel@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+error messages and broken list results. The problem was the rename operation
+was not properly handled with respect of listing. The patch fixes the issue.
+
+Reported-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vmlinux.lds.S | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/netfilter/ipset/ip_set_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index b43f8d33a3697..18ede6e806b91 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -31,10 +31,9 @@ PHDRS {
- SECTIONS
- {
- 	. = 0x100000;
--	_stext = .;		/* Start of text section */
- 	.text : {
--		/* Text and read-only data */
--		_text = .;
-+		_stext = .;		/* Start of text section */
-+		_text = .;		/* Text and read-only data */
- 		HEAD_TEXT
- 		TEXT_TEXT
- 		SCHED_TEXT
-@@ -46,11 +45,10 @@ SECTIONS
- 		*(.text.*_indirect_*)
- 		*(.fixup)
- 		*(.gnu.warning)
-+		. = ALIGN(PAGE_SIZE);
-+		_etext = .;		/* End of text section */
- 	} :text = 0x0700
+diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
+index a3f1dc7cf5382..dbf17d3596a69 100644
+--- a/net/netfilter/ipset/ip_set_core.c
++++ b/net/netfilter/ipset/ip_set_core.c
+@@ -1128,7 +1128,7 @@ static int ip_set_rename(struct net *net, struct sock *ctnl,
+ 		return -ENOENT;
  
--	. = ALIGN(PAGE_SIZE);
--	_etext = .;		/* End of text section */
--
- 	NOTES :text :note
- 
- 	.dummy : { *(.dummy) } :data
+ 	write_lock_bh(&ip_set_ref_lock);
+-	if (set->ref != 0) {
++	if (set->ref != 0 || set->ref_netlink != 0) {
+ 		ret = -IPSET_ERR_REFERENCED;
+ 		goto out;
+ 	}
 -- 
 2.20.1
 
