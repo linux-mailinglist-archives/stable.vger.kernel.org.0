@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0E59E1CC
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1839E11F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730518AbfH0H4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48114 "EHLO mail.kernel.org"
+        id S1732284AbfH0IDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730510AbfH0H4K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:56:10 -0400
+        id S1732276AbfH0IDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A26C720828;
-        Tue, 27 Aug 2019 07:56:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F9A02189D;
+        Tue, 27 Aug 2019 08:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892570;
-        bh=szNqJgC9d5Ndna8YoKeMJQN4lU7/tFfd7KS/NIiUoh4=;
+        s=default; t=1566893013;
+        bh=1KOunPuokLRF00R6WfX4KEPxteQidVVs3eZ39euy99g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FoaZ0HVGwbZuuqn/cwmv4o9CCAnohU8NTTx9NUvapEsE8gSC0YWaBDcrGVqo6uXUA
-         85CpKLHNntfeMiJPH1DQctPfGlEx+Z8KeV8v8oDppZvzt3Sxt49al2JaVSSfHFggqI
-         Y03czUFqGLptppaqhuVtdd+lJxdaUxovEHT9dktQ=
+        b=KwAGke2zL7txTPRquX/ew/RqZ7VMfCuNxzx4aQnFm17pCrRHQb4jV6jKyeJ7R4DBq
+         gXpu838n5GzM1g3CF+RKe7EIx+vFKXqJ8kQC8UTp1JvRDmrwRoD8ULD5dQUdwo58Z7
+         zSw1bUjmBZjz/JMNb3ddd/i0DvryPuOnf+y79SKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/98] HID: input: fix a4tech horizontal wheel custom usage
-Date:   Tue, 27 Aug 2019 09:50:16 +0200
-Message-Id: <20190827072720.155829104@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 089/162] net: cxgb3_main: Fix a resource leak in a error path in init_one()
+Date:   Tue, 27 Aug 2019 09:50:17 +0200
+Message-Id: <20190827072741.255456016@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1c703b53e5bfb5c2205c30f0fb157ce271fd42fb ]
+[ Upstream commit debea2cd3193ac868289e8893c3a719c265b0612 ]
 
-Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
-the previous wheel report was horizontal or vertical. Before
-c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
-usage was being mapped to 'Relative.Misc'. After the patch it's simply
-ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
-hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
-usage->type.
+A call to 'kfree_skb()' is missing in the error handling path of
+'init_one()'.
+This is already present in 'remove_one()' but is missing here.
 
-We shouldn't rely on a mapping for that usage as it's nonstandard and
-doesn't really map to an input event. So we bypass the mapping and make
-sure the custom event handling properly handles both reports.
-
-Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-a4tech.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
-index 9428ea7cdf8a0..c52bd163abb3e 100644
---- a/drivers/hid/hid-a4tech.c
-+++ b/drivers/hid/hid-a4tech.c
-@@ -26,12 +26,36 @@
- #define A4_2WHEEL_MOUSE_HACK_7	0x01
- #define A4_2WHEEL_MOUSE_HACK_B8	0x02
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+index 1e82b9efe4471..58f89f6a040fe 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+@@ -3269,7 +3269,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (!adapter->regs) {
+ 		dev_err(&pdev->dev, "cannot map device registers\n");
+ 		err = -ENOMEM;
+-		goto out_free_adapter;
++		goto out_free_adapter_nofail;
+ 	}
  
-+#define A4_WHEEL_ORIENTATION	(HID_UP_GENDESK | 0x000000b8)
-+
- struct a4tech_sc {
- 	unsigned long quirks;
- 	unsigned int hw_wheel;
- 	__s32 delayed_value;
- };
+ 	adapter->pdev = pdev;
+@@ -3397,6 +3397,9 @@ out_free_dev:
+ 		if (adapter->port[i])
+ 			free_netdev(adapter->port[i]);
  
-+static int a4_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			    struct hid_field *field, struct hid_usage *usage,
-+			    unsigned long **bit, int *max)
-+{
-+	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
++out_free_adapter_nofail:
++	kfree_skb(adapter->nofail_skb);
 +
-+	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8 &&
-+	    usage->hid == A4_WHEEL_ORIENTATION) {
-+		/*
-+		 * We do not want to have this usage mapped to anything as it's
-+		 * nonstandard and doesn't really behave like an HID report.
-+		 * It's only selecting the orientation (vertical/horizontal) of
-+		 * the previous mouse wheel report. The input_events will be
-+		 * generated once both reports are recorded in a4_event().
-+		 */
-+		return -1;
-+	}
-+
-+	return 0;
-+
-+}
-+
- static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -53,8 +77,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
- 	struct input_dev *input;
+ out_free_adapter:
+ 	kfree(adapter);
  
--	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
--			!usage->type)
-+	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
- 		return 0;
- 
- 	input = field->hidinput->input;
-@@ -65,7 +88,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 			return 1;
- 		}
- 
--		if (usage->hid == 0x000100b8) {
-+		if (usage->hid == A4_WHEEL_ORIENTATION) {
- 			input_event(input, EV_REL, value ? REL_HWHEEL :
- 					REL_WHEEL, a4->delayed_value);
- 			return 1;
-@@ -129,6 +152,7 @@ MODULE_DEVICE_TABLE(hid, a4_devices);
- static struct hid_driver a4_driver = {
- 	.name = "a4tech",
- 	.id_table = a4_devices,
-+	.input_mapping = a4_input_mapping,
- 	.input_mapped = a4_input_mapped,
- 	.event = a4_event,
- 	.probe = a4_probe,
 -- 
 2.20.1
 
