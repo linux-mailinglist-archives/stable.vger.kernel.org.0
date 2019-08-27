@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D569E06D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6967D9E070
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732338AbfH0IDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:03:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
+        id S1731544AbfH0IDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731544AbfH0IDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:41 -0400
+        id S1731819AbfH0IDp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 053FF206BA;
-        Tue, 27 Aug 2019 08:03:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFEC92186A;
+        Tue, 27 Aug 2019 08:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893021;
-        bh=gzfEi06O/WlgoD9nlxsUDqj2SCZQELiibpe/EqFoojc=;
+        s=default; t=1566893024;
+        bh=x7amhHgdlrtU/F6wMRhW7EnLYizycQjfpOYD5xmaHX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAaOrfNdnNhz5C8zvimjcjYK6Y2poFusV71BNDGZBiNBC3pxYE1yVR9s68PbuCjN1
-         r9VgyFUFfUlgjVwks4578IuQLWY/W12p/mZ6oiOKQB8mrOiNRlAIBwiwNHfCKFwFE8
-         dwa+fN27qKgNXKXL/gwfRuLauMg+XV7fWi5rEXfw=
+        b=UFC/nAT9dvsruOqDzUGE3gFFzbQPocdSD+8ek13ktUQ5QNQQxx0I12mZAQOKrEwVo
+         5XaDxPi4QhOmGRp4ZPDwtYQdkjtMJ6uMkJLuoOW8acGBaKmDXbVkgxQq0M8rySs0i5
+         OSKo838sNKhh6c4Zem9Q0iCKcvDXidt7tLWRFz7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Likun Gao <Likun.Gao@amd.com>,
-        Paul Gover <pmw.gover@yahoo.co.uk>,
-        Feifei Xu <Feifei.Xu@amd.com>,
-        Xiaojie Yuan <xiaojie.yuan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 092/162] drm/amdgpu: pin the csb buffer on hw init for gfx v8
-Date:   Tue, 27 Aug 2019 09:50:20 +0200
-Message-Id: <20190827072741.383013060@linuxfoundation.org>
+Subject: [PATCH 5.2 093/162] net: hisilicon: make hip04_tx_reclaim non-reentrant
+Date:   Tue, 27 Aug 2019 09:50:21 +0200
+Message-Id: <20190827072741.428735732@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -47,86 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 72cda9bb5e219aea0f2f62f56ae05198c59022a7 ]
+[ Upstream commit 1a2c070ae805910a853b4a14818481ed2e17c727 ]
 
-Without this pin, the csb buffer will be filled with inconsistent
-data after S3 resume. And that will causes gfx hang on gfxoff
-exit since this csb will be executed then.
+If hip04_tx_reclaim is interrupted while it is running
+and then __napi_schedule continues to execute
+hip04_rx_poll->hip04_tx_reclaim, reentrancy occurs
+and oops is generated. So you need to mask the interrupt
+during the hip04_tx_reclaim run.
 
-Signed-off-by: Likun Gao <Likun.Gao@amd.com>
-Tested-by: Paul Gover <pmw.gover@yahoo.co.uk>
-Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
-Reviewed-by: Xiaojie Yuan <xiaojie.yuan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The kernel oops exception stack is as follows:
+
+Unable to handle kernel NULL pointer dereference
+at virtual address 00000050
+pgd = c0003000
+[00000050] *pgd=80000000a04003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+Modules linked in: hip04_eth mtdblock mtd_blkdevs mtd
+ohci_platform ehci_platform ohci_hcd ehci_hcd
+vfat fat sd_mod usb_storage scsi_mod usbcore usb_common
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O    4.4.185 #1
+Hardware name: Hisilicon A15
+task: c0a250e0 task.stack: c0a00000
+PC is at hip04_tx_reclaim+0xe0/0x17c [hip04_eth]
+LR is at hip04_tx_reclaim+0x30/0x17c [hip04_eth]
+pc : [<bf30c3a4>]    lr : [<bf30c2f4>]    psr: 600e0313
+sp : c0a01d88  ip : 00000000  fp : c0601f9c
+r10: 00000000  r9 : c3482380  r8 : 00000001
+r7 : 00000000  r6 : 000000e1  r5 : c3482000  r4 : 0000000c
+r3 : f2209800  r2 : 00000000  r1 : 00000000  r0 : 00000000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 32c5387d  Table: 03d28c80  DAC: 55555555
+Process swapper/0 (pid: 0, stack limit = 0xc0a00190)
+Stack: (0xc0a01d88 to 0xc0a02000)
+[<bf30c3a4>] (hip04_tx_reclaim [hip04_eth]) from [<bf30d2e0>]
+                                                (hip04_rx_poll+0x88/0x368 [hip04_eth])
+[<bf30d2e0>] (hip04_rx_poll [hip04_eth]) from [<c04c2d9c>] (net_rx_action+0x114/0x34c)
+[<c04c2d9c>] (net_rx_action) from [<c021eed8>] (__do_softirq+0x218/0x318)
+[<c021eed8>] (__do_softirq) from [<c021f284>] (irq_exit+0x88/0xac)
+[<c021f284>] (irq_exit) from [<c0240090>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240090>] (msa_irq_exit) from [<c02677e0>] (__handle_domain_irq+0x110/0x148)
+[<c02677e0>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0551700>] (__irq_svc+0x40/0x58)
+Exception stack(0xc0a01f30 to 0xc0a01f78)
+1f20:                                     c0ae8b40 00000000 00000000 00000000
+1f40: 00000002 ffffe000 c0601f9c 00000000 ffffffff c0a2257c c0a22440 c0831a38
+1f60: c0a01ec4 c0a01f80 c0203714 c0203718 600e0213 ffffffff
+[<c0551700>] (__irq_svc) from [<c0203718>] (arch_cpu_idle+0x20/0x3c)
+[<c0203718>] (arch_cpu_idle) from [<c025bfd8>] (cpu_startup_entry+0x244/0x29c)
+[<c025bfd8>] (cpu_startup_entry) from [<c054b0d8>] (rest_init+0xc8/0x10c)
+[<c054b0d8>] (rest_init) from [<c0800c58>] (start_kernel+0x468/0x514)
+Code: a40599e5 016086e2 018088e2 7660efe6 (503090e5)
+---[ end trace 1db21d6d09c49d74 ]---
+Kernel panic - not syncing: Fatal exception in interrupt
+CPU3: stopping
+CPU: 3 PID: 0 Comm: swapper/3 Tainted: G      D    O    4.4.185 #1
+
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c | 40 +++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-index 02955e6e9dd9e..c21ef99cc590f 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-@@ -1317,6 +1317,39 @@ static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index e1f2978506fd3..5abe88dfe6abf 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -494,6 +494,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 	u16 len;
+ 	u32 err;
  
-+static int gfx_v8_0_csb_vram_pin(struct amdgpu_device *adev)
-+{
-+	int r;
++	/* clean up tx descriptors */
++	tx_remaining = hip04_tx_reclaim(ndev, false);
 +
-+	r = amdgpu_bo_reserve(adev->gfx.rlc.clear_state_obj, false);
-+	if (unlikely(r != 0))
-+		return r;
-+
-+	r = amdgpu_bo_pin(adev->gfx.rlc.clear_state_obj,
-+			AMDGPU_GEM_DOMAIN_VRAM);
-+	if (!r)
-+		adev->gfx.rlc.clear_state_gpu_addr =
-+			amdgpu_bo_gpu_offset(adev->gfx.rlc.clear_state_obj);
-+
-+	amdgpu_bo_unreserve(adev->gfx.rlc.clear_state_obj);
-+
-+	return r;
-+}
-+
-+static void gfx_v8_0_csb_vram_unpin(struct amdgpu_device *adev)
-+{
-+	int r;
-+
-+	if (!adev->gfx.rlc.clear_state_obj)
-+		return;
-+
-+	r = amdgpu_bo_reserve(adev->gfx.rlc.clear_state_obj, true);
-+	if (likely(r == 0)) {
-+		amdgpu_bo_unpin(adev->gfx.rlc.clear_state_obj);
-+		amdgpu_bo_unreserve(adev->gfx.rlc.clear_state_obj);
-+	}
-+}
-+
- static void gfx_v8_0_mec_fini(struct amdgpu_device *adev)
- {
- 	amdgpu_bo_free_kernel(&adev->gfx.mec.hpd_eop_obj, NULL, NULL);
-@@ -4777,6 +4810,10 @@ static int gfx_v8_0_hw_init(void *handle)
- 	gfx_v8_0_init_golden_registers(adev);
- 	gfx_v8_0_constants_init(adev);
- 
-+	r = gfx_v8_0_csb_vram_pin(adev);
-+	if (r)
-+		return r;
-+
- 	r = adev->gfx.rlc.funcs->resume(adev);
- 	if (r)
- 		return r;
-@@ -4893,6 +4930,9 @@ static int gfx_v8_0_hw_fini(void *handle)
- 	else
- 		pr_err("rlc is busy, skip halt rlc\n");
- 	amdgpu_gfx_rlc_exit_safe_mode(adev);
-+
-+	gfx_v8_0_csb_vram_unpin(adev);
-+
- 	return 0;
- }
+ 	while (cnt && !last) {
+ 		buf = priv->rx_buf[priv->rx_head];
+ 		skb = build_skb(buf, priv->rx_buf_size);
+@@ -554,8 +557,7 @@ refill:
+ 	}
+ 	napi_complete_done(napi, rx);
+ done:
+-	/* clean up tx descriptors and start a new timer if necessary */
+-	tx_remaining = hip04_tx_reclaim(ndev, false);
++	/* start a new timer if necessary */
+ 	if (rx < budget && tx_remaining)
+ 		hip04_start_tx_timer(priv);
  
 -- 
 2.20.1
