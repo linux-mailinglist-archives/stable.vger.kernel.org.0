@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC72C9E218
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA469E195
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730540AbfH0IQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45092 "EHLO mail.kernel.org"
+        id S1730493AbfH0H5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729818AbfH0Hxg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:36 -0400
+        id S1730482AbfH0H5v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 655A422CBB;
-        Tue, 27 Aug 2019 07:53:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A4B21872;
+        Tue, 27 Aug 2019 07:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892414;
-        bh=Vn3VQ9BO5RUW2G55zvoCymSiadZJ3yZF3cX1695rJNA=;
+        s=default; t=1566892669;
+        bh=VPxAhGcL0NP/ZPhlpyQqjGg5HeQhZ7Go2NsPXjoDRSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugSdQIyrLX4HJ3PsBFwJ7n7oWq7BJ/c8W+FK7zs2B3mK+uWF5L+RqjqW7iW+zuxV1
-         d/rp7Bw7gLTCDCGe+gE6gGXlGrsZFH4MujRhYig/LlfqrTgFuijd8enFjj9PeYA/s3
-         0sxNQMflsXy3SsxrsJdpYvaGbHnVGbL2llz6UkBg=
+        b=vd04nRaFpfR/FOr3eZDWph+nxYYeJQrQz4E5iGKve9Xop4BZPeh2HtTawIQRntXVc
+         goK0xE4RYNiCgqZFp+PbP8XbnuDFd0LI0QT7dmvjZbLih2X+OOdThDbTp9nrYevtdT
+         MHcae/OZUCZpkW7dC8emNj3LwAQc/RldXN6J9jpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -44,12 +44,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         "x86@kernel.org" <x86@kernel.org>
-Subject: [PATCH 4.14 46/62] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h
+Subject: [PATCH 4.19 72/98] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h
 Date:   Tue, 27 Aug 2019 09:50:51 +0200
-Message-Id: <20190827072703.201654412@linuxfoundation.org>
+Message-Id: <20190827072722.020603090@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -119,7 +119,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -3788,6 +3788,13 @@
+@@ -3948,6 +3948,13 @@
  			Run specified binary instead of /init from the ramdisk,
  			used for early userspace startup. See initrd.
  
@@ -132,7 +132,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
  	rdt=		[HW,X86,RDT]
  			Turn on/off individual RDT features. List is:
- 			cmt, mbmtotal, mbmlocal, l3cat, l3cdp, l2cat, mba.
+ 			cmt, mbmtotal, mbmlocal, l3cat, l3cdp, l2cat, l2cdp,
 --- a/arch/x86/include/asm/msr-index.h
 +++ b/arch/x86/include/asm/msr-index.h
 @@ -334,6 +334,7 @@
@@ -145,7 +145,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define MSR_AMD64_OSVW_STATUS		0xc0010141
 --- a/arch/x86/kernel/cpu/amd.c
 +++ b/arch/x86/kernel/cpu/amd.c
-@@ -772,6 +772,64 @@ static void init_amd_ln(struct cpuinfo_x
+@@ -799,6 +799,64 @@ static void init_amd_ln(struct cpuinfo_x
  	msr_set_bit(MSR_AMD64_DE_CFG, 31);
  }
  
@@ -210,7 +210,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static void init_amd_bd(struct cpuinfo_x86 *c)
  {
  	u64 value;
-@@ -786,6 +844,13 @@ static void init_amd_bd(struct cpuinfo_x
+@@ -813,6 +871,13 @@ static void init_amd_bd(struct cpuinfo_x
  			wrmsrl_safe(MSR_F15H_IC_CFG, value);
  		}
  	}
@@ -224,7 +224,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static void init_amd_zn(struct cpuinfo_x86 *c)
-@@ -828,6 +893,7 @@ static void init_amd(struct cpuinfo_x86
+@@ -855,6 +920,7 @@ static void init_amd(struct cpuinfo_x86
  	case 0x10: init_amd_gh(c); break;
  	case 0x12: init_amd_ln(c); break;
  	case 0x15: init_amd_bd(c); break;
