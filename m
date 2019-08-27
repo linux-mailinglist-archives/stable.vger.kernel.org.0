@@ -2,73 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE69E9DB6A
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 03:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F227C9DCDF
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 06:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbfH0BzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Aug 2019 21:55:02 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:40765 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727646AbfH0BzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 21:55:02 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 46HX4f0vmjz9s00;
-        Tue, 27 Aug 2019 11:54:58 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     David Sterba <dsterba@suse.cz>, Nikolay Borisov <nborisov@suse.com>
-Cc:     dsterba@suse.cz, Christophe Leroy <christophe.leroy@c-s.fr>,
-        erhard_f@mailbox.org, Chris Mason <clm@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH v2] btrfs: fix allocation of bitmap pages.
-In-Reply-To: <20190826164646.GX2752@twin.jikos.cz>
-References: <c3157c8e8e0e7588312b40c853f65c02fe6c957a.1566399731.git.christophe.leroy@c-s.fr> <20190826153757.GW2752@twin.jikos.cz> <a096d653-8b64-be15-3e81-581536a88e8a@suse.com> <20190826164646.GX2752@twin.jikos.cz>
-Date:   Tue, 27 Aug 2019 11:54:57 +1000
-Message-ID: <871rx74bke.fsf@concordia.ellerman.id.au>
+        id S1729009AbfH0E7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 00:59:03 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:33237 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726078AbfH0E7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 00:59:02 -0400
+Received: by mail-oi1-f195.google.com with SMTP id l2so13979067oil.0
+        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 21:59:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=y7cIzG0PVrRis126czyvwHkkalaXGhnWuRZIJrhxFOU=;
+        b=lvBYOrl+HIojGVugOJ6DCii+yEbR3bUjq6aH0gWQ81IY26bVugjIwXMKdYBU86V4NK
+         SJRtiusLyRMgC/RH80B9Vg4e/r7X4FdMna8sGMxeJUdXaylptCb3pX5MeTYr6WyboigN
+         7gw07VOt7TlFcRxY8vuHGlyCzsbf/1S8dyMdeCLbCWDI0j6QpEVHOpD/GnikFp4mN+Ya
+         FEKx2lbIPjiFR95LmMBGbjZw5lPWKH3ePNLywahL9QQ0nsNkeYM7by3VOFMUMeS5m2Ri
+         TgUo0gdb2ly2tO0Mpv5uFGSZOmygubq0ikyfIefmR0eBRkvqR9G0URo4OdnXevGEAXqz
+         P/Ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=y7cIzG0PVrRis126czyvwHkkalaXGhnWuRZIJrhxFOU=;
+        b=O4MoleEoZItfGswCZ/5hPX9qQN/6VKGVd52xaP0MoIbhqA3eaNzCBjg3blzQU0TJEr
+         wY/Tb6B0smyXCqbHMzrAcHJuI6tsvwyD//2qik3xfJXk1gMGEtYTNzvDL4lW2DcjPatM
+         2Z4G55IZ2KDctMJPEVM0vDhbAtgm1aw03FsMBI6WK4FsjKPuYvuDEdCLjrhLcmcGnRmw
+         F2jPdDwg1/R/VrTjU5edrhU3qXf6hinF9Wdi81G2g5qlAqa5oJIDNJrXoe9601ePf1CB
+         tPjPjR11GS/c8T7HSUvL1MkR0aumbYSFNIiS2z+hu7OecM816/Df3CrpKX78Ey0+ST4a
+         DHGg==
+X-Gm-Message-State: APjAAAUo4fFoGRGnbQf8OTEAdjlGyAIGd+0LdiK3jHt8DTU/KD84vOsW
+        i7wLr67WBTiH87B1TECSp6WXHtwpU5H4H/wOb/g=
+X-Google-Smtp-Source: APXvYqy04LqpJ/5nGy3bYDZSBW8ZxzlIVpgFM8hcEq8OD5T/g5K8kPLFrWrZfxQEMeewn7t2rdlLofB4ttPlQhiKfk4=
+X-Received: by 2002:aca:4a81:: with SMTP id x123mr15220707oia.87.1566881941888;
+ Mon, 26 Aug 2019 21:59:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+Received: by 2002:a05:6830:1543:0:0:0:0 with HTTP; Mon, 26 Aug 2019 21:59:01
+ -0700 (PDT)
+Reply-To: ayishagddafio@mail.com
+From:   AISHA GADDAFI <yakissattajustin@gmail.com>
+Date:   Mon, 26 Aug 2019 21:59:01 -0700
+Message-ID: <CALn3PExzBHLa1_tDPVZi2yADw38dm30bMOpACq5=wR2yaVxfog@mail.gmail.com>
+Subject: Dear Friend (Assalamu Alaikum),
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-David Sterba <dsterba@suse.cz> writes:
-> On Mon, Aug 26, 2019 at 06:40:24PM +0300, Nikolay Borisov wrote:
->> >> Link: https://bugzilla.kernel.org/show_bug.cgi?id=204371
->> >> Fixes: 69d2480456d1 ("btrfs: use copy_page for copying pages instead of memcpy")
->> >> Cc: stable@vger.kernel.org
->> >> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
->> >> ---
->> >> v2: Using kmem_cache instead of get_zeroed_page() in order to benefit from SLAB debugging features like redzone.
->> > 
->> > I'll take this version, thanks. Though I'm not happy about the allocator
->> > behaviour. The kmem cache based fix can be backported independently to
->> > 4.19 regardless of the SL*B fixes.
->> > 
->> >> +extern struct kmem_cache *btrfs_bitmap_cachep;
->> > 
->> > I've renamed the cache to btrfs_free_space_bitmap_cachep
->> > 
->> > Reviewed-by: David Sterba <dsterba@suse.com>
->> 
->> Isn't this obsoleted by
->> 
->> '[PATCH v2 0/2] guarantee natural alignment for kmalloc()' ?
->
-> Yeah, but this would add maybe another whole dev cycle to merge and
-> release. The reporters of the bug seem to care enough to identify the
-> problem and propose the fix so I feel like adding the btrfs-specific fix
-> now is a little favor we can afford.
->
-> The bug is reproduced on an architecture that's not widely tested so
-> from practical POV I think this adds more coverage which is desirable.
+-- 
+Dear Friend (Assalamu Alaikum),
 
-Thanks.
+I came across your e-mail contact prior a private search while in need of
+your assistance. My name is Aisha  Al-Qaddafi a single Mother and a Widow
+with three Children. I am the only biological Daughter of late Libyan
+President (Late Colonel Muammar Gaddafi).
 
-cheers
+I have investment funds worth Twenty Seven Million Five Hundred Thousand
+United State Dollar ($27.500.000.00 ) and i need a trusted investment
+Manager/Partner because of my current refugee status, however, I am
+interested in you for investment project assistance in your country, may be
+from there, we can build business relationship in the nearest future.
+
+I am willing to negotiate investment/business profit sharing ratio with you
+base on the future investment earning profits.
+
+If you are willing to handle this project on my behalf kindly reply urgent
+to enable me provide you more information about the investment funds.
+
+Your Urgent Reply Will Be Appreciated. write me at this email address(
+ayishagddafio@mail.com ) for further discussion.
+
+Best Regards
+Mrs Aisha Al-Qaddafi
+Reply to: ayishagddafio@mail.com
