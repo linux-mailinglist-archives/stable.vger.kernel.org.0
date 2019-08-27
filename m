@@ -2,58 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5649F23D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F369F245
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbfH0SVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 14:21:53 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55917 "EHLO mx1.redhat.com"
+        id S1727401AbfH0SZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 14:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727064AbfH0SVx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 14:21:53 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727064AbfH0SZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 14:25:38 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 22E8F18C891C
-        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 18:21:53 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-120-245.rdu2.redhat.com [10.10.120.245])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D133060632;
-        Tue, 27 Aug 2019 18:21:46 +0000 (UTC)
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Cc:     CKI Project <cki-project@redhat.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Subject: [INFO] Testing LTP directly from github
-Message-ID: <122d7241-86b1-f750-ace3-37378a29ea1c@redhat.com>
-Date:   Tue, 27 Aug 2019 14:21:46 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        by mail.kernel.org (Postfix) with ESMTPSA id B3AE2217F5;
+        Tue, 27 Aug 2019 18:25:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566930338;
+        bh=5YuhsMUYWhySLtlIz2oPLVg9P5dV8mJMaEBHe3mss04=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BuuKMT4xoImODw3U2iUm6Gwszvq+Ugxa0FcOJm8qJEkIUkk2z6rbS7s1k8Sc3j8v2
+         jr+l+2iSHKzF2ahKrf8cGEtC9GRsxQQwmvFa0mTJ8yGbOm8hZAMHFoGBC1FFHtJzEO
+         tFnepD/Ghvm1tmOaEhmFcn+rSrPtKY8pT6G2hRBs=
+Date:   Tue, 27 Aug 2019 14:25:36 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Major Hayden <major@mhtx.net>,
+        CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Yi Zhang <yi.zhang@redhat.com>, Xiumei Mu <xmu@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>, Ying Xu <yinxu@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.2.11-rc1-9f63171.cki (stable)
+Message-ID: <20190827182536.GS5281@sasha-vm>
+References: <cki.98AD376375.DJWRK5AJEY@redhat.com>
+ <291770ce-273a-68aa-a4a2-7655cbea2bcc@mhtx.net>
+ <20190827170518.GB21369@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Tue, 27 Aug 2019 18:21:53 +0000 (UTC)
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190827170518.GB21369@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Tue, Aug 27, 2019 at 07:05:18PM +0200, Greg KH wrote:
+>On Tue, Aug 27, 2019 at 09:35:30AM -0500, Major Hayden wrote:
+>> On 8/27/19 7:31 AM, CKI Project wrote:
+>> >   x86_64:
+>> >       Host 2:
+>> >          ❌ Networking socket: fuzz [9]
+>> >          ❌ Networking sctp-auth: sockopts test [10]
+>>
+>> It looks like there was an oops when these tests ran on 5.2.11-rc1 and the last set of patches in stable-queue:
+>
+>Can you bisect?
 
-The CKI team will be updating the current LTP version to fetch directly 
-from GitHub using a recent stable
-commit.
+I think I've fixed it, let's see what happens next run.
 
-We were previously using the latest stable release (20190517), however 
-we would like to use a later version
-of LTP to encourage more upstream LTP collaboration. Newer releases pull 
-in recent test case fixes and help
-us find more kernel bugs. :-)
-
-The test will initially be set to the waived status until we trust that 
-it's going to be stable enough to
-run in the pipeline. We will continue to monitor the progress, but 
-wanted to make you aware of
-these changes.
-
-- Rachel
+--
+Thanks,
+Sasha
