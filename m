@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 565AF9E0A9
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C919E0B0
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732000AbfH0IEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:04:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33554 "EHLO mail.kernel.org"
+        id S1732583AbfH0IEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:04:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730431AbfH0IEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:04:13 -0400
+        id S1730668AbfH0IEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:04:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63F78206BA;
-        Tue, 27 Aug 2019 08:04:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0E42206BA;
+        Tue, 27 Aug 2019 08:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893052;
-        bh=CeETEi2Wr7r5E+0ckBNN9DI8p3w6xM9/Ulo1YSbBOMA=;
+        s=default; t=1566893072;
+        bh=hNum6xY1ZxdFXvz+d1ludW6VEn5ALBpiGz7sSOzKs3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1s3HC2oIRV/h74rMSL+fLFRcIf6owrajlkWQh6DJ+riLkfiVFtGutYzhK9xeuRBA
-         cFoawWtJVLSkj7+URIP9Oj9+duuJ4nZ8TsjUlCeU11LkyVtIOFFmVTgHS603iOHpRE
-         f9EcAI/Ibkb42ktCpUjKK8Je1PHN7DVutN/FIrSM=
+        b=jFNBns9uZKA5Kgppjdze725rl9cp5N8GEewZgZCbo4bFicrxmNcLWP1yNPwYGEj3p
+         Y5C61Tojgzx1mYu8fBQicLT0EIvB0DWF7fbcsZxXOsuF2245zevEOzMHjroScUHTNb
+         ir5berFvKvvLPiztZLrone+cgvs52OuYIEiv+eLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@google.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Doug Anderson <dianders@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 102/162] block, bfq: handle NULL return value by bfq_init_rq()
-Date:   Tue, 27 Aug 2019 09:50:30 +0200
-Message-Id: <20190827072741.819216658@linuxfoundation.org>
+        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 104/162] perf cpumap: Fix writing to illegal memory in handling cpumap mask
+Date:   Tue, 27 Aug 2019 09:50:32 +0200
+Message-Id: <20190827072741.914554536@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -47,74 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fd03177c33b287c6541f4048f1d67b7b45a1abc9 ]
+[ Upstream commit 5f5e25f1c7933a6e1673515c0b1d5acd82fea1ed ]
 
-As reported in [1], the call bfq_init_rq(rq) may return NULL in case
-of OOM (in particular, if rq->elv.icq is NULL because memory
-allocation failed in failed in ioc_create_icq()).
+cpu_map__snprint_mask() would write to illegal memory pointed by
+zalloc(0) when there is only one cpu.
 
-This commit handles this circumstance.
+This patch fixes the calculation and adds sanity check against the input
+parameters.
 
-[1] https://lkml.org/lkml/2019/7/22/824
-
-Cc: Hsin-Yi Wang <hsinyi@google.com>
-Cc: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Doug Anderson <dianders@chromium.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: Hsin-Yi Wang <hsinyi@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: He Zhe <zhe.he@windriver.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Fixes: 4400ac8a9a90 ("perf cpumap: Introduce cpu_map__snprint_mask()")
+Link: http://lkml.kernel.org/r/1564734592-15624-2-git-send-email-zhe.he@windriver.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ tools/perf/util/cpumap.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 404e776aa36d0..b528710364e9e 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2085,9 +2085,14 @@ static void bfq_request_merged(struct request_queue *q, struct request *req,
- 	    blk_rq_pos(container_of(rb_prev(&req->rb_node),
- 				    struct request, rb_node))) {
- 		struct bfq_queue *bfqq = bfq_init_rq(req);
--		struct bfq_data *bfqd = bfqq->bfqd;
-+		struct bfq_data *bfqd;
- 		struct request *prev, *next_rq;
+diff --git a/tools/perf/util/cpumap.c b/tools/perf/util/cpumap.c
+index 0b599229bc7e9..0aba5b39c21ef 100644
+--- a/tools/perf/util/cpumap.c
++++ b/tools/perf/util/cpumap.c
+@@ -701,7 +701,10 @@ size_t cpu_map__snprint_mask(struct cpu_map *map, char *buf, size_t size)
+ 	unsigned char *bitmap;
+ 	int last_cpu = cpu_map__cpu(map, map->nr - 1);
  
-+		if (!bfqq)
-+			return;
+-	bitmap = zalloc((last_cpu + 7) / 8);
++	if (buf == NULL)
++		return 0;
 +
-+		bfqd = bfqq->bfqd;
-+
- 		/* Reposition request in its sort_list */
- 		elv_rb_del(&bfqq->sort_list, req);
- 		elv_rb_add(&bfqq->sort_list, req);
-@@ -2134,6 +2139,9 @@ static void bfq_requests_merged(struct request_queue *q, struct request *rq,
- 	struct bfq_queue *bfqq = bfq_init_rq(rq),
- 		*next_bfqq = bfq_init_rq(next);
- 
-+	if (!bfqq)
-+		return;
-+
- 	/*
- 	 * If next and rq belong to the same bfq_queue and next is older
- 	 * than rq, then reposition rq in the fifo (by substituting next
-@@ -5061,12 +5069,12 @@ static void bfq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
- 
- 	spin_lock_irq(&bfqd->lock);
- 	bfqq = bfq_init_rq(rq);
--	if (at_head || blk_rq_is_passthrough(rq)) {
-+	if (!bfqq || at_head || blk_rq_is_passthrough(rq)) {
- 		if (at_head)
- 			list_add(&rq->queuelist, &bfqd->dispatch);
- 		else
- 			list_add_tail(&rq->queuelist, &bfqd->dispatch);
--	} else { /* bfqq is assumed to be non null here */
-+	} else {
- 		idle_timer_disabled = __bfq_insert_request(bfqd, rq);
- 		/*
- 		 * Update bfqq, because, if a queue merge has occurred
++	bitmap = zalloc(last_cpu / 8 + 1);
+ 	if (bitmap == NULL) {
+ 		buf[0] = '\0';
+ 		return 0;
 -- 
 2.20.1
 
