@@ -2,65 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 903EB9F2B2
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2737D9F2C5
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730229AbfH0Swl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 14:52:41 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:53594 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729696AbfH0Swl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 14:52:41 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5DF7A10C6354;
-        Tue, 27 Aug 2019 18:52:41 +0000 (UTC)
-Received: from flask (unknown [10.43.2.55])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 543355D6B0;
-        Tue, 27 Aug 2019 18:52:38 +0000 (UTC)
-Received: by flask (sSMTP sendmail emulation); Tue, 27 Aug 2019 20:52:37 +0200
-Date:   Tue, 27 Aug 2019 20:52:37 +0200
-From:   Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Roman Kagan <rkagan@virtuozzo.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] KVM: x86: hyper-v: don't crash on
- KVM_GET_SUPPORTED_HV_CPUID when kvm_intel.nested is disabled
-Message-ID: <20190827185237.GD65641@flask>
-References: <20190827160404.14098-1-vkuznets@redhat.com>
- <20190827160404.14098-2-vkuznets@redhat.com>
+        id S1730496AbfH0S5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 14:57:30 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:47076 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730486AbfH0S5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 14:57:30 -0400
+Received: by mail-wr1-f66.google.com with SMTP id z1so19852199wru.13
+        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 11:57:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=tJ6JT4mbjmxDTtYCcCKRvbFj/AkxPciRIoJmoc0g31o=;
+        b=MJqEOi1NoCd2mhJx7tOLWZaAjI+lCk6fg1tcgwfApTvtHFq/4zZtjuW8lyfZevogDL
+         H6na8WULWU5JkLg3hyOUuFqtwlYKbbIyzIhwkttN4EIr4KlIrDO6ht30pGIpWWLYbttk
+         bZbBqZzOHRLPWOMbAIWu7v7LG0mLraGJLnGHVCHu41V79Jz9V6l4Wxdf7NtlbFKuKtWL
+         lJYYkj6EJcoR+QJMRmBR3ITPmvFEvLltE/zg2rIScof0B//bgHLvu8Xbb+XW7XB2qFoh
+         1MMYKQI85NSPjvXf0RoBtsDoW0KwRFeVvaptsEV1K2IaWkeHB1TNGUDbZINKzhBDnzIZ
+         Twsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=tJ6JT4mbjmxDTtYCcCKRvbFj/AkxPciRIoJmoc0g31o=;
+        b=iOvxebB0JeS7kRMJ4jd7icNxAdqud0nZWVJrUkVT/uPdjt+/82aAYGl4GFPBujnWwU
+         CSN+nEY+XG8cOlM2TYZpXZKTRnxUE2L4Q91MY9m+hBw02IwmpH+TIiRwoFD+FqqQEpo1
+         KD9SvSZ41TAzbnQrxhtm2R3xEbKoDCy0E+rBa48A0TSpBbpE4ya46w7B70q/uVZzYCBp
+         E4IAGSSlNhDagY0OUSIqbtzhKPV/2DFX0XBQQq+Ep2zl3LDdtGN5RYCCR4ZHJAugdYq+
+         lpZOL1egHi+VaKI6TNYv7Oant8JbOU+qJtiuGZbS/3ayoSPBtZeL31kWc4SfSWhKhfL9
+         w30g==
+X-Gm-Message-State: APjAAAUOdn7mjue7ZtquYz0dAHfh/t+rxsajxJ1JAo4Rk9yv0HVaju29
+        xBaQNsomR13dbQNRaA1GRlp3WtmnqJKhPw==
+X-Google-Smtp-Source: APXvYqzEcEEoekfXHv3LhSxYPlOoKLqWjAz+ESX9lss5oqdxBTsOVRcbN5+F3Pl+wt4+vK2Slj0UoA==
+X-Received: by 2002:a5d:5112:: with SMTP id s18mr5838644wrt.34.1566932248116;
+        Tue, 27 Aug 2019 11:57:28 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f17sm11316wmj.27.2019.08.27.11.57.26
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 27 Aug 2019 11:57:27 -0700 (PDT)
+Message-ID: <5d657d17.1c69fb81.7742d.00d6@mx.google.com>
+Date:   Tue, 27 Aug 2019 11:57:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190827160404.14098-2-vkuznets@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.64]); Tue, 27 Aug 2019 18:52:41 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.10-163-g9f631715ffe6
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
+Subject: Re: [PATCH 5.2 000/162] 5.2.11-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2019-08-27 18:04+0200, Vitaly Kuznetsov:
-> If kvm_intel is loaded with nested=0 parameter an attempt to perform
-> KVM_GET_SUPPORTED_HV_CPUID results in OOPS as nested_get_evmcs_version hook
-> in kvm_x86_ops is NULL (we assign it in nested_vmx_hardware_setup() and
-> this only happens in case nested is enabled).
-> 
-> Check that kvm_x86_ops->nested_get_evmcs_version is not NULL before
-> calling it. With this, we can remove the stub from svm as it is no
-> longer needed.
-> 
+stable-rc/linux-5.2.y boot: 149 boots: 2 failed, 137 passed with 8 offline,=
+ 2 untried/unknown (v5.2.10-163-g9f631715ffe6)
 
-Added
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.10-163-g9f631715ffe6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.10-163-g9f631715ffe6/
 
-Cc: <stable@vger.kernel.org>
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.10-163-g9f631715ffe6
+Git Commit: 9f631715ffe68666bbe4c5f7ad0dfc1ed387e1a1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 83 unique boards, 26 SoC families, 15 builds out of 209
 
-> Fixes: e2e871ab2f02 ("x86/kvm/hyper-v: Introduce nested_get_evmcs_version() helper")
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Boot Regressions Detected:
 
-and applied, thanks.
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 12 days (last pass: v5.2.=
+8 - first fail: v5.2.8-145-g2440e485aeda)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: failing since 12 days (last pass: v5.2.=
+8 - first fail: v5.2.8-145-g2440e485aeda)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v5.2.9-135-gf5284fbdcd3=
+4)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-g12a-sei510:
+              lab-baylibre: new failure (last pass: v5.2.9-135-gf5284fbdcd3=
+4)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
