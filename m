@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41AE9E05F
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8079E061
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732160AbfH0IDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:03:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60378 "EHLO mail.kernel.org"
+        id S1731413AbfH0IDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732194AbfH0IDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:04 -0400
+        id S1731696AbfH0IDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A18B206BF;
-        Tue, 27 Aug 2019 08:03:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D40206BA;
+        Tue, 27 Aug 2019 08:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892983;
-        bh=sERXVAUQL0WXqPWiqdhEpxNm86OC64R5zrZRprdxLpk=;
+        s=default; t=1566892986;
+        bh=MhsFc+QRsWTNNcT+24bWzeeQwJHKtt8UKjhaEbwPOEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1W+FjBJPqDdqk7yEvdO0FeLiCphje+ksAPayN/EfMK44A18dzVnV1uWvRpZsV0ZUh
-         fCM/2Lo09s4aOX/Zw7Vs1cz0Y94ovMige6kdSPK/YPmAAsQkjynapp8NY0bKcPUFR/
-         WfkdevF4pWggyd5974Oy0lPLhHIJaEyUBR8cLdMw=
+        b=PCfdAL81DhghY1pNDndVOgeWfrq4C41v5mTQQXNCLG7LSxZUiXqxZ65cSn6zhkYXI
+         sg6gZovsXfsX79gqIEqS5JFNqrQFgjvWwqJ/8c5ig09a+7ZLsKWZ8sZNSAvoqbeDBd
+         2qBfs9FtgW7uJnOVVt0IpFnVE/tRWJtOwgo/191s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Luca Abeni <luca.abeni@santannapisa.it>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Qais Yousef <qais.yousef@arm.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 082/162] sched/deadline: Fix double accounting of rq/running bw in push & pull
-Date:   Tue, 27 Aug 2019 09:50:10 +0200
-Message-Id: <20190827072740.978380340@linuxfoundation.org>
+Subject: [PATCH 5.2 083/162] sched/psi: Reduce psimon FIFO priority
+Date:   Tue, 27 Aug 2019 09:50:11 +0200
+Message-Id: <20190827072741.016547724@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -51,67 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4904815f97a934258445a8f763f6b6c48f007e7 ]
+[ Upstream commit 14f5c7b46a41a595fc61db37f55721714729e59e ]
 
-{push,pull}_dl_task() always calls {de,}activate_task() with .flags=0
-which sets p->on_rq=TASK_ON_RQ_MIGRATING.
+PSI defaults to a FIFO-99 thread, reduce this to FIFO-1.
 
-{push,pull}_dl_task()->{de,}activate_task()->{de,en}queue_task()->
-{de,en}queue_task_dl() calls {sub,add}_{running,rq}_bw() since
-p->on_rq==TASK_ON_RQ_MIGRATING.
-So {sub,add}_{running,rq}_bw() in {push,pull}_dl_task() is
-double-accounting for that task.
+FIFO-99 is the very highest priority available to SCHED_FIFO and
+it not a suitable default; it would indicate the psi work is the
+most important work on the machine.
 
-Fix it by removing rq/running bw accounting in [push/pull]_dl_task().
+Since Real-Time tasks will have pre-allocated memory and locked it in
+place, Real-Time tasks do not care about PSI. All it needs is to be
+above OTHER.
 
-Fixes: 7dd778841164 ("sched/core: Unify p->on_rq updates")
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Luca Abeni <luca.abeni@santannapisa.it>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Qais Yousef <qais.yousef@arm.com>
-Link: https://lkml.kernel.org/r/20190802145945.18702-2-dietmar.eggemann@arm.com
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Tested-by: Suren Baghdasaryan <surenb@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/deadline.c | 8 --------
- 1 file changed, 8 deletions(-)
+ kernel/sched/psi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 43901fa3f2693..1c66480afda81 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -2088,17 +2088,13 @@ retry:
- 	}
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 7acc632c3b82b..7fe2c5fd26b54 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1051,7 +1051,7 @@ struct psi_trigger *psi_trigger_create(struct psi_group *group,
  
- 	deactivate_task(rq, next_task, 0);
--	sub_running_bw(&next_task->dl, &rq->dl);
--	sub_rq_bw(&next_task->dl, &rq->dl);
- 	set_task_cpu(next_task, later_rq->cpu);
--	add_rq_bw(&next_task->dl, &later_rq->dl);
- 
- 	/*
- 	 * Update the later_rq clock here, because the clock is used
- 	 * by the cpufreq_update_util() inside __add_running_bw().
- 	 */
- 	update_rq_clock(later_rq);
--	add_running_bw(&next_task->dl, &later_rq->dl);
- 	activate_task(later_rq, next_task, ENQUEUE_NOCLOCK);
- 	ret = 1;
- 
-@@ -2186,11 +2182,7 @@ static void pull_dl_task(struct rq *this_rq)
- 			resched = true;
- 
- 			deactivate_task(src_rq, p, 0);
--			sub_running_bw(&p->dl, &src_rq->dl);
--			sub_rq_bw(&p->dl, &src_rq->dl);
- 			set_task_cpu(p, this_cpu);
--			add_rq_bw(&p->dl, &this_rq->dl);
--			add_running_bw(&p->dl, &this_rq->dl);
- 			activate_task(this_rq, p, 0);
- 			dmin = p->dl.deadline;
+ 	if (!rcu_access_pointer(group->poll_kworker)) {
+ 		struct sched_param param = {
+-			.sched_priority = MAX_RT_PRIO - 1,
++			.sched_priority = 1,
+ 		};
+ 		struct kthread_worker *kworker;
  
 -- 
 2.20.1
