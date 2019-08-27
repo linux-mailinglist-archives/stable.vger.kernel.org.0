@@ -2,115 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8979F691
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 01:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F8B9F695
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 01:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726068AbfH0XJR convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 27 Aug 2019 19:09:17 -0400
-Received: from imap1.codethink.co.uk ([176.9.8.82]:58903 "EHLO
+        id S1726034AbfH0XKL convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 27 Aug 2019 19:10:11 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:58921 "EHLO
         imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726044AbfH0XJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 19:09:17 -0400
+        with ESMTP id S1726030AbfH0XKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 19:10:11 -0400
 Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
         by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1i2kaP-0000fp-F9; Wed, 28 Aug 2019 00:09:13 +0100
-Date:   Wed, 28 Aug 2019 00:09:06 +0100
+        id 1i2kbH-0000hH-KI; Wed, 28 Aug 2019 00:10:07 +0100
+Date:   Wed, 28 Aug 2019 00:10:06 +0100
 From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable <stable@vger.kernel.org>
-Subject: [PATCH 4.4 01/13] GFS2: don't set rgrp gl_object until it's inserted
- into rgrp tree
-Message-ID: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
+Subject: [PATCH 4.4 02/13] net: arc_emac: fix koops caused by sk_buff free
+Message-ID: <20190827231005.GB11046@xylophone.i.decadent.org.uk>
+References: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Alexander Kochetkov <al.kochet@gmail.com>
 
-commit 36e4ad0316c017d5b271378ed9a1c9a4b77fab5f upstream.
+commit c278c253f3d992c6994d08aa0efb2b6806ca396f upstream.
 
-Before this patch, function read_rindex_entry would set a rgrp
-glock's gl_object pointer to itself before inserting the rgrp into
-the rgrp rbtree. The problem is: if another process was also reading
-the rgrp in, and had already inserted its newly created rgrp, then
-the second call to read_rindex_entry would overwrite that value,
-then return a bad return code to the caller. Later, other functions
-would reference the now-freed rgrp memory by way of gl_object.
-In some cases, that could result in gfs2_rgrp_brelse being called
-twice for the same rgrp: once for the failed attempt and once for
-the "real" rgrp release. Eventually the kernel would panic.
-There are also a number of other things that could go wrong when
-a kernel module is accessing freed storage. For example, this could
-result in rgrp corruption because the fake rgrp would point to a
-fake bitmap in memory too, causing gfs2_inplace_reserve to search
-some random memory for free blocks, and find some, since we were
-never setting rgd->rd_bits to NULL before freeing it.
+There is a race between arc_emac_tx() and arc_emac_tx_clean().
+sk_buff got freed by arc_emac_tx_clean() while arc_emac_tx()
+submitting sk_buff.
 
-This patch fixes the problem by not setting gl_object until we
-have successfully inserted the rgrp into the rbtree. Also, it sets
-rd_bits to NULL as it frees them, which will ensure any accidental
-access to the wrong rgrp will result in a kernel panic rather than
-file system corruption, which is preferred.
+In order to free sk_buff arc_emac_tx_clean() checks:
+    if ((info & FOR_EMAC) || !txbd->data)
+        break;
+    ...
+    dev_kfree_skb_irq(skb);
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-[bwh: Backported to 4.4: adjust context]
+If condition false, arc_emac_tx_clean() free sk_buff.
+
+In order to submit txbd, arc_emac_tx() do:
+    priv->tx_buff[*txbd_curr].skb = skb;
+    ...
+    priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
+    ...
+    ...  <== arc_emac_tx_clean() check condition here
+    ...  <== (info & FOR_EMAC) is false
+    ...  <== !txbd->data is false
+    ...
+    *info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
+
+In order to reproduce the situation,
+run device:
+    # iperf -s
+run on host:
+    # iperf -t 600 -c <device-ip-addr>
+
+[   28.396284] ------------[ cut here ]------------
+[   28.400912] kernel BUG at .../net/core/skbuff.c:1355!
+[   28.414019] Internal error: Oops - BUG: 0 [#1] SMP ARM
+[   28.419150] Modules linked in:
+[   28.422219] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B           4.4.0+ #120
+[   28.429516] Hardware name: Rockchip (Device Tree)
+[   28.434216] task: c0665070 ti: c0660000 task.ti: c0660000
+[   28.439622] PC is at skb_put+0x10/0x54
+[   28.443381] LR is at arc_emac_poll+0x260/0x474
+[   28.447821] pc : [<c03af580>]    lr : [<c028fec4>]    psr: a0070113
+[   28.447821] sp : c0661e58  ip : eea68502  fp : ef377000
+[   28.459280] r10: 0000012c  r9 : f08b2000  r8 : eeb57100
+[   28.464498] r7 : 00000000  r6 : ef376594  r5 : 00000077  r4 : ef376000
+[   28.471015] r3 : 0030488b  r2 : ef13e880  r1 : 000005ee  r0 : eeb57100
+[   28.477534] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   28.484658] Control: 10c5387d  Table: 8eaf004a  DAC: 00000051
+[   28.490396] Process swapper/0 (pid: 0, stack limit = 0xc0660210)
+[   28.496393] Stack: (0xc0661e58 to 0xc0662000)
+[   28.500745] 1e40:                                                       00000002 00000000
+[   28.508913] 1e60: 00000000 ef376520 00000028 f08b23b8 00000000 ef376520 ef7b6900 c028fc64
+[   28.517082] 1e80: 2f158000 c0661ea8 c0661eb0 0000012c c065e900 c03bdeac ffff95e9 c0662100
+[   28.525250] 1ea0: c0663924 00000028 c0661ea8 c0661ea8 c0661eb0 c0661eb0 0000001e c0660000
+[   28.533417] 1ec0: 40000003 00000008 c0695a00 0000000a c066208c 00000100 c0661ee0 c0027410
+[   28.541584] 1ee0: ef0fb700 2f158000 00200000 ffff95e8 00000004 c0662100 c0662080 00000003
+[   28.549751] 1f00: 00000000 00000000 00000000 c065b45c 0000001e ef005000 c0647a30 00000000
+[   28.557919] 1f20: 00000000 c0027798 00000000 c005cf40 f0802100 c0662ffc c0661f60 f0803100
+[   28.566088] 1f40: c0661fb8 c00093bc c000ffb4 60070013 ffffffff c0661f94 c0661fb8 c00137d4
+[   28.574267] 1f60: 00000001 00000000 00000000 c001ffa0 00000000 c0660000 00000000 c065a364
+[   28.582441] 1f80: c0661fb8 c0647a30 00000000 00000000 00000000 c0661fb0 c000ffb0 c000ffb4
+[   28.590608] 1fa0: 60070013 ffffffff 00000051 00000000 00000000 c005496c c0662400 c061bc40
+[   28.598776] 1fc0: ffffffff ffffffff 00000000 c061b680 00000000 c0647a30 00000000 c0695294
+[   28.606943] 1fe0: c0662488 c0647a2c c066619c 6000406a 413fc090 6000807c 00000000 00000000
+[   28.615127] [<c03af580>] (skb_put) from [<ef376520>] (0xef376520)
+[   28.621218] Code: e5902054 e590c090 e3520000 0a000000 (e7f001f2)
+[   28.627307] ---[ end trace 4824734e2243fdb6 ]---
+
+[   34.377068] Internal error: Oops: 17 [#1] SMP ARM
+[   34.382854] Modules linked in:
+[   34.385947] CPU: 0 PID: 3 Comm: ksoftirqd/0 Not tainted 4.4.0+ #120
+[   34.392219] Hardware name: Rockchip (Device Tree)
+[   34.396937] task: ef02d040 ti: ef05c000 task.ti: ef05c000
+[   34.402376] PC is at __dev_kfree_skb_irq+0x4/0x80
+[   34.407121] LR is at arc_emac_poll+0x130/0x474
+[   34.411583] pc : [<c03bb640>]    lr : [<c028fd94>]    psr: 60030013
+[   34.411583] sp : ef05de68  ip : 0008e83c  fp : ef377000
+[   34.423062] r10: c001bec4  r9 : 00000000  r8 : f08b24c8
+[   34.428296] r7 : f08b2400  r6 : 00000075  r5 : 00000019  r4 : ef376000
+[   34.434827] r3 : 00060000  r2 : 00000042  r1 : 00000001  r0 : 00000000
+[   34.441365] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   34.448507] Control: 10c5387d  Table: 8f25c04a  DAC: 00000051
+[   34.454262] Process ksoftirqd/0 (pid: 3, stack limit = 0xef05c210)
+[   34.460449] Stack: (0xef05de68 to 0xef05e000)
+[   34.464827] de60:                   ef376000 c028fd94 00000000 c0669480 c0669480 ef376520
+[   34.473022] de80: 00000028 00000001 00002ae4 ef376520 ef7b6900 c028fc64 2f158000 ef05dec0
+[   34.481215] dea0: ef05dec8 0000012c c065e900 c03bdeac ffff983f c0662100 c0663924 00000028
+[   34.489409] dec0: ef05dec0 ef05dec0 ef05dec8 ef05dec8 ef7b6000 ef05c000 40000003 00000008
+[   34.497600] dee0: c0695a00 0000000a c066208c 00000100 ef05def8 c0027410 ef7b6000 40000000
+[   34.505795] df00: 04208040 ffff983e 00000004 c0662100 c0662080 00000003 ef05c000 ef027340
+[   34.513985] df20: ef05c000 c0666c2c 00000000 00000001 00000002 00000000 00000000 c0027568
+[   34.522176] df40: ef027340 c003ef48 ef027300 00000000 ef027340 c003edd4 00000000 00000000
+[   34.530367] df60: 00000000 c003c37c ffffff7f 00000001 00000000 ef027340 00000000 00030003
+[   34.538559] df80: ef05df80 ef05df80 00000000 00000000 ef05df90 ef05df90 ef05dfac ef027300
+[   34.546750] dfa0: c003c2a4 00000000 00000000 c000f578 00000000 00000000 00000000 00000000
+[   34.554939] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   34.563129] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000 ffffffff dfff7fff
+[   34.571360] [<c03bb640>] (__dev_kfree_skb_irq) from [<c028fd94>] (arc_emac_poll+0x130/0x474)
+[   34.579840] [<c028fd94>] (arc_emac_poll) from [<c03bdeac>] (net_rx_action+0xdc/0x28c)
+[   34.587712] [<c03bdeac>] (net_rx_action) from [<c0027410>] (__do_softirq+0xcc/0x1f8)
+[   34.595482] [<c0027410>] (__do_softirq) from [<c0027568>] (run_ksoftirqd+0x2c/0x50)
+[   34.603168] [<c0027568>] (run_ksoftirqd) from [<c003ef48>] (smpboot_thread_fn+0x174/0x18c)
+[   34.611466] [<c003ef48>] (smpboot_thread_fn) from [<c003c37c>] (kthread+0xd8/0xec)
+[   34.619075] [<c003c37c>] (kthread) from [<c000f578>] (ret_from_fork+0x14/0x3c)
+[   34.626317] Code: e8bd8010 e3a00000 e12fff1e e92d4010 (e59030a4)
+[   34.632572] ---[ end trace cca5a3d86a82249a ]---
+
+Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- fs/gfs2/rgrp.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/arc/emac_main.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index ef24894edecc..9c159e6ad116 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -739,6 +739,7 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
+diff --git a/drivers/net/ethernet/arc/emac_main.c b/drivers/net/ethernet/arc/emac_main.c
+index 9cc5daed13ed..b0285ac203f0 100644
+--- a/drivers/net/ethernet/arc/emac_main.c
++++ b/drivers/net/ethernet/arc/emac_main.c
+@@ -163,7 +163,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
+ 		struct sk_buff *skb = tx_buff->skb;
+ 		unsigned int info = le32_to_cpu(txbd->info);
  
- 		gfs2_free_clones(rgd);
- 		kfree(rgd->rd_bits);
-+		rgd->rd_bits = NULL;
- 		return_all_reservations(rgd);
- 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
+-		if ((info & FOR_EMAC) || !txbd->data)
++		if ((info & FOR_EMAC) || !txbd->data || !skb)
+ 			break;
+ 
+ 		if (unlikely(info & (DROP | DEFR | LTCL | UFLO))) {
+@@ -191,6 +191,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
+ 
+ 		txbd->data = 0;
+ 		txbd->info = 0;
++		tx_buff->skb = NULL;
+ 
+ 		*txbd_dirty = (*txbd_dirty + 1) % TX_BD_NUM;
  	}
-@@ -933,10 +934,6 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	if (error)
- 		goto fail;
+@@ -619,7 +620,6 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
+ 	dma_unmap_addr_set(&priv->tx_buff[*txbd_curr], addr, addr);
+ 	dma_unmap_len_set(&priv->tx_buff[*txbd_curr], len, len);
  
--	rgd->rd_gl->gl_object = rgd;
--	rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_CACHE_MASK;
--	rgd->rd_gl->gl_vm.end = PAGE_CACHE_ALIGN((rgd->rd_addr +
--						  rgd->rd_length) * bsize) - 1;
- 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
- 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
- 	if (rgd->rd_data > sdp->sd_max_rg_data)
-@@ -944,14 +941,20 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	spin_lock(&sdp->sd_rindex_spin);
- 	error = rgd_insert(rgd);
- 	spin_unlock(&sdp->sd_rindex_spin);
--	if (!error)
-+	if (!error) {
-+		rgd->rd_gl->gl_object = rgd;
-+		rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_MASK;
-+		rgd->rd_gl->gl_vm.end = PAGE_ALIGN((rgd->rd_addr +
-+						    rgd->rd_length) * bsize) - 1;
- 		return 0;
-+	}
+-	priv->tx_buff[*txbd_curr].skb = skb;
+ 	priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
  
- 	error = 0; /* someone else read in the rgrp; free it and ignore it */
- 	gfs2_glock_put(rgd->rd_gl);
+ 	/* Make sure pointer to data buffer is set */
+@@ -629,6 +629,11 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
  
- fail:
- 	kfree(rgd->rd_bits);
-+	rgd->rd_bits = NULL;
- 	kmem_cache_free(gfs2_rgrpd_cachep, rgd);
- 	return error;
- }
+ 	*info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
+ 
++	/* Make sure info word is set */
++	wmb();
++
++	priv->tx_buff[*txbd_curr].skb = skb;
++
+ 	/* Increment index to point to the next BD */
+ 	*txbd_curr = (*txbd_curr + 1) % TX_BD_NUM;
+ 
 -- 
 Ben Hutchings, Software Developer                         Codethink Ltd
 https://www.codethink.co.uk/                 Dale House, 35 Dale Street
