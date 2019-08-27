@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B59749E1C8
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7FC9E123
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729664AbfH0H4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
+        id S1731143AbfH0IDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbfH0Hz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:55:59 -0400
+        id S1730013AbfH0IDW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E5A0206BA;
-        Tue, 27 Aug 2019 07:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3319F206BA;
+        Tue, 27 Aug 2019 08:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892558;
-        bh=xW5N4262ZkBGi4OISxmC731Pho7rMe9kKaA7WRyWJxo=;
+        s=default; t=1566893001;
+        bh=QNmRNzZmyi9W7wx0iZIIn90kNrAJVSPD2Uik0FqlGRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSa9tKsqtZUJ7D1gEgAYqBGDdy5em6ODER4rdMGdeqkalJ0GYw/ng//h1UgUVZLg0
-         V8iRQNhgcEUGSOhIxc6INGJJtJ2CXntwiDQQO/+Gf3AXBTwCEyJU0hO948UHCSx3Lr
-         dNd8EXtod/qbcW1wuSLZ388VroeP2EmFv5/dLWHc=
+        b=Xh5yw2f67XobJzGR4nafUeMPOwzIwOLRcn0vqJMHafatMAOXMPNgaSepb20cWbIUH
+         tzF54zUocwqlDOieqdsFpBhLq/gMRytLJfOhyXSPa1yAWn5+CYwBtcj1a4PyzUSstb
+         JM9nSgiDQsiGmu0uc7XvmkEgQVFuT7xcZLTzm4rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/98] NFSv4: Fix a potential sleep while atomic in nfs4_do_reclaim()
-Date:   Tue, 27 Aug 2019 09:50:13 +0200
-Message-Id: <20190827072719.986655051@linuxfoundation.org>
+Subject: [PATCH 5.2 086/162] s390/mm: fix dump_pagetables top level page table walking
+Date:   Tue, 27 Aug 2019 09:50:14 +0200
+Message-Id: <20190827072741.134664210@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,140 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c77e22834ae9a11891cb613bd9a551be1b94f2bc ]
+[ Upstream commit 8024b5a9fc2bed9a00f0bdba60b443fa3cc4bb5d ]
 
-John Hubbard reports seeing the following stack trace:
+Since commit d1874a0c2805 ("s390/mm: make the pxd_offset functions more
+robust") behaviour of p4d_offset, pud_offset and pmd_offset has been
+changed so that they cannot be used to iterate through top level page
+table, because the index for the top level page table is now calculated
+in pgd_offset. To avoid dumping the very first region/segment top level
+table entry 2048 times simply iterate entry pointer like it is already
+done in other page walking cases.
 
-nfs4_do_reclaim
-   rcu_read_lock /* we are now in_atomic() and must not sleep */
-       nfs4_purge_state_owners
-           nfs4_free_state_owner
-               nfs4_destroy_seqid_counter
-                   rpc_destroy_wait_queue
-                       cancel_delayed_work_sync
-                           __cancel_work_timer
-                               __flush_work
-                                   start_flush_work
-                                       might_sleep:
-                                        (kernel/workqueue.c:2975: BUG)
-
-The solution is to separate out the freeing of the state owners
-from nfs4_purge_state_owners(), and perform that outside the atomic
-context.
-
-Reported-by: John Hubbard <jhubbard@nvidia.com>
-Fixes: 0aaaf5c424c7f ("NFS: Cache state owners after files are closed")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: d1874a0c2805 ("s390/mm: make the pxd_offset functions more robust")
+Reported-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h    |  3 ++-
- fs/nfs/nfs4client.c |  5 ++++-
- fs/nfs/nfs4state.c  | 27 ++++++++++++++++++++++-----
- 3 files changed, 28 insertions(+), 7 deletions(-)
+ arch/s390/mm/dump_pagetables.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index 63287d911c088..5b61520dce888 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -469,7 +469,8 @@ static inline void nfs4_schedule_session_recovery(struct nfs4_session *session,
- 
- extern struct nfs4_state_owner *nfs4_get_state_owner(struct nfs_server *, struct rpc_cred *, gfp_t);
- extern void nfs4_put_state_owner(struct nfs4_state_owner *);
--extern void nfs4_purge_state_owners(struct nfs_server *);
-+extern void nfs4_purge_state_owners(struct nfs_server *, struct list_head *);
-+extern void nfs4_free_state_owners(struct list_head *head);
- extern struct nfs4_state * nfs4_get_open_state(struct inode *, struct nfs4_state_owner *);
- extern void nfs4_put_open_state(struct nfs4_state *);
- extern void nfs4_close_state(struct nfs4_state *, fmode_t);
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 8f53455c47653..86991bcfbeb12 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -754,9 +754,12 @@ out:
- 
- static void nfs4_destroy_server(struct nfs_server *server)
- {
-+	LIST_HEAD(freeme);
-+
- 	nfs_server_return_all_delegations(server);
- 	unset_pnfs_layoutdriver(server);
--	nfs4_purge_state_owners(server);
-+	nfs4_purge_state_owners(server, &freeme);
-+	nfs4_free_state_owners(&freeme);
- }
- 
- /*
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 3ba2087469ac8..c36ef75f2054b 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -628,24 +628,39 @@ void nfs4_put_state_owner(struct nfs4_state_owner *sp)
- /**
-  * nfs4_purge_state_owners - Release all cached state owners
-  * @server: nfs_server with cached state owners to release
-+ * @head: resulting list of state owners
-  *
-  * Called at umount time.  Remaining state owners will be on
-  * the LRU with ref count of zero.
-+ * Note that the state owners are not freed, but are added
-+ * to the list @head, which can later be used as an argument
-+ * to nfs4_free_state_owners.
-  */
--void nfs4_purge_state_owners(struct nfs_server *server)
-+void nfs4_purge_state_owners(struct nfs_server *server, struct list_head *head)
- {
- 	struct nfs_client *clp = server->nfs_client;
- 	struct nfs4_state_owner *sp, *tmp;
--	LIST_HEAD(doomed);
- 
- 	spin_lock(&clp->cl_lock);
- 	list_for_each_entry_safe(sp, tmp, &server->state_owners_lru, so_lru) {
--		list_move(&sp->so_lru, &doomed);
-+		list_move(&sp->so_lru, head);
- 		nfs4_remove_state_owner_locked(sp);
+diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+index 3b93ba0b5d8d6..5d67b81c704a4 100644
+--- a/arch/s390/mm/dump_pagetables.c
++++ b/arch/s390/mm/dump_pagetables.c
+@@ -161,9 +161,9 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
  	}
- 	spin_unlock(&clp->cl_lock);
-+}
+ #endif
  
--	list_for_each_entry_safe(sp, tmp, &doomed, so_lru) {
-+/**
-+ * nfs4_purge_state_owners - Release all cached state owners
-+ * @head: resulting list of state owners
-+ *
-+ * Frees a list of state owners that was generated by
-+ * nfs4_purge_state_owners
-+ */
-+void nfs4_free_state_owners(struct list_head *head)
-+{
-+	struct nfs4_state_owner *sp, *tmp;
-+
-+	list_for_each_entry_safe(sp, tmp, head, so_lru) {
- 		list_del(&sp->so_lru);
- 		nfs4_free_state_owner(sp);
+-	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++) {
++	pmd = pmd_offset(pud, addr);
++	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++, pmd++) {
+ 		st->current_address = addr;
+-		pmd = pmd_offset(pud, addr);
+ 		if (!pmd_none(*pmd)) {
+ 			if (pmd_large(*pmd)) {
+ 				prot = pmd_val(*pmd) &
+@@ -192,9 +192,9 @@ static void walk_pud_level(struct seq_file *m, struct pg_state *st,
  	}
-@@ -1843,12 +1858,13 @@ static int nfs4_do_reclaim(struct nfs_client *clp, const struct nfs4_state_recov
- 	struct nfs4_state_owner *sp;
- 	struct nfs_server *server;
- 	struct rb_node *pos;
-+	LIST_HEAD(freeme);
- 	int status = 0;
+ #endif
  
- restart:
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
--		nfs4_purge_state_owners(server);
-+		nfs4_purge_state_owners(server, &freeme);
- 		spin_lock(&clp->cl_lock);
- 		for (pos = rb_first(&server->state_owners);
- 		     pos != NULL;
-@@ -1877,6 +1893,7 @@ restart:
- 		spin_unlock(&clp->cl_lock);
+-	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++) {
++	pud = pud_offset(p4d, addr);
++	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++, pud++) {
+ 		st->current_address = addr;
+-		pud = pud_offset(p4d, addr);
+ 		if (!pud_none(*pud))
+ 			if (pud_large(*pud)) {
+ 				prot = pud_val(*pud) &
+@@ -222,9 +222,9 @@ static void walk_p4d_level(struct seq_file *m, struct pg_state *st,
  	}
- 	rcu_read_unlock();
-+	nfs4_free_state_owners(&freeme);
- 	return 0;
- }
+ #endif
  
+-	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++) {
++	p4d = p4d_offset(pgd, addr);
++	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++, p4d++) {
+ 		st->current_address = addr;
+-		p4d = p4d_offset(pgd, addr);
+ 		if (!p4d_none(*p4d))
+ 			walk_pud_level(m, st, p4d, addr);
+ 		else
 -- 
 2.20.1
 
