@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DBF9E0D8
+	by mail.lfdr.de (Postfix) with ESMTP id 4772F9E0D7
 	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732305AbfH0IG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:06:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36362 "EHLO mail.kernel.org"
+        id S1732288AbfH0IG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732242AbfH0IGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:06:22 -0400
+        id S1729406AbfH0IGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:06:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB1A3206BF;
-        Tue, 27 Aug 2019 08:06:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76FF1206BA;
+        Tue, 27 Aug 2019 08:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893181;
-        bh=8HOcoIqM+xupIrDU6PtPTFta0MQBFueMPaSNpe1xc00=;
+        s=default; t=1566893184;
+        bh=VTMbFsh5z+uNR72TzJ4oMIfpxsfBbtURM4xHscM7gHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOPv7XqDnEE/0y1mD7qSQCFBEGKj7/DGd1yxkCUDi/RCcPjjtj3SoXSJQoie0B6fW
-         ryawj27rInjiifKxEauGXGGijZjVpVlC+vaTb6A7HTydOQmM3agCKsIg7GgASoLFQ9
-         wpKTvw1rp0z5WuVGpJUnkTvHiXAHxE03ykdA+DtE=
+        b=CuV3TeWpBQpsf6s53agZK5t5Kdkv54sP0OhcRVQCiljS8Ydp6gnJf675CkDghu2g/
+         /v7oyDTiAQCyeCG8KpuCH+anTIOdbbIe+dBoynUefprKK1FaOci51Q/b5a9z6/AI6a
+         JrjQPCjSzF4uRb11PQVhs/fNvgDTtrRRG2whKP08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
-        Vitaly Wool <vitalywool@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Henry Burns <henrywolfeburns@gmail.com>,
+        stable@vger.kernel.org, David Rientjes <rientjes@google.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 146/162] mm/z3fold.c: fix race between migration and destruction
-Date:   Tue, 27 Aug 2019 09:51:14 +0200
-Message-Id: <20190827072743.798323282@linuxfoundation.org>
+Subject: [PATCH 5.2 147/162] mm, page_alloc: move_freepages should not examine struct page of reserved memory
+Date:   Tue, 27 Aug 2019 09:51:15 +0200
+Message-Id: <20190827072743.843915747@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -48,198 +50,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: David Rientjes <rientjes@google.com>
 
-commit d776aaa9895eb6eb770908e899cb7f5bd5025b3c upstream.
+commit cd961038381f392b364a7c4a040f4576ca415b1a upstream.
 
-In z3fold_destroy_pool() we call destroy_workqueue(&pool->compact_wq).
-However, we have no guarantee that migration isn't happening in the
-background at that time.
+After commit 907ec5fca3dc ("mm: zero remaining unavailable struct
+pages"), struct page of reserved memory is zeroed.  This causes
+page->flags to be 0 and fixes issues related to reading
+/proc/kpageflags, for example, of reserved memory.
 
-Migration directly calls queue_work_on(pool->compact_wq), if destruction
-wins that race we are using a destroyed workqueue.
+The VM_BUG_ON() in move_freepages_block(), however, assumes that
+page_zone() is meaningful even for reserved memory.  That assumption is
+no longer true after the aforementioned commit.
 
-Link: http://lkml.kernel.org/r/20190809213828.202833-1-henryburns@google.com
-Signed-off-by: Henry Burns <henryburns@google.com>
-Cc: Vitaly Wool <vitalywool@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
+There's no reason why move_freepages_block() should be testing the
+legitimacy of page_zone() for reserved memory; its scope is limited only
+to pages on the zone's freelist.
+
+Note that pfn_valid() can be true for reserved memory: there is a
+backing struct page.  The check for page_to_nid(page) is also buggy but
+reserved memory normally only appears on node 0 so the zeroing doesn't
+affect this.
+
+Move the debug checks to after verifying PageBuddy is true.  This
+isolates the scope of the checks to only be for buddy pages which are on
+the zone's freelist which move_freepages_block() is operating on.  In
+this case, an incorrect node or zone is a bug worthy of being warned
+about (and the examination of struct page is acceptable bcause this
+memory is not reserved).
+
+Why does move_freepages_block() gets called on reserved memory? It's
+simply math after finding a valid free page from the per-zone free area
+to use as fallback.  We find the beginning and end of the pageblock of
+the valid page and that can bring us into memory that was reserved per
+the e820.  pfn_valid() is still true (it's backed by a struct page), but
+since it's zero'd we shouldn't make any inferences here about comparing
+its node or zone.  The current node check just happens to succeed most
+of the time by luck because reserved memory typically appears on node 0.
+
+The fix here is to validate that we actually have buddy pages before
+testing if there's any type of zone or node strangeness going on.
+
+We noticed it almost immediately after bringing 907ec5fca3dc in on
+CONFIG_DEBUG_VM builds.  It depends on finding specific free pages in
+the per-zone free area where the math in move_freepages() will bring the
+start or end pfn into reserved memory and wanting to claim that entire
+pageblock as a new migratetype.  So the path will be rare, require
+CONFIG_DEBUG_VM, and require fallback to a different migratetype.
+
+Some struct pages were already zeroed from reserve pages before
+907ec5fca3c so it theoretically could trigger before this commit.  I
+think it's rare enough under a config option that most people don't run
+that others may not have noticed.  I wouldn't argue against a stable tag
+and the backport should be easy enough, but probably wouldn't single out
+a commit that this is fixing.
+
+Mel said:
+
+: The overhead of the debugging check is higher with this patch although
+: it'll only affect debug builds and the path is not particularly hot.
+: If this was a concern, I think it would be reasonable to simply remove
+: the debugging check as the zone boundaries are checked in
+: move_freepages_block and we never expect a zone/node to be smaller than
+: a pageblock and stuck in the middle of another zone.
+
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1908122036560.10779@chino.kir.corp.google.com
+Signed-off-by: David Rientjes <rientjes@google.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/z3fold.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 89 insertions(+)
+ mm/page_alloc.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -41,6 +41,7 @@
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-+#include <linux/wait.h>
- #include <linux/zpool.h>
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2167,27 +2167,12 @@ static int move_freepages(struct zone *z
+ 	unsigned int order;
+ 	int pages_moved = 0;
  
- /*
-@@ -144,6 +145,8 @@ struct z3fold_header {
-  * @release_wq:	workqueue for safe page release
-  * @work:	work_struct for safe page release
-  * @inode:	inode for z3fold pseudo filesystem
-+ * @destroying: bool to stop migration once we start destruction
-+ * @isolated: int to count the number of pages currently in isolation
-  *
-  * This structure is allocated at pool creation time and maintains metadata
-  * pertaining to a particular z3fold pool.
-@@ -162,8 +165,11 @@ struct z3fold_pool {
- 	const struct zpool_ops *zpool_ops;
- 	struct workqueue_struct *compact_wq;
- 	struct workqueue_struct *release_wq;
-+	struct wait_queue_head isolate_wait;
- 	struct work_struct work;
- 	struct inode *inode;
-+	bool destroying;
-+	int isolated;
- };
+-#ifndef CONFIG_HOLES_IN_ZONE
+-	/*
+-	 * page_zone is not safe to call in this context when
+-	 * CONFIG_HOLES_IN_ZONE is set. This bug check is probably redundant
+-	 * anyway as we check zone boundaries in move_freepages_block().
+-	 * Remove at a later date when no bug reports exist related to
+-	 * grouping pages by mobility
+-	 */
+-	VM_BUG_ON(pfn_valid(page_to_pfn(start_page)) &&
+-	          pfn_valid(page_to_pfn(end_page)) &&
+-	          page_zone(start_page) != page_zone(end_page));
+-#endif
+ 	for (page = start_page; page <= end_page;) {
+ 		if (!pfn_valid_within(page_to_pfn(page))) {
+ 			page++;
+ 			continue;
+ 		}
  
- /*
-@@ -771,6 +777,7 @@ static struct z3fold_pool *z3fold_create
- 		goto out_c;
- 	spin_lock_init(&pool->lock);
- 	spin_lock_init(&pool->stale_lock);
-+	init_waitqueue_head(&pool->isolate_wait);
- 	pool->unbuddied = __alloc_percpu(sizeof(struct list_head)*NCHUNKS, 2);
- 	if (!pool->unbuddied)
- 		goto out_pool;
-@@ -810,6 +817,15 @@ out:
- 	return NULL;
- }
+-		/* Make sure we are not inadvertently changing nodes */
+-		VM_BUG_ON_PAGE(page_to_nid(page) != zone_to_nid(zone), page);
+-
+ 		if (!PageBuddy(page)) {
+ 			/*
+ 			 * We assume that pages that could be isolated for
+@@ -2202,6 +2187,10 @@ static int move_freepages(struct zone *z
+ 			continue;
+ 		}
  
-+static bool pool_isolated_are_drained(struct z3fold_pool *pool)
-+{
-+	bool ret;
++		/* Make sure we are not inadvertently changing nodes */
++		VM_BUG_ON_PAGE(page_to_nid(page) != zone_to_nid(zone), page);
++		VM_BUG_ON_PAGE(page_zone(page) != zone, page);
 +
-+	spin_lock(&pool->lock);
-+	ret = pool->isolated == 0;
-+	spin_unlock(&pool->lock);
-+	return ret;
-+}
- /**
-  * z3fold_destroy_pool() - destroys an existing z3fold pool
-  * @pool:	the z3fold pool to be destroyed
-@@ -819,6 +835,22 @@ out:
- static void z3fold_destroy_pool(struct z3fold_pool *pool)
- {
- 	kmem_cache_destroy(pool->c_handle);
-+	/*
-+	 * We set pool-> destroying under lock to ensure that
-+	 * z3fold_page_isolate() sees any changes to destroying. This way we
-+	 * avoid the need for any memory barriers.
-+	 */
-+
-+	spin_lock(&pool->lock);
-+	pool->destroying = true;
-+	spin_unlock(&pool->lock);
-+
-+	/*
-+	 * We need to ensure that no pages are being migrated while we destroy
-+	 * these workqueues, as migration can queue work on either of the
-+	 * workqueues.
-+	 */
-+	wait_event(pool->isolate_wait, !pool_isolated_are_drained(pool));
- 
- 	/*
- 	 * We need to destroy pool->compact_wq before pool->release_wq,
-@@ -1309,6 +1341,28 @@ static u64 z3fold_get_pool_size(struct z
- 	return atomic64_read(&pool->pages_nr);
- }
- 
-+/*
-+ * z3fold_dec_isolated() expects to be called while pool->lock is held.
-+ */
-+static void z3fold_dec_isolated(struct z3fold_pool *pool)
-+{
-+	assert_spin_locked(&pool->lock);
-+	VM_BUG_ON(pool->isolated <= 0);
-+	pool->isolated--;
-+
-+	/*
-+	 * If we have no more isolated pages, we have to see if
-+	 * z3fold_destroy_pool() is waiting for a signal.
-+	 */
-+	if (pool->isolated == 0 && waitqueue_active(&pool->isolate_wait))
-+		wake_up_all(&pool->isolate_wait);
-+}
-+
-+static void z3fold_inc_isolated(struct z3fold_pool *pool)
-+{
-+	pool->isolated++;
-+}
-+
- static bool z3fold_page_isolate(struct page *page, isolate_mode_t mode)
- {
- 	struct z3fold_header *zhdr;
-@@ -1335,6 +1389,33 @@ static bool z3fold_page_isolate(struct p
- 		spin_lock(&pool->lock);
- 		if (!list_empty(&page->lru))
- 			list_del(&page->lru);
-+		/*
-+		 * We need to check for destruction while holding pool->lock, as
-+		 * otherwise destruction could see 0 isolated pages, and
-+		 * proceed.
-+		 */
-+		if (unlikely(pool->destroying)) {
-+			spin_unlock(&pool->lock);
-+			/*
-+			 * If this page isn't stale, somebody else holds a
-+			 * reference to it. Let't drop our refcount so that they
-+			 * can call the release logic.
-+			 */
-+			if (unlikely(kref_put(&zhdr->refcount,
-+					      release_z3fold_page_locked))) {
-+				/*
-+				 * If we get here we have kref problems, so we
-+				 * should freak out.
-+				 */
-+				WARN(1, "Z3fold is experiencing kref problems\n");
-+				return false;
-+			}
-+			z3fold_page_unlock(zhdr);
-+			return false;
-+		}
-+
-+
-+		z3fold_inc_isolated(pool);
- 		spin_unlock(&pool->lock);
- 		z3fold_page_unlock(zhdr);
- 		return true;
-@@ -1408,6 +1489,10 @@ static int z3fold_page_migrate(struct ad
- 
- 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
- 
-+	spin_lock(&pool->lock);
-+	z3fold_dec_isolated(pool);
-+	spin_unlock(&pool->lock);
-+
- 	page_mapcount_reset(page);
- 	unlock_page(page);
- 	put_page(page);
-@@ -1428,10 +1513,14 @@ static void z3fold_page_putback(struct p
- 	INIT_LIST_HEAD(&page->lru);
- 	if (kref_put(&zhdr->refcount, release_z3fold_page_locked)) {
- 		atomic64_dec(&pool->pages_nr);
-+		spin_lock(&pool->lock);
-+		z3fold_dec_isolated(pool);
-+		spin_unlock(&pool->lock);
- 		return;
- 	}
- 	spin_lock(&pool->lock);
- 	list_add(&page->lru, &pool->lru);
-+	z3fold_dec_isolated(pool);
- 	spin_unlock(&pool->lock);
- 	z3fold_page_unlock(zhdr);
- }
+ 		order = page_order(page);
+ 		move_to_free_area(page, &zone->free_area[order], migratetype);
+ 		page += 1 << order;
 
 
