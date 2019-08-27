@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3269E1ED
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E009E19F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729131AbfH0Hx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44908 "EHLO mail.kernel.org"
+        id S1730291AbfH0INm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:13:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbfH0Hx0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:26 -0400
+        id S1730835AbfH0H5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E4BF206BA;
-        Tue, 27 Aug 2019 07:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11FD2206BF;
+        Tue, 27 Aug 2019 07:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892405;
-        bh=LD81ViPV9Dk2D1S2A6RNmJkyDuqapNAWlR6U5vdwRso=;
+        s=default; t=1566892657;
+        bh=UyHVBvXV4hoMkyKvpxyZqiZNxZl9pYKeHrREef8S+6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVqdXVgJOGs9uggDq7cwYAI18Igf2289rDH/u3vVb4abkswdPyByxq3zpuJwIz7bQ
-         QBwpHyoRaJQfsuX2PtgAWxHhUszHoTKIyx1rvUZe7IYtz/clx4DQR26c7QsHCJW6gH
-         S+sIBR7x5Th1a11vdTA8+iI9Hwib7BbuhSwwOW5g=
+        b=PRMhUEVvdbO+AlATRcvtXOhezsbBYn9tvUHxjjUz8E84VXVOg0xBkZS+I08dYLy3v
+         yp2x2NSPCcud+t6iLxi+rDAfL3kze/iT5nTekW7neQUYqL7ZX+9ITSKJWfxU8RdrZi
+         A7CGsJT4dq8T+pjsOo1LbBc+PPuMjrUPxXQgoxzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 43/62] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
+Subject: [PATCH 4.19 69/98] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
 Date:   Tue, 27 Aug 2019 09:50:48 +0200
-Message-Id: <20190827072703.069744154@linuxfoundation.org>
+Message-Id: <20190827072721.875788723@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -85,15 +85,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -854,6 +854,7 @@ static int userfaultfd_release(struct in
+@@ -881,6 +881,7 @@ static int userfaultfd_release(struct in
  	/* len == 0 means wake all */
  	struct userfaultfd_wake_range range = { .len = 0, };
  	unsigned long new_flags;
 +	bool still_valid;
  
- 	ACCESS_ONCE(ctx->released) = true;
+ 	WRITE_ONCE(ctx->released, true);
  
-@@ -869,8 +870,7 @@ static int userfaultfd_release(struct in
+@@ -896,8 +897,7 @@ static int userfaultfd_release(struct in
  	 * taking the mmap_sem for writing.
  	 */
  	down_write(&mm->mmap_sem);
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	prev = NULL;
  	for (vma = mm->mmap; vma; vma = vma->vm_next) {
  		cond_resched();
-@@ -881,19 +881,20 @@ static int userfaultfd_release(struct in
+@@ -908,19 +908,20 @@ static int userfaultfd_release(struct in
  			continue;
  		}
  		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
