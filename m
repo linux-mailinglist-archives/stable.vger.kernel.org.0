@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6520B9E07B
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4739E0AB
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730431AbfH0IER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33652 "EHLO mail.kernel.org"
+        id S1730313AbfH0IEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:04:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732494AbfH0IEQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:04:16 -0400
+        id S1731737AbfH0IET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:04:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EA042184D;
-        Tue, 27 Aug 2019 08:04:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB1E2173E;
+        Tue, 27 Aug 2019 08:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893055;
-        bh=ZggfT+JWHGu1siNVM/GePQqwV8dlcwldZQqu52ZGpr0=;
+        s=default; t=1566893058;
+        bh=kVoyUutgMOlCeL9jhsRtB04HQpHiX0knf6bLXhJU3As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7MepG1+a6DZihSTuI/LpbzaHAVh47pf/ZEQnwPdLHX6JqjTKBwNZnFMP7Dm6qasx
-         UQuKvJMe9DEiOjGGAgynWF5ULUZnV2BbeBk7cpOzR6Rl+/kw2XpEDAnZcvDCTXCLdI
-         Xn+b8PHHAByoDon5iynRNuYwQJ2X/qDn9rUTf/UM=
+        b=2vomnnGGZTPuzlE6H8hvVkKj/1Eq0bHMAKgud/i1xTEZWVufcVAn6pi0zDwMIlCbF
+         RXvnV+3gMta+Yol5UQlRugWsPJs/qPvvI8s5R75LOeev4ryZwzwwnQfDAcAZLLzr1A
+         6Wy9rvi2upqYfYXjrWbKZXnE8E019tShakYIao5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 063/162] net: phy: phy_led_triggers: Fix a possible null-pointer dereference in phy_led_trigger_change_speed()
-Date:   Tue, 27 Aug 2019 09:49:51 +0200
-Message-Id: <20190827072740.358896227@linuxfoundation.org>
+Subject: [PATCH 5.2 064/162] perf bench numa: Fix cpu0 binding
+Date:   Tue, 27 Aug 2019 09:49:52 +0200
+Message-Id: <20190827072740.388884760@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,45 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 271da132e29b5341c31eca6ba6a72ea1302ebac8 ]
+[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
 
-In phy_led_trigger_change_speed(), there is an if statement on line 48
-to check whether phy->last_triggered is NULL:
-    if (!phy->last_triggered)
+Michael reported an issue with perf bench numa failing with binding to
+cpu0 with '-0' option.
 
-When phy->last_triggered is NULL, it is used on line 52:
-    led_trigger_event(&phy->last_triggered->trigger, LED_OFF);
+  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
+  # Running 'numa/mem' benchmark:
 
-Thus, a possible null-pointer dereference may occur.
+   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
+  binding to node 0, mask: 0000000000000001 => -1
+  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
+  Aborted (core dumped)
 
-To fix this bug, led_trigger_event(&phy->last_triggered->trigger,
-LED_OFF) is called when phy->last_triggered is not NULL.
+This happens when the cpu0 is not part of node0, which is the benchmark
+assumption and we can see that's not the case for some powerpc servers.
 
-This bug is found by a static analysis tool STCheck written by
-the OSLAB group in Tsinghua University.
+Using correct node for cpu0 binding.
 
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_led_triggers.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/bench/numa.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phy_led_triggers.c b/drivers/net/phy/phy_led_triggers.c
-index b86a4b2116f81..59a94e07e7c55 100644
---- a/drivers/net/phy/phy_led_triggers.c
-+++ b/drivers/net/phy/phy_led_triggers.c
-@@ -48,8 +48,9 @@ void phy_led_trigger_change_speed(struct phy_device *phy)
- 		if (!phy->last_triggered)
- 			led_trigger_event(&phy->led_link_trigger->trigger,
- 					  LED_FULL);
-+		else
-+			led_trigger_event(&phy->last_triggered->trigger, LED_OFF);
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index a7784554a80de..23c27ca48abf3 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -379,8 +379,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
  
--		led_trigger_event(&phy->last_triggered->trigger, LED_OFF);
- 		led_trigger_event(&plt->trigger, LED_FULL);
- 		phy->last_triggered = plt;
+ 	/* Allocate and initialize all memory on CPU#0: */
+ 	if (init_cpu0) {
+-		orig_mask = bind_to_node(0);
+-		bind_to_memnode(0);
++		int node = numa_node_of_cpu(0);
++
++		orig_mask = bind_to_node(node);
++		bind_to_memnode(node);
  	}
+ 
+ 	bytes = bytes0 + HPSIZE;
 -- 
 2.20.1
 
