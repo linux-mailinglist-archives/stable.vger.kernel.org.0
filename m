@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 049879DF84
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D3E9DFBD
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbfH0HzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:55:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
+        id S1730746AbfH0H5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:57:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730203AbfH0Hy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:58 -0400
+        id S1730745AbfH0H5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A542206BF;
-        Tue, 27 Aug 2019 07:54:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E17F4206BA;
+        Tue, 27 Aug 2019 07:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892497;
-        bh=vTCvNG1ZV1DaV2Mn8Q8qtNA19FljW55xpo00S5DeUxM=;
+        s=default; t=1566892624;
+        bh=cCFlfElHTk27Od+bknINvEpkLtX3fYgqOlg0j9v4jmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaCPbbFDft1X7EuV0rWK02ddwUSL0KeS84GoDwlEvgbklKOkYEgIA63aLYohsrO+r
-         nj+XG/xzHpgeADNvgwGwfu7Et3etBA856pudYXYsCXrtNVsh2sPsW3AHnv6+V+Tjin
-         KuSngZ/VDIcUFMBAgxjsvCE/o5wwVy20Q4ePb+hM=
+        b=aAiZcen9sXqNHSD0wro81Cd8l0wIDaKWWP9110h4xfkeA8za1Jw4/qlcwGR1kGmxW
+         HCvHalKq9uwZARx9SAwxhdwha+tTh52+jbQpPcO6w7AWIxNpaOYrnO5OnBHvIDrnag
+         wXhKELCG57SH/JgLin1Drf3+E71gj4RCoN2IToJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Andrey Ignatov <rdna@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/98] selftests/bpf: fix sendmsg6_prog on s390
-Date:   Tue, 27 Aug 2019 09:49:45 +0200
-Message-Id: <20190827072718.496182542@linuxfoundation.org>
+Subject: [PATCH 4.19 07/98] bonding: Force slave speed check after link state recovery for 802.3ad
+Date:   Tue, 27 Aug 2019 09:49:46 +0200
+Message-Id: <20190827072718.560389472@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -45,38 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c8eee4135a456bc031d67cadc454e76880d1afd8 ]
+[ Upstream commit 12185dfe44360f814ac4ead9d22ad2af7511b2e9 ]
 
-"sendmsg6: rewrite IP & port (C)" fails on s390, because the code in
-sendmsg_v6_prog() assumes that (ctx->user_ip6[0] & 0xFFFF) refers to
-leading IPv6 address digits, which is not the case on big-endian
-machines.
+The following scenario was encountered during testing of logical
+partition mobility on pseries partitions with bonded ibmvnic
+adapters in LACP mode.
 
-Since checking bitwise operations doesn't seem to be the point of the
-test, replace two short comparisons with a single int comparison.
+1. Driver receives a signal that the device has been
+   swapped, and it needs to reset to initialize the new
+   device.
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+2. Driver reports loss of carrier and begins initialization.
+
+3. Bonding driver receives NETDEV_CHANGE notifier and checks
+   the slave's current speed and duplex settings. Because these
+   are unknown at the time, the bond sets its link state to
+   BOND_LINK_FAIL and handles the speed update, clearing
+   AD_PORT_LACP_ENABLE.
+
+4. Driver finishes recovery and reports that the carrier is on.
+
+5. Bond receives a new notification and checks the speed again.
+   The speeds are valid but miimon has not altered the link
+   state yet.  AD_PORT_LACP_ENABLE remains off.
+
+Because the slave's link state is still BOND_LINK_FAIL,
+no further port checks are made when it recovers. Though
+the slave devices are operational and have valid speed
+and duplex settings, the bond will not send LACPDU's. The
+simplest fix I can see is to force another speed check
+in bond_miimon_commit. This way the bond will update
+AD_PORT_LACP_ENABLE if needed when transitioning from
+BOND_LINK_FAIL to BOND_LINK_UP.
+
+CC: Jarod Wilson <jarod@redhat.com>
+CC: Jay Vosburgh <j.vosburgh@gmail.com>
+CC: Veaceslav Falico <vfalico@gmail.com>
+CC: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/sendmsg6_prog.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/sendmsg6_prog.c b/tools/testing/selftests/bpf/sendmsg6_prog.c
-index 5aeaa284fc474..a680628204108 100644
---- a/tools/testing/selftests/bpf/sendmsg6_prog.c
-+++ b/tools/testing/selftests/bpf/sendmsg6_prog.c
-@@ -41,8 +41,7 @@ int sendmsg_v6_prog(struct bpf_sock_addr *ctx)
- 	}
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 8f14f85b8e95e..0d2392c4b625a 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2190,6 +2190,15 @@ static void bond_miimon_commit(struct bonding *bond)
+ 	bond_for_each_slave(bond, slave, iter) {
+ 		switch (slave->new_link) {
+ 		case BOND_LINK_NOCHANGE:
++			/* For 802.3ad mode, check current slave speed and
++			 * duplex again in case its port was disabled after
++			 * invalid speed/duplex reporting but recovered before
++			 * link monitoring could make a decision on the actual
++			 * link status
++			 */
++			if (BOND_MODE(bond) == BOND_MODE_8023AD &&
++			    slave->link == BOND_LINK_UP)
++				bond_3ad_adapter_speed_duplex_changed(slave);
+ 			continue;
  
- 	/* Rewrite destination. */
--	if ((ctx->user_ip6[0] & 0xFFFF) == bpf_htons(0xFACE) &&
--	     ctx->user_ip6[0] >> 16 == bpf_htons(0xB00C)) {
-+	if (ctx->user_ip6[0] == bpf_htonl(0xFACEB00C)) {
- 		ctx->user_ip6[0] = bpf_htonl(DST_REWRITE_IP6_0);
- 		ctx->user_ip6[1] = bpf_htonl(DST_REWRITE_IP6_1);
- 		ctx->user_ip6[2] = bpf_htonl(DST_REWRITE_IP6_2);
+ 		case BOND_LINK_UP:
 -- 
 2.20.1
 
