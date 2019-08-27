@@ -2,113 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB439EA7B
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 16:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A0C9EB1D
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 16:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726170AbfH0OLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 10:11:40 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:57856 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725920AbfH0OLk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 10:11:40 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 63E8118C892F;
-        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4D9555D712;
-        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 2AFAE18089C8;
-        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
-Date:   Tue, 27 Aug 2019 10:11:39 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     peterz@infradead.org, will@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, tglx@linutronix.de,
-        linux-kernel@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        dbueso@suse.de, Ingo Molnar <mingo@kernel.org>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <396661303.8419298.1566915099958.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20190826143114.23471-1-sashal@kernel.org>
-References: <20190826143114.23471-1-sashal@kernel.org>
-Subject: Re: [PATCH v5.2 1/2] locking/rwsem: Add missing ACQUIRE to
- read_slowpath exit when queue is empty
+        id S1725811AbfH0Ofe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 10:35:34 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55757 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726054AbfH0Ofd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 10:35:33 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 3985F22465;
+        Tue, 27 Aug 2019 10:35:32 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 27 Aug 2019 10:35:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mhtx.net; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=2
+        IeOhndoVjqcTxXZv1OkiMFe7HkXAxeyG1G8TvRilks=; b=bj9r944yge11wNl7w
+        RZbQFU4g+X9+tEDrb7/HCSUcL3HaJmVwZFtt9D5eeRxXwy5Vg3SrZXQl9WGNrobY
+        /hMOeFYnif4Jq238P9Q3OzVAaYRrksubh0NKaKdXc4O+SkChFV76OcU53UQIIihq
+        YB2y4yCKmTBR8UUXya1g4LA8z5LV8HctML//0jTSyhnS/nNSXNE3jAF8i0zL8qq1
+        nzSaQ7++Fkah478x1mbiQL8nZsE0ngtaWm5JoFF4GAg8I3MVqQctYkdwiLK6jsKk
+        /b0hHV9TNGKVM0yrZPMqUxNeY69iIL9VCvMTaQrxqSMJdjWncf+xMsXSZJ5A0NXS
+        F123A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=2IeOhndoVjqcTxXZv1OkiMFe7HkXAxeyG1G8TvRil
+        ks=; b=XbXRcB/UlnjSNRJoSA9KRxmcK0fg2O5KHDSnA0BCEXdwoSNYN89imw3BM
+        PhZcr/Qji6iS2X+Isb/Lh5JuQ9bmJf3sDA/X9W0CHdYrSnwCy+uWOKPAeAUq5dAm
+        kpIVqR/2GXQveGG1crBZ4uNI2y8fhlDh1qJZi62A4Eg7ws0SYDNKscAGEdg8KpMV
+        +FbgwmQ1MLutDjNUbnwHtj6aXAXocRbGUAdLXyeXeTPyssL85JyXjlbdoBMI9k7c
+        9W6vruEOBeVIqE5aAi6sJJ1/guVSMfQOLPoCc+5tYoeXAAe4SXeOg0s0DhxKTDyh
+        ZtAAeXKuc3JeU+t/g+pvdcifCTPeg==
+X-ME-Sender: <xms:sz9lXV8CBpp72LW3i3SNatsKUC5HAX3rt6SRIPMZtuiOVP1F4CKsLA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehkedgvdeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepuffvfhfhkffffgggjggtgfesthgsredttdefjeenucfhrhhomhepofgrjhho
+    rhcujfgrhiguvghnuceomhgrjhhorhesmhhhthigrdhnvghtqeenucfkphepvdegrddvge
+    efrdefiedrudehudenucfrrghrrghmpehmrghilhhfrhhomhepmhgrjhhorhesmhhhthig
+    rdhnvghtnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:sz9lXWHcJM3s5I3B5hUQLvRDRo6thES5sg4MfR2vON-oOWgFRD3xNQ>
+    <xmx:sz9lXXeM2ABMlKISAQlOJ7yYY9UpC-G-u3b_cJl3pf_XsDpAVqhIyg>
+    <xmx:sz9lXXnNTyHJStS3paFKG0R1A8SucFbrZ9eKqhytZiFoVAw4uOLzeA>
+    <xmx:tD9lXeZ5BIJgSl7V3NXx_wSdXrFAIpCNL82K574wcEoGmsUUGcPIUw>
+Received: from [192.168.10.164] (cpe-24-243-36-151.satx.res.rr.com [24.243.36.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2E09B80062;
+        Tue, 27 Aug 2019 10:35:30 -0400 (EDT)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e2=2e11?=
+ =?UTF-8?Q?-rc1-9f63171=2ecki_=28stable=29?=
+To:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Cc:     Yi Zhang <yi.zhang@redhat.com>, Xiumei Mu <xmu@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>, Ying Xu <yinxu@redhat.com>
+References: <cki.98AD376375.DJWRK5AJEY@redhat.com>
+From:   Major Hayden <major@mhtx.net>
+Openpgp: preference=signencrypt
+Autocrypt: addr=major@mhtx.net;
+ keydata= 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
+ UNdR
+Message-ID: <291770ce-273a-68aa-a4a2-7655cbea2bcc@mhtx.net>
+Date:   Tue, 27 Aug 2019 09:35:30 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
+In-Reply-To: <cki.98AD376375.DJWRK5AJEY@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.40.204.166, 10.4.195.12]
-Thread-Topic: locking/rwsem: Add missing ACQUIRE to read_slowpath exit when queue is empty
-Thread-Index: pM7Z1VrNvE4gMqpOiVyEBizAqOeMqQ==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
+Content-Language: en-US
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
------ Original Message -----
-> From: Jan Stancek <jstancek@redhat.com>
-> 
-> [ Upstream commit e1b98fa316648420d0434d9ff5b92ad6609ba6c3 ]
-> 
-> LTP mtest06 has been observed to occasionally hit "still mapped when
-> deleted" and following BUG_ON on arm64.
-> 
-> The extra mapcount originated from pagefault handler, which handled
-> pagefault for vma that has already been detached. vma is detached
-> under mmap_sem write lock by detach_vmas_to_be_unmapped(), which
-> also invalidates vmacache.
-> 
-> When the pagefault handler (under mmap_sem read lock) calls
-> find_vma(), vmacache_valid() wrongly reports vmacache as valid.
-> 
-> After rwsem down_read() returns via 'queue empty' path (as of v5.2),
-> it does so without an ACQUIRE on sem->count:
-> 
->   down_read()
->     __down_read()
->       rwsem_down_read_failed()
->         __rwsem_down_read_failed_common()
->           raw_spin_lock_irq(&sem->wait_lock);
->           if (list_empty(&sem->wait_list)) {
->             if (atomic_long_read(&sem->count) >= 0) {
->               raw_spin_unlock_irq(&sem->wait_lock);
->               return sem;
-> 
-> The problem can be reproduced by running LTP mtest06 in a loop and
-> building the kernel (-j $NCPUS) in parallel. It does reproduces since
-> v4.20 on arm64 HPE Apollo 70 (224 CPUs, 256GB RAM, 2 nodes). It
-> triggers reliably in about an hour.
-> 
-> The patched kernel ran fine for 10+ hours.
-> 
-> Signed-off-by: Jan Stancek <jstancek@redhat.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Will Deacon <will@kernel.org>
-> Acked-by: Waiman Long <longman@redhat.com>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: dbueso@suse.de
-> Fixes: 4b486b535c33 ("locking/rwsem: Exit read lock slowpath if queue empty &
-> no writer")
-> Link:
-> https://lkml.kernel.org/r/50b8914e20d1d62bb2dee42d342836c2c16ebee7.1563438048.git.jstancek@redhat.com
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
-> 
-> This is a backport for the v5.2 stable tree. There were multiple reports
-> of this issue being hit.
-> 
-> Given that there were a few changes to the code around this, I'd
-> appreciate an ack before pulling it in.
-
-ACK, both look good to me.
-I also re-ran reproducer with this series applied on top of 5.2.10, it PASS-ed.
-
-Thanks,
-Jan
+T24gOC8yNy8xOSA3OjMxIEFNLCBDS0kgUHJvamVjdCB3cm90ZToNCj4gICB4ODZfNjQ6DQo+
+ICAgICAgIEhvc3QgMjoNCj4gICAgICAgICAg4p2MIE5ldHdvcmtpbmcgc29ja2V0OiBmdXp6
+IFs5XQ0KPiAgICAgICAgICDinYwgTmV0d29ya2luZyBzY3RwLWF1dGg6IHNvY2tvcHRzIHRl
+c3QgWzEwXQ0KDQpJdCBsb29rcyBsaWtlIHRoZXJlIHdhcyBhbiBvb3BzIHdoZW4gdGhlc2Ug
+dGVzdHMgcmFuIG9uIDUuMi4xMS1yYzEgYW5kIHRoZSBsYXN0IHNldCBvZiBwYXRjaGVzIGlu
+IHN0YWJsZS1xdWV1ZToNCg0KPiBbIDQzMDcuMDk3OTU5XSBjYW46IHJlcXVlc3RfbW9kdWxl
+IChjYW4tcHJvdG8tMCkgZmFpbGVkLiANCj4gWyA0MzA3LjEwMjM4MF0gQlVHOiBrZXJuZWwg
+TlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlLCBhZGRyZXNzOiAwMDAwMDAwMDAwMDAwMDEwIA0K
+PiBbIDQzMDcuMTA2MDI3XSAjUEY6IHN1cGVydmlzb3Igd3JpdGUgYWNjZXNzIGluIGtlcm5l
+bCBtb2RlIA0KPiBbIDQzMDcuMTA4NDgzXSAjUEY6IGVycm9yX2NvZGUoMHgwMDAyKSAtIG5v
+dC1wcmVzZW50IHBhZ2UgDQo+IFsgNDMwNy4xMDk3NjZdIFBHRCA4MDAwMDAwMjM0YmUyMDY3
+IFA0RCA4MDAwMDAwMjM0YmUyMDY3IFBVRCAyMzRiZTAwNjcgUE1EIDAgIA0KPiBbIDQzMDcu
+MTExNTAzXSBPb3BzOiAwMDAyIFsjMV0gU01QIFBUSSANCj4gWyA0MzA3LjExMjM5N10gQ1BV
+OiAwIFBJRDogNzkyNyBDb21tOiBzb2NrZXQgVGFpbnRlZDogRyAgICAgICAgVyAgICAgICAg
+IDUuMi4xMS1yYzEtOWY2MzE3MS5ja2kgIzEgDQo+IFsgNDMwNy4xMTQ1NTNdIEhhcmR3YXJl
+IG5hbWU6IFJlZCBIYXQgS1ZNLCBCSU9TIDAuNS4xIDAxLzAxLzIwMTEgDQo+IFsgNDMwNy4x
+MTYwOTBdIFJJUDogMDAxMDpyeHJwY191bnVzZV9sb2NhbCsweGEvMHgyMCBbcnhycGNdIA0K
+PiBbIDQzMDcuMTE3NDIxXSBDb2RlOiBiZiBmNCBmZiBmZiBmZiBlOCA2NiA0ZCBmOSBjMyBl
+OSBjNCBmZSBmZiBmZiAwZiAwYiBlOSAyYiBkZCAwMCAwMCBlOSA4YyBkZCAwMCAwMCAwZiAx
+ZiA0NCAwMCAwMCAwZiAxZiA0NCAwMCAwMCBiOCBmZiBmZiBmZiBmZiA8ZjA+IDBmIGMxIDQ3
+IDEwIDgzIGY4IDAxIDc0IDA1IGU5IGI3IGY1IGZmIGZmIGU5IGYyIGY3IGZmIGZmIDY2IDkw
+IA0KPiBbIDQzMDcuMTIwNTA4XSBSU1A6IDAwMTg6ZmZmZjliNzA4MWEzN2ViMCBFRkxBR1M6
+IDAwMDEwMjQ2IA0KPiBbIDQzMDcuMTIxMzIzXSBSQVg6IDAwMDAwMDAwZmZmZmZmZmYgUkJY
+OiBmZmZmOGQzZGFiOGU4MDAwIFJDWDogZmZmZmJiNzA3ZmNiMDEzNyANCj4gWyA0MzA3LjEy
+MjQxMV0gUkRYOiAwMDAwMDAwMDAwMDAwMDAxIFJTSTogMDAwMDAwMDAwMDAwMDA0NiBSREk6
+IDAwMDAwMDAwMDAwMDAwMDAgDQo+IFsgNDMwNy4xMjM1MDJdIFJCUDogZmZmZjhkM2RhYjU3
+YWMwMCBSMDg6IDAwMDAwMDAwMDAwMDAwMDEgUjA5OiBmZmZmYmI3MDdmY2IwMTYwIA0KPiBb
+IDQzMDcuMTI0NTU5XSBSMTA6IDAwMDAwMDAwMDAwMDAwZDAgUjExOiAwMDAwMDAwMDAwMDAw
+MDAwIFIxMjogZmZmZjhkM2RhYjU3YWNlNCANCj4gWyA0MzA3LjEyNTcyMF0gUjEzOiBmZmZm
+OGQzZTQxYTM2NzgwIFIxNDogMDAwMDAwMDAwMDAwMDAwMCBSMTU6IDAwMDAwMDAwMDAwMDAw
+MDAgDQo+IFsgNDMwNy4xMjY5NDVdIEZTOiAgMDAwMDdmZDYyNjgwYTc0MCgwMDAwKSBHUzpm
+ZmZmOGQzZWI3YTAwMDAwKDAwMDApIGtubEdTOjAwMDAwMDAwMDAwMDAwMDAgDQo+IFsgNDMw
+Ny4xMjgyMjddIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAw
+NTAwMzMgDQo+IFsgNDMwNy4xMjkxMTldIENSMjogMDAwMDAwMDAwMDAwMDAxMCBDUjM6IDAw
+MDAwMDAxMTYwYTYwMDYgQ1I0OiAwMDAwMDAwMDAwMzYwNmYwIA0KPiBbIDQzMDcuMTMwMjE1
+XSBEUjA6IDAwMDAwMDAwMDAwMDAwMDAgRFIxOiAwMDAwMDAwMDAwMDAwMDAwIERSMjogMDAw
+MDAwMDAwMDAwMDAwMCANCj4gWyA0MzA3LjEzMTQxMV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAw
+IERSNjogMDAwMDAwMDBmZmZlMGZmMCBEUjc6IDAwMDAwMDAwMDAwMDA0MDAgDQo+IFsgNDMw
+Ny4xMzI1MTRdIENhbGwgVHJhY2U6IA0KPiBbIDQzMDcuMTMyOTE1XSAgcnhycGNfcmVsZWFz
+ZSsweDEzOC8weDFlMCBbcnhycGNdIA0KPiBbIDQzMDcuMTMzNzAyXSAgX19zb2NrX3JlbGVh
+c2UrMHg4OS8weGEwIA0KPiBbIDQzMDcuMTM0MzA3XSAgX19zeXNfc29ja2V0KzB4ZDQvMHhm
+MCANCj4gWyA0MzA3LjEzNDg3N10gID8gc2NoZWR1bGUrMHgzMy8weDkwIA0KPiBbIDQzMDcu
+MTM1NDAyXSAgX194NjRfc3lzX3NvY2tldCsweDE2LzB4MjAgDQo+IFsgNDMwNy4xMzYwMzld
+ICBkb19zeXNjYWxsXzY0KzB4NWYvMHgxYTAgDQo+IFsgNDMwNy4xMzY2NTBdICBlbnRyeV9T
+WVNDQUxMXzY0X2FmdGVyX2h3ZnJhbWUrMHg0NC8weGE5IA0KPiBbIDQzMDcuMTM3NDc3XSBS
+SVA6IDAwMzM6MHg3ZmQ2MjY5MDk2OWIgDQo+IFsgNDMwNy4xMzgwNDddIENvZGU6IDczIDAx
+IGMzIDQ4IDhiIDBkIGVkIDM3IDBjIDAwIGY3IGQ4IDY0IDg5IDAxIDQ4IDgzIGM4IGZmIGMz
+IDY2IDJlIDBmIDFmIDg0IDAwIDAwIDAwIDAwIDAwIDkwIGYzIDBmIDFlIGZhIGI4IDI5IDAw
+IDAwIDAwIDBmIDA1IDw0OD4gM2QgMDEgZjAgZmYgZmYgNzMgMDEgYzMgNDggOGIgMGQgYmQg
+MzcgMGMgMDAgZjcgZDggNjQgODkgMDEgNDggDQo+IFsgNDMwNy4xNDA4MjBdIFJTUDogMDAy
+YjowMDAwN2ZmZjkxYTI3ZjI4IEVGTEFHUzogMDAwMDAyMTMgT1JJR19SQVg6IDAwMDAwMDAw
+MDAwMDAwMjkgDQo+IFsgNDMwNy4xNDE5NDNdIFJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6
+IDAwMDAwMDAwMDAwMDAwMDAgUkNYOiAwMDAwN2ZkNjI2OTA5NjliIA0KPiBbIDQzMDcuMTQz
+MDE2XSBSRFg6IDAwMDAwMDAwMDAwMDAwMDIgUlNJOiAwMDAwMDAwMDAwMDAwMDAyIFJESTog
+MDAwMDAwMDAwMDAwMDAyMSANCj4gWyA0MzA3LjE0NDA3OV0gUkJQOiAwMDAwN2ZmZjkxYTI3
+ZjcwIFIwODogMDAwMDdmZDYyNjljZDFmNCBSMDk6IDAwMDA3ZmQ2MjY5Y2QyNjAgDQo+IFsg
+NDMwNy4xNDUxNDJdIFIxMDogMDAwMDAwMDBmZmZmZmZmZiBSMTE6IDAwMDAwMDAwMDAwMDAy
+MTMgUjEyOiAwMDAwMDAwMDAwNDAxMmIwIA0KPiBbIDQzMDcuMTQ2MjMwXSBSMTM6IDAwMDA3
+ZmZmOTFhMjgwNTAgUjE0OiAwMDAwMDAwMDAwMDAwMDAwIFIxNTogMDAwMDAwMDAwMDAwMDAw
+MCANCj4gWyA0MzA3LjE0NzMzMF0gTW9kdWxlcyBsaW5rZWQgaW46IGwydHBfcHBwIGwydHBf
+bmV0bGluayByZmNvbW0gbDJ0cF9pcCBsMnRwX2NvcmUgaXA2X3VkcF90dW5uZWwgdWRwX3R1
+bm5lbCBuZm5ldGxpbmsgY2FuX3JhdyBibmVwIHNjc2lfdHJhbnNwb3J0X2lzY3NpIGNhbl9i
+Y20gaGlkcCBwcHRwIGdyZSBjbXRwIGtlcm5lbGNhcGkgbmV0cm9tIHZtd192c29ja192bWNp
+X3RyYW5zcG9ydCB2c29jayB2bXdfdm1jaSBtcGxzX3JvdXRlciBpcF90dW5uZWwgcm9zZSBh
+eDI1IGF0bSBwcHBvZSBwcHBveCBwcHBfZ2VuZXJpYyBzbGhjIHBzbmFwIGtjbSBuZmMgc21j
+IGliX2NvcmUgYmx1ZXRvb3RoIGVjZGhfZ2VuZXJpYyByZmtpbGwgZWNjIGFmX2tleSBpZWVl
+ODAyMTU0X3NvY2tldCBpZWVlODAyMTU0IGZjcnlwdCBwY2JjIHJ4cnBjIGNhbiBtbHg0X2Vu
+IG1seDRfY29yZSBzY3RwIHJkcyBicmQgdmZhdCBmYXQgYnRyZnMgeG9yIHpzdGRfY29tcHJl
+c3MgcmFpZDZfcHEgenN0ZF9kZWNvbXByZXNzIGxvb3AgdGNwX2RpYWcgdWRwX2RpYWcgaW5l
+dF9kaWFnIHR1biBpcDZ0YWJsZV9uYXQgaXA2X3RhYmxlcyB4dF9jb25udHJhY2sgaXB0YWJs
+ZV9maWx0ZXIgeHRfTUFTUVVFUkFERSB4dF9jb21tZW50IGlwdGFibGVfbmF0IG5mX25hdCBu
+Zl9jb25udHJhY2sgbmZfZGVmcmFnX2lwdjYgbmZfZGVmcmFnX2lwdjQgdmV0aCBicmlkZ2Ug
+c3RwIGxsYyBvdmVybGF5IGZ1c2UgbmZpdCBsaWJudmRpbW0gY3JjdDEwZGlmX3BjbG11bCBj
+cmMzMl9wY2xtdWwgc3VucnBjIGdoYXNoX2NsbXVsbmlfaW50ZWwgc25kX2hkYV9jb2RlY19n
+ZW5lcmljIGxlZHRyaWdfYXVkaW8gc25kX2hkYV9pbnRlbCBzbmRfaGRhX2NvZGVjIHNuZF9o
+ZGFfY29yZSBzbmRfaHdkZXAgc25kX3BjbSBzbmRfdGltZXIgcGNzcGtyIGpveWRldiB2aXJ0
+aW9fYmFsbG9vbiBzbmQgc291bmRjb3JlIHZpcnRpb19uZXQgbmV0X2ZhaWxvdmVyIGZhaWxv
+dmVyIGkyY19waWl4NCBpcF90YWJsZXMgeGZzIGxpYmNyYzMyYyBxeGwgDQo+IFsgNDMwNy4x
+NDczNjVdICBkcm1fa21zX2hlbHBlciB0dG0gY3JjMzJjX2ludGVsIGRybSBzZXJpb19yYXcg
+YXRhX2dlbmVyaWMgcGF0YV9hY3BpIHFlbXVfZndfY2ZnIHZpcnRpb19jb25zb2xlIHZpcnRp
+b19ibGsgZmxvcHB5IA0KPiBbIDQzMDcuMTYyMjQxXSBDUjI6IDAwMDAwMDAwMDAwMDAwMTAg
+DQo+IFsgNDMwNy4xNjI3ODNdIC0tLVsgZW5kIHRyYWNlIGU0MDRlOGZiNjllYjBmYjEgXS0t
+LSANCj4gWyA0MzA3LjE2MzUwOF0gUklQOiAwMDEwOnJ4cnBjX3VudXNlX2xvY2FsKzB4YS8w
+eDIwIFtyeHJwY10gDQo+IFsgNDMwNy4xNjQzMDFdIENvZGU6IGJmIGY0IGZmIGZmIGZmIGU4
+IDY2IDRkIGY5IGMzIGU5IGM0IGZlIGZmIGZmIDBmIDBiIGU5IDJiIGRkIDAwIDAwIGU5IDhj
+IGRkIDAwIDAwIDBmIDFmIDQ0IDAwIDAwIDBmIDFmIDQ0IDAwIDAwIGI4IGZmIGZmIGZmIGZm
+IDxmMD4gMGYgYzEgNDcgMTAgODMgZjggMDEgNzQgMDUgZTkgYjcgZjUgZmYgZmYgZTkgZjIg
+ZjcgZmYgZmYgNjYgOTAgDQo+IFsgNDMwNy4xNjcwNjVdIFJTUDogMDAxODpmZmZmOWI3MDgx
+YTM3ZWIwIEVGTEFHUzogMDAwMTAyNDYgDQo+IFsgNDMwNy4xNjc4NDRdIFJBWDogMDAwMDAw
+MDBmZmZmZmZmZiBSQlg6IGZmZmY4ZDNkYWI4ZTgwMDAgUkNYOiBmZmZmYmI3MDdmY2IwMTM3
+IA0KPiBbIDQzMDcuMTY4OTM4XSBSRFg6IDAwMDAwMDAwMDAwMDAwMDEgUlNJOiAwMDAwMDAw
+MDAwMDAwMDQ2IFJESTogMDAwMDAwMDAwMDAwMDAwMCANCj4gWyA0MzA3LjE3MDAzN10gUkJQ
+OiBmZmZmOGQzZGFiNTdhYzAwIFIwODogMDAwMDAwMDAwMDAwMDAwMSBSMDk6IGZmZmZiYjcw
+N2ZjYjAxNjAgDQo+IFsgNDMwNy4xNzExNDZdIFIxMDogMDAwMDAwMDAwMDAwMDBkMCBSMTE6
+IDAwMDAwMDAwMDAwMDAwMDAgUjEyOiBmZmZmOGQzZGFiNTdhY2U0IA0KPiBbIDQzMDcuMTcy
+MjI0XSBSMTM6IGZmZmY4ZDNlNDFhMzY3ODAgUjE0OiAwMDAwMDAwMDAwMDAwMDAwIFIxNTog
+MDAwMDAwMDAwMDAwMDAwMCANCj4gWyA0MzA3LjE3MzMzMF0gRlM6ICAwMDAwN2ZkNjI2ODBh
+NzQwKDAwMDApIEdTOmZmZmY4ZDNlYjdhMDAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAw
+MDAwMCANCj4gWyA0MzA3LjE3NDUxOV0gQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAwIENS
+MDogMDAwMDAwMDA4MDA1MDAzMyANCj4gWyA0MzA3LjE3NTM4MF0gQ1IyOiAwMDAwMDAwMDAw
+MDAwMDEwIENSMzogMDAwMDAwMDExNjBhNjAwNiBDUjQ6IDAwMDAwMDAwMDAzNjA2ZjAgDQo+
+IFsgNDMwNy4xNzY0NzRdIERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6IDAwMDAwMDAwMDAw
+MDAwMDAgRFIyOiAwMDAwMDAwMDAwMDAwMDAwIA0KPiBbIDQzMDcuMTc3NTgwXSBEUjM6IDAw
+MDAwMDAwMDAwMDAwMDAgRFI2OiAwMDAwMDAwMGZmZmUwZmYwIERSNzogMDAwMDAwMDAwMDAw
+MDQwMCANCg0KLS0NCk1ham9yIEhheWRlbg0K
