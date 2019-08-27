@@ -2,85 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 892339E957
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 15:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9225D9EA76
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 16:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726190AbfH0Nav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 09:30:51 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:43700 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725811AbfH0Nav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 09:30:51 -0400
-Received: from p5de0b6c5.dip0.t-ipconnect.de ([93.224.182.197] helo=nanos)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1i2bYN-0006N9-RX; Tue, 27 Aug 2019 15:30:31 +0200
-Date:   Tue, 27 Aug 2019 15:30:30 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Pavel Machek <pavel@denx.de>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "x86@kernel.org" <x86@kernel.org>
-Subject: Re: [PATCH 4.19 72/98] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
- family 15h/16h
-In-Reply-To: <20190827113604.GB18218@amd>
-Message-ID: <alpine.DEB.2.21.1908271525480.1939@nanos.tec.linutronix.de>
-References: <20190827072718.142728620@linuxfoundation.org> <20190827072722.020603090@linuxfoundation.org> <20190827113604.GB18218@amd>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1726871AbfH0OKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 10:10:18 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45630 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725920AbfH0OKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 10:10:18 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 2E2ACB022;
+        Tue, 27 Aug 2019 14:10:17 +0000 (UTC)
+Date:   Tue, 27 Aug 2019 16:10:16 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Thomas Backlund <tmb@mageia.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>, Greg KH <greg@kroah.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Yafang Shao <laoar.shao@gmail.com>
+Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM
+ counters in sync with the hierarchical ones"
+Message-ID: <20190827141016.GH7538@dhcp22.suse.cz>
+References: <20190817004726.2530670-1-guro@fb.com>
+ <20190817063616.GA11747@kroah.com>
+ <20190817191518.GB11125@castle>
+ <20190824125750.da9f0aac47cc0a362208f9ff@linux-foundation.org>
+ <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 27 Aug 2019, Pavel Machek wrote:
-
-> On Tue 2019-08-27 09:50:51, Greg Kroah-Hartman wrote:
-> > From: Tom Lendacky <thomas.lendacky@amd.com>
+On Sat 24-08-19 23:23:07, Thomas Backlund wrote:
+> Den 24-08-2019 kl. 22:57, skrev Andrew Morton:
+> > On Sat, 17 Aug 2019 19:15:23 +0000 Roman Gushchin <guro@fb.com> wrote:
 > > 
-> > commit c49a0a80137c7ca7d6ced4c812c9e07a949f6f24 upstream.
+> > > > > Fixes: 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones")
+> > > > > Signed-off-by: Roman Gushchin <guro@fb.com>
+> > > > > Cc: Yafang Shao <laoar.shao@gmail.com>
+> > > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
+> > > > > ---
+> > > > >   mm/memcontrol.c | 8 +++-----
+> > > > >   1 file changed, 3 insertions(+), 5 deletions(-)
+> > > > 
+> > > > <formletter>
+> > > > 
+> > > > This is not the correct way to submit patches for inclusion in the
+> > > > stable kernel tree.  Please read:
+> > > >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > > > for how to do this properly.
+> > > 
+> > > Oh, I'm sorry, will read and follow next time. Thanks!
 > > 
-> > There have been reports of RDRAND issues after resuming from suspend on
-> > some AMD family 15h and family 16h systems. This issue stems from a BIOS
-> > not performing the proper steps during resume to ensure RDRAND continues
-> > to function properly.
+> > 766a4c19d880 is not present in 5.2 so no -stable backport is needed, yes?
+> > 
 > 
-> Yes. And instead of reinitializing the RDRAND on resume, this patch
-> breaks support even for people with properly functioning BIOSes...
+> Unfortunately it got added in 5.2.7, so backport is needed.
 
-There is no way to reinitialize RDRAND from the kernel otherwise we would
-have exactly done that. If you know how to do that please tell.
+yet another example of patch not marked for stable backported to the
+stable tree. yay...
 
-Also disabling it for every BIOS is the only way which can be done because
-there is no way to know whether the BIOS is fixed or not at cold boot
-time. And it has to be known there because applications cache the
-availablity and continue using it after resume and because the valid bit is
-set they wont notice.
-
-There is a know to turn it back on for those who are sure that it works,
-but the default has to be: OFF simply because we cannot endanger everyone
-out there with a broken BIOS just to please you.
-
-Thanks,
-
-	tglx
+-- 
+Michal Hocko
+SUSE Labs
