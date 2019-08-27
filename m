@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BF69E0CB
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD2A19E0CD
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732062AbfH0IGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:06:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36024 "EHLO mail.kernel.org"
+        id S1732120AbfH0IGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732950AbfH0IGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:06:03 -0400
+        id S1731883AbfH0IGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:06:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7978E2173E;
-        Tue, 27 Aug 2019 08:06:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49A162186A;
+        Tue, 27 Aug 2019 08:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893163;
-        bh=0DycLuveW5FDNilqnGAQJPiUrr9aDswSq/e6SVSBy+Q=;
+        s=default; t=1566893165;
+        bh=BQoWxrPXHX8BCycKMjfBLqvZlT824d107z5VBJa1TOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZQeaAhYKkDd0MG1r1T0LekVP6dt/NPr7zABcpXOLaxVSrRQeM7HiBDiPD1Mp55Mm
-         xB6re7Gs6O8ZJBHRLL8B5GU8AsNOon1ajxI2m+Yuk0GfkvzlIweIuR4Hm91gSn5qai
-         WsZf34DBOLWDrZ4hHJtUb7jRnhsEqE+3PX3buRZw=
+        b=AhyX7PJkamthRWjfQXo8xOp2/rOIiBQ3XfSyiYhMzwe1cg3Mjo/U7vNKCwvy5y10u
+         eD+a1CRXWwYOCq7+HsvbHQ5YjM+53umDqrfjGlKKfToGouTbzUjycljMLodVAgbD5o
+         EdMwPVirBZV3ENkr3bKTHrrfBD+E34uJiOKRdrEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Tao <kontais@zoho.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.2 141/162] dm table: fix invalid memory accesses with too high sector number
-Date:   Tue, 27 Aug 2019 09:51:09 +0200
-Message-Id: <20190827072743.560713694@linuxfoundation.org>
+Subject: [PATCH 5.2 142/162] dm zoned: improve error handling in reclaim
+Date:   Tue, 27 Aug 2019 09:51:10 +0200
+Message-Id: <20190827072743.608788328@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,52 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit 1cfd5d3399e87167b7f9157ef99daa0e959f395d upstream.
+commit b234c6d7a703661b5045c5bf569b7c99d2edbf88 upstream.
 
-If the sector number is too high, dm_table_find_target() should return a
-pointer to a zeroed dm_target structure (the caller should test it with
-dm_target_is_valid).
+There are several places in reclaim code where errors are not
+propagated to the main function, dmz_reclaim(). This function
+is responsible for unlocking zones that might be still locked
+at the end of any failed reclaim iterations. As the result,
+some device zones may be left permanently locked for reclaim,
+degrading target's capability to reclaim zones.
 
-However, for some table sizes, the code in dm_table_find_target() that
-performs btree lookup will access out of bound memory structures.
+This patch fixes these issues as follows -
 
-Fix this bug by testing the sector number at the beginning of
-dm_table_find_target(). Also, add an "inline" keyword to the function
-dm_table_get_size() because this is a hot path.
+Make sure that dmz_reclaim_buf(), dmz_reclaim_seq_data() and
+dmz_reclaim_rnd_data() return error codes to the caller.
 
-Fixes: 512875bd9661 ("dm: table detect io beyond device")
+dmz_reclaim() function is renamed to dmz_do_reclaim() to avoid
+clashing with "struct dmz_reclaim" and is modified to return the
+error to the caller.
+
+dmz_get_zone_for_reclaim() now returns an error instead of NULL
+pointer and reclaim code checks for that error.
+
+Error logging/debug messages are added where necessary.
+
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
 Cc: stable@vger.kernel.org
-Reported-by: Zhang Tao <kontais@zoho.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-table.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/md/dm-zoned-metadata.c |    4 ++--
+ drivers/md/dm-zoned-reclaim.c  |   28 +++++++++++++++++++---------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1334,7 +1334,7 @@ void dm_table_event(struct dm_table *t)
- }
- EXPORT_SYMBOL(dm_table_event);
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1534,7 +1534,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 	struct dm_zone *zone;
  
--sector_t dm_table_get_size(struct dm_table *t)
-+inline sector_t dm_table_get_size(struct dm_table *t)
+ 	if (list_empty(&zmd->map_rnd_list))
+-		return NULL;
++		return ERR_PTR(-EBUSY);
+ 
+ 	list_for_each_entry(zone, &zmd->map_rnd_list, link) {
+ 		if (dmz_is_buf(zone))
+@@ -1545,7 +1545,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 			return dzone;
+ 	}
+ 
+-	return NULL;
++	return ERR_PTR(-EBUSY);
+ }
+ 
+ /*
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -215,7 +215,7 @@ static int dmz_reclaim_buf(struct dmz_re
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -259,7 +259,7 @@ static int dmz_reclaim_seq_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -312,7 +312,7 @@ static int dmz_reclaim_rnd_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -334,7 +334,7 @@ static void dmz_reclaim_empty(struct dmz
+ /*
+  * Find a candidate zone for reclaim and process it.
+  */
+-static void dmz_reclaim(struct dmz_reclaim *zrc)
++static int dmz_do_reclaim(struct dmz_reclaim *zrc)
  {
- 	return t->num_targets ? (t->highs[t->num_targets - 1] + 1) : 0;
- }
-@@ -1359,6 +1359,9 @@ struct dm_target *dm_table_find_target(s
- 	unsigned int l, n = 0, k = 0;
- 	sector_t *node;
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	struct dm_zone *dzone;
+@@ -344,8 +344,8 @@ static void dmz_reclaim(struct dmz_recla
  
-+	if (unlikely(sector >= dm_table_get_size(t)))
-+		return &t->targets[t->num_targets];
-+
- 	for (l = 0; l < t->depth; l++) {
- 		n = get_child(n, k);
- 		node = get_node(t, l, n);
+ 	/* Get a data zone */
+ 	dzone = dmz_get_zone_for_reclaim(zmd);
+-	if (!dzone)
+-		return;
++	if (IS_ERR(dzone))
++		return PTR_ERR(dzone);
+ 
+ 	start = jiffies;
+ 
+@@ -391,13 +391,20 @@ static void dmz_reclaim(struct dmz_recla
+ out:
+ 	if (ret) {
+ 		dmz_unlock_zone_reclaim(dzone);
+-		return;
++		return ret;
+ 	}
+ 
+-	(void) dmz_flush_metadata(zrc->metadata);
++	ret = dmz_flush_metadata(zrc->metadata);
++	if (ret) {
++		dmz_dev_debug(zrc->dev,
++			      "Metadata flush for zone %u failed, err %d\n",
++			      dmz_id(zmd, rzone), ret);
++		return ret;
++	}
+ 
+ 	dmz_dev_debug(zrc->dev, "Reclaimed zone %u in %u ms",
+ 		      dmz_id(zmd, rzone), jiffies_to_msecs(jiffies - start));
++	return 0;
+ }
+ 
+ /*
+@@ -442,6 +449,7 @@ static void dmz_reclaim_work(struct work
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	unsigned int nr_rnd, nr_unmap_rnd;
+ 	unsigned int p_unmap_rnd;
++	int ret;
+ 
+ 	if (!dmz_should_reclaim(zrc)) {
+ 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
+@@ -471,7 +479,9 @@ static void dmz_reclaim_work(struct work
+ 		      (dmz_target_idle(zrc) ? "Idle" : "Busy"),
+ 		      p_unmap_rnd, nr_unmap_rnd, nr_rnd);
+ 
+-	dmz_reclaim(zrc);
++	ret = dmz_do_reclaim(zrc);
++	if (ret)
++		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+ 
+ 	dmz_schedule_reclaim(zrc);
+ }
 
 
