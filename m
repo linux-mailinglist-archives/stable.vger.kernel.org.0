@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8949E036
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F96A9E038
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731295AbfH0IB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S1731362AbfH0IBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:01:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730582AbfH0IB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:01:26 -0400
+        id S1730695AbfH0IBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:01:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D5FC217F5;
-        Tue, 27 Aug 2019 08:01:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC1E5206BA;
+        Tue, 27 Aug 2019 08:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892885;
-        bh=Vtm0LSf/FYsGIcGYLuGcLmm0g16FWGHaQU+a0WvHkNw=;
+        s=default; t=1566892895;
+        bh=lpolk3mGplvQTYlSJ0kutQk3tJP6sDHc93EGxGC3MXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwnFosII306HpvWi2ClvicToSB0jm75kIFKqvMl7iXjRT0l7+M9/KVaMDx/Nx6tup
-         4j79KLDRwFJWEoPReF6v5D/uiECcmVgzRCpbX5hGlXNm2t/SRMeYmKxws+SrfBzadU
-         9TmiJaxuuPjrWrQ9jaSDs1VYINAChR+L+ghAR/GA=
+        b=WkpvPEpMrVxNH+VGw3OrKk956rwH95Yrk7kggwlV3xnOrcBKG/pfZOj8DHGd0fb2A
+         G05iDg6R0vieEJEc7nU7Fpzirae7UZw7h87pa9ebWD0Ruz9CujxKumqxYmFPcbDHgG
+         Vv1D1/voTimYJd9avmyL0u22uum+mXEFXgMGg+ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Segal <bpsegal20@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
+        stable@vger.kernel.org, Chen Yi <yiche@redhat.com>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 047/162] habanalabs: fix F/W download in BE architecture
-Date:   Tue, 27 Aug 2019 09:49:35 +0200
-Message-Id: <20190827072739.870046566@linuxfoundation.org>
+Subject: [PATCH 5.2 050/162] netfilter: ipset: Actually allow destination MAC address for hash:ip,mac sets too
+Date:   Tue, 27 Aug 2019 09:49:38 +0200
+Message-Id: <20190827072739.960706072@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,64 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 75035fe22b808a520e1d712ebe913684ba406e01 ]
+[ Upstream commit b89d15480d0cacacae1a0fe0b3da01b529f2914f ]
 
-writeX macros might perform byte-swapping in BE architectures. As our F/W
-is in LE format, we need to make sure no byte-swapping will occur.
+In commit 8cc4ccf58379 ("ipset: Allow matching on destination MAC address
+for mac and ipmac sets"), ipset.git commit 1543514c46a7, I removed the
+KADT check that prevents matching on destination MAC addresses for
+hash:mac sets, but forgot to remove the same check for hash:ip,mac set.
 
-There is a standard kernel function (called memcpy_toio) for copying data
-to I/O area which is used in a lot of drivers to download F/W to PCIe
-adapters. That function also makes sure the data is copied "as-is",
-without byte-swapping.
+Drop this check: functionality is now commented in man pages and there's
+no reason to restrict to source MAC address matching anymore.
 
-This patch use that function to copy the F/W to the GOYA ASIC instead of
-writeX macros.
-
-Signed-off-by: Ben Segal <bpsegal20@gmail.com>
-Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Reported-by: Chen Yi <yiche@redhat.com>
+Fixes: 8cc4ccf58379 ("ipset: Allow matching on destination MAC address for mac and ipmac sets")
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/firmware_if.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ net/netfilter/ipset/ip_set_hash_ipmac.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/firmware_if.c b/drivers/misc/habanalabs/firmware_if.c
-index eda5d7fcb79f2..fe9e57a81b6fd 100644
---- a/drivers/misc/habanalabs/firmware_if.c
-+++ b/drivers/misc/habanalabs/firmware_if.c
-@@ -24,7 +24,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
- {
- 	const struct firmware *fw;
- 	const u64 *fw_data;
--	size_t fw_size, i;
-+	size_t fw_size;
- 	int rc;
+diff --git a/net/netfilter/ipset/ip_set_hash_ipmac.c b/net/netfilter/ipset/ip_set_hash_ipmac.c
+index faf59b6a998fe..eb14434083203 100644
+--- a/net/netfilter/ipset/ip_set_hash_ipmac.c
++++ b/net/netfilter/ipset/ip_set_hash_ipmac.c
+@@ -89,10 +89,6 @@ hash_ipmac4_kadt(struct ip_set *set, const struct sk_buff *skb,
+ 	struct hash_ipmac4_elem e = { .ip = 0, { .foo[0] = 0, .foo[1] = 0 } };
+ 	struct ip_set_ext ext = IP_SET_INIT_KEXT(skb, opt, set);
  
- 	rc = request_firmware(&fw, fw_name, hdev->dev);
-@@ -45,22 +45,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
- 
- 	fw_data = (const u64 *) fw->data;
- 
--	if ((fw->size % 8) != 0)
--		fw_size -= 8;
+-	 /* MAC can be src only */
+-	if (!(opt->flags & IPSET_DIM_TWO_SRC))
+-		return 0;
 -
--	for (i = 0 ; i < fw_size ; i += 8, fw_data++, dst += 8) {
--		if (!(i & (0x80000 - 1))) {
--			dev_dbg(hdev->dev,
--				"copied so far %zu out of %zu for %s firmware",
--				i, fw_size, fw_name);
--			usleep_range(20, 100);
--		}
--
--		writeq(*fw_data, dst);
--	}
--
--	if ((fw->size % 8) != 0)
--		writel(*(const u32 *) fw_data, dst);
-+	memcpy_toio(dst, fw_data, fw_size);
- 
- out:
- 	release_firmware(fw);
+ 	if (skb_mac_header(skb) < skb->head ||
+ 	    (skb_mac_header(skb) + ETH_HLEN) > skb->data)
+ 		return -EINVAL;
 -- 
 2.20.1
 
