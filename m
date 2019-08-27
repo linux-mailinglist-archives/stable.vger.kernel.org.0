@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E7F9E046
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 899249E048
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730989AbfH0ICF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:02:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58836 "EHLO mail.kernel.org"
+        id S1731456AbfH0ICL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:02:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731863AbfH0ICE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:04 -0400
+        id S1729940AbfH0ICK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:02:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3FCF20828;
-        Tue, 27 Aug 2019 08:02:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AF2020828;
+        Tue, 27 Aug 2019 08:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892923;
-        bh=6abIy+WU9xfUE0ZIkiK0oS8B9mSv4+iueYbcm3+7bpg=;
+        s=default; t=1566892929;
+        bh=pyrg+z/7eKmpFw42kpMU9376OOflt9hc68pQE0WBeIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PR58BmR/Ex4ZfQ8ypHTCczaQpRo4OjH/08W+IKIynmmMRgXXzL87UybUzXUf3z47L
-         OMP6bpV2demUWMAa0x1h9hP1+KOQxa8y00AVfurQfwpwKLoiqEDJy5w44bEncL5eL9
-         W5X9HQxuKTUj7PUU2JgSXvTa+Z6XWVuvHjmXvYKk=
+        b=ZHVMloqXoPzx4dgz68BMFfa9oNK8S3A0oI9BEls452rtrd6SeFfST5TCjD50J4FB/
+         tSr+WuZmHekJrDpt3rAuKF61bGNPCKds9wplDMZIBAkalc6CQSIzVU2ozD8GIZN4e0
+         ewTLkPkwfTFHbkIYJeGVB+nP7ZhkPXgbJy8ISNv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 018/162] ASoC: dapm: Fix handling of custom_stop_condition on DAPM graph walks
-Date:   Tue, 27 Aug 2019 09:49:06 +0200
-Message-Id: <20190827072738.963720616@linuxfoundation.org>
+Subject: [PATCH 5.2 020/162] spi: pxa2xx: Balance runtime PM enable/disable on error
+Date:   Tue, 27 Aug 2019 09:49:08 +0200
+Message-Id: <20190827072739.027638612@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -45,74 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8dd26dff00c0636b1d8621acaeef3f6f3a39dd77 ]
+[ Upstream commit 1274204542f683e1d8491ebe9cc86284d5a8ebcc ]
 
-DPCM uses snd_soc_dapm_dai_get_connected_widgets to build a
-list of the widgets connected to a specific front end DAI so it
-can search through this list for available back end DAIs. The
-custom_stop_condition was added to is_connected_ep to facilitate this
-list not containing more widgets than is necessary. Doing so both
-speeds up the DPCM handling as less widgets need to be searched and
-avoids issues with CODEC to CODEC links as these would be confused
-with back end DAIs if they appeared in the list of available widgets.
+Don't undo the PM initialization if we error out before we managed to
+initialize it. The call to pm_runtime_disable() without being preceded
+by pm_runtime_enable() would disturb the balance of the Force.
 
-custom_stop_condition was implemented by aborting the graph walk
-when the condition is triggered, however there is an issue with this
-approach. Whilst walking the graph is_connected_ep should update the
-endpoints cache on each widget, if the walk is aborted the number
-of attached end points is unknown for that sub-graph. When the stop
-condition triggered, the original patch ignored the triggering widget
-and returned zero connected end points; a later patch updated this
-to set the triggering widget's cache to 1 and return that. Both of
-these approaches result in inaccurate values being stored in various
-end point caches as the values propagate back through the graph,
-which can result in later issues with widgets powering/not powering
-unexpectedly.
+In practice, this happens if we fail to allocate any of the GPIOS ("cs",
+"ready") due to -EPROBE_DEFER because we're getting probled before the
+GPIO driver.
 
-As the original goal was to reduce the size of the widget list passed
-to the DPCM code, the simplest solution is to limit the functionality
-of the custom_stop_condition to the widget list. This means the rest
-of the graph will still be processed resulting in correct end point
-caches, but only widgets up to the stop condition will be added to the
-returned widget list.
-
-Fixes: 6742064aef7f ("ASoC: dapm: support user-defined stop condition in dai_get_connected_widgets")
-Fixes: 5fdd022c2026 ("ASoC: dpcm: play nice with CODEC<->CODEC links")
-Fixes: 09464974eaa8 ("ASoC: dapm: Fix to return correct path list in is_connected_ep.")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20190718084333.15598-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Link: https://lore.kernel.org/r/20190719122713.3444318-1-lkundrak@v3.sk
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spi/spi-pxa2xx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index c91df5a9c8406..835ce1ff188d9 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -1156,8 +1156,8 @@ static __always_inline int is_connected_ep(struct snd_soc_dapm_widget *widget,
- 		list_add_tail(&widget->work_list, list);
- 
- 	if (custom_stop_condition && custom_stop_condition(widget, dir)) {
--		widget->endpoints[dir] = 1;
--		return widget->endpoints[dir];
-+		list = NULL;
-+		custom_stop_condition = NULL;
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index af3f37ba82c83..c1af8887d9186 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1817,14 +1817,16 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
+ 	status = devm_spi_register_controller(&pdev->dev, controller);
+ 	if (status != 0) {
+ 		dev_err(&pdev->dev, "problem registering spi controller\n");
+-		goto out_error_clock_enabled;
++		goto out_error_pm_runtime_enabled;
  	}
  
- 	if ((widget->is_ep & SND_SOC_DAPM_DIR_TO_EP(dir)) && widget->connected) {
-@@ -1194,8 +1194,8 @@ static __always_inline int is_connected_ep(struct snd_soc_dapm_widget *widget,
-  *
-  * Optionally, can be supplied with a function acting as a stopping condition.
-  * This function takes the dapm widget currently being examined and the walk
-- * direction as an arguments, it should return true if the walk should be
-- * stopped and false otherwise.
-+ * direction as an arguments, it should return true if widgets from that point
-+ * in the graph onwards should not be added to the widget list.
-  */
- static int is_connected_output_ep(struct snd_soc_dapm_widget *widget,
- 	struct list_head *list,
+ 	return status;
+ 
+-out_error_clock_enabled:
++out_error_pm_runtime_enabled:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++
++out_error_clock_enabled:
+ 	clk_disable_unprepare(ssp->clk);
+ 
+ out_error_dma_irq_alloc:
 -- 
 2.20.1
 
