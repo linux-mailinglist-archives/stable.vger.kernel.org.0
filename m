@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 863329E03C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9D89E03E
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730677AbfH0IBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
+        id S1731378AbfH0IBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731819AbfH0IBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:01:44 -0400
+        id S1726071AbfH0IBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:01:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CCEA206BA;
-        Tue, 27 Aug 2019 08:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09792206BF;
+        Tue, 27 Aug 2019 08:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892903;
-        bh=NauF0gTceaO42fNrWrKjuS0JXxFtntFaONx+aShP3Ic=;
+        s=default; t=1566892906;
+        bh=vVk9Sb/DjoIiqL2j89SBhyyPPoSvb/UenDQ1/pyI9Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uiydOkDFAX40aci9Uxvd/UlW4IHBaPVQqYNgD38AJubRNEqljFZHaC88mm0SA+ewO
-         m5FzN3oY1XjkU7Bm4vNz66ZMj2rdDJfz7VNRtGx5iDO4SDt33P2XgYyU536/uPt7cD
-         v7wHs2dJUOVWZ2xS06vvjepCuHX6ETk0UDBn6p7s=
+        b=YJv/8O/8jrJrb1op24iD47NoIWJ+avET5L5adKJu8gc/HUUtD6VBaHAiq7lnE6cAc
+         6vKqX9IIWHRnoflPan7nZxlGfePsiPD68K9HyQklbiE2/ALSiYtpAbTpUsxgV76ZyP
+         0JmWHuB07WzUaCTvk6KmvW9uPG1T2xqk1fnVQx/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        stable@vger.kernel.org,
+        syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Jeffrey Altman <jaltman@auristor.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 052/162] netfilter: ipset: Fix rename concurrency with listing
-Date:   Tue, 27 Aug 2019 09:49:40 +0200
-Message-Id: <20190827072740.023277554@linuxfoundation.org>
+Subject: [PATCH 5.2 053/162] rxrpc: Fix potential deadlock
+Date:   Tue, 27 Aug 2019 09:49:41 +0200
+Message-Id: <20190827072740.054489358@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,36 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6c1f7e2c1b96ab9b09ac97c4df2bd9dc327206f6 ]
+[ Upstream commit 60034d3d146b11922ab1db613bce062dddc0327a ]
 
-Shijie Luo reported that when stress-testing ipset with multiple concurrent
-create, rename, flush, list, destroy commands, it can result
+There is a potential deadlock in rxrpc_peer_keepalive_dispatch() whereby
+rxrpc_put_peer() is called with the peer_hash_lock held, but if it reduces
+the peer's refcount to 0, rxrpc_put_peer() calls __rxrpc_put_peer() - which
+the tries to take the already held lock.
 
-ipset <version>: Broken LIST kernel message: missing DATA part!
+Fix this by providing a version of rxrpc_put_peer() that can be called in
+situations where the lock is already held.
 
-error messages and broken list results. The problem was the rename operation
-was not properly handled with respect of listing. The patch fixes the issue.
+The bug may produce the following lockdep report:
 
-Reported-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+============================================
+WARNING: possible recursive locking detected
+5.2.0-next-20190718 #41 Not tainted
+--------------------------------------------
+kworker/0:3/21678 is trying to acquire lock:
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
+/./include/linux/spinlock.h:343 [inline]
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
+__rxrpc_put_peer /net/rxrpc/peer_object.c:415 [inline]
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
+rxrpc_put_peer+0x2d3/0x6a0 /net/rxrpc/peer_object.c:435
+
+but task is already holding lock:
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
+/./include/linux/spinlock.h:343 [inline]
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
+rxrpc_peer_keepalive_dispatch /net/rxrpc/peer_event.c:378 [inline]
+00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
+rxrpc_peer_keepalive_worker+0x6b3/0xd02 /net/rxrpc/peer_event.c:430
+
+Fixes: 330bdcfadcee ("rxrpc: Fix the keepalive generator [ver #2]")
+Reported-by: syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/ar-internal.h |  1 +
+ net/rxrpc/peer_event.c  |  2 +-
+ net/rxrpc/peer_object.c | 18 ++++++++++++++++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index 16afa0df4004d..e103c875383a5 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1161,7 +1161,7 @@ static int ip_set_rename(struct net *net, struct sock *ctnl,
- 		return -ENOENT;
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 80335b4ee4fd6..822f45386e311 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -1061,6 +1061,7 @@ void rxrpc_destroy_all_peers(struct rxrpc_net *);
+ struct rxrpc_peer *rxrpc_get_peer(struct rxrpc_peer *);
+ struct rxrpc_peer *rxrpc_get_peer_maybe(struct rxrpc_peer *);
+ void rxrpc_put_peer(struct rxrpc_peer *);
++void rxrpc_put_peer_locked(struct rxrpc_peer *);
  
- 	write_lock_bh(&ip_set_ref_lock);
--	if (set->ref != 0) {
-+	if (set->ref != 0 || set->ref_netlink != 0) {
- 		ret = -IPSET_ERR_REFERENCED;
- 		goto out;
+ /*
+  * proc.c
+diff --git a/net/rxrpc/peer_event.c b/net/rxrpc/peer_event.c
+index 9f2f45c09e583..7666ec72d37e5 100644
+--- a/net/rxrpc/peer_event.c
++++ b/net/rxrpc/peer_event.c
+@@ -378,7 +378,7 @@ static void rxrpc_peer_keepalive_dispatch(struct rxrpc_net *rxnet,
+ 		spin_lock_bh(&rxnet->peer_hash_lock);
+ 		list_add_tail(&peer->keepalive_link,
+ 			      &rxnet->peer_keepalive[slot & mask]);
+-		rxrpc_put_peer(peer);
++		rxrpc_put_peer_locked(peer);
  	}
+ 
+ 	spin_unlock_bh(&rxnet->peer_hash_lock);
+diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
+index 9d3ce81cf8ae8..9c3ac96f71cbf 100644
+--- a/net/rxrpc/peer_object.c
++++ b/net/rxrpc/peer_object.c
+@@ -436,6 +436,24 @@ void rxrpc_put_peer(struct rxrpc_peer *peer)
+ 	}
+ }
+ 
++/*
++ * Drop a ref on a peer record where the caller already holds the
++ * peer_hash_lock.
++ */
++void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
++{
++	const void *here = __builtin_return_address(0);
++	int n;
++
++	n = atomic_dec_return(&peer->usage);
++	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
++	if (n == 0) {
++		hash_del_rcu(&peer->hash_link);
++		list_del_init(&peer->keepalive_link);
++		kfree_rcu(peer, rcu);
++	}
++}
++
+ /*
+  * Make sure all peer records have been discarded.
+  */
 -- 
 2.20.1
 
