@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF889E0B3
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4109E0B4
 	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731440AbfH0IFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:05:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34596 "EHLO mail.kernel.org"
+        id S1731020AbfH0IFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731444AbfH0IE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:04:58 -0400
+        id S1731410AbfH0IFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:05:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F403621872;
-        Tue, 27 Aug 2019 08:04:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3677206BA;
+        Tue, 27 Aug 2019 08:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893097;
-        bh=nr+XhdCJv5KdUbvjEpdXWa5YBu+SA2axb6GLhdsPhOM=;
+        s=default; t=1566893100;
+        bh=zSt9OyuCCf+/314BuRfbHEIHr6Hl7XP/JOfES86IgzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDjB4wUeIzQFQT79+G4Hkn800ntKwQm6dHfJE97nlRypNuXM6J2cYeQ/TdYoxDV9h
-         PUwtxAUBKLgpVQDxmSmBZ/Oh5HqX+S80l5BwogwuTjZKKS2v3eot9Puez6DNyVuwbU
-         sWplBPN/w7XdxfzweX8zywKfoGlrxATq/+eFv0bM=
+        b=BUphbPD58LjUtc9t4EyTJ38Bfb5tUXnFpbcUDHj7keiDK1Wy68UC97eyIyoQ+htZr
+         mGsIlGxJx+EBo8b8rNb8KrqmQa7TNPUiOB1gcw6VJRRO+CBnHobmo2Ufcdykk98l0V
+         PaUtMzzVp88HHwWRz2cUqhSB7mV85d0G5UHm+ZOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 5.2 120/162] drm/nouveau: Dont retry infinitely when receiving no data on i2c over AUX
-Date:   Tue, 27 Aug 2019 09:50:48 +0200
-Message-Id: <20190827072742.631504865@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.2 121/162] scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
+Date:   Tue, 27 Aug 2019 09:50:49 +0200
+Message-Id: <20190827072742.673224680@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -43,103 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c358ebf59634f06d8ed176da651ec150df3c8686 upstream.
+commit 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1 upstream.
 
-While I had thought I had fixed this issue in:
+Fix the following BUG:
 
-commit 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after
-->fini()")
+  [ 187.065689] BUG: kernel NULL pointer dereference, address: 000000000000001c
+  [ 187.065790] RIP: 0010:ufshcd_vreg_set_hpm+0x3c/0x110 [ufshcd_core]
+  [ 187.065938] Call Trace:
+  [ 187.065959] ufshcd_resume+0x72/0x290 [ufshcd_core]
+  [ 187.065980] ufshcd_system_resume+0x54/0x140 [ufshcd_core]
+  [ 187.065993] ? pci_pm_restore+0xb0/0xb0
+  [ 187.066005] ufshcd_pci_resume+0x15/0x20 [ufshcd_pci]
+  [ 187.066017] pci_pm_thaw+0x4c/0x90
+  [ 187.066030] dpm_run_callback+0x5b/0x150
+  [ 187.066043] device_resume+0x11b/0x220
 
-It turns out that while I did fix the error messages I was seeing on my
-P50 when trying to access i2c busses with the GPU in runtime suspend, I
-accidentally had missed one important detail that was mentioned on the
-bug report this commit was supposed to fix: that the CPU would only lock
-up when trying to access i2c busses _on connected devices_ _while the
-GPU is not in runtime suspend_. Whoops. That definitely explains why I
-was not able to get my machine to hang with i2c bus interactions until
-now, as plugging my P50 into it's dock with an HDMI monitor connected
-allowed me to finally reproduce this locally.
+Voltage regulators are optional, so functions must check they exist
+before dereferencing.
 
-Now that I have managed to reproduce this issue properly, it looks like
-the problem is much simpler then it looks. It turns out that some
-connected devices, such as MST laptop docks, will actually ACK i2c reads
-even if no data was actually read:
+Note this issue is hidden if CONFIG_REGULATORS is not set, because the
+offending code is optimised away.
 
-[  275.063043] nouveau 0000:01:00.0: i2c: aux 000a: 1: 0000004c 1
-[  275.063447] nouveau 0000:01:00.0: i2c: aux 000a: 00 01101000 10040000
-[  275.063759] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000001
-[  275.064024] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
-[  275.064285] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
-[  275.064594] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
+Notes for stable:
 
-Because we don't handle the situation of i2c ack without any data, we
-end up entering an infinite loop in nvkm_i2c_aux_i2c_xfer() since the
-value of cnt always remains at 0. This finally properly explains how
-this could result in a CPU hang like the ones observed in the
-aforementioned commit.
+The issue first appears in commit 57d104c153d3 ("ufs: add UFS power
+management support") but is inadvertently fixed in commit 60f0187031c0
+("scsi: ufs: disable vccq if it's not needed by UFS device") which in
+turn was reverted by commit 730679817d83 ("Revert "scsi: ufs: disable vccq
+if it's not needed by UFS device""). So fix applies v3.18 to v4.5 and
+v5.1+
 
-So, fix this by retrying transactions if no data is written or received,
-and give up and fail the transaction if we continue to not write or
-receive any data after 32 retries.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: 57d104c153d3 ("ufs: add UFS power management support")
+Fixes: 730679817d83 ("Revert "scsi: ufs: disable vccq if it's not needed by UFS device"")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c |   24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
-@@ -40,8 +40,7 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
- 		u8 *ptr = msg->buf;
- 
- 		while (remaining) {
--			u8 cnt = (remaining > 16) ? 16 : remaining;
--			u8 cmd;
-+			u8 cnt, retries, cmd;
- 
- 			if (msg->flags & I2C_M_RD)
- 				cmd = 1;
-@@ -51,10 +50,19 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
- 			if (mcnt || remaining > 16)
- 				cmd |= 4; /* MOT */
- 
--			ret = aux->func->xfer(aux, true, cmd, msg->addr, ptr, &cnt);
--			if (ret < 0) {
--				nvkm_i2c_aux_release(aux);
--				return ret;
-+			for (retries = 0, cnt = 0;
-+			     retries < 32 && !cnt;
-+			     retries++) {
-+				cnt = min_t(u8, remaining, 16);
-+				ret = aux->func->xfer(aux, true, cmd,
-+						      msg->addr, ptr, &cnt);
-+				if (ret < 0)
-+					goto out;
-+			}
-+			if (!cnt) {
-+				AUX_TRACE(aux, "no data after 32 retries");
-+				ret = -EIO;
-+				goto out;
- 			}
- 
- 			ptr += cnt;
-@@ -64,8 +72,10 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
- 		msg++;
- 	}
- 
-+	ret = num;
-+out:
- 	nvkm_i2c_aux_release(aux);
--	return num;
-+	return ret;
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -7032,6 +7032,9 @@ static inline int ufshcd_config_vreg_lpm
+ static inline int ufshcd_config_vreg_hpm(struct ufs_hba *hba,
+ 					 struct ufs_vreg *vreg)
+ {
++	if (!vreg)
++		return 0;
++
+ 	return ufshcd_config_vreg_load(hba->dev, vreg, vreg->max_uA);
  }
  
- static u32
 
 
