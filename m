@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 666F39DF26
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882679DF6D
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726025AbfH0Hvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42910 "EHLO mail.kernel.org"
+        id S1729996AbfH0HyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725985AbfH0Hvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:51:47 -0400
+        id S1729374AbfH0HyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B9BE206BA;
-        Tue, 27 Aug 2019 07:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61678217F5;
+        Tue, 27 Aug 2019 07:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892306;
-        bh=hSXiHTaIGZAtakKjmWxzWPqo1JJ9IeJSuT3tMk0Qho4=;
+        s=default; t=1566892449;
+        bh=tBPZC6mCiWD6n1scrwgRNNIljCMIUEPvwRa4pmU0U9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxfpouoWoSZRO/jubkxsAhh5qskITiBfn7uZC3WFAKnNm4nhaiCiODspLlmRWn/D0
-         h6Ld9inoesBFuWEN4aZ6m6X4UMy06b1yxGyRjptcYFhhD/qwmOcXzocLlrIW0TyQPv
-         w2VoMQzKGeJVIJIyaAfdjygQoqiGS/6D67WhxAoY=
+        b=U7EIaAY2cIgTzV4/02m6rR7wFzd1Yib8Fcn63rMqnTDvczWk39PwdxJIy9H9zrAdt
+         7Qeoqq6efq7A/2rPDeZfJfbK2yCeyrAWyvThIK0pgQnY1wWz6MQVCciENPR6ddkXIZ
+         K/M3577k08nVEFG5mf+YnnPSqItsKpYsovgbvHU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Willem de Bruijn <willemb@google.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/62] mips: fix cacheinfo
-Date:   Tue, 27 Aug 2019 09:50:08 +0200
-Message-Id: <20190827072700.223038050@linuxfoundation.org>
+Subject: [PATCH 4.14 07/62] can: dev: call netif_carrier_off() in register_candev()
+Date:   Tue, 27 Aug 2019 09:50:12 +0200
+Message-Id: <20190827072700.663445408@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -47,45 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b8bea8a5e5d942e62203416ab41edecaed4fda02 ]
+[ Upstream commit c63845609c4700488e5eacd6ab4d06d5d420e5ef ]
 
-Because CONFIG_OF defined for MIPS, cacheinfo attempts to fill information
-from DT, ignoring data filled by architecture routine. This leads to error
-reported
+CONFIG_CAN_LEDS is deprecated. When trying to use the generic netdev
+trigger as suggested, there's a small inconsistency with the link
+property: The LED is on initially, stays on when the device is brought
+up, and then turns off (as expected) when the device is brought down.
 
- cacheinfo: Unable to detect cache hierarchy for CPU 0
+Make sure the LED always reflects the state of the CAN device.
 
-Way to fix this provided in
-commit fac51482577d ("drivers: base: cacheinfo: fix x86 with
- CONFIG_OF enabled")
-
-Utilize same mechanism to report that cacheinfo set by architecture
-specific function
-
-Signed-off-by: Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cacheinfo.c | 2 ++
+ drivers/net/can/dev.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
-index 97d5239ca47ba..428ef21892039 100644
---- a/arch/mips/kernel/cacheinfo.c
-+++ b/arch/mips/kernel/cacheinfo.c
-@@ -80,6 +80,8 @@ static int __populate_cache_leaves(unsigned int cpu)
- 	if (c->tcache.waysize)
- 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 7d61d8801220e..d92113db4fb97 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -1217,6 +1217,8 @@ int register_candev(struct net_device *dev)
+ 		return -EINVAL;
  
-+	this_cpu_ci->cpu_map_populated = true;
+ 	dev->rtnl_link_ops = &can_link_ops;
++	netif_carrier_off(dev);
 +
- 	return 0;
+ 	return register_netdev(dev);
  }
- 
+ EXPORT_SYMBOL_GPL(register_candev);
 -- 
 2.20.1
 
