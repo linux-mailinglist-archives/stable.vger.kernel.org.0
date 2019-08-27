@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F2A9E21E
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E21499E103
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730007AbfH0IRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44450 "EHLO mail.kernel.org"
+        id S1732751AbfH0IID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729611AbfH0Hw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:52:58 -0400
+        id S1732626AbfH0IGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:06:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C906721881;
-        Tue, 27 Aug 2019 07:52:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEECC206BA;
+        Tue, 27 Aug 2019 08:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892377;
-        bh=bMgII+BcVpCBidRBgxQO/AC3Mx3ozJ83MGtmLzdsyGI=;
+        s=default; t=1566893195;
+        bh=E2T96lX400mJklYhgl0TGxOlccJvDuTil1Mhu7MLcJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJFvSLR0XfP2BbBgpqcrySliDdjdy4ZwrvbyruAdMd4HUZwGtS2D70pz1o6mL2PQz
-         ikJ0pNpLsPmTxXXtB/HrR8la8FE/hYYRvnoAwdqZ2Eb6qcAEjy7s3wM7I/bwolNvTg
-         E+B4qL3KiWMX+FNqMUKZwNRxK9CzyJakrpHMyuSc=
+        b=MaG8JY+++gUMlP0QP5UkseGmMHalsolI2wm1Zu7qwakaXZhYl9UA+nbE4M55oZcJP
+         U1GCbYtQtsvOHlkLVrows5ftnOQ8fDd7cPPElNGT70NXoOduarUlk08RrllETME/Ab
+         dRQbQUMWDl5/fXvjFu6tDAR+qigTLRVm3wo3jigU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/62] perf pmu-events: Fix missing "cpu_clk_unhalted.core" event
+        stable@vger.kernel.org,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.2 111/162] HID: wacom: correct misreported EKR ring values
 Date:   Tue, 27 Aug 2019 09:50:39 +0200
-Message-Id: <20190827072702.701715776@linuxfoundation.org>
+Message-Id: <20190827072742.227384521@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,64 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8e6e5bea2e34c61291d00cb3f47560341aa84bc3 ]
+From: Aaron Armstrong Skomra <skomra@gmail.com>
 
-The events defined in pmu-events JSON are parsed and added into perf
-tool. For fixed counters, we handle the encodings between JSON and perf
-by using a static array fixed[].
+commit fcf887e7caaa813eea821d11bf2b7619a37df37a upstream.
 
-But the fixed[] has missed an important event "cpu_clk_unhalted.core".
+The EKR ring claims a range of 0 to 71 but actually reports
+values 1 to 72. The ring is used in relative mode so this
+change should not affect users.
 
-For example, on the Tremont platform,
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  [root@localhost ~]# perf stat -e cpu_clk_unhalted.core -a
-  event syntax error: 'cpu_clk_unhalted.core'
-                       \___ parser error
-
-With this patch, the event cpu_clk_unhalted.core can be parsed.
-
-  [root@localhost perf]# ./perf stat -e cpu_clk_unhalted.core -a -vvv
-  ------------------------------------------------------------
-  perf_event_attr:
-    type                             4
-    size                             112
-    config                           0x3c
-    sample_type                      IDENTIFIER
-    read_format                      TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING
-    disabled                         1
-    inherit                          1
-    exclude_guest                    1
-  ------------------------------------------------------------
-...
-
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/20190729072755.2166-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/wacom_wac.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index d51dc9ca8861a..94a7cabe9b824 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -346,6 +346,7 @@ static struct fixed {
- 	{ "inst_retired.any_p", "event=0xc0" },
- 	{ "cpu_clk_unhalted.ref", "event=0x0,umask=0x03" },
- 	{ "cpu_clk_unhalted.thread", "event=0x3c" },
-+	{ "cpu_clk_unhalted.core", "event=0x3c" },
- 	{ "cpu_clk_unhalted.thread_any", "event=0x3c,any=1" },
- 	{ NULL, NULL},
- };
--- 
-2.20.1
-
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1059,7 +1059,7 @@ static int wacom_remote_irq(struct wacom
+ 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
+ 
+ 	if (data[12] & 0x80)
+-		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
++		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
+ 	else
+ 		input_report_abs(input, ABS_WHEEL, 0);
+ 
 
 
