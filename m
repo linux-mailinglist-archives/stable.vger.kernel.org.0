@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C74829DFDF
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B43129DF74
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730622AbfH0H6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51078 "EHLO mail.kernel.org"
+        id S1729490AbfH0Hy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730627AbfH0H6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:22 -0400
+        id S1730055AbfH0Hy1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 833C5206BF;
-        Tue, 27 Aug 2019 07:58:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43F2A217F5;
+        Tue, 27 Aug 2019 07:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892701;
-        bh=zBFIuOVncQ0mQk1/RZt6zBngG9P9fsV2Cwm1yrUWVrM=;
+        s=default; t=1566892466;
+        bh=XGeWsTHypIog1MFp1MGZXbXhUXamoFqtKZtU0EC+ofE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K51Zyklye+x0zSaHMBe0dO69wgfJ7zr06a9ry9Kq5tOGUeeECXUB3ZZbp5O3yug6k
-         2jeJjnV/tnVV1yBtY9ii1+5ZUy+WwbvVQFlSRCOWgg4p+RApuYa+y8iKQ4kf7ToW12
-         Ith+r1l+sxAIK8w0a8JPUv7LzU7UaHrNsVaHcI48=
+        b=YZBFgHnXukj7ZgKSCca70o6EE+rGhTHOSZ0dkiLV/BjJiqvcREP7spk384HjdAfCl
+         6PCD6mUigjqNs6I4apb2a3Qb4bxPDm1qlYkYH1yIyf5PcsonzGiz68ObFCU+PMFHt+
+         BJLigzBdPJbuKkNm3JKLXi9Vkg9Js5jvmlff4b3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 82/98] dm zoned: improve error handling in i/o map code
-Date:   Tue, 27 Aug 2019 09:51:01 +0200
-Message-Id: <20190827072722.351038993@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 57/62] mm, page_owner: handle THP splits correctly
+Date:   Tue, 27 Aug 2019 09:51:02 +0200
+Message-Id: <20190827072703.769817581@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-commit d7428c50118e739e672656c28d2b26b09375d4e0 upstream.
+commit f7da677bc6e72033f0981b9d58b5c5d409fa641e upstream.
 
-Some errors are ignored in the I/O path during queueing chunks
-for processing by chunk works. Since at least these errors are
-transient in nature, it should be possible to retry the failed
-incoming commands.
+THP splitting path is missing the split_page_owner() call that
+split_page() has.
 
-The fix -
+As a result, split THP pages are wrongly reported in the page_owner file
+as order-9 pages.  Furthermore when the former head page is freed, the
+remaining former tail pages are not listed in the page_owner file at
+all.  This patch fixes that by adding the split_page_owner() call into
+__split_huge_page().
 
-Errors that can happen while queueing chunks are carried upwards
-to the main mapping function and it now returns DM_MAPIO_REQUEUE
-for any incoming requests that can not be properly queued.
-
-Error logging/debug messages are added where needed.
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: http://lkml.kernel.org/r/20190820131828.22684-2-vbabka@suse.cz
+Fixes: a9627bc5e34e ("mm/page_owner: introduce split_page_owner and replace manual handling")
+Reported-by: Kirill A. Shutemov <kirill@shutemov.name>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-target.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ mm/huge_memory.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -513,22 +513,24 @@ static void dmz_flush_work(struct work_s
-  * Get a chunk work and start it to process a new BIO.
-  * If the BIO chunk has no work yet, create one.
-  */
--static void dmz_queue_chunk_work(struct dmz_target *dmz, struct bio *bio)
-+static int dmz_queue_chunk_work(struct dmz_target *dmz, struct bio *bio)
- {
- 	unsigned int chunk = dmz_bio_chunk(dmz->dev, bio);
- 	struct dm_chunk_work *cw;
-+	int ret = 0;
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -33,6 +33,7 @@
+ #include <linux/page_idle.h>
+ #include <linux/shmem_fs.h>
+ #include <linux/oom.h>
++#include <linux/page_owner.h>
  
- 	mutex_lock(&dmz->chunk_lock);
- 
- 	/* Get the BIO chunk work. If one is not active yet, create one */
- 	cw = radix_tree_lookup(&dmz->chunk_rxtree, chunk);
- 	if (!cw) {
--		int ret;
- 
- 		/* Create a new chunk work */
- 		cw = kmalloc(sizeof(struct dm_chunk_work), GFP_NOIO);
--		if (!cw)
-+		if (unlikely(!cw)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
- 
- 		INIT_WORK(&cw->work, dmz_chunk_work);
- 		atomic_set(&cw->refcount, 0);
-@@ -539,7 +541,6 @@ static void dmz_queue_chunk_work(struct
- 		ret = radix_tree_insert(&dmz->chunk_rxtree, chunk, cw);
- 		if (unlikely(ret)) {
- 			kfree(cw);
--			cw = NULL;
- 			goto out;
- 		}
+ #include <asm/tlb.h>
+ #include <asm/pgalloc.h>
+@@ -2387,6 +2388,9 @@ static void __split_huge_page(struct pag
  	}
-@@ -547,10 +548,12 @@ static void dmz_queue_chunk_work(struct
- 	bio_list_add(&cw->bio_list, bio);
- 	dmz_get_chunk_work(cw);
  
-+	dmz_reclaim_bio_acc(dmz->reclaim);
- 	if (queue_work(dmz->chunk_wq, &cw->work))
- 		dmz_get_chunk_work(cw);
- out:
- 	mutex_unlock(&dmz->chunk_lock);
-+	return ret;
- }
- 
- /*
-@@ -564,6 +567,7 @@ static int dmz_map(struct dm_target *ti,
- 	sector_t sector = bio->bi_iter.bi_sector;
- 	unsigned int nr_sectors = bio_sectors(bio);
- 	sector_t chunk_sector;
-+	int ret;
- 
- 	dmz_dev_debug(dev, "BIO op %d sector %llu + %u => chunk %llu, block %llu, %u blocks",
- 		      bio_op(bio), (unsigned long long)sector, nr_sectors,
-@@ -601,8 +605,14 @@ static int dmz_map(struct dm_target *ti,
- 		dm_accept_partial_bio(bio, dev->zone_nr_sectors - chunk_sector);
- 
- 	/* Now ready to handle this BIO */
--	dmz_reclaim_bio_acc(dmz->reclaim);
--	dmz_queue_chunk_work(dmz, bio);
-+	ret = dmz_queue_chunk_work(dmz, bio);
-+	if (ret) {
-+		dmz_dev_debug(dmz->dev,
-+			      "BIO op %d, can't process chunk %llu, err %i\n",
-+			      bio_op(bio), (u64)dmz_bio_chunk(dmz->dev, bio),
-+			      ret);
-+		return DM_MAPIO_REQUEUE;
-+	}
- 
- 	return DM_MAPIO_SUBMITTED;
- }
+ 	ClearPageCompound(head);
++
++	split_page_owner(head, HPAGE_PMD_ORDER);
++
+ 	/* See comment in __split_huge_page_tail() */
+ 	if (PageAnon(head)) {
+ 		/* Additional pin to radix tree of swap cache */
 
 
