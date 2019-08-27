@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D493F9E1F1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB46C9E1F3
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728749AbfH0Hxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:53:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
+        id S1729918AbfH0Hxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729873AbfH0Hxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:45 -0400
+        id S1725825AbfH0Hxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:53:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF1E420828;
-        Tue, 27 Aug 2019 07:53:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F7B120828;
+        Tue, 27 Aug 2019 07:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892424;
-        bh=Pox7UGSVc3exntObymrJZRHxDv/1qDz0hdp3/iMqotU=;
+        s=default; t=1566892432;
+        bh=tFqCp16aNSWR277rTmCPSwFTD5kGdcp9QL3VQurlJrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adRBBCZ31prt3B01W367GPP6sNYUexX2L+XoJVRpNrnN4bCySdpUVpyRf7PTWxCMu
-         de4Jl6VGIDQOMwKsbvw/EdAO8MfOF4hV8qoDQNLZV6XYBFDDwiWvq4Se28PNDDuHhS
-         R/F1DoxpEdlcRxdeadUeXVee3dZcKDItFJPo9Mxs=
+        b=uoDTvznyaNyT7UfY6054FcjQKwlzJkBRApVODWPgJLKfrOJ44Nd6d/TRwlFziG3+/
+         n2xet9yubwleEM/WTlIjVxO+4uhV834wS1ww8GfshLZop/CPDWWaqVnWD6O4w2XTpO
+         Ciac4i2wPJvWoD8sN2pm7Oniw+QRGv34DAe+zdK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil MacLeod <neil@nmacleod.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 4.14 48/62] x86/boot: Fix boot regression caused by bootparam sanitizing
-Date:   Tue, 27 Aug 2019 09:50:53 +0200
-Message-Id: <20190827072703.277332229@linuxfoundation.org>
+        stable@vger.kernel.org, ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 51/62] dm space map metadata: fix missing store of apply_bops() return value
+Date:   Tue, 27 Aug 2019 09:50:56 +0200
+Message-Id: <20190827072703.472679604@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -44,41 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 7846f58fba964af7cb8cf77d4d13c33254725211 upstream.
+commit ae148243d3f0816b37477106c05a2ec7d5f32614 upstream.
 
-commit a90118c445cc ("x86/boot: Save fields explicitly, zero out everything
-else") had two errors:
+In commit 6096d91af0b6 ("dm space map metadata: fix occasional leak
+of a metadata block on resize"), we refactor the commit logic to a new
+function 'apply_bops'.  But when that logic was replaced in out() the
+return value was not stored.  This may lead out() returning a wrong
+value to the caller.
 
-    * It preserved boot_params.acpi_rsdp_addr, and
-    * It failed to preserve boot_params.hdr
-
-Therefore, zero out acpi_rsdp_addr, and preserve hdr.
-
-Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
-Reported-by: Neil MacLeod <neil@nmacleod.com>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neil MacLeod <neil@nmacleod.com>
+Fixes: 6096d91af0b6 ("dm space map metadata: fix occasional leak of a metadata block on resize")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190821192513.20126-1-jhubbard@nvidia.com
+Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/bootparam_utils.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/persistent-data/dm-space-map-metadata.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/bootparam_utils.h
-+++ b/arch/x86/include/asm/bootparam_utils.h
-@@ -71,6 +71,7 @@ static void sanitize_boot_params(struct
- 			BOOT_PARAM_PRESERVE(eddbuf_entries),
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
-+			BOOT_PARAM_PRESERVE(hdr),
- 			BOOT_PARAM_PRESERVE(e820_table),
- 			BOOT_PARAM_PRESERVE(eddbuf),
- 		};
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -248,7 +248,7 @@ static int out(struct sm_metadata *smm)
+ 	}
+ 
+ 	if (smm->recursion_count == 1)
+-		apply_bops(smm);
++		r = apply_bops(smm);
+ 
+ 	smm->recursion_count--;
+ 
 
 
