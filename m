@@ -2,97 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6A89F273
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 134359F27A
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbfH0Shq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 14:37:46 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45053 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728972AbfH0Shq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 14:37:46 -0400
+        id S1730465AbfH0Sjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 14:39:46 -0400
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:50555 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729779AbfH0Sjq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 14:39:46 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1B58321FF5;
-        Tue, 27 Aug 2019 14:37:45 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 27 Aug 2019 14:37:45 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id 101C528AD;
+        Tue, 27 Aug 2019 14:39:45 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 27 Aug 2019 14:39:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=b
-        WPRqRoBAYL9+wuTgmAxfoGq3fttosj1XIJV0k/FbQs=; b=JcN9kQ2G33KetE3pj
-        BPVSLbs/orFZuLwNgG2fpa/jTqs1e90MoO0Y5E4Dy8cHaGsnwrGZJ56CaXXacxOu
-        A2FKUrkp6J+X8spdIanef9LNj1u7SjeF/9UW1JTugyjehgAfod6ne0upbkZWD4c5
-        LxdPelNz0+3HZFm8uvDdcyAniv9OoUliEh161YwG38ohBgNrc2PCZnXKMrHQB20J
-        Lb75FhZ2u3ebAitC1G1gmsYLq9KDT83hZHaTwFyIOZzqZiCD3ldttzy5iu/indp5
-        VnLhXKEwBCk4xR3js8H6lHfXOxZnZYuHBXGxvB7WL03+EX4VHDFXiKdsxXBbrStD
-        eU8iQ==
+        :content-type:in-reply-to; s=fm1; bh=2Pi2UrTYWIZeSLhHDsmgNc73uGU
+        Eowqv9oRu+ZwsHGA=; b=ERL0kigPYO3OOz4tGQ+vEqkqh0JtqzICMMQfqdWbcU/
+        rytJcRaMGrU/T8owYvdVPhUKoDWhD0/ZOr1Z5wHQJE4Ug5/TmRzTt9/72pfzgiuL
+        Du1v8YcF7vi673FsOfHS3CwrD8BfytsPXZ9rD/wJe94ok9QIYzCYWXR7DkiwCU+T
+        cV7GGZDxvYZilkzclYwbHDf0a2VdjdCZJAOfJmPhaSHd7Yy1qGF3j1/edzsYmCHx
+        2DK47P8o90y3AcG9b8cWDMNx+XtBlahTB7SptqEo+PDdnYp+1uBj4YlurE/1aSjD
+        PmGDvqUtiNwcDXRucyXs/4vxz96WbU2QwLrkUr3ue8w==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=bWPRqRoBAYL9+wuTgmAxfoGq3fttosj1XIJV0k/Fb
-        Qs=; b=PBwHqdA2aLPLP0P367TQelYa6t60pJxEQdAL/lcbo3DD9FprkEFLmw0o4
-        YC0Li8HfymeC0SH/ThU6XSnsz+Jy5h8XEiVDeMt7nNYpMBsrQkDZI5I7lc0r6m0P
-        jYW3rqIdJxvr8zeODXoZVZh32tJ3zlx2PMj4QyentZfufjdNuHjHP9F1X1Jn5HmD
-        7dveElt6JIv/mAIvcJ98N3/e8PYTAyxBFyBEohB8fkAFvUkOKQEx2uc7tRRyOKm8
-        x4X1IozH8574yIMTsTyDJ7lpcgjSLCDZskTKDGiZzLpvwLyref8MiI1EbwFf8TF5
-        65kWzaDD/PS41L/ortEhSunWwOkTA==
-X-ME-Sender: <xms:eHhlXWyfSHY_8WRSPQZygTI13PJxQ94Om3qY2cPDX4-1MnddtGarug>
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2Pi2Ur
+        TYWIZeSLhHDsmgNc73uGUEowqv9oRu+ZwsHGA=; b=wMTir3CHsmW0knAj4jGavl
+        VA3aikjJIy/f6GBK9UNZuaKk7Whb35zv9Tk7sPLWnTsxGrI/w9jAcAVbOeOqD750
+        He9Pkdwp7mNCVN8qZkuPyI0wdsF6fDD5JzpVr4UpietVo1Y8/i8mJp18D3vHWjp0
+        ixBpcqJ6z8LZs5sO64y3Tq0eRdmn5Pnx2SdtHcU10vOqzSqDsmmDnkua58OkiGfG
+        ZOPrWiV2J2joUvQdfOpEItP3AXgoZ0Y2O6/rdVMJwsr3K180qg3c4xztZP35Yr+k
+        Vqw3ZcjK5GLwNwr1XwKnIfqUg1+UXhYgQDMur9W1zUXeq4WHy1Ju17TUrV8UY+Sw
+        ==
+X-ME-Sender: <xms:73hlXfX7Vchuz9zmlBM56kYVBLGIQJHubf8MIvFsRBXXNJGdbaMu8Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudehkedgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:eHhlXW6K5bDNOwqLRvYEak5Pp29BxPlWJyL5hk1hwDgBjU6aLIRi9Q>
-    <xmx:eHhlXQdcE0klQ4u7KCeHxTD7DZOXuJ_05V0gGNe4LdeK_Or5prnFyg>
-    <xmx:eHhlXWqHPb4yTz9VtcfD-VEUlZbmBUP6s8MyZynGqATsuIL9WyM52g>
-    <xmx:eXhlXYwlgIze0w4rhlGv3FefzVuN0W8fC8SSjnWa8aEnz_SOwtKwow>
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:73hlXdH7YI8jCFkiLHviNcu0jCeAgL0xjiUisNijqqGoGNn19CErzw>
+    <xmx:73hlXafPM7yZFn7IJWAJdeE7G0lRiGGdAvdsBfdJhywjJDDgktYWtA>
+    <xmx:73hlXeqBLLjyr1V-zR_NyQdKihMQgf4PAihzAUEF3FGUVfCLeoENlQ>
+    <xmx:8XhlXTfghgODvyWc3J-F8F6rCiKefmXMXzgzjeMopFsEt6l7CsM9uw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7BB5AD6005F;
-        Tue, 27 Aug 2019 14:37:44 -0400 (EDT)
-Date:   Tue, 27 Aug 2019 20:37:42 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id ABAA580063;
+        Tue, 27 Aug 2019 14:39:42 -0400 (EDT)
+Date:   Tue, 27 Aug 2019 20:39:40 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Major Hayden <major@mhtx.net>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Yi Zhang <yi.zhang@redhat.com>, Xiumei Mu <xmu@redhat.com>,
-        Hangbin Liu <haliu@redhat.com>, Ying Xu <yinxu@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.2.11-rc1-9f63171.cki (stable)
-Message-ID: <20190827183742.GA2498@kroah.com>
-References: <cki.98AD376375.DJWRK5AJEY@redhat.com>
- <291770ce-273a-68aa-a4a2-7655cbea2bcc@mhtx.net>
- <20190827170518.GB21369@kroah.com>
- <20190827182536.GS5281@sasha-vm>
+To:     Sasha Levin <sashal@kernel.org>, Michal Hocko <mhocko@kernel.org>
+Cc:     Thomas Backlund <tmb@mageia.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Yafang Shao <laoar.shao@gmail.com>
+Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM
+ counters in sync with the hierarchical ones"
+Message-ID: <20190827183940.GA2924@kroah.com>
+References: <20190817004726.2530670-1-guro@fb.com>
+ <20190817063616.GA11747@kroah.com>
+ <20190817191518.GB11125@castle>
+ <20190824125750.da9f0aac47cc0a362208f9ff@linux-foundation.org>
+ <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
+ <20190827141016.GH7538@dhcp22.suse.cz>
+ <20190827170618.GC21369@kroah.com>
+ <20190827173950.GJ7538@dhcp22.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190827182536.GS5281@sasha-vm>
+In-Reply-To: <20190827173950.GJ7538@dhcp22.suse.cz>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 27, 2019 at 02:25:36PM -0400, Sasha Levin wrote:
-> On Tue, Aug 27, 2019 at 07:05:18PM +0200, Greg KH wrote:
-> > On Tue, Aug 27, 2019 at 09:35:30AM -0500, Major Hayden wrote:
-> > > On 8/27/19 7:31 AM, CKI Project wrote:
-> > > >   x86_64:
-> > > >       Host 2:
-> > > >          ❌ Networking socket: fuzz [9]
-> > > >          ❌ Networking sctp-auth: sockopts test [10]
+On Tue, Aug 27, 2019 at 07:39:50PM +0200, Michal Hocko wrote:
+> On Tue 27-08-19 19:06:18, Greg KH wrote:
+> > On Tue, Aug 27, 2019 at 04:10:16PM +0200, Michal Hocko wrote:
+> > > On Sat 24-08-19 23:23:07, Thomas Backlund wrote:
+> > > > Den 24-08-2019 kl. 22:57, skrev Andrew Morton:
+> > > > > On Sat, 17 Aug 2019 19:15:23 +0000 Roman Gushchin <guro@fb.com> wrote:
+> > > > > 
+> > > > > > > > Fixes: 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones")
+> > > > > > > > Signed-off-by: Roman Gushchin <guro@fb.com>
+> > > > > > > > Cc: Yafang Shao <laoar.shao@gmail.com>
+> > > > > > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
+> > > > > > > > ---
+> > > > > > > >   mm/memcontrol.c | 8 +++-----
+> > > > > > > >   1 file changed, 3 insertions(+), 5 deletions(-)
+> > > > > > > 
+> > > > > > > <formletter>
+> > > > > > > 
+> > > > > > > This is not the correct way to submit patches for inclusion in the
+> > > > > > > stable kernel tree.  Please read:
+> > > > > > >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > > > > > > for how to do this properly.
+> > > > > > 
+> > > > > > Oh, I'm sorry, will read and follow next time. Thanks!
+> > > > > 
+> > > > > 766a4c19d880 is not present in 5.2 so no -stable backport is needed, yes?
+> > > > > 
+> > > > 
+> > > > Unfortunately it got added in 5.2.7, so backport is needed.
 > > > 
-> > > It looks like there was an oops when these tests ran on 5.2.11-rc1 and the last set of patches in stable-queue:
+> > > yet another example of patch not marked for stable backported to the
+> > > stable tree. yay...
 > > 
-> > Can you bisect?
+> > If you do not want autobot to pick up patches for specific
+> > subsystems/files, just let us know and we will add them to the
+> > blacklist.
 > 
-> I think I've fixed it, let's see what happens next run.
+> Done that on several occasions over last year and so. I always get "yep
+> we are going to black list" and whoops and we are back there with
+> patches going to stable like nothing happened. We've been through this
+> discussion so many times I am tired of it and to be honest I simply do
+> not care anymore.
+> 
+> I will keep encouraging people to mark patches for stable but I do not
+> give a wee bit about any reports for the stable tree. Nor do I care
+> whether something made it in and we should be careful to mark another
+> patch for stable as a fixup like this one.
 
-Ah, good catch, thanks for that!
+Sasha, can you add these to the blacklist for autosel?
+
+thanks,
 
 greg k-h
