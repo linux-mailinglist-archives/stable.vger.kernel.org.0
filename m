@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B1029DFD5
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 853BB9DF62
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729596AbfH0H6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50462 "EHLO mail.kernel.org"
+        id S1728824AbfH0Hxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730521AbfH0H57 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:57:59 -0400
+        id S1729313AbfH0Hxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:53:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA72F206BF;
-        Tue, 27 Aug 2019 07:57:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 996A8206BF;
+        Tue, 27 Aug 2019 07:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892678;
-        bh=l/ljcQ7Xg1mHTeRX5Cvd93e8nuYIhgNkK4LUpGAu6GI=;
+        s=default; t=1566892427;
+        bh=ujMaaDr4WzuuCmf7JoHceYX9DLbgB0KJ2RViiF+rfyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNVL9NPNIC9P4bfb1lAln5s8gkHyILf+qeHs+Lyb5nWxwzHJjyr+ToCRwZwu5GAAv
-         Gaa4ykgVGDMIsxIELaZSAV9lgPkyZpZ+XhS63KeaoWOyc7viBRdGFMMuVBHrA6NpYi
-         zsfN0l8ugbRZlkLd2mXxzPC4BSw1v5oZpHl4946Q=
+        b=FzMYBbpJte50L61Z5MpYQmGkUsGPXT3+F4XwsczttKyV7Lo86Igoo9FyN3MadqXzi
+         2vbtghhqnX2KdsR3K4+ruHGU6fu1cCuX3IRVV+GZioKRzCThkIpwONJtkPVNN4vHBt
+         bhSjs0rhJTRQGMxdVtp1DaRsrgLiMz6UD+FGjIfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
         Damien Le Moal <damien.lemoal@wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 75/98] dm kcopyd: always complete failed jobs
+Subject: [PATCH 4.14 49/62] dm kcopyd: always complete failed jobs
 Date:   Tue, 27 Aug 2019 09:50:54 +0200
-Message-Id: <20190827072722.114406263@linuxfoundation.org>
+Message-Id: <20190827072703.320241392@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/md/dm-kcopyd.c
 +++ b/drivers/md/dm-kcopyd.c
-@@ -548,8 +548,10 @@ static int run_io_job(struct kcopyd_job
+@@ -545,8 +545,10 @@ static int run_io_job(struct kcopyd_job
  	 * no point in continuing.
  	 */
  	if (test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags) &&
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	io_job_start(job->kc->throttle);
  
-@@ -601,6 +603,7 @@ static int process_jobs(struct list_head
+@@ -598,6 +600,7 @@ static int process_jobs(struct list_head
  			else
  				job->read_err = 1;
  			push(&kc->complete_jobs, job);
