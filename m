@@ -2,97 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 982039F1C6
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 19:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F249F1E2
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 19:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727401AbfH0Rjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 13:39:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47852 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727306AbfH0Rjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 13:39:55 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 078F3AF93;
-        Tue, 27 Aug 2019 17:39:54 +0000 (UTC)
-Date:   Tue, 27 Aug 2019 19:39:50 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     Thomas Backlund <tmb@mageia.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Yafang Shao <laoar.shao@gmail.com>
-Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM
- counters in sync with the hierarchical ones"
-Message-ID: <20190827173950.GJ7538@dhcp22.suse.cz>
-References: <20190817004726.2530670-1-guro@fb.com>
- <20190817063616.GA11747@kroah.com>
- <20190817191518.GB11125@castle>
- <20190824125750.da9f0aac47cc0a362208f9ff@linux-foundation.org>
- <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
- <20190827141016.GH7538@dhcp22.suse.cz>
- <20190827170618.GC21369@kroah.com>
+        id S1730356AbfH0Rvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 13:51:36 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:43187 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728834AbfH0Rvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 13:51:36 -0400
+Received: by mail-qk1-f195.google.com with SMTP id m2so17731868qkd.10;
+        Tue, 27 Aug 2019 10:51:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=E88YGzARmAva6Qm1H4TM6Pub6gnTfS/HLrrmcSQtAJs=;
+        b=XQEJxFrH8DGzZlXHXkl3T7G4MSBGQN+42AmVGsgXrwxJcZtW4Dv1kaMMDEzxvmiSgo
+         Tha7YYNrPFNnzK2VxjKJ0eTFZDzbmfV2Qb6mD9f6feI0sBzIG9gYYq/BOAx9O/UA+7S9
+         hQXum+FRbSRbd9+YfwjV5DOFv4Pn38MwOMHePGzJ726SDSXcwDG29oilsO7Idvj5Z+CN
+         qoMqTiEWlkjrmhxJ40Vxis4uY/xetre+bwQoFusU+z0UFoIoz+/JaDhfZugxawJDgCMc
+         j6O4szT0ctlZROKFodi9+emub8t1tCKFeRnHVYr9SmqTpwduyKUBdveUII7rWpntkQZm
+         ljQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=E88YGzARmAva6Qm1H4TM6Pub6gnTfS/HLrrmcSQtAJs=;
+        b=YG6ClZvZ3UxrW6KJVP+9yz9y9qx90ASxVCA0MtYoUJkYVplNC0CLXpKJ8AtV8DpaE9
+         fj9bcM1wkr9DjjXqzTdM9ktMC7HMJl+DgbqYCp7uhG6F2tQB+bj+EPKZM9HzdjAJioWr
+         /FI3UF/B/0sKB599mP2Z+uCYW0veILrOZxkxdhpp/V6LESNWZZkHnNfJa4xnyQobN03u
+         XSRfan01Ugmw7IShZYvmXXWRR7rjvrBgU1xW4tQDa6SrvW1tRDc6FfPSmclZOTTFLQmP
+         x1x3LcraS2XBbh4e9A0w2jGgIqcZz5Ld4YxmcvaxsLIQWZU19G0RQ5NR0CbuWPq7SYPm
+         7l1g==
+X-Gm-Message-State: APjAAAXLyJ8xetgeG1gncxe/Vl581saO8PsqJ/sMFwMbDrzZdXzHAguh
+        XWP7O9ObCmcDQOc0sytP9rI=
+X-Google-Smtp-Source: APXvYqwJoIU99Bz32G80mO+1Wy8sOWb/TpAxbkuAt6NeigKk95G3WOydrANZiDBuLOqQKZBaz026+Q==
+X-Received: by 2002:ae9:ec0d:: with SMTP id h13mr20935777qkg.407.1566928295247;
+        Tue, 27 Aug 2019 10:51:35 -0700 (PDT)
+Received: from Davids-MacBook-Pro.local (c-73-169-115-106.hsd1.co.comcast.net. [73.169.115.106])
+        by smtp.googlemail.com with ESMTPSA id b18sm25307qkc.112.2019.08.27.10.51.33
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 27 Aug 2019 10:51:34 -0700 (PDT)
+Subject: Re: [PATCH net] ipv6: Default fib6_type to RTN_UNICAST when not set
+To:     Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "greg@kroah.com" <greg@kroah.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        David Miller <davem@davemloft.net>
+References: <8dad6e3cf2e6cb0086b0a6f75ccdb44822a15001.camel@infinera.com>
+ <20190827170729.GD21369@kroah.com>
+ <db87d29f160302789f239cda2074ed35ae67da62.camel@infinera.com>
+From:   David Ahern <dsahern@gmail.com>
+Message-ID: <b644d367-53a3-c2cc-2a84-28a7caae480c@gmail.com>
+Date:   Tue, 27 Aug 2019 11:51:32 -0600
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:60.0)
+ Gecko/20100101 Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190827170618.GC21369@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <db87d29f160302789f239cda2074ed35ae67da62.camel@infinera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 27-08-19 19:06:18, Greg KH wrote:
-> On Tue, Aug 27, 2019 at 04:10:16PM +0200, Michal Hocko wrote:
-> > On Sat 24-08-19 23:23:07, Thomas Backlund wrote:
-> > > Den 24-08-2019 kl. 22:57, skrev Andrew Morton:
-> > > > On Sat, 17 Aug 2019 19:15:23 +0000 Roman Gushchin <guro@fb.com> wrote:
-> > > > 
-> > > > > > > Fixes: 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones")
-> > > > > > > Signed-off-by: Roman Gushchin <guro@fb.com>
-> > > > > > > Cc: Yafang Shao <laoar.shao@gmail.com>
-> > > > > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
-> > > > > > > ---
-> > > > > > >   mm/memcontrol.c | 8 +++-----
-> > > > > > >   1 file changed, 3 insertions(+), 5 deletions(-)
-> > > > > > 
-> > > > > > <formletter>
-> > > > > > 
-> > > > > > This is not the correct way to submit patches for inclusion in the
-> > > > > > stable kernel tree.  Please read:
-> > > > > >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > > > > > for how to do this properly.
-> > > > > 
-> > > > > Oh, I'm sorry, will read and follow next time. Thanks!
-> > > > 
-> > > > 766a4c19d880 is not present in 5.2 so no -stable backport is needed, yes?
-> > > > 
-> > > 
-> > > Unfortunately it got added in 5.2.7, so backport is needed.
-> > 
-> > yet another example of patch not marked for stable backported to the
-> > stable tree. yay...
+On 8/27/19 11:24 AM, Joakim Tjernlund wrote:
+> On Tue, 2019-08-27 at 19:07 +0200, Greg KH wrote:
+>>
+>> On Tue, Aug 27, 2019 at 08:33:28AM +0000, Joakim Tjernlund wrote:
+>>> I don't see the above patch in stable yet, is it still queued?
+>>> https://nam03.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.spinics.net%2Flists%2Fnetdev%2Fmsg579581.html&amp;data=02%7C01%7CJoakim.Tjernlund%40infinera.com%7Ce70efa27d90b4eecb1cf08d72b110e78%7C285643de5f5b4b03a1530ae2dc8aaf77%7C1%7C1%7C637025224574216531&amp;sdata=Mhu0BqlM21XXYdR%2BC%2F8wXrMkzBKJpKUZZZXz57sAyuQ%3D&amp;reserved=0
+>>
+>> Ask the network developers :)
 > 
-> If you do not want autobot to pick up patches for specific
-> subsystems/files, just let us know and we will add them to the
-> blacklist.
+> OK, asking netdev then.
+> 
+>  Jocke
+> 
 
-Done that on several occasions over last year and so. I always get "yep
-we are going to black list" and whoops and we are back there with
-patches going to stable like nothing happened. We've been through this
-discussion so many times I am tired of it and to be honest I simply do
-not care anymore.
+Dave:
 
-I will keep encouraging people to mark patches for stable but I do not
-give a wee bit about any reports for the stable tree. Nor do I care
-whether something made it in and we should be careful to mark another
-patch for stable as a fixup like this one.
-
--- 
-Michal Hocko
-SUSE Labs
+Specific request is for commit c7036d97acd2527cef145b5ef9ad1a37ed21bbe6
+("ipv6: Default fib6_type to RTN_UNICAST when not set") to be queued for
+stable releases prior to v5.2
