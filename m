@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C6A9DFDC
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FCD49DF42
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730963AbfH0H6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50842 "EHLO mail.kernel.org"
+        id S1729561AbfH0Hwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730960AbfH0H6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:13 -0400
+        id S1729543AbfH0Hwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:52:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D65FC20828;
-        Tue, 27 Aug 2019 07:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F56A206BA;
+        Tue, 27 Aug 2019 07:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892692;
-        bh=S83z92L/pXYvwMOEmE0T89wwCum+IYTdUN0W5Rnk1Bc=;
+        s=default; t=1566892360;
+        bh=/KOK3OH48vC2VItYTbJKiYMJWE2BEQfRSMdBrCQG9Tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PcrhXETxwFziW+TD6uTJMvOAI/DL12T+Tt+m6H4mBN2smKt4e8iUV77ygkfr3kdRo
-         11YJRHZ7mr7Ndhp4eK2oDX2BqrydvRkgD6WjPnh6+37oMrCJkWQ9AKlGFKBTjNmtMt
-         sVVlABz3SPtaDtkHnInmvrMzSU2ItTUcWszyzl88=
+        b=GwIiqZm1WMIjd81MgFnwFV3ZlFg1RKCAuK0rhMm9fIbSFVuSCzhDSw0qxB2g4utko
+         kzPayiEstfmuZX3gf5TeFgFD/Qi0YVgFuwdMoI8s7TShY/hyECFKQYa+bSgjGKjHzD
+         yzDZd699E3+ivPOkz8WvjhCwbnaEjrRqEedFbKHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/98] perf ftrace: Fix failure to set cpumask when only one cpu is present
-Date:   Tue, 27 Aug 2019 09:50:32 +0200
-Message-Id: <20190827072721.130822718@linuxfoundation.org>
+        stable@vger.kernel.org, Krishna Ram Prakash R <krp@gtux.in>,
+        Kees Cook <keescook@chromium.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 28/62] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
+Date:   Tue, 27 Aug 2019 09:50:33 +0200
+Message-Id: <20190827072702.163588625@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,50 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cf30ae726c011e0372fd4c2d588466c8b50a8907 ]
+[ Upstream commit 2d7271501720038381d45fb3dcbe4831228fc8cc ]
 
-The buffer containing the string used to set cpumask is overwritten at
-the end of the string later in cpu_map__snprint_mask due to not enough
-memory space, when there is only one cpu.
+For passthrough requests, libata-scsi takes what the user passes in
+as gospel. This can be problematic if the user fills in the CDB
+incorrectly. One example of that is in request sizes. For read/write
+commands, the CDB contains fields describing the transfer length of
+the request. These should match with the SG_IO header fields, but
+libata-scsi currently does no validation of that.
 
-And thus causes the following failure:
+Check that the number of blocks in the CDB for passthrough requests
+matches what was mapped into the request. If the CDB asks for more
+data then the validated SG_IO header fields, error it.
 
-  $ perf ftrace ls
-  failed to reset ftrace
-  $
-
-This patch fixes the calculation of the cpumask string size.
-
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Fixes: dc23103278c5 ("perf ftrace: Add support for -a and -C option")
-Link: http://lkml.kernel.org/r/1564734592-15624-1-git-send-email-zhe.he@windriver.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Krishna Ram Prakash R <krp@gtux.in>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-ftrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-scsi.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
-index f42f228e88992..137955197ba8d 100644
---- a/tools/perf/builtin-ftrace.c
-+++ b/tools/perf/builtin-ftrace.c
-@@ -174,7 +174,7 @@ static int set_tracing_cpumask(struct cpu_map *cpumap)
- 	int last_cpu;
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index bf5777bc04d35..eb0c4ee205258 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -1804,6 +1804,21 @@ nothing_to_do:
+ 	return 1;
+ }
  
- 	last_cpu = cpu_map__cpu(cpumap, cpumap->nr - 1);
--	mask_size = (last_cpu + 3) / 4 + 1;
-+	mask_size = last_cpu / 4 + 2; /* one more byte for EOS */
- 	mask_size += last_cpu / 32; /* ',' is needed for every 32th cpus */
- 
- 	cpumask = malloc(mask_size);
++static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
++{
++	struct request *rq = scmd->request;
++	u32 req_blocks;
++
++	if (!blk_rq_is_passthrough(rq))
++		return true;
++
++	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
++	if (n_blocks > req_blocks)
++		return false;
++
++	return true;
++}
++
+ /**
+  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
+  *	@qc: Storage for translated ATA taskfile
+@@ -1848,6 +1863,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		scsi_10_lba_len(cdb, &block, &n_block);
+ 		if (cdb[1] & (1 << 3))
+ 			tf_flags |= ATA_TFLAG_FUA;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
+ 		break;
+ 	case READ_6:
+ 	case WRITE_6:
+@@ -1862,6 +1879,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		 */
+ 		if (!n_block)
+ 			n_block = 256;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
+ 		break;
+ 	case READ_16:
+ 	case WRITE_16:
+@@ -1872,6 +1891,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
+ 		scsi_16_lba_len(cdb, &block, &n_block);
+ 		if (cdb[1] & (1 << 3))
+ 			tf_flags |= ATA_TFLAG_FUA;
++		if (!ata_check_nblocks(scmd, n_block))
++			goto invalid_fld;
+ 		break;
+ 	default:
+ 		DPRINTK("no-byte command\n");
 -- 
 2.20.1
 
