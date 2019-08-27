@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9D89E03E
+	by mail.lfdr.de (Postfix) with ESMTP id EBCCA9E03F
 	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731378AbfH0IBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:01:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
+        id S1730763AbfH0IBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:01:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726071AbfH0IBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:01:47 -0400
+        id S1730990AbfH0IBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:01:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09792206BF;
-        Tue, 27 Aug 2019 08:01:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC7542186A;
+        Tue, 27 Aug 2019 08:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892906;
-        bh=vVk9Sb/DjoIiqL2j89SBhyyPPoSvb/UenDQ1/pyI9Y0=;
+        s=default; t=1566892909;
+        bh=5fBCyLdYKRJZNkGM6vIzgoTUIxN+QmUT113TZ6mjfH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJv/8O/8jrJrb1op24iD47NoIWJ+avET5L5adKJu8gc/HUUtD6VBaHAiq7lnE6cAc
-         6vKqX9IIWHRnoflPan7nZxlGfePsiPD68K9HyQklbiE2/ALSiYtpAbTpUsxgV76ZyP
-         0JmWHuB07WzUaCTvk6KmvW9uPG1T2xqk1fnVQx/s=
+        b=AiwC24HkAU3E5HOqQK/8nLt9IqwwoLTHzvHSbsy8UQwIGOZ9N74LGHbJBfsS4KFPc
+         ckbiTdSYcztjRmedZdV/KSpWvI0HizJ4sGcibav/iWYeL90V1/sidNeVU+yzK+0JE4
+         MeMiP19ljYVZxEAqJlFSZ5V2VIP2F36M9e7Reh1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Marc Dionne <marc.dionne@auristor.com>,
         Jeffrey Altman <jaltman@auristor.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 053/162] rxrpc: Fix potential deadlock
-Date:   Tue, 27 Aug 2019 09:49:41 +0200
-Message-Id: <20190827072740.054489358@linuxfoundation.org>
+Subject: [PATCH 5.2 054/162] rxrpc: Fix the lack of notification when sendmsg() fails on a DATA packet
+Date:   Tue, 27 Aug 2019 09:49:42 +0200
+Message-Id: <20190827072740.084025076@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -47,104 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 60034d3d146b11922ab1db613bce062dddc0327a ]
+[ Upstream commit c69565ee6681e151e2bb80502930a16e04b553d1 ]
 
-There is a potential deadlock in rxrpc_peer_keepalive_dispatch() whereby
-rxrpc_put_peer() is called with the peer_hash_lock held, but if it reduces
-the peer's refcount to 0, rxrpc_put_peer() calls __rxrpc_put_peer() - which
-the tries to take the already held lock.
+Fix the fact that a notification isn't sent to the recvmsg side to indicate
+a call failed when sendmsg() fails to transmit a DATA packet with the error
+ENETUNREACH, EHOSTUNREACH or ECONNREFUSED.
 
-Fix this by providing a version of rxrpc_put_peer() that can be called in
-situations where the lock is already held.
+Without this notification, the afs client just sits there waiting for the
+call to complete in some manner (which it's not now going to do), which
+also pins the rxrpc call in place.
 
-The bug may produce the following lockdep report:
+This can be seen if the client has a scope-level IPv6 address, but not a
+global-level IPv6 address, and we try and transmit an operation to a
+server's IPv6 address.
 
-============================================
-WARNING: possible recursive locking detected
-5.2.0-next-20190718 #41 Not tainted
---------------------------------------------
-kworker/0:3/21678 is trying to acquire lock:
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
-/./include/linux/spinlock.h:343 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-__rxrpc_put_peer /net/rxrpc/peer_object.c:415 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_put_peer+0x2d3/0x6a0 /net/rxrpc/peer_object.c:435
+Looking in /proc/net/rxrpc/calls shows completed calls just sat there with
+an abort code of RX_USER_ABORT and an error code of -ENETUNREACH.
 
-but task is already holding lock:
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
-/./include/linux/spinlock.h:343 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_peer_keepalive_dispatch /net/rxrpc/peer_event.c:378 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_peer_keepalive_worker+0x6b3/0xd02 /net/rxrpc/peer_event.c:430
-
-Fixes: 330bdcfadcee ("rxrpc: Fix the keepalive generator [ver #2]")
-Reported-by: syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com
+Fixes: c54e43d752c7 ("rxrpc: Fix missing start of call timeout")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
 Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-internal.h |  1 +
- net/rxrpc/peer_event.c  |  2 +-
- net/rxrpc/peer_object.c | 18 ++++++++++++++++++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ net/rxrpc/sendmsg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 80335b4ee4fd6..822f45386e311 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -1061,6 +1061,7 @@ void rxrpc_destroy_all_peers(struct rxrpc_net *);
- struct rxrpc_peer *rxrpc_get_peer(struct rxrpc_peer *);
- struct rxrpc_peer *rxrpc_get_peer_maybe(struct rxrpc_peer *);
- void rxrpc_put_peer(struct rxrpc_peer *);
-+void rxrpc_put_peer_locked(struct rxrpc_peer *);
- 
- /*
-  * proc.c
-diff --git a/net/rxrpc/peer_event.c b/net/rxrpc/peer_event.c
-index 9f2f45c09e583..7666ec72d37e5 100644
---- a/net/rxrpc/peer_event.c
-+++ b/net/rxrpc/peer_event.c
-@@ -378,7 +378,7 @@ static void rxrpc_peer_keepalive_dispatch(struct rxrpc_net *rxnet,
- 		spin_lock_bh(&rxnet->peer_hash_lock);
- 		list_add_tail(&peer->keepalive_link,
- 			      &rxnet->peer_keepalive[slot & mask]);
--		rxrpc_put_peer(peer);
-+		rxrpc_put_peer_locked(peer);
- 	}
- 
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
-diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
-index 9d3ce81cf8ae8..9c3ac96f71cbf 100644
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -436,6 +436,24 @@ void rxrpc_put_peer(struct rxrpc_peer *peer)
- 	}
- }
- 
-+/*
-+ * Drop a ref on a peer record where the caller already holds the
-+ * peer_hash_lock.
-+ */
-+void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
-+{
-+	const void *here = __builtin_return_address(0);
-+	int n;
-+
-+	n = atomic_dec_return(&peer->usage);
-+	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+	if (n == 0) {
-+		hash_del_rcu(&peer->hash_link);
-+		list_del_init(&peer->keepalive_link);
-+		kfree_rcu(peer, rcu);
-+	}
-+}
-+
- /*
-  * Make sure all peer records have been discarded.
-  */
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index 5d3f33ce6d410..bae14438f8691 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -226,6 +226,7 @@ static int rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
+ 			rxrpc_set_call_completion(call,
+ 						  RXRPC_CALL_LOCAL_ERROR,
+ 						  0, ret);
++			rxrpc_notify_socket(call);
+ 			goto out;
+ 		}
+ 		_debug("need instant resend %d", ret);
 -- 
 2.20.1
 
