@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC909DFBF
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7509DFC3
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730745AbfH0H5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:57:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49356 "EHLO mail.kernel.org"
+        id S1730768AbfH0H5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:57:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730759AbfH0H5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:57:10 -0400
+        id S1729763AbfH0H5N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9161E206BA;
-        Tue, 27 Aug 2019 07:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CCCF20828;
+        Tue, 27 Aug 2019 07:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892630;
-        bh=SQhY+TpsZ2oEYPOt8K5AAC0iYYzjOFc5UyErPw4oMUc=;
+        s=default; t=1566892632;
+        bh=mKN8NkU+RhB2RiHZtLiYR0I3+S/6LCmoDMZtQW2ExWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAvXCMqEbPzvJJaI9aBaqDZ67XGMajslTqa6a3sobk+iMSognSpGbkbYDnerdFuCf
-         n/FCwUmZso1yiZVkhVlDxJL1aNgD+AsPwLbRb+eaSLd1KNBADWsXgw0zHlhYZDpUx5
-         7Ow10a6SVzHyt1Hyttv5VOK37mYaj/tGeuuqYNvc=
+        b=ZAW/1pNEm2kAe9TNNP8CQs/ECFXj/ndQ2W1J3E7wouVqUlVWTfPn/rUcSNhLhF3DZ
+         DvBlcB15Ur3iEwdM7OZ7tf1mvjCZ6y7Ht524mu8/2FDFLbErMf6z1h9vuqKs8XOLju
+         W6hUx/CkXhomEX2h5ipQsPrX6mPGGg7q7KwgjkSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 60/98] HID: wacom: Correct distance scale for 2nd-gen Intuos devices
-Date:   Tue, 27 Aug 2019 09:50:39 +0200
-Message-Id: <20190827072721.460166857@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 61/98] Revert "dm bufio: fix deadlock with loop device"
+Date:   Tue, 27 Aug 2019 09:50:40 +0200
+Message-Id: <20190827072721.522960868@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -43,36 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit b72fb1dcd2ea9d29417711cb302cef3006fa8d5a upstream.
+commit cf3591ef832915892f2499b7e54b51d4c578b28c upstream.
 
-Distance values reported by 2nd-gen Intuos tablets are on an inverted
-scale (0 == far, 63 == near). We need to change them over to a normal
-scale before reporting to userspace or else userspace drivers and
-applications can get confused.
+Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
+fix has been made available with commit d0a255e795ab ("loop: set
+PF_MEMALLOC_NOIO for the worker thread").
 
-Ref: https://github.com/linuxwacom/input-wacom/issues/98
-Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Note that the fix offered by commit bd293d071ffe doesn't really prevent
+the deadlock from occuring - if we look at the stacktrace reported by
+Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
+i.e. it has already successfully taken the mutex. Changing the mutex
+from mutex_lock to mutex_trylock won't help with deadlocks that happen
+afterwards.
+
+PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
+   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
+   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
+   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
+   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
+   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
+   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
+   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
+   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
+   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
+   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
+  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
+  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
+  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
+  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
+  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
+Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_wac.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-bufio.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -848,6 +848,8 @@ static int wacom_intuos_general(struct w
- 		y >>= 1;
- 		distance >>= 1;
- 	}
-+	if (features->type == INTUOSHT2)
-+		distance = features->distance_max - distance;
- 	input_report_abs(input, ABS_X, x);
- 	input_report_abs(input, ABS_Y, y);
- 	input_report_abs(input, ABS_DISTANCE, distance);
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1602,7 +1602,9 @@ dm_bufio_shrink_scan(struct shrinker *sh
+ 	unsigned long freed;
+ 
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (!dm_bufio_trylock(c))
++	if (sc->gfp_mask & __GFP_FS)
++		dm_bufio_lock(c);
++	else if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
+ 
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 
 
