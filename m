@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 960EB9E21C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3269E1ED
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729818AbfH0IQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
+        id S1729131AbfH0Hx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725811AbfH0HxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:23 -0400
+        id S1729762AbfH0Hx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:53:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71CD3206BA;
-        Tue, 27 Aug 2019 07:53:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E4BF206BA;
+        Tue, 27 Aug 2019 07:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892403;
-        bh=Jie4Z5NXgR+SZsUsabxqaQqBZME0D+RudUPlaEOqIY8=;
+        s=default; t=1566892405;
+        bh=LD81ViPV9Dk2D1S2A6RNmJkyDuqapNAWlR6U5vdwRso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJDLeGJ9vPvsM0M0kmxoLvzVNXFllYG1orTjOcbE79AkT6d/UU4rcTdgxwXlVRUaL
-         VJ+GUFuPmCO/zhQuqIm7zbSv92j6N+9kanjsFrPLFcyHwASuHtW727SH6teyxChIhD
-         n0EdQY64DvPSaKDUk8dxkpNs7Dpc2JhWJHqNAayc=
+        b=JVqdXVgJOGs9uggDq7cwYAI18Igf2289rDH/u3vVb4abkswdPyByxq3zpuJwIz7bQ
+         QBwpHyoRaJQfsuX2PtgAWxHhUszHoTKIyx1rvUZe7IYtz/clx4DQR26c7QsHCJW6gH
+         S+sIBR7x5Th1a11vdTA8+iI9Hwib7BbuhSwwOW5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 42/62] gpiolib: never report open-drain/source lines as input to user-space
-Date:   Tue, 27 Aug 2019 09:50:47 +0200
-Message-Id: <20190827072703.032244937@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 43/62] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
+Date:   Tue, 27 Aug 2019 09:50:48 +0200
+Message-Id: <20190827072703.069744154@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -44,50 +52,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 2c60e6b5c9241b24b8b523fefd3e44fb85622cda upstream.
+commit 46d0b24c5ee10a15dfb25e20642f5a5ed59c5003 upstream.
 
-If the driver doesn't support open-drain/source config options, we
-emulate this behavior when setting the direction by calling
-gpiod_direction_input() if the default value is 0 (open-source) or
-1 (open-drain), thus not actively driving the line in those cases.
+userfaultfd_release() should clear vm_flags/vm_userfaultfd_ctx even if
+mm->core_state != NULL.
 
-This however clears the FLAG_IS_OUT bit for the GPIO line descriptor
-and makes the LINEINFO ioctl() incorrectly report this line's mode as
-'input' to user-space.
+Otherwise a page fault can see userfaultfd_missing() == T and use an
+already freed userfaultfd_ctx.
 
-This commit modifies the ioctl() to always set the GPIOLINE_FLAG_IS_OUT
-bit in the lineinfo structure's flags field. Since it's impossible to
-use the input mode and open-drain/source options at the same time, we
-can be sure the reported information will be correct.
-
-Fixes: 521a2ad6f862 ("gpio: add userspace ABI for GPIO line information")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Link: https://lore.kernel.org/r/20190806114151.17652-1-brgl@bgdev.pl
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: http://lkml.kernel.org/r/20190820160237.GB4983@redhat.com
+Fixes: 04f5866e41fb ("coredump: fix race condition between mmget_not_zero()/get_task_mm() and core dumping")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/userfaultfd.c |   25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -971,9 +971,11 @@ static long gpio_ioctl(struct file *filp
- 		if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
- 			lineinfo.flags |= GPIOLINE_FLAG_ACTIVE_LOW;
- 		if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
--			lineinfo.flags |= GPIOLINE_FLAG_OPEN_DRAIN;
-+			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_DRAIN |
-+					   GPIOLINE_FLAG_IS_OUT);
- 		if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
--			lineinfo.flags |= GPIOLINE_FLAG_OPEN_SOURCE;
-+			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_SOURCE |
-+					   GPIOLINE_FLAG_IS_OUT);
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -854,6 +854,7 @@ static int userfaultfd_release(struct in
+ 	/* len == 0 means wake all */
+ 	struct userfaultfd_wake_range range = { .len = 0, };
+ 	unsigned long new_flags;
++	bool still_valid;
  
- 		if (copy_to_user(ip, &lineinfo, sizeof(lineinfo)))
- 			return -EFAULT;
+ 	ACCESS_ONCE(ctx->released) = true;
+ 
+@@ -869,8 +870,7 @@ static int userfaultfd_release(struct in
+ 	 * taking the mmap_sem for writing.
+ 	 */
+ 	down_write(&mm->mmap_sem);
+-	if (!mmget_still_valid(mm))
+-		goto skip_mm;
++	still_valid = mmget_still_valid(mm);
+ 	prev = NULL;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		cond_resched();
+@@ -881,19 +881,20 @@ static int userfaultfd_release(struct in
+ 			continue;
+ 		}
+ 		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
+-		prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
+-				 new_flags, vma->anon_vma,
+-				 vma->vm_file, vma->vm_pgoff,
+-				 vma_policy(vma),
+-				 NULL_VM_UFFD_CTX);
+-		if (prev)
+-			vma = prev;
+-		else
+-			prev = vma;
++		if (still_valid) {
++			prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
++					 new_flags, vma->anon_vma,
++					 vma->vm_file, vma->vm_pgoff,
++					 vma_policy(vma),
++					 NULL_VM_UFFD_CTX);
++			if (prev)
++				vma = prev;
++			else
++				prev = vma;
++		}
+ 		vma->vm_flags = new_flags;
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+ 	}
+-skip_mm:
+ 	up_write(&mm->mmap_sem);
+ 	mmput(mm);
+ wakeup:
 
 
