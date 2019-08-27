@@ -2,373 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3AAB9DA31
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 01:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3AC9DA69
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 02:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbfHZXzc convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 26 Aug 2019 19:55:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50346 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726020AbfHZXzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Aug 2019 19:55:32 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E94CD8CEC66
-        for <stable@vger.kernel.org>; Mon, 26 Aug 2019 23:55:30 +0000 (UTC)
-Received: from [172.54.124.177] (cpt-1056.paas.prod.upshift.rdu2.redhat.com [10.0.19.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A1A55DC1B;
-        Mon, 26 Aug 2019 23:55:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727064AbfH0AMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Aug 2019 20:12:41 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:32961 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726543AbfH0AMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Aug 2019 20:12:41 -0400
+Received: by mail-wm1-f66.google.com with SMTP id p77so1125250wme.0;
+        Mon, 26 Aug 2019 17:12:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=bB0HYsROX648Uz+NeihK0Ak7qHb0HK/01IOFw0GVKwo=;
+        b=PKzN5DufXA7Ct1IDcxOhX7tqJGNftDV5c19iyHf0keiVZOByinTOISi8MWXzsc0/Au
+         cotRan7k06FtNeSUszMvYxdqhOtLCX+AH2qUlNQb5VUnhvvvDaN2dwc4dfplPaJ5rJxv
+         qNG/uvcCP1zn0QtTlKdBxos6XkGqWN9Ehupn5BNL/YIX8KaQ+nJp3S9jqHNd4h+ylFFt
+         jhDKLm80SiZ4jCkxavL6Z+gnZ1vJuuPKaoUw3kq1OayjUoNFXeUjq8OrQHARqzgXHldv
+         X8aWaNXhp+00OyFGHEXUpdvBj05j6ca0c3O18zH6FiSDp64nbpg1X3WqH6P78nF/02c4
+         jiLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=bB0HYsROX648Uz+NeihK0Ak7qHb0HK/01IOFw0GVKwo=;
+        b=oEf7URLuMHEnd7O90G6rRleiLFEhKWP6hqXHav8INpNToGkqKuYWRhWumbZc1Dnpbb
+         wv8n7S5AWnB8EW0l6GKoFP35UalaE65Vj5u5afUjeCaGQszFUFIHMj2FnYt6MuqxDaKF
+         3F88m/wyocHJsVLNnplYUk4cnXV6zjko9dbPoodZ/4tyOAyQX30Oqgr9SlcDG+OSNfD8
+         hBO1hufqnHWco2/oAhqbcs1aF+Xz/jZVvUZTjLfkZoIq5zvlsR0us9MSMJT0zXbSsuMc
+         aQIP19CewA1MvgQutAXc9JwvKKAb5tiLIYUyfVklDOLUqd7YsvnuPEbfNp4hjmYI8ZwJ
+         OsAg==
+X-Gm-Message-State: APjAAAXXHbFvWBXpPPMstpL0g3XC/xV9wVHiLFotjdKM2U2wOVdgputk
+        +H4fEGZnnQ0SzlQ5bbyo8kU=
+X-Google-Smtp-Source: APXvYqyeY/xd32/iOyMHcAPpAemahrY1NRnemcT8nKVRjwvjJ4BTl2OgNqWlmhqh/tMRPElrW3KXjQ==
+X-Received: by 2002:a1c:f106:: with SMTP id p6mr22529010wmh.148.1566864759283;
+        Mon, 26 Aug 2019 17:12:39 -0700 (PDT)
+Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
+        by smtp.gmail.com with ESMTPSA id r17sm34516156wrg.93.2019.08.26.17.12.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Aug 2019 17:12:38 -0700 (PDT)
+Date:   Mon, 26 Aug 2019 17:12:37 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com, stable@vger.kernel.org
+Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+Message-ID: <20190827001237.GA117465@archlinux-threadripper>
+References: <20190812023214.107817-1-natechancellor@gmail.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.CC0042B675.MD02TPJGRZ@redhat.com>
-X-Gitlab-Pipeline-ID: 125600
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/125600
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.69]); Mon, 26 Aug 2019 23:55:30 +0000 (UTC)
-Date:   Mon, 26 Aug 2019 19:55:32 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190812023214.107817-1-natechancellor@gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Aug 11, 2019 at 07:32:15PM -0700, Nathan Chancellor wrote:
+> Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+> setjmp is used") disabled -Wbuiltin-requires-header because of a warning
+> about the setjmp and longjmp declarations.
+> 
+> r367387 in clang added another diagnostic around this, complaining that
+> there is no jmp_buf declaration.
+> 
+> In file included from ../arch/powerpc/xmon/xmon.c:47:
+> ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+> built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+> type, commonly provided in the header <setjmp.h>.
+> [-Werror,-Wincomplete-setjmp-declaration]
+> extern long setjmp(long *);
+>             ^
+> ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+> built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+> type, commonly provided in the header <setjmp.h>.
+> [-Werror,-Wincomplete-setjmp-declaration]
+> extern void longjmp(long *, long);
+>             ^
+> 2 errors generated.
+> 
+> Take the same approach as the above commit by disabling the warning for
+> the same reason, we provide our own longjmp/setjmp function.
+> 
+> Cc: stable@vger.kernel.org # 4.19+
+> Link: https://github.com/ClangBuiltLinux/linux/issues/625
+> Link: https://github.com/llvm/llvm-project/commit/3be25e79477db2d31ac46493d97eca8c20592b07
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+> 
+> It may be worth using -fno-builtin-setjmp and -fno-builtin-longjmp
+> instead as it makes it clear to clang that we are not using the builtin
+> longjmp and setjmp functions, which I think is why these warnings are
+> appearing (at least according to the commit that introduced this waring).
+> 
+> Sample patch:
+> https://github.com/ClangBuiltLinux/linux/issues/625#issuecomment-519251372
+> 
+> However, this is the most conservative approach, as I have already had
+> someone notice this error when building LLVM with PGO on tip of tree
+> LLVM.
+> 
+>  arch/powerpc/kernel/Makefile | 5 +++--
+>  arch/powerpc/xmon/Makefile   | 5 +++--
+>  2 files changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+> index ea0c69236789..44e340ed4722 100644
+> --- a/arch/powerpc/kernel/Makefile
+> +++ b/arch/powerpc/kernel/Makefile
+> @@ -5,8 +5,9 @@
+>  
+>  CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+>  
+> -# Disable clang warning for using setjmp without setjmp.h header
+> -CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
+> +# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
+> +CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header) \
+> +			   $(call cc-disable-warning, incomplete-setjmp-declaration)
+>  
+>  ifdef CONFIG_PPC64
+>  CFLAGS_prom_init.o	+= $(NO_MINIMAL_TOC)
+> diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+> index f142570ad860..53f341391210 100644
+> --- a/arch/powerpc/xmon/Makefile
+> +++ b/arch/powerpc/xmon/Makefile
+> @@ -1,8 +1,9 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  # Makefile for xmon
+>  
+> -# Disable clang warning for using setjmp without setjmp.h header
+> -subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
+> +# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
+> +subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header) \
+> +		    $(call cc-disable-warning, incomplete-setjmp-declaration)
+>  
+>  GCOV_PROFILE := n
+>  KCOV_INSTRUMENT := n
+> -- 
+> 2.23.0.rc2
+> 
 
-Hello,
+Did any of the maintainers have any comment on this patch?
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: f7d5b3dc4792 - Linux 5.2.10
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/125600
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: f7d5b3dc4792 - Linux 5.2.10
-
-
-We grabbed the 5c9d653cac72 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  asoc-simple_card_utils.h-care-null-dai-at-asoc_simpl.patch
-  asoc-simple-card-fix-an-use-after-free-in-simple_dai.patch
-  asoc-simple-card-fix-an-use-after-free-in-simple_for.patch
-  asoc-audio-graph-card-fix-use-after-free-in-graph_da.patch
-  asoc-audio-graph-card-fix-an-use-after-free-in-graph.patch
-  asoc-audio-graph-card-add-missing-const-at-graph_get.patch
-  regulator-axp20x-fix-dcdca-and-dcdcd-for-axp806.patch
-  regulator-axp20x-fix-dcdc5-and-dcdc6-for-axp803.patch
-  asoc-samsung-odroid-fix-an-use-after-free-issue-for-.patch
-  asoc-samsung-odroid-fix-a-double-free-issue-for-cpu_.patch
-  asoc-intel-bytcht_es8316-add-quirk-for-irbis-nb41-ne.patch
-  hid-logitech-hidpp-add-usb-pid-for-a-few-more-suppor.patch
-  hid-add-044f-b320-thrustmaster-inc.-2-in-1-dt.patch
-  mips-kernel-only-use-i8253-clocksource-with-periodic.patch
-  mips-fix-cacheinfo.patch
-  libbpf-sanitize-var-to-conservative-1-byte-int.patch
-  netfilter-ebtables-fix-a-memory-leak-bug-in-compat.patch
-  asoc-dapm-fix-handling-of-custom_stop_condition-on-d.patch
-  asoc-sof-use-__u32-instead-of-uint32_t-in-uapi-heade.patch
-  spi-pxa2xx-balance-runtime-pm-enable-disable-on-erro.patch
-  bpf-sockmap-sock_map_delete-needs-to-use-xchg.patch
-  bpf-sockmap-synchronize_rcu-before-free-ing-map.patch
-  bpf-sockmap-only-create-entry-if-ulp-is-not-already-.patch
-  selftests-bpf-fix-sendmsg6_prog-on-s390.patch
-  asoc-dapm-fix-a-memory-leak-bug.patch
-  bonding-force-slave-speed-check-after-link-state-rec.patch
-  net-mvpp2-don-t-check-for-3-consecutive-idle-frames-.patch
-  selftests-forwarding-gre_multipath-enable-ipv4-forwa.patch
-  selftests-forwarding-gre_multipath-fix-flower-filter.patch
-  selftests-bpf-add-another-gso_segs-access.patch
-  libbpf-fix-using-uninitialized-ioctl-results.patch
-  can-dev-call-netif_carrier_off-in-register_candev.patch
-  can-mcp251x-add-error-check-when-wq-alloc-failed.patch
-  can-gw-fix-error-path-of-cgw_module_init.patch
-  asoc-fail-card-instantiation-if-dai-format-setup-fai.patch
-  staging-fbtft-fix-gpio-handling.patch
-  libbpf-silence-gcc8-warning-about-string-truncation.patch
-  st21nfca_connectivity_event_received-null-check-the-.patch
-  st_nci_hci_connectivity_event_received-null-check-th.patch
-  nl-mac-80211-fix-interface-combinations-on-crypto-co.patch
-  asoc-ti-davinci-mcasp-fix-clk-pdir-handling-for-i2s-.patch
-  asoc-rockchip-fix-mono-capture.patch
-  asoc-ti-davinci-mcasp-correct-slot_width-posed-const.patch
-  net-usb-qmi_wwan-add-the-broadmobi-bm818-card.patch
-  qed-rdma-fix-the-hw_ver-returned-in-device-attribute.patch
-  isdn-misdn-hfcsusb-fix-possible-null-pointer-derefer.patch
-  habanalabs-fix-f-w-download-in-be-architecture.patch
-  mac80211_hwsim-fix-possible-null-pointer-dereference.patch
-  net-stmmac-manage-errors-returned-by-of_get_mac_addr.patch
-  netfilter-ipset-actually-allow-destination-mac-addre.patch
-  netfilter-ipset-copy-the-right-mac-address-in-bitmap.patch
-  netfilter-ipset-fix-rename-concurrency-with-listing.patch
-  rxrpc-fix-potential-deadlock.patch
-  rxrpc-fix-the-lack-of-notification-when-sendmsg-fail.patch
-  nvmem-use-the-same-permissions-for-eeprom-as-for-nvm.patch
-  iwlwifi-mvm-avoid-races-in-rate-init-and-rate-perfor.patch
-  iwlwifi-dbg_ini-move-iwl_dbg_tlv_load_bin-out-of-deb.patch
-  iwlwifi-dbg_ini-move-iwl_dbg_tlv_free-outside-of-deb.patch
-  iwlwifi-fix-locking-in-delayed-gtk-setting.patch
-  iwlwifi-mvm-send-lq-command-always-async.patch
-  enetc-fix-build-error-without-phylib.patch
-  isdn-hfcsusb-fix-misdn-driver-crash-caused-by-transf.patch
-  net-phy-phy_led_triggers-fix-a-possible-null-pointer.patch
-  perf-bench-numa-fix-cpu0-binding.patch
-  spi-pxa2xx-add-support-for-intel-tiger-lake.patch
-  can-sja1000-force-the-string-buffer-null-terminated.patch
-  can-peak_usb-force-the-string-buffer-null-terminated.patch
-  asoc-amd-acp3x-use-dma_ops-of-parent-device-for-acp3.patch
-  net-ethernet-qlogic-qed-force-the-string-buffer-null.patch
-  enetc-select-phylib-while-config_fsl_enetc_vf-is-set.patch
-  nfsv4-fix-a-credential-refcount-leak-in-nfs41_check_.patch
-  nfsv4-when-recovering-state-fails-with-eagain-retry-.patch
-  nfsv4.1-fix-open-stateid-recovery.patch
-  nfsv4.1-only-reap-expired-delegations.patch
-  nfsv4-fix-a-potential-sleep-while-atomic-in-nfs4_do_.patch
-  nfs-fix-regression-whereby-fscache-errors-are-appear.patch
-  hid-quirks-set-the-increment_usage_on_duplicate-quir.patch
-  hid-input-fix-a4tech-horizontal-wheel-custom-usage.patch
-  drm-rockchip-suspend-dp-late.patch
-  smb3-fix-potential-memory-leak-when-processing-compo.patch
-  smb3-kernel-oops-mounting-a-encryptdata-share-with-c.patch
-  sched-deadline-fix-double-accounting-of-rq-running-b.patch
-  sched-psi-reduce-psimon-fifo-priority.patch
-  sched-psi-do-not-require-setsched-permission-from-th.patch
-  s390-protvirt-avoid-memory-sharing-for-diag-308-set-.patch
-  s390-mm-fix-dump_pagetables-top-level-page-table-wal.patch
-  s390-put-_stext-and-_etext-into-.text-section.patch
-  ata-rb532_cf-fix-unused-variable-warning-in-rb532_pa.patch
-  net-cxgb3_main-fix-a-resource-leak-in-a-error-path-i.patch
-  net-stmmac-fix-issues-when-number-of-queues-4.patch
-  net-stmmac-tc-do-not-return-a-fragment-entry.patch
-  drm-amdgpu-pin-the-csb-buffer-on-hw-init-for-gfx-v8.patch
-  net-hisilicon-make-hip04_tx_reclaim-non-reentrant.patch
-  net-hisilicon-fix-hip04-xmit-never-return-tx_busy.patch
-  net-hisilicon-fix-dma_map_single-failed-on-arm64.patch
-  nfsv4-ensure-state-recovery-handles-etimedout-correc.patch
-  libata-have-ata_scsi_rw_xlat-fail-invalid-passthroug.patch
-  libata-add-sg-safety-checks-in-sff-pio-transfers.patch
-  x86-lib-cpu-address-missing-prototypes-warning.patch
-  drm-vmwgfx-fix-memory-leak-when-too-many-retries-hav.patch
-  block-aoe-fix-kernel-crash-due-to-atomic-sleep-when-.patch
-  block-bfq-handle-null-return-value-by-bfq_init_rq.patch
-  perf-ftrace-fix-failure-to-set-cpumask-when-only-one.patch
-  perf-cpumap-fix-writing-to-illegal-memory-in-handlin.patch
-  perf-pmu-events-fix-missing-cpu_clk_unhalted.core-ev.patch
-  dt-bindings-riscv-fix-the-schema-compatible-string-f.patch
-  kvm-arm64-don-t-write-junk-to-sysregs-on-reset.patch
-  kvm-arm-don-t-write-junk-to-cp15-registers-on-reset.patch
-  selftests-kvm-adding-config-fragments.patch
-  iwlwifi-mvm-disable-tx-amsdu-on-older-nics.patch
-  hid-wacom-correct-misreported-ekr-ring-values.patch
-  hid-wacom-correct-distance-scale-for-2nd-gen-intuos-devices.patch
-  revert-kvm-x86-mmu-zap-only-the-relevant-pages-when-removing-a-memslot.patch
-  revert-dm-bufio-fix-deadlock-with-loop-device.patch
-  clk-socfpga-stratix10-fix-rate-caclulationg-for-cnt_clks.patch
-  ceph-clear-page-dirty-before-invalidate-page.patch
-  ceph-don-t-try-fill-file_lock-on-unsuccessful-getfilelock-reply.patch
-  libceph-fix-pg-split-vs-osd-re-connect-race.patch
-  drm-amdgpu-gfx9-update-pg_flags-after-determining-if-gfx-off-is-possible.patch
-  drm-nouveau-don-t-retry-infinitely-when-receiving-no-data-on-i2c-over-aux.patch
-  scsi-ufs-fix-null-pointer-dereference-in-ufshcd_config_vreg_hpm.patch
-  gpiolib-never-report-open-drain-source-lines-as-input-to-user-space.patch
-  drivers-hv-vmbus-fix-virt_to_hvpfn-for-x86_pae.patch
-  userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
-  x86-retpoline-don-t-clobber-rflags-during-call_nospec-on-i386.patch
-  x86-apic-handle-missing-global-clockevent-gracefully.patch
-  x86-cpu-amd-clear-rdrand-cpuid-bit-on-amd-family-15h-16h.patch
-  x86-boot-save-fields-explicitly-zero-out-everything-else.patch
-  x86-boot-fix-boot-regression-caused-by-bootparam-sanitizing.patch
-  ib-hfi1-unsafe-psn-checking-for-tid-rdma-read-resp-packet.patch
-  ib-hfi1-add-additional-checks-when-handling-tid-rdma-read-resp-packet.patch
-  ib-hfi1-add-additional-checks-when-handling-tid-rdma-write-data-packet.patch
-  ib-hfi1-drop-stale-tid-rdma-packets-that-cause-tiderr.patch
-  psi-get-poll_work-to-run-when-calling-poll-syscall-next-time.patch
-  dm-kcopyd-always-complete-failed-jobs.patch
-  dm-dust-use-dust-block-size-for-badblocklist-index.patch
-  dm-btree-fix-order-of-block-initialization-in-btree_split_beneath.patch
-  dm-integrity-fix-a-crash-due-to-bug_on-in-__journal_read_write.patch
-  dm-raid-add-missing-cleanup-in-raid_ctr.patch
-  dm-space-map-metadata-fix-missing-store-of-apply_bops-return-value.patch
-  dm-table-fix-invalid-memory-accesses-with-too-high-sector-number.patch
-  dm-zoned-improve-error-handling-in-reclaim.patch
-  dm-zoned-improve-error-handling-in-i-o-map-code.patch
-  dm-zoned-properly-handle-backing-device-failure.patch
-  genirq-properly-pair-kobject_del-with-kobject_add.patch
-  mm-z3fold.c-fix-race-between-migration-and-destruction.patch
-  mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
-  mm-memcontrol-flush-percpu-vmstats-before-releasing-memcg.patch
-  mm-memcontrol-flush-percpu-vmevents-before-releasing-memcg.patch
-  mm-page_owner-handle-thp-splits-correctly.patch
-  mm-zsmalloc.c-migration-can-leave-pages-in-zs_empty-indefinitely.patch
-  mm-zsmalloc.c-fix-race-condition-in-zs_destroy_pool.patch
-  mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags-y.patch
-  xfs-fix-missing-ilock-unlock-when-xfs_setattr_nonsize-fails-due-to-edquot.patch
-  ib-hfi1-drop-stale-tid-rdma-packets.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ audit: audit testsuite test [14]
-         ✅ httpd: mod_ssl smoke sanity [15]
-         ✅ iotop: sanity [16]
-         ✅ tuned: tune-processes-through-perf [17]
-         ✅ Usex - version 1.9-29 [18]
-         ✅ storage: SCSI VPD [19]
-         ✅ stress: stress-ng [20]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ audit: audit testsuite test [14]
-         ✅ httpd: mod_ssl smoke sanity [15]
-         ✅ iotop: sanity [16]
-         ✅ tuned: tune-processes-through-perf [17]
-         ✅ Usex - version 1.9-29 [18]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ audit: audit testsuite test [14]
-         ✅ httpd: mod_ssl smoke sanity [15]
-         ✅ iotop: sanity [16]
-         ✅ tuned: tune-processes-through-perf [17]
-         ✅ pciutils: sanity smoke test [21]
-         ✅ Usex - version 1.9-29 [18]
-         ✅ storage: SCSI VPD [19]
-         ✅ stress: stress-ng [20]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+Cheers,
+Nathan
