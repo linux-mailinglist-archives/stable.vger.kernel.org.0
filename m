@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BB39E1CE
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A5F59E11E
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729405AbfH0H4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
+        id S1729017AbfH0IJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729696AbfH0H4R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:56:17 -0400
+        id S1732301AbfH0IDg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C78B206BA;
-        Tue, 27 Aug 2019 07:56:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67B79206BA;
+        Tue, 27 Aug 2019 08:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892575;
-        bh=i5Jgkpqf/Im+tbDi/BtnbwcDMMNHSPeIWGCo8ndierY=;
+        s=default; t=1566893015;
+        bh=KddyQA3KvgXBt8t5dp3rdHtiGoMWVjy9NourerTxYCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVQNB7Co3t951hpU/HvM96AjJNnY/sit4ZriAN5q978uLUVvIi9K9g3kXKYIWoNTC
-         JaRE7yr4/2WG2A4Q61hCokfki8iYZVnN7QV3Dg00uXbAoOzp8HTGMK49Clb2zZkQR4
-         wWVs5H7RHfkX6/brxODoNkN/WwlcONti8kdInQE0=
+        b=Tm5S+vValIeHZbUkXndnF9xijznT1GDNZhqoLhxGDVMDGj8yFEx2n3+1OLO5fmqay
+         aWOoUyRbThweXHIyvymnCy9Ry3uxKmimAItmeg7nPwEavSxrlucfH0ftlWhYsCVxtc
+         Us7YPalfezKAQwwLJOe6/nuu4+yMVIMoIciDE8p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/98] SMB3: Fix potential memory leak when processing compound chain
+Subject: [PATCH 5.2 090/162] net: stmmac: Fix issues when number of Queues >= 4
 Date:   Tue, 27 Aug 2019 09:50:18 +0200
-Message-Id: <20190827072720.252611874@linuxfoundation.org>
+Message-Id: <20190827072741.294786459@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3edeb4a4146dc3b54d6fa71b7ee0585cb52ebfdf ]
+[ Upstream commit e8df7e8c233a18d2704e37ecff47583b494789d3 ]
 
-When a reconnect happens in the middle of processing a compound chain
-the code leaks a buffer from the memory pool. Fix this by properly
-checking for a return code and freeing buffers in case of error.
+When queues >= 4 we use different registers but we were not subtracting
+the offset of 4. Fix this.
 
-Also maintain a buf variable to be equal to either smallbuf or bigbuf
-depending on a response buffer size while parsing a chain and when
-returning to the caller.
+Found out by Coverity.
 
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c   | 4 ++++
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 0ccf8f9b63a2e..97fdbec54db97 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3121,7 +3121,6 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- {
- 	int ret, length;
- 	char *buf = server->smallbuf;
--	char *tmpbuf;
- 	struct smb2_sync_hdr *shdr;
- 	unsigned int pdu_length = server->pdu_size;
- 	unsigned int buf_size;
-@@ -3151,18 +3150,15 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- 		return length;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index e3850938cf2f3..d7bf0ad954b8c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -85,6 +85,8 @@ static void dwmac4_rx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
  
- 	next_is_large = server->large_buf;
-- one_more:
-+one_more:
- 	shdr = (struct smb2_sync_hdr *)buf;
- 	if (shdr->NextCommand) {
--		if (next_is_large) {
--			tmpbuf = server->bigbuf;
-+		if (next_is_large)
- 			next_buffer = (char *)cifs_buf_get();
--		} else {
--			tmpbuf = server->smallbuf;
-+		else
- 			next_buffer = (char *)cifs_small_buf_get();
--		}
- 		memcpy(next_buffer,
--		       tmpbuf + le32_to_cpu(shdr->NextCommand),
-+		       buf + le32_to_cpu(shdr->NextCommand),
- 		       pdu_length - le32_to_cpu(shdr->NextCommand));
- 	}
+ 	base_register = (queue < 4) ? GMAC_RXQ_CTRL2 : GMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
  
-@@ -3191,12 +3187,21 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- 		pdu_length -= le32_to_cpu(shdr->NextCommand);
- 		server->large_buf = next_is_large;
- 		if (next_is_large)
--			server->bigbuf = next_buffer;
-+			server->bigbuf = buf = next_buffer;
- 		else
--			server->smallbuf = next_buffer;
--
--		buf += le32_to_cpu(shdr->NextCommand);
-+			server->smallbuf = buf = next_buffer;
- 		goto one_more;
-+	} else if (ret != 0) {
-+		/*
-+		 * ret != 0 here means that we didn't get to handle_mid() thus
-+		 * server->smallbuf and server->bigbuf are still valid. We need
-+		 * to free next_buffer because it is not going to be used
-+		 * anywhere.
-+		 */
-+		if (next_is_large)
-+			free_rsp_buf(CIFS_LARGE_BUFFER, next_buffer);
-+		else
-+			free_rsp_buf(CIFS_SMALL_BUFFER, next_buffer);
- 	}
+ 	value = readl(ioaddr + base_register);
  
- 	return ret;
+@@ -102,6 +104,8 @@ static void dwmac4_tx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
+ 
+ 	base_register = (queue < 4) ? GMAC_TXQ_PRTY_MAP0 : GMAC_TXQ_PRTY_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + base_register);
+ 
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+index 64b8cb88ea45d..d4bd99770f5d1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+@@ -106,6 +106,8 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_RXQ_CTRL2 : XGMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_PSRQ(queue);
+@@ -169,6 +171,8 @@ static void dwxgmac2_map_mtl_to_dma(struct mac_device_info *hw, u32 queue,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_MTL_RXQ_DMA_MAP0 : XGMAC_MTL_RXQ_DMA_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_QxMDMACH(queue);
 -- 
 2.20.1
 
