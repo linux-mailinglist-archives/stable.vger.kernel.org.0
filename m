@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C12389E0C1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6249E0C2
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731875AbfH0IFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
+        id S1732459AbfH0IFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732435AbfH0IFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:05:40 -0400
+        id S1732430AbfH0IFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:05:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45B102173E;
-        Tue, 27 Aug 2019 08:05:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 132892173E;
+        Tue, 27 Aug 2019 08:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893139;
-        bh=csSfjwxSUvEH7WsttKF+LGRqTSc7mgMPIgBk3UMBVcU=;
+        s=default; t=1566893142;
+        bh=VXwVDTiltX/zKo5qXYVnCLq9PB59320XB21Bwv/rLUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkeOek4E+B8n5IVtPyCpVxq/9Vsnps0YkCyUKC9mpRJA5l/9MC/t6EsXL8ojFaNbf
-         vk4dngMxEGJSKHeoYWOFljXjUpCqx4JzCEtdv7CqCKzSa5Ez3BedVb/xFyCFdvAUnU
-         /PyoydVy34XLkZp2Bnv8ovEKrAA5gl8mJOjFrMmo=
+        b=sfYjY5oFDUSko45BFb1TMMTWf2IO/5raZ02VVIC2RLTwbzLNI5Q53dcCuP//wJGpf
+         EMHMfmbEmL+pw3Ssadnmwzbnf9/ruKFULWUbQsDPVdc/b3ylD72hNcMWGMTRLVucxi
+         668QtAdOWJ7X793esEoUbYVvtiki/XPs9rNd+HDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Doug Ledford <dledford@redhat.com>
-Subject: [PATCH 5.2 133/162] IB/hfi1: Drop stale TID RDMA packets that cause TIDErr
-Date:   Tue, 27 Aug 2019 09:51:01 +0200
-Message-Id: <20190827072743.191279632@linuxfoundation.org>
+        Jason Xing <kerneljasonxing@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Caspar Zhang <caspar@linux.alibaba.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 134/162] psi: get poll_work to run when calling poll syscall next time
+Date:   Tue, 27 Aug 2019 09:51:02 +0200
+Message-Id: <20190827072743.237942008@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -46,106 +51,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Jason Xing <kerneljasonxing@linux.alibaba.com>
 
-commit d9d1f5e7bb82415591e8b62b222cbb88c4797ef3 upstream.
+commit 7b2b55da1db10a5525460633ae4b6fb0be060c41 upstream.
 
-In a congested fabric with adaptive routing enabled, traces show that
-packets could be delivered out of order. A stale TID RDMA data packet
-could lead to TidErr if the TID entries have been released by duplicate
-data packets generated from retries, and subsequently erroneously force
-the qp into error state in the current implementation.
+Only when calling the poll syscall the first time can user receive
+POLLPRI correctly.  After that, user always fails to acquire the event
+signal.
 
-Since the payload has already been dropped by hardware, the packet can
-be simply dropped and it is no longer necessary to put the qp into
-error state.
+Reproduce case:
+ 1. Get the monitor code in Documentation/accounting/psi.txt
+ 2. Run it, and wait for the event triggered.
+ 3. Kill and restart the process.
 
-Fixes: 9905bf06e890 ("IB/hfi1: Add functions to receive TID RDMA READ response")
+The question is why we can end up with poll_scheduled = 1 but the work
+not running (which would reset it to 0).  And the answer is because the
+scheduling side sees group->poll_kworker under RCU protection and then
+schedules it, but here we cancel the work and destroy the worker.  The
+cancel needs to pair with resetting the poll_scheduled flag.
+
+Link: http://lkml.kernel.org/r/1566357985-97781-1-git-send-email-joseph.qi@linux.alibaba.com
+Signed-off-by: Jason Xing <kerneljasonxing@linux.alibaba.com>
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reviewed-by: Caspar Zhang <caspar@linux.alibaba.com>
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Link: https://lore.kernel.org/r/20190815192058.105923.72324.stgit@awfm-01.aw.intel.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |   47 ++--------------------------------
- 1 file changed, 3 insertions(+), 44 deletions(-)
+ kernel/sched/psi.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -2576,18 +2576,9 @@ void hfi1_kern_read_tid_flow_free(struct
- 	hfi1_kern_clear_hw_flow(priv->rcd, qp);
- }
- 
--static bool tid_rdma_tid_err(struct hfi1_ctxtdata *rcd,
--			     struct hfi1_packet *packet, u8 rcv_type,
--			     u8 opcode)
-+static bool tid_rdma_tid_err(struct hfi1_packet *packet, u8 rcv_type)
- {
- 	struct rvt_qp *qp = packet->qp;
--	struct hfi1_qp_priv *qpriv = qp->priv;
--	u32 ipsn;
--	struct ib_other_headers *ohdr = packet->ohdr;
--	struct rvt_ack_entry *e;
--	struct tid_rdma_request *req;
--	struct rvt_dev_info *rdi = ib_to_rvt(qp->ibqp.device);
--	u32 i;
- 
- 	if (rcv_type >= RHF_RCV_TYPE_IB)
- 		goto done;
-@@ -2604,41 +2595,9 @@ static bool tid_rdma_tid_err(struct hfi1
- 	if (rcv_type == RHF_RCV_TYPE_EAGER) {
- 		hfi1_restart_rc(qp, qp->s_last_psn + 1, 1);
- 		hfi1_schedule_send(qp);
--		goto done_unlock;
--	}
--
--	/*
--	 * For TID READ response, error out QP after freeing the tid
--	 * resources.
--	 */
--	if (opcode == TID_OP(READ_RESP)) {
--		ipsn = mask_psn(be32_to_cpu(ohdr->u.tid_rdma.r_rsp.verbs_psn));
--		if (cmp_psn(ipsn, qp->s_last_psn) > 0 &&
--		    cmp_psn(ipsn, qp->s_psn) < 0) {
--			hfi1_kern_read_tid_flow_free(qp);
--			spin_unlock(&qp->s_lock);
--			rvt_rc_error(qp, IB_WC_LOC_QP_OP_ERR);
--			goto done;
--		}
--		goto done_unlock;
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1131,7 +1131,15 @@ static void psi_trigger_destroy(struct k
+ 	 * deadlock while waiting for psi_poll_work to acquire trigger_lock
+ 	 */
+ 	if (kworker_to_destroy) {
++		/*
++		 * After the RCU grace period has expired, the worker
++		 * can no longer be found through group->poll_kworker.
++		 * But it might have been already scheduled before
++		 * that - deschedule it cleanly before destroying it.
++		 */
+ 		kthread_cancel_delayed_work_sync(&group->poll_work);
++		atomic_set(&group->poll_scheduled, 0);
++
+ 		kthread_destroy_worker(kworker_to_destroy);
  	}
- 
--	/*
--	 * Error out the qp for TID RDMA WRITE
--	 */
--	hfi1_kern_clear_hw_flow(qpriv->rcd, qp);
--	for (i = 0; i < rvt_max_atomic(rdi); i++) {
--		e = &qp->s_ack_queue[i];
--		if (e->opcode == TID_OP(WRITE_REQ)) {
--			req = ack_to_tid_req(e);
--			hfi1_kern_exp_rcv_clear_all(req);
--		}
--	}
--	spin_unlock(&qp->s_lock);
--	rvt_rc_error(qp, IB_WC_LOC_LEN_ERR);
--	goto done;
--
--done_unlock:
-+	/* Since no payload is delivered, just drop the packet */
- 	spin_unlock(&qp->s_lock);
- done:
- 	return true;
-@@ -2927,7 +2886,7 @@ bool hfi1_handle_kdeth_eflags(struct hfi
- 		if (lnh == HFI1_LRH_GRH)
- 			goto r_unlock;
- 
--		if (tid_rdma_tid_err(rcd, packet, rcv_type, opcode))
-+		if (tid_rdma_tid_err(packet, rcv_type))
- 			goto r_unlock;
- 	}
- 
+ 	kfree(t);
 
 
