@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3525C9DF21
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F64F9DF98
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726735AbfH0Hvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:51:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
+        id S1729563AbfH0Hzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725985AbfH0Hvl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:51:41 -0400
+        id S1729250AbfH0Hzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBC9C206BA;
-        Tue, 27 Aug 2019 07:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C2E5206BF;
+        Tue, 27 Aug 2019 07:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892300;
-        bh=uSIP8u8DY++aF/wMqdAfQwS0BjIVacNJen3OVr0tJrY=;
+        s=default; t=1566892539;
+        bh=ODE7HagJVHnEY2RdSWigs1YUSge3VGPYgFpBhIb+Btc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAtmlCh7X4pNDbUmrgiCILj7L0UNhwPgzapdzZEMvak3OLtIaJfCpgnLXp/D8hYvr
-         C45UZtWXP01OBovMsG7OjxdSlZOFxYA46btdwPeXSgXm2l98+gBzavxPgmRBomnRaP
-         WJ7n0xRmrepHwDtISpl2ryrhhTjhmxLrx9UxzTFM=
+        b=yuqU8/5Jpf8JU0PwF9Xs2idOWiBM52q+AJPtCToLg4URK5wh+Q0VZ6GJKmiWmrITA
+         dYXBmlvZnwNnoqZ6SOHlZ8WfCf7O24dHUVRTVwrnHqbpAzEP5qy4MKlUQaJlWiIP9W
+         ggsIyxcTffNqSbghP+67QNPcnYDcgT26tqiu+K88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Trukhanov <lahvuun@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/62] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Jeffrey Altman <jaltman@auristor.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/98] rxrpc: Fix the lack of notification when sendmsg() fails on a DATA packet
 Date:   Tue, 27 Aug 2019 09:50:06 +0200
-Message-Id: <20190827072700.001458797@linuxfoundation.org>
+Message-Id: <20190827072719.685181813@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,63 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 65f11c72780fa9d598df88def045ccb6a885cf80 ]
+[ Upstream commit c69565ee6681e151e2bb80502930a16e04b553d1 ]
 
-Enable force feedback for the Thrustmaster Dual Trigger 2 in 1 Rumble Force
-gamepad. Compared to other Thrustmaster devices, left and right rumble
-motors here are swapped.
+Fix the fact that a notification isn't sent to the recvmsg side to indicate
+a call failed when sendmsg() fails to transmit a DATA packet with the error
+ENETUNREACH, EHOSTUNREACH or ECONNREFUSED.
 
-Signed-off-by: Ilya Trukhanov <lahvuun@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Without this notification, the afs client just sits there waiting for the
+call to complete in some manner (which it's not now going to do), which
+also pins the rxrpc call in place.
+
+This can be seen if the client has a scope-level IPv6 address, but not a
+global-level IPv6 address, and we try and transmit an operation to a
+server's IPv6 address.
+
+Looking in /proc/net/rxrpc/calls shows completed calls just sat there with
+an abort code of RX_USER_ABORT and an error code of -ENETUNREACH.
+
+Fixes: c54e43d752c7 ("rxrpc: Fix missing start of call timeout")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-tmff.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/rxrpc/sendmsg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index b83376077d722..cfa0cb22c9b3c 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -34,6 +34,8 @@
- 
- #include "hid-ids.h"
- 
-+#define THRUSTMASTER_DEVICE_ID_2_IN_1_DT	0xb320
-+
- static const signed short ff_rumble[] = {
- 	FF_RUMBLE,
- 	-1
-@@ -88,6 +90,7 @@ static int tmff_play(struct input_dev *dev, void *data,
- 	struct hid_field *ff_field = tmff->ff_field;
- 	int x, y;
- 	int left, right;	/* Rumbling */
-+	int motor_swap;
- 
- 	switch (effect->type) {
- 	case FF_CONSTANT:
-@@ -112,6 +115,13 @@ static int tmff_play(struct input_dev *dev, void *data,
- 					ff_field->logical_minimum,
- 					ff_field->logical_maximum);
- 
-+		/* 2-in-1 strong motor is left */
-+		if (hid->product == THRUSTMASTER_DEVICE_ID_2_IN_1_DT) {
-+			motor_swap = left;
-+			left = right;
-+			right = motor_swap;
-+		}
-+
- 		dbg_hid("(left,right)=(%08x, %08x)\n", left, right);
- 		ff_field->value[0] = left;
- 		ff_field->value[1] = right;
-@@ -238,6 +248,8 @@ static const struct hid_device_id tm_devices[] = {
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
- 		.driver_data = (unsigned long)ff_rumble },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
-+		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index be01f9c5d963d..5d6ab4f6fd7ab 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -230,6 +230,7 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
+ 			rxrpc_set_call_completion(call,
+ 						  RXRPC_CALL_LOCAL_ERROR,
+ 						  0, ret);
++			rxrpc_notify_socket(call);
+ 			goto out;
+ 		}
+ 		_debug("need instant resend %d", ret);
 -- 
 2.20.1
 
