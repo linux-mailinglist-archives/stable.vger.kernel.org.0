@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FC79E0F1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFF79E0FB
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbfH0IHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:07:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
+        id S1730471AbfH0IHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:07:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732098AbfH0IHM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:07:12 -0400
+        id S1733133AbfH0IHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:07:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79BD4206BF;
-        Tue, 27 Aug 2019 08:07:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52715217F5;
+        Tue, 27 Aug 2019 08:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893232;
-        bh=9139bLgvZNJhVU+/KuehRZ88uo1vuy8PX04vIiAa+M4=;
+        s=default; t=1566893234;
+        bh=qodxeXGYfcOG3YludvI4FKuvMQVlM8+iqthkdXfuZj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwNt4t+AxC6pADstDaDUqkHysKJ6oQK/m/dfyQUUOqPxPmlZdeD5RsiJKaupN1s3l
-         f36IgqZKGCLyeCExEVSg8chW2ygYO0vcJ6k18qsfCFfLODLuWdFAMTmN10/U9i6i5l
-         QyH8SxLlmUvhkQ7KZkT5Vhw9NDVWUtueOqZ0vnc8=
+        b=IZPrZwIGrf6CDn6W2PfnzzXbT19rBUXRq9PcfYwIVVj181Y5F2IZeSPt9/lxtOhWf
+         vAiGoFmIjNGMTluB3ki6wC0meS+uZyavgz5+Tv6m1lCJj7h0m5PkJ2X3ZZaig/waZA
+         CGrjoZXb3H4mmOwtQeimHk0MbS+Xv9HKnUmcczIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, benjamin.moody@gmail.com,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 5.2 154/162] xfs: fix missing ILOCK unlock when xfs_setattr_nonsize fails due to EDQUOT
-Date:   Tue, 27 Aug 2019 09:51:22 +0200
-Message-Id: <20190827072744.154956000@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 5.2 155/162] IB/hfi1: Drop stale TID RDMA packets
+Date:   Tue, 27 Aug 2019 09:51:23 +0200
+Message-Id: <20190827072744.196060505@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -45,63 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Kaike Wan <kaike.wan@intel.com>
 
-commit 1fb254aa983bf190cfd685d40c64a480a9bafaee upstream.
+commit d58c1834bf0d218a0bc00f8fb44874551b21da84 upstream.
 
-Benjamin Moody reported to Debian that XFS partially wedges when a chgrp
-fails on account of being out of disk quota.  I ran his reproducer
-script:
+In a congested fabric with adaptive routing enabled, traces show that
+the sender could receive stale TID RDMA NAK packets that contain newer
+KDETH PSNs and older Verbs PSNs. If not dropped, these packets could
+cause the incorrect rewinding of the software flows and the incorrect
+completion of TID RDMA WRITE requests, and eventually leading to memory
+corruption and kernel crash.
 
-# adduser dummy
-# adduser dummy plugdev
+The current code drops stale TID RDMA ACK/NAK packets solely based
+on KDETH PSNs, which may lead to erroneous processing. This patch
+fixes the issue by also checking the Verbs PSN. Addition checks are
+added before rewinding the TID RDMA WRITE DATA packets.
 
-# dd if=/dev/zero bs=1M count=100 of=test.img
-# mkfs.xfs test.img
-# mount -t xfs -o gquota test.img /mnt
-# mkdir -p /mnt/dummy
-# chown -c dummy /mnt/dummy
-# xfs_quota -xc 'limit -g bsoft=100k bhard=100k plugdev' /mnt
-
-(and then as user dummy)
-
-$ dd if=/dev/urandom bs=1M count=50 of=/mnt/dummy/foo
-$ chgrp plugdev /mnt/dummy/foo
-
-and saw:
-
-================================================
-WARNING: lock held when returning to user space!
-5.3.0-rc5 #rc5 Tainted: G        W
-------------------------------------------------
-chgrp/47006 is leaving the kernel with locks still held!
-1 lock held by chgrp/47006:
- #0: 000000006664ea2d (&xfs_nondir_ilock_class){++++}, at: xfs_ilock+0xd2/0x290 [xfs]
-
-...which is clearly caused by xfs_setattr_nonsize failing to unlock the
-ILOCK after the xfs_qm_vop_chown_reserve call fails.  Add the missing
-unlock.
-
-Reported-by: benjamin.moody@gmail.com
-Fixes: 253f4911f297 ("xfs: better xfs_trans_alloc interface")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 9e93e967f7b4 ("IB/hfi1: Add a function to receive TID RDMA ACK packet")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Link: https://lore.kernel.org/r/20190815192033.105923.44192.stgit@awfm-01.aw.intel.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/xfs_iops.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/hfi1/tid_rdma.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -803,6 +803,7 @@ xfs_setattr_nonsize(
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -4480,7 +4480,7 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi
+ 	struct rvt_swqe *wqe;
+ 	struct tid_rdma_request *req;
+ 	struct tid_rdma_flow *flow;
+-	u32 aeth, psn, req_psn, ack_psn, fspsn, resync_psn, ack_kpsn;
++	u32 aeth, psn, req_psn, ack_psn, flpsn, resync_psn, ack_kpsn;
+ 	unsigned long flags;
+ 	u16 fidx;
  
- out_cancel:
- 	xfs_trans_cancel(tp);
-+	xfs_iunlock(ip, XFS_ILOCK_EXCL);
- out_dqrele:
- 	xfs_qm_dqrele(udqp);
- 	xfs_qm_dqrele(gdqp);
+@@ -4509,6 +4509,9 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi
+ 		ack_kpsn--;
+ 	}
+ 
++	if (unlikely(qp->s_acked == qp->s_tail))
++		goto ack_op_err;
++
+ 	wqe = rvt_get_swqe_ptr(qp, qp->s_acked);
+ 
+ 	if (wqe->wr.opcode != IB_WR_TID_RDMA_WRITE)
+@@ -4521,7 +4524,8 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi
+ 	trace_hfi1_tid_flow_rcv_tid_ack(qp, req->acked_tail, flow);
+ 
+ 	/* Drop stale ACK/NAK */
+-	if (cmp_psn(psn, full_flow_psn(flow, flow->flow_state.spsn)) < 0)
++	if (cmp_psn(psn, full_flow_psn(flow, flow->flow_state.spsn)) < 0 ||
++	    cmp_psn(req_psn, flow->flow_state.resp_ib_psn) < 0)
+ 		goto ack_op_err;
+ 
+ 	while (cmp_psn(ack_kpsn,
+@@ -4683,8 +4687,12 @@ done:
+ 		switch ((aeth >> IB_AETH_CREDIT_SHIFT) &
+ 			IB_AETH_CREDIT_MASK) {
+ 		case 0: /* PSN sequence error */
++			if (!req->flows)
++				break;
+ 			flow = &req->flows[req->acked_tail];
+-			fspsn = full_flow_psn(flow, flow->flow_state.spsn);
++			flpsn = full_flow_psn(flow, flow->flow_state.lpsn);
++			if (cmp_psn(psn, flpsn) > 0)
++				break;
+ 			trace_hfi1_tid_flow_rcv_tid_ack(qp, req->acked_tail,
+ 							flow);
+ 			req->r_ack_psn = mask_psn(be32_to_cpu(ohdr->bth[2]));
 
 
