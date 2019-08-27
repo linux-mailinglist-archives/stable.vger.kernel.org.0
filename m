@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C7049E10F
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69639E19B
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732850AbfH0IIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:08:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35408 "EHLO mail.kernel.org"
+        id S1728928AbfH0INW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732817AbfH0IFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:05:35 -0400
+        id S1729774AbfH0H6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F6622173E;
-        Tue, 27 Aug 2019 08:05:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABD0620828;
+        Tue, 27 Aug 2019 07:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893134;
-        bh=qCMxmxgU28Adtb3OCPQ8m5kIGKqy6wzZeC/V8xKHQ30=;
+        s=default; t=1566892698;
+        bh=BQoWxrPXHX8BCycKMjfBLqvZlT824d107z5VBJa1TOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OivOL2W+2HcL7juI9+ZDmQmtL7zoT0hYZpVjyxr0dJecrfTl0Lz4f+VMbXVlt5xIv
-         xui1hSzHlgkAXBLzHx9hqragWxDzOlh94ZHch5PdnSpwVCUZtVZyEBZEodBkuURjwD
-         AWv8EDkFMNduevkh02Nzh2cGntTAv9jgrCavcfts=
+        b=tIHvnjdmhkteBTEKAKyCIqEoX0SJbmHx0Z+GbjsmUjUQsOI8pI0dRmRyfz6zzUsNx
+         GZhqCDKEEnTtC8H2NaY4/YcAPrEhzjDAxwCjhb4qd2FqZQ52IYWctBeKU4ULV7qTp1
+         RKQJv3FxQ6pfxx/TBT/NdZQ/ZEBe9gdPcf9He4V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Doug Ledford <dledford@redhat.com>
-Subject: [PATCH 5.2 132/162] IB/hfi1: Add additional checks when handling TID RDMA WRITE DATA packet
+        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 81/98] dm zoned: improve error handling in reclaim
 Date:   Tue, 27 Aug 2019 09:51:00 +0200
-Message-Id: <20190827072743.146168096@linuxfoundation.org>
+Message-Id: <20190827072722.318146854@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit 90fdae66e72bf0381d168f12dca0259617927895 upstream.
+commit b234c6d7a703661b5045c5bf569b7c99d2edbf88 upstream.
 
-In a congested fabric with adaptive routing enabled, traces show that
-packets could be delivered out of order, which could cause incorrect
-processing of stale packets. For stale TID RDMA WRITE DATA packets that
-cause KDETH EFLAGS errors, this patch adds additional checks before
-processing the packets.
+There are several places in reclaim code where errors are not
+propagated to the main function, dmz_reclaim(). This function
+is responsible for unlocking zones that might be still locked
+at the end of any failed reclaim iterations. As the result,
+some device zones may be left permanently locked for reclaim,
+degrading target's capability to reclaim zones.
 
-Fixes: d72fe7d5008b ("IB/hfi1: Add a function to receive TID RDMA WRITE DATA packet")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Link: https://lore.kernel.org/r/20190815192051.105923.69979.stgit@awfm-01.aw.intel.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+This patch fixes these issues as follows -
+
+Make sure that dmz_reclaim_buf(), dmz_reclaim_seq_data() and
+dmz_reclaim_rnd_data() return error codes to the caller.
+
+dmz_reclaim() function is renamed to dmz_do_reclaim() to avoid
+clashing with "struct dmz_reclaim" and is modified to return the
+error to the caller.
+
+dmz_get_zone_for_reclaim() now returns an error instead of NULL
+pointer and reclaim code checks for that error.
+
+Error logging/debug messages are added where necessary.
+
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/md/dm-zoned-metadata.c |    4 ++--
+ drivers/md/dm-zoned-reclaim.c  |   28 +++++++++++++++++++---------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -2947,8 +2947,15 @@ bool hfi1_handle_kdeth_eflags(struct hfi
- 	 */
- 	spin_lock(&qp->s_lock);
- 	qpriv = qp->priv;
-+	if (qpriv->r_tid_tail == HFI1_QP_WQE_INVALID ||
-+	    qpriv->r_tid_tail == qpriv->r_tid_head)
-+		goto unlock;
- 	e = &qp->s_ack_queue[qpriv->r_tid_tail];
-+	if (e->opcode != TID_OP(WRITE_REQ))
-+		goto unlock;
- 	req = ack_to_tid_req(e);
-+	if (req->comp_seg == req->cur_seg)
-+		goto unlock;
- 	flow = &req->flows[req->clear_tail];
- 	trace_hfi1_eflags_err_write(qp, rcv_type, rte, psn);
- 	trace_hfi1_rsp_handle_kdeth_eflags(qp, psn);
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1534,7 +1534,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 	struct dm_zone *zone;
+ 
+ 	if (list_empty(&zmd->map_rnd_list))
+-		return NULL;
++		return ERR_PTR(-EBUSY);
+ 
+ 	list_for_each_entry(zone, &zmd->map_rnd_list, link) {
+ 		if (dmz_is_buf(zone))
+@@ -1545,7 +1545,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 			return dzone;
+ 	}
+ 
+-	return NULL;
++	return ERR_PTR(-EBUSY);
+ }
+ 
+ /*
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -215,7 +215,7 @@ static int dmz_reclaim_buf(struct dmz_re
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -259,7 +259,7 @@ static int dmz_reclaim_seq_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -312,7 +312,7 @@ static int dmz_reclaim_rnd_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -334,7 +334,7 @@ static void dmz_reclaim_empty(struct dmz
+ /*
+  * Find a candidate zone for reclaim and process it.
+  */
+-static void dmz_reclaim(struct dmz_reclaim *zrc)
++static int dmz_do_reclaim(struct dmz_reclaim *zrc)
+ {
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	struct dm_zone *dzone;
+@@ -344,8 +344,8 @@ static void dmz_reclaim(struct dmz_recla
+ 
+ 	/* Get a data zone */
+ 	dzone = dmz_get_zone_for_reclaim(zmd);
+-	if (!dzone)
+-		return;
++	if (IS_ERR(dzone))
++		return PTR_ERR(dzone);
+ 
+ 	start = jiffies;
+ 
+@@ -391,13 +391,20 @@ static void dmz_reclaim(struct dmz_recla
+ out:
+ 	if (ret) {
+ 		dmz_unlock_zone_reclaim(dzone);
+-		return;
++		return ret;
+ 	}
+ 
+-	(void) dmz_flush_metadata(zrc->metadata);
++	ret = dmz_flush_metadata(zrc->metadata);
++	if (ret) {
++		dmz_dev_debug(zrc->dev,
++			      "Metadata flush for zone %u failed, err %d\n",
++			      dmz_id(zmd, rzone), ret);
++		return ret;
++	}
+ 
+ 	dmz_dev_debug(zrc->dev, "Reclaimed zone %u in %u ms",
+ 		      dmz_id(zmd, rzone), jiffies_to_msecs(jiffies - start));
++	return 0;
+ }
+ 
+ /*
+@@ -442,6 +449,7 @@ static void dmz_reclaim_work(struct work
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	unsigned int nr_rnd, nr_unmap_rnd;
+ 	unsigned int p_unmap_rnd;
++	int ret;
+ 
+ 	if (!dmz_should_reclaim(zrc)) {
+ 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
+@@ -471,7 +479,9 @@ static void dmz_reclaim_work(struct work
+ 		      (dmz_target_idle(zrc) ? "Idle" : "Busy"),
+ 		      p_unmap_rnd, nr_unmap_rnd, nr_rnd);
+ 
+-	dmz_reclaim(zrc);
++	ret = dmz_do_reclaim(zrc);
++	if (ret)
++		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+ 
+ 	dmz_schedule_reclaim(zrc);
+ }
 
 
