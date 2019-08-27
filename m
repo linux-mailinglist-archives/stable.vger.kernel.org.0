@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7269F9DFDA
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0336D9DF6E
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730570AbfH0H6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50682 "EHLO mail.kernel.org"
+        id S1729458AbfH0HyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbfH0H6H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:07 -0400
+        id S1729429AbfH0HyO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6723720828;
-        Tue, 27 Aug 2019 07:58:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B7F1206BF;
+        Tue, 27 Aug 2019 07:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892686;
-        bh=tpTGIhEqxp+KBGaDmFcATKiHYBPcEXPJInHvTwLE9V8=;
+        s=default; t=1566892452;
+        bh=udaqUPiPzuY0HXY31O3O3v6qDWZt9qyS0+RjrPuCBtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CccCQxZCTrYk8I2ZjEUMThGYwfsnSf6qOQQ1Mb7AcdOq7ZcYKQo1PF4uGhpW4/v5Q
-         47EUdOEGYQvawoLdIWFA2ZwvjKqO+d1YwIZqlTCUDBL9+lhWRYq+WVphtbANiEtQzl
-         HIid7JRObAjiq5jglJLx6nq8Z5LcYHfSA+0WIETo=
+        b=mo2mY0ynXxsRUb1JPEG3MVxQleHNcqmXSzqnh08GVHn2UGOVdD7hSiYsGNjHahr+A
+         +Nkd87YKbPDsc/8pyei/TyOnRrA0nPuUaGqXUe+9+MOXndiIUrS90zQ2GqNxrQlB4O
+         /xj4xOGX9J/8etf0nTNdAt2va9JDyDAzRULLLMRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 78/98] dm raid: add missing cleanup in raid_ctr()
-Date:   Tue, 27 Aug 2019 09:50:57 +0200
-Message-Id: <20190827072722.218327181@linuxfoundation.org>
+Subject: [PATCH 4.14 53/62] dm zoned: improve error handling in reclaim
+Date:   Tue, 27 Aug 2019 09:50:58 +0200
+Message-Id: <20190827072703.613048843@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit dc1a3e8e0cc6b2293b48c044710e63395aeb4fb4 upstream.
+commit b234c6d7a703661b5045c5bf569b7c99d2edbf88 upstream.
 
-If rs_prepare_reshape() fails, no cleanup is executed, leading to
-leak of the raid_set structure allocated at the beginning of
-raid_ctr(). To fix this issue, go to the label 'bad' if the error
-occurs.
+There are several places in reclaim code where errors are not
+propagated to the main function, dmz_reclaim(). This function
+is responsible for unlocking zones that might be still locked
+at the end of any failed reclaim iterations. As the result,
+some device zones may be left permanently locked for reclaim,
+degrading target's capability to reclaim zones.
 
-Fixes: 11e4723206683 ("dm raid: stop keeping raid set frozen altogether")
+This patch fixes these issues as follows -
+
+Make sure that dmz_reclaim_buf(), dmz_reclaim_seq_data() and
+dmz_reclaim_rnd_data() return error codes to the caller.
+
+dmz_reclaim() function is renamed to dmz_do_reclaim() to avoid
+clashing with "struct dmz_reclaim" and is modified to return the
+error to the caller.
+
+dmz_get_zone_for_reclaim() now returns an error instead of NULL
+pointer and reclaim code checks for that error.
+
+Error logging/debug messages are added where necessary.
+
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
 Cc: stable@vger.kernel.org
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-raid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-zoned-metadata.c |    4 ++--
+ drivers/md/dm-zoned-reclaim.c  |   28 +++++++++++++++++++---------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-raid.c
-+++ b/drivers/md/dm-raid.c
-@@ -3199,7 +3199,7 @@ static int raid_ctr(struct dm_target *ti
- 			  */
- 			r = rs_prepare_reshape(rs);
- 			if (r)
--				return r;
-+				goto bad;
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1534,7 +1534,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 	struct dm_zone *zone;
  
- 			/* Reshaping ain't recovery, so disable recovery */
- 			rs_setup_recovery(rs, MaxSector);
+ 	if (list_empty(&zmd->map_rnd_list))
+-		return NULL;
++		return ERR_PTR(-EBUSY);
+ 
+ 	list_for_each_entry(zone, &zmd->map_rnd_list, link) {
+ 		if (dmz_is_buf(zone))
+@@ -1545,7 +1545,7 @@ static struct dm_zone *dmz_get_rnd_zone_
+ 			return dzone;
+ 	}
+ 
+-	return NULL;
++	return ERR_PTR(-EBUSY);
+ }
+ 
+ /*
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -217,7 +217,7 @@ static int dmz_reclaim_buf(struct dmz_re
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -261,7 +261,7 @@ static int dmz_reclaim_seq_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -314,7 +314,7 @@ static int dmz_reclaim_rnd_data(struct d
+ 
+ 	dmz_unlock_flush(zmd);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -336,7 +336,7 @@ static void dmz_reclaim_empty(struct dmz
+ /*
+  * Find a candidate zone for reclaim and process it.
+  */
+-static void dmz_reclaim(struct dmz_reclaim *zrc)
++static int dmz_do_reclaim(struct dmz_reclaim *zrc)
+ {
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	struct dm_zone *dzone;
+@@ -346,8 +346,8 @@ static void dmz_reclaim(struct dmz_recla
+ 
+ 	/* Get a data zone */
+ 	dzone = dmz_get_zone_for_reclaim(zmd);
+-	if (!dzone)
+-		return;
++	if (IS_ERR(dzone))
++		return PTR_ERR(dzone);
+ 
+ 	start = jiffies;
+ 
+@@ -393,13 +393,20 @@ static void dmz_reclaim(struct dmz_recla
+ out:
+ 	if (ret) {
+ 		dmz_unlock_zone_reclaim(dzone);
+-		return;
++		return ret;
+ 	}
+ 
+-	(void) dmz_flush_metadata(zrc->metadata);
++	ret = dmz_flush_metadata(zrc->metadata);
++	if (ret) {
++		dmz_dev_debug(zrc->dev,
++			      "Metadata flush for zone %u failed, err %d\n",
++			      dmz_id(zmd, rzone), ret);
++		return ret;
++	}
+ 
+ 	dmz_dev_debug(zrc->dev, "Reclaimed zone %u in %u ms",
+ 		      dmz_id(zmd, rzone), jiffies_to_msecs(jiffies - start));
++	return 0;
+ }
+ 
+ /*
+@@ -444,6 +451,7 @@ static void dmz_reclaim_work(struct work
+ 	struct dmz_metadata *zmd = zrc->metadata;
+ 	unsigned int nr_rnd, nr_unmap_rnd;
+ 	unsigned int p_unmap_rnd;
++	int ret;
+ 
+ 	if (!dmz_should_reclaim(zrc)) {
+ 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
+@@ -473,7 +481,9 @@ static void dmz_reclaim_work(struct work
+ 		      (dmz_target_idle(zrc) ? "Idle" : "Busy"),
+ 		      p_unmap_rnd, nr_unmap_rnd, nr_rnd);
+ 
+-	dmz_reclaim(zrc);
++	ret = dmz_do_reclaim(zrc);
++	if (ret)
++		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+ 
+ 	dmz_schedule_reclaim(zrc);
+ }
 
 
