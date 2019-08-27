@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB2E9E1E1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C98C49E128
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729828AbfH0Hze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
+        id S1730965AbfH0ICw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:02:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729563AbfH0Hzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:55:33 -0400
+        id S1732105AbfH0ICw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:02:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3192206BA;
-        Tue, 27 Aug 2019 07:55:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C575A206BA;
+        Tue, 27 Aug 2019 08:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892532;
-        bh=4kEUMuW6OXPM66Sw1yyvHNwkIJ9bATYrDhZ7AK6o3Nc=;
+        s=default; t=1566892971;
+        bh=Ukv4brZdGM42HfUZT6W8kPNYBms1FG4tRRvHta1or4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ug7Ypv4RTJc3HqFyVv77nfI0NxWxrJC8SofZNgU4M3BbzQwv7cEQv8hZQDpZIC//0
-         OLiHliQ3EsvUCDj4k4sd/1CKLpTM4EIeCKsZTrmiHK4E5tyskSZTbMqQxa/x3CG3oJ
-         lKmd2HM64K6r/HXhw7a6cAsXF8PojjpEdMQD3s1Q=
+        b=ltY9rHUks82CvpRzq567HkC9bzvW17L5TThmzZhtL5D/I3qAsbbimlDhZPDUyTkcq
+         lBpODAIlLMcYugtWQ9iobGh/9hFuVCk4yjHedtP467SgQaOmKH8/sliWQjbFd5AJ9w
+         SU9GjlhPdq5FxIkfDiz6FoOGXFvU1VET1ay9XELs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Jeffrey Altman <jaltman@auristor.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/98] rxrpc: Fix potential deadlock
-Date:   Tue, 27 Aug 2019 09:50:05 +0200
-Message-Id: <20190827072719.644782598@linuxfoundation.org>
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 078/162] HID: input: fix a4tech horizontal wheel custom usage
+Date:   Tue, 27 Aug 2019 09:50:06 +0200
+Message-Id: <20190827072740.828534419@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,104 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 60034d3d146b11922ab1db613bce062dddc0327a ]
+[ Upstream commit 1c703b53e5bfb5c2205c30f0fb157ce271fd42fb ]
 
-There is a potential deadlock in rxrpc_peer_keepalive_dispatch() whereby
-rxrpc_put_peer() is called with the peer_hash_lock held, but if it reduces
-the peer's refcount to 0, rxrpc_put_peer() calls __rxrpc_put_peer() - which
-the tries to take the already held lock.
+Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
+the previous wheel report was horizontal or vertical. Before
+c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
+usage was being mapped to 'Relative.Misc'. After the patch it's simply
+ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
+hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
+usage->type.
 
-Fix this by providing a version of rxrpc_put_peer() that can be called in
-situations where the lock is already held.
+We shouldn't rely on a mapping for that usage as it's nonstandard and
+doesn't really map to an input event. So we bypass the mapping and make
+sure the custom event handling properly handles both reports.
 
-The bug may produce the following lockdep report:
-
-============================================
-WARNING: possible recursive locking detected
-5.2.0-next-20190718 #41 Not tainted
---------------------------------------------
-kworker/0:3/21678 is trying to acquire lock:
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
-/./include/linux/spinlock.h:343 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-__rxrpc_put_peer /net/rxrpc/peer_object.c:415 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_put_peer+0x2d3/0x6a0 /net/rxrpc/peer_object.c:435
-
-but task is already holding lock:
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at: spin_lock_bh
-/./include/linux/spinlock.h:343 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_peer_keepalive_dispatch /net/rxrpc/peer_event.c:378 [inline]
-00000000aa5eecdf (&(&rxnet->peer_hash_lock)->rlock){+.-.}, at:
-rxrpc_peer_keepalive_worker+0x6b3/0xd02 /net/rxrpc/peer_event.c:430
-
-Fixes: 330bdcfadcee ("rxrpc: Fix the keepalive generator [ver #2]")
-Reported-by: syzbot+72af434e4b3417318f84@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-internal.h |  1 +
- net/rxrpc/peer_event.c  |  2 +-
- net/rxrpc/peer_object.c | 18 ++++++++++++++++++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/hid/hid-a4tech.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 03e0fc8c183f0..a4c341828b72f 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -1057,6 +1057,7 @@ void rxrpc_destroy_all_peers(struct rxrpc_net *);
- struct rxrpc_peer *rxrpc_get_peer(struct rxrpc_peer *);
- struct rxrpc_peer *rxrpc_get_peer_maybe(struct rxrpc_peer *);
- void rxrpc_put_peer(struct rxrpc_peer *);
-+void rxrpc_put_peer_locked(struct rxrpc_peer *);
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 98bf694626f71..3a8c4a5971f70 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -23,12 +23,36 @@
+ #define A4_2WHEEL_MOUSE_HACK_7	0x01
+ #define A4_2WHEEL_MOUSE_HACK_B8	0x02
  
- /*
-  * proc.c
-diff --git a/net/rxrpc/peer_event.c b/net/rxrpc/peer_event.c
-index bd2fa3b7caa7e..dc7fdaf20445b 100644
---- a/net/rxrpc/peer_event.c
-+++ b/net/rxrpc/peer_event.c
-@@ -375,7 +375,7 @@ static void rxrpc_peer_keepalive_dispatch(struct rxrpc_net *rxnet,
- 		spin_lock_bh(&rxnet->peer_hash_lock);
- 		list_add_tail(&peer->keepalive_link,
- 			      &rxnet->peer_keepalive[slot & mask]);
--		rxrpc_put_peer(peer);
-+		rxrpc_put_peer_locked(peer);
- 	}
- 
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
-diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
-index 5691b7d266ca0..71547e8673b99 100644
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -440,6 +440,24 @@ void rxrpc_put_peer(struct rxrpc_peer *peer)
- 	}
- }
- 
-+/*
-+ * Drop a ref on a peer record where the caller already holds the
-+ * peer_hash_lock.
-+ */
-+void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
-+{
-+	const void *here = __builtin_return_address(0);
-+	int n;
++#define A4_WHEEL_ORIENTATION	(HID_UP_GENDESK | 0x000000b8)
 +
-+	n = atomic_dec_return(&peer->usage);
-+	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+	if (n == 0) {
-+		hash_del_rcu(&peer->hash_link);
-+		list_del_init(&peer->keepalive_link);
-+		kfree_rcu(peer, rcu);
+ struct a4tech_sc {
+ 	unsigned long quirks;
+ 	unsigned int hw_wheel;
+ 	__s32 delayed_value;
+ };
+ 
++static int a4_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++			    struct hid_field *field, struct hid_usage *usage,
++			    unsigned long **bit, int *max)
++{
++	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
++
++	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8 &&
++	    usage->hid == A4_WHEEL_ORIENTATION) {
++		/*
++		 * We do not want to have this usage mapped to anything as it's
++		 * nonstandard and doesn't really behave like an HID report.
++		 * It's only selecting the orientation (vertical/horizontal) of
++		 * the previous mouse wheel report. The input_events will be
++		 * generated once both reports are recorded in a4_event().
++		 */
++		return -1;
 +	}
++
++	return 0;
++
 +}
 +
- /*
-  * Make sure all peer records have been discarded.
-  */
+ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -52,8 +76,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
+ 	struct input_dev *input;
+ 
+-	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
+-			!usage->type)
++	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
+ 		return 0;
+ 
+ 	input = field->hidinput->input;
+@@ -64,7 +87,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 			return 1;
+ 		}
+ 
+-		if (usage->hid == 0x000100b8) {
++		if (usage->hid == A4_WHEEL_ORIENTATION) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
+ 			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
+@@ -131,6 +154,7 @@ MODULE_DEVICE_TABLE(hid, a4_devices);
+ static struct hid_driver a4_driver = {
+ 	.name = "a4tech",
+ 	.id_table = a4_devices,
++	.input_mapping = a4_input_mapping,
+ 	.input_mapped = a4_input_mapped,
+ 	.event = a4_event,
+ 	.probe = a4_probe,
 -- 
 2.20.1
 
