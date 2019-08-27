@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 190929DF77
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0499DFE1
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729587AbfH0Hyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46116 "EHLO mail.kernel.org"
+        id S1731005AbfH0H62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729576AbfH0Hya (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:30 -0400
+        id S1731000AbfH0H61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E47112186A;
-        Tue, 27 Aug 2019 07:54:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3540F206BF;
+        Tue, 27 Aug 2019 07:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892469;
-        bh=vbhXG0rORz1IcehPNBtQZMb7EgXEG9oBiCYmrZJYbpY=;
+        s=default; t=1566892706;
+        bh=G9OEy4CmaSXtfVtdYKmh1SHnSG9Tl5z7jV7Dznx61UU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVyCpgGQMTgKLOjjIChD+2WyEez3zArthdwX6VDJy3svTYkYu/nefWjghyvVgx3U6
-         QvrntyzBpR9srSZulXm1OANmLlV8eGTYAtJoAkuHLrD3kAMbNChatpUY73GVFWMdeQ
-         0LOtyzSdyAJbleN9lMwWlN8yrMVIoUc7KXovYGas=
+        b=s5IJAJy8s+J5S9zy0kqSj72UQ73cwGw0GUPduGcVWqGHY1poWQHnda8YVRpEbkPS9
+         0XI5dCiOraZYeLJlvq5RHxnQ9ShqMFyf2g+BPMz3BV1SEqDW3Oq8Y4sxRaTS0ceV7B
+         JWv/QcI2SnK+BrsdOBimujKXqoM7W+0wa86JZ+ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 58/62] mm/zsmalloc.c: migration can leave pages in ZS_EMPTY indefinitely
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 84/98] genirq: Properly pair kobject_del() with kobject_add()
 Date:   Tue, 27 Aug 2019 09:51:03 +0200
-Message-Id: <20190827072703.836244944@linuxfoundation.org>
+Message-Id: <20190827072722.416373794@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,87 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-commit 1a87aa03597efa9641e92875b883c94c7f872ccb upstream.
+commit d0ff14fdc987303aeeb7de6f1bd72c3749ae2a9b upstream.
 
-In zs_page_migrate() we call putback_zspage() after we have finished
-migrating all pages in this zspage.  However, the return value is
-ignored.  If a zs_free() races in between zs_page_isolate() and
-zs_page_migrate(), freeing the last object in the zspage,
-putback_zspage() will leave the page in ZS_EMPTY for potentially an
-unbounded amount of time.
+If alloc_descs() fails before irq_sysfs_init() has run, free_desc() in the
+cleanup path will call kobject_del() even though the kobject has not been
+added with kobject_add().
 
-To fix this, we need to do the same thing as zs_page_putback() does:
-schedule free_work to occur.
+Fix this by making the call to kobject_del() conditional on whether
+irq_sysfs_init() has run.
 
-To avoid duplicated code, move the sequence to a new
-putback_zspage_deferred() function which both zs_page_migrate() and
-zs_page_putback() call.
+This problem surfaced because commit aa30f47cf666 ("kobject: Add support
+for default attribute groups to kobj_type") makes kobject_del() stricter
+about pairing with kobject_add(). If the pairing is incorrrect, a WARNING
+and backtrace occur in sysfs_remove_group() because there is no parent.
 
-Link: http://lkml.kernel.org/r/20190809181751.219326-1-henryburns@google.com
-Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
-Signed-off-by: Henry Burns <henryburns@google.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ tglx: Add a comment to the code and make it work with CONFIG_SYSFS=n ]
+
+Fixes: ecb3f394c5db ("genirq: Expose interrupt information through sysfs")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1564703564-4116-1-git-send-email-mikelley@microsoft.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/zsmalloc.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ kernel/irq/irqdesc.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1878,6 +1878,18 @@ static void dec_zspage_isolation(struct
- 	zspage->isolated--;
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -294,6 +294,18 @@ static void irq_sysfs_add(int irq, struc
+ 	}
  }
  
-+static void putback_zspage_deferred(struct zs_pool *pool,
-+				    struct size_class *class,
-+				    struct zspage *zspage)
++static void irq_sysfs_del(struct irq_desc *desc)
 +{
-+	enum fullness_group fg;
-+
-+	fg = putback_zspage(class, zspage);
-+	if (fg == ZS_EMPTY)
-+		schedule_work(&pool->free_work);
-+
++	/*
++	 * If irq_sysfs_init() has not yet been invoked (early boot), then
++	 * irq_kobj_base is NULL and the descriptor was never added.
++	 * kobject_del() complains about a object with no parent, so make
++	 * it conditional.
++	 */
++	if (irq_kobj_base)
++		kobject_del(&desc->kobj);
 +}
 +
- static void replace_sub_page(struct size_class *class, struct zspage *zspage,
- 				struct page *newpage, struct page *oldpage)
+ static int __init irq_sysfs_init(void)
  {
-@@ -2047,7 +2059,7 @@ int zs_page_migrate(struct address_space
- 	 * the list if @page is final isolated subpage in the zspage.
+ 	struct irq_desc *desc;
+@@ -324,6 +336,7 @@ static struct kobj_type irq_kobj_type =
+ };
+ 
+ static void irq_sysfs_add(int irq, struct irq_desc *desc) {}
++static void irq_sysfs_del(struct irq_desc *desc) {}
+ 
+ #endif /* CONFIG_SYSFS */
+ 
+@@ -437,7 +450,7 @@ static void free_desc(unsigned int irq)
+ 	 * The sysfs entry must be serialized against a concurrent
+ 	 * irq_sysfs_init() as well.
  	 */
- 	if (!is_zspage_isolated(zspage))
--		putback_zspage(class, zspage);
-+		putback_zspage_deferred(pool, class, zspage);
+-	kobject_del(&desc->kobj);
++	irq_sysfs_del(desc);
+ 	delete_irq_desc(irq);
  
- 	reset_page(page);
- 	put_page(page);
-@@ -2093,14 +2105,13 @@ void zs_page_putback(struct page *page)
- 	spin_lock(&class->lock);
- 	dec_zspage_isolation(zspage);
- 	if (!is_zspage_isolated(zspage)) {
--		fg = putback_zspage(class, zspage);
- 		/*
- 		 * Due to page_lock, we cannot free zspage immediately
- 		 * so let's defer.
- 		 */
--		if (fg == ZS_EMPTY)
--			schedule_work(&pool->free_work);
-+		putback_zspage_deferred(pool, class, zspage);
- 	}
-+
- 	spin_unlock(&class->lock);
- }
- 
+ 	/*
 
 
