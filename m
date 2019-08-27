@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C129E20C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD2C9E203
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728870AbfH0IPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46864 "EHLO mail.kernel.org"
+        id S1729690AbfH0HzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729722AbfH0HzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:55:07 -0400
+        id S1730262AbfH0HzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E47A921872;
-        Tue, 27 Aug 2019 07:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE9B121872;
+        Tue, 27 Aug 2019 07:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892506;
-        bh=x8G/+spOK1KkqunKclxM5WEhUj4bsI1BAHWtozBZiWA=;
+        s=default; t=1566892509;
+        bh=/ProhyZOGgDkQ87AQFsElCg8GB+Mljf8lQ4hzNM4Y20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjRuVJNviul4QaSjqvfOPG5QAKg/NPBAsjzxvVzkaEo/I1xu1PUorGkPODq+0LoIP
-         WF++q/hXi60/+NWLsy0D4vLJ/rgc7XJkuvWzY1WvDB8q+9PZWvLIacd0Ww63G9gsY6
-         QQHy86cVRnTmJHRGyY3l+24ZJmCpyp5C+qHboQJE=
+        b=qJZXHjgA2SDbm2Ttjv/U+/t41cW34KoRbWg+kVVQdwPIeGYilY3SMDNZ1XMAwK/Tj
+         FPW6Ay0rih6rl37KF5+Gwonz45F5hCvzqQtOUVKAdlcPMQm4azxRmxVmnVQaoJ1Boc
+         AGBKbLZg9u/8gAxNDKIwF4A+hLBu+TbdPFR5N6gQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/98] ASoC: rockchip: Fix mono capture
-Date:   Tue, 27 Aug 2019 09:49:56 +0200
-Message-Id: <20190827072719.211225533@linuxfoundation.org>
+Subject: [PATCH 4.19 18/98] ASoC: ti: davinci-mcasp: Correct slot_width posed constraint
+Date:   Tue, 27 Aug 2019 09:49:57 +0200
+Message-Id: <20190827072719.257629386@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
 References: <20190827072718.142728620@linuxfoundation.org>
@@ -44,64 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 789e162a6255325325bd321ab0cd51dc7e285054 ]
+[ Upstream commit 1e112c35e3c96db7c8ca6ddaa96574f00c06e7db ]
 
-This reverts commit db51707b9c9aeedd310ebce60f15d5bb006567e0.
-Revert "ASoC: rockchip: i2s: Support mono capture"
+The slot_width is a property for the bus while the constraint for
+SNDRV_PCM_HW_PARAM_SAMPLE_BITS is for the in memory format.
 
-Previous discussion in
+Applying slot_width constraint to sample_bits works most of the time, but
+it will blacklist valid formats in some cases.
 
-https://patchwork.kernel.org/patch/10147153/
+With slot_width 24 we can support S24_3LE and S24_LE formats as they both
+look the same on the bus, but a a 24 constraint on sample_bits would not
+allow S24_LE as it is stored in 32bits in memory.
 
-explains the issue of the patch.
-While device is configured as 1-ch, hardware is still
-generating a 2-ch stream.
-When user space reads the data and assumes it is a 1-ch stream,
-the rate will be slower by 2x.
+Implement a simple hw_rule function to allow all formats which require less
+or equal number of bits on the bus as slot_width (if configured).
 
-Revert the change so 1-ch is not supported.
-User space can selectively take one channel data out of two channel
-if 1-ch is preferred.
-Currently, both channels record identical data.
-
-Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
-Link: https://lore.kernel.org/r/20190726044202.26866-1-cychiang@chromium.org
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190726064244.3762-2-peter.ujfalusi@ti.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/davinci/davinci-mcasp.c | 43 ++++++++++++++++++++++++-------
+ 1 file changed, 34 insertions(+), 9 deletions(-)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index 60d43d53a8f5e..11399f81c92f9 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -329,7 +329,6 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
- 		val |= I2S_CHN_4;
- 		break;
- 	case 2:
--	case 1:
- 		val |= I2S_CHN_2;
- 		break;
- 	default:
-@@ -462,7 +461,7 @@ static struct snd_soc_dai_driver rockchip_i2s_dai = {
- 	},
- 	.capture = {
- 		.stream_name = "Capture",
--		.channels_min = 1,
-+		.channels_min = 2,
- 		.channels_max = 2,
- 		.rates = SNDRV_PCM_RATE_8000_192000,
- 		.formats = (SNDRV_PCM_FMTBIT_S8 |
-@@ -662,7 +661,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
- 	}
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 160b2764b2ad8..6a8c279a4b20b 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -1150,6 +1150,28 @@ static int davinci_mcasp_trigger(struct snd_pcm_substream *substream,
+ 	return ret;
+ }
  
- 	if (!of_property_read_u32(node, "rockchip,capture-channels", &val)) {
--		if (val >= 1 && val <= 8)
-+		if (val >= 2 && val <= 8)
- 			soc_dai->capture.channels_max = val;
- 	}
++static int davinci_mcasp_hw_rule_slot_width(struct snd_pcm_hw_params *params,
++					    struct snd_pcm_hw_rule *rule)
++{
++	struct davinci_mcasp_ruledata *rd = rule->private;
++	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
++	struct snd_mask nfmt;
++	int i, slot_width;
++
++	snd_mask_none(&nfmt);
++	slot_width = rd->mcasp->slot_width;
++
++	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
++		if (snd_mask_test(fmt, i)) {
++			if (snd_pcm_format_width(i) <= slot_width) {
++				snd_mask_set(&nfmt, i);
++			}
++		}
++	}
++
++	return snd_mask_refine(fmt, &nfmt);
++}
++
+ static const unsigned int davinci_mcasp_dai_rates[] = {
+ 	8000, 11025, 16000, 22050, 32000, 44100, 48000, 64000,
+ 	88200, 96000, 176400, 192000,
+@@ -1257,7 +1279,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 	struct davinci_mcasp_ruledata *ruledata =
+ 					&mcasp->ruledata[substream->stream];
+ 	u32 max_channels = 0;
+-	int i, dir;
++	int i, dir, ret;
+ 	int tdm_slots = mcasp->tdm_slots;
  
+ 	/* Do not allow more then one stream per direction */
+@@ -1286,6 +1308,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 			max_channels++;
+ 	}
+ 	ruledata->serializers = max_channels;
++	ruledata->mcasp = mcasp;
+ 	max_channels *= tdm_slots;
+ 	/*
+ 	 * If the already active stream has less channels than the calculated
+@@ -1311,20 +1334,22 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 				   0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 				   &mcasp->chconstr[substream->stream]);
+ 
+-	if (mcasp->slot_width)
+-		snd_pcm_hw_constraint_minmax(substream->runtime,
+-					     SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
+-					     8, mcasp->slot_width);
++	if (mcasp->slot_width) {
++		/* Only allow formats require <= slot_width bits on the bus */
++		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
++					  SNDRV_PCM_HW_PARAM_FORMAT,
++					  davinci_mcasp_hw_rule_slot_width,
++					  ruledata,
++					  SNDRV_PCM_HW_PARAM_FORMAT, -1);
++		if (ret)
++			return ret;
++	}
+ 
+ 	/*
+ 	 * If we rely on implicit BCLK divider setting we should
+ 	 * set constraints based on what we can provide.
+ 	 */
+ 	if (mcasp->bclk_master && mcasp->bclk_div == 0 && mcasp->sysclk_freq) {
+-		int ret;
+-
+-		ruledata->mcasp = mcasp;
+-
+ 		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
+ 					  SNDRV_PCM_HW_PARAM_RATE,
+ 					  davinci_mcasp_hw_rule_rate,
 -- 
 2.20.1
 
