@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6FA9E21F
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2209E122
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729761AbfH0IRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44594 "EHLO mail.kernel.org"
+        id S1731774AbfH0IDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728711AbfH0HxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:06 -0400
+        id S1731726AbfH0IDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FD84217F5;
-        Tue, 27 Aug 2019 07:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14BD22184D;
+        Tue, 27 Aug 2019 08:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892386;
-        bh=QFhZUAq6CUY2ejbNoS/Xrn+mjYw8ZHmVgo0Cfwif+tc=;
+        s=default; t=1566893004;
+        bh=CnW/99LHE16tUeRklnY6vzCDDEueF8ANJQvc04yPUk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1NNQ+Lx54Po5O9pCpCmKos0rep1WCJ3Abi99l2E1sEnOREYOOGhj6t+svINaSq6d
-         lIZrPb8H2i6lA/qg8jgqljdsz+1Lv4KaMcuhEO4KKaQyhl+Ayoavw6f7JPzuOyf2eB
-         jL2N5W/Y4YHXfRvHNvgDq1s8MVWTOfA+xtCyZcQU=
+        b=Bcl41QsNSUklFqKdtIRFHG92JD1qxZqPG/m8dCG4IhYvkU5MSSjNgHnf/Rtg6lGY/
+         i46MwgzECcY8djArhM1yaPaFjHZCZwsne9dq/m9O9oxZPVL5F6cT0gZuaud3+lBZEO
+         soz3gfCA+Ny5zYl9jA+0z8e+mCecNRFI1VRNFSSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/62] st_nci_hci_connectivity_event_received: null check the allocation
+Subject: [PATCH 5.2 087/162] s390: put _stext and _etext into .text section
 Date:   Tue, 27 Aug 2019 09:50:15 +0200
-Message-Id: <20190827072700.989331884@linuxfoundation.org>
+Message-Id: <20190827072741.174759983@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
+References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,30 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3008e06fdf0973770370f97d5f1fba3701d8281d ]
+[ Upstream commit 24350fdadbdec780406a1ef988e6cd3875e374a8 ]
 
-devm_kzalloc may fail and return NULL. So the null check is needed.
+Perf relies on _etext and _stext symbols being one of 't', 'T', 'v' or
+'V'. Put them into .text section to guarantee that.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Also moves padding to page boundary inside .text which has an effect that
+.text section is now padded with nops rather than 0's, which apparently
+has been the initial intention for specifying 0x0700 fill expression.
+
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+Suggested-by: Andreas Krebbel <krebbel@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kernel/vmlinux.lds.S | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index 56f2112e0cd84..85df2e0093109 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -344,6 +344,8 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 49d55327de0bc..7e0eb40209177 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -32,10 +32,9 @@ PHDRS {
+ SECTIONS
+ {
+ 	. = 0x100000;
+-	_stext = .;		/* Start of text section */
+ 	.text : {
+-		/* Text and read-only data */
+-		_text = .;
++		_stext = .;		/* Start of text section */
++		_text = .;		/* Text and read-only data */
+ 		HEAD_TEXT
+ 		TEXT_TEXT
+ 		SCHED_TEXT
+@@ -47,11 +46,10 @@ SECTIONS
+ 		*(.text.*_indirect_*)
+ 		*(.fixup)
+ 		*(.gnu.warning)
++		. = ALIGN(PAGE_SIZE);
++		_etext = .;		/* End of text section */
+ 	} :text = 0x0700
  
- 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
- 					    skb->len - 2, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
+-	. = ALIGN(PAGE_SIZE);
+-	_etext = .;		/* End of text section */
+-
+ 	NOTES :text :note
  
- 		transaction->aid_len = skb->data[1];
- 		memcpy(transaction->aid, &skb->data[2], transaction->aid_len);
+ 	.dummy : { *(.dummy) } :data
 -- 
 2.20.1
 
