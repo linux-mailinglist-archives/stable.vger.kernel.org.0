@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61BC99E15C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 119779E158
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731571AbfH0IAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56010 "EHLO mail.kernel.org"
+        id S1730430AbfH0IAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730430AbfH0IAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:00:44 -0400
+        id S1731074AbfH0IAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:00:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0DB82186A;
-        Tue, 27 Aug 2019 08:00:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AADD206BA;
+        Tue, 27 Aug 2019 08:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892843;
-        bh=no8piTO3xePC6Vh1NhVdjYETxtEoZd0eRE4FrbET4nk=;
+        s=default; t=1566892846;
+        bh=QD45ZGgCEDmzhiC6C8lWc3Qj1YTbHOJzcLMLHtvbUFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4j+7gp43uHWcwlzizNOafkpGq+vZUjdtjVUC003HKlXQEOJmPt7NY3UGxXYTF3Zf
-         nbTvPPAAW1xPft8V46gWgn3SuDWEXJd/m+4BivHeA8OCid8QRIHFWqX82EQt7Bk07y
-         DBn/e3AgzVvFJ/OOBmy2bLll7focQyZGKV7oiOh0=
+        b=llX4bvcmUEitGxyP/3JhWUpt/cKUsmCUZpIuYa8uMnEWMABrlIYqzYuGRGzomur6B
+         05ipMkiT+ELAJ2VxVS6fS/QAAvdDCQIUJm4qcs7NALN/N0GqTD6FBJ4V8rJ+/pgjtQ
+         jl6FhD+HIAgbobWMAivuaeRgoEUgMlRzIQkAMFSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weitao Hou <houweitaoo@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Sean Nyekjaer <sean@geanix.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 033/162] can: mcp251x: add error check when wq alloc failed
-Date:   Tue, 27 Aug 2019 09:49:21 +0200
-Message-Id: <20190827072739.442241347@linuxfoundation.org>
+Subject: [PATCH 5.2 034/162] can: gw: Fix error path of cgw_module_init
+Date:   Tue, 27 Aug 2019 09:49:22 +0200
+Message-Id: <20190827072739.471469821@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -46,103 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 375f755899b8fc21196197e02aab26257df26e85 ]
+[ Upstream commit b7a14297f102b6e2ce6f16feffebbb9bde1e9b55 ]
 
-add error check when workqueue alloc failed, and remove redundant code
-to make it clear.
+This patch add error path for cgw_module_init to avoid possible crash if
+some error occurs.
 
-Fixes: e0000163e30e ("can: Driver for the Microchip MCP251x SPI CAN controllers")
-Signed-off-by: Weitao Hou <houweitaoo@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Tested-by: Sean Nyekjaer <sean@geanix.com>
+Fixes: c1aabdf379bc ("can-gw: add netlink based CAN routing")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251x.c | 49 ++++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 27 deletions(-)
+ net/can/gw.c | 48 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 33 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index 44e99e3d71348..2aec934fab0cd 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -664,17 +664,6 @@ static int mcp251x_power_enable(struct regulator *reg, int enable)
- 		return regulator_disable(reg);
- }
+diff --git a/net/can/gw.c b/net/can/gw.c
+index 5275ddf580bc7..72711053ebe66 100644
+--- a/net/can/gw.c
++++ b/net/can/gw.c
+@@ -1046,32 +1046,50 @@ static __init int cgw_module_init(void)
+ 	pr_info("can: netlink gateway (rev " CAN_GW_VERSION ") max_hops=%d\n",
+ 		max_hops);
  
--static void mcp251x_open_clean(struct net_device *net)
--{
--	struct mcp251x_priv *priv = netdev_priv(net);
--	struct spi_device *spi = priv->spi;
--
--	free_irq(spi->irq, priv);
--	mcp251x_hw_sleep(spi);
--	mcp251x_power_enable(priv->transceiver, 0);
--	close_candev(net);
--}
--
- static int mcp251x_stop(struct net_device *net)
- {
- 	struct mcp251x_priv *priv = netdev_priv(net);
-@@ -940,37 +929,43 @@ static int mcp251x_open(struct net_device *net)
- 				   flags | IRQF_ONESHOT, DEVICE_NAME, priv);
- 	if (ret) {
- 		dev_err(&spi->dev, "failed to acquire irq %d\n", spi->irq);
--		mcp251x_power_enable(priv->transceiver, 0);
--		close_candev(net);
--		goto open_unlock;
-+		goto out_close;
- 	}
- 
- 	priv->wq = alloc_workqueue("mcp251x_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM,
- 				   0);
-+	if (!priv->wq) {
-+		ret = -ENOMEM;
-+		goto out_clean;
-+	}
- 	INIT_WORK(&priv->tx_work, mcp251x_tx_work_handler);
- 	INIT_WORK(&priv->restart_work, mcp251x_restart_work_handler);
- 
- 	ret = mcp251x_hw_reset(spi);
--	if (ret) {
--		mcp251x_open_clean(net);
--		goto open_unlock;
--	}
+-	register_pernet_subsys(&cangw_pernet_ops);
++	ret = register_pernet_subsys(&cangw_pernet_ops);
 +	if (ret)
-+		goto out_free_wq;
- 	ret = mcp251x_setup(net, spi);
--	if (ret) {
--		mcp251x_open_clean(net);
--		goto open_unlock;
--	}
-+	if (ret)
-+		goto out_free_wq;
- 	ret = mcp251x_set_normal_mode(spi);
--	if (ret) {
--		mcp251x_open_clean(net);
--		goto open_unlock;
--	}
-+	if (ret)
-+		goto out_free_wq;
- 
- 	can_led_event(net, CAN_LED_EVENT_OPEN);
- 
- 	netif_wake_queue(net);
-+	mutex_unlock(&priv->mcp_lock);
- 
--open_unlock:
-+	return 0;
++		return ret;
 +
-+out_free_wq:
-+	destroy_workqueue(priv->wq);
-+out_clean:
-+	free_irq(spi->irq, priv);
-+	mcp251x_hw_sleep(spi);
-+out_close:
-+	mcp251x_power_enable(priv->transceiver, 0);
-+	close_candev(net);
- 	mutex_unlock(&priv->mcp_lock);
- 	return ret;
++	ret = -ENOMEM;
+ 	cgw_cache = kmem_cache_create("can_gw", sizeof(struct cgw_job),
+ 				      0, 0, NULL);
+-
+ 	if (!cgw_cache)
+-		return -ENOMEM;
++		goto out_cache_create;
+ 
+ 	/* set notifier */
+ 	notifier.notifier_call = cgw_notifier;
+-	register_netdevice_notifier(&notifier);
++	ret = register_netdevice_notifier(&notifier);
++	if (ret)
++		goto out_register_notifier;
+ 
+ 	ret = rtnl_register_module(THIS_MODULE, PF_CAN, RTM_GETROUTE,
+ 				   NULL, cgw_dump_jobs, 0);
+-	if (ret) {
+-		unregister_netdevice_notifier(&notifier);
+-		kmem_cache_destroy(cgw_cache);
+-		return -ENOBUFS;
+-	}
+-
+-	/* Only the first call to rtnl_register_module can fail */
+-	rtnl_register_module(THIS_MODULE, PF_CAN, RTM_NEWROUTE,
+-			     cgw_create_job, NULL, 0);
+-	rtnl_register_module(THIS_MODULE, PF_CAN, RTM_DELROUTE,
+-			     cgw_remove_job, NULL, 0);
++	if (ret)
++		goto out_rtnl_register1;
++
++	ret = rtnl_register_module(THIS_MODULE, PF_CAN, RTM_NEWROUTE,
++				   cgw_create_job, NULL, 0);
++	if (ret)
++		goto out_rtnl_register2;
++	ret = rtnl_register_module(THIS_MODULE, PF_CAN, RTM_DELROUTE,
++				   cgw_remove_job, NULL, 0);
++	if (ret)
++		goto out_rtnl_register3;
+ 
+ 	return 0;
++
++out_rtnl_register3:
++	rtnl_unregister(PF_CAN, RTM_NEWROUTE);
++out_rtnl_register2:
++	rtnl_unregister(PF_CAN, RTM_GETROUTE);
++out_rtnl_register1:
++	unregister_netdevice_notifier(&notifier);
++out_register_notifier:
++	kmem_cache_destroy(cgw_cache);
++out_cache_create:
++	unregister_pernet_subsys(&cangw_pernet_ops);
++
++	return ret;
  }
+ 
+ static __exit void cgw_module_exit(void)
 -- 
 2.20.1
 
