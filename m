@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 974579E231
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5349E1C5
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbfH0Hvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:51:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42984 "EHLO mail.kernel.org"
+        id S1729616AbfH0Hzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729017AbfH0Hvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:51:50 -0400
+        id S1730417AbfH0Hzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6890217F5;
-        Tue, 27 Aug 2019 07:51:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD6B42173E;
+        Tue, 27 Aug 2019 07:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892309;
-        bh=EckQD5802OaCUczfZ4Hir4YXw79+iz7taCIsv2SumYA=;
+        s=default; t=1566892547;
+        bh=s5JGwI8J3HR14PBlAg/Anp4qqkNePYR7n3IVSRGcbKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NxhhXNrRH4SsYmzx/yyPbg6i5a8vXm4pLLILvfVB6AGUONoJfB5TjeQWZVTGxifrt
-         EXJ4BmVN/32sadQ0gaVNj1mcqNK+UQLb3g6KFWCvDkFVV003uFK1KLSIVeTouV3V0s
-         wZzAS0YGujv+VkT7tcS/u9TQRdYq0LX/Nu85P9vM=
+        b=ztG6idajiy67VglpGSPdl1pTBRAcFtlfHZPQ0MEnZ7WihzKErTmjB6SctCyZQyC30
+         u/h3VhgputTG8NbDpAi0xk/bIYa9Ro0gg6MPYHLQtTgVa4QEpdAnB8BlaU4Ir/0bWt
+         pHv35UCEE00TpEhwPVfJY/dE3rdKHozWolTtKflY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/62] netfilter: ebtables: fix a memory leak bug in compat
+Subject: [PATCH 4.19 30/98] perf bench numa: Fix cpu0 binding
 Date:   Tue, 27 Aug 2019 09:50:09 +0200
-Message-Id: <20190827072700.331076787@linuxfoundation.org>
+Message-Id: <20190827072719.789936264@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15a78ba1844a8e052c1226f930133de4cef4e7ad ]
+[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
 
-In compat_do_replace(), a temporary buffer is allocated through vmalloc()
-to hold entries copied from the user space. The buffer address is firstly
-saved to 'newinfo->entries', and later on assigned to 'entries_tmp'. Then
-the entries in this temporary buffer is copied to the internal kernel
-structure through compat_copy_entries(). If this copy process fails,
-compat_do_replace() should be terminated. However, the allocated temporary
-buffer is not freed on this path, leading to a memory leak.
+Michael reported an issue with perf bench numa failing with binding to
+cpu0 with '-0' option.
 
-To fix the bug, free the buffer before returning from compat_do_replace().
+  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
+  # Running 'numa/mem' benchmark:
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
+  binding to node 0, mask: 0000000000000001 => -1
+  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
+  Aborted (core dumped)
+
+This happens when the cpu0 is not part of node0, which is the benchmark
+assumption and we can see that's not the case for some powerpc servers.
+
+Using correct node for cpu0 binding.
+
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/netfilter/ebtables.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/bench/numa.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index f9c6e8ca1fcb0..100b4f88179a2 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -2273,8 +2273,10 @@ static int compat_do_replace(struct net *net, void __user *user,
- 	state.buf_kern_len = size64;
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index fa56fde6e8d80..91c0a4434da27 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -378,8 +378,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
  
- 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
--	if (WARN_ON(ret < 0))
-+	if (WARN_ON(ret < 0)) {
-+		vfree(entries_tmp);
- 		goto out_unlock;
-+	}
+ 	/* Allocate and initialize all memory on CPU#0: */
+ 	if (init_cpu0) {
+-		orig_mask = bind_to_node(0);
+-		bind_to_memnode(0);
++		int node = numa_node_of_cpu(0);
++
++		orig_mask = bind_to_node(node);
++		bind_to_memnode(node);
+ 	}
  
- 	vfree(entries_tmp);
- 	tmp.entries_size = size64;
+ 	bytes = bytes0 + HPSIZE;
 -- 
 2.20.1
 
