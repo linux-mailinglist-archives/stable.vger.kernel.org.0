@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 402259E069
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C3F9E06C
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbfH0IDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60936 "EHLO mail.kernel.org"
+        id S1732320AbfH0IDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732262AbfH0IDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:31 -0400
+        id S1730492AbfH0IDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC9752186A;
-        Tue, 27 Aug 2019 08:03:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31477206BA;
+        Tue, 27 Aug 2019 08:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893010;
-        bh=Rlkn9OqUpPLD+i1nh7Rz33VsZWnKtp4NRAQDgHStGEQ=;
+        s=default; t=1566893018;
+        bh=WNAYaTCm/DuIV/YTw8PphHpZoUionmMISLX3azyMnY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyJAMZY87MQ1TwrpRMBhBRFthywY72LYIZAtMRY2c3NKAs7rz+hBmCPnuqzrGUy28
-         VSq2ySrovEnK3gJyttUyCdr1EVsDYmWIIqXmLDm7+vUQpuJAc5m5Nfd+z4owXvazfw
-         GcvB+uKjEI+d6EB3qKAFZiQeZM5DFYmCPCoegzbA=
+        b=hB2s1o6CldP7yDIIp80VbAjiUqwJDSqqg+3hCo1fC3soXzxqNFN6iPOTlJ3+ULGk6
+         zwREovTXK0n6j+9INB9iqu6B9rRFE1/0QAaFvXe7fh/VXjBy0HF44nlE2/9EwClON/
+         pODvRFTpfMGP767lIFlWfrBaiDV7EiPexpJnYwkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 088/162] ata: rb532_cf: Fix unused variable warning in rb532_pata_driver_probe
-Date:   Tue, 27 Aug 2019 09:50:16 +0200
-Message-Id: <20190827072741.214929774@linuxfoundation.org>
+        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 091/162] net: stmmac: tc: Do not return a fragment entry
+Date:   Tue, 27 Aug 2019 09:50:19 +0200
+Message-Id: <20190827072741.339002943@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,34 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db341a049ec7e87053c91008cb452d0bfa6dde72 ]
+[ Upstream commit 4a6a1385a4db5f42258a40fcd497cbfd22075968 ]
 
-Fix the following warning (Building: rb532_defconfig mips):
+Do not try to return a fragment entry from TC list. Otherwise we may not
+clean properly allocated entries.
 
-drivers/ata/pata_rb532_cf.c: In function ‘rb532_pata_driver_remove’:
-drivers/ata/pata_rb532_cf.c:161:24: warning: unused variable ‘info’ [-Wunused-variable]
-  struct rb532_cf_info *info = ah->private_data;
-                        ^~~~
-
-Fixes: cd56f35e52d9 ("ata: rb532_cf: Convert to use GPIO descriptors")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_rb532_cf.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ata/pata_rb532_cf.c b/drivers/ata/pata_rb532_cf.c
-index 7c37f2ff09e41..deae466395de1 100644
---- a/drivers/ata/pata_rb532_cf.c
-+++ b/drivers/ata/pata_rb532_cf.c
-@@ -158,7 +158,6 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
- static int rb532_pata_driver_remove(struct platform_device *pdev)
- {
- 	struct ata_host *ah = platform_get_drvdata(pdev);
--	struct rb532_cf_info *info = ah->private_data;
- 
- 	ata_host_detach(ah);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+index 58ea18af9813a..37c0bc699cd9c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+@@ -37,7 +37,7 @@ static struct stmmac_tc_entry *tc_find_entry(struct stmmac_priv *priv,
+ 		entry = &priv->tc_entries[i];
+ 		if (!entry->in_use && !first && free)
+ 			first = entry;
+-		if (entry->handle == loc && !free)
++		if ((entry->handle == loc) && !free && !entry->is_frag)
+ 			dup = entry;
+ 	}
  
 -- 
 2.20.1
