@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A00D9E146
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A019E121
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731078AbfH0ICU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S1726125AbfH0ID2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731908AbfH0ICT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:19 -0400
+        id S1732238AbfH0ID2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F08420828;
-        Tue, 27 Aug 2019 08:02:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE7D9206BA;
+        Tue, 27 Aug 2019 08:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892937;
-        bh=sy0/m07PKMTkCdmcinVLBxpf0qhjiUFZE268cm2ABUM=;
+        s=default; t=1566893007;
+        bh=+iGOLvdZF5Oym6+p2UmvYlPOvV4U5PnhKP53laBujds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aUjc5E3Nd/U3ph5gRRFIxEUF7I3H8xroHQ1b1q4/dCtMP1fowp8vhHoY5uqBPciL
-         josIXwRXJwCWRdwrgrzUYUQlDqhQ/uJpLhquqEQdjRSKorSrpeQQpdo3xnGQyXT9fe
-         oeoBtayyl0UO2U0mqe/BHzE8mUJ3uUo7dkoS87wU=
+        b=F+nbnzG90WdK4KYOAbN0YSLscyXFdU14MVbwrhj6r6L29gtQbJ1cB54v9B6q0gect
+         e+gCrYjHS8aWd5gOu66pXj4puTYn/TAttpxCTKAckmP6ezBIyCO6Vhwg7BZAjR0mnZ
+         j3l3Vrk89R3oc/UmJxYWqYGgTrE8WvKh6zx7rLJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 059/162] iwlwifi: fix locking in delayed GTK setting
-Date:   Tue, 27 Aug 2019 09:49:47 +0200
-Message-Id: <20190827072740.233875735@linuxfoundation.org>
+Subject: [PATCH 5.2 061/162] enetc: Fix build error without PHYLIB
+Date:   Tue, 27 Aug 2019 09:49:49 +0200
+Message-Id: <20190827072740.297237020@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,99 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6569e7d36773956298ec1d5f4e6a2487913d2752 ]
+[ Upstream commit 5f4e4203add2b860d2345312509a160f8292063b ]
 
-This code clearly never could have worked, since it locks
-while already locked. Add an unlocked __iwl_mvm_mac_set_key()
-variant that doesn't do locking to fix that.
+If PHYLIB is not set, build enetc will fails:
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+drivers/net/ethernet/freescale/enetc/enetc.o: In function `enetc_open':
+enetc.c: undefined reference to `phy_disconnect'
+enetc.c: undefined reference to `phy_start'
+drivers/net/ethernet/freescale/enetc/enetc.o: In function `enetc_close':
+enetc.c: undefined reference to `phy_stop'
+enetc.c: undefined reference to `phy_disconnect'
+drivers/net/ethernet/freescale/enetc/enetc_ethtool.o: undefined reference to `phy_ethtool_get_link_ksettings'
+drivers/net/ethernet/freescale/enetc/enetc_ethtool.o: undefined reference to `phy_ethtool_set_link_ksettings'
+drivers/net/ethernet/freescale/enetc/enetc_mdio.o: In function `enetc_mdio_probe':
+enetc_mdio.c: undefined reference to `mdiobus_alloc_size'
+enetc_mdio.c: undefined reference to `mdiobus_free'
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/mac80211.c | 39 ++++++++++++-------
- 1 file changed, 26 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/freescale/enetc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 964c7baabede3..edffae3741e00 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -207,11 +207,11 @@ static const struct cfg80211_pmsr_capabilities iwl_mvm_pmsr_capa = {
- 	},
- };
- 
--static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
--			       enum set_key_cmd cmd,
--			       struct ieee80211_vif *vif,
--			       struct ieee80211_sta *sta,
--			       struct ieee80211_key_conf *key);
-+static int __iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
-+				 enum set_key_cmd cmd,
-+				 struct ieee80211_vif *vif,
-+				 struct ieee80211_sta *sta,
-+				 struct ieee80211_key_conf *key);
- 
- void iwl_mvm_ref(struct iwl_mvm *mvm, enum iwl_mvm_ref_type ref_type)
- {
-@@ -2725,7 +2725,7 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
- 
- 		mvmvif->ap_early_keys[i] = NULL;
- 
--		ret = iwl_mvm_mac_set_key(hw, SET_KEY, vif, NULL, key);
-+		ret = __iwl_mvm_mac_set_key(hw, SET_KEY, vif, NULL, key);
- 		if (ret)
- 			goto out_quota_failed;
- 	}
-@@ -3493,11 +3493,11 @@ static int iwl_mvm_mac_sched_scan_stop(struct ieee80211_hw *hw,
- 	return ret;
- }
- 
--static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
--			       enum set_key_cmd cmd,
--			       struct ieee80211_vif *vif,
--			       struct ieee80211_sta *sta,
--			       struct ieee80211_key_conf *key)
-+static int __iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
-+				 enum set_key_cmd cmd,
-+				 struct ieee80211_vif *vif,
-+				 struct ieee80211_sta *sta,
-+				 struct ieee80211_key_conf *key)
- {
- 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
- 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
-@@ -3552,8 +3552,6 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
- 			return -EOPNOTSUPP;
- 	}
- 
--	mutex_lock(&mvm->mutex);
--
- 	switch (cmd) {
- 	case SET_KEY:
- 		if ((vif->type == NL80211_IFTYPE_ADHOC ||
-@@ -3699,7 +3697,22 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
- 		ret = -EINVAL;
- 	}
- 
-+	return ret;
-+}
-+
-+static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
-+			       enum set_key_cmd cmd,
-+			       struct ieee80211_vif *vif,
-+			       struct ieee80211_sta *sta,
-+			       struct ieee80211_key_conf *key)
-+{
-+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
-+	int ret;
-+
-+	mutex_lock(&mvm->mutex);
-+	ret = __iwl_mvm_mac_set_key(hw, cmd, vif, sta, key);
- 	mutex_unlock(&mvm->mutex);
-+
- 	return ret;
- }
- 
+diff --git a/drivers/net/ethernet/freescale/enetc/Kconfig b/drivers/net/ethernet/freescale/enetc/Kconfig
+index 8429f5c1d8106..8ac109e73a7bb 100644
+--- a/drivers/net/ethernet/freescale/enetc/Kconfig
++++ b/drivers/net/ethernet/freescale/enetc/Kconfig
+@@ -2,6 +2,7 @@
+ config FSL_ENETC
+ 	tristate "ENETC PF driver"
+ 	depends on PCI && PCI_MSI && (ARCH_LAYERSCAPE || COMPILE_TEST)
++	select PHYLIB
+ 	help
+ 	  This driver supports NXP ENETC gigabit ethernet controller PCIe
+ 	  physical function (PF) devices, managing ENETC Ports at a privileged
 -- 
 2.20.1
 
