@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C3F9E06C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D569E06D
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732320AbfH0IDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
+        id S1732338AbfH0IDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:03:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730492AbfH0IDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:39 -0400
+        id S1731544AbfH0IDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:03:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31477206BA;
-        Tue, 27 Aug 2019 08:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053FF206BA;
+        Tue, 27 Aug 2019 08:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893018;
-        bh=WNAYaTCm/DuIV/YTw8PphHpZoUionmMISLX3azyMnY4=;
+        s=default; t=1566893021;
+        bh=gzfEi06O/WlgoD9nlxsUDqj2SCZQELiibpe/EqFoojc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hB2s1o6CldP7yDIIp80VbAjiUqwJDSqqg+3hCo1fC3soXzxqNFN6iPOTlJ3+ULGk6
-         zwREovTXK0n6j+9INB9iqu6B9rRFE1/0QAaFvXe7fh/VXjBy0HF44nlE2/9EwClON/
-         pODvRFTpfMGP767lIFlWfrBaiDV7EiPexpJnYwkM=
+        b=rAaOrfNdnNhz5C8zvimjcjYK6Y2poFusV71BNDGZBiNBC3pxYE1yVR9s68PbuCjN1
+         r9VgyFUFfUlgjVwks4578IuQLWY/W12p/mZ6oiOKQB8mrOiNRlAIBwiwNHfCKFwFE8
+         dwa+fN27qKgNXKXL/gwfRuLauMg+XV7fWi5rEXfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Likun Gao <Likun.Gao@amd.com>,
+        Paul Gover <pmw.gover@yahoo.co.uk>,
+        Feifei Xu <Feifei.Xu@amd.com>,
+        Xiaojie Yuan <xiaojie.yuan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 091/162] net: stmmac: tc: Do not return a fragment entry
-Date:   Tue, 27 Aug 2019 09:50:19 +0200
-Message-Id: <20190827072741.339002943@linuxfoundation.org>
+Subject: [PATCH 5.2 092/162] drm/amdgpu: pin the csb buffer on hw init for gfx v8
+Date:   Tue, 27 Aug 2019 09:50:20 +0200
+Message-Id: <20190827072741.383013060@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,30 +47,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4a6a1385a4db5f42258a40fcd497cbfd22075968 ]
+[ Upstream commit 72cda9bb5e219aea0f2f62f56ae05198c59022a7 ]
 
-Do not try to return a fragment entry from TC list. Otherwise we may not
-clean properly allocated entries.
+Without this pin, the csb buffer will be filled with inconsistent
+data after S3 resume. And that will causes gfx hang on gfxoff
+exit since this csb will be executed then.
 
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Likun Gao <Likun.Gao@amd.com>
+Tested-by: Paul Gover <pmw.gover@yahoo.co.uk>
+Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+Reviewed-by: Xiaojie Yuan <xiaojie.yuan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c | 40 +++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 58ea18af9813a..37c0bc699cd9c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -37,7 +37,7 @@ static struct stmmac_tc_entry *tc_find_entry(struct stmmac_priv *priv,
- 		entry = &priv->tc_entries[i];
- 		if (!entry->in_use && !first && free)
- 			first = entry;
--		if (entry->handle == loc && !free)
-+		if ((entry->handle == loc) && !free && !entry->is_frag)
- 			dup = entry;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+index 02955e6e9dd9e..c21ef99cc590f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+@@ -1317,6 +1317,39 @@ static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
+ 	return 0;
+ }
+ 
++static int gfx_v8_0_csb_vram_pin(struct amdgpu_device *adev)
++{
++	int r;
++
++	r = amdgpu_bo_reserve(adev->gfx.rlc.clear_state_obj, false);
++	if (unlikely(r != 0))
++		return r;
++
++	r = amdgpu_bo_pin(adev->gfx.rlc.clear_state_obj,
++			AMDGPU_GEM_DOMAIN_VRAM);
++	if (!r)
++		adev->gfx.rlc.clear_state_gpu_addr =
++			amdgpu_bo_gpu_offset(adev->gfx.rlc.clear_state_obj);
++
++	amdgpu_bo_unreserve(adev->gfx.rlc.clear_state_obj);
++
++	return r;
++}
++
++static void gfx_v8_0_csb_vram_unpin(struct amdgpu_device *adev)
++{
++	int r;
++
++	if (!adev->gfx.rlc.clear_state_obj)
++		return;
++
++	r = amdgpu_bo_reserve(adev->gfx.rlc.clear_state_obj, true);
++	if (likely(r == 0)) {
++		amdgpu_bo_unpin(adev->gfx.rlc.clear_state_obj);
++		amdgpu_bo_unreserve(adev->gfx.rlc.clear_state_obj);
++	}
++}
++
+ static void gfx_v8_0_mec_fini(struct amdgpu_device *adev)
+ {
+ 	amdgpu_bo_free_kernel(&adev->gfx.mec.hpd_eop_obj, NULL, NULL);
+@@ -4777,6 +4810,10 @@ static int gfx_v8_0_hw_init(void *handle)
+ 	gfx_v8_0_init_golden_registers(adev);
+ 	gfx_v8_0_constants_init(adev);
+ 
++	r = gfx_v8_0_csb_vram_pin(adev);
++	if (r)
++		return r;
++
+ 	r = adev->gfx.rlc.funcs->resume(adev);
+ 	if (r)
+ 		return r;
+@@ -4893,6 +4930,9 @@ static int gfx_v8_0_hw_fini(void *handle)
+ 	else
+ 		pr_err("rlc is busy, skip halt rlc\n");
+ 	amdgpu_gfx_rlc_exit_safe_mode(adev);
++
++	gfx_v8_0_csb_vram_unpin(adev);
++
+ 	return 0;
+ }
  
 -- 
 2.20.1
