@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6C29E1D1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5449E22D
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729760AbfH0H42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48446 "EHLO mail.kernel.org"
+        id S1729266AbfH0HwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:52:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728948AbfH0H41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:56:27 -0400
+        id S1729220AbfH0HwE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:52:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F198206BA;
-        Tue, 27 Aug 2019 07:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6947C22CF4;
+        Tue, 27 Aug 2019 07:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892587;
-        bh=4K/hEkkHciDKVKUWejVq+KiKrvvvlnJGrL9V3ZOtjw8=;
+        s=default; t=1566892324;
+        bh=ZwubuKniwfb55C3TbdV1NUlfoiEdE594PppCw9X/Th0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS3/38wawfEu7wRSg6flBYOMJV0SQiFTBAiikCEgz0AGVWcoWWYBQQzYNBdboKbYQ
-         e8U+bADfO2n4jo8VMmpBp4jSfbrcmHadyZCHtRHi7PvDDQwGvViSuxPOeUevF8QhGa
-         ZN0E4QtD5rkqFkTvwkP8DhzNCs/cfW5B88esvT+8=
+        b=FzAixwpl3sITHb10frawE9RTft3YcT2ybNDVSQII2oPI6vW2GgRA1SIT1y3mg/mYj
+         vfubeVew2j5zg1GY/YemiUkQcm+sqpRkgzFynfZKUwHJDoU2pupvjDRItL1UH4mesO
+         i5cUdaZrw6f6Y11AhnJtHE1BwZG9Br0zx7W4Sr9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/98] net: stmmac: Fix issues when number of Queues >= 4
+Subject: [PATCH 4.14 17/62] perf bench numa: Fix cpu0 binding
 Date:   Tue, 27 Aug 2019 09:50:22 +0200
-Message-Id: <20190827072720.479152287@linuxfoundation.org>
+Message-Id: <20190827072701.340907310@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e8df7e8c233a18d2704e37ecff47583b494789d3 ]
+[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
 
-When queues >= 4 we use different registers but we were not subtracting
-the offset of 4. Fix this.
+Michael reported an issue with perf bench numa failing with binding to
+cpu0 with '-0' option.
 
-Found out by Coverity.
+  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
+  # Running 'numa/mem' benchmark:
 
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
+  binding to node 0, mask: 0000000000000001 => -1
+  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
+  Aborted (core dumped)
+
+This happens when the cpu0 is not part of node0, which is the benchmark
+assumption and we can see that's not the case for some powerpc servers.
+
+Using correct node for cpu0 binding.
+
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c   | 4 ++++
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ tools/perf/bench/numa.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index d0e6e1503581f..48cf5e2b24417 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -88,6 +88,8 @@ static void dwmac4_rx_queue_priority(struct mac_device_info *hw,
- 	u32 value;
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index 997875c770b10..275f1c3c73b62 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -378,8 +378,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
  
- 	base_register = (queue < 4) ? GMAC_RXQ_CTRL2 : GMAC_RXQ_CTRL3;
-+	if (queue >= 4)
-+		queue -= 4;
+ 	/* Allocate and initialize all memory on CPU#0: */
+ 	if (init_cpu0) {
+-		orig_mask = bind_to_node(0);
+-		bind_to_memnode(0);
++		int node = numa_node_of_cpu(0);
++
++		orig_mask = bind_to_node(node);
++		bind_to_memnode(node);
+ 	}
  
- 	value = readl(ioaddr + base_register);
- 
-@@ -105,6 +107,8 @@ static void dwmac4_tx_queue_priority(struct mac_device_info *hw,
- 	u32 value;
- 
- 	base_register = (queue < 4) ? GMAC_TXQ_PRTY_MAP0 : GMAC_TXQ_PRTY_MAP1;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + base_register);
- 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-index d182f82f7b586..870302a7177e2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-@@ -106,6 +106,8 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
- 	u32 value, reg;
- 
- 	reg = (queue < 4) ? XGMAC_RXQ_CTRL2 : XGMAC_RXQ_CTRL3;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + reg);
- 	value &= ~XGMAC_PSRQ(queue);
-@@ -169,6 +171,8 @@ static void dwxgmac2_map_mtl_to_dma(struct mac_device_info *hw, u32 queue,
- 	u32 value, reg;
- 
- 	reg = (queue < 4) ? XGMAC_MTL_RXQ_DMA_MAP0 : XGMAC_MTL_RXQ_DMA_MAP1;
-+	if (queue >= 4)
-+		queue -= 4;
- 
- 	value = readl(ioaddr + reg);
- 	value &= ~XGMAC_QxMDMACH(queue);
+ 	bytes = bytes0 + HPSIZE;
 -- 
 2.20.1
 
