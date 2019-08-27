@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD3BE9E16C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267C99E16F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730404AbfH0H7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53074 "EHLO mail.kernel.org"
+        id S1730511AbfH0H7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731232AbfH0H7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:59:32 -0400
+        id S1731269AbfH0H7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:59:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B94FE206BF;
-        Tue, 27 Aug 2019 07:59:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C5C320828;
+        Tue, 27 Aug 2019 07:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892772;
-        bh=isvN1jFcyXGNsRWOLMIIqbt9jrnVO/ZAKkLb+61Kmrk=;
+        s=default; t=1566892780;
+        bh=R3Og+TakvQWnyr0QFYnWiCQpa2EOjzyClBjSC6xllaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIXJovVBZPfdOz6f0QU9kirrZjLmcpZ9gl2gMHu5M02/tVLNXOk9g5c/mdASwBEjW
-         NokzwDEUw5Iv25qvejbbMmfLVxdKXuQxD4/Lvn77qOmrINtEyGo+xLYKZTy4VnS3Gy
-         93SGWgAYPbYak10ZVG/hi8vsyu6OpebjW0jTlQxg=
+        b=NycfPJly/Gs9856Tjdn5ctbkDGi3N0jmrQs34lqX1eBFxo6OnHMrCIL6fUwf1wYyb
+         yu4cxd19G3cbU1eKzkDppyaF01XWKYF5pwRksZ7427EJSCqsOakFdufSs+2mUFIYOD
+         xlq5/6hTWlyZFO+R6yDPcGVTwYidY62hWEQda7QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
         Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 001/162] ASoC: simple_card_utils.h: care NULL dai at asoc_simple_debug_dai()
-Date:   Tue, 27 Aug 2019 09:48:49 +0200
-Message-Id: <20190827072738.194602192@linuxfoundation.org>
+Subject: [PATCH 5.2 002/162] ASoC: simple-card: fix an use-after-free in simple_dai_link_of_dpcm()
+Date:   Tue, 27 Aug 2019 09:48:50 +0200
+Message-Id: <20190827072738.229896213@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,35 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 52db6685932e326ed607644ab7ebdae8c194adda ]
+[ Upstream commit 724808ad556c15e9473418d082f8aae81dd267f6 ]
 
-props->xxx_dai might be NULL when DPCM.
-This patch cares it for debug.
+The node variable is still being used after the of_node_put() call,
+which may result in use-after-free.
 
-Fixes: commit 0580dde59438 ("ASoC: simple-card-utils: add asoc_simple_debug_info()")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87o922gw4u.wl-kuninori.morimoto.gx@renesas.com
+Fixes: cfc652a73331 ("ASoC: simple-card: tidyup prefix for snd_soc_codec_conf")
+Link: https://lore.kernel.org/r/1562743509-30496-2-git-send-email-wen.yang99@zte.com.cn
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/simple_card_utils.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/generic/simple-card.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/include/sound/simple_card_utils.h b/include/sound/simple_card_utils.h
-index 3429888347e7c..b3609e4c46e0f 100644
---- a/include/sound/simple_card_utils.h
-+++ b/include/sound/simple_card_utils.h
-@@ -149,6 +149,10 @@ inline void asoc_simple_debug_dai(struct asoc_simple_priv *priv,
- {
- 	struct device *dev = simple_priv_to_dev(priv);
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index 9b568f578bcd2..544064fdc780c 100644
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -138,8 +138,6 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
  
-+	/* dai might be NULL */
-+	if (!dai)
-+		return;
-+
- 	if (dai->name)
- 		dev_dbg(dev, "%s dai name = %s\n",
- 			name, dai->name);
+ 	li->link++;
+ 
+-	of_node_put(node);
+-
+ 	/* For single DAI link & old style of DT node */
+ 	if (is_top)
+ 		prefix = PREFIX;
+@@ -161,17 +159,17 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 		ret = asoc_simple_parse_cpu(np, dai_link, &is_single_links);
+ 		if (ret)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_parse_clk_cpu(dev, np, dai_link, dai);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_set_dailink_name(dev, dai_link,
+ 						   "fe.%s",
+ 						   dai_link->cpu_dai_name);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		asoc_simple_canonicalize_cpu(dai_link, is_single_links);
+ 	} else {
+@@ -194,17 +192,17 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 		ret = asoc_simple_parse_codec(np, dai_link);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_parse_clk_codec(dev, np, dai_link, dai);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_set_dailink_name(dev, dai_link,
+ 						   "be.%s",
+ 						   codecs->dai_name);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		/* check "prefix" from top node */
+ 		snd_soc_of_parse_node_prefix(top, cconf, codecs->of_node,
+@@ -222,19 +220,21 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 	ret = asoc_simple_parse_tdm(np, dai);
+ 	if (ret)
+-		return ret;
++		goto out_put_node;
+ 
+ 	ret = asoc_simple_parse_daifmt(dev, node, codec,
+ 				       prefix, &dai_link->dai_fmt);
+ 	if (ret < 0)
+-		return ret;
++		goto out_put_node;
+ 
+ 	dai_link->dpcm_playback		= 1;
+ 	dai_link->dpcm_capture		= 1;
+ 	dai_link->ops			= &simple_ops;
+ 	dai_link->init			= asoc_simple_dai_init;
+ 
+-	return 0;
++out_put_node:
++	of_node_put(node);
++	return ret;
+ }
+ 
+ static int simple_dai_link_of(struct asoc_simple_priv *priv,
 -- 
 2.20.1
 
