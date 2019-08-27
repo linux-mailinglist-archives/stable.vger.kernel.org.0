@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 324BE9E16D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 108029E145
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbfH0H7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53178 "EHLO mail.kernel.org"
+        id S1731897AbfH0ICR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730852AbfH0H7f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:59:35 -0400
+        id S1729911AbfH0ICQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:02:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FF81217F5;
-        Tue, 27 Aug 2019 07:59:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E133206BF;
+        Tue, 27 Aug 2019 08:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892774;
-        bh=CUbLTv9JU2pmb0kaJXAMD2JE5LoLwLKHrAnxF3m/2Ec=;
+        s=default; t=1566892934;
+        bh=Q4357+CLrATKCNN2NdR6Db6rhCBBv0YlO8NsV05X+ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wn0cNtT1WWYOmlCPMoxCSLXmZ+zbMErMReGv3ZwE+sQDhK/d1VjE1WSiJce3WILfu
-         KaKiovudrcekp+pVHG+CLIYKiuI/40rP1JIkylRJlrsLyluwW9guC2LB0bnIgl/oZo
-         7DhjW9miND/7HIjzTRp5b3QIOfZhXYtrdi3F4UPY=
+        b=T/W8+vtA23jkKHhgU6cnkdM9JpjfM/NDTEZDZIklde9bGEec8ZwSXiH5zG7ge+vzN
+         PQsEu6Z1mH49CytL0Bnm5nEw073hW52SQn1dMhPpLsz3oA8YvTzM/EnUcAgRCIKE1Y
+         EiW7HJid/aXzfERXWyDsoljzSf70hDL6kxj3AICM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sangbeom Kim <sbkim73@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 010/162] ASoC: samsung: odroid: fix a double-free issue for cpu_dai
-Date:   Tue, 27 Aug 2019 09:48:58 +0200
-Message-Id: <20190827072738.709898217@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 012/162] HID: logitech-hidpp: add USB PID for a few more supported mice
+Date:   Tue, 27 Aug 2019 09:49:00 +0200
+Message-Id: <20190827072738.774367486@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -50,64 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2abee12c0ab1924a69993d2c063a39a952e7d836 ]
+[ Upstream commit 27fc32fd9417968a459d43d9a7c50fd423d53eb9 ]
 
-The cpu_dai variable is still being used after the of_node_put() call,
-which may result in double-free:
+Add more device IDs to logitech-hidpp driver.
 
-        of_node_put(cpu_dai);            ---> released here
-
-        ret = devm_snd_soc_register_card(dev, card);
-        if (ret < 0) {
-...
-                goto err_put_clk_i2s;    --> jump to err_put_clk_i2s
-...
-
-err_put_clk_i2s:
-        clk_put(priv->clk_i2s_bus);
-err_put_sclk:
-        clk_put(priv->sclk_i2s);
-err_put_cpu_dai:
-        of_node_put(cpu_dai);            --> double-free here
-
-Fixes: d832d2b246c5 ("ASoC: samsung: odroid: Fix of_node refcount unbalance")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Sangbeom Kim <sbkim73@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/1562989575-33785-3-git-send-email-wen.yang99@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Filipe Laíns <lains@archlinux.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/odroid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-logitech-hidpp.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/odroid.c b/sound/soc/samsung/odroid.c
-index 95c35e3ff3303..d606e48fe551a 100644
---- a/sound/soc/samsung/odroid.c
-+++ b/sound/soc/samsung/odroid.c
-@@ -299,7 +299,6 @@ static int odroid_audio_probe(struct platform_device *pdev)
- 		ret = PTR_ERR(priv->clk_i2s_bus);
- 		goto err_put_sclk;
- 	}
--	of_node_put(cpu_dai);
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index cf05816a601f5..34e2b3f9d540d 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3749,15 +3749,45 @@ static const struct hid_device_id hidpp_devices[] = {
  
- 	ret = devm_snd_soc_register_card(dev, card);
- 	if (ret < 0) {
-@@ -307,6 +306,7 @@ static int odroid_audio_probe(struct platform_device *pdev)
- 		goto err_put_clk_i2s;
- 	}
+ 	{ L27MHZ_DEVICE(HID_ANY_ID) },
  
-+	of_node_put(cpu_dai);
- 	of_node_put(codec);
- 	return 0;
+-	{ /* Logitech G403 Gaming Mouse over USB */
++	{ /* Logitech G203/Prodigy Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC084) },
++	{ /* Logitech G302 Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07F) },
++	{ /* Logitech G303 Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC080) },
++	{ /* Logitech G400 Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07E) },
++	{ /* Logitech G403 Wireless Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC082) },
++	{ /* Logitech G403 Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC083) },
++	{ /* Logitech G403 Hero Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08F) },
++	{ /* Logitech G502 Proteus Core Gaming Mouse */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07D) },
++	{ /* Logitech G502 Proteus Spectrum Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC332) },
++	{ /* Logitech G502 Hero Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08B) },
+ 	{ /* Logitech G700 Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
++	{ /* Logitech G700s Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07C) },
++	{ /* Logitech G703 Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC087) },
++	{ /* Logitech G703 Hero Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC090) },
+ 	{ /* Logitech G900 Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC081) },
++	{ /* Logitech G903 Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC086) },
++	{ /* Logitech G903 Hero Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC091) },
+ 	{ /* Logitech G920 Wheel over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
+ 		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
++	{ /* Logitech G Pro Gaming Mouse over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC088) },
  
+ 	{ /* MX5000 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb305),
 -- 
 2.20.1
 
