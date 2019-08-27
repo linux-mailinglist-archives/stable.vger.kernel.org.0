@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0499DFE1
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E3F9DF78
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731005AbfH0H62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51234 "EHLO mail.kernel.org"
+        id S1730079AbfH0Hye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731000AbfH0H61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:58:27 -0400
+        id S1730055AbfH0Hyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3540F206BF;
-        Tue, 27 Aug 2019 07:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8916F206BF;
+        Tue, 27 Aug 2019 07:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892706;
-        bh=G9OEy4CmaSXtfVtdYKmh1SHnSG9Tl5z7jV7Dznx61UU=;
+        s=default; t=1566892472;
+        bh=b+d6dTt/l3HLoNKPCYh1f+hLtLLNeYCSTSed6qc0nVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5IJAJy8s+J5S9zy0kqSj72UQ73cwGw0GUPduGcVWqGHY1poWQHnda8YVRpEbkPS9
-         0XI5dCiOraZYeLJlvq5RHxnQ9ShqMFyf2g+BPMz3BV1SEqDW3Oq8Y4sxRaTS0ceV7B
-         JWv/QcI2SnK+BrsdOBimujKXqoM7W+0wa86JZ+ZE=
+        b=MT/V53NLJzMcmZ0cYvMuBRSDBzgADdoYiqyQsdXaMpPFX1gm1UuNYuOWHZRcWSajB
+         adzp1GpiNcsvVeyVJZAagfdz0rehVh5ce7yq1YrhqtNx5/T8r3fFxHkb//bCbiJ99e
+         BRbF6E5nARsP0XJTbILMIz0CFxUPW2A4jqE8UEPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 84/98] genirq: Properly pair kobject_del() with kobject_add()
-Date:   Tue, 27 Aug 2019 09:51:03 +0200
-Message-Id: <20190827072722.416373794@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 59/62] mm/zsmalloc.c: fix race condition in zs_destroy_pool
+Date:   Tue, 27 Aug 2019 09:51:04 +0200
+Message-Id: <20190827072703.875523743@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +49,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Henry Burns <henryburns@google.com>
 
-commit d0ff14fdc987303aeeb7de6f1bd72c3749ae2a9b upstream.
+commit 701d678599d0c1623aaf4139c03eea260a75b027 upstream.
 
-If alloc_descs() fails before irq_sysfs_init() has run, free_desc() in the
-cleanup path will call kobject_del() even though the kobject has not been
-added with kobject_add().
+In zs_destroy_pool() we call flush_work(&pool->free_work).  However, we
+have no guarantee that migration isn't happening in the background at
+that time.
 
-Fix this by making the call to kobject_del() conditional on whether
-irq_sysfs_init() has run.
+Since migration can't directly free pages, it relies on free_work being
+scheduled to free the pages.  But there's nothing preventing an
+in-progress migrate from queuing the work *after*
+zs_unregister_migration() has called flush_work().  Which would mean
+pages still pointing at the inode when we free it.
 
-This problem surfaced because commit aa30f47cf666 ("kobject: Add support
-for default attribute groups to kobj_type") makes kobject_del() stricter
-about pairing with kobject_add(). If the pairing is incorrrect, a WARNING
-and backtrace occur in sysfs_remove_group() because there is no parent.
+Since we know at destroy time all objects should be free, no new
+migrations can come in (since zs_page_isolate() fails for fully-free
+zspages).  This means it is sufficient to track a "# isolated zspages"
+count by class, and have the destroy logic ensure all such pages have
+drained before proceeding.  Keeping that state under the class spinlock
+keeps the logic straightforward.
 
-[ tglx: Add a comment to the code and make it work with CONFIG_SYSFS=n ]
+In this case a memory leak could lead to an eventual crash if compaction
+hits the leaked page.  This crash would only occur if people are
+changing their zswap backend at runtime (which eventually starts
+destruction).
 
-Fixes: ecb3f394c5db ("genirq: Expose interrupt information through sysfs")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1564703564-4116-1-git-send-email-mikelley@microsoft.com
+Link: http://lkml.kernel.org/r/20190809181751.219326-2-henryburns@google.com
+Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/irqdesc.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ mm/zsmalloc.c |   61 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 59 insertions(+), 2 deletions(-)
 
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -294,6 +294,18 @@ static void irq_sysfs_add(int irq, struc
- 	}
- }
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -52,6 +52,7 @@
+ #include <linux/zpool.h>
+ #include <linux/mount.h>
+ #include <linux/migrate.h>
++#include <linux/wait.h>
+ #include <linux/pagemap.h>
  
-+static void irq_sysfs_del(struct irq_desc *desc)
-+{
-+	/*
-+	 * If irq_sysfs_init() has not yet been invoked (early boot), then
-+	 * irq_kobj_base is NULL and the descriptor was never added.
-+	 * kobject_del() complains about a object with no parent, so make
-+	 * it conditional.
-+	 */
-+	if (irq_kobj_base)
-+		kobject_del(&desc->kobj);
-+}
-+
- static int __init irq_sysfs_init(void)
- {
- 	struct irq_desc *desc;
-@@ -324,6 +336,7 @@ static struct kobj_type irq_kobj_type =
+ #define ZSPAGE_MAGIC	0x58
+@@ -267,6 +268,10 @@ struct zs_pool {
+ #ifdef CONFIG_COMPACTION
+ 	struct inode *inode;
+ 	struct work_struct free_work;
++	/* A wait queue for when migration races with async_free_zspage() */
++	struct wait_queue_head migration_wait;
++	atomic_long_t isolated_pages;
++	bool destroying;
+ #endif
  };
  
- static void irq_sysfs_add(int irq, struct irq_desc *desc) {}
-+static void irq_sysfs_del(struct irq_desc *desc) {}
+@@ -1890,6 +1895,19 @@ static void putback_zspage_deferred(stru
  
- #endif /* CONFIG_SYSFS */
+ }
  
-@@ -437,7 +450,7 @@ static void free_desc(unsigned int irq)
- 	 * The sysfs entry must be serialized against a concurrent
- 	 * irq_sysfs_init() as well.
++static inline void zs_pool_dec_isolated(struct zs_pool *pool)
++{
++	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
++	atomic_long_dec(&pool->isolated_pages);
++	/*
++	 * There's no possibility of racing, since wait_for_isolated_drain()
++	 * checks the isolated count under &class->lock after enqueuing
++	 * on migration_wait.
++	 */
++	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
++		wake_up_all(&pool->migration_wait);
++}
++
+ static void replace_sub_page(struct size_class *class, struct zspage *zspage,
+ 				struct page *newpage, struct page *oldpage)
+ {
+@@ -1959,6 +1977,7 @@ bool zs_page_isolate(struct page *page,
  	 */
--	kobject_del(&desc->kobj);
-+	irq_sysfs_del(desc);
- 	delete_irq_desc(irq);
+ 	if (!list_empty(&zspage->list) && !is_zspage_isolated(zspage)) {
+ 		get_zspage_mapping(zspage, &class_idx, &fullness);
++		atomic_long_inc(&pool->isolated_pages);
+ 		remove_zspage(class, zspage, fullness);
+ 	}
  
- 	/*
+@@ -2058,8 +2077,16 @@ int zs_page_migrate(struct address_space
+ 	 * Page migration is done so let's putback isolated zspage to
+ 	 * the list if @page is final isolated subpage in the zspage.
+ 	 */
+-	if (!is_zspage_isolated(zspage))
++	if (!is_zspage_isolated(zspage)) {
++		/*
++		 * We cannot race with zs_destroy_pool() here because we wait
++		 * for isolation to hit zero before we start destroying.
++		 * Also, we ensure that everyone can see pool->destroying before
++		 * we start waiting.
++		 */
+ 		putback_zspage_deferred(pool, class, zspage);
++		zs_pool_dec_isolated(pool);
++	}
+ 
+ 	reset_page(page);
+ 	put_page(page);
+@@ -2110,8 +2137,8 @@ void zs_page_putback(struct page *page)
+ 		 * so let's defer.
+ 		 */
+ 		putback_zspage_deferred(pool, class, zspage);
++		zs_pool_dec_isolated(pool);
+ 	}
+-
+ 	spin_unlock(&class->lock);
+ }
+ 
+@@ -2134,8 +2161,36 @@ static int zs_register_migration(struct
+ 	return 0;
+ }
+ 
++static bool pool_isolated_are_drained(struct zs_pool *pool)
++{
++	return atomic_long_read(&pool->isolated_pages) == 0;
++}
++
++/* Function for resolving migration */
++static void wait_for_isolated_drain(struct zs_pool *pool)
++{
++
++	/*
++	 * We're in the process of destroying the pool, so there are no
++	 * active allocations. zs_page_isolate() fails for completely free
++	 * zspages, so we need only wait for the zs_pool's isolated
++	 * count to hit zero.
++	 */
++	wait_event(pool->migration_wait,
++		   pool_isolated_are_drained(pool));
++}
++
+ static void zs_unregister_migration(struct zs_pool *pool)
+ {
++	pool->destroying = true;
++	/*
++	 * We need a memory barrier here to ensure global visibility of
++	 * pool->destroying. Thus pool->isolated pages will either be 0 in which
++	 * case we don't care, or it will be > 0 and pool->destroying will
++	 * ensure that we wake up once isolation hits 0.
++	 */
++	smp_mb();
++	wait_for_isolated_drain(pool); /* This can block */
+ 	flush_work(&pool->free_work);
+ 	iput(pool->inode);
+ }
+@@ -2376,6 +2431,8 @@ struct zs_pool *zs_create_pool(const cha
+ 	if (!pool->name)
+ 		goto err;
+ 
++	init_waitqueue_head(&pool->migration_wait);
++
+ 	if (create_cache(pool))
+ 		goto err;
+ 
 
 
