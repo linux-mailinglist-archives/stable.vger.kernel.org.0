@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B79B59E0E3
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD3BE9E16C
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733079AbfH0IGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:06:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
+        id S1730404AbfH0H7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733073AbfH0IGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:06:50 -0400
+        id S1731232AbfH0H7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:59:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DF3206BA;
-        Tue, 27 Aug 2019 08:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B94FE206BF;
+        Tue, 27 Aug 2019 07:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893209;
-        bh=HvmvIsrVqVKebI1YvpNqor93rKIy6ruroAlxsG4/1Y8=;
+        s=default; t=1566892772;
+        bh=isvN1jFcyXGNsRWOLMIIqbt9jrnVO/ZAKkLb+61Kmrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O232IVRtGoQasLYdPfFYM1cC4yBtRI2h/obn8lrRonRaKiN2sobjapyt59hTxTiPa
-         CMC+n9vnLPfP6kqO1cBgQnLc7QfBKTy2pUva1eCrg4h7HLuTpSlrM1evkuWhQchD2J
-         VhKrp70uNpHxF8OhRL0SmZoddRhQoXEuLEr4Kmi8=
+        b=ZIXJovVBZPfdOz6f0QU9kirrZjLmcpZ9gl2gMHu5M02/tVLNXOk9g5c/mdASwBEjW
+         NokzwDEUw5Iv25qvejbbMmfLVxdKXuQxD4/Lvn77qOmrINtEyGo+xLYKZTy4VnS3Gy
+         93SGWgAYPbYak10ZVG/hi8vsyu6OpebjW0jTlQxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 159/162] io_uring: add need_resched() check in inner poll loop
-Date:   Tue, 27 Aug 2019 09:51:27 +0200
-Message-Id: <20190827072744.365607802@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 001/162] ASoC: simple_card_utils.h: care NULL dai at asoc_simple_debug_dai()
+Date:   Tue, 27 Aug 2019 09:48:49 +0200
+Message-Id: <20190827072738.194602192@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,52 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 08f5439f1df25a6cf6cf4c72cf6c13025599ce67 ]
+[ Upstream commit 52db6685932e326ed607644ab7ebdae8c194adda ]
 
-The outer poll loop checks for whether we need to reschedule, and
-returns to userspace if we do. However, it's possible to get stuck
-in the inner loop as well, if the CPU we are running on needs to
-reschedule to finish the IO work.
+props->xxx_dai might be NULL when DPCM.
+This patch cares it for debug.
 
-Add the need_resched() check in the inner loop as well. This fixes
-a potential hang if the kernel is configured with
-CONFIG_PREEMPT_VOLUNTARY=y.
-
-Reported-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: commit 0580dde59438 ("ASoC: simple-card-utils: add asoc_simple_debug_info()")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87o922gw4u.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/sound/simple_card_utils.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 83e3cede11220..03cd8f5bba850 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -716,7 +716,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- static int io_iopoll_getevents(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 				long min)
+diff --git a/include/sound/simple_card_utils.h b/include/sound/simple_card_utils.h
+index 3429888347e7c..b3609e4c46e0f 100644
+--- a/include/sound/simple_card_utils.h
++++ b/include/sound/simple_card_utils.h
+@@ -149,6 +149,10 @@ inline void asoc_simple_debug_dai(struct asoc_simple_priv *priv,
  {
--	while (!list_empty(&ctx->poll_list)) {
-+	while (!list_empty(&ctx->poll_list) && !need_resched()) {
- 		int ret;
+ 	struct device *dev = simple_priv_to_dev(priv);
  
- 		ret = io_do_iopoll(ctx, nr_events, min);
-@@ -743,6 +743,12 @@ static void io_iopoll_reap_events(struct io_ring_ctx *ctx)
- 		unsigned int nr_events = 0;
- 
- 		io_iopoll_getevents(ctx, &nr_events, 1);
++	/* dai might be NULL */
++	if (!dai)
++		return;
 +
-+		/*
-+		 * Ensure we allow local-to-the-cpu processing to take place,
-+		 * in this case we need to ensure that we reap all events.
-+		 */
-+		cond_resched();
- 	}
- 	mutex_unlock(&ctx->uring_lock);
- }
+ 	if (dai->name)
+ 		dev_dbg(dev, "%s dai name = %s\n",
+ 			name, dai->name);
 -- 
 2.20.1
 
