@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DB79E13D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E269E13F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731784AbfH0IBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
+        id S1731044AbfH0IBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731778AbfH0IBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:01:32 -0400
+        id S1730543AbfH0IBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:01:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2481217F5;
-        Tue, 27 Aug 2019 08:01:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C485217F5;
+        Tue, 27 Aug 2019 08:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892891;
-        bh=+cU68XijqRIcgqLFvONk0csbOfLe3BkLdpISFbp4skI=;
+        s=default; t=1566892898;
+        bh=N+EUED4CEye1GJwfGGA/084rL7SuGCiygi1EdidG1KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkdNPcDKfBt+8vIfzqqCdrgamY1oIGgxd78wrx7DD3NcfUTyxe+0VUyGAFe2JjgGK
-         hr3JkymwSIqk+xli1YILal8CgwflkxPLKBjoOPiP7dS9LM8Fu+3QE5Ej7gPH7eIswF
-         OjJfY2rdIzkyV180IPrSgytu8PgC8QDDVhLjLzBM=
+        b=M8UEHOwjiP0XVysV5GtDpej5jyNfSG+MiKnvgJOqZvZZ4hRQKstuCGOZa9ZjExuyF
+         mT0SPvTt7igsl4F5TpEJx5MlgT3vd7SMLsTDSMA+myIKd1oK+YAl/6AREQfATvFWvm
+         CmugdZ7II0FjYcyohCEQRKr48bMxlCjc0ikS71Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chen Yi <yiche@redhat.com>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 049/162] net: stmmac: manage errors returned by of_get_mac_address()
-Date:   Tue, 27 Aug 2019 09:49:37 +0200
-Message-Id: <20190827072739.930021590@linuxfoundation.org>
+Subject: [PATCH 5.2 051/162] netfilter: ipset: Copy the right MAC address in bitmap:ip,mac and hash:ip,mac sets
+Date:   Tue, 27 Aug 2019 09:49:39 +0200
+Message-Id: <20190827072739.991540119@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -46,47 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 195b2919ccd7ffcaf6b6bbcb39444a53ab8308c7 ]
+[ Upstream commit 1b4a75108d5bc153daf965d334e77e8e94534f96 ]
 
-Commit d01f449c008a ("of_net: add NVMEM support to of_get_mac_address")
-added support for reading the MAC address from an nvmem-cell. This
-required changing the logic to return an error pointer upon failure.
+In commit 8cc4ccf58379 ("ipset: Allow matching on destination MAC address
+for mac and ipmac sets"), ipset.git commit 1543514c46a7, I added to the
+KADT functions for sets matching on MAC addreses the copy of source or
+destination MAC address depending on the configured match.
 
-If stmmac is loaded before the nvmem provider driver then
-of_get_mac_address() return an error pointer with -EPROBE_DEFER.
+This was done correctly for hash:mac, but for hash:ip,mac and
+bitmap:ip,mac, copying and pasting the same code block presents an
+obvious problem: in these two set types, the MAC address is the second
+dimension, not the first one, and we are actually selecting the MAC
+address depending on whether the first dimension (IP address) specifies
+source or destination.
 
-Propagate this error so the stmmac driver will be probed again after the
-nvmem provider driver is loaded.
-Default to a random generated MAC address in case of any other error,
-instead of using the error pointer as MAC address.
+Fix this by checking for the IPSET_DIM_TWO_SRC flag in option flags.
 
-Fixes: d01f449c008a ("of_net: add NVMEM support to of_get_mac_address")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This way, mixing source and destination matches for the two dimensions
+of ip,mac set types works as expected. With this setup:
+
+  ip netns add A
+  ip link add veth1 type veth peer name veth2 netns A
+  ip addr add 192.0.2.1/24 dev veth1
+  ip -net A addr add 192.0.2.2/24 dev veth2
+  ip link set veth1 up
+  ip -net A link set veth2 up
+
+  dst=$(ip netns exec A cat /sys/class/net/veth2/address)
+
+  ip netns exec A ipset create test_bitmap bitmap:ip,mac range 192.0.0.0/16
+  ip netns exec A ipset add test_bitmap 192.0.2.1,${dst}
+  ip netns exec A iptables -A INPUT -m set ! --match-set test_bitmap src,dst -j DROP
+
+  ip netns exec A ipset create test_hash hash:ip,mac
+  ip netns exec A ipset add test_hash 192.0.2.1,${dst}
+  ip netns exec A iptables -A INPUT -m set ! --match-set test_hash src,dst -j DROP
+
+ipset correctly matches a test packet:
+
+  # ping -c1 192.0.2.2 >/dev/null
+  # echo $?
+  0
+
+Reported-by: Chen Yi <yiche@redhat.com>
+Fixes: 8cc4ccf58379 ("ipset: Allow matching on destination MAC address for mac and ipmac sets")
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/ipset/ip_set_bitmap_ipmac.c | 2 +-
+ net/netfilter/ipset/ip_set_hash_ipmac.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 0f0f4b31eb7ec..9b5218a8c15bc 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -385,6 +385,13 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
- 		return ERR_PTR(-ENOMEM);
+diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+index b73c37b3a791f..cfe7b556775f1 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
++++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+@@ -227,7 +227,7 @@ bitmap_ipmac_kadt(struct ip_set *set, const struct sk_buff *skb,
  
- 	*mac = of_get_mac_address(np);
-+	if (IS_ERR(*mac)) {
-+		if (PTR_ERR(*mac) == -EPROBE_DEFER)
-+			return ERR_CAST(*mac);
-+
-+		*mac = NULL;
-+	}
-+
- 	plat->interface = of_get_phy_mode(np);
+ 	e.id = ip_to_id(map, ip);
  
- 	/* Get max speed of operation from device tree */
+-	if (opt->flags & IPSET_DIM_ONE_SRC)
++	if (opt->flags & IPSET_DIM_TWO_SRC)
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_source);
+ 	else
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_dest);
+diff --git a/net/netfilter/ipset/ip_set_hash_ipmac.c b/net/netfilter/ipset/ip_set_hash_ipmac.c
+index eb14434083203..24d8f4df4230c 100644
+--- a/net/netfilter/ipset/ip_set_hash_ipmac.c
++++ b/net/netfilter/ipset/ip_set_hash_ipmac.c
+@@ -93,7 +93,7 @@ hash_ipmac4_kadt(struct ip_set *set, const struct sk_buff *skb,
+ 	    (skb_mac_header(skb) + ETH_HLEN) > skb->data)
+ 		return -EINVAL;
+ 
+-	if (opt->flags & IPSET_DIM_ONE_SRC)
++	if (opt->flags & IPSET_DIM_TWO_SRC)
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_source);
+ 	else
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_dest);
 -- 
 2.20.1
 
