@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2A19E0CD
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF8F9E0D0
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732120AbfH0IGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
+        id S1729743AbfH0IGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:06:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731883AbfH0IGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:06:07 -0400
+        id S1732588AbfH0IGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:06:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49A162186A;
-        Tue, 27 Aug 2019 08:06:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF65B2186A;
+        Tue, 27 Aug 2019 08:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893165;
-        bh=BQoWxrPXHX8BCycKMjfBLqvZlT824d107z5VBJa1TOE=;
+        s=default; t=1566893171;
+        bh=t6k67GIlIUXzT/gXOlEDFqmMVmK3wQOp4nkJAV6YrEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhyX7PJkamthRWjfQXo8xOp2/rOIiBQ3XfSyiYhMzwe1cg3Mjo/U7vNKCwvy5y10u
-         eD+a1CRXWwYOCq7+HsvbHQ5YjM+53umDqrfjGlKKfToGouTbzUjycljMLodVAgbD5o
-         EdMwPVirBZV3ENkr3bKTHrrfBD+E34uJiOKRdrEM=
+        b=DYrdvN8dDcLnq4HGegLPUE0mVwAdUcjCxJ4TD9oGr434QUfVJlzOUiMEzWZGJwTW1
+         mEY50IPryRfGykfhCS85Ht6mUzHt8+VRUuy66YrU5s+cG/aY/V8wB2irlm0+lW0swV
+         lPrlNJRNtp3ajsJL2lbAlO4lHbQx31SchkWzRKQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
         Damien Le Moal <damien.lemoal@wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.2 142/162] dm zoned: improve error handling in reclaim
-Date:   Tue, 27 Aug 2019 09:51:10 +0200
-Message-Id: <20190827072743.608788328@linuxfoundation.org>
+Subject: [PATCH 5.2 143/162] dm zoned: improve error handling in i/o map code
+Date:   Tue, 27 Aug 2019 09:51:11 +0200
+Message-Id: <20190827072743.655237170@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -46,28 +46,20 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit b234c6d7a703661b5045c5bf569b7c99d2edbf88 upstream.
+commit d7428c50118e739e672656c28d2b26b09375d4e0 upstream.
 
-There are several places in reclaim code where errors are not
-propagated to the main function, dmz_reclaim(). This function
-is responsible for unlocking zones that might be still locked
-at the end of any failed reclaim iterations. As the result,
-some device zones may be left permanently locked for reclaim,
-degrading target's capability to reclaim zones.
+Some errors are ignored in the I/O path during queueing chunks
+for processing by chunk works. Since at least these errors are
+transient in nature, it should be possible to retry the failed
+incoming commands.
 
-This patch fixes these issues as follows -
+The fix -
 
-Make sure that dmz_reclaim_buf(), dmz_reclaim_seq_data() and
-dmz_reclaim_rnd_data() return error codes to the caller.
+Errors that can happen while queueing chunks are carried upwards
+to the main mapping function and it now returns DM_MAPIO_REQUEUE
+for any incoming requests that can not be properly queued.
 
-dmz_reclaim() function is renamed to dmz_do_reclaim() to avoid
-clashing with "struct dmz_reclaim" and is modified to return the
-error to the caller.
-
-dmz_get_zone_for_reclaim() now returns an error instead of NULL
-pointer and reclaim code checks for that error.
-
-Error logging/debug messages are added where necessary.
+Error logging/debug messages are added where needed.
 
 Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
 Cc: stable@vger.kernel.org
@@ -77,120 +69,84 @@ Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |    4 ++--
- drivers/md/dm-zoned-reclaim.c  |   28 +++++++++++++++++++---------
- 2 files changed, 21 insertions(+), 11 deletions(-)
+ drivers/md/dm-zoned-target.c |   22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1534,7 +1534,7 @@ static struct dm_zone *dmz_get_rnd_zone_
- 	struct dm_zone *zone;
- 
- 	if (list_empty(&zmd->map_rnd_list))
--		return NULL;
-+		return ERR_PTR(-EBUSY);
- 
- 	list_for_each_entry(zone, &zmd->map_rnd_list, link) {
- 		if (dmz_is_buf(zone))
-@@ -1545,7 +1545,7 @@ static struct dm_zone *dmz_get_rnd_zone_
- 			return dzone;
- 	}
- 
--	return NULL;
-+	return ERR_PTR(-EBUSY);
- }
- 
- /*
---- a/drivers/md/dm-zoned-reclaim.c
-+++ b/drivers/md/dm-zoned-reclaim.c
-@@ -215,7 +215,7 @@ static int dmz_reclaim_buf(struct dmz_re
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -259,7 +259,7 @@ static int dmz_reclaim_seq_data(struct d
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -312,7 +312,7 @@ static int dmz_reclaim_rnd_data(struct d
- 
- 	dmz_unlock_flush(zmd);
- 
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -334,7 +334,7 @@ static void dmz_reclaim_empty(struct dmz
- /*
-  * Find a candidate zone for reclaim and process it.
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -513,22 +513,24 @@ static void dmz_flush_work(struct work_s
+  * Get a chunk work and start it to process a new BIO.
+  * If the BIO chunk has no work yet, create one.
   */
--static void dmz_reclaim(struct dmz_reclaim *zrc)
-+static int dmz_do_reclaim(struct dmz_reclaim *zrc)
+-static void dmz_queue_chunk_work(struct dmz_target *dmz, struct bio *bio)
++static int dmz_queue_chunk_work(struct dmz_target *dmz, struct bio *bio)
  {
- 	struct dmz_metadata *zmd = zrc->metadata;
- 	struct dm_zone *dzone;
-@@ -344,8 +344,8 @@ static void dmz_reclaim(struct dmz_recla
+ 	unsigned int chunk = dmz_bio_chunk(dmz->dev, bio);
+ 	struct dm_chunk_work *cw;
++	int ret = 0;
  
- 	/* Get a data zone */
- 	dzone = dmz_get_zone_for_reclaim(zmd);
--	if (!dzone)
--		return;
-+	if (IS_ERR(dzone))
-+		return PTR_ERR(dzone);
+ 	mutex_lock(&dmz->chunk_lock);
  
- 	start = jiffies;
+ 	/* Get the BIO chunk work. If one is not active yet, create one */
+ 	cw = radix_tree_lookup(&dmz->chunk_rxtree, chunk);
+ 	if (!cw) {
+-		int ret;
  
-@@ -391,13 +391,20 @@ static void dmz_reclaim(struct dmz_recla
- out:
- 	if (ret) {
- 		dmz_unlock_zone_reclaim(dzone);
--		return;
-+		return ret;
+ 		/* Create a new chunk work */
+ 		cw = kmalloc(sizeof(struct dm_chunk_work), GFP_NOIO);
+-		if (!cw)
++		if (unlikely(!cw)) {
++			ret = -ENOMEM;
+ 			goto out;
++		}
+ 
+ 		INIT_WORK(&cw->work, dmz_chunk_work);
+ 		refcount_set(&cw->refcount, 0);
+@@ -539,7 +541,6 @@ static void dmz_queue_chunk_work(struct
+ 		ret = radix_tree_insert(&dmz->chunk_rxtree, chunk, cw);
+ 		if (unlikely(ret)) {
+ 			kfree(cw);
+-			cw = NULL;
+ 			goto out;
+ 		}
  	}
+@@ -547,10 +548,12 @@ static void dmz_queue_chunk_work(struct
+ 	bio_list_add(&cw->bio_list, bio);
+ 	dmz_get_chunk_work(cw);
  
--	(void) dmz_flush_metadata(zrc->metadata);
-+	ret = dmz_flush_metadata(zrc->metadata);
-+	if (ret) {
-+		dmz_dev_debug(zrc->dev,
-+			      "Metadata flush for zone %u failed, err %d\n",
-+			      dmz_id(zmd, rzone), ret);
-+		return ret;
-+	}
- 
- 	dmz_dev_debug(zrc->dev, "Reclaimed zone %u in %u ms",
- 		      dmz_id(zmd, rzone), jiffies_to_msecs(jiffies - start));
-+	return 0;
++	dmz_reclaim_bio_acc(dmz->reclaim);
+ 	if (queue_work(dmz->chunk_wq, &cw->work))
+ 		dmz_get_chunk_work(cw);
+ out:
+ 	mutex_unlock(&dmz->chunk_lock);
++	return ret;
  }
  
  /*
-@@ -442,6 +449,7 @@ static void dmz_reclaim_work(struct work
- 	struct dmz_metadata *zmd = zrc->metadata;
- 	unsigned int nr_rnd, nr_unmap_rnd;
- 	unsigned int p_unmap_rnd;
+@@ -564,6 +567,7 @@ static int dmz_map(struct dm_target *ti,
+ 	sector_t sector = bio->bi_iter.bi_sector;
+ 	unsigned int nr_sectors = bio_sectors(bio);
+ 	sector_t chunk_sector;
 +	int ret;
  
- 	if (!dmz_should_reclaim(zrc)) {
- 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
-@@ -471,7 +479,9 @@ static void dmz_reclaim_work(struct work
- 		      (dmz_target_idle(zrc) ? "Idle" : "Busy"),
- 		      p_unmap_rnd, nr_unmap_rnd, nr_rnd);
+ 	dmz_dev_debug(dev, "BIO op %d sector %llu + %u => chunk %llu, block %llu, %u blocks",
+ 		      bio_op(bio), (unsigned long long)sector, nr_sectors,
+@@ -601,8 +605,14 @@ static int dmz_map(struct dm_target *ti,
+ 		dm_accept_partial_bio(bio, dev->zone_nr_sectors - chunk_sector);
  
--	dmz_reclaim(zrc);
-+	ret = dmz_do_reclaim(zrc);
-+	if (ret)
-+		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+ 	/* Now ready to handle this BIO */
+-	dmz_reclaim_bio_acc(dmz->reclaim);
+-	dmz_queue_chunk_work(dmz, bio);
++	ret = dmz_queue_chunk_work(dmz, bio);
++	if (ret) {
++		dmz_dev_debug(dmz->dev,
++			      "BIO op %d, can't process chunk %llu, err %i\n",
++			      bio_op(bio), (u64)dmz_bio_chunk(dmz->dev, bio),
++			      ret);
++		return DM_MAPIO_REQUEUE;
++	}
  
- 	dmz_schedule_reclaim(zrc);
+ 	return DM_MAPIO_SUBMITTED;
  }
 
 
