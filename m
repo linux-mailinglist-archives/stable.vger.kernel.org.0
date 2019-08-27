@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4109E0B4
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 073BA9E0B5
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731020AbfH0IFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34642 "EHLO mail.kernel.org"
+        id S1731750AbfH0IFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731410AbfH0IFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:05:01 -0400
+        id S1731504AbfH0IFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:05:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3677206BA;
-        Tue, 27 Aug 2019 08:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A755E206BF;
+        Tue, 27 Aug 2019 08:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893100;
-        bh=zSt9OyuCCf+/314BuRfbHEIHr6Hl7XP/JOfES86IgzY=;
+        s=default; t=1566893103;
+        bh=6/LSERst0QCgem5FWEXCFqLvc3K/txrFkPNguJrGEq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUphbPD58LjUtc9t4EyTJ38Bfb5tUXnFpbcUDHj7keiDK1Wy68UC97eyIyoQ+htZr
-         mGsIlGxJx+EBo8b8rNb8KrqmQa7TNPUiOB1gcw6VJRRO+CBnHobmo2Ufcdykk98l0V
-         PaUtMzzVp88HHwWRz2cUqhSB7mV85d0G5UHm+ZOE=
+        b=NlCqGaMLUJMVeRYbbi/jKoffDLj0c6UVUAVOoAyFCp3Q3vjIn+CbY61FXO14/Xi/J
+         QidZ8fB9BS4uBn39xI56gFCRw99Ge11uYXY+1HRrIfc84eD0tKgAzMCqEq2lAZJx+9
+         kcpm7g5HfmfOgLIFAw2Gy9gcOvIZXB3YlauW/JVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.2 121/162] scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
-Date:   Tue, 27 Aug 2019 09:50:49 +0200
-Message-Id: <20190827072742.673224680@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.2 122/162] gpiolib: never report open-drain/source lines as input to user-space
+Date:   Tue, 27 Aug 2019 09:50:50 +0200
+Message-Id: <20190827072742.714900074@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -43,60 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-commit 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1 upstream.
+commit 2c60e6b5c9241b24b8b523fefd3e44fb85622cda upstream.
 
-Fix the following BUG:
+If the driver doesn't support open-drain/source config options, we
+emulate this behavior when setting the direction by calling
+gpiod_direction_input() if the default value is 0 (open-source) or
+1 (open-drain), thus not actively driving the line in those cases.
 
-  [ 187.065689] BUG: kernel NULL pointer dereference, address: 000000000000001c
-  [ 187.065790] RIP: 0010:ufshcd_vreg_set_hpm+0x3c/0x110 [ufshcd_core]
-  [ 187.065938] Call Trace:
-  [ 187.065959] ufshcd_resume+0x72/0x290 [ufshcd_core]
-  [ 187.065980] ufshcd_system_resume+0x54/0x140 [ufshcd_core]
-  [ 187.065993] ? pci_pm_restore+0xb0/0xb0
-  [ 187.066005] ufshcd_pci_resume+0x15/0x20 [ufshcd_pci]
-  [ 187.066017] pci_pm_thaw+0x4c/0x90
-  [ 187.066030] dpm_run_callback+0x5b/0x150
-  [ 187.066043] device_resume+0x11b/0x220
+This however clears the FLAG_IS_OUT bit for the GPIO line descriptor
+and makes the LINEINFO ioctl() incorrectly report this line's mode as
+'input' to user-space.
 
-Voltage regulators are optional, so functions must check they exist
-before dereferencing.
+This commit modifies the ioctl() to always set the GPIOLINE_FLAG_IS_OUT
+bit in the lineinfo structure's flags field. Since it's impossible to
+use the input mode and open-drain/source options at the same time, we
+can be sure the reported information will be correct.
 
-Note this issue is hidden if CONFIG_REGULATORS is not set, because the
-offending code is optimised away.
-
-Notes for stable:
-
-The issue first appears in commit 57d104c153d3 ("ufs: add UFS power
-management support") but is inadvertently fixed in commit 60f0187031c0
-("scsi: ufs: disable vccq if it's not needed by UFS device") which in
-turn was reverted by commit 730679817d83 ("Revert "scsi: ufs: disable vccq
-if it's not needed by UFS device""). So fix applies v3.18 to v4.5 and
-v5.1+
-
-Fixes: 57d104c153d3 ("ufs: add UFS power management support")
-Fixes: 730679817d83 ("Revert "scsi: ufs: disable vccq if it's not needed by UFS device"")
-Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 521a2ad6f862 ("gpio: add userspace ABI for GPIO line information")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Link: https://lore.kernel.org/r/20190806114151.17652-1-brgl@bgdev.pl
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/ufs/ufshcd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpiolib.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -7032,6 +7032,9 @@ static inline int ufshcd_config_vreg_lpm
- static inline int ufshcd_config_vreg_hpm(struct ufs_hba *hba,
- 					 struct ufs_vreg *vreg)
- {
-+	if (!vreg)
-+		return 0;
-+
- 	return ufshcd_config_vreg_load(hba->dev, vreg, vreg->max_uA);
- }
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1091,9 +1091,11 @@ static long gpio_ioctl(struct file *filp
+ 		if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
+ 			lineinfo.flags |= GPIOLINE_FLAG_ACTIVE_LOW;
+ 		if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
+-			lineinfo.flags |= GPIOLINE_FLAG_OPEN_DRAIN;
++			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_DRAIN |
++					   GPIOLINE_FLAG_IS_OUT);
+ 		if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
+-			lineinfo.flags |= GPIOLINE_FLAG_OPEN_SOURCE;
++			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_SOURCE |
++					   GPIOLINE_FLAG_IS_OUT);
  
+ 		if (copy_to_user(ip, &lineinfo, sizeof(lineinfo)))
+ 			return -EFAULT;
 
 
