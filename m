@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A77D9E1F8
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0019E20F
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbfH0HyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:54:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
+        id S1729695AbfH0IQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:16:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729536AbfH0HyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:25 -0400
+        id S1730081AbfH0Hyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:54:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75E2B206BF;
-        Tue, 27 Aug 2019 07:54:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8517E206BA;
+        Tue, 27 Aug 2019 07:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892464;
-        bh=oocRzilriowvGwyzD4I+sBipUlHRbO+/i4RBfBsJ4EA=;
+        s=default; t=1566892475;
+        bh=zoZ7wu9PPhyAfaaWF3fMYsYbg80wjiSCDJEYLVog2go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMsOdXm9QxkcR0LmzRECRHsl/h8cWDxiGEDQi7d3o8B78vIXTgRxWLe4NZsyOn0mg
-         xSv5d5ZeuPAAZT8vWyo6gsIrktzcBkX5P3B91ZgWUzh+aQ78AlOyaYItoHTGIA0xqH
-         8XGJXeMFrrx+aLZKuAqXwRqocLpkrHTY9vGBVLfo=
+        b=gV4Tw/ey62rsYDqzoMYM7+R9/8T/8lkXE0GABHJyVsM5fAEozjfLUfZe7oU8yUwl0
+         vzMMxeiTdA8s+t5ZN8n6QbmMAk+iAVKctBSVnfrue42kjt2DReOZpfkPvvrUj97jfr
+         cUFWCHhGxeIcFZmG2Gn3ADF2UEYycjqseTozvbSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 56/62] genirq: Properly pair kobject_del() with kobject_add()
-Date:   Tue, 27 Aug 2019 09:51:01 +0200
-Message-Id: <20190827072703.716791086@linuxfoundation.org>
+        stable@vger.kernel.org, benjamin.moody@gmail.com,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH 4.14 60/62] xfs: fix missing ILOCK unlock when xfs_setattr_nonsize fails due to EDQUOT
+Date:   Tue, 27 Aug 2019 09:51:05 +0200
+Message-Id: <20190827072703.922260797@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -43,73 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit d0ff14fdc987303aeeb7de6f1bd72c3749ae2a9b upstream.
+commit 1fb254aa983bf190cfd685d40c64a480a9bafaee upstream.
 
-If alloc_descs() fails before irq_sysfs_init() has run, free_desc() in the
-cleanup path will call kobject_del() even though the kobject has not been
-added with kobject_add().
+Benjamin Moody reported to Debian that XFS partially wedges when a chgrp
+fails on account of being out of disk quota.  I ran his reproducer
+script:
 
-Fix this by making the call to kobject_del() conditional on whether
-irq_sysfs_init() has run.
+# adduser dummy
+# adduser dummy plugdev
 
-This problem surfaced because commit aa30f47cf666 ("kobject: Add support
-for default attribute groups to kobj_type") makes kobject_del() stricter
-about pairing with kobject_add(). If the pairing is incorrrect, a WARNING
-and backtrace occur in sysfs_remove_group() because there is no parent.
+# dd if=/dev/zero bs=1M count=100 of=test.img
+# mkfs.xfs test.img
+# mount -t xfs -o gquota test.img /mnt
+# mkdir -p /mnt/dummy
+# chown -c dummy /mnt/dummy
+# xfs_quota -xc 'limit -g bsoft=100k bhard=100k plugdev' /mnt
 
-[ tglx: Add a comment to the code and make it work with CONFIG_SYSFS=n ]
+(and then as user dummy)
 
-Fixes: ecb3f394c5db ("genirq: Expose interrupt information through sysfs")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1564703564-4116-1-git-send-email-mikelley@microsoft.com
+$ dd if=/dev/urandom bs=1M count=50 of=/mnt/dummy/foo
+$ chgrp plugdev /mnt/dummy/foo
+
+and saw:
+
+================================================
+WARNING: lock held when returning to user space!
+5.3.0-rc5 #rc5 Tainted: G        W
+------------------------------------------------
+chgrp/47006 is leaving the kernel with locks still held!
+1 lock held by chgrp/47006:
+ #0: 000000006664ea2d (&xfs_nondir_ilock_class){++++}, at: xfs_ilock+0xd2/0x290 [xfs]
+
+...which is clearly caused by xfs_setattr_nonsize failing to unlock the
+ILOCK after the xfs_qm_vop_chown_reserve call fails.  Add the missing
+unlock.
+
+Reported-by: benjamin.moody@gmail.com
+Fixes: 253f4911f297 ("xfs: better xfs_trans_alloc interface")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Tested-by: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/irqdesc.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_iops.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -277,6 +277,18 @@ static void irq_sysfs_add(int irq, struc
- 	}
- }
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -789,6 +789,7 @@ xfs_setattr_nonsize(
  
-+static void irq_sysfs_del(struct irq_desc *desc)
-+{
-+	/*
-+	 * If irq_sysfs_init() has not yet been invoked (early boot), then
-+	 * irq_kobj_base is NULL and the descriptor was never added.
-+	 * kobject_del() complains about a object with no parent, so make
-+	 * it conditional.
-+	 */
-+	if (irq_kobj_base)
-+		kobject_del(&desc->kobj);
-+}
-+
- static int __init irq_sysfs_init(void)
- {
- 	struct irq_desc *desc;
-@@ -307,6 +319,7 @@ static struct kobj_type irq_kobj_type =
- };
- 
- static void irq_sysfs_add(int irq, struct irq_desc *desc) {}
-+static void irq_sysfs_del(struct irq_desc *desc) {}
- 
- #endif /* CONFIG_SYSFS */
- 
-@@ -420,7 +433,7 @@ static void free_desc(unsigned int irq)
- 	 * The sysfs entry must be serialized against a concurrent
- 	 * irq_sysfs_init() as well.
- 	 */
--	kobject_del(&desc->kobj);
-+	irq_sysfs_del(desc);
- 	delete_irq_desc(irq);
- 
- 	/*
+ out_cancel:
+ 	xfs_trans_cancel(tp);
++	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ out_dqrele:
+ 	xfs_qm_dqrele(udqp);
+ 	xfs_qm_dqrele(gdqp);
 
 
