@@ -2,147 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8118B9F216
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5649F23D
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 20:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbfH0SLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 14:11:13 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:34179 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727683AbfH0SLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 14:11:12 -0400
-Received: by mail-wr1-f68.google.com with SMTP id s18so19769462wrn.1
-        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 11:11:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tJ6JT4mbjmxDTtYCcCKRvbFj/AkxPciRIoJmoc0g31o=;
-        b=W8kLlpbxNlIOKqORt2u9E/rK5TqaClXVz80C6yGxJign5KnuqcYC82skkEEuBKpD7u
-         0EFKKWCMoklAqgUTYgSf65YTVtK5GYRI45P0YJug663YhbxIdGfNVIHuGxfb1VLodGRy
-         GYOI8hSoyekd3CDMOs4gdLKfR48BdRZsXMfyPf/ghdt1MfTjox0Uvs9DPSrPYsQuKJLJ
-         uPcdBb1M480W8weqrYiBvW+sqyqrMwkxxz68axhrg4AcZmVD9kdL0/MMsRxZdDBh4NQA
-         wwogl8eqkNZPwyggZLGDXwZj0oib+KfZBuLAKZEgI7rGwOus0mWIh9pWyHqNIAFnmoDa
-         nQ/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tJ6JT4mbjmxDTtYCcCKRvbFj/AkxPciRIoJmoc0g31o=;
-        b=tn9ytPdyTzQkjqJOMM1KQQPNMmWzr5kVYBIcOWFWf+qw/fnGGOyupTOitKupEOJnPT
-         0pj7x3m6m0+sjcvMRc2alHNCd5LgxfH3CoDAUXAy2tWFINwP9eS6PYRxCBgopNu3zr8K
-         F5qGIX2gNggJeEnUSrpyDUkb7VJ6p8qcs5msWw8IFqNKt5bGY3NKTAs6/NSiluO2IoqF
-         Wwqrq97wMLzoq6n1wqOa7+xBnplMMLnriLENAql/UDwvpfN6mqFFP1c4isfSxCT/DqEY
-         o3oaF6obAjRv4agtnQ9TMlI2adQiBNk8xhq1EnckoavVBKyL9mKgQGTyasjoL/qCFdFE
-         G8NQ==
-X-Gm-Message-State: APjAAAUNxC5tuINKtww6+GrwxJ/HLiBN3qomG1hSmEC/6Pwk1qEzL7Oz
-        pffjmdVchkJ7V/uKztRdA28J2KaWs4K5Mw==
-X-Google-Smtp-Source: APXvYqwlJsD65JXETobDGEs3ajrLd7EGq0nMUmCz4E4rnBOPhs21lSyj9pin91xochDSX3vf4olFxA==
-X-Received: by 2002:a5d:5041:: with SMTP id h1mr33115815wrt.30.1566929470644;
-        Tue, 27 Aug 2019 11:11:10 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a142sm237386wme.2.2019.08.27.11.11.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 27 Aug 2019 11:11:10 -0700 (PDT)
-Message-ID: <5d65723e.1c69fb81.e38fd.10b0@mx.google.com>
-Date:   Tue, 27 Aug 2019 11:11:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728312AbfH0SVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 14:21:53 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55917 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727064AbfH0SVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 14:21:53 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 22E8F18C891C
+        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 18:21:53 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-120-245.rdu2.redhat.com [10.10.120.245])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D133060632;
+        Tue, 27 Aug 2019 18:21:46 +0000 (UTC)
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Cc:     CKI Project <cki-project@redhat.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Subject: [INFO] Testing LTP directly from github
+Message-ID: <122d7241-86b1-f750-ace3-37378a29ea1c@redhat.com>
+Date:   Tue, 27 Aug 2019 14:21:46 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.2.10-163-g9f631715ffe6
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.2.y
-Subject: stable-rc/linux-5.2.y boot: 149 boots: 2 failed,
- 137 passed with 8 offline, 2 untried/unknown (v5.2.10-163-g9f631715ffe6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Tue, 27 Aug 2019 18:21:53 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 149 boots: 2 failed, 137 passed with 8 offline,=
- 2 untried/unknown (v5.2.10-163-g9f631715ffe6)
+Hello,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.10-163-g9f631715ffe6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.10-163-g9f631715ffe6/
+The CKI team will be updating the current LTP version to fetch directly 
+from GitHub using a recent stable
+commit.
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.10-163-g9f631715ffe6
-Git Commit: 9f631715ffe68666bbe4c5f7ad0dfc1ed387e1a1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 83 unique boards, 26 SoC families, 15 builds out of 209
+We were previously using the latest stable release (20190517), however 
+we would like to use a later version
+of LTP to encourage more upstream LTP collaboration. Newer releases pull 
+in recent test case fixes and help
+us find more kernel bugs. :-)
 
-Boot Regressions Detected:
+The test will initially be set to the waived status until we trust that 
+it's going to be stable enough to
+run in the pipeline. We will continue to monitor the progress, but 
+wanted to make you aware of
+these changes.
 
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 12 days (last pass: v5.2.=
-8 - first fail: v5.2.8-145-g2440e485aeda)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 12 days (last pass: v5.2.=
-8 - first fail: v5.2.8-145-g2440e485aeda)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v5.2.9-135-gf5284fbdcd3=
-4)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-g12a-sei510:
-              lab-baylibre: new failure (last pass: v5.2.9-135-gf5284fbdcd3=
-4)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+- Rachel
