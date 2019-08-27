@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 619789E11C
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0486B9E1B2
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732389AbfH0IDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33102 "EHLO mail.kernel.org"
+        id S1729045AbfH0H4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:56:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732375AbfH0IDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:03:51 -0400
+        id S1728948AbfH0H4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:56:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C2EB206BA;
-        Tue, 27 Aug 2019 08:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AED9206BA;
+        Tue, 27 Aug 2019 07:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893030;
-        bh=0WztkM7xhbrKQ4NJ4fgJQ8SR2b4RPZScZv0aK7cZHz0=;
+        s=default; t=1566892593;
+        bh=2alQQ6NlLfiTnciKs2xx6RlhlEBieq2JE4Bbdw5ZqY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ai1Wp6Ds6NSojENQ4VXcc3osRRaNkg1Pl1EbJkek3d6ht6FvLdsyEWolGJhj0Zlp6
-         3yn02eNu8KcREyc67Wmvl95ddyA+h6egYrrsEMqMdaALlcHTHFnLmzFaj5t0emCimA
-         Z10llsZsV7gfZIjL+BZoUYJA8zzXcyF/9cZv70dE=
+        b=GjzFxc23yUQP1ejfcgrCMsyb2l8FGZoBOqQgD4JRdwy501DY4owyZQ06FRH9kr4gO
+         qVazGhF91fuUwLpYu5V88NpvtHS+X4lo+2J88+O3+agoFhFEjAUyTIMeqYj3uTz+C2
+         YbLppt/UXs5hLum8ed4XPy+cHpUWVRCS58CKqT9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 095/162] net: hisilicon: Fix dma_map_single failed on arm64
-Date:   Tue, 27 Aug 2019 09:50:23 +0200
-Message-Id: <20190827072741.513269937@linuxfoundation.org>
+Subject: [PATCH 4.19 45/98] net: hisilicon: make hip04_tx_reclaim non-reentrant
+Date:   Tue, 27 Aug 2019 09:50:24 +0200
+Message-Id: <20190827072720.578073899@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 96a50c0d907ac8f5c3d6b051031a19eb8a2b53e3 ]
+[ Upstream commit 1a2c070ae805910a853b4a14818481ed2e17c727 ]
 
-On the arm64 platform, executing "ifconfig eth0 up" will fail,
-returning "ifconfig: SIOCSIFFLAGS: Input/output error."
+If hip04_tx_reclaim is interrupted while it is running
+and then __napi_schedule continues to execute
+hip04_rx_poll->hip04_tx_reclaim, reentrancy occurs
+and oops is generated. So you need to mask the interrupt
+during the hip04_tx_reclaim run.
 
-ndev->dev is not initialized, dma_map_single->get_dma_ops->
-dummy_dma_ops->__dummy_map_page will return DMA_ERROR_CODE
-directly, so when we use dma_map_single, the first parameter
-is to use the device of platform_device.
+The kernel oops exception stack is as follows:
+
+Unable to handle kernel NULL pointer dereference
+at virtual address 00000050
+pgd = c0003000
+[00000050] *pgd=80000000a04003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+Modules linked in: hip04_eth mtdblock mtd_blkdevs mtd
+ohci_platform ehci_platform ohci_hcd ehci_hcd
+vfat fat sd_mod usb_storage scsi_mod usbcore usb_common
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O    4.4.185 #1
+Hardware name: Hisilicon A15
+task: c0a250e0 task.stack: c0a00000
+PC is at hip04_tx_reclaim+0xe0/0x17c [hip04_eth]
+LR is at hip04_tx_reclaim+0x30/0x17c [hip04_eth]
+pc : [<bf30c3a4>]    lr : [<bf30c2f4>]    psr: 600e0313
+sp : c0a01d88  ip : 00000000  fp : c0601f9c
+r10: 00000000  r9 : c3482380  r8 : 00000001
+r7 : 00000000  r6 : 000000e1  r5 : c3482000  r4 : 0000000c
+r3 : f2209800  r2 : 00000000  r1 : 00000000  r0 : 00000000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 32c5387d  Table: 03d28c80  DAC: 55555555
+Process swapper/0 (pid: 0, stack limit = 0xc0a00190)
+Stack: (0xc0a01d88 to 0xc0a02000)
+[<bf30c3a4>] (hip04_tx_reclaim [hip04_eth]) from [<bf30d2e0>]
+                                                (hip04_rx_poll+0x88/0x368 [hip04_eth])
+[<bf30d2e0>] (hip04_rx_poll [hip04_eth]) from [<c04c2d9c>] (net_rx_action+0x114/0x34c)
+[<c04c2d9c>] (net_rx_action) from [<c021eed8>] (__do_softirq+0x218/0x318)
+[<c021eed8>] (__do_softirq) from [<c021f284>] (irq_exit+0x88/0xac)
+[<c021f284>] (irq_exit) from [<c0240090>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240090>] (msa_irq_exit) from [<c02677e0>] (__handle_domain_irq+0x110/0x148)
+[<c02677e0>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0551700>] (__irq_svc+0x40/0x58)
+Exception stack(0xc0a01f30 to 0xc0a01f78)
+1f20:                                     c0ae8b40 00000000 00000000 00000000
+1f40: 00000002 ffffe000 c0601f9c 00000000 ffffffff c0a2257c c0a22440 c0831a38
+1f60: c0a01ec4 c0a01f80 c0203714 c0203718 600e0213 ffffffff
+[<c0551700>] (__irq_svc) from [<c0203718>] (arch_cpu_idle+0x20/0x3c)
+[<c0203718>] (arch_cpu_idle) from [<c025bfd8>] (cpu_startup_entry+0x244/0x29c)
+[<c025bfd8>] (cpu_startup_entry) from [<c054b0d8>] (rest_init+0xc8/0x10c)
+[<c054b0d8>] (rest_init) from [<c0800c58>] (start_kernel+0x468/0x514)
+Code: a40599e5 016086e2 018088e2 7660efe6 (503090e5)
+---[ end trace 1db21d6d09c49d74 ]---
+Kernel panic - not syncing: Fatal exception in interrupt
+CPU3: stopping
+CPU: 3 PID: 0 Comm: swapper/3 Tainted: G      D    O    4.4.185 #1
 
 Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index ee6da8d66cd31..51cf6b0db904b 100644
+index 6127697ede120..57c0afa25f9fb 100644
 --- a/drivers/net/ethernet/hisilicon/hip04_eth.c
 +++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -153,6 +153,7 @@ struct hip04_priv {
- 	unsigned int reg_inten;
+@@ -497,6 +497,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 	u16 len;
+ 	u32 err;
  
- 	struct napi_struct napi;
-+	struct device *dev;
- 	struct net_device *ndev;
- 
- 	struct tx_desc *tx_desc;
-@@ -383,7 +384,7 @@ static int hip04_tx_reclaim(struct net_device *ndev, bool force)
- 		}
- 
- 		if (priv->tx_phys[tx_tail]) {
--			dma_unmap_single(&ndev->dev, priv->tx_phys[tx_tail],
-+			dma_unmap_single(priv->dev, priv->tx_phys[tx_tail],
- 					 priv->tx_skb[tx_tail]->len,
- 					 DMA_TO_DEVICE);
- 			priv->tx_phys[tx_tail] = 0;
-@@ -434,8 +435,8 @@ hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 		return NETDEV_TX_BUSY;
++	/* clean up tx descriptors */
++	tx_remaining = hip04_tx_reclaim(ndev, false);
++
+ 	while (cnt && !last) {
+ 		buf = priv->rx_buf[priv->rx_head];
+ 		skb = build_skb(buf, priv->rx_buf_size);
+@@ -557,8 +560,7 @@ refill:
  	}
+ 	napi_complete_done(napi, rx);
+ done:
+-	/* clean up tx descriptors and start a new timer if necessary */
+-	tx_remaining = hip04_tx_reclaim(ndev, false);
++	/* start a new timer if necessary */
+ 	if (rx < budget && tx_remaining)
+ 		hip04_start_tx_timer(priv);
  
--	phys = dma_map_single(&ndev->dev, skb->data, skb->len, DMA_TO_DEVICE);
--	if (dma_mapping_error(&ndev->dev, phys)) {
-+	phys = dma_map_single(priv->dev, skb->data, skb->len, DMA_TO_DEVICE);
-+	if (dma_mapping_error(priv->dev, phys)) {
- 		dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
- 	}
-@@ -505,7 +506,7 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
- 			goto refill;
- 		}
- 
--		dma_unmap_single(&ndev->dev, priv->rx_phys[priv->rx_head],
-+		dma_unmap_single(priv->dev, priv->rx_phys[priv->rx_head],
- 				 RX_BUF_SIZE, DMA_FROM_DEVICE);
- 		priv->rx_phys[priv->rx_head] = 0;
- 
-@@ -534,9 +535,9 @@ refill:
- 		buf = netdev_alloc_frag(priv->rx_buf_size);
- 		if (!buf)
- 			goto done;
--		phys = dma_map_single(&ndev->dev, buf,
-+		phys = dma_map_single(priv->dev, buf,
- 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
--		if (dma_mapping_error(&ndev->dev, phys))
-+		if (dma_mapping_error(priv->dev, phys))
- 			goto done;
- 		priv->rx_buf[priv->rx_head] = buf;
- 		priv->rx_phys[priv->rx_head] = phys;
-@@ -639,9 +640,9 @@ static int hip04_mac_open(struct net_device *ndev)
- 	for (i = 0; i < RX_DESC_NUM; i++) {
- 		dma_addr_t phys;
- 
--		phys = dma_map_single(&ndev->dev, priv->rx_buf[i],
-+		phys = dma_map_single(priv->dev, priv->rx_buf[i],
- 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
--		if (dma_mapping_error(&ndev->dev, phys))
-+		if (dma_mapping_error(priv->dev, phys))
- 			return -EIO;
- 
- 		priv->rx_phys[i] = phys;
-@@ -675,7 +676,7 @@ static int hip04_mac_stop(struct net_device *ndev)
- 
- 	for (i = 0; i < RX_DESC_NUM; i++) {
- 		if (priv->rx_phys[i]) {
--			dma_unmap_single(&ndev->dev, priv->rx_phys[i],
-+			dma_unmap_single(priv->dev, priv->rx_phys[i],
- 					 RX_BUF_SIZE, DMA_FROM_DEVICE);
- 			priv->rx_phys[i] = 0;
- 		}
-@@ -819,6 +820,7 @@ static int hip04_mac_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	priv = netdev_priv(ndev);
-+	priv->dev = d;
- 	priv->ndev = ndev;
- 	platform_set_drvdata(pdev, ndev);
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
 -- 
 2.20.1
 
