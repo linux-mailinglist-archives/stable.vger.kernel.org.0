@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647139E111
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16159E174
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbfH0IJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34714 "EHLO mail.kernel.org"
+        id S1730496AbfH0H7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:59:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbfH0IFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:05:06 -0400
+        id S1731099AbfH0H7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:59:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54B70206BF;
-        Tue, 27 Aug 2019 08:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95C7A2186A;
+        Tue, 27 Aug 2019 07:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893105;
-        bh=9XZ+Be4/yLcj+Tj426tFwAI0b4HEgWmZTt9ohu5MdwM=;
+        s=default; t=1566892742;
+        bh=RxDSkfwBhmaBGf5yeYT9XqsGu+pXDn6KUzqQgAHY1JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfWi8MAW25IHN7A03ub1bbQ93IdwuquPuY+KaWpDM+QWTTJLHgSIpGIigO6MtqdiY
-         dcDV0fOmmsBgYAnk4BJmlMriT9y6ZzIT6De9jLGbfK/eCLSnEtDUXkvkeGvIjHQUGl
-         q8Icy1fe+uprQHAQyRwlKSppXajDyYmSV3Bt0ij0=
+        b=0Ka0MDBUpcqpnRoKJctWNtJMjNdBGQ+d9dw18bCIXh1O8e092IU58Nks9NgZyiufP
+         seC32hNNEb479NmJc5sRLO7NpPdHghPDDaTG2xZ9leBcZtRADScxA0dwaM3vpygf6c
+         06iEDP/X9WKKAhkIL//9verc9ACzwccrjwKJEG0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +34,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 105/162] perf pmu-events: Fix missing "cpu_clk_unhalted.core" event
-Date:   Tue, 27 Aug 2019 09:50:33 +0200
-Message-Id: <20190827072741.961103900@linuxfoundation.org>
+Subject: [PATCH 4.19 55/98] perf pmu-events: Fix missing "cpu_clk_unhalted.core" event
+Date:   Tue, 27 Aug 2019 09:50:34 +0200
+Message-Id: <20190827072721.212895393@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -94,7 +94,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index 58f77fd0f59fe..ed5423d8a95fd 100644
+index 68c92bb599eef..6b36b71106695 100644
 --- a/tools/perf/pmu-events/jevents.c
 +++ b/tools/perf/pmu-events/jevents.c
 @@ -450,6 +450,7 @@ static struct fixed {
