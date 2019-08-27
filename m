@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C4D9E160
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ACCD9E152
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728988AbfH0IAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54610 "EHLO mail.kernel.org"
+        id S1731204AbfH0IBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:01:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730994AbfH0IAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:00:07 -0400
+        id S1731189AbfH0IBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:01:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47C97206BA;
-        Tue, 27 Aug 2019 08:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C7FD2186A;
+        Tue, 27 Aug 2019 08:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892806;
-        bh=ewdmdHom3VZbtVyvXEmlN6w+uRbjKror0DZSrQoiFWo=;
+        s=default; t=1566892868;
+        bh=vRZy479767kYTIzX9SBMWkovtJFmbdfeRbCf0+4l3c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XC0rq6VMVDVZT5qXGb8lB+NgLft0Mk9qRXbaXNlbbLXFuQ3HLDZ6IJmEnxQxBGIA9
-         S300n10OaFBIhra1SOeiNypyF7LizVGdEOg44mvCODDypI1p18UbVgqNFkmXQCkf5t
-         AsP2IUCDmzG9UWXbbQlGYf9MYL6DupdJmDmKl8j0=
+        b=11H/nDAmZPSsWv6bjEyBo94KxIXC5oShvg0gyrHjf6GrtFs483izqsVEaazlmv94t
+         N1AZpdjGyl3mfd4TSGZ0ikc44vI/dzkAdeI4zllbACIvvUzsWqmJClc5UvN8sxyF1g
+         a/sLcFwkKsVPbC7l7x4Opu5LWz3bpGACi7EKE2K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Trukhanov <lahvuun@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 013/162] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
-Date:   Tue, 27 Aug 2019 09:49:01 +0200
-Message-Id: <20190827072738.804484748@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 015/162] mips: fix cacheinfo
+Date:   Tue, 27 Aug 2019 09:49:03 +0200
+Message-Id: <20190827072738.866866739@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -43,63 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 65f11c72780fa9d598df88def045ccb6a885cf80 ]
+[ Upstream commit b8bea8a5e5d942e62203416ab41edecaed4fda02 ]
 
-Enable force feedback for the Thrustmaster Dual Trigger 2 in 1 Rumble Force
-gamepad. Compared to other Thrustmaster devices, left and right rumble
-motors here are swapped.
+Because CONFIG_OF defined for MIPS, cacheinfo attempts to fill information
+from DT, ignoring data filled by architecture routine. This leads to error
+reported
 
-Signed-off-by: Ilya Trukhanov <lahvuun@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+ cacheinfo: Unable to detect cache hierarchy for CPU 0
+
+Way to fix this provided in
+commit fac51482577d ("drivers: base: cacheinfo: fix x86 with
+ CONFIG_OF enabled")
+
+Utilize same mechanism to report that cacheinfo set by architecture
+specific function
+
+Signed-off-by: Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-tmff.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/mips/kernel/cacheinfo.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index e12f2588ddebb..bdfc5ff3b2c5c 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -22,6 +22,8 @@
+diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
+index e0dd66881da68..f777e44653d57 100644
+--- a/arch/mips/kernel/cacheinfo.c
++++ b/arch/mips/kernel/cacheinfo.c
+@@ -69,6 +69,8 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 	if (c->tcache.waysize)
+ 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
  
- #include "hid-ids.h"
- 
-+#define THRUSTMASTER_DEVICE_ID_2_IN_1_DT	0xb320
++	this_cpu_ci->cpu_map_populated = true;
 +
- static const signed short ff_rumble[] = {
- 	FF_RUMBLE,
- 	-1
-@@ -76,6 +78,7 @@ static int tmff_play(struct input_dev *dev, void *data,
- 	struct hid_field *ff_field = tmff->ff_field;
- 	int x, y;
- 	int left, right;	/* Rumbling */
-+	int motor_swap;
+ 	return 0;
+ }
  
- 	switch (effect->type) {
- 	case FF_CONSTANT:
-@@ -100,6 +103,13 @@ static int tmff_play(struct input_dev *dev, void *data,
- 					ff_field->logical_minimum,
- 					ff_field->logical_maximum);
- 
-+		/* 2-in-1 strong motor is left */
-+		if (hid->product == THRUSTMASTER_DEVICE_ID_2_IN_1_DT) {
-+			motor_swap = left;
-+			left = right;
-+			right = motor_swap;
-+		}
-+
- 		dbg_hid("(left,right)=(%08x, %08x)\n", left, right);
- 		ff_field->value[0] = left;
- 		ff_field->value[1] = right;
-@@ -226,6 +236,8 @@ static const struct hid_device_id tm_devices[] = {
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
- 		.driver_data = (unsigned long)ff_rumble },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
-+		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
 -- 
 2.20.1
 
