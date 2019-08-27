@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA6F9E211
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB33E9E186
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbfH0IQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45874 "EHLO mail.kernel.org"
+        id S1731059AbfH0H6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730002AbfH0HyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:16 -0400
+        id S1730706AbfH0H6l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07E5F206BF;
-        Tue, 27 Aug 2019 07:54:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 025E4206BF;
+        Tue, 27 Aug 2019 07:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892455;
-        bh=GfJ9CA+FnmOmJgMvLBMy5H/eRhMID16zoKjq6w4U1+0=;
+        s=default; t=1566892720;
+        bh=x2yaFsxyNtdZbvKQzpaUTp9W7h6k1yHSMcCMiTZWb6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vlazf1BpXzqFhKrNNI0A15+ND7bqe1qiUMDfqH/mgL/olxFcgtb6Dia0S5JrEJFnM
-         g3N3pLIuM0k++QpLpRfZ9XqKyl3aMWGSnTrnjRCUDXDD0wZIOYcJGL3iSX9kLD7ZQo
-         wPLVKosFUuTm0eNoZOPm6IFMWeqt+VAQy8YdYjm4=
+        b=HatZyc0wqFWWcIFOPt6gdm+UzdiqIAkj/0Pxk+uaVgxg+qfmsU7VWk/t7mW+dfdE0
+         khQ86GyI5jVgrvEliP74JSH9VxwQb9vKkmNu2tDNDV3W5Ggcd27MSp+DYiiHPG9Z1h
+         tVbRKtR5V5GcyKyeB0FJbstgA07bHFMglxxg49po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, alastair@d-silva.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 62/62] powerpc: Allow flush_(inval_)dcache_range to work across ranges >4GB
-Date:   Tue, 27 Aug 2019 09:51:07 +0200
-Message-Id: <20190827072704.089508645@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 89/98] xfs: dont trip over uninitialized buffer on extent read of corrupted inode
+Date:   Tue, 27 Aug 2019 09:51:08 +0200
+Message-Id: <20190827072722.722033898@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 6958d11f77d45db80f7e22a21a74d4d5f44dc667 upstream.
 
-From: Alastair D'Silva <alastair@d-silva.org>
+We've had rather rare reports of bmap btree block corruption where
+the bmap root block has a level count of zero. The root cause of the
+corruption is so far unknown. We do have verifier checks to detect
+this form of on-disk corruption, but this doesn't cover a memory
+corruption variant of the problem. The latter is a reasonable
+possibility because the root block is part of the inode fork and can
+reside in-core for some time before inode extents are read.
 
-The upstream commit:
-22e9c88d486a ("powerpc/64: reuse PPC32 static inline flush_dcache_range()")
-has a similar effect, but since it is a rewrite of the assembler to C, is
-too invasive for stable. This patch is a minimal fix to address the issue in
-assembler.
+If this occurs, it leads to a system crash such as the following:
 
-This patch applies cleanly to v5.2, v4.19 & v4.14.
+ BUG: unable to handle kernel paging request at ffffffff00000221
+ PF error: [normal kernel read fault]
+ ...
+ RIP: 0010:xfs_trans_brelse+0xf/0x200 [xfs]
+ ...
+ Call Trace:
+  xfs_iread_extents+0x379/0x540 [xfs]
+  xfs_file_iomap_begin_delay+0x11a/0xb40 [xfs]
+  ? xfs_attr_get+0xd1/0x120 [xfs]
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  xfs_file_iomap_begin+0x4c4/0x6d0 [xfs]
+  ? __vfs_getxattr+0x53/0x70
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  iomap_apply+0x63/0x130
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  iomap_file_buffered_write+0x62/0x90
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  xfs_file_buffered_aio_write+0xe4/0x3b0 [xfs]
+  __vfs_write+0x150/0x1b0
+  vfs_write+0xba/0x1c0
+  ksys_pwrite64+0x64/0xa0
+  do_syscall_64+0x5a/0x1d0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-When calling flush_(inval_)dcache_range with a size >4GB, we were masking
-off the upper 32 bits, so we would incorrectly flush a range smaller
-than intended.
+The crash occurs because xfs_iread_extents() attempts to release an
+uninitialized buffer pointer as the level == 0 value prevented the
+buffer from ever being allocated or read. Change the level > 0
+assert to an explicit error check in xfs_iread_extents() to avoid
+crashing the kernel in the event of localized, in-core inode
+corruption.
 
-This patch replaces the 32 bit shifts with 64 bit ones, so that
-the full size is accounted for.
-
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/misc_64.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/xfs/libxfs/xfs_bmap.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/misc_64.S
-+++ b/arch/powerpc/kernel/misc_64.S
-@@ -134,7 +134,7 @@ _GLOBAL_TOC(flush_dcache_range)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of dcache block size */
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
- 0:	dcbst	0,r6
-@@ -190,7 +190,7 @@ _GLOBAL(flush_inval_dcache_range)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)/* Get log-2 of dcache block size */
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	beqlr				/* nothing to do? */
- 	sync
- 	isync
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index 3a496ffe6551c..ab2465bc413af 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -1178,7 +1178,10 @@ xfs_iread_extents(
+ 	 * Root level must use BMAP_BROOT_PTR_ADDR macro to get ptr out.
+ 	 */
+ 	level = be16_to_cpu(block->bb_level);
+-	ASSERT(level > 0);
++	if (unlikely(level == 0)) {
++		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW, mp);
++		return -EFSCORRUPTED;
++	}
+ 	pp = XFS_BMAP_BROOT_PTR_ADDR(mp, block, 1, ifp->if_broot_bytes);
+ 	bno = be64_to_cpu(*pp);
+ 
+-- 
+2.20.1
+
 
 
