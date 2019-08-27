@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A33B9E130
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F789E207
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730883AbfH0IK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59636 "EHLO mail.kernel.org"
+        id S1729387AbfH0HzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731989AbfH0ICc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:32 -0400
+        id S1730292AbfH0HzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26421206BF;
-        Tue, 27 Aug 2019 08:02:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B385C217F5;
+        Tue, 27 Aug 2019 07:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892951;
-        bh=o6TnhVy76XKHESo2I+Eq2ufP6xaxURzahcd8rJR07kQ=;
+        s=default; t=1566892518;
+        bh=huxwROHcSxKbnHQwJintPX8UcJBPdpbFcH85JbyLZN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcZDACrd9dF8z+dWHH7bvOdZ+qaBlV+KMb62awByeFQHqeO918fS/fYFwWJn0NWST
-         wll6vingvGcJTFSetL2eXZajUgH3y25Q3q+yv8vFukDHAl4m6wLO5n6l/ZtpG04Fni
-         YhX6KjxVASgYgoGI0fkJKiCxq67GrSNLjB59uB6c=
+        b=iIxDRzUdvh7PSuHlBesuJk9ReVyhCAIwY5cvo2mGXjCicnV00rUb0h5oSDyA7E65J
+         qgMPF8RuA//3yJeRFW+9SdIcBrYitB2g83pi9FVxeamZadRBgaf+YHRtj3X9Ii6k5U
+         16xSvbtInKVaU+menzvDIyWBFEXfkUZovu6mRdjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 072/162] NFSv4: When recovering state fails with EAGAIN, retry the same recovery
+Subject: [PATCH 4.19 21/98] isdn: mISDN: hfcsusb: Fix possible null-pointer dereferences in start_isoc_chain()
 Date:   Tue, 27 Aug 2019 09:50:00 +0200
-Message-Id: <20190827072740.637201173@linuxfoundation.org>
+Message-Id: <20190827072719.383216599@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c34fae003c79570b6c930b425fea3f0b7b1e7056 ]
+[ Upstream commit a0d57a552b836206ad7705a1060e6e1ce5a38203 ]
 
-If the server returns with EAGAIN when we're trying to recover from
-a server reboot, we currently delay for 1 second, but then mark the
-stateid as needing recovery after the grace period has expired.
+In start_isoc_chain(), usb_alloc_urb() on line 1392 may fail
+and return NULL. At this time, fifo->iso[i].urb is assigned to NULL.
 
-Instead, we should just retry the same recovery process immediately
-after the 1 second delay. Break out of the loop after 10 retries.
+Then, fifo->iso[i].urb is used at some places, such as:
+LINE 1405:    fill_isoc_urb(fifo->iso[i].urb, ...)
+                  urb->number_of_packets = num_packets;
+                  urb->transfer_flags = URB_ISO_ASAP;
+                  urb->actual_length = 0;
+                  urb->interval = interval;
+LINE 1416:    fifo->iso[i].urb->...
+LINE 1419:    fifo->iso[i].urb->...
 
-Fixes: 35a61606a612 ("NFS: Reduce indentation of the switch statement...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, "continue" is added to avoid using fifo->iso[i].urb
+when it is NULL.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index e2e3c4f04d3e0..556ec916846f0 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1606,6 +1606,7 @@ static int __nfs4_reclaim_open_state(struct nfs4_state_owner *sp, struct nfs4_st
- static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs4_state_recovery_ops *ops)
- {
- 	struct nfs4_state *state;
-+	unsigned int loop = 0;
- 	int status = 0;
- 
- 	/* Note: we rely on the sp->so_states list being ordered 
-@@ -1632,8 +1633,10 @@ restart:
- 
- 		switch (status) {
- 		default:
--			if (status >= 0)
-+			if (status >= 0) {
-+				loop = 0;
- 				break;
-+			}
- 			printk(KERN_ERR "NFS: %s: unhandled error %d\n", __func__, status);
- 			/* Fall through */
- 		case -ENOENT:
-@@ -1647,6 +1650,10 @@ restart:
- 			break;
- 		case -EAGAIN:
- 			ssleep(1);
-+			if (loop++ < 10) {
-+				set_bit(ops->state_flag_bit, &state->flags);
-+				break;
-+			}
- 			/* Fall through */
- 		case -NFS4ERR_ADMIN_REVOKED:
- 		case -NFS4ERR_STALE_STATEID:
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 060dc7fd66c1d..cfdb130cb1008 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1406,6 +1406,7 @@ start_isoc_chain(struct usb_fifo *fifo, int num_packets_per_urb,
+ 				printk(KERN_DEBUG
+ 				       "%s: %s: alloc urb for fifo %i failed",
+ 				       hw->name, __func__, fifo->fifonum);
++				continue;
+ 			}
+ 			fifo->iso[i].owner_fifo = (struct usb_fifo *) fifo;
+ 			fifo->iso[i].indx = i;
 -- 
 2.20.1
 
