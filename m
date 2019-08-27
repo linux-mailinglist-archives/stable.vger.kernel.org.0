@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2299E13A
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C129E20C
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731192AbfH0ICV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
+        id S1728870AbfH0IPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:15:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731940AbfH0ICV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:21 -0400
+        id S1729722AbfH0HzH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02EB3206BF;
-        Tue, 27 Aug 2019 08:02:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E47A921872;
+        Tue, 27 Aug 2019 07:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892940;
-        bh=dHl6+KoD8OPrNumf8l17wWgVRJhE0CepafrgyhtPWGI=;
+        s=default; t=1566892506;
+        bh=x8G/+spOK1KkqunKclxM5WEhUj4bsI1BAHWtozBZiWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRRkp6BYJjex/ujV/cGfmPEbkEw4kDOIjhu4dbq4dq2zWK6OURWH1jJ6O+/45Bznf
-         BOCPGYVi4mtawjwdg7hMecbc1izcqYTy3NCjKpJ369EkEkSv7KurFtxRYbclMeH0KZ
-         2aVP813qP8z+63Y1w/WKdz+evEcg2q2OKOU2PB1I=
+        b=WjRuVJNviul4QaSjqvfOPG5QAKg/NPBAsjzxvVzkaEo/I1xu1PUorGkPODq+0LoIP
+         WF++q/hXi60/+NWLsy0D4vLJ/rgc7XJkuvWzY1WvDB8q+9PZWvLIacd0Ww63G9gsY6
+         QQHy86cVRnTmJHRGyY3l+24ZJmCpyp5C+qHboQJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijendar Mukunda <vijendar.mukunda@amd.com>,
+        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 068/162] ASoC: amd: acp3x: use dma_ops of parent device for acp3x dma driver
+Subject: [PATCH 4.19 17/98] ASoC: rockchip: Fix mono capture
 Date:   Tue, 27 Aug 2019 09:49:56 +0200
-Message-Id: <20190827072740.514603453@linuxfoundation.org>
+Message-Id: <20190827072719.211225533@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 88639051017fb61a414b636dd0fc490da2b62b64 ]
+[ Upstream commit 789e162a6255325325bd321ab0cd51dc7e285054 ]
 
-AMD platform device acp3x_rv_i2s created by parent PCI device
-driver. Pass struct device of the parent to
-snd_pcm_lib_preallocate_pages() so dma_alloc_coherent() can use
-correct dma_ops. Otherwise, it will use default dma_ops which
-is nommu_dma_ops on x86_64 even when IOMMU is enabled and
-set to non passthrough mode.
+This reverts commit db51707b9c9aeedd310ebce60f15d5bb006567e0.
+Revert "ASoC: rockchip: i2s: Support mono capture"
 
-Signed-off-by: Vijendar Mukunda <vijendar.mukunda@amd.com>
-Link: https://lore.kernel.org/r/1564753899-17124-1-git-send-email-Vijendar.Mukunda@amd.com
+Previous discussion in
+
+https://patchwork.kernel.org/patch/10147153/
+
+explains the issue of the patch.
+While device is configured as 1-ch, hardware is still
+generating a 2-ch stream.
+When user space reads the data and assumes it is a 1-ch stream,
+the rate will be slower by 2x.
+
+Revert the change so 1-ch is not supported.
+User space can selectively take one channel data out of two channel
+if 1-ch is preferred.
+Currently, both channels record identical data.
+
+Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Link: https://lore.kernel.org/r/20190726044202.26866-1-cychiang@chromium.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/raven/acp3x-pcm-dma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/rockchip/rockchip_i2s.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/amd/raven/acp3x-pcm-dma.c b/sound/soc/amd/raven/acp3x-pcm-dma.c
-index 9775bda2a4ca3..d8aa6ab3f68bc 100644
---- a/sound/soc/amd/raven/acp3x-pcm-dma.c
-+++ b/sound/soc/amd/raven/acp3x-pcm-dma.c
-@@ -367,9 +367,11 @@ static snd_pcm_uframes_t acp3x_dma_pointer(struct snd_pcm_substream *substream)
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 60d43d53a8f5e..11399f81c92f9 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -329,7 +329,6 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
+ 		val |= I2S_CHN_4;
+ 		break;
+ 	case 2:
+-	case 1:
+ 		val |= I2S_CHN_2;
+ 		break;
+ 	default:
+@@ -462,7 +461,7 @@ static struct snd_soc_dai_driver rockchip_i2s_dai = {
+ 	},
+ 	.capture = {
+ 		.stream_name = "Capture",
+-		.channels_min = 1,
++		.channels_min = 2,
+ 		.channels_max = 2,
+ 		.rates = SNDRV_PCM_RATE_8000_192000,
+ 		.formats = (SNDRV_PCM_FMTBIT_S8 |
+@@ -662,7 +661,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	}
  
- static int acp3x_dma_new(struct snd_soc_pcm_runtime *rtd)
- {
-+	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd,
-+								    DRV_NAME);
-+	struct device *parent = component->dev->parent;
- 	snd_pcm_lib_preallocate_pages_for_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
--					      rtd->pcm->card->dev,
--					      MIN_BUFFER, MAX_BUFFER);
-+					      parent, MIN_BUFFER, MAX_BUFFER);
- 	return 0;
- }
+ 	if (!of_property_read_u32(node, "rockchip,capture-channels", &val)) {
+-		if (val >= 1 && val <= 8)
++		if (val >= 2 && val <= 8)
+ 			soc_dai->capture.channels_max = val;
+ 	}
  
 -- 
 2.20.1
