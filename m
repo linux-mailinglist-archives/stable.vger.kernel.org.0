@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CF99DF52
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF759DFC9
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729710AbfH0HxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:53:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
+        id S1730184AbfH0H5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:57:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbfH0HxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:12 -0400
+        id S1730816AbfH0H5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16F81217F5;
-        Tue, 27 Aug 2019 07:53:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B80BE20828;
+        Tue, 27 Aug 2019 07:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892391;
-        bh=7WN0+bMcTcvSSgmiL/qEoFkf9ghDb+NMHD8d+5s8cCk=;
+        s=default; t=1566892649;
+        bh=nr+XhdCJv5KdUbvjEpdXWa5YBu+SA2axb6GLhdsPhOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEwBolOSq5yEK4MxfpBhchu1U95lHU55Z7BahAt3F3J5KD+5Bbe+udwQQxL6MQD95
-         w4/9qBjovhIx/0zJUv/9+lpim+E8S0yM65QC3Xi4I25BqeENKFEjO2uAZkmGyALzRj
-         +epuF+SPFPzwwbBrmC03pT0MzJ7F7bU/3imB1rqs=
+        b=YQ7+hO8GcAKb/wud0OOK7/rK85FqWEsDoZ/UBJlT9ptwCUujNoSiu5Cm68YH/SoRC
+         qeJm+zh5nDSMpQ07dmr5+s9U/gOZhdhHQ9/UYaTOgtNBmcawMyaz5oz+Rd9l5BDGyW
+         wIc/rxZjdMfUAYC1ylwaf+rhoaFyjjuxBZCrnlys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 38/62] Revert "dm bufio: fix deadlock with loop device"
-Date:   Tue, 27 Aug 2019 09:50:43 +0200
-Message-Id: <20190827072702.856629894@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>
+Subject: [PATCH 4.19 66/98] drm/nouveau: Dont retry infinitely when receiving no data on i2c over AUX
+Date:   Tue, 27 Aug 2019 09:50:45 +0200
+Message-Id: <20190827072721.762131570@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit cf3591ef832915892f2499b7e54b51d4c578b28c upstream.
+commit c358ebf59634f06d8ed176da651ec150df3c8686 upstream.
 
-Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
-fix has been made available with commit d0a255e795ab ("loop: set
-PF_MEMALLOC_NOIO for the worker thread").
+While I had thought I had fixed this issue in:
 
-Note that the fix offered by commit bd293d071ffe doesn't really prevent
-the deadlock from occuring - if we look at the stacktrace reported by
-Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
-i.e. it has already successfully taken the mutex. Changing the mutex
-from mutex_lock to mutex_trylock won't help with deadlocks that happen
-afterwards.
+commit 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after
+->fini()")
 
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
+It turns out that while I did fix the error messages I was seeing on my
+P50 when trying to access i2c busses with the GPU in runtime suspend, I
+accidentally had missed one important detail that was mentioned on the
+bug report this commit was supposed to fix: that the CPU would only lock
+up when trying to access i2c busses _on connected devices_ _while the
+GPU is not in runtime suspend_. Whoops. That definitely explains why I
+was not able to get my machine to hang with i2c bus interactions until
+now, as plugging my P50 into it's dock with an HDMI monitor connected
+allowed me to finally reproduce this locally.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Now that I have managed to reproduce this issue properly, it looks like
+the problem is much simpler then it looks. It turns out that some
+connected devices, such as MST laptop docks, will actually ACK i2c reads
+even if no data was actually read:
+
+[  275.063043] nouveau 0000:01:00.0: i2c: aux 000a: 1: 0000004c 1
+[  275.063447] nouveau 0000:01:00.0: i2c: aux 000a: 00 01101000 10040000
+[  275.063759] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000001
+[  275.064024] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
+[  275.064285] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
+[  275.064594] nouveau 0000:01:00.0: i2c: aux 000a: rd 00000000
+
+Because we don't handle the situation of i2c ack without any data, we
+end up entering an infinite loop in nvkm_i2c_aux_i2c_xfer() since the
+value of cnt always remains at 0. This finally properly explains how
+this could result in a CPU hang like the ones observed in the
+aforementioned commit.
+
+So, fix this by retrying transactions if no data is written or received,
+and give up and fail the transaction if we continue to not write or
+receive any data after 32 retries.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
-Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-bufio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c |   24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1630,7 +1630,9 @@ dm_bufio_shrink_scan(struct shrinker *sh
- 	unsigned long freed;
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
+@@ -40,8 +40,7 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
+ 		u8 *ptr = msg->buf;
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (!dm_bufio_trylock(c))
-+	if (sc->gfp_mask & __GFP_FS)
-+		dm_bufio_lock(c);
-+	else if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+ 		while (remaining) {
+-			u8 cnt = (remaining > 16) ? 16 : remaining;
+-			u8 cmd;
++			u8 cnt, retries, cmd;
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+ 			if (msg->flags & I2C_M_RD)
+ 				cmd = 1;
+@@ -51,10 +50,19 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
+ 			if (mcnt || remaining > 16)
+ 				cmd |= 4; /* MOT */
+ 
+-			ret = aux->func->xfer(aux, true, cmd, msg->addr, ptr, &cnt);
+-			if (ret < 0) {
+-				nvkm_i2c_aux_release(aux);
+-				return ret;
++			for (retries = 0, cnt = 0;
++			     retries < 32 && !cnt;
++			     retries++) {
++				cnt = min_t(u8, remaining, 16);
++				ret = aux->func->xfer(aux, true, cmd,
++						      msg->addr, ptr, &cnt);
++				if (ret < 0)
++					goto out;
++			}
++			if (!cnt) {
++				AUX_TRACE(aux, "no data after 32 retries");
++				ret = -EIO;
++				goto out;
+ 			}
+ 
+ 			ptr += cnt;
+@@ -64,8 +72,10 @@ nvkm_i2c_aux_i2c_xfer(struct i2c_adapter
+ 		msg++;
+ 	}
+ 
++	ret = num;
++out:
+ 	nvkm_i2c_aux_release(aux);
+-	return num;
++	return ret;
+ }
+ 
+ static u32
 
 
