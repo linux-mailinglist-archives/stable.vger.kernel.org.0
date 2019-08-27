@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F2D9E12D
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD589E1E2
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731061AbfH0IKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:10:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
+        id S1729473AbfH0Hz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732036AbfH0ICl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:41 -0400
+        id S1730346AbfH0Hz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:55:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DAD6206BF;
-        Tue, 27 Aug 2019 08:02:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52560206BF;
+        Tue, 27 Aug 2019 07:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892960;
-        bh=kH1AlPcY4Ev867+PpJaN3BPrKmFvMuvABNNNdCTn1Jg=;
+        s=default; t=1566892526;
+        bh=rCinSCNCo7vHq1FuPM7uNSf9kxr/Q7cZ3JiutpKPDK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhO/qhw+NdC228QgK9CkYk0lIBWcnBgJWW4lTILCRst9jEx1FEMNEgheMhqyn6Qvd
-         4H+py3WU6JPHHU0h7sUlBsJL4mwFj+2CJwSw6BsChL8amyDA5GYPplnVFaXPCLw9u6
-         FeUnf0q4wPLW0K/TCmSH6Rx9MgpLH/d92iSUgplY=
+        b=BGyDrUG45FXfGcOLqExbBNxG8+KJyLhOkNdoHHc7t03YEhxVNnVTggfU7p8O7hY8F
+         sfNA8Nj+qbFX930+sGEuN5czd/x8O1xhN7fZ2SbTi1kJ6ma7QLsUa6oBIuWrpAMoAE
+         BUFijvYKIdQL9ybOt1UTDaVOmLIkRdrwEjR/Bv4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Chen Yi <yiche@redhat.com>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 075/162] NFSv4: Fix a potential sleep while atomic in nfs4_do_reclaim()
+Subject: [PATCH 4.19 24/98] netfilter: ipset: Copy the right MAC address in bitmap:ip,mac and hash:ip,mac sets
 Date:   Tue, 27 Aug 2019 09:50:03 +0200
-Message-Id: <20190827072740.727775456@linuxfoundation.org>
+Message-Id: <20190827072719.528328765@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,140 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c77e22834ae9a11891cb613bd9a551be1b94f2bc ]
+[ Upstream commit 1b4a75108d5bc153daf965d334e77e8e94534f96 ]
 
-John Hubbard reports seeing the following stack trace:
+In commit 8cc4ccf58379 ("ipset: Allow matching on destination MAC address
+for mac and ipmac sets"), ipset.git commit 1543514c46a7, I added to the
+KADT functions for sets matching on MAC addreses the copy of source or
+destination MAC address depending on the configured match.
 
-nfs4_do_reclaim
-   rcu_read_lock /* we are now in_atomic() and must not sleep */
-       nfs4_purge_state_owners
-           nfs4_free_state_owner
-               nfs4_destroy_seqid_counter
-                   rpc_destroy_wait_queue
-                       cancel_delayed_work_sync
-                           __cancel_work_timer
-                               __flush_work
-                                   start_flush_work
-                                       might_sleep:
-                                        (kernel/workqueue.c:2975: BUG)
+This was done correctly for hash:mac, but for hash:ip,mac and
+bitmap:ip,mac, copying and pasting the same code block presents an
+obvious problem: in these two set types, the MAC address is the second
+dimension, not the first one, and we are actually selecting the MAC
+address depending on whether the first dimension (IP address) specifies
+source or destination.
 
-The solution is to separate out the freeing of the state owners
-from nfs4_purge_state_owners(), and perform that outside the atomic
-context.
+Fix this by checking for the IPSET_DIM_TWO_SRC flag in option flags.
 
-Reported-by: John Hubbard <jhubbard@nvidia.com>
-Fixes: 0aaaf5c424c7f ("NFS: Cache state owners after files are closed")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This way, mixing source and destination matches for the two dimensions
+of ip,mac set types works as expected. With this setup:
+
+  ip netns add A
+  ip link add veth1 type veth peer name veth2 netns A
+  ip addr add 192.0.2.1/24 dev veth1
+  ip -net A addr add 192.0.2.2/24 dev veth2
+  ip link set veth1 up
+  ip -net A link set veth2 up
+
+  dst=$(ip netns exec A cat /sys/class/net/veth2/address)
+
+  ip netns exec A ipset create test_bitmap bitmap:ip,mac range 192.0.0.0/16
+  ip netns exec A ipset add test_bitmap 192.0.2.1,${dst}
+  ip netns exec A iptables -A INPUT -m set ! --match-set test_bitmap src,dst -j DROP
+
+  ip netns exec A ipset create test_hash hash:ip,mac
+  ip netns exec A ipset add test_hash 192.0.2.1,${dst}
+  ip netns exec A iptables -A INPUT -m set ! --match-set test_hash src,dst -j DROP
+
+ipset correctly matches a test packet:
+
+  # ping -c1 192.0.2.2 >/dev/null
+  # echo $?
+  0
+
+Reported-by: Chen Yi <yiche@redhat.com>
+Fixes: 8cc4ccf58379 ("ipset: Allow matching on destination MAC address for mac and ipmac sets")
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h    |  3 ++-
- fs/nfs/nfs4client.c |  5 ++++-
- fs/nfs/nfs4state.c  | 27 ++++++++++++++++++++++-----
- 3 files changed, 28 insertions(+), 7 deletions(-)
+ net/netfilter/ipset/ip_set_bitmap_ipmac.c | 2 +-
+ net/netfilter/ipset/ip_set_hash_ipmac.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index 8a38a254f5162..235919156eddd 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -465,7 +465,8 @@ static inline void nfs4_schedule_session_recovery(struct nfs4_session *session,
+diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+index 13ade5782847b..4f01321e793ce 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
++++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+@@ -230,7 +230,7 @@ bitmap_ipmac_kadt(struct ip_set *set, const struct sk_buff *skb,
  
- extern struct nfs4_state_owner *nfs4_get_state_owner(struct nfs_server *, const struct cred *, gfp_t);
- extern void nfs4_put_state_owner(struct nfs4_state_owner *);
--extern void nfs4_purge_state_owners(struct nfs_server *);
-+extern void nfs4_purge_state_owners(struct nfs_server *, struct list_head *);
-+extern void nfs4_free_state_owners(struct list_head *head);
- extern struct nfs4_state * nfs4_get_open_state(struct inode *, struct nfs4_state_owner *);
- extern void nfs4_put_open_state(struct nfs4_state *);
- extern void nfs4_close_state(struct nfs4_state *, fmode_t);
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 81b9b6d7927ac..208a236dc2350 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -758,9 +758,12 @@ out:
+ 	e.id = ip_to_id(map, ip);
  
- static void nfs4_destroy_server(struct nfs_server *server)
- {
-+	LIST_HEAD(freeme);
-+
- 	nfs_server_return_all_delegations(server);
- 	unset_pnfs_layoutdriver(server);
--	nfs4_purge_state_owners(server);
-+	nfs4_purge_state_owners(server, &freeme);
-+	nfs4_free_state_owners(&freeme);
- }
+-	if (opt->flags & IPSET_DIM_ONE_SRC)
++	if (opt->flags & IPSET_DIM_TWO_SRC)
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_source);
+ 	else
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_dest);
+diff --git a/net/netfilter/ipset/ip_set_hash_ipmac.c b/net/netfilter/ipset/ip_set_hash_ipmac.c
+index 75c21c8b76514..16ec822e40447 100644
+--- a/net/netfilter/ipset/ip_set_hash_ipmac.c
++++ b/net/netfilter/ipset/ip_set_hash_ipmac.c
+@@ -99,7 +99,7 @@ hash_ipmac4_kadt(struct ip_set *set, const struct sk_buff *skb,
+ 	    (skb_mac_header(skb) + ETH_HLEN) > skb->data)
+ 		return -EINVAL;
  
- /*
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 556ec916846f0..261de26d897f7 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -624,24 +624,39 @@ void nfs4_put_state_owner(struct nfs4_state_owner *sp)
- /**
-  * nfs4_purge_state_owners - Release all cached state owners
-  * @server: nfs_server with cached state owners to release
-+ * @head: resulting list of state owners
-  *
-  * Called at umount time.  Remaining state owners will be on
-  * the LRU with ref count of zero.
-+ * Note that the state owners are not freed, but are added
-+ * to the list @head, which can later be used as an argument
-+ * to nfs4_free_state_owners.
-  */
--void nfs4_purge_state_owners(struct nfs_server *server)
-+void nfs4_purge_state_owners(struct nfs_server *server, struct list_head *head)
- {
- 	struct nfs_client *clp = server->nfs_client;
- 	struct nfs4_state_owner *sp, *tmp;
--	LIST_HEAD(doomed);
- 
- 	spin_lock(&clp->cl_lock);
- 	list_for_each_entry_safe(sp, tmp, &server->state_owners_lru, so_lru) {
--		list_move(&sp->so_lru, &doomed);
-+		list_move(&sp->so_lru, head);
- 		nfs4_remove_state_owner_locked(sp);
- 	}
- 	spin_unlock(&clp->cl_lock);
-+}
- 
--	list_for_each_entry_safe(sp, tmp, &doomed, so_lru) {
-+/**
-+ * nfs4_purge_state_owners - Release all cached state owners
-+ * @head: resulting list of state owners
-+ *
-+ * Frees a list of state owners that was generated by
-+ * nfs4_purge_state_owners
-+ */
-+void nfs4_free_state_owners(struct list_head *head)
-+{
-+	struct nfs4_state_owner *sp, *tmp;
-+
-+	list_for_each_entry_safe(sp, tmp, head, so_lru) {
- 		list_del(&sp->so_lru);
- 		nfs4_free_state_owner(sp);
- 	}
-@@ -1864,12 +1879,13 @@ static int nfs4_do_reclaim(struct nfs_client *clp, const struct nfs4_state_recov
- 	struct nfs4_state_owner *sp;
- 	struct nfs_server *server;
- 	struct rb_node *pos;
-+	LIST_HEAD(freeme);
- 	int status = 0;
- 
- restart:
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
--		nfs4_purge_state_owners(server);
-+		nfs4_purge_state_owners(server, &freeme);
- 		spin_lock(&clp->cl_lock);
- 		for (pos = rb_first(&server->state_owners);
- 		     pos != NULL;
-@@ -1898,6 +1914,7 @@ restart:
- 		spin_unlock(&clp->cl_lock);
- 	}
- 	rcu_read_unlock();
-+	nfs4_free_state_owners(&freeme);
- 	return 0;
- }
- 
+-	if (opt->flags & IPSET_DIM_ONE_SRC)
++	if (opt->flags & IPSET_DIM_TWO_SRC)
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_source);
+ 	else
+ 		ether_addr_copy(e.ether, eth_hdr(skb)->h_dest);
 -- 
 2.20.1
 
