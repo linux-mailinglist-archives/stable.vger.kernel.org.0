@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3279B9E141
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C04A9E143
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731868AbfH0ICI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:02:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58878 "EHLO mail.kernel.org"
+        id S1731879AbfH0ICN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:02:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731450AbfH0ICH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:07 -0400
+        id S1731872AbfH0ICM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:02:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7881206BA;
-        Tue, 27 Aug 2019 08:02:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A7722189D;
+        Tue, 27 Aug 2019 08:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892926;
-        bh=lSYLQUjB0VoP5M9CNwmV9PEN0Wvx2anBrrjB04AK79I=;
+        s=default; t=1566892931;
+        bh=pGPT17zemIypPs4484MhBsruKNxsWbR1OeIuUDDVENw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DT6huTMfXMZEZx/sdWQQYbSjp93eehwPlkE+77sxQT0g0mOLUWleeU7tRfquWR0UG
-         3uDoTXyZv4b3kacGlcK9K+zI9tD2Y7FJM7JlPoF7MIeQCaQHcKHlJoaWDPjmEfLbfx
-         d50lJA/bCgd05NJDktgQ+ctValp/7zYNw7BjCDMU=
+        b=HUHHp5qBW/PWFZOqNADm6NNTHPfJWdm4eiSL1DeL8wpI1iJXnJ6E4p2zNdRiVTvMV
+         vG9M0UxLZ2hrjj2NlxTAlWjygwuO0d0li8Rrc0q2RFhj+W6HXVm9x8YsL5S7BP6H+a
+         wmF1jmrijLfLczagEEs5WGOg95C/X4+Rn3KtwFeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 019/162] ASoC: SOF: use __u32 instead of uint32_t in uapi headers
-Date:   Tue, 27 Aug 2019 09:49:07 +0200
-Message-Id: <20190827072738.995626161@linuxfoundation.org>
+Subject: [PATCH 5.2 021/162] bpf: sockmap, sock_map_delete needs to use xchg
+Date:   Tue, 27 Aug 2019 09:49:09 +0200
+Message-Id: <20190827072739.059531604@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -45,155 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 62ec3d13601bd626ca7a0edef6d45dbb753d94e8 ]
+[ Upstream commit 45a4521dcbd92e71c9e53031b40e34211d3b4feb ]
 
-When CONFIG_UAPI_HEADER_TEST=y, exported headers are compile-tested to
-make sure they can be included from user-space.
+__sock_map_delete() may be called from a tcp event such as unhash or
+close from the following trace,
 
-Currently, header.h and fw.h are excluded from the test coverage.
-To make them join the compile-test, we need to fix the build errors
-attached below.
+  tcp_bpf_close()
+    tcp_bpf_remove()
+      sk_psock_unlink()
+        sock_map_delete_from_link()
+          __sock_map_delete()
 
-For a case like this, we decided to use __u{8,16,32,64} variable types
-in this discussion:
+In this case the sock lock is held but this only protects against
+duplicate removals on the TCP side. If the map is free'd then we have
+this trace,
 
-  https://lkml.org/lkml/2019/6/5/18
+  sock_map_free
+    xchg()                  <- replaces map entry
+    sock_map_unref()
+      sk_psock_put()
+        sock_map_del_link()
 
-Build log:
+The __sock_map_delete() call however uses a read, test, null over the
+map entry which can result in both paths trying to free the map
+entry.
 
-  CC      usr/include/sound/sof/header.h.s
-  CC      usr/include/sound/sof/fw.h.s
-In file included from <command-line>:32:0:
-./usr/include/sound/sof/header.h:19:2: error: unknown type name ‘uint32_t’
-  uint32_t magic;  /**< 'S', 'O', 'F', '\0' */
-  ^~~~~~~~
-./usr/include/sound/sof/header.h:20:2: error: unknown type name ‘uint32_t’
-  uint32_t type;  /**< component specific type */
-  ^~~~~~~~
-./usr/include/sound/sof/header.h:21:2: error: unknown type name ‘uint32_t’
-  uint32_t size;  /**< size in bytes of data excl. this struct */
-  ^~~~~~~~
-./usr/include/sound/sof/header.h:22:2: error: unknown type name ‘uint32_t’
-  uint32_t abi;  /**< SOF ABI version */
-  ^~~~~~~~
-./usr/include/sound/sof/header.h:23:2: error: unknown type name ‘uint32_t’
-  uint32_t reserved[4]; /**< reserved for future use */
-  ^~~~~~~~
-./usr/include/sound/sof/header.h:24:2: error: unknown type name ‘uint32_t’
-  uint32_t data[0]; /**< Component data - opaque to core */
-  ^~~~~~~~
-In file included from <command-line>:32:0:
-./usr/include/sound/sof/fw.h:49:2: error: unknown type name ‘uint32_t’
-  uint32_t size;  /* bytes minus this header */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:50:2: error: unknown type name ‘uint32_t’
-  uint32_t offset; /* offset from base */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:64:2: error: unknown type name ‘uint32_t’
-  uint32_t size;  /* bytes minus this header */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:65:2: error: unknown type name ‘uint32_t’
-  uint32_t num_blocks; /* number of blocks */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:73:2: error: unknown type name ‘uint32_t’
-  uint32_t file_size; /* size of file minus this header */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:74:2: error: unknown type name ‘uint32_t’
-  uint32_t num_modules; /* number of modules */
-  ^~~~~~~~
-./usr/include/sound/sof/fw.h:75:2: error: unknown type name ‘uint32_t’
-  uint32_t abi;  /* version of header format */
-  ^~~~~~~~
+To fix use xchg in TCP paths as well so we avoid having two references
+to the same map entry.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lore.kernel.org/r/20190721142308.30306-1-yamada.masahiro@socionext.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/sound/sof/fw.h     | 16 +++++++++-------
- include/uapi/sound/sof/header.h | 14 ++++++++------
- 2 files changed, 17 insertions(+), 13 deletions(-)
+ net/core/sock_map.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/sound/sof/fw.h b/include/uapi/sound/sof/fw.h
-index 1afca973eb097..e9f697467a861 100644
---- a/include/uapi/sound/sof/fw.h
-+++ b/include/uapi/sound/sof/fw.h
-@@ -13,6 +13,8 @@
- #ifndef __INCLUDE_UAPI_SOF_FW_H__
- #define __INCLUDE_UAPI_SOF_FW_H__
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index be6092ac69f8a..1d40e040320d2 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -281,16 +281,20 @@ static int __sock_map_delete(struct bpf_stab *stab, struct sock *sk_test,
+ 			     struct sock **psk)
+ {
+ 	struct sock *sk;
++	int err = 0;
  
-+#include <linux/types.h>
+ 	raw_spin_lock_bh(&stab->lock);
+ 	sk = *psk;
+ 	if (!sk_test || sk_test == sk)
+-		*psk = NULL;
++		sk = xchg(psk, NULL);
 +
- #define SND_SOF_FW_SIG_SIZE	4
- #define SND_SOF_FW_ABI		1
- #define SND_SOF_FW_SIG		"Reef"
-@@ -46,8 +48,8 @@ enum snd_sof_fw_blk_type {
- 
- struct snd_sof_blk_hdr {
- 	enum snd_sof_fw_blk_type type;
--	uint32_t size;		/* bytes minus this header */
--	uint32_t offset;	/* offset from base */
-+	__u32 size;		/* bytes minus this header */
-+	__u32 offset;		/* offset from base */
- } __packed;
- 
- /*
-@@ -61,8 +63,8 @@ enum snd_sof_fw_mod_type {
- 
- struct snd_sof_mod_hdr {
- 	enum snd_sof_fw_mod_type type;
--	uint32_t size;		/* bytes minus this header */
--	uint32_t num_blocks;	/* number of blocks */
-+	__u32 size;		/* bytes minus this header */
-+	__u32 num_blocks;	/* number of blocks */
- } __packed;
- 
- /*
-@@ -70,9 +72,9 @@ struct snd_sof_mod_hdr {
-  */
- struct snd_sof_fw_header {
- 	unsigned char sig[SND_SOF_FW_SIG_SIZE]; /* "Reef" */
--	uint32_t file_size;	/* size of file minus this header */
--	uint32_t num_modules;	/* number of modules */
--	uint32_t abi;		/* version of header format */
-+	__u32 file_size;	/* size of file minus this header */
-+	__u32 num_modules;	/* number of modules */
-+	__u32 abi;		/* version of header format */
- } __packed;
- 
- #endif
-diff --git a/include/uapi/sound/sof/header.h b/include/uapi/sound/sof/header.h
-index 7868990b0d6f3..5f4518e7a9723 100644
---- a/include/uapi/sound/sof/header.h
-+++ b/include/uapi/sound/sof/header.h
-@@ -9,6 +9,8 @@
- #ifndef __INCLUDE_UAPI_SOUND_SOF_USER_HEADER_H__
- #define __INCLUDE_UAPI_SOUND_SOF_USER_HEADER_H__
- 
-+#include <linux/types.h>
++	if (likely(sk))
++		sock_map_unref(sk, psk);
++	else
++		err = -EINVAL;
 +
- /*
-  * Header for all non IPC ABI data.
-  *
-@@ -16,12 +18,12 @@
-  * Used by any bespoke component data structures or binary blobs.
-  */
- struct sof_abi_hdr {
--	uint32_t magic;		/**< 'S', 'O', 'F', '\0' */
--	uint32_t type;		/**< component specific type */
--	uint32_t size;		/**< size in bytes of data excl. this struct */
--	uint32_t abi;		/**< SOF ABI version */
--	uint32_t reserved[4];	/**< reserved for future use */
--	uint32_t data[0];	/**< Component data - opaque to core */
-+	__u32 magic;		/**< 'S', 'O', 'F', '\0' */
-+	__u32 type;		/**< component specific type */
-+	__u32 size;		/**< size in bytes of data excl. this struct */
-+	__u32 abi;		/**< SOF ABI version */
-+	__u32 reserved[4];	/**< reserved for future use */
-+	__u32 data[0];		/**< Component data - opaque to core */
- }  __packed;
+ 	raw_spin_unlock_bh(&stab->lock);
+-	if (unlikely(!sk))
+-		return -EINVAL;
+-	sock_map_unref(sk, psk);
+-	return 0;
++	return err;
+ }
  
- #endif
+ static void sock_map_delete_from_link(struct bpf_map *map, struct sock *sk,
 -- 
 2.20.1
 
