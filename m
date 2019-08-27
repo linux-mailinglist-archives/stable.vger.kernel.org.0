@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0019E20F
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3819E18B
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729695AbfH0IQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
+        id S1731281AbfH0IND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:13:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730081AbfH0Hyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:54:36 -0400
+        id S1730362AbfH0H6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:58:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8517E206BA;
-        Tue, 27 Aug 2019 07:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55D13206BF;
+        Tue, 27 Aug 2019 07:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892475;
-        bh=zoZ7wu9PPhyAfaaWF3fMYsYbg80wjiSCDJEYLVog2go=;
+        s=default; t=1566892714;
+        bh=SVdxk6ilj4BwyVaOwvyBgAEyCIvz4LQuT1n5DJ4QGrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gV4Tw/ey62rsYDqzoMYM7+R9/8T/8lkXE0GABHJyVsM5fAEozjfLUfZe7oU8yUwl0
-         vzMMxeiTdA8s+t5ZN8n6QbmMAk+iAVKctBSVnfrue42kjt2DReOZpfkPvvrUj97jfr
-         cUFWCHhGxeIcFZmG2Gn3ADF2UEYycjqseTozvbSY=
+        b=AXvqO0iPbMrA4R/NX6wydfHWhod6EyHmMIoMTSTZ2MylB064yyTD9gILIyiubLnjv
+         J5xZ8fiYUCOIb3g+K1KyisVvUyqcgttBB7bV5CV9Z8SB0K4aTmYamslL1XBSM7y/IK
+         NCdH6S/Lq0vmKYLBnG6Emn9p4BrY7v4fqGFisVCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, benjamin.moody@gmail.com,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.14 60/62] xfs: fix missing ILOCK unlock when xfs_setattr_nonsize fails due to EDQUOT
-Date:   Tue, 27 Aug 2019 09:51:05 +0200
-Message-Id: <20190827072703.922260797@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 87/98] mm/zsmalloc.c: fix race condition in zs_destroy_pool
+Date:   Tue, 27 Aug 2019 09:51:06 +0200
+Message-Id: <20190827072722.566030105@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +49,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Henry Burns <henryburns@google.com>
 
-commit 1fb254aa983bf190cfd685d40c64a480a9bafaee upstream.
+commit 701d678599d0c1623aaf4139c03eea260a75b027 upstream.
 
-Benjamin Moody reported to Debian that XFS partially wedges when a chgrp
-fails on account of being out of disk quota.  I ran his reproducer
-script:
+In zs_destroy_pool() we call flush_work(&pool->free_work).  However, we
+have no guarantee that migration isn't happening in the background at
+that time.
 
-# adduser dummy
-# adduser dummy plugdev
+Since migration can't directly free pages, it relies on free_work being
+scheduled to free the pages.  But there's nothing preventing an
+in-progress migrate from queuing the work *after*
+zs_unregister_migration() has called flush_work().  Which would mean
+pages still pointing at the inode when we free it.
 
-# dd if=/dev/zero bs=1M count=100 of=test.img
-# mkfs.xfs test.img
-# mount -t xfs -o gquota test.img /mnt
-# mkdir -p /mnt/dummy
-# chown -c dummy /mnt/dummy
-# xfs_quota -xc 'limit -g bsoft=100k bhard=100k plugdev' /mnt
+Since we know at destroy time all objects should be free, no new
+migrations can come in (since zs_page_isolate() fails for fully-free
+zspages).  This means it is sufficient to track a "# isolated zspages"
+count by class, and have the destroy logic ensure all such pages have
+drained before proceeding.  Keeping that state under the class spinlock
+keeps the logic straightforward.
 
-(and then as user dummy)
+In this case a memory leak could lead to an eventual crash if compaction
+hits the leaked page.  This crash would only occur if people are
+changing their zswap backend at runtime (which eventually starts
+destruction).
 
-$ dd if=/dev/urandom bs=1M count=50 of=/mnt/dummy/foo
-$ chgrp plugdev /mnt/dummy/foo
-
-and saw:
-
-================================================
-WARNING: lock held when returning to user space!
-5.3.0-rc5 #rc5 Tainted: G        W
-------------------------------------------------
-chgrp/47006 is leaving the kernel with locks still held!
-1 lock held by chgrp/47006:
- #0: 000000006664ea2d (&xfs_nondir_ilock_class){++++}, at: xfs_ilock+0xd2/0x290 [xfs]
-
-...which is clearly caused by xfs_setattr_nonsize failing to unlock the
-ILOCK after the xfs_qm_vop_chown_reserve call fails.  Add the missing
-unlock.
-
-Reported-by: benjamin.moody@gmail.com
-Fixes: 253f4911f297 ("xfs: better xfs_trans_alloc interface")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+Link: http://lkml.kernel.org/r/20190809181751.219326-2-henryburns@google.com
+Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/xfs_iops.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/zsmalloc.c |   61 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 59 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -789,6 +789,7 @@ xfs_setattr_nonsize(
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -53,6 +53,7 @@
+ #include <linux/zpool.h>
+ #include <linux/mount.h>
+ #include <linux/migrate.h>
++#include <linux/wait.h>
+ #include <linux/pagemap.h>
+ #include <linux/fs.h>
  
- out_cancel:
- 	xfs_trans_cancel(tp);
-+	xfs_iunlock(ip, XFS_ILOCK_EXCL);
- out_dqrele:
- 	xfs_qm_dqrele(udqp);
- 	xfs_qm_dqrele(gdqp);
+@@ -267,6 +268,10 @@ struct zs_pool {
+ #ifdef CONFIG_COMPACTION
+ 	struct inode *inode;
+ 	struct work_struct free_work;
++	/* A wait queue for when migration races with async_free_zspage() */
++	struct wait_queue_head migration_wait;
++	atomic_long_t isolated_pages;
++	bool destroying;
+ #endif
+ };
+ 
+@@ -1894,6 +1899,19 @@ static void putback_zspage_deferred(stru
+ 
+ }
+ 
++static inline void zs_pool_dec_isolated(struct zs_pool *pool)
++{
++	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
++	atomic_long_dec(&pool->isolated_pages);
++	/*
++	 * There's no possibility of racing, since wait_for_isolated_drain()
++	 * checks the isolated count under &class->lock after enqueuing
++	 * on migration_wait.
++	 */
++	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
++		wake_up_all(&pool->migration_wait);
++}
++
+ static void replace_sub_page(struct size_class *class, struct zspage *zspage,
+ 				struct page *newpage, struct page *oldpage)
+ {
+@@ -1963,6 +1981,7 @@ static bool zs_page_isolate(struct page
+ 	 */
+ 	if (!list_empty(&zspage->list) && !is_zspage_isolated(zspage)) {
+ 		get_zspage_mapping(zspage, &class_idx, &fullness);
++		atomic_long_inc(&pool->isolated_pages);
+ 		remove_zspage(class, zspage, fullness);
+ 	}
+ 
+@@ -2062,8 +2081,16 @@ static int zs_page_migrate(struct addres
+ 	 * Page migration is done so let's putback isolated zspage to
+ 	 * the list if @page is final isolated subpage in the zspage.
+ 	 */
+-	if (!is_zspage_isolated(zspage))
++	if (!is_zspage_isolated(zspage)) {
++		/*
++		 * We cannot race with zs_destroy_pool() here because we wait
++		 * for isolation to hit zero before we start destroying.
++		 * Also, we ensure that everyone can see pool->destroying before
++		 * we start waiting.
++		 */
+ 		putback_zspage_deferred(pool, class, zspage);
++		zs_pool_dec_isolated(pool);
++	}
+ 
+ 	reset_page(page);
+ 	put_page(page);
+@@ -2114,8 +2141,8 @@ static void zs_page_putback(struct page
+ 		 * so let's defer.
+ 		 */
+ 		putback_zspage_deferred(pool, class, zspage);
++		zs_pool_dec_isolated(pool);
+ 	}
+-
+ 	spin_unlock(&class->lock);
+ }
+ 
+@@ -2138,8 +2165,36 @@ static int zs_register_migration(struct
+ 	return 0;
+ }
+ 
++static bool pool_isolated_are_drained(struct zs_pool *pool)
++{
++	return atomic_long_read(&pool->isolated_pages) == 0;
++}
++
++/* Function for resolving migration */
++static void wait_for_isolated_drain(struct zs_pool *pool)
++{
++
++	/*
++	 * We're in the process of destroying the pool, so there are no
++	 * active allocations. zs_page_isolate() fails for completely free
++	 * zspages, so we need only wait for the zs_pool's isolated
++	 * count to hit zero.
++	 */
++	wait_event(pool->migration_wait,
++		   pool_isolated_are_drained(pool));
++}
++
+ static void zs_unregister_migration(struct zs_pool *pool)
+ {
++	pool->destroying = true;
++	/*
++	 * We need a memory barrier here to ensure global visibility of
++	 * pool->destroying. Thus pool->isolated pages will either be 0 in which
++	 * case we don't care, or it will be > 0 and pool->destroying will
++	 * ensure that we wake up once isolation hits 0.
++	 */
++	smp_mb();
++	wait_for_isolated_drain(pool); /* This can block */
+ 	flush_work(&pool->free_work);
+ 	iput(pool->inode);
+ }
+@@ -2377,6 +2432,8 @@ struct zs_pool *zs_create_pool(const cha
+ 	if (!pool->name)
+ 		goto err;
+ 
++	init_waitqueue_head(&pool->migration_wait);
++
+ 	if (create_cache(pool))
+ 		goto err;
+ 
 
 
