@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5815E9E1E9
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E4E9E1A5
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728883AbfH0HxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44560 "EHLO mail.kernel.org"
+        id S1730326AbfH0H5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729684AbfH0HxD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:53:03 -0400
+        id S1729971AbfH0H5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:57:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 986E62173E;
-        Tue, 27 Aug 2019 07:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FFBC206BF;
+        Tue, 27 Aug 2019 07:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892383;
-        bh=FSfcG/9Y4fiGy/iFk9Uk6lrJU6yMcP4v2223qcX1u9M=;
+        s=default; t=1566892638;
+        bh=LTa3tZMT1QUFsCBlez5QP3OhTvVIfcoJeWsBe+YjZis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mKOvoqTnu2btGT+jiCQxmLEyYxlGPaHtAijUjlGc8qOIgPt8bQaA5HJHIlfVzPAP
-         sYdhbrlOtMLh4I1IOGsXUxDSLimFeVL8ErfrObcsr4xK3gVbnoBiuRcuAcKyRN4rGw
-         aV38DTdvO+Z7d2R4giyxUcvvjeEzdpeVjPkuQIjk=
+        b=o0jPqbr2/0ieBloThJS0MqVuGlBUJXPx9glP9m/mqq9YqgZbmiHuU0S9Zx+5NnWFb
+         yipwoPr8V78rxfxV/BkaOY0WAeGlbWIcKrZOXKRzTTnwcyAz4GEDmB2EDpgv2NwSAQ
+         a0vPQew4yRDxgWTO3l4PE/y7bgC6GMsg7bzmwEfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 36/62] HID: wacom: correct misreported EKR ring values
-Date:   Tue, 27 Aug 2019 09:50:41 +0200
-Message-Id: <20190827072702.774481658@linuxfoundation.org>
+        stable@vger.kernel.org, Erqi Chen <chenerqi@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.19 63/98] ceph: clear page dirty before invalidate page
+Date:   Tue, 27 Aug 2019 09:50:42 +0200
+Message-Id: <20190827072721.603745088@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
-References: <20190827072659.803647352@linuxfoundation.org>
+In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
+References: <20190827072718.142728620@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Armstrong Skomra <skomra@gmail.com>
+From: Erqi Chen <chenerqi@gmail.com>
 
-commit fcf887e7caaa813eea821d11bf2b7619a37df37a upstream.
+commit c95f1c5f436badb9bb87e9b30fd573f6b3d59423 upstream.
 
-The EKR ring claims a range of 0 to 71 but actually reports
-values 1 to 72. The ring is used in relative mode so this
-change should not affect users.
+clear_page_dirty_for_io(page) before mapping->a_ops->invalidatepage().
+invalidatepage() clears page's private flag, if dirty flag is not
+cleared, the page may cause BUG_ON failure in ceph_set_page_dirty().
 
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
-Cc: <stable@vger.kernel.org> # v4.3+
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@vger.kernel.org
+Link: https://tracker.ceph.com/issues/40862
+Signed-off-by: Erqi Chen <chenerqi@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_wac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/addr.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1061,7 +1061,7 @@ static int wacom_remote_irq(struct wacom
- 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
- 
- 	if (data[12] & 0x80)
--		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
-+		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
- 	else
- 		input_report_abs(input, ABS_WHEEL, 0);
- 
+--- a/fs/ceph/addr.c
++++ b/fs/ceph/addr.c
+@@ -913,8 +913,9 @@ get_more_pages:
+ 			if (page_offset(page) >= ceph_wbc.i_size) {
+ 				dout("%p page eof %llu\n",
+ 				     page, ceph_wbc.i_size);
+-				if (ceph_wbc.size_stable ||
+-				    page_offset(page) >= i_size_read(inode))
++				if ((ceph_wbc.size_stable ||
++				    page_offset(page) >= i_size_read(inode)) &&
++				    clear_page_dirty_for_io(page))
+ 					mapping->a_ops->invalidatepage(page,
+ 								0, PAGE_SIZE);
+ 				unlock_page(page);
 
 
