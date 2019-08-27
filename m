@@ -2,77 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9225D9EA76
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 16:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB439EA7B
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 16:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbfH0OKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 10:10:18 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45630 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725920AbfH0OKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 10:10:18 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 2E2ACB022;
-        Tue, 27 Aug 2019 14:10:17 +0000 (UTC)
-Date:   Tue, 27 Aug 2019 16:10:16 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>, Greg KH <greg@kroah.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Yafang Shao <laoar.shao@gmail.com>
-Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM
- counters in sync with the hierarchical ones"
-Message-ID: <20190827141016.GH7538@dhcp22.suse.cz>
-References: <20190817004726.2530670-1-guro@fb.com>
- <20190817063616.GA11747@kroah.com>
- <20190817191518.GB11125@castle>
- <20190824125750.da9f0aac47cc0a362208f9ff@linux-foundation.org>
- <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
+        id S1726170AbfH0OLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 10:11:40 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57856 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725920AbfH0OLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 10:11:40 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 63E8118C892F;
+        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4D9555D712;
+        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 2AFAE18089C8;
+        Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
+Date:   Tue, 27 Aug 2019 10:11:39 -0400 (EDT)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     peterz@infradead.org, will@kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, tglx@linutronix.de,
+        linux-kernel@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        dbueso@suse.de, Ingo Molnar <mingo@kernel.org>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <396661303.8419298.1566915099958.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20190826143114.23471-1-sashal@kernel.org>
+References: <20190826143114.23471-1-sashal@kernel.org>
+Subject: Re: [PATCH v5.2 1/2] locking/rwsem: Add missing ACQUIRE to
+ read_slowpath exit when queue is empty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a082485b-8241-e73d-df09-5c878d181ddc@mageia.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.40.204.166, 10.4.195.12]
+Thread-Topic: locking/rwsem: Add missing ACQUIRE to read_slowpath exit when queue is empty
+Thread-Index: pM7Z1VrNvE4gMqpOiVyEBizAqOeMqQ==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Tue, 27 Aug 2019 14:11:40 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat 24-08-19 23:23:07, Thomas Backlund wrote:
-> Den 24-08-2019 kl. 22:57, skrev Andrew Morton:
-> > On Sat, 17 Aug 2019 19:15:23 +0000 Roman Gushchin <guro@fb.com> wrote:
-> > 
-> > > > > Fixes: 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones")
-> > > > > Signed-off-by: Roman Gushchin <guro@fb.com>
-> > > > > Cc: Yafang Shao <laoar.shao@gmail.com>
-> > > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
-> > > > > ---
-> > > > >   mm/memcontrol.c | 8 +++-----
-> > > > >   1 file changed, 3 insertions(+), 5 deletions(-)
-> > > > 
-> > > > <formletter>
-> > > > 
-> > > > This is not the correct way to submit patches for inclusion in the
-> > > > stable kernel tree.  Please read:
-> > > >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > > > for how to do this properly.
-> > > 
-> > > Oh, I'm sorry, will read and follow next time. Thanks!
-> > 
-> > 766a4c19d880 is not present in 5.2 so no -stable backport is needed, yes?
-> > 
+
+----- Original Message -----
+> From: Jan Stancek <jstancek@redhat.com>
 > 
-> Unfortunately it got added in 5.2.7, so backport is needed.
+> [ Upstream commit e1b98fa316648420d0434d9ff5b92ad6609ba6c3 ]
+> 
+> LTP mtest06 has been observed to occasionally hit "still mapped when
+> deleted" and following BUG_ON on arm64.
+> 
+> The extra mapcount originated from pagefault handler, which handled
+> pagefault for vma that has already been detached. vma is detached
+> under mmap_sem write lock by detach_vmas_to_be_unmapped(), which
+> also invalidates vmacache.
+> 
+> When the pagefault handler (under mmap_sem read lock) calls
+> find_vma(), vmacache_valid() wrongly reports vmacache as valid.
+> 
+> After rwsem down_read() returns via 'queue empty' path (as of v5.2),
+> it does so without an ACQUIRE on sem->count:
+> 
+>   down_read()
+>     __down_read()
+>       rwsem_down_read_failed()
+>         __rwsem_down_read_failed_common()
+>           raw_spin_lock_irq(&sem->wait_lock);
+>           if (list_empty(&sem->wait_list)) {
+>             if (atomic_long_read(&sem->count) >= 0) {
+>               raw_spin_unlock_irq(&sem->wait_lock);
+>               return sem;
+> 
+> The problem can be reproduced by running LTP mtest06 in a loop and
+> building the kernel (-j $NCPUS) in parallel. It does reproduces since
+> v4.20 on arm64 HPE Apollo 70 (224 CPUs, 256GB RAM, 2 nodes). It
+> triggers reliably in about an hour.
+> 
+> The patched kernel ran fine for 10+ hours.
+> 
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Will Deacon <will@kernel.org>
+> Acked-by: Waiman Long <longman@redhat.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: dbueso@suse.de
+> Fixes: 4b486b535c33 ("locking/rwsem: Exit read lock slowpath if queue empty &
+> no writer")
+> Link:
+> https://lkml.kernel.org/r/50b8914e20d1d62bb2dee42d342836c2c16ebee7.1563438048.git.jstancek@redhat.com
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+> 
+> This is a backport for the v5.2 stable tree. There were multiple reports
+> of this issue being hit.
+> 
+> Given that there were a few changes to the code around this, I'd
+> appreciate an ack before pulling it in.
 
-yet another example of patch not marked for stable backported to the
-stable tree. yay...
+ACK, both look good to me.
+I also re-ran reproducer with this series applied on top of 5.2.10, it PASS-ed.
 
--- 
-Michal Hocko
-SUSE Labs
+Thanks,
+Jan
