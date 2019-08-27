@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A869E119
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EB39E116
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731659AbfH0IEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:04:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
+        id S1731405AbfH0IJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 04:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731961AbfH0IEF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:04:05 -0400
+        id S1732436AbfH0IEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 04:04:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E93E6206BA;
-        Tue, 27 Aug 2019 08:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B68742184D;
+        Tue, 27 Aug 2019 08:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566893044;
-        bh=zOFzaPp3tC6o+qncWuZ6pg4/tqSgJwxflaLtgkbW6hg=;
+        s=default; t=1566893047;
+        bh=pxSnDMCy4QW5fVlt8AHYU8Hw9Z8BgMHTH91vuYTye3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KL+LRDby6EL6caFXckAYL/zLQCB5c4ecI/8dnEJNRosesRTSVlHhDl9EGDR0rIbwD
-         P1BJoDUUuatV6yTkjs/ODPBGkPW44eOvuiNxXOqGhCCyNIqiNcrqvSvYQYg5hNWaNQ
-         8vUd5oDM/BfKdWFg3V4GjV3By0NqWRDlfyAEpEgM=
+        b=gxjPgu2/lkr4RVOpDPRzvNnKUEm8fSDy6iNqw/rHhxrvGkybe7qXI2fIGc26ZscjR
+         c9k4IkZqAohM3gtI0PPBHdQ6xXkgGfwMCGh4LUtKfgJpBihnGOH0SzFD3OlbEdqGcF
+         qqouRdxn4nZlQLQxSJBeHB+VpDu+NjJVZ+RcV8fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Deepak Rawat <drawat@vmware.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 099/162] x86/lib/cpu: Address missing prototypes warning
-Date:   Tue, 27 Aug 2019 09:50:27 +0200
-Message-Id: <20190827072741.681322652@linuxfoundation.org>
+Subject: [PATCH 5.2 100/162] drm/vmwgfx: fix memory leak when too many retries have occurred
+Date:   Tue, 27 Aug 2019 09:50:28 +0200
+Message-Id: <20190827072741.727998111@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
 References: <20190827072738.093683223@linuxfoundation.org>
@@ -44,43 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 04f5bda84b0712d6f172556a7e8dca9ded5e73b9 ]
+[ Upstream commit 6b7c3b86f0b63134b2ab56508921a0853ffa687a ]
 
-When building with W=1, warnings about missing prototypes are emitted:
+Currently when too many retries have occurred there is a memory
+leak on the allocation for reply on the error return path. Fix
+this by kfree'ing reply before returning.
 
-  CC      arch/x86/lib/cpu.o
-arch/x86/lib/cpu.c:5:14: warning: no previous prototype for 'x86_family' [-Wmissing-prototypes]
-    5 | unsigned int x86_family(unsigned int sig)
-      |              ^~~~~~~~~~
-arch/x86/lib/cpu.c:18:14: warning: no previous prototype for 'x86_model' [-Wmissing-prototypes]
-   18 | unsigned int x86_model(unsigned int sig)
-      |              ^~~~~~~~~
-arch/x86/lib/cpu.c:33:14: warning: no previous prototype for 'x86_stepping' [-Wmissing-prototypes]
-   33 | unsigned int x86_stepping(unsigned int sig)
-      |              ^~~~~~~~~~~~
-
-Add the proper include file so the prototypes are there.
-
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/42513.1565234837@turing-police
+Addresses-Coverity: ("Resource leak")
+Fixes: a9cd9c044aa9 ("drm/vmwgfx: Add a check to handle host message failure")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
+Signed-off-by: Deepak Rawat <drawat@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/cpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/cpu.c b/arch/x86/lib/cpu.c
-index 04967cdce5d12..7ad68917a51e8 100644
---- a/arch/x86/lib/cpu.c
-+++ b/arch/x86/lib/cpu.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-only
- #include <linux/types.h>
- #include <linux/export.h>
-+#include <asm/cpu.h>
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+index e4e09d47c5c0e..59e9d05ab928b 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -389,8 +389,10 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 		break;
+ 	}
  
- unsigned int x86_family(unsigned int sig)
- {
+-	if (retries == RETRIES)
++	if (retries == RETRIES) {
++		kfree(reply);
+ 		return -EINVAL;
++	}
+ 
+ 	*msg_len = reply_len;
+ 	*msg     = reply;
 -- 
 2.20.1
 
