@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F8B9F695
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 01:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C949F696
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 01:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbfH0XKL convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 27 Aug 2019 19:10:11 -0400
-Received: from imap1.codethink.co.uk ([176.9.8.82]:58921 "EHLO
+        id S1726077AbfH0XKW convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 27 Aug 2019 19:10:22 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:58935 "EHLO
         imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726030AbfH0XKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 19:10:11 -0400
+        with ESMTP id S1726030AbfH0XKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 19:10:22 -0400
 Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
         by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1i2kbH-0000hH-KI; Wed, 28 Aug 2019 00:10:07 +0100
-Date:   Wed, 28 Aug 2019 00:10:06 +0100
+        id 1i2kbS-0000he-Ly; Wed, 28 Aug 2019 00:10:18 +0100
+Date:   Wed, 28 Aug 2019 00:10:17 +0100
 From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable <stable@vger.kernel.org>
-Subject: [PATCH 4.4 02/13] net: arc_emac: fix koops caused by sk_buff free
-Message-ID: <20190827231005.GB11046@xylophone.i.decadent.org.uk>
+Subject: [PATCH 4.4 03/13] vhost-net: set packet weight of tx polling to 2 *
+ vq size
+Message-ID: <20190827231017.GC11046@xylophone.i.decadent.org.uk>
 References: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8BIT
 In-Reply-To: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
@@ -33,162 +34,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Kochetkov <al.kochet@gmail.com>
+From: haibinzhang(张海斌) <haibinzhang@tencent.com>
 
-commit c278c253f3d992c6994d08aa0efb2b6806ca396f upstream.
+commit a2ac99905f1ea8b15997a6ec39af69aa28a3653b upstream.
 
-There is a race between arc_emac_tx() and arc_emac_tx_clean().
-sk_buff got freed by arc_emac_tx_clean() while arc_emac_tx()
-submitting sk_buff.
+handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
+polling udp packets with small length(e.g. 1byte udp payload), because setting
+VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
 
-In order to free sk_buff arc_emac_tx_clean() checks:
-    if ((info & FOR_EMAC) || !txbd->data)
-        break;
-    ...
-    dev_kfree_skb_irq(skb);
+Ping-Latencies shown below were tested between two Virtual Machines using
+netperf (UDP_STREAM, len=1), and then another machine pinged the client:
 
-If condition false, arc_emac_tx_clean() free sk_buff.
+vq size=256
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           3.319   18.489    57.303
+64               1.643    2.021     2.552
+128              1.825    2.600     3.224
+256              1.997    2.710     4.295
+512              1.860    3.171     4.631
+1024             2.002    4.173     9.056
+2048             2.257    5.650     9.688
+4096             2.093    8.508    15.943
 
-In order to submit txbd, arc_emac_tx() do:
-    priv->tx_buff[*txbd_curr].skb = skb;
-    ...
-    priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
-    ...
-    ...  <== arc_emac_tx_clean() check condition here
-    ...  <== (info & FOR_EMAC) is false
-    ...  <== !txbd->data is false
-    ...
-    *info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
+vq size=512
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           6.537   29.177    66.245
+64               2.798    3.614     4.403
+128              2.861    3.820     4.775
+256              3.008    4.018     4.807
+512              3.254    4.523     5.824
+1024             3.079    5.335     7.747
+2048             3.944    8.201    12.762
+4096             4.158   11.057    19.985
 
-In order to reproduce the situation,
-run device:
-    # iperf -s
-run on host:
-    # iperf -t 600 -c <device-ip-addr>
+Seems pretty consistent, a small dip at 2 VQ sizes.
+Ring size is a hint from device about a burst size it can tolerate. Based on
+benchmarks, set the weight to 2 * vq size.
 
-[   28.396284] ------------[ cut here ]------------
-[   28.400912] kernel BUG at .../net/core/skbuff.c:1355!
-[   28.414019] Internal error: Oops - BUG: 0 [#1] SMP ARM
-[   28.419150] Modules linked in:
-[   28.422219] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B           4.4.0+ #120
-[   28.429516] Hardware name: Rockchip (Device Tree)
-[   28.434216] task: c0665070 ti: c0660000 task.ti: c0660000
-[   28.439622] PC is at skb_put+0x10/0x54
-[   28.443381] LR is at arc_emac_poll+0x260/0x474
-[   28.447821] pc : [<c03af580>]    lr : [<c028fec4>]    psr: a0070113
-[   28.447821] sp : c0661e58  ip : eea68502  fp : ef377000
-[   28.459280] r10: 0000012c  r9 : f08b2000  r8 : eeb57100
-[   28.464498] r7 : 00000000  r6 : ef376594  r5 : 00000077  r4 : ef376000
-[   28.471015] r3 : 0030488b  r2 : ef13e880  r1 : 000005ee  r0 : eeb57100
-[   28.477534] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[   28.484658] Control: 10c5387d  Table: 8eaf004a  DAC: 00000051
-[   28.490396] Process swapper/0 (pid: 0, stack limit = 0xc0660210)
-[   28.496393] Stack: (0xc0661e58 to 0xc0662000)
-[   28.500745] 1e40:                                                       00000002 00000000
-[   28.508913] 1e60: 00000000 ef376520 00000028 f08b23b8 00000000 ef376520 ef7b6900 c028fc64
-[   28.517082] 1e80: 2f158000 c0661ea8 c0661eb0 0000012c c065e900 c03bdeac ffff95e9 c0662100
-[   28.525250] 1ea0: c0663924 00000028 c0661ea8 c0661ea8 c0661eb0 c0661eb0 0000001e c0660000
-[   28.533417] 1ec0: 40000003 00000008 c0695a00 0000000a c066208c 00000100 c0661ee0 c0027410
-[   28.541584] 1ee0: ef0fb700 2f158000 00200000 ffff95e8 00000004 c0662100 c0662080 00000003
-[   28.549751] 1f00: 00000000 00000000 00000000 c065b45c 0000001e ef005000 c0647a30 00000000
-[   28.557919] 1f20: 00000000 c0027798 00000000 c005cf40 f0802100 c0662ffc c0661f60 f0803100
-[   28.566088] 1f40: c0661fb8 c00093bc c000ffb4 60070013 ffffffff c0661f94 c0661fb8 c00137d4
-[   28.574267] 1f60: 00000001 00000000 00000000 c001ffa0 00000000 c0660000 00000000 c065a364
-[   28.582441] 1f80: c0661fb8 c0647a30 00000000 00000000 00000000 c0661fb0 c000ffb0 c000ffb4
-[   28.590608] 1fa0: 60070013 ffffffff 00000051 00000000 00000000 c005496c c0662400 c061bc40
-[   28.598776] 1fc0: ffffffff ffffffff 00000000 c061b680 00000000 c0647a30 00000000 c0695294
-[   28.606943] 1fe0: c0662488 c0647a2c c066619c 6000406a 413fc090 6000807c 00000000 00000000
-[   28.615127] [<c03af580>] (skb_put) from [<ef376520>] (0xef376520)
-[   28.621218] Code: e5902054 e590c090 e3520000 0a000000 (e7f001f2)
-[   28.627307] ---[ end trace 4824734e2243fdb6 ]---
+To evaluate this change, another tests were done using netperf(RR, TX) between
+two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
+tweaked through qemu. Results shown below does not show obvious changes.
 
-[   34.377068] Internal error: Oops: 17 [#1] SMP ARM
-[   34.382854] Modules linked in:
-[   34.385947] CPU: 0 PID: 3 Comm: ksoftirqd/0 Not tainted 4.4.0+ #120
-[   34.392219] Hardware name: Rockchip (Device Tree)
-[   34.396937] task: ef02d040 ti: ef05c000 task.ti: ef05c000
-[   34.402376] PC is at __dev_kfree_skb_irq+0x4/0x80
-[   34.407121] LR is at arc_emac_poll+0x130/0x474
-[   34.411583] pc : [<c03bb640>]    lr : [<c028fd94>]    psr: 60030013
-[   34.411583] sp : ef05de68  ip : 0008e83c  fp : ef377000
-[   34.423062] r10: c001bec4  r9 : 00000000  r8 : f08b24c8
-[   34.428296] r7 : f08b2400  r6 : 00000075  r5 : 00000019  r4 : ef376000
-[   34.434827] r3 : 00060000  r2 : 00000042  r1 : 00000001  r0 : 00000000
-[   34.441365] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[   34.448507] Control: 10c5387d  Table: 8f25c04a  DAC: 00000051
-[   34.454262] Process ksoftirqd/0 (pid: 3, stack limit = 0xef05c210)
-[   34.460449] Stack: (0xef05de68 to 0xef05e000)
-[   34.464827] de60:                   ef376000 c028fd94 00000000 c0669480 c0669480 ef376520
-[   34.473022] de80: 00000028 00000001 00002ae4 ef376520 ef7b6900 c028fc64 2f158000 ef05dec0
-[   34.481215] dea0: ef05dec8 0000012c c065e900 c03bdeac ffff983f c0662100 c0663924 00000028
-[   34.489409] dec0: ef05dec0 ef05dec0 ef05dec8 ef05dec8 ef7b6000 ef05c000 40000003 00000008
-[   34.497600] dee0: c0695a00 0000000a c066208c 00000100 ef05def8 c0027410 ef7b6000 40000000
-[   34.505795] df00: 04208040 ffff983e 00000004 c0662100 c0662080 00000003 ef05c000 ef027340
-[   34.513985] df20: ef05c000 c0666c2c 00000000 00000001 00000002 00000000 00000000 c0027568
-[   34.522176] df40: ef027340 c003ef48 ef027300 00000000 ef027340 c003edd4 00000000 00000000
-[   34.530367] df60: 00000000 c003c37c ffffff7f 00000001 00000000 ef027340 00000000 00030003
-[   34.538559] df80: ef05df80 ef05df80 00000000 00000000 ef05df90 ef05df90 ef05dfac ef027300
-[   34.546750] dfa0: c003c2a4 00000000 00000000 c000f578 00000000 00000000 00000000 00000000
-[   34.554939] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-[   34.563129] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000 ffffffff dfff7fff
-[   34.571360] [<c03bb640>] (__dev_kfree_skb_irq) from [<c028fd94>] (arc_emac_poll+0x130/0x474)
-[   34.579840] [<c028fd94>] (arc_emac_poll) from [<c03bdeac>] (net_rx_action+0xdc/0x28c)
-[   34.587712] [<c03bdeac>] (net_rx_action) from [<c0027410>] (__do_softirq+0xcc/0x1f8)
-[   34.595482] [<c0027410>] (__do_softirq) from [<c0027568>] (run_ksoftirqd+0x2c/0x50)
-[   34.603168] [<c0027568>] (run_ksoftirqd) from [<c003ef48>] (smpboot_thread_fn+0x174/0x18c)
-[   34.611466] [<c003ef48>] (smpboot_thread_fn) from [<c003c37c>] (kthread+0xd8/0xec)
-[   34.619075] [<c003c37c>] (kthread) from [<c000f578>] (ret_from_fork+0x14/0x3c)
-[   34.626317] Code: e8bd8010 e3a00000 e12fff1e e92d4010 (e59030a4)
-[   34.632572] ---[ end trace cca5a3d86a82249a ]---
+vq size=256 TCP_RR                vq size=512 TCP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
+   1/       4/  +1%/         0%      1/       4/  +1%/         0%
+   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
+  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
+  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
+  64/       8/   0%/         0%     64/       8/  -1%/        -2%
+ 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
+ 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
+ 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
 
-Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+vq size=256 UDP_RR                vq size=512 UDP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
+   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
+   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
+  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
+  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
+  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
+ 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
+ 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
+ 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
+
+vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+  64/       1/   0%/        -3%     64/       1/   0%/         0%
+  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
+  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
+ 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
+ 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
+ 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
+ 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
+ 512/       4/  +1%/        -1%    512/       4/   0%/         0%
+ 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
+1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
+1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
+1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
+2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
+2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
+2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
+4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
+4096/       4/  +2%/         0%   4096/       4/   0%/         0%
+4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
+Signed-off-by: Lidong Chen <lidongchen@tencent.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- drivers/net/ethernet/arc/emac_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/arc/emac_main.c b/drivers/net/ethernet/arc/emac_main.c
-index 9cc5daed13ed..b0285ac203f0 100644
---- a/drivers/net/ethernet/arc/emac_main.c
-+++ b/drivers/net/ethernet/arc/emac_main.c
-@@ -163,7 +163,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
- 		struct sk_buff *skb = tx_buff->skb;
- 		unsigned int info = le32_to_cpu(txbd->info);
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f46317135224..b8496f713bc6 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -39,6 +39,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_NET_WEIGHT 0x80000
  
--		if ((info & FOR_EMAC) || !txbd->data)
-+		if ((info & FOR_EMAC) || !txbd->data || !skb)
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving rx. */
++#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
++
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+ #define VHOST_GOODCOPY_LEN 256
+@@ -308,6 +312,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int sent_pkts = 0;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -408,7 +413,8 @@ static void handle_tx(struct vhost_net *net)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
+ 			vhost_poll_queue(&vq->poll);
  			break;
- 
- 		if (unlikely(info & (DROP | DEFR | LTCL | UFLO))) {
-@@ -191,6 +191,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
- 
- 		txbd->data = 0;
- 		txbd->info = 0;
-+		tx_buff->skb = NULL;
- 
- 		*txbd_dirty = (*txbd_dirty + 1) % TX_BD_NUM;
- 	}
-@@ -619,7 +620,6 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
- 	dma_unmap_addr_set(&priv->tx_buff[*txbd_curr], addr, addr);
- 	dma_unmap_len_set(&priv->tx_buff[*txbd_curr], len, len);
- 
--	priv->tx_buff[*txbd_curr].skb = skb;
- 	priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
- 
- 	/* Make sure pointer to data buffer is set */
-@@ -629,6 +629,11 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
- 
- 	*info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
- 
-+	/* Make sure info word is set */
-+	wmb();
-+
-+	priv->tx_buff[*txbd_curr].skb = skb;
-+
- 	/* Increment index to point to the next BD */
- 	*txbd_curr = (*txbd_curr + 1) % TX_BD_NUM;
- 
+ 		}
 -- 
 Ben Hutchings, Software Developer                         Codethink Ltd
 https://www.codethink.co.uk/                 Dale House, 35 Dale Street
