@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B619E126
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 974579E231
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 10:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730968AbfH0IC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 04:02:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60254 "EHLO mail.kernel.org"
+        id S1729024AbfH0Hvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732105AbfH0IC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 04:02:57 -0400
+        id S1729017AbfH0Hvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:51:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 826D6206BA;
-        Tue, 27 Aug 2019 08:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6890217F5;
+        Tue, 27 Aug 2019 07:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892977;
-        bh=BQJJ7V0TFi5l6Xs2+GGf5LTmUXearB8vYzqzeyd7hmU=;
+        s=default; t=1566892309;
+        bh=EckQD5802OaCUczfZ4Hir4YXw79+iz7taCIsv2SumYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgHkAb/QoqHDdHGp7HQU3OJ3wXx7wCIWjxMg4+zenLeGrJ9G3Gp/kuWIDVx8xkt+A
-         NxSzRH5lLqYfOC0SDLm7jSCCEOH8i/wFMIqvDuf2OVpY5lZ2k1aDkuCpR+iv/xjr5X
-         HZXnSYxhRnS7viX6MVlVDHv4HLfyHy1iLhRxAGjM=
+        b=NxhhXNrRH4SsYmzx/yyPbg6i5a8vXm4pLLILvfVB6AGUONoJfB5TjeQWZVTGxifrt
+         EXJ4BmVN/32sadQ0gaVNj1mcqNK+UQLb3g6KFWCvDkFVV003uFK1KLSIVeTouV3V0s
+         wZzAS0YGujv+VkT7tcS/u9TQRdYq0LX/Nu85P9vM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 080/162] SMB3: Fix potential memory leak when processing compound chain
-Date:   Tue, 27 Aug 2019 09:50:08 +0200
-Message-Id: <20190827072740.898571657@linuxfoundation.org>
+Subject: [PATCH 4.14 04/62] netfilter: ebtables: fix a memory leak bug in compat
+Date:   Tue, 27 Aug 2019 09:50:09 +0200
+Message-Id: <20190827072700.331076787@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072738.093683223@linuxfoundation.org>
-References: <20190827072738.093683223@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3edeb4a4146dc3b54d6fa71b7ee0585cb52ebfdf ]
+[ Upstream commit 15a78ba1844a8e052c1226f930133de4cef4e7ad ]
 
-When a reconnect happens in the middle of processing a compound chain
-the code leaks a buffer from the memory pool. Fix this by properly
-checking for a return code and freeing buffers in case of error.
+In compat_do_replace(), a temporary buffer is allocated through vmalloc()
+to hold entries copied from the user space. The buffer address is firstly
+saved to 'newinfo->entries', and later on assigned to 'entries_tmp'. Then
+the entries in this temporary buffer is copied to the internal kernel
+structure through compat_copy_entries(). If this copy process fails,
+compat_do_replace() should be terminated. However, the allocated temporary
+buffer is not freed on this path, leading to a memory leak.
 
-Also maintain a buf variable to be equal to either smallbuf or bigbuf
-depending on a response buffer size while parsing a chain and when
-returning to the caller.
+To fix the bug, free the buffer before returning from compat_do_replace().
 
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 2ec37dc589a7b..ae10d6e297c3a 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4015,7 +4015,6 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- {
- 	int ret, length;
- 	char *buf = server->smallbuf;
--	char *tmpbuf;
- 	struct smb2_sync_hdr *shdr;
- 	unsigned int pdu_length = server->pdu_size;
- 	unsigned int buf_size;
-@@ -4045,18 +4044,15 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- 		return length;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index f9c6e8ca1fcb0..100b4f88179a2 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2273,8 +2273,10 @@ static int compat_do_replace(struct net *net, void __user *user,
+ 	state.buf_kern_len = size64;
  
- 	next_is_large = server->large_buf;
-- one_more:
-+one_more:
- 	shdr = (struct smb2_sync_hdr *)buf;
- 	if (shdr->NextCommand) {
--		if (next_is_large) {
--			tmpbuf = server->bigbuf;
-+		if (next_is_large)
- 			next_buffer = (char *)cifs_buf_get();
--		} else {
--			tmpbuf = server->smallbuf;
-+		else
- 			next_buffer = (char *)cifs_small_buf_get();
--		}
- 		memcpy(next_buffer,
--		       tmpbuf + le32_to_cpu(shdr->NextCommand),
-+		       buf + le32_to_cpu(shdr->NextCommand),
- 		       pdu_length - le32_to_cpu(shdr->NextCommand));
- 	}
+ 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
+-	if (WARN_ON(ret < 0))
++	if (WARN_ON(ret < 0)) {
++		vfree(entries_tmp);
+ 		goto out_unlock;
++	}
  
-@@ -4085,12 +4081,21 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
- 		pdu_length -= le32_to_cpu(shdr->NextCommand);
- 		server->large_buf = next_is_large;
- 		if (next_is_large)
--			server->bigbuf = next_buffer;
-+			server->bigbuf = buf = next_buffer;
- 		else
--			server->smallbuf = next_buffer;
--
--		buf += le32_to_cpu(shdr->NextCommand);
-+			server->smallbuf = buf = next_buffer;
- 		goto one_more;
-+	} else if (ret != 0) {
-+		/*
-+		 * ret != 0 here means that we didn't get to handle_mid() thus
-+		 * server->smallbuf and server->bigbuf are still valid. We need
-+		 * to free next_buffer because it is not going to be used
-+		 * anywhere.
-+		 */
-+		if (next_is_large)
-+			free_rsp_buf(CIFS_LARGE_BUFFER, next_buffer);
-+		else
-+			free_rsp_buf(CIFS_SMALL_BUFFER, next_buffer);
- 	}
- 
- 	return ret;
+ 	vfree(entries_tmp);
+ 	tmp.entries_size = size64;
 -- 
 2.20.1
 
