@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF759DFC9
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0188C9DF56
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730184AbfH0H5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:57:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49758 "EHLO mail.kernel.org"
+        id S1729743AbfH0HxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:53:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730816AbfH0H5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:57:30 -0400
+        id S1729762AbfH0HxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:53:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B80BE20828;
-        Tue, 27 Aug 2019 07:57:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 993BB2173E;
+        Tue, 27 Aug 2019 07:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892649;
+        s=default; t=1566892400;
         bh=nr+XhdCJv5KdUbvjEpdXWa5YBu+SA2axb6GLhdsPhOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQ7+hO8GcAKb/wud0OOK7/rK85FqWEsDoZ/UBJlT9ptwCUujNoSiu5Cm68YH/SoRC
-         qeJm+zh5nDSMpQ07dmr5+s9U/gOZhdhHQ9/UYaTOgtNBmcawMyaz5oz+Rd9l5BDGyW
-         wIc/rxZjdMfUAYC1ylwaf+rhoaFyjjuxBZCrnlys=
+        b=fJd80qykCQ2ihpbg7K/i8cSJsI4ovn5E+zXDHdSh0nOekjmi0QUOUkInfBE/gAAnW
+         3kJxpCnJdjxaWJ6D65xKH3HL6dI6N81yq3Kie7vm4uFownbx8vorR7pjFjmnUtqwd4
+         WguqDlwTzv9VOWk3T9uIIVe/i0hYyrnA+gIR5ohk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
         Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 4.19 66/98] drm/nouveau: Dont retry infinitely when receiving no data on i2c over AUX
-Date:   Tue, 27 Aug 2019 09:50:45 +0200
-Message-Id: <20190827072721.762131570@linuxfoundation.org>
+Subject: [PATCH 4.14 41/62] drm/nouveau: Dont retry infinitely when receiving no data on i2c over AUX
+Date:   Tue, 27 Aug 2019 09:50:46 +0200
+Message-Id: <20190827072702.989407639@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190827072718.142728620@linuxfoundation.org>
-References: <20190827072718.142728620@linuxfoundation.org>
+In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
+References: <20190827072659.803647352@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
