@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FCD49DF42
-	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588CA9DF44
+	for <lists+stable@lfdr.de>; Tue, 27 Aug 2019 09:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbfH0Hwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 03:52:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44092 "EHLO mail.kernel.org"
+        id S1728639AbfH0Hwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 03:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729543AbfH0Hwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 03:52:41 -0400
+        id S1729596AbfH0Hwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 03:52:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F56A206BA;
-        Tue, 27 Aug 2019 07:52:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3161223406;
+        Tue, 27 Aug 2019 07:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566892360;
-        bh=/KOK3OH48vC2VItYTbJKiYMJWE2BEQfRSMdBrCQG9Tw=;
+        s=default; t=1566892368;
+        bh=HKWTmzBr6QwxBD6e2SZEEs4GDcyNy+TTL8HR53n/OQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwIiqZm1WMIjd81MgFnwFV3ZlFg1RKCAuK0rhMm9fIbSFVuSCzhDSw0qxB2g4utko
-         kzPayiEstfmuZX3gf5TeFgFD/Qi0YVgFuwdMoI8s7TShY/hyECFKQYa+bSgjGKjHzD
-         yzDZd699E3+ivPOkz8WvjhCwbnaEjrRqEedFbKHo=
+        b=av7tgDEO/GqWpYQrI9UGrHrB2I1TitCM/xZOwkfmDXNBQZI6/iNrYxkLz6OEiMwcK
+         3Uf+v4i0GRHMmwsuTVz3XUI3EfiGz3/vA+/CRAfmaKHljcjpJHpUY/tM0RvRenKqqT
+         YDwT+8fxwik2lQX8mCel5ymg7aNl67tathhOPIhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krishna Ram Prakash R <krp@gtux.in>,
-        Kees Cook <keescook@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/62] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
-Date:   Tue, 27 Aug 2019 09:50:33 +0200
-Message-Id: <20190827072702.163588625@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Deepak Rawat <drawat@vmware.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/62] drm/vmwgfx: fix memory leak when too many retries have occurred
+Date:   Tue, 27 Aug 2019 09:50:36 +0200
+Message-Id: <20190827072702.539257121@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190827072659.803647352@linuxfoundation.org>
 References: <20190827072659.803647352@linuxfoundation.org>
@@ -44,80 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2d7271501720038381d45fb3dcbe4831228fc8cc ]
+[ Upstream commit 6b7c3b86f0b63134b2ab56508921a0853ffa687a ]
 
-For passthrough requests, libata-scsi takes what the user passes in
-as gospel. This can be problematic if the user fills in the CDB
-incorrectly. One example of that is in request sizes. For read/write
-commands, the CDB contains fields describing the transfer length of
-the request. These should match with the SG_IO header fields, but
-libata-scsi currently does no validation of that.
+Currently when too many retries have occurred there is a memory
+leak on the allocation for reply on the error return path. Fix
+this by kfree'ing reply before returning.
 
-Check that the number of blocks in the CDB for passthrough requests
-matches what was mapped into the request. If the CDB asks for more
-data then the validated SG_IO header fields, error it.
-
-Reported-by: Krishna Ram Prakash R <krp@gtux.in>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Addresses-Coverity: ("Resource leak")
+Fixes: a9cd9c044aa9 ("drm/vmwgfx: Add a check to handle host message failure")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
+Signed-off-by: Deepak Rawat <drawat@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index bf5777bc04d35..eb0c4ee205258 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -1804,6 +1804,21 @@ nothing_to_do:
- 	return 1;
- }
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+index 97000996b8dc5..50cc060cc552a 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -300,8 +300,10 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 		break;
+ 	}
  
-+static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
-+{
-+	struct request *rq = scmd->request;
-+	u32 req_blocks;
-+
-+	if (!blk_rq_is_passthrough(rq))
-+		return true;
-+
-+	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
-+	if (n_blocks > req_blocks)
-+		return false;
-+
-+	return true;
-+}
-+
- /**
-  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
-  *	@qc: Storage for translated ATA taskfile
-@@ -1848,6 +1863,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_10_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_6:
- 	case WRITE_6:
-@@ -1862,6 +1879,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		 */
- 		if (!n_block)
- 			n_block = 256;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_16:
- 	case WRITE_16:
-@@ -1872,6 +1891,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_16_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	default:
- 		DPRINTK("no-byte command\n");
+-	if (retries == RETRIES)
++	if (retries == RETRIES) {
++		kfree(reply);
+ 		return -EINVAL;
++	}
+ 
+ 	*msg_len = reply_len;
+ 	*msg     = reply;
 -- 
 2.20.1
 
