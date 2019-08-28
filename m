@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E73A0BD6
+	by mail.lfdr.de (Postfix) with ESMTP id CECC4A0BD7
 	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726787AbfH1UtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 16:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56840 "EHLO mail.kernel.org"
+        id S1726876AbfH1UtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 16:49:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726845AbfH1UtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 16:49:13 -0400
+        id S1726845AbfH1UtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 16:49:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A9F622DA7;
-        Wed, 28 Aug 2019 20:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C10A022DA7;
+        Wed, 28 Aug 2019 20:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567025352;
-        bh=hjF/zcjuSYDnvE3QFrMmjL8CIPlWMrWt5TIv51y13G0=;
+        s=default; t=1567025358;
+        bh=vQmTIivgpZRNcDqBAPWdh86G4WAZ37mOklBwcl6eDSI=;
         h=Subject:To:From:Date:From;
-        b=ppfKB/CwxYcd0OcVY+R4fDGSvDDt/6i8XQUqfNUNPXQgCPEVcSf3/7saWvnrUZdPY
-         2vgNvQUSPAiEUdZiKXce1Uk7Sh5a6f92CzsHvn0UQLPxEQJEtc8oCYMXmxwL2RmIMr
-         jPV7JfEYqrkJtvhQKkUywpoHlOylB4r1XHOn+MhU=
-Subject: patch "usb: host: xhci: rcar: Fix typo in compatible string matching" added to usb-linus
-To:     geert+renesas@glider.be, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, yoshihiro.shimoda.uh@renesas.com
+        b=j2ckWHqji/LwW8xcZBscIGVOenmVPA3utPP4PhWDV/R7YQoDUwgevaOUJ1PclITMe
+         X/up/a+AP+sEV7bjFrLPAfBLrBGeyb7Ezg4o5zdWY8SLhATDVzLi7aXiAQvRVmJTWp
+         CFnyQGBTjakj3BQbEQushcu50LGVkeOieuXPN/18=
+Subject: patch "USB: cdc-wdm: fix race between write and disconnect due to flag abuse" added to usb-linus
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Aug 2019 22:48:59 +0200
-Message-ID: <15670253397613@kroah.com>
+Date:   Wed, 28 Aug 2019 22:49:00 +0200
+Message-ID: <1567025340213220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: host: xhci: rcar: Fix typo in compatible string matching
+    USB: cdc-wdm: fix race between write and disconnect due to flag abuse
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,38 +55,67 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 636bd02a7ba9025ff851d0cfb92768c8fa865859 Mon Sep 17 00:00:00 2001
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Date: Tue, 27 Aug 2019 14:51:12 +0200
-Subject: usb: host: xhci: rcar: Fix typo in compatible string matching
+From 1426bd2c9f7e3126e2678e7469dca9fd9fc6dd3e Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Tue, 27 Aug 2019 12:34:36 +0200
+Subject: USB: cdc-wdm: fix race between write and disconnect due to flag abuse
 
-It's spelled "renesas", not "renensas".
+In case of a disconnect an ongoing flush() has to be made fail.
+Nevertheless we cannot be sure that any pending URB has already
+finished, so although they will never succeed, they still must
+not be touched.
+The clean solution for this is to check for WDM_IN_USE
+and WDM_DISCONNECTED in flush(). There is no point in ever
+clearing WDM_IN_USE, as no further writes make sense.
 
-Due to this typo, RZ/G1M and RZ/G1N were not covered by the check.
+The issue is as old as the driver.
 
-Fixes: 2dc240a3308b ("usb: host: xhci: rcar: retire use of xhci_plat_type_is()")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: afba937e540c9 ("USB: CDC WDM driver")
+Reported-by: syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20190827125112.12192-1-geert+renesas@glider.be
+Link: https://lore.kernel.org/r/20190827103436.21143-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/cdc-wdm.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-rcar.c b/drivers/usb/host/xhci-rcar.c
-index 8616c52849c6..2b0ccd150209 100644
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -104,7 +104,7 @@ static int xhci_rcar_is_gen2(struct device *dev)
- 	return of_device_is_compatible(node, "renesas,xhci-r8a7790") ||
- 		of_device_is_compatible(node, "renesas,xhci-r8a7791") ||
- 		of_device_is_compatible(node, "renesas,xhci-r8a7793") ||
--		of_device_is_compatible(node, "renensas,rcar-gen2-xhci");
-+		of_device_is_compatible(node, "renesas,rcar-gen2-xhci");
- }
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index a7824a51f86d..70afb2ca1eab 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -587,10 +587,20 @@ static int wdm_flush(struct file *file, fl_owner_t id)
+ {
+ 	struct wdm_device *desc = file->private_data;
  
- static int xhci_rcar_is_gen3(struct device *dev)
+-	wait_event(desc->wait, !test_bit(WDM_IN_USE, &desc->flags));
++	wait_event(desc->wait,
++			/*
++			 * needs both flags. We cannot do with one
++			 * because resetting it would cause a race
++			 * with write() yet we need to signal
++			 * a disconnect
++			 */
++			!test_bit(WDM_IN_USE, &desc->flags) ||
++			test_bit(WDM_DISCONNECTING, &desc->flags));
+ 
+ 	/* cannot dereference desc->intf if WDM_DISCONNECTING */
+-	if (desc->werr < 0 && !test_bit(WDM_DISCONNECTING, &desc->flags))
++	if (test_bit(WDM_DISCONNECTING, &desc->flags))
++		return -ENODEV;
++	if (desc->werr < 0)
+ 		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
+ 			desc->werr);
+ 
+@@ -974,8 +984,6 @@ static void wdm_disconnect(struct usb_interface *intf)
+ 	spin_lock_irqsave(&desc->iuspin, flags);
+ 	set_bit(WDM_DISCONNECTING, &desc->flags);
+ 	set_bit(WDM_READ, &desc->flags);
+-	/* to terminate pending flushes */
+-	clear_bit(WDM_IN_USE, &desc->flags);
+ 	spin_unlock_irqrestore(&desc->iuspin, flags);
+ 	wake_up_all(&desc->wait);
+ 	mutex_lock(&desc->rlock);
 -- 
 2.23.0
 
