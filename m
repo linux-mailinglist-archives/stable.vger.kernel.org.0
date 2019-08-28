@@ -2,94 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 905C09FD4B
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 10:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36249FD55
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 10:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfH1IjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 04:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
+        id S1726378AbfH1IlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 04:41:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726292AbfH1IjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 04:39:00 -0400
+        id S1726232AbfH1IlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 04:41:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B43323406;
-        Wed, 28 Aug 2019 08:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4106323403;
+        Wed, 28 Aug 2019 08:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566981540;
-        bh=0ffmz7FFW2huWYfsKiqzTNrryZpRPQYxnFUQLbrkrcU=;
+        s=default; t=1566981669;
+        bh=Adxs43tpYLNFVmrV7jqedrM7btP1zHEfdzG69L/1X+o=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uccBKCbRVdbzV748hw2muZ5udOqnSrUbKqq38pOzm/F9FLxrFGdTZ+x8IyLdWvWke
-         t46SPGGjg2StAcBguL/Bf/maNgXd4FSjAdzGpQJ+CdxF5p0RVLVLTtEsR/Nq16rB0D
-         OeDKDCgMW0rsLTiPBi+SWNSceaxKguv/MqOjHh3g=
-Date:   Wed, 28 Aug 2019 10:38:57 +0200
+        b=orkIvZ5ngyRCkNL6XIJ72pStboJuYtdx86SU4xA4LCV0JSOWYB+tH8QgBOwiqt1Kk
+         KS2lHXyoIg6nhMt4ROKVj4iwAFNQQdcamdNqyV+XMRkPCCC/PyVYjjA2+S1Rqken33
+         IpT2mSV/4K/9B3QjbaLpASsnIexNuDAA1n9VWkw0=
+Date:   Wed, 28 Aug 2019 10:41:07 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.4 10/13] siphash: implement HalfSipHash1-3 for hash
- tables
-Message-ID: <20190828083857.GA29927@kroah.com>
-References: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
- <20190827231100.GJ11046@xylophone.i.decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Subject: Re: Patches potentially missing from stable releases
+Message-ID: <20190828084107.GB29927@kroah.com>
+References: <20190827171621.GA30360@roeck-us.net>
+ <20190827181003.GR5281@sasha-vm>
+ <20190827200151.GA19618@roeck-us.net>
+ <20190827202901.GB1118@kroah.com>
+ <20190827204841.GA21062@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190827231100.GJ11046@xylophone.i.decadent.org.uk>
+In-Reply-To: <20190827204841.GA21062@roeck-us.net>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 28, 2019 at 12:11:00AM +0100, Ben Hutchings wrote:
-> From: Jason A. Donenfeld <Jason@zx2c4.com>
+On Tue, Aug 27, 2019 at 01:48:41PM -0700, Guenter Roeck wrote:
+> On Tue, Aug 27, 2019 at 10:29:01PM +0200, Greg Kroah-Hartman wrote:
+> > On Tue, Aug 27, 2019 at 01:01:51PM -0700, Guenter Roeck wrote:
+> > > On Tue, Aug 27, 2019 at 02:10:03PM -0400, Sasha Levin wrote:
+> > > > On Tue, Aug 27, 2019 at 10:16:21AM -0700, Guenter Roeck wrote:
+> > > > >Hi,
+> > > > >
+> > > > >I recently wrote a script which identifies patches potentially missing
+> > > > >in downstream kernel branches. The idea is to identify patches backported/
+> > > > >applied to a downstream branch for which patches tagged with Fixes: are
+> > > > >available in the upstream kernel, but those fixes are missing from the
+> > > > >downstream branch. The script workflow is something like:
+> > > > >
+> > > > >- Identify locally applied patches in downstream branch
+> > > > >- For each patch, identify the matching upstream SHA
+> > > > >- Search the upstream kernel for Fixes: tags with this SHA
+> > > > >- If one or more patches with matching Fixes: tags are found, check
+> > > > > if the patch was applied to the downstream branch.
+> > > > >- If the patch was not applied to the downstream branch, report
+> > > > >
+> > > > >Running this script on chromeos-4.19 identified, not surprisingly, a number
+> > > > >of such patches. However, and more surprisingly, it also identified several
+> > > > >patches applied to v4.19.y for which fixes are available in the upstream
+> > > > >kernel, but those fixes have not been applied to v4.19.y. Some of those
+> > > > >are on the cosmetic side, but several seem to be relevant. I didn't
+> > > > >cross-check all of them, but the ones I tried did apply to linux-4.19.y.
+> > > > >The complete list is attached below.
+> > > > >
+> > > > >Question: Do Sasha's automated scripts identify such patches ? If not,
+> > > > >would it make sense to do it ? Or is there some reason why the patches
+> > > > >have not been applied to v4.19.y ?
+> > > > 
+> > > > Hey Guenter,
+> > > > 
+> > > > I have a very similar script with a slight difference: I don't try to
+> > > > find just "Fixes:" tags, but rather just any reference from one patch to
+> > > > another. This tends to catch cases where once patch states it's "a
+> > > > similar fix to ..." and such.
+> > > > 
+> > > > The tricky part is that it's causing a whole bunch of false positives,
+> > > > which takes a while to weed through - and that's where the issue is
+> > > > right now.
+> > > > 
+> > > 
+> > > I didn't see any false positives, at least not yet. Would it possibly
+> > > make sense to start with looking at Fixes: ? After all, additional
+> > > references (wich higher chance for false positives) can always be
+> > > searched for later.
+> > 
+> > I used to do this "by hand" with a tiny bit of automation, but need to
+> > step it up and do it "correctly" like you did.
+> > 
+> > If you have a pointer to your script, I'd be glad to run it here locally
+> > to keep track of this, like I do so for patches tagged with syzbot
+> > issues.
+> > 
 > 
-> commit 1ae2324f732c9c4e2fa4ebd885fa1001b70d52e1 upstream.
+> I'd have to rewrite it to work with stable branches. Its current
+> primary goal is to assist the rebase of one chromeos branch to
+> a later upstream kernel release. I just repurposed part of it and
+> use the generated databases to identify patches tagged with Fixes:.
 > 
-> HalfSipHash, or hsiphash, is a shortened version of SipHash, which
-> generates 32-bit outputs using a weaker 64-bit key. It has *much* lower
-> security margins, and shouldn't be used for anything too sensitive, but
-> it could be used as a hashtable key function replacement, if the output
-> is never exposed, and if the security requirement is not too high.
-> 
-> The goal is to make this something that performance-critical jhash users
-> would be willing to use.
-> 
-> On 64-bit machines, HalfSipHash1-3 is slower than SipHash1-3, so we alias
-> SipHash1-3 to HalfSipHash1-3 on those systems.
-> 
-> 64-bit x86_64:
-> [    0.509409] test_siphash:     SipHash2-4 cycles: 4049181
-> [    0.510650] test_siphash:     SipHash1-3 cycles: 2512884
-> [    0.512205] test_siphash: HalfSipHash1-3 cycles: 3429920
-> [    0.512904] test_siphash:    JenkinsHash cycles:  978267
-> So, we map hsiphash() -> SipHash1-3
-> 
-> 32-bit x86:
-> [    0.509868] test_siphash:     SipHash2-4 cycles: 14812892
-> [    0.513601] test_siphash:     SipHash1-3 cycles:  9510710
-> [    0.515263] test_siphash: HalfSipHash1-3 cycles:  3856157
-> [    0.515952] test_siphash:    JenkinsHash cycles:  1148567
-> So, we map hsiphash() -> HalfSipHash1-3
-> 
-> hsiphash() is roughly 3 times slower than jhash(), but comes with a
-> considerable security improvement.
-> 
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> [bwh: Backported to 4.4 to avoid regression for WireGuard with only half
->  the siphash API present]
-> Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-> ---
->  Documentation/siphash.txt |  75 +++++++++
->  include/linux/siphash.h   |  57 ++++++-
->  lib/siphash.c             | 321 +++++++++++++++++++++++++++++++++++++-
->  lib/test_siphash.c        |  98 +++++++++++-
->  4 files changed, 546 insertions(+), 5 deletions(-)
+> I'll be happy to do that and make it work on stable branches in
+> general if you think it would add value.
 
-Thank you for this patch, and this series, it was on my long-term todo
-list that I had not gotten to yet (and probably never would have...)
+No worries, I can add the functionality to my local scripts that I have.
+If you just had happened to have it in stand-alone format, it would have
+saved me 30 minutes or so :)
+
+thanks for the reminder that we need to be doing this more,
 
 greg k-h
