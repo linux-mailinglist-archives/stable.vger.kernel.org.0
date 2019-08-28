@@ -2,101 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E51ACA0187
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 14:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4B6A01B1
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 14:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726270AbfH1MWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 08:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726259AbfH1MWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 08:22:43 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2FC120856;
-        Wed, 28 Aug 2019 12:22:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566994962;
-        bh=yTsjRs8gSBXdAGSmvmHfZ1OcyAj6phsNTV4hsF62HaE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OdtAUIGUI03GVAlpt4j6SjGgD/VAljnqPTqV54sskUdWcoZrN8W3snFZuzIT4hnDk
-         fDBK0Mk6inPmyB3/JyI1YNbZvkl4J9sfTCE72qBQ6ki8qdZsRLN5AlmfLrP0PBP74y
-         TSOx0FjpEdds5lEG2NbQ3/xNXmhsK8LuOfSaJaN8=
-Date:   Wed, 28 Aug 2019 08:22:40 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Patches potentially missing from stable releases
-Message-ID: <20190828122240.GC5281@sasha-vm>
-References: <20190827171621.GA30360@roeck-us.net>
- <20190827181003.GR5281@sasha-vm>
- <20190827200151.GA19618@roeck-us.net>
+        id S1726827AbfH1M3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 08:29:16 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:51339 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726586AbfH1M3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 08:29:15 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 05AD9825D9; Wed, 28 Aug 2019 14:28:59 +0200 (CEST)
+Date:   Wed, 28 Aug 2019 14:29:13 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Pavel Machek <pavel@denx.de>, Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chen Yu <yu.c.chen@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: Re: [PATCH 4.19 72/98] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
+ family 15h/16h
+Message-ID: <20190828122913.GE8052@amd>
+References: <20190827072718.142728620@linuxfoundation.org>
+ <20190827072722.020603090@linuxfoundation.org>
+ <20190827113604.GB18218@amd>
+ <alpine.DEB.2.21.1908271525480.1939@nanos.tec.linutronix.de>
+ <20190828103113.GA14677@amd>
+ <alpine.DEB.2.21.1908281231480.1869@nanos.tec.linutronix.de>
+ <20190828114947.GC8052@amd>
+ <20190828120024.GF4920@zn.tnic>
+ <20190828120935.GD8052@amd>
+ <20190828121628.GG4920@zn.tnic>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="mR8QP4gmHujQHb1c"
 Content-Disposition: inline
-In-Reply-To: <20190827200151.GA19618@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190828121628.GG4920@zn.tnic>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 27, 2019 at 01:01:51PM -0700, Guenter Roeck wrote:
->On Tue, Aug 27, 2019 at 02:10:03PM -0400, Sasha Levin wrote:
->> On Tue, Aug 27, 2019 at 10:16:21AM -0700, Guenter Roeck wrote:
->> >Hi,
->> >
->> >I recently wrote a script which identifies patches potentially missing
->> >in downstream kernel branches. The idea is to identify patches backported/
->> >applied to a downstream branch for which patches tagged with Fixes: are
->> >available in the upstream kernel, but those fixes are missing from the
->> >downstream branch. The script workflow is something like:
->> >
->> >- Identify locally applied patches in downstream branch
->> >- For each patch, identify the matching upstream SHA
->> >- Search the upstream kernel for Fixes: tags with this SHA
->> >- If one or more patches with matching Fixes: tags are found, check
->> > if the patch was applied to the downstream branch.
->> >- If the patch was not applied to the downstream branch, report
->> >
->> >Running this script on chromeos-4.19 identified, not surprisingly, a number
->> >of such patches. However, and more surprisingly, it also identified several
->> >patches applied to v4.19.y for which fixes are available in the upstream
->> >kernel, but those fixes have not been applied to v4.19.y. Some of those
->> >are on the cosmetic side, but several seem to be relevant. I didn't
->> >cross-check all of them, but the ones I tried did apply to linux-4.19.y.
->> >The complete list is attached below.
->> >
->> >Question: Do Sasha's automated scripts identify such patches ? If not,
->> >would it make sense to do it ? Or is there some reason why the patches
->> >have not been applied to v4.19.y ?
->>
->> Hey Guenter,
->>
->> I have a very similar script with a slight difference: I don't try to
->> find just "Fixes:" tags, but rather just any reference from one patch to
->> another. This tends to catch cases where once patch states it's "a
->> similar fix to ..." and such.
->>
->> The tricky part is that it's causing a whole bunch of false positives,
->> which takes a while to weed through - and that's where the issue is
->> right now.
->>
->
->I didn't see any false positives, at least not yet. Would it possibly
 
-I was referring to things that say that they "fixes:", but the fix it
-not stable material (typos, fallthrough, etc).
+--mR8QP4gmHujQHb1c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->make sense to start with looking at Fixes: ? After all, additional
->references (wich higher chance for false positives) can always be
->searched for later.
+On Wed 2019-08-28 14:16:28, Borislav Petkov wrote:
+> On Wed, Aug 28, 2019 at 02:09:36PM +0200, Pavel Machek wrote:
+> > Yes, and now AMD has patch to break it on *all* machines.
+>=20
+> It doesn't break all machines - you need to look at that patch again.
 
-Yes, let me send a branch out for review later today and we could
-compare our results.
+This is not a way to have an inteligent conversation.
 
---
-Thanks,
-Sasha
+The patch clearly breaks more machines than it has to. It is known to
+cause regression. You snipped the rest of the email with better ways
+to solve this.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--mR8QP4gmHujQHb1c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl1mc5kACgkQMOfwapXb+vIz7QCgqGdVM5QcSn7YV7viJnMiuqQs
+H2kAn3NoOi6AbQxnnAtd3nKdvRrtQcrx
+=Kb80
+-----END PGP SIGNATURE-----
+
+--mR8QP4gmHujQHb1c--
