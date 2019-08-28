@@ -2,95 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 851089FB37
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 09:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE9D9FBC8
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 09:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726438AbfH1HLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 03:11:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:54935 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726399AbfH1HLX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 03:11:23 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id E66BF81849; Wed, 28 Aug 2019 09:11:06 +0200 (CEST)
-Date:   Wed, 28 Aug 2019 09:11:19 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Steve Dickson <steved@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 35/98] NFS: Fix regression whereby fscache errors
- are appearing on nofsc mounts
-Message-ID: <20190828071119.GA10462@amd>
-References: <20190827072718.142728620@linuxfoundation.org>
- <20190827072720.043818271@linuxfoundation.org>
+        id S1726297AbfH1HbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 03:31:17 -0400
+Received: from mga01.intel.com ([192.55.52.88]:23814 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726292AbfH1HbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 03:31:17 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Aug 2019 00:31:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,440,1559545200"; 
+   d="scan'208";a="181944132"
+Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.66]) ([10.237.72.66])
+  by fmsmga007.fm.intel.com with ESMTP; 28 Aug 2019 00:31:15 -0700
+Subject: Re: FAILED: patch "[PATCH] scsi: ufs: Fix NULL pointer dereference
+ in" failed to apply to 4.4-stable tree
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     martin.petersen@oracle.com, stable@vger.kernel.org
+References: <156680972724494@kroah.com>
+ <450beed5-281b-be41-029e-fb98d2ba36ba@intel.com>
+ <20190826132828.GA12281@kroah.com> <20190828040731.GZ5281@sasha-vm>
+From:   Adrian Hunter <adrian.hunter@intel.com>
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
+ Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+Message-ID: <10e26c6d-baa3-5ed4-70b1-eab053340dda@intel.com>
+Date:   Wed, 28 Aug 2019 10:30:11 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Content-Disposition: inline
-In-Reply-To: <20190827072720.043818271@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190828040731.GZ5281@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 28/08/19 7:07 AM, Sasha Levin wrote:
+> On Mon, Aug 26, 2019 at 03:28:28PM +0200, Greg KH wrote:
+>> On Mon, Aug 26, 2019 at 02:49:49PM +0300, Adrian Hunter wrote:
+>>> Seems to works for me:
+>>>
+>>> $ git log | head -5
+>>> commit 5e9f4d704f8698b6d655afa7e9fac3509da253bc
+>>> Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> Date:   Sun Aug 25 10:53:06 2019 +0200
+>>>
+>>>     Linux 4.4.190
+>>>
+>>> $ git cherry-pick 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1
+>>> warning: inexact rename detection was skipped due to too many files.
+>>> warning: you may want to set your merge.renamelimit variable to at least
+>>> 22729 and retry the command.
+>>> [linux-4.4.y 9558a3c05149] scsi: ufs: Fix NULL pointer dereference in
+>>> ufshcd_config_vreg_hpm()
+>>>  Date: Wed Aug 14 15:59:50 2019 +0300
+>>>  1 file changed, 3 insertions(+)
+>>>
+>>> $ git log | head -5
+>>> commit 9558a3c05149ded7136c24325dd3952276fcdaaa
+>>> Author: Adrian Hunter <adrian.hunter@intel.com>
+>>> Date:   Wed Aug 14 15:59:50 2019 +0300
+>>>
+>>>     scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
+>>>
+>>
+>> I do not use cherry-pick, I use quilt.  Can you please provide the
+>> resulting patch that you created here, after you verify that it really
+>> is correct (see the git warning...)
+> 
+> Looks like the patched function moved around more than quilt liked. I've
+> confirmed that what git does is correct and queued it for 4.4. It is not
+> needed for 4.9, 4.14 and 4.19.
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you!
 
-On Tue 2019-08-27 09:50:14, Greg Kroah-Hartman wrote:
-> [ Upstream commit dea1bb35c5f35e0577cfc61f79261d80b8715221 ]
->=20
-> People are reporing seeing fscache errors being reported concerning
-> duplicate cookies even in cases where they are not setting up fscache
-> at all. The rule needs to be that if fscache is not enabled, then it
-> should have no side effects at all.
->=20
-> To ensure this is the case, we disable fscache completely on all superblo=
-cks
-> for which the 'fsc' mount option was not set. In order to avoid issues
-> with '-oremount', we also disable the ability to turn fscache on via
-> remount.
+By the way, regular patch also works:
 
-Actually, the code seems to suggest that you disable the ability to
-turn fscache _off_ via remount, too.
+$ patch -p1 < 0001-scsi-ufs-Fix-NULL-pointer-dereference-in-ufshcd_conf.patch 
+patching file drivers/scsi/ufs/ufshcd.c
+Hunk #1 succeeded at 4418 (offset -2644 lines).
 
-Is that intentional?
-
-Best regards,
-								Pavel
-
-> @@ -2239,6 +2239,7 @@ nfs_compare_remount_data(struct nfs_server *nfss,
->  	    data->acdirmin !=3D nfss->acdirmin / HZ ||
->  	    data->acdirmax !=3D nfss->acdirmax / HZ ||
->  	    data->timeo !=3D (10U * nfss->client->cl_timeout->to_initval / HZ) =
-||
-> +	    (data->options & NFS_OPTION_FSCACHE) !=3D (nfss->options & NFS_OPTI=
-ON_FSCACHE) ||
->  	    data->nfs_server.port !=3D nfss->port ||
->  	    data->nfs_server.addrlen !=3D nfss->nfs_client->cl_addrlen ||
->  	    !rpc_cmp_addr((struct sockaddr *)&data->nfs_server.address,
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl1mKRcACgkQMOfwapXb+vIEvACfVpzLbeyLcBleN3N5tPiXdRHY
-yqsAoKVSoLdRl2MIVRw24zZV2bl8V+9T
-=hqyc
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+So maybe quilt should be made the same?
