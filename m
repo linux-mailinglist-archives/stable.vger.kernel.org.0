@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6621BA0B8D
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2D4A0B9C
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726583AbfH1Uc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 16:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50694 "EHLO mail.kernel.org"
+        id S1726583AbfH1Ufl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 16:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726315AbfH1Uc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 16:32:27 -0400
+        id S1726400AbfH1Ufl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 16:35:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C67A022CED;
-        Wed, 28 Aug 2019 20:32:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B4DF22CED;
+        Wed, 28 Aug 2019 20:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567024346;
-        bh=IwMAe9LiAvAfkm2kMq8E28YuLf+UWOZVAqNdjscg6Jc=;
+        s=default; t=1567024540;
+        bh=M0i4p+iyEMFq5hg1I1e+81FwvOseyDzRVzMnhLiMz1k=;
         h=Subject:To:From:Date:From;
-        b=aV3B/9U2+jtJG2y4xsAbCWzi6jevWyPZu1pYc0ftAGAe310Tc+E6d2oqGJ6ibf3Pm
-         Rh+zcrpkfSPFwb1xqGkaVEopNK8A9DghY+FL2C2omTVrsM9ofHKHXjZEn2lVxpV9wa
-         TFLa0NimSAVaHceTZ5J1+rNEHqjHNvVoI4j9Zl4g=
-Subject: patch "mei: me: add Tiger Lake point LP device ID" added to char-misc-linus
-To:     tomas.winkler@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=UHmn1fIC0YubmPs6DpNMMXA81jnLG5mcbOLtjWFSsAVryQqKqs633djxDUosYRicP
+         U/+yk8ZzM5xq3wpG+VEJZ2TgbuM2usDY+MCBq7LY8iK/b5VK9qlXfvDsJ6oroPW/lH
+         TZ9i+zYUikSpxXbbc7hkjOYPWq6336E3NyZ157ys=
+Subject: patch "lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK" added to char-misc-linus
+To:     rrangel@chromium.org, gregkh@linuxfoundation.org,
+        keescook@chromium.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Aug 2019 22:32:23 +0200
-Message-ID: <156702434337101@kroah.com>
+Date:   Wed, 28 Aug 2019 22:35:37 +0200
+Message-ID: <1567024537137103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: me: add Tiger Lake point LP device ID
+    lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,48 +55,49 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 587f17407741a5be07f8a2d1809ec946c8120962 Mon Sep 17 00:00:00 2001
-From: Tomas Winkler <tomas.winkler@intel.com>
-Date: Mon, 19 Aug 2019 13:32:10 +0300
-Subject: mei: me: add Tiger Lake point LP device ID
+From b9bc7b8b1e9e815b231c1ca0b566ee723f480987 Mon Sep 17 00:00:00 2001
+From: Raul E Rangel <rrangel@chromium.org>
+Date: Tue, 27 Aug 2019 11:36:19 -0600
+Subject: lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK
 
-Add Tiger Lake Point device ID for TGP LP.
+lkdtm/bugs.c:94:2: error: format '%d' expects argument of type 'int', but argument 2 has type 'long unsigned int' [-Werror=format=]
+  pr_info("Calling function with %d frame size to depth %d ...\n",
+  ^
+THREAD_SIZE is defined as a unsigned long, cast CONFIG_FRAME_WARN to
+unsigned long as well.
 
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Fixes: 24cccab42c419 ("lkdtm/bugs: Adjust recursion test to avoid elision")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190819103210.32748-1-tomas.winkler@intel.com
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20190827173619.170065-1-rrangel@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h | 2 ++
- drivers/misc/mei/pci-me.c     | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/misc/lkdtm/bugs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 6c0173772162..77f7dff7098d 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,6 +81,8 @@
+diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
+index 1606658b9b7e..24245ccdba72 100644
+--- a/drivers/misc/lkdtm/bugs.c
++++ b/drivers/misc/lkdtm/bugs.c
+@@ -22,7 +22,7 @@ struct lkdtm_list {
+  * recurse past the end of THREAD_SIZE by default.
+  */
+ #if defined(CONFIG_FRAME_WARN) && (CONFIG_FRAME_WARN > 0)
+-#define REC_STACK_SIZE (CONFIG_FRAME_WARN / 2)
++#define REC_STACK_SIZE (_AC(CONFIG_FRAME_WARN, UL) / 2)
+ #else
+ #define REC_STACK_SIZE (THREAD_SIZE / 8)
+ #endif
+@@ -91,7 +91,7 @@ void lkdtm_LOOP(void)
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
-+#define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
-+
- #define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
- #define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
- 
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index 57cb68f5cc64..541538eff8b1 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -98,6 +98,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH12_CFG)},
-+
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
- 
+ void lkdtm_EXHAUST_STACK(void)
+ {
+-	pr_info("Calling function with %d frame size to depth %d ...\n",
++	pr_info("Calling function with %lu frame size to depth %d ...\n",
+ 		REC_STACK_SIZE, recur_count);
+ 	recursive_loop(recur_count);
+ 	pr_info("FAIL: survived without exhausting stack?!\n");
 -- 
 2.23.0
 
