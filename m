@@ -2,114 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 338C0A0997
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 20:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 009EFA09E0
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 20:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726921AbfH1SfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 14:35:13 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:8820 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726567AbfH1SfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 14:35:13 -0400
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id DA357882F2
-        for <stable@vger.kernel.org>; Wed, 28 Aug 2019 18:35:12 +0000 (UTC)
-Received: by mail-qk1-f200.google.com with SMTP id l64so941180qkb.5
-        for <stable@vger.kernel.org>; Wed, 28 Aug 2019 11:35:12 -0700 (PDT)
+        id S1726876AbfH1Spf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 14:45:35 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:40150 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726882AbfH1Spe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 14:45:34 -0400
+Received: by mail-wr1-f67.google.com with SMTP id c3so828537wrd.7;
+        Wed, 28 Aug 2019 11:45:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=uzb7erekU8g2iYVyP5gycVR/YMGgpJBA2pn7vNp581E=;
+        b=JZb7Xt/l4fzTVyq93q6g8wGivNG1U7RglbzIf1zZBaafcZVV1Sf3O1e+CCrfxZGWAU
+         QpMkYRRpANt4ruc23Ey5+H70EYPq2nm7buGcCdMD6vo/K3ZYREdZjfF8dbRc6l8bTWuU
+         TjQJiasEYcfyQgmOcqadV0klVf/TtB3ZuMODVSMto3VdhZUdDMkWdYnbPfbHJYSRpXPC
+         /CV1p+bC25/oYdeFfaofr7vDRQBrOLl71d8mjWBIuurGQjhA7O3N8cy6yi5n5gUYttbt
+         uSX4Wz31KAdqWvF7Zaizgc7l0pkliJPNXocX8H0lwOPwYDpZECU4AD7Sy76br5JIbryk
+         rnCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=8hkCC+6RH1+I9XJYQP9KXoRyFfXCsCu2bKOzDa8PS88=;
-        b=O3AuhQd7ecnZGs2DbKqDpx2WIL+WDqkxLaz3xEFoJ3Qmt5nJHPzhid/EqxUoIYNajk
-         qyyGQOnNs6fZlR8zPHvusulDUFcKAPMSkeaDgUfEQKgQp5hq5Hg0PH0q2oPIbuCrKG6J
-         spoo57t26sRYZAnvAhAFM3NxtT2wEltJW29KR5MBVHbX7zHjHDeH1VlpYol3HdDqW1rG
-         7xBt1fE152jdS9e6DMZs1xbkVBc+xLQTGJ2mcgmU0E+3lQyWeFLR2+l4UlFoIQHL+mvh
-         FDZe0BEImkJ9bJHurQXO9eyjKZLHGaunMkrtLsrwrAdg8KNWqnfTNHgqscxBUz7SyOwI
-         oTBA==
-X-Gm-Message-State: APjAAAXq6QmTvaPQYXn/AdxH/EZ8lx3wdNzkF30RVkqCyDVU2UEozusl
-        gseUfCxXDUwvdRKf0hyEOa8ZDvE4NWc1BFtwsZlsJNJgK3kXZwG+MrK94kBc+MO6NbHW7YMrUg3
-        Fi0ommo4A5QAw08co
-X-Received: by 2002:a05:620a:12ca:: with SMTP id e10mr5385452qkl.125.1567017311911;
-        Wed, 28 Aug 2019 11:35:11 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqz7ND/gqvozXNHQF0iDa00e2Qalk9m406iRqhKzLGxN4k/iFpd/mKGIdU7I/ZXi5V7innUWBg==
-X-Received: by 2002:a05:620a:12ca:: with SMTP id e10mr5385430qkl.125.1567017311648;
-        Wed, 28 Aug 2019 11:35:11 -0700 (PDT)
-Received: from dhcp-10-20-1-11.bss.redhat.com ([144.121.20.162])
-        by smtp.gmail.com with ESMTPSA id y1sm4929qti.49.2019.08.28.11.35.10
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=uzb7erekU8g2iYVyP5gycVR/YMGgpJBA2pn7vNp581E=;
+        b=P9dIHAxhIMgdxILXVwgfRDUb9V9QRqdFghi4TuRqYXp4bg3DCUeY4E43B/05WvmrUv
+         2DzjBO1U4Y2JLFXCFxyiot9FqDaiK2S5Z98tDLN61jJpWQGGozlIxe80cLxQ3LQ8OQEM
+         BNZ8DfPd5Vs3va1YoOFG3dPq0D8ylN3HjO78s3kKnCDA92qpKBIZ4XvQuCS65MP38G+s
+         Hbq5yRmulJZnSsvYrgOmwE2KUWzGPM+exngAJYB36adj8Z0DQjwGLufGqhDi00Ca/weD
+         00iCww+LXZDPKxtbG1AGB63Zb55JxWc1yTrkSAyqk1s/wap6Tl77Dwby1woiIYIUOcFC
+         +GlQ==
+X-Gm-Message-State: APjAAAWA2ybayGf8f3sJ4AOYkicWjnl5QW49YeSbO8IqdTXxg1EuXvHx
+        Kbq66gBcSWNVa+du+u5bWpw=
+X-Google-Smtp-Source: APXvYqzWvg1GBLeEX4emZimu3Krf58MHoihlarAwr3/DVkXxtPrZhV+yGFdEkV4Rbdn4ezwjfYwxjw==
+X-Received: by 2002:a5d:4211:: with SMTP id n17mr5917722wrq.137.1567017932509;
+        Wed, 28 Aug 2019 11:45:32 -0700 (PDT)
+Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
+        by smtp.gmail.com with ESMTPSA id g65sm298385wma.21.2019.08.28.11.45.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Aug 2019 11:35:10 -0700 (PDT)
-Message-ID: <1557c35b2c9293034003f1ab34e1280920b09655.camel@redhat.com>
-Subject: Re: [PATCH] drm/i915: Limit MST to <= 8bpc once again
-From:   Lyude Paul <lyude@redhat.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Geoffrey Bennett <gmux22@gmail.com>
-Date:   Wed, 28 Aug 2019 14:35:09 -0400
-In-Reply-To: <20190828102059.2512-1-ville.syrjala@linux.intel.com>
-References: <20190828102059.2512-1-ville.syrjala@linux.intel.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        Wed, 28 Aug 2019 11:45:31 -0700 (PDT)
+Date:   Wed, 28 Aug 2019 11:45:29 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+Message-ID: <20190828184529.GC127646@archlinux-threadripper>
+References: <20190812023214.107817-1-natechancellor@gmail.com>
+ <878srdv206.fsf@mpe.ellerman.id.au>
+ <20190828175322.GA121833@archlinux-threadripper>
+ <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+On Wed, Aug 28, 2019 at 11:01:14AM -0700, Nick Desaulniers wrote:
+> On Wed, Aug 28, 2019 at 10:53 AM Nathan Chancellor
+> <natechancellor@gmail.com> wrote:
+> >
+> > On Wed, Aug 28, 2019 at 11:43:53PM +1000, Michael Ellerman wrote:
+> > > Nathan Chancellor <natechancellor@gmail.com> writes:
+> > >
+> > > > Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+> > > > setjmp is used") disabled -Wbuiltin-requires-header because of a warning
+> > > > about the setjmp and longjmp declarations.
+> > > >
+> > > > r367387 in clang added another diagnostic around this, complaining that
+> > > > there is no jmp_buf declaration.
+> > > >
+> > > > In file included from ../arch/powerpc/xmon/xmon.c:47:
+> > > > ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+> > > > built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+> > > > type, commonly provided in the header <setjmp.h>.
+> > > > [-Werror,-Wincomplete-setjmp-declaration]
+> > > > extern long setjmp(long *);
+> > > >             ^
+> > > > ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+> > > > built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+> > > > type, commonly provided in the header <setjmp.h>.
+> > > > [-Werror,-Wincomplete-setjmp-declaration]
+> > > > extern void longjmp(long *, long);
+> > > >             ^
+> > > > 2 errors generated.
+> > > >
+> > > > Take the same approach as the above commit by disabling the warning for
+> > > > the same reason, we provide our own longjmp/setjmp function.
+> > > >
+> > > > Cc: stable@vger.kernel.org # 4.19+
+> > > > Link: https://github.com/ClangBuiltLinux/linux/issues/625
+> > > > Link: https://github.com/llvm/llvm-project/commit/3be25e79477db2d31ac46493d97eca8c20592b07
+> > > > Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> > > > ---
+> > > >
+> > > > It may be worth using -fno-builtin-setjmp and -fno-builtin-longjmp
+> > > > instead as it makes it clear to clang that we are not using the builtin
+> > > > longjmp and setjmp functions, which I think is why these warnings are
+> > > > appearing (at least according to the commit that introduced this waring).
+> > > >
+> > > > Sample patch:
+> > > > https://github.com/ClangBuiltLinux/linux/issues/625#issuecomment-519251372
+> > >
+> > > Couldn't we just add those flags to CFLAGS for the whole kernel? Rather
+> > > than making them per-file.
+> >
+> > Yes, I don't think this would be unreasonable. Are you referring to the
+> > cc-disable-warning flags or the -fno-builtin flags? I personally think
+> > the -fno-builtin flags convey to clang what the kernel is intending to
+> > do better than disabling the warnings outright.
+> 
+> The `-f` family of flags have dire implications for codegen, I'd
+> really prefer we think long and hard before adding/removing them to
+> suppress warnings.  I don't think it's a solution for this particular
+> problem.
 
-On Wed, 2019-08-28 at 13:20 +0300, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> My attempt at allowing MST to use the higher color depths has
-> regressed some configurations. Apparently people have setups
-> where all MST streams will fit into the DP link with 8bpc but
-> won't fit with higher color depths.
-> 
-> What we really should be doing is reducing the bpc for all the
-> streams on the same link until they start to fit. But that requires
-> a bit more work, so in the meantime let's revert back closer to
-> the old behavior and limit MST to at most 8bpc.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Geoffrey Bennett <gmux22@gmail.com>
-> Fixes: f1477219869c ("drm/i915: Remove the 8bpc shackles from DP MST")
-> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111505
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_dp_mst.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> index 2c5ac3dd647f..6df240a01b8c 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> @@ -128,7 +128,15 @@ static int intel_dp_mst_compute_config(struct
-> intel_encoder *encoder,
->  	limits.max_lane_count = intel_dp_max_lane_count(intel_dp);
->  
->  	limits.min_bpp = intel_dp_min_bpp(pipe_config);
-> -	limits.max_bpp = pipe_config->pipe_bpp;
-> +	/*
-> +	 * FIXME: If all the streams can't fit into the link with
-> +	 * their current pipe_bpp we should reduce pipe_bpp across
-> +	 * the board until things start to fit. Until then we
-> +	 * limit to <= 8bpc since that's what was hardcoded for all
-> +	 * MST streams previously. This hack should be removed once
-> +	 * we have the proper retry logic in place.
-> +	 */
-> +	limits.max_bpp = min(pipe_config->pipe_bpp, 24);
->  
->  	intel_dp_adjust_compliance_config(intel_dp, pipe_config, &limits);
->  
--- 
+I am fine with whatever approach gets this warning fixed to the
+maintainer's satisfaction...
+
+However, I think that -fno-builtin-* would be appropriate here because
+we are providing our own setjmp implementation, meaning clang should not
+be trying to do anything with the builtin implementation like building a
+declaration for it.
+
 Cheers,
-	Lyude Paul
-
+Nathan
