@@ -2,133 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F9EA0DC9
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 00:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F34A0DF9
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 00:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727014AbfH1WxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 18:53:10 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:36714 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726828AbfH1WxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 18:53:10 -0400
-Received: by mail-pg1-f194.google.com with SMTP id l21so494797pgm.3;
-        Wed, 28 Aug 2019 15:53:09 -0700 (PDT)
+        id S1727061AbfH1W7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 18:59:18 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:33386 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726180AbfH1W7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 18:59:18 -0400
+Received: by mail-oi1-f195.google.com with SMTP id l2so1098815oil.0
+        for <stable@vger.kernel.org>; Wed, 28 Aug 2019 15:59:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=lf92TMYTkAV1HBDLrWcWD4AfkryDbwsg8QEPhVI9XqM=;
-        b=dw9E5NT/S5IlcMOY5dmeDbu5wcqYHjsGw0cuc+o8UKOktzI5Q/Q7ydVaehF/S46CRR
-         afjghwMDRWb/44PfOzEzuLNzinYgQ0fkr/mgyl0ixImwXIH8km+51Ux93z3y/m8CZaaa
-         IJGYuuL0HNuud3x0ud7+gV2kzfoCm/iyxC+BCsqWQjyCBS73b+urE8IzL7AEPhjyuRPn
-         8GM6UDqiBNFG75eEwdB8RwiqtP/H8V+idWCfI2nJO4rFmAJ2B8YOi1oDWo3kEBxbvEpm
-         20MpxakpWdmUInkF/vjCt7un5mc600k6oH18m/j3t4hE7siPtIqFnxVfcL4pnGmW11dV
-         p+fQ==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=eei+nx2YuZ1Vpiy5W8y0jR68mELX3rHTUXwaACUTASU=;
+        b=q7HYgs2igOhw2OI0w0BMvMkSCM9YSoJlQM/FIzz758Lx5awjssahmR9s8NSFMNsMew
+         ecj0JWO5rjF5Fuu459xYHds+DCHVcG+ZvJArg1g3SD1Mst1Gpvghaf4eVP7sQY/m07o+
+         V9ISQW42OApgNUULhEUII6hD6cwHE8Efis+e0teFJ9Z7I5HUuMZWmeXR1v7XQoec2kfR
+         MfCHajtWapZ9RuHDIoqZWKWcYnQ1pgWmrV+ps/q9I3BE/sJ0V1o29nzxQhAdawcc5knP
+         PemuV8kgniBDH4b9JHN6ByzbuXMjGyEla444wDPBq505XmwDRw44Q2Oyeb7QLuQhKSd8
+         K3ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=lf92TMYTkAV1HBDLrWcWD4AfkryDbwsg8QEPhVI9XqM=;
-        b=RzfX8FN6nyhdQy4BI/5/sPMhxWS/DQUYYAxTrNA71rp4BwMHYsTyXK0TnS1dIkRvz2
-         zgMig+E+FWu2Io6tp/gvVmaxUvFoqnWVNwR347wNIe019rL8PS+GJWIZRCj/6Glsc0ru
-         t9YqZw/ME7r8wLj2CGC8dFKeMcNJqtcpih2A3BMuxUJJIFYOPOohxEUEktmZKOhIB1OK
-         n4HtAgKACfHluqS+MZjPHubCRxrM8wd2NOVChEw1OFkPvk4uLW3iYnxGpKi13/Bn1f6H
-         OSorkiDsmD14VOUyA1ysDi00dmexT/oRwL8kljHMQ1sAwuHCjhgTJBncJOMkBVFwxXpN
-         QLKA==
-X-Gm-Message-State: APjAAAXuVzuVgYsZJ00jRX6TmQjGwrT6WJ3qTVuECzG6/lRyatUkXw/+
-        9chCV+KdMbANAwTmI6g2Gv/dER03
-X-Google-Smtp-Source: APXvYqwWx3LE+RQwvhwpOmj6xk6DTFbtLSJHu+ErxmoykHugwDfmeeAtpVx0t1Q+G5DwsCf3TwRLpw==
-X-Received: by 2002:a65:684c:: with SMTP id q12mr5135156pgt.405.1567032789352;
-        Wed, 28 Aug 2019 15:53:09 -0700 (PDT)
-Received: from Gentoo ([103.231.91.66])
-        by smtp.gmail.com with ESMTPSA id ce7sm185960pjb.16.2019.08.28.15.53.04
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Aug 2019 15:53:08 -0700 (PDT)
-Date:   Thu, 29 Aug 2019 04:22:56 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Konstantin Ryabitsev <mricon@kernel.org>
-Cc:     Greg KH <greg@kroah.com>, StableKernel <stable@vger.kernel.org>,
-        LinuxKernel <linux-kernel@vger.kernel.org>
-Subject: Re: Latest kernel version no NOT reflecting on kernel.org
-Message-ID: <20190828225253.GA30806@Gentoo>
-References: <20190828135750.GA5841@Gentoo>
- <20190828151353.GA9673@kroah.com>
- <20190828160156.GB26001@chatter.i7.local>
- <20190828170547.GA11688@kroah.com>
- <20190828193908.GC26001@chatter.i7.local>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=eei+nx2YuZ1Vpiy5W8y0jR68mELX3rHTUXwaACUTASU=;
+        b=hPHTUzEmqsJ7HiI8nFZPT9WXQoy0AbU4qA4MRye9SdANeHhm2Iunp4Ou942kujX0HK
+         JjhKfppoPuSPoKdJweYI8OFNyj+8RCl0GvehjPjqIrFbZR/4ximwEBye36SY4BIe2xNa
+         0Oc9mw9KD6nCZe1JZmzrfyMpY3uR6NsURVMYUbGcfeUiPkIMjk7cNWSzMkfZeVNo+lgV
+         K5wqBWTbZl76+2xp1DtDaqgI8ZQgEciZBLu+pRyiZe8QNAMR/RhAHzWgOcwEdCoP6nB1
+         uKkyvXeOFhj5GY5uNIU0g89Sz7sQlztZvDJ/4yml8XIcml46NRJLgV7VHgsAB/QhQ9Ql
+         ct+w==
+X-Gm-Message-State: APjAAAXJdgMAmTokHf2MKZAoGiYhAm6htHqOeKus19xjWSgpqTbGQZQK
+        e1sfYg375RNIjzkwQAeWKiJtoq0th553ZtUnV7U=
+X-Google-Smtp-Source: APXvYqz/bTwKlXsLtpTNWMjmA7Bms09aith2IGaWBHxDDK627/JaR+2FfQbyxBarGUH5BOVofFq3VX8giNinYM4YVCM=
+X-Received: by 2002:a05:6808:4d0:: with SMTP id a16mr4284681oie.47.1567033157314;
+ Wed, 28 Aug 2019 15:59:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-In-Reply-To: <20190828193908.GC26001@chatter.i7.local>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:a9d:4d83:0:0:0:0:0 with HTTP; Wed, 28 Aug 2019 15:59:16
+ -0700 (PDT)
+Reply-To: deaconmarkwilliam@gmail.com
+From:   Deacon Mark William <fredyol007@gmail.com>
+Date:   Wed, 28 Aug 2019 15:59:16 -0700
+Message-ID: <CADcd8K9XTsU5zexugvvVfcD6YbVDhpTyCFORwf4SEPCK_wpbyQ@mail.gmail.com>
+Subject: May the Peace of the Lord Almighty be with you
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+May the peace of the lord Almighty be with you
 
-On 15:39 Wed 28 Aug 2019, Konstantin Ryabitsev wrote:
->On Wed, Aug 28, 2019 at 07:05:47PM +0200, Greg KH wrote:
->>> > I think there's a way to see which cdn mirror you are hitting when
->>> > you
->>> > ask for "www.kernel.org".  Konstantin, any hints as to see if maybe o=
-ne
->>> > of the mirrors is out of sync?
->>>
->>> Looks like the Singapore mirror was feeling out-of-sorts. It'll start
->>> feeling better shortly.
->>
->>Great, thanks for looking into this!
->
->BTW, the easiest way to figure out which frontend you're hitting is to
->look at the output of "host www.kernel.org", e.g.:
->
->$=A0host www.kernel.org
->www.kernel.org is an alias for git.kernel.org.
->git.kernel.org is an alias for ord.git.kernel.org.
->ord.git.kernel.org has address 147.75.58.133
->ord.git.kernel.org has IPv6 address 2604:1380:4020:600::1
->
->The three-letter airport code should indicate where the frontend is
->located (in my case, ORD =3D Chicago). There are total of 6:
->
->sea.git.kernel.org - Seattle
->lax.git.kernel.org - Los Angeles
->ord.git.kernel.org - Chicago
->fra.git.kernel.org - Frankfurt
->sin.git.kernel.org - Singapore
->syd.git.kernel.org - Sydney
->
->Geodns magic should send you to the nearest one, and if the monitoring
->recognizes that one of them is down, it will be automatically removed
->from the pool until it recovers.
->
->Best,
->-K
+I am Deacon Mark William, From West Africa and a member of Christ
+Embassy Church and the P.A. to Pastor Chris Oyakhilome, my beloved
+one, am sorry to intrude into your privacy I need your assistance I
+have a business proposal transaction which I will like to share with
+you. an abandon fund which belongs to our late client who deposited
+the sum of $10.2 Million USD in our bank but he had a plane crash and
+the fund is still in the bank so I wish that you will come up and
+assumed as his foreign business partner in the bank and it will be
+state among us that once the bank release the fund to your wish bank
+account in your country it will be shared among us in the agreement of
+the sum of 60%40 so if you will be honest with me to handle this
+transaction please kindly send your details to me so we can move ahead
+of it.
 
-Hmmm...thanks a  bunch!
+Your full name...........
 
--Bhaskar
+Your Bank Name:............
 
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature; name="signature.asc"
+ Your Telephone Number:............
 
------BEGIN PGP SIGNATURE-----
+ Your Age And Sex:.......................
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl1nBcIACgkQsjqdtxFL
-KRWi1wgAuvEXO/Ahnx4ym2L5zqYLR9yUyzXeqUorHqvw+idy/6U+blph1ziFurum
-DoxFhwbyWeMdIEFecN99GfUl/Qvvbla6JjdWE27SVDFdQjKzb/+Ias2jqPwwmulw
-lA2WAkXrbWhuLX3W3Y5VgpYrWvSVDxmmjbx+zzIQ7Iqdom3bFzvNScihrjeDHkW9
-/OMecNBD5F9lqz5OnjD/6GYPqK17hnObgej8oOq8GWsFwzjWHa4yuLCzSSPgCopc
-+sezLuyiSXvCcW0fLkS/tjLU4APrtQZ21YyIv9q53GCJAcNxuBrl0ksAJBQocna5
-9phftZUy4rUrhw19lHA0mF/FS8ToTA==
-=uEaJ
------END PGP SIGNATURE-----
+Your marital status........
 
---xHFwDpU9dbj6ez1V--
+ Your Occupation..........
+
+Country &city............
+
+Your Humble Regards
+Deacon Mark William
