@@ -2,88 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B557A0029
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 12:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1867A00AD
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 13:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726397AbfH1Krh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 06:47:37 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:46672 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726272AbfH1Krh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 06:47:37 -0400
-Received: from [5.158.153.52] (helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1i2vTw-0001Eg-Ko; Wed, 28 Aug 2019 12:47:16 +0200
-Date:   Wed, 28 Aug 2019 12:47:10 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Pavel Machek <pavel@denx.de>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "x86@kernel.org" <x86@kernel.org>
-Subject: Re: [PATCH 4.19 72/98] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
- family 15h/16h
-In-Reply-To: <20190828103113.GA14677@amd>
-Message-ID: <alpine.DEB.2.21.1908281231480.1869@nanos.tec.linutronix.de>
-References: <20190827072718.142728620@linuxfoundation.org> <20190827072722.020603090@linuxfoundation.org> <20190827113604.GB18218@amd> <alpine.DEB.2.21.1908271525480.1939@nanos.tec.linutronix.de> <20190828103113.GA14677@amd>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1726300AbfH1L0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 07:26:17 -0400
+Received: from secure.icces.com ([172.81.118.59]:55659 "EHLO secure.icces.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726292AbfH1L0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 07:26:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=icces.com;
+         s=default; h=Message-ID:Reply-To:Subject:To:From:Date:
+        Content-Transfer-Encoding:Content-Type:MIME-Version:Sender:Cc:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=/FNFSyAG+b9FvyaozjIa6PHOoQY37mYtzb3yWizsXTQ=; b=tJXlLxjlnpDTLKOd3U/g3KBo9M
+        o4WAHLLO/lh6f16qTDG1cGMoVTRrUkIjZaAce/EFlVHLoyTEWqwXSQB52eWGcOJjhqNCgLYfCBjhB
+        9zxZZ2yBjbFL2O918OfnDMFzgdUGCp0QNfQ3u9wLCrH620LBpXbF1otd2h0GREirVI1fEs3k2WgT7
+        C4zqzBtUeJ9Iu4i+lLNzqLnJF4CJtOPPeSXKi3gYG8Inv6mpFa7F3VJVpbm0mux9tlgTeIVeZUuyz
+        VgWVto5T9MtauSMvMOs83sGMfSoE8KoFcOhbKnD/6gPUuZ9rLdkirndsmnEklUErr49BzwVfWzMX2
+        yYWs4EdA==;
+Received: from [::1] (port=57888 helo=secure.icces.com)
+        by secure.icces.com with esmtpa (Exim 4.92)
+        (envelope-from <aisha@icces.com>)
+        id 1i2u9x-0006Zd-GI; Wed, 28 Aug 2019 05:23:02 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Wed, 28 Aug 2019 05:22:24 -0400
+From:   "Mr. Jack Nicolas" <aisha@icces.com>
+To:     undisclosed-recipients:;
+Subject: we offer all kinds of loan at 3%
+Organization: mrogen82@gmail.com
+Reply-To: jackfundsplc@gmail.com
+Mail-Reply-To: jackfundsplc@gmail.com
+Message-ID: <ce23de187da888602d591a9089231429@icces.com>
+X-Sender: aisha@icces.com
+User-Agent: Roundcube Webmail/1.3.8
+X-OutGoing-Spam-Status: No, score=2.6
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - secure.icces.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - icces.com
+X-Get-Message-Sender-Via: secure.icces.com: authenticated_id: aisha@icces.com
+X-Authenticated-Sender: secure.icces.com: aisha@icces.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Pavel,
 
-On Wed, 28 Aug 2019, Pavel Machek wrote:
-> On Tue 2019-08-27 15:30:30, Thomas Gleixner wrote:
-> > There is no way to reinitialize RDRAND from the kernel otherwise we would
-> > have exactly done that. If you know how to do that please tell.
-> 
-> Would they? AMD is not exactly doing good job with communication
 
-Yes they would. Stop making up weird conspiracy theories.
-
-> here. If BIOS can do it, kernel can do it, too...
-
-May I recommend to read up on SMM and BIOS being able to lock down access
-to certain facilities?
-
-> or do you have information saying otherwise?
-
-Yes. It was clearly stated by Tom that it can only be done in the BIOS.
-
-> > Also disabling it for every BIOS is the only way which can be done because
-> > there is no way to know whether the BIOS is fixed or not at cold boot
-> > time. And it has to be known there because applications cache the
-> 
-> I'm pretty sure DMI-based whitelist would help here. It should be
-> reasonably to fill it with the common machines at least.
-
-Send patches to that effect.
- 
-> Plus, where is the CVE, and does AMD do anything to make BIOS vendors
-> fix them?
-
-May I redirect you to: https://www.amd.com/en/corporate/contact
-
-Thanks,
-
-	tglx
+-- 
+Attn: Are you in need of a loan? we offer all kinds of loan like 
+Personal
+loans, Debt Consolidation Loan, Business Loan, with an interest rate of 
+3%
+Have you been turned down by your bank? Do you have bad credit? Do you 
+have
+unpaid bills? Are you in debt? Do you need to set up a business? Worry 
+no
+more as we are here to offer you the chance to get a loan.if interested
+contact us for more information on this email via: 
+jackfundsplc@gmail.com
