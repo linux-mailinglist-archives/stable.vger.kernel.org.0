@@ -2,97 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44A8FA0D59
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 00:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F9EA0DC9
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 00:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726954AbfH1WQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 18:16:31 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:35053 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726794AbfH1WQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 18:16:31 -0400
-Received: by mail-pf1-f195.google.com with SMTP id d85so675316pfd.2
-        for <stable@vger.kernel.org>; Wed, 28 Aug 2019 15:16:31 -0700 (PDT)
+        id S1727014AbfH1WxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 18:53:10 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:36714 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726828AbfH1WxK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 18:53:10 -0400
+Received: by mail-pg1-f194.google.com with SMTP id l21so494797pgm.3;
+        Wed, 28 Aug 2019 15:53:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=cI7lPiUMiKomeyCUPJV8+wea36GrOdMvUW16YwohpL4=;
-        b=jXn6+gJpaxbVNRJosKVFyJhneE9YA5zZwsY8f08DrvC0jdN8yLLcVGCWMK2MI3asR4
-         mR/w63vTs01x2zv23z7+ENGGZQxl5lP0L7IswMDFJOeF+PfFa5XufKp3POnqA+d+T6gY
-         iU+oHtm3aswQz2vouOHL+N524tw8/MB11zHdlBgBdRzuAh47R8nLGjf1MN97LAs8TJRe
-         t/WglKh0C6Rjvv9Re03vW31Joo/EvEeqi4mSkOvC7ypSmqITd1jZJvKuBnm7iaOIvEcf
-         ItToIAbDhJ7/bc4XNow2l99yUWnAB+lmrvfN0Ccw9w/MiRJ2uXkTq0B2GJ7+NypqqmIG
-         MYiQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=lf92TMYTkAV1HBDLrWcWD4AfkryDbwsg8QEPhVI9XqM=;
+        b=dw9E5NT/S5IlcMOY5dmeDbu5wcqYHjsGw0cuc+o8UKOktzI5Q/Q7ydVaehF/S46CRR
+         afjghwMDRWb/44PfOzEzuLNzinYgQ0fkr/mgyl0ixImwXIH8km+51Ux93z3y/m8CZaaa
+         IJGYuuL0HNuud3x0ud7+gV2kzfoCm/iyxC+BCsqWQjyCBS73b+urE8IzL7AEPhjyuRPn
+         8GM6UDqiBNFG75eEwdB8RwiqtP/H8V+idWCfI2nJO4rFmAJ2B8YOi1oDWo3kEBxbvEpm
+         20MpxakpWdmUInkF/vjCt7un5mc600k6oH18m/j3t4hE7siPtIqFnxVfcL4pnGmW11dV
+         p+fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=cI7lPiUMiKomeyCUPJV8+wea36GrOdMvUW16YwohpL4=;
-        b=bapZnmIqpWvJkr3RLTELKTLC1mHUwqrINUiKs/RhuvcWKjNQ+ppWpf+2StsPWujGxU
-         tCSktlcm8q/ED8Gi2qFFn8r/lAw8fFr2HNV76Q3Kh3yv56Wj4LohfcapfLIdFxOTFVXn
-         nf4WwCAdN3BMBVJLU15yqLSWca4xaU5DY9oLflJRkbMiI26hSXwbEwvxPx5aeBAGtzRy
-         V8uZbYOG/4S51uv5nqGmfPJRuDTTWegGXXiDLDHaUY2QFXCiLXCvqRtzGAIukU3G7dWt
-         KHeGjMiTHH1uNt87OdFIqlazawMkeC43esTn+wUZbu9Et8pfIVMzBfyPHKvOmCYoA0u0
-         ONtw==
-X-Gm-Message-State: APjAAAUv0Y4AUBtJt0QsxgluNmooPIb46/Dcs1HEGzXJ3mWRusEBDhPf
-        iy9WkzdBjtUVMg1AnyDnKVtWbBMB/oCEX1pCkuVm3Ltu1pA=
-X-Google-Smtp-Source: APXvYqzuyqHfthUYWwSiGUlecSwGfmshq015FiqdVWTRGOTXZRuEO4B0tLgZTFnI+YVgOwfSzB5KTyCLaEyT79V8AoY=
-X-Received: by 2002:a65:690b:: with SMTP id s11mr3546456pgq.10.1567030590292;
- Wed, 28 Aug 2019 15:16:30 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=lf92TMYTkAV1HBDLrWcWD4AfkryDbwsg8QEPhVI9XqM=;
+        b=RzfX8FN6nyhdQy4BI/5/sPMhxWS/DQUYYAxTrNA71rp4BwMHYsTyXK0TnS1dIkRvz2
+         zgMig+E+FWu2Io6tp/gvVmaxUvFoqnWVNwR347wNIe019rL8PS+GJWIZRCj/6Glsc0ru
+         t9YqZw/ME7r8wLj2CGC8dFKeMcNJqtcpih2A3BMuxUJJIFYOPOohxEUEktmZKOhIB1OK
+         n4HtAgKACfHluqS+MZjPHubCRxrM8wd2NOVChEw1OFkPvk4uLW3iYnxGpKi13/Bn1f6H
+         OSorkiDsmD14VOUyA1ysDi00dmexT/oRwL8kljHMQ1sAwuHCjhgTJBncJOMkBVFwxXpN
+         QLKA==
+X-Gm-Message-State: APjAAAXuVzuVgYsZJ00jRX6TmQjGwrT6WJ3qTVuECzG6/lRyatUkXw/+
+        9chCV+KdMbANAwTmI6g2Gv/dER03
+X-Google-Smtp-Source: APXvYqwWx3LE+RQwvhwpOmj6xk6DTFbtLSJHu+ErxmoykHugwDfmeeAtpVx0t1Q+G5DwsCf3TwRLpw==
+X-Received: by 2002:a65:684c:: with SMTP id q12mr5135156pgt.405.1567032789352;
+        Wed, 28 Aug 2019 15:53:09 -0700 (PDT)
+Received: from Gentoo ([103.231.91.66])
+        by smtp.gmail.com with ESMTPSA id ce7sm185960pjb.16.2019.08.28.15.53.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Aug 2019 15:53:08 -0700 (PDT)
+Date:   Thu, 29 Aug 2019 04:22:56 +0530
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To:     Konstantin Ryabitsev <mricon@kernel.org>
+Cc:     Greg KH <greg@kroah.com>, StableKernel <stable@vger.kernel.org>,
+        LinuxKernel <linux-kernel@vger.kernel.org>
+Subject: Re: Latest kernel version no NOT reflecting on kernel.org
+Message-ID: <20190828225253.GA30806@Gentoo>
+References: <20190828135750.GA5841@Gentoo>
+ <20190828151353.GA9673@kroah.com>
+ <20190828160156.GB26001@chatter.i7.local>
+ <20190828170547.GA11688@kroah.com>
+ <20190828193908.GC26001@chatter.i7.local>
 MIME-Version: 1.0
-References: <20190812023214.107817-1-natechancellor@gmail.com>
- <878srdv206.fsf@mpe.ellerman.id.au> <20190828175322.GA121833@archlinux-threadripper>
- <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com> <20190828184529.GC127646@archlinux-threadripper>
-In-Reply-To: <20190828184529.GC127646@archlinux-threadripper>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 28 Aug 2019 15:16:19 -0700
-Message-ID: <CAKwvOd=wdscd7smcKZk40zD_n1OUVkhYYd7ZnoK8r1Y+pkvYVg@mail.gmail.com>
-Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+In-Reply-To: <20190828193908.GC26001@chatter.i7.local>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 28, 2019 at 11:45 AM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> On Wed, Aug 28, 2019 at 11:01:14AM -0700, Nick Desaulniers wrote:
-> > On Wed, Aug 28, 2019 at 10:53 AM Nathan Chancellor
-> > <natechancellor@gmail.com> wrote:
-> > >
-> > > Yes, I don't think this would be unreasonable. Are you referring to the
-> > > cc-disable-warning flags or the -fno-builtin flags? I personally think
-> > > the -fno-builtin flags convey to clang what the kernel is intending to
-> > > do better than disabling the warnings outright.
-> >
-> > The `-f` family of flags have dire implications for codegen, I'd
-> > really prefer we think long and hard before adding/removing them to
-> > suppress warnings.  I don't think it's a solution for this particular
-> > problem.
->
-> I am fine with whatever approach gets this warning fixed to the
-> maintainer's satisfaction...
->
-> However, I think that -fno-builtin-* would be appropriate here because
-> we are providing our own setjmp implementation, meaning clang should not
-> be trying to do anything with the builtin implementation like building a
-> declaration for it.
 
-That's a good reason IMO.  IIRC, the -fno-builtin-* flags don't warn
-if * is some unrecognized value, so -fno-builtin-setjmp may not
-actually do anything, and you may need to scan the source (of clang or
-llvm).
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-~Nick Desaulniers
+On 15:39 Wed 28 Aug 2019, Konstantin Ryabitsev wrote:
+>On Wed, Aug 28, 2019 at 07:05:47PM +0200, Greg KH wrote:
+>>> > I think there's a way to see which cdn mirror you are hitting when
+>>> > you
+>>> > ask for "www.kernel.org".  Konstantin, any hints as to see if maybe o=
+ne
+>>> > of the mirrors is out of sync?
+>>>
+>>> Looks like the Singapore mirror was feeling out-of-sorts. It'll start
+>>> feeling better shortly.
+>>
+>>Great, thanks for looking into this!
+>
+>BTW, the easiest way to figure out which frontend you're hitting is to
+>look at the output of "host www.kernel.org", e.g.:
+>
+>$=A0host www.kernel.org
+>www.kernel.org is an alias for git.kernel.org.
+>git.kernel.org is an alias for ord.git.kernel.org.
+>ord.git.kernel.org has address 147.75.58.133
+>ord.git.kernel.org has IPv6 address 2604:1380:4020:600::1
+>
+>The three-letter airport code should indicate where the frontend is
+>located (in my case, ORD =3D Chicago). There are total of 6:
+>
+>sea.git.kernel.org - Seattle
+>lax.git.kernel.org - Los Angeles
+>ord.git.kernel.org - Chicago
+>fra.git.kernel.org - Frankfurt
+>sin.git.kernel.org - Singapore
+>syd.git.kernel.org - Sydney
+>
+>Geodns magic should send you to the nearest one, and if the monitoring
+>recognizes that one of them is down, it will be automatically removed
+>from the pool until it recovers.
+>
+>Best,
+>-K
+
+Hmmm...thanks a  bunch!
+
+-Bhaskar
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl1nBcIACgkQsjqdtxFL
+KRWi1wgAuvEXO/Ahnx4ym2L5zqYLR9yUyzXeqUorHqvw+idy/6U+blph1ziFurum
+DoxFhwbyWeMdIEFecN99GfUl/Qvvbla6JjdWE27SVDFdQjKzb/+Ias2jqPwwmulw
+lA2WAkXrbWhuLX3W3Y5VgpYrWvSVDxmmjbx+zzIQ7Iqdom3bFzvNScihrjeDHkW9
+/OMecNBD5F9lqz5OnjD/6GYPqK17hnObgej8oOq8GWsFwzjWHa4yuLCzSSPgCopc
++sezLuyiSXvCcW0fLkS/tjLU4APrtQZ21YyIv9q53GCJAcNxuBrl0ksAJBQocna5
+9phftZUy4rUrhw19lHA0mF/FS8ToTA==
+=uEaJ
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
