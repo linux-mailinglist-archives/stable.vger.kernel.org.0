@@ -2,92 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DE9D9FBC8
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 09:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD219FC82
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 10:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbfH1HbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 03:31:17 -0400
-Received: from mga01.intel.com ([192.55.52.88]:23814 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726292AbfH1HbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 03:31:17 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Aug 2019 00:31:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,440,1559545200"; 
-   d="scan'208";a="181944132"
-Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.66]) ([10.237.72.66])
-  by fmsmga007.fm.intel.com with ESMTP; 28 Aug 2019 00:31:15 -0700
-Subject: Re: FAILED: patch "[PATCH] scsi: ufs: Fix NULL pointer dereference
- in" failed to apply to 4.4-stable tree
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     martin.petersen@oracle.com, stable@vger.kernel.org
-References: <156680972724494@kroah.com>
- <450beed5-281b-be41-029e-fb98d2ba36ba@intel.com>
- <20190826132828.GA12281@kroah.com> <20190828040731.GZ5281@sasha-vm>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Message-ID: <10e26c6d-baa3-5ed4-70b1-eab053340dda@intel.com>
-Date:   Wed, 28 Aug 2019 10:30:11 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726413AbfH1IC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 04:02:26 -0400
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:40270 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726253AbfH1IC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 04:02:26 -0400
+Received: by mail-wr1-f43.google.com with SMTP id c3so1453542wrd.7
+        for <stable@vger.kernel.org>; Wed, 28 Aug 2019 01:02:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hwq4N5VbJ4aVHyh/1uN0EG4YeEnvfyZM0tlvUxZb/RQ=;
+        b=DlecZfM/ROeuYrp8zQ9y/MmWiQ0GYc5SQwCJ6LWmu32YLMNjvEVb0xHhvgtEEIVa8L
+         phxSTu9DWwcIkj9QDuRjglnLUMJ5okfRzDL+zz7dTC9phO/rbQWg325omZ0VaZHzjcwF
+         vHiRJC5U0rqjSBWt+d5GMJrz3ntwkeCQyY6xtIBZKVDp7VGgfGSDkzpeWHqNhXu9WTGI
+         Z3n3lsqz/6cQRT8wU0XwYhmSyr2qUqDZiVxq7leeQDiG/1DSvthglZICeuDZ82OPHSgx
+         A0OfYLD+9JDBb8i3o0SfQi7uJ/zk5NnSUR3Mta6jACyOt2uvEBntKTXL1JTTKmHMNjFp
+         prmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hwq4N5VbJ4aVHyh/1uN0EG4YeEnvfyZM0tlvUxZb/RQ=;
+        b=hSghZi1X/wPtarKT7rA6Aql7DlGKmAZZB/fDZE+5NfZvrCqGgFE5DMR7trLUvkHqZ6
+         MlXpWhSfco/qJcmr6InJzrrRBWuBv5sf2bbxxRXnvT7QikVbF7J5QKy/sOiJJr+y+0o5
+         D9kQlLW1Bn9yQuy8XmapR5sa7bn4+0zxEMnixi+GY9GtIn7uMAzjmM6R+GYbHy9wUmq1
+         LrcrE5SjEUbR74rHzp8CxgXFmy1qFSUmDsRaf/jerLJwkO/BySUY9ljvhmWKu6j83MKW
+         Y5KJqbZbn4ZFwq0hvYNVyPQKtVVz08YHJ3HfAd4Sf69TPrI0JZflcxD9ueKdog110aJK
+         +VDw==
+X-Gm-Message-State: APjAAAWgHvcg3vkTSKWleVRiRqAKByulTdvQw/F/dD9OsCJdoiQISjfH
+        YyehoCC+5W10O9GALEAKX16WP88BLHD5Fg==
+X-Google-Smtp-Source: APXvYqzi24Bkf7jWUF1dV4EbENQPtzidUhnMxI8txjxk+OYmW5yTIIM5KRLGpA988j2DU2LBl9qj7w==
+X-Received: by 2002:adf:e50b:: with SMTP id j11mr2863584wrm.65.1566979344060;
+        Wed, 28 Aug 2019 01:02:24 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v6sm2495819wma.24.2019.08.28.01.02.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Aug 2019 01:02:23 -0700 (PDT)
+Message-ID: <5d66350f.1c69fb81.db095.bef1@mx.google.com>
+Date:   Wed, 28 Aug 2019 01:02:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190828040731.GZ5281@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.140
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y boot: 72 boots: 1 failed, 71 passed (v4.14.140)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28/08/19 7:07 AM, Sasha Levin wrote:
-> On Mon, Aug 26, 2019 at 03:28:28PM +0200, Greg KH wrote:
->> On Mon, Aug 26, 2019 at 02:49:49PM +0300, Adrian Hunter wrote:
->>> Seems to works for me:
->>>
->>> $ git log | head -5
->>> commit 5e9f4d704f8698b6d655afa7e9fac3509da253bc
->>> Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> Date:   Sun Aug 25 10:53:06 2019 +0200
->>>
->>>     Linux 4.4.190
->>>
->>> $ git cherry-pick 7c7cfdcf7f1777c7376fc9a239980de04b6b5ea1
->>> warning: inexact rename detection was skipped due to too many files.
->>> warning: you may want to set your merge.renamelimit variable to at least
->>> 22729 and retry the command.
->>> [linux-4.4.y 9558a3c05149] scsi: ufs: Fix NULL pointer dereference in
->>> ufshcd_config_vreg_hpm()
->>>  Date: Wed Aug 14 15:59:50 2019 +0300
->>>  1 file changed, 3 insertions(+)
->>>
->>> $ git log | head -5
->>> commit 9558a3c05149ded7136c24325dd3952276fcdaaa
->>> Author: Adrian Hunter <adrian.hunter@intel.com>
->>> Date:   Wed Aug 14 15:59:50 2019 +0300
->>>
->>>     scsi: ufs: Fix NULL pointer dereference in ufshcd_config_vreg_hpm()
->>>
->>
->> I do not use cherry-pick, I use quilt.  Can you please provide the
->> resulting patch that you created here, after you verify that it really
->> is correct (see the git warning...)
-> 
-> Looks like the patched function moved around more than quilt liked. I've
-> confirmed that what git does is correct and queued it for 4.4. It is not
-> needed for 4.9, 4.14 and 4.19.
+stable/linux-4.14.y boot: 72 boots: 1 failed, 71 passed (v4.14.140)
 
-Thank you!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.140/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.140/
 
-By the way, regular patch also works:
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.140
+Git Commit: b5260801526c77496dd8be7d750c20939ec64189
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 33 unique boards, 17 SoC families, 12 builds out of 201
 
-$ patch -p1 < 0001-scsi-ufs-Fix-NULL-pointer-dereference-in-ufshcd_conf.patch 
-patching file drivers/scsi/ufs/ufshcd.c
-Hunk #1 succeeded at 4418 (offset -2644 lines).
+Boot Failure Detected:
 
-So maybe quilt should be made the same?
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
