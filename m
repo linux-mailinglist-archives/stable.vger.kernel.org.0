@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CECC4A0BD7
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB1BA0BF0
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 23:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbfH1UtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 16:49:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
+        id S1726787AbfH1VAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 17:00:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726845AbfH1UtT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 16:49:19 -0400
+        id S1726400AbfH1VAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 17:00:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C10A022DA7;
-        Wed, 28 Aug 2019 20:49:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF7CC217F5;
+        Wed, 28 Aug 2019 21:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567025358;
-        bh=vQmTIivgpZRNcDqBAPWdh86G4WAZ37mOklBwcl6eDSI=;
+        s=default; t=1567026052;
+        bh=hMaq4d88zgmeEINc0kzV6TAs/bsilbcEliJEqAMkOwE=;
         h=Subject:To:From:Date:From;
-        b=j2ckWHqji/LwW8xcZBscIGVOenmVPA3utPP4PhWDV/R7YQoDUwgevaOUJ1PclITMe
-         X/up/a+AP+sEV7bjFrLPAfBLrBGeyb7Ezg4o5zdWY8SLhATDVzLi7aXiAQvRVmJTWp
-         CFnyQGBTjakj3BQbEQushcu50LGVkeOieuXPN/18=
-Subject: patch "USB: cdc-wdm: fix race between write and disconnect due to flag abuse" added to usb-linus
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        b=QuklLNq5LnYNm5H7LhrnknnnGbhXycIMlluUVXrz6bq1Pl7WOpGNGxIA5gXqtjFop
+         Ghx6+iLexuF46g/WSCLx9cN+GDqhls3xmgu8Y4n1mF+j5kD0iBLv41qGBAuO9S4NAM
+         yWq7aRmrB3NuUV+T0csW5JIMJc2/8MA02pfuzL74=
+Subject: patch "fsi: scom: Don't abort operations for minor errors" added to char-misc-linus
+To:     eajames@linux.ibm.com, benh@kernel.crashing.org,
+        gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Aug 2019 22:49:00 +0200
-Message-ID: <1567025340213220@kroah.com>
+Date:   Wed, 28 Aug 2019 23:00:49 +0200
+Message-ID: <156702604917936@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: cdc-wdm: fix race between write and disconnect due to flag abuse
+    fsi: scom: Don't abort operations for minor errors
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,67 +56,56 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 1426bd2c9f7e3126e2678e7469dca9fd9fc6dd3e Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Tue, 27 Aug 2019 12:34:36 +0200
-Subject: USB: cdc-wdm: fix race between write and disconnect due to flag abuse
+From 8919dfcb31161fae7d607bbef5247e5e82fd6457 Mon Sep 17 00:00:00 2001
+From: Eddie James <eajames@linux.ibm.com>
+Date: Tue, 27 Aug 2019 12:12:49 +0800
+Subject: fsi: scom: Don't abort operations for minor errors
 
-In case of a disconnect an ongoing flush() has to be made fail.
-Nevertheless we cannot be sure that any pending URB has already
-finished, so although they will never succeed, they still must
-not be touched.
-The clean solution for this is to check for WDM_IN_USE
-and WDM_DISCONNECTED in flush(). There is no point in ever
-clearing WDM_IN_USE, as no further writes make sense.
+The scom driver currently fails out of operations if certain system
+errors are flagged in the status register; system checkstop, special
+attention, or recoverable error. These errors won't impact the ability
+of the scom engine to perform operations, so the driver should continue
+under these conditions.
+Also, don't do a PIB reset for these conditions, since it won't help.
 
-The issue is as old as the driver.
-
-Fixes: afba937e540c9 ("USB: CDC WDM driver")
-Reported-by: syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 6b293258cded ("fsi: scom: Major overhaul")
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190827103436.21143-1-oneukum@suse.com
+Acked-by: Jeremy Kerr <jk@ozlabs.org>
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20190827041249.13381-1-jk@ozlabs.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-wdm.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/fsi/fsi-scom.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index a7824a51f86d..70afb2ca1eab 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -587,10 +587,20 @@ static int wdm_flush(struct file *file, fl_owner_t id)
- {
- 	struct wdm_device *desc = file->private_data;
+diff --git a/drivers/fsi/fsi-scom.c b/drivers/fsi/fsi-scom.c
+index 343153d47e5b..004dc03ccf09 100644
+--- a/drivers/fsi/fsi-scom.c
++++ b/drivers/fsi/fsi-scom.c
+@@ -38,8 +38,7 @@
+ #define SCOM_STATUS_PIB_RESP_MASK	0x00007000
+ #define SCOM_STATUS_PIB_RESP_SHIFT	12
  
--	wait_event(desc->wait, !test_bit(WDM_IN_USE, &desc->flags));
-+	wait_event(desc->wait,
-+			/*
-+			 * needs both flags. We cannot do with one
-+			 * because resetting it would cause a race
-+			 * with write() yet we need to signal
-+			 * a disconnect
-+			 */
-+			!test_bit(WDM_IN_USE, &desc->flags) ||
-+			test_bit(WDM_DISCONNECTING, &desc->flags));
+-#define SCOM_STATUS_ANY_ERR		(SCOM_STATUS_ERR_SUMMARY | \
+-					 SCOM_STATUS_PROTECTION | \
++#define SCOM_STATUS_ANY_ERR		(SCOM_STATUS_PROTECTION | \
+ 					 SCOM_STATUS_PARITY |	  \
+ 					 SCOM_STATUS_PIB_ABORT | \
+ 					 SCOM_STATUS_PIB_RESP_MASK)
+@@ -251,11 +250,6 @@ static int handle_fsi2pib_status(struct scom_device *scom, uint32_t status)
+ 	/* Return -EBUSY on PIB abort to force a retry */
+ 	if (status & SCOM_STATUS_PIB_ABORT)
+ 		return -EBUSY;
+-	if (status & SCOM_STATUS_ERR_SUMMARY) {
+-		fsi_device_write(scom->fsi_dev, SCOM_FSI2PIB_RESET_REG, &dummy,
+-				 sizeof(uint32_t));
+-		return -EIO;
+-	}
+ 	return 0;
+ }
  
- 	/* cannot dereference desc->intf if WDM_DISCONNECTING */
--	if (desc->werr < 0 && !test_bit(WDM_DISCONNECTING, &desc->flags))
-+	if (test_bit(WDM_DISCONNECTING, &desc->flags))
-+		return -ENODEV;
-+	if (desc->werr < 0)
- 		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
- 			desc->werr);
- 
-@@ -974,8 +984,6 @@ static void wdm_disconnect(struct usb_interface *intf)
- 	spin_lock_irqsave(&desc->iuspin, flags);
- 	set_bit(WDM_DISCONNECTING, &desc->flags);
- 	set_bit(WDM_READ, &desc->flags);
--	/* to terminate pending flushes */
--	clear_bit(WDM_IN_USE, &desc->flags);
- 	spin_unlock_irqrestore(&desc->iuspin, flags);
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
 -- 
 2.23.0
 
