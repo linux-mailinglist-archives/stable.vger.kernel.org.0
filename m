@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2D4A0B9C
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06951A0BCF
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 22:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726583AbfH1Ufl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 16:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51742 "EHLO mail.kernel.org"
+        id S1726839AbfH1Us6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 16:48:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726400AbfH1Ufl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Aug 2019 16:35:41 -0400
+        id S1726583AbfH1Us6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Aug 2019 16:48:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B4DF22CED;
-        Wed, 28 Aug 2019 20:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F335C2189D;
+        Wed, 28 Aug 2019 20:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567024540;
-        bh=M0i4p+iyEMFq5hg1I1e+81FwvOseyDzRVzMnhLiMz1k=;
+        s=default; t=1567025337;
+        bh=4bhfb4iDI7/UZxPJteKxKe9NQf+fDNK3cOYQ+DWdqcI=;
         h=Subject:To:From:Date:From;
-        b=UHmn1fIC0YubmPs6DpNMMXA81jnLG5mcbOLtjWFSsAVryQqKqs633djxDUosYRicP
-         U/+yk8ZzM5xq3wpG+VEJZ2TgbuM2usDY+MCBq7LY8iK/b5VK9qlXfvDsJ6oroPW/lH
-         TZ9i+zYUikSpxXbbc7hkjOYPWq6336E3NyZ157ys=
-Subject: patch "lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK" added to char-misc-linus
-To:     rrangel@chromium.org, gregkh@linuxfoundation.org,
-        keescook@chromium.org, stable@vger.kernel.org
+        b=wifPsEr5l4YnaZVBE8CWNZsG2RQQEAuJ/+s9baSLbSQTQm8562y2kiF6oKG8g+pFE
+         kt0B6e5LVNDTi3HREcEMZ3fmcQeQilFLadeZiYAvIQfqbD2/vKiNnbgQ9KV6dOTI9A
+         URrkd/+gwrCtSSQx4IBQwykhpq/UXMNcnnSWwoAY=
+Subject: patch "typec: tcpm: fix a typo in the comparison of pdo_max_voltage" added to usb-linus
+To:     colin.king@canonical.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Aug 2019 22:35:37 +0200
-Message-ID: <1567024537137103@kroah.com>
+Date:   Wed, 28 Aug 2019 22:48:55 +0200
+Message-ID: <156702533523127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK
+    typec: tcpm: fix a typo in the comparison of pdo_max_voltage
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,49 +56,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b9bc7b8b1e9e815b231c1ca0b566ee723f480987 Mon Sep 17 00:00:00 2001
-From: Raul E Rangel <rrangel@chromium.org>
-Date: Tue, 27 Aug 2019 11:36:19 -0600
-Subject: lkdtm/bugs: fix build error in lkdtm_EXHAUST_STACK
+From a684d8fd87182090ee96e34519ecdf009cef093a Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Thu, 22 Aug 2019 14:52:12 +0100
+Subject: typec: tcpm: fix a typo in the comparison of pdo_max_voltage
 
-lkdtm/bugs.c:94:2: error: format '%d' expects argument of type 'int', but argument 2 has type 'long unsigned int' [-Werror=format=]
-  pr_info("Calling function with %d frame size to depth %d ...\n",
-  ^
-THREAD_SIZE is defined as a unsigned long, cast CONFIG_FRAME_WARN to
-unsigned long as well.
+There appears to be a typo in the comparison of pdo_max_voltage[i]
+with the previous value, currently it is checking against the
+array pdo_min_voltage rather than pdo_max_voltage. I believe this
+is a typo. Fix this.
 
-Fixes: 24cccab42c419 ("lkdtm/bugs: Adjust recursion test to avoid elision")
+Addresses-Coverity: ("Copy-paste error")
+Fixes: 5007e1b5db73 ("typec: tcpm: Validate source and sink caps")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20190827173619.170065-1-rrangel@chromium.org
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20190822135212.10195-1-colin.king@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/lkdtm/bugs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
-index 1606658b9b7e..24245ccdba72 100644
---- a/drivers/misc/lkdtm/bugs.c
-+++ b/drivers/misc/lkdtm/bugs.c
-@@ -22,7 +22,7 @@ struct lkdtm_list {
-  * recurse past the end of THREAD_SIZE by default.
-  */
- #if defined(CONFIG_FRAME_WARN) && (CONFIG_FRAME_WARN > 0)
--#define REC_STACK_SIZE (CONFIG_FRAME_WARN / 2)
-+#define REC_STACK_SIZE (_AC(CONFIG_FRAME_WARN, UL) / 2)
- #else
- #define REC_STACK_SIZE (THREAD_SIZE / 8)
- #endif
-@@ -91,7 +91,7 @@ void lkdtm_LOOP(void)
- 
- void lkdtm_EXHAUST_STACK(void)
- {
--	pr_info("Calling function with %d frame size to depth %d ...\n",
-+	pr_info("Calling function with %lu frame size to depth %d ...\n",
- 		REC_STACK_SIZE, recur_count);
- 	recursive_loop(recur_count);
- 	pr_info("FAIL: survived without exhausting stack?!\n");
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 15abe1d9958f..bcfdb55fd198 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -1446,7 +1446,7 @@ static enum pdo_err tcpm_caps_err(struct tcpm_port *port, const u32 *pdo,
+ 				else if ((pdo_min_voltage(pdo[i]) ==
+ 					  pdo_min_voltage(pdo[i - 1])) &&
+ 					 (pdo_max_voltage(pdo[i]) ==
+-					  pdo_min_voltage(pdo[i - 1])))
++					  pdo_max_voltage(pdo[i - 1])))
+ 					return PDO_ERR_DUPE_PDO;
+ 				break;
+ 			/*
 -- 
 2.23.0
 
