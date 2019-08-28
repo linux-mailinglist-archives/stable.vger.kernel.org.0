@@ -2,82 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C3A9F826
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 04:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A10C9F878
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 04:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726127AbfH1CNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 22:13:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60362 "EHLO mail.kernel.org"
+        id S1726178AbfH1C5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 22:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726096AbfH1CNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 22:13:14 -0400
+        id S1726096AbfH1C5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 22:57:02 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7C4920674;
-        Wed, 28 Aug 2019 02:13:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C1BE20674;
+        Wed, 28 Aug 2019 02:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566958392;
-        bh=z9cH+4cl9MeA/f7ur8vlDOxGaS3KL68qd9WMtzQrkVI=;
+        s=default; t=1566961021;
+        bh=8zKhyDo2kSA0djNQy3eL/9ao3YcxHPEvNHgL1NT9DcQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b8M7wDINZwo+GHxG2o6rCweuZViOOsTq4ZlAvlK9YmNKdBUHaLSssEfEprvyLJAx3
-         oPdemG/tVA0OFWwsEx8KaCOfm2oMJtYjibfKLed253i/fNiPfv6D7fi8u8BQq7/ILe
-         8gNCLrBwoCjx+zYfi9LlYHZfLo1oh1dwtFp7ruQA=
-Date:   Tue, 27 Aug 2019 22:13:11 -0400
+        b=hRBp0rf5JFJDnbu1kMc3QL0sxl27+WKzldnunNpm1W1afWwJOdp0mT//+DdaH4LSs
+         TZ6PKSHFNhaGBgzTzmCEdpcKHPAcU+ZH6cSKhML4OAkJ0+O3VO9k1/PI/93/pdUH0S
+         0B2ERdmLvHzRXtW3PxuHwyQRw+M0X4WXl2OfL4AI=
+Date:   Tue, 27 Aug 2019 22:57:00 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ricard Wanderlof <ricard.wanderlof@axis.com>,
-        Ricard Wanderlof <ricardw@axis.com>
-Subject: Re: [PATCH AUTOSEL 5.2 040/123] ASoC: Fail card instantiation if DAI
- format setup fails
-Message-ID: <20190828021311.GV5281@sasha-vm>
-References: <20190814021047.14828-1-sashal@kernel.org>
- <20190814021047.14828-40-sashal@kernel.org>
- <20190814092213.GC4640@sirena.co.uk>
- <20190826013515.GG5281@sasha-vm>
- <20190827110014.GD23391@sirena.co.uk>
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.4 01/13] GFS2: don't set rgrp gl_object until it's
+ inserted into rgrp tree
+Message-ID: <20190828025700.GW5281@sasha-vm>
+References: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190827110014.GD23391@sirena.co.uk>
+In-Reply-To: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 27, 2019 at 12:00:14PM +0100, Mark Brown wrote:
->On Sun, Aug 25, 2019 at 09:35:15PM -0400, Sasha Levin wrote:
->> On Wed, Aug 14, 2019 at 10:22:13AM +0100, Mark Brown wrote:
+On Wed, Aug 28, 2019 at 12:09:06AM +0100, Ben Hutchings wrote:
+>From: Bob Peterson <rpeterso@redhat.com>
 >
->> > > If the DAI format setup fails, there is no valid communication format
->> > > between CPU and CODEC, so fail card instantiation, rather than continue
->> > > with a card that will most likely not function properly.
+>commit 36e4ad0316c017d5b271378ed9a1c9a4b77fab5f upstream.
 >
->> > This is another one where if nobody noticed a problem already and things
->> > just happened to be working this might break things, it's vanishingly
->> > unlikely to fix anything that was broken.
+>Before this patch, function read_rindex_entry would set a rgrp
+>glock's gl_object pointer to itself before inserting the rgrp into
+>the rgrp rbtree. The problem is: if another process was also reading
+>the rgrp in, and had already inserted its newly created rgrp, then
+>the second call to read_rindex_entry would overwrite that value,
+>then return a bad return code to the caller. Later, other functions
+>would reference the now-freed rgrp memory by way of gl_object.
+>In some cases, that could result in gfs2_rgrp_brelse being called
+>twice for the same rgrp: once for the failed attempt and once for
+>the "real" rgrp release. Eventually the kernel would panic.
+>There are also a number of other things that could go wrong when
+>a kernel module is accessing freed storage. For example, this could
+>result in rgrp corruption because the fake rgrp would point to a
+>fake bitmap in memory too, causing gfs2_inplace_reserve to search
+>some random memory for free blocks, and find some, since we were
+>never setting rgd->rd_bits to NULL before freeing it.
 >
->> Same as the other patch: this patch suggests it fixes a real bug, and if
->> this patch is broken let's fix it.
+>This patch fixes the problem by not setting gl_object until we
+>have successfully inserted the rgrp into the rbtree. Also, it sets
+>rd_bits to NULL as it frees them, which will ensure any accidental
+>access to the wrong rgrp will result in a kernel panic rather than
+>file system corruption, which is preferred.
 >
->If anyone ran into this on the older kernel and fixed or worked
->around it locally there's a reasonable chance this will then
->break what they're doing.  The patch itself is perfectly fine but
+>Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+>[bwh: Backported to 4.4: adjust context]
+>Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 
-But there's not much we can do here. We can't hold off on fixing
-breakage such as this because existing users have workarounds for this.
-Are we breaking kernel ABI with this patch then?
-
-And what about new users? We'll let them get hit by the issue and
-develop their own workarounds?
-
->that doesn't mean the rest of the changes it's being backported
->into are also fine.
-
-This is fair, and we can always hold off on patches if you want more
-time for them to be tested/reviewed. Is it the case here?
+I've queued the series up, thanks Ben!
 
 --
 Thanks,
