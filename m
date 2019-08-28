@@ -2,79 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A10C9F878
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 04:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2A99F880
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 05:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbfH1C5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 22:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37772 "EHLO mail.kernel.org"
+        id S1726227AbfH1DCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 23:02:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726096AbfH1C5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Aug 2019 22:57:02 -0400
+        id S1726178AbfH1DCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 27 Aug 2019 23:02:19 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C1BE20674;
-        Wed, 28 Aug 2019 02:57:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDCF220674;
+        Wed, 28 Aug 2019 03:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566961021;
-        bh=8zKhyDo2kSA0djNQy3eL/9ao3YcxHPEvNHgL1NT9DcQ=;
+        s=default; t=1566961338;
+        bh=RDSQqkdwT/l2dfY6CLVb889H2LImUnadgP6hEdEu8kE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hRBp0rf5JFJDnbu1kMc3QL0sxl27+WKzldnunNpm1W1afWwJOdp0mT//+DdaH4LSs
-         TZ6PKSHFNhaGBgzTzmCEdpcKHPAcU+ZH6cSKhML4OAkJ0+O3VO9k1/PI/93/pdUH0S
-         0B2ERdmLvHzRXtW3PxuHwyQRw+M0X4WXl2OfL4AI=
-Date:   Tue, 27 Aug 2019 22:57:00 -0400
+        b=g0zYB32t/lQXi6CregD22CqJ/Mb+M1oS/T+M8msGz/4x41i8VV3mskjZ7877x91d5
+         x6rDmB4P2ZmUT3WmVp2Fb2wK8g1pjTEFGzdNkKsOT6S+1HBgV8cgN8UehVOovSJReJ
+         ugd1EEp8nuqJ2z0eADAglzMhQiR65Musmn89nOOw=
+Date:   Tue, 27 Aug 2019 23:02:16 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Ben Hutchings <ben@decadent.org.uk>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.4 01/13] GFS2: don't set rgrp gl_object until it's
- inserted into rgrp tree
-Message-ID: <20190828025700.GW5281@sasha-vm>
-References: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: Re: [PATCH 4.9 033/223] perf test 6: Fix missing kvm module load for
+ s390
+Message-ID: <20190828030216.GX5281@sasha-vm>
+References: <20190802092238.692035242@linuxfoundation.org>
+ <20190802092241.125480296@linuxfoundation.org>
+ <3c6356b7406c0a49b8262b9b4b7326afd367a3f5.camel@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190827230906.GA11046@xylophone.i.decadent.org.uk>
+In-Reply-To: <3c6356b7406c0a49b8262b9b4b7326afd367a3f5.camel@decadent.org.uk>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 28, 2019 at 12:09:06AM +0100, Ben Hutchings wrote:
->From: Bob Peterson <rpeterso@redhat.com>
+On Wed, Aug 28, 2019 at 01:12:44AM +0100, Ben Hutchings wrote:
+>On Fri, 2019-08-02 at 11:34 +0200, Greg Kroah-Hartman wrote:
+>> [ Upstream commit 53fe307dfd309e425b171f6272d64296a54f4dff ]
 >
->commit 36e4ad0316c017d5b271378ed9a1c9a4b77fab5f upstream.
+>This results in numerous compiler errors:
 >
->Before this patch, function read_rindex_entry would set a rgrp
->glock's gl_object pointer to itself before inserting the rgrp into
->the rgrp rbtree. The problem is: if another process was also reading
->the rgrp in, and had already inserted its newly created rgrp, then
->the second call to read_rindex_entry would overwrite that value,
->then return a bad return code to the caller. Later, other functions
->would reference the now-freed rgrp memory by way of gl_object.
->In some cases, that could result in gfs2_rgrp_brelse being called
->twice for the same rgrp: once for the failed attempt and once for
->the "real" rgrp release. Eventually the kernel would panic.
->There are also a number of other things that could go wrong when
->a kernel module is accessing freed storage. For example, this could
->result in rgrp corruption because the fake rgrp would point to a
->fake bitmap in memory too, causing gfs2_inplace_reserve to search
->some random memory for free blocks, and find some, since we were
->never setting rgd->rd_bits to NULL before freeing it.
+>tests/parse-events.c: In function 'kvm_s390_create_vm_valid':
+>tests/parse-events.c:25:14: error: implicit declaration of function 'get_events_file' [-Werror=implicit-function-declaration]
+>  eventfile = get_events_file("kvm-s390");
+>              ^~~~~~~~~~~~~~~
+>tests/parse-events.c:25:12: error: assignment makes pointer from integer without a cast [-Werror=int-conversion]
+>  eventfile = get_events_file("kvm-s390");
+>            ^
+>tests/parse-events.c:34:3: error: implicit declaration of function 'put_events_file' [-Werror=implicit-function-declaration]
+>   put_events_file(eventfile);
+>   ^~~~~~~~~~~~~~~
+>tests/parse-events.c: At top level:
+>tests/parse-events.c:1622:3: error: unknown field 'valid' specified in initializer
+>   .valid = kvm_s390_create_vm_valid,
+>   ^
+>tests/parse-events.c:1622:12: error: excess elements in struct initializer [-Werror]
+>   .valid = kvm_s390_create_vm_valid,
+>            ^~~~~~~~~~~~~~~~~~~~~~~~
+>tests/parse-events.c:1622:12: note: (near initialization for 'test__events[45]')
 >
->This patch fixes the problem by not setting gl_object until we
->have successfully inserted the rgrp into the rbtree. Also, it sets
->rd_bits to NULL as it frees them, which will ensure any accidental
->access to the wrong rgrp will result in a kernel panic rather than
->file system corruption, which is preferred.
->
->Signed-off-by: Bob Peterson <rpeterso@redhat.com>
->[bwh: Backported to 4.4: adjust context]
->Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+>It is using functions that were only added in Linux 4.18 so I think it
+>should be reverted from the 4.4, 4.9, and 4.14 stable branches.
 
-I've queued the series up, thanks Ben!
+Sigh... I didn't think of adding cross compilation to the tools dir...
+
+Thanks for this, now reverted for those branches.
 
 --
 Thanks,
