@@ -2,95 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D2FA03DD
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 15:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E59A048B
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 16:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbfH1N6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 09:58:07 -0400
-Received: from mail-pf1-f175.google.com ([209.85.210.175]:40448 "EHLO
-        mail-pf1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727063AbfH1N6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 09:58:06 -0400
-Received: by mail-pf1-f175.google.com with SMTP id w16so1788689pfn.7;
-        Wed, 28 Aug 2019 06:58:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=l000k2htpnRvRkCB+Wmu6cmx2Z5HU+VewOeFpWYlWGA=;
-        b=ZMiIyKORcwyRCkC5rskiys0McHKqTG6xXs5uYLEbUDcCyb5Bz7U4KKNUwAL6GOweM9
-         eSHEYDEhv7pZfxXSjdxLsL36zJOPM2AymiXilqkIsWBkcbw1du5j/rhKFGyWQkJhYU3i
-         EiTW2/ja8zlr6D8LZVY0Brai/UhjujxLHv1g1FntCzVK74bjMztly9eoj1le96LE+vzx
-         sra6Mv/HPiMD+0c9i/2NoTl4kQCF0Hd2NPuy5X4J+YYwz5IO44ExdIxUUjITRCNYzmOz
-         41jGQmRaaRHyZt+Q8W8fSHqY1UEDY9Ddu7nHxwrn/23q1fvj+mKOJ5eQI6hSx19gZ735
-         En5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=l000k2htpnRvRkCB+Wmu6cmx2Z5HU+VewOeFpWYlWGA=;
-        b=hSjcGEPJeIhrbBgwBBNDklmZ9ysiFjleCSXJ1T7ZJYYQYe34yhKXagnauKLGVbMpgM
-         G3xk4NlzwjTwSOCaOXUUmGlSzCLpLTHe4+BI+A5NksXQF+eGxsrwtqlZ8ExuIqEqOtTN
-         S3EBlm3VE2NwplNgkHsqbNlvZ/VHuprmWaIJ+miSThfp5dF7uI/Gq0mV0A315YhuGi3o
-         qvtxv6Xoo1NnOgtFagndcLP65pcuHHsBox9pBa0R5dNXLlpHz4XDKz5ckC7Rp69MgR4V
-         mrqbrzG9NVhu7JZIVmsfN4fHSZcKWkwYLdpa16Ij7yFxr4pMRH3tsIGMU1pf0i7dmorO
-         No5Q==
-X-Gm-Message-State: APjAAAVvX96hvEPGOcUJ1av4Qsd5BT9cZqyf6DjUvj2YTR6LnY+71kG5
-        FRlwdu4VqABT/iPCwbcbkNWgynw/
-X-Google-Smtp-Source: APXvYqxS9p+J/DoFSHmH4vAstAnmsgeKT+r0UC+FdPrYN4o/q8gCAcnIKyY4jboh3PuRvFPYSyiGyg==
-X-Received: by 2002:a17:90a:a46:: with SMTP id o64mr4389679pjo.90.1567000685593;
-        Wed, 28 Aug 2019 06:58:05 -0700 (PDT)
-Received: from Gentoo ([103.231.91.67])
-        by smtp.gmail.com with ESMTPSA id e19sm2943723pfh.114.2019.08.28.06.58.02
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Aug 2019 06:58:04 -0700 (PDT)
-Date:   Wed, 28 Aug 2019 19:27:53 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     StableKernel <stable@vger.kernel.org>
-Cc:     LinuxKernel <linux-kernel@vger.kernel.org>
-Subject: Latest kernel version no NOT reflecting on kernel.org
-Message-ID: <20190828135750.GA5841@Gentoo>
+        id S1727005AbfH1OPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 10:15:19 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:47494 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726847AbfH1OPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 10:15:19 -0400
+Received: from [5.158.153.52] (helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1i2yj5-0005hU-A0; Wed, 28 Aug 2019 16:15:07 +0200
+Date:   Wed, 28 Aug 2019 16:15:06 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Pavel Machek <pavel@denx.de>
+cc:     Borislav Petkov <bp@alien8.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chen Yu <yu.c.chen@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: Re: [PATCH 4.19 72/98] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
+ family 15h/16h
+In-Reply-To: <20190828133713.GF8052@amd>
+Message-ID: <alpine.DEB.2.21.1908281610310.23149@nanos.tec.linutronix.de>
+References: <20190827113604.GB18218@amd> <alpine.DEB.2.21.1908271525480.1939@nanos.tec.linutronix.de> <20190828103113.GA14677@amd> <alpine.DEB.2.21.1908281231480.1869@nanos.tec.linutronix.de> <20190828114947.GC8052@amd> <20190828120024.GF4920@zn.tnic>
+ <20190828120935.GD8052@amd> <20190828121628.GG4920@zn.tnic> <20190828122913.GE8052@amd> <20190828124621.GI4920@zn.tnic> <20190828133713.GF8052@amd>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 28 Aug 2019, Pavel Machek wrote:
+> On Wed 2019-08-28 14:46:21, Borislav Petkov wrote:
+> > On Wed, Aug 28, 2019 at 02:29:13PM +0200, Pavel Machek wrote:
+> > > This is not a way to have an inteligent conversation.
+> > 
+> > No, this *is* the way to keep the conversation sane, without veering
+> > off into some absurd claims.
+> > 
+> > So, to cut to the chase: you can simply add "rdrand=force" to your
+> > cmdline parameters and get back to using RDRAND.
+> > 
+> > And yet if you still feel this fix does not meet your expectations,
+> > you were told already to either produce patches or who to contact. I'm
+> > afraid complaining on this thread won't get you anywhere but that's your
+> > call.
+> 
+> No, this does not meet my expectations, it violates stable kernel
+> rules, and will cause regression to some users, while better solution
+> is known to be available.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Your unqualified ranting does not meet my expectation either and it
+violates any rule of common sense.
 
-Am I the only one, who is not seeing it getting reflected on
-kernel.org???
+For the record:
 
-Well, I have tried it 2 different browsers.....cleared caches several
-times(heck) .....3 different devices .....and importantly 3 different
-networks.
+  Neither AMD nor we have any idea which particular machines have a fixed
+  BIOS and which have not. There is no technical indicator either at boot
+  time as the wreckage manifests itself only after resume.
 
-Wondering!=20
+  So in the interest of users the only sensible decision is to disable
+  RDRAND for this class of CPUs.
 
-Thanks,
-Bhaskar
+  If you have a list of machines which have a fixed BIOS, then provide it
+  in form of patches. If not then stop claiming that there is a better
+  solution available.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature; name="signature.asc"
+Anyway, I'm done with that and further rants of yours go directly to
+/dev/null.
 
------BEGIN PGP SIGNATURE-----
+Thanks for wasting everyones time
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl1miEMACgkQsjqdtxFL
-KRWu0ggArttx+uKUPpICaT94nUAUQAgW1BZ8wFRqJWZTXg+108YXj+fbxEsw935h
-CvFe3T75EMTeLEOoH1G0LbLZcUsIybWrBKM9Cd65KjDs0OPdkdlDHjcmQMRR1fAF
-dETtrs0jm3iJvFFGJjef+cC//gvk/x8GmbTV+JiMQga1ei6s0Q9UOKeVjXLxY6Qw
-tDL9lBcu8YeWkQeiyq60AOh7tX5wPJoTROwsi9rpReZSQVtxiK+nmJX5Pa/dotng
-0rdAs7cKL2T2whzUBw68/y1dkIRwLSZV9lhkYe9YYb+aESC/KDUVW9eeYP+5/klK
-A24CoquvyZAVS91PkYQNYpwBY7GhqA==
-=BzVG
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
+       tglx
