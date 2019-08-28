@@ -2,140 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DB7A029A
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 15:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBD1A0303
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 15:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726326AbfH1NFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 09:05:01 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:51402 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726272AbfH1NFA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 09:05:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=naopO757xIYN06SYLPcZIJpP1zvJUPLNlmQXoJgdMJo=; b=QkB3853UYCR3GwckjGXxv+l6k
-        75NoGa0F43e50JSX07TJ9SKzXf8lVTc8HFG/x6T3PdVYGUOkhoRIIDcVHEn9efcJUlC0n+L5lGjUs
-        Ed2ri4419SpfiKl3s6B7G2iMcoS8KvC/bP7SWUZ6YDC4+wo+fmLF+tgoNO4pjGa4PmmHU=;
-Received: from ypsilon.sirena.org.uk ([2001:470:1f1d:6b5::7])
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1i2xdA-0004Cl-MH; Wed, 28 Aug 2019 13:04:56 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 2D0E72742B61; Wed, 28 Aug 2019 14:04:54 +0100 (BST)
-Date:   Wed, 28 Aug 2019 14:04:54 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Ricard Wanderlof <ricard.wanderlof@axis.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.2 040/123] ASoC: Fail card instantiation if DAI
- format setup fails
-Message-ID: <20190828130454.GH4298@sirena.co.uk>
-References: <20190814021047.14828-1-sashal@kernel.org>
- <20190814021047.14828-40-sashal@kernel.org>
- <20190814092213.GC4640@sirena.co.uk>
- <20190826013515.GG5281@sasha-vm>
- <20190827110014.GD23391@sirena.co.uk>
- <20190828021311.GV5281@sasha-vm>
- <alpine.DEB.2.20.1908280859060.5799@lnxricardw1.se.axis.com>
+        id S1726394AbfH1NQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 09:16:56 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:35281 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726326AbfH1NQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 09:16:56 -0400
+Received: by mail-wr1-f67.google.com with SMTP id g7so1281005wrx.2;
+        Wed, 28 Aug 2019 06:16:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=25zohd2xh+pzvcsnF+tzTNE+YPLY6vqdzQiEP9XHnm0=;
+        b=FCSq5sySqnbCfb9b3ZwBlAzVnCcWmxbxqpWcUe3qXQvRjpYBSvwOE2frxKcJG/ULGO
+         OUYtBOPm8f/PflCS44QQusrdQdTL9X2u7V8AjsbelGBEtRTMBQLrC2LvUbIXD8xdMC96
+         RFDh27PmVX6/JsZzstRwypDOZEdEedI5Vxz/J3R1N0I/VanlVhoBYuFvGp/kMKzn3kk9
+         4h2PAw4BBCronL3MeGuBGAdipkXDWeO1QA1j7FGuP7N9z9Zt+ZAUPkpCzCe3Nlr3WUvl
+         9Ado6CpOzmxiVzIbSt0O19lmyp6q0ivdd02sWeEZS9oiVlevmLYFwjayLAlr8Yayyud9
+         51SA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=25zohd2xh+pzvcsnF+tzTNE+YPLY6vqdzQiEP9XHnm0=;
+        b=Vck6YBbE9JnmvvhQS1qRDOW8iG+C1uC7Kf9lZV9Az81FLPvsYrrm6yGBj5R0fYlPOS
+         4RP88lr5ltiDdWbAQZaCGnq5G8C8FAi227lvwitBiTnwYcLOPKMub+PeHUEgkx9cixRR
+         zwUPc6KNaWB5xzQquKTppTvvpC4uuYlZKyyK+FlRqKLKHUwVNWEB02AsYrgW59h7OWR2
+         RL8vmW5awQ5J2wHaj75S+65GuR+9P4d7KZ9hYMJrLaHvP+zGCQSBgVwLtBSEVxe1fEWg
+         cOXFyCCwbFLOEv7FXhrb1DW52HRa+YRz0LQZztOWMl/CwL0o4WAznq6JAh9uRCHDJFDZ
+         poyQ==
+X-Gm-Message-State: APjAAAV19dnyQhqjtF31kMWukel2OP+6t856QyjCFSElJKHeslImkaj2
+        ecE1/AJd/zBMbHF/1XtcmhOxCEYaXjVny4eQ1kI=
+X-Google-Smtp-Source: APXvYqzQG9O/DS/fNOUx9hGjL+6UhlcM/boVbNLCBZF0aFCbmz31KRICTsYsRNEHfJ+Zpn8t7Glc8r1eemBqCbaZEIo=
+X-Received: by 2002:a05:6000:152:: with SMTP id r18mr4883090wrx.41.1566998213954;
+ Wed, 28 Aug 2019 06:16:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Uu2n37VG4rOBDVuR"
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.20.1908280859060.5799@lnxricardw1.se.axis.com>
-X-Cookie: Oatmeal raisin.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190827202835.213456-1-hdegoede@redhat.com> <20190828113748.GK2680@smile.fi.intel.com>
+ <005b954d-46ad-5e45-6a9c-0b1efe020b92@redhat.com> <c07a8e2e-61a7-7ce7-4f73-48978be98d27@redhat.com>
+In-Reply-To: <c07a8e2e-61a7-7ce7-4f73-48978be98d27@redhat.com>
+From:   Ian W MORRISON <ianwmorrison@gmail.com>
+Date:   Wed, 28 Aug 2019 23:16:42 +1000
+Message-ID: <CAFXWsS89-fB=LGLRpeSrH8Y97=fqhZ7d77WORjXdS1YU5Xbfsg@mail.gmail.com>
+Subject: Re: [PATCH v2] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot
+ option and blacklist
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 28 Aug 2019 at 22:21, Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 28-08-19 14:20, Hans de Goede wrote:
+> > Hi,
+> >
+> > On 28-08-19 13:37, Andy Shevchenko wrote:
+> >> On Tue, Aug 27, 2019 at 10:28:35PM +0200, Hans de Goede wrote:
+> >>> Another day; another DSDT bug we need to workaround...
+> >>>
+> >>> Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
+> >>> at least once on boot") we call _AEI edge handlers at boot.
+> >>>
+> >>> In some rare cases this causes problems. One example of this is the Minix
+> >>> Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
+> >>> and pasted code for dealing with Micro USB-B connector host/device role
+> >>> switching, while the mini PC does not even have a micro-USB connector.
+> >>> This code, which should not be there, messes with the DDC data pin from
+> >>> the HDMI connector (switching it to GPIO mode) breaking HDMI support.
+> >>>
+> >>> To avoid problems like this, this commit adds a new
+> >>> gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
+> >>> allows disabling the running of _AEI edge event handlers at boot.
+> >>>
+> >>> The default value is -1/auto which uses a DMI based blacklist, the initial
+> >>> version of this blacklist contains the Neo Z83-4 fixing the HDMI breakage.
+> >>
+> >> Thank you!
+> >>
+> >> Assuming it works for Ian,
+> >> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> >
+> > Note I have access to a Minix Neo Z83-4 myself now and I did test that
+> > this fixes it and that passing gpiolib_acpi.run_edge_events_on_boot=0
+> > breaks HDMI again (so the option works).
+>
+> Erm that should be gpiolib_acpi.run_edge_events_on_boot=1 (not 0) breaks
+> HDMI.
+>
 
---Uu2n37VG4rOBDVuR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Many thanks again Hans. I've also tested the patch including the various command
+line options on my MINIX Z83-4 and they work fine.
 
-On Wed, Aug 28, 2019 at 09:07:17AM +0200, Ricard Wanderlof wrote:
-> On Wed, 28 Aug 2019, Sasha Levin wrote:
-> > On Tue, Aug 27, 2019 at 12:00:14PM +0100, Mark Brown wrote:
-
-> > > If anyone ran into this on the older kernel and fixed or worked
-> > > around it locally there's a reasonable chance this will then
-> > > break what they're doing.  The patch itself is perfectly fine but
-
-I should also have added that there's also the potential that things are
-just working as they are and that detecting errors will cause new
-failures.
-
-> > But there's not much we can do here. We can't hold off on fixing
-> > breakage such as this because existing users have workarounds for this.
-
-If people are running into problems here then they just don't have
-working audio; if they're shipping with that presumably they either
-don't mind about it or have done something to fix it.  Either way this
-patch won't by itself give anyone working audio that didn't have it
-before.
-
-> > Are we breaking kernel ABI with this patch then?
-
-> > And what about new users? We'll let them get hit by the issue and
-> > develop their own workarounds?
-
-Hopefully we don't have too many new users adopting the older stables
-you want to backport to...  in any case this patch just makes the error
-reporting more forceful, it won't actually fix the issue it's reporting.
-
-> My $0.02 here: In my specific case, we noticed the problem because there=
-=20
-> was an unexpected left shift in the captured audio data, since the codec=
-=20
-> and CPU DAIs were using different formats when the DAI format was not=20
-> explicitly set. The fix for that was to add
-
-> simple-audio-card,format=3D "i2s";
-
-> to the devicetree audio card section which of course should have been=20
-> there all the time. The fact that the kernel failed halt the=20
-> initialization of the audio card lengthened the debug time, but did not=
-=20
-> provoke me to attempt a workaround, since the information (the error=20
-> printout from the ALSA framework when an invalid daifmt setting was made)=
-=20
-> was actually right there in the kernel log.
-
-> Possibly there might be other usecases, but in our case, if the kernel ha=
-d=20
-> stopped the audio initialization it would then have been more obvious=20
-> where to start looking.
-
-Right, returning the error makes things more obvious for system
-integrators so it's a good change to have.  On the other hand there's
-potential breakage if for example the hardware happens to default to the
-correct format or an error is detected after enough configuration has
-been done to the hardware to make it function well enough.  In that case
-we'll start returning an error, failing to initialize the card and the
-system will loose audio.
-
-Basically this patch won't make anything work that didn't work before.
-
---Uu2n37VG4rOBDVuR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl1me/UACgkQJNaLcl1U
-h9BaWQf/aabrvbqmtF6WEYaqMKTR9lN5PgdF4H5Egc2MSfnZadD2nCJp8OeU/FiS
-pJO0Teh3DdEA1LlbUHvoVGhICqGzye3pFrfy2EG9XPHk/Le/XEdddbUJCB1X3e9C
-92l6mvdf++Csr91n4W/jjEjmbDZWLNrPqAx2QNrMq0hsOGGD0SZsVpb5/U1mjEYL
-6+BfOF8GHj9o2pWcbJmfunzElb5aPibo1gQ2eef/xPxPfLxJ4l5NNTZOkOp1XxKL
-9khYfCPxzGB3/jX0kGtR3PW1Rvi+SLYpwG7WTf1JqsBqYEUcYuTP/zmkyz7hPKXv
-nPGJmnpjcSCQ1XS9wy2wCRfABvWbSw==
-=fYkG
------END PGP SIGNATURE-----
-
---Uu2n37VG4rOBDVuR--
+Best regards,
+Ian
