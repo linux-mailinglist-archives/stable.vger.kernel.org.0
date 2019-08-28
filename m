@@ -2,1691 +2,682 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95EE59F75E
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 02:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC41E9F77D
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 02:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbfH1AdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Aug 2019 20:33:20 -0400
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:50481 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726065AbfH1AdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 20:33:19 -0400
-Received: by mail-wm1-f48.google.com with SMTP id v15so867011wml.0
-        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 17:33:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=I3BWfhM/ddbTnV7HgA0itFs/lPhnQDmNhDXiBjyHe8M=;
-        b=M7IiGknoc93l/aOCdLdwXSfzaAYy2OWDsAaa/PeaaNdK0U3wfjSmcayidSO8lvIn4F
-         jNck6KnxDJmT0gWfoOQCtRGe8CSef95IsbrwcQH8Aj4X6Tm3A4KVAth2bT8RUudLicD4
-         8SjV5dTR+xwtWTHNC4RLl/EEU0qyDUJxB4o2ML6vzqOewWyKcf5iIy/8x+hfnTNPjEwa
-         xIM+RmOkdXkx4d49FMfTSxxEwbGe/nvuP8FURr6HUdZsV2DrMyjfA58rIzOcmPt4EKsk
-         ZZkH5cPkRDX9Dodq0j+YvmZUfD4dpQ3lCPKNFLayJ/0wZuhE91oxfFgeizB8c5ntq/JW
-         5w2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=I3BWfhM/ddbTnV7HgA0itFs/lPhnQDmNhDXiBjyHe8M=;
-        b=nnW8fjI54hEd0QUHxoRUpeFQQubOVumCpWVfD+r1xQtddmqbuxNod7UWsKRNIrINC6
-         DCDdPW4NBgFkp3fL+qweaUZ+dYF/xHwXf8LOVphwQpF0iIhqVWYyN2SHr2UajdvEnL94
-         yfJ72+xO/HlzoO0s5+5SKnpMjdZWxLHNihUhcCBdXyXTqJ/JKSD+itsbNGDlDMUALKib
-         HEQcV+7jVAovSCQQHyLIU7OL4mPTXjaRNFn9HPKDdxTqZoTdhke1Kyx1jGLYMiEvoLJe
-         ypNG6JJD7bQxEeVNtteUR0HAMAcWdaCekheDBr0gxHJQaRjgT6F4lxusxWSvjOpYb4vt
-         jr9Q==
-X-Gm-Message-State: APjAAAWCiesI/Oec1ob9+dr7uM69KxgmWTimCvDKMi9x6WHBnZQDXtNu
-        Zl2DHkZgN3MkPTxljSXtVyPfvTT5N1NQRQ==
-X-Google-Smtp-Source: APXvYqwccP4JAtU2C9XK8+wp4g/Ir5apFW6ZPRPcEUHScO/0IMqmM5xxbDrFaQj9gC3jvTHVNrQZcg==
-X-Received: by 2002:a1c:107:: with SMTP id 7mr1117518wmb.84.1566952392740;
-        Tue, 27 Aug 2019 17:33:12 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s64sm2163470wmf.16.2019.08.27.17.33.11
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 27 Aug 2019 17:33:12 -0700 (PDT)
-Message-ID: <5d65cbc8.1c69fb81.cb6ad.b5fb@mx.google.com>
-Date:   Tue, 27 Aug 2019 17:33:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.140-63-g4e1a19d20000
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y build: 201 builds: 5 failed, 196 passed,
- 5 errors, 108 warnings (v4.14.140-63-g4e1a19d20000)
+        id S1726091AbfH1Amy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Aug 2019 20:42:54 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:53012 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725992AbfH1Amy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Aug 2019 20:42:54 -0400
+Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::d71])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 0E0B2153A9C8E
+        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 17:42:53 -0700 (PDT)
+Date:   Tue, 27 Aug 2019 17:42:50 -0700 (PDT)
+Message-Id: <20190827.174250.1230182945543056034.davem@davemloft.net>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Subject: [PATCHES] Networking
+From:   David Miller <davem@davemloft.net>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Tue_Aug_27_17_42_50_2019_694)--"
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Tue, 27 Aug 2019 17:42:53 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 201 builds: 5 failed, 196 passed, 5 errors, 1=
-08 warnings (v4.14.140-63-g4e1a19d20000)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.140-63-g4e1a19d20000/
-
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.140-63-g4e1a19d20000
-Git Commit: 4e1a19d20000330e767ddc9c64317d7d576a8f31
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-mips:
-    bigsur_defconfig: (gcc-8) FAIL
-    decstation_defconfig: (gcc-8) FAIL
-    jmr3927_defconfig: (gcc-8) FAIL
-    pistachio_defconfig: (gcc-8) FAIL
-    sb1250_swarm_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-    defconfig (gcc-8): 1 warning
-
-arm:
-    acs5k_defconfig (gcc-8): 1 warning
-    acs5k_tiny_defconfig (gcc-8): 1 warning
-    aspeed_g4_defconfig (gcc-8): 1 warning
-    aspeed_g5_defconfig (gcc-8): 1 warning
-    assabet_defconfig (gcc-8): 1 warning
-    axm55xx_defconfig (gcc-8): 1 warning
-    badge4_defconfig (gcc-8): 1 warning
-    cerfcube_defconfig (gcc-8): 1 warning
-    clps711x_defconfig (gcc-8): 1 warning
-    cm_x300_defconfig (gcc-8): 1 warning
-    cns3420vb_defconfig (gcc-8): 1 warning
-    colibri_pxa270_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    collie_defconfig (gcc-8): 1 warning
-    corgi_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    dove_defconfig (gcc-8): 1 warning
-    ebsa110_defconfig (gcc-8): 1 warning
-    ep93xx_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    exynos_defconfig (gcc-8): 1 warning
-    ezx_defconfig (gcc-8): 1 warning
-    footbridge_defconfig (gcc-8): 1 warning
-    gemini_defconfig (gcc-8): 1 warning
-    h3600_defconfig (gcc-8): 1 warning
-    hackkit_defconfig (gcc-8): 1 warning
-    hisi_defconfig (gcc-8): 1 warning
-    imote2_defconfig (gcc-8): 1 warning
-    imx_v6_v7_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    iop13xx_defconfig (gcc-8): 1 warning
-    iop32x_defconfig (gcc-8): 1 warning
-    iop33x_defconfig (gcc-8): 1 warning
-    ixp4xx_defconfig (gcc-8): 1 warning
-    jornada720_defconfig (gcc-8): 1 warning
-    keystone_defconfig (gcc-8): 1 warning
-    ks8695_defconfig (gcc-8): 1 warning
-    lart_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    mainstone_defconfig (gcc-8): 1 warning
-    mini2440_defconfig (gcc-8): 1 warning
-    mmp2_defconfig (gcc-8): 1 warning
-    moxart_defconfig (gcc-8): 1 warning
-    multi_v4t_defconfig (gcc-8): 1 warning
-    multi_v5_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 1 warning
-    mv78xx0_defconfig (gcc-8): 1 warning
-    mvebu_v5_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-    neponset_defconfig (gcc-8): 1 warning
-    netwinder_defconfig (gcc-8): 1 warning
-    netx_defconfig (gcc-8): 1 warning
-    nhk8815_defconfig (gcc-8): 1 warning
-    nuc910_defconfig (gcc-8): 1 warning
-    nuc950_defconfig (gcc-8): 1 warning
-    nuc960_defconfig (gcc-8): 1 warning
-    omap2plus_defconfig (gcc-8): 1 warning
-    orion5x_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    prima2_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    pxa_defconfig (gcc-8): 1 warning
-    qcom_defconfig (gcc-8): 1 warning
-    raumfeld_defconfig (gcc-8): 1 warning
-    realview_defconfig (gcc-8): 1 warning
-    rpc_defconfig (gcc-8): 1 warning
-    s3c2410_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 1 warning
-    shannon_defconfig (gcc-8): 1 warning
-    simpad_defconfig (gcc-8): 1 warning
-    socfpga_defconfig (gcc-8): 1 warning
-    spear13xx_defconfig (gcc-8): 1 warning
-    spear3xx_defconfig (gcc-8): 1 warning
-    spear6xx_defconfig (gcc-8): 1 warning
-    spitz_defconfig (gcc-8): 1 warning
-    sunxi_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-    tegra_defconfig (gcc-8): 1 warning
-    trizeps4_defconfig (gcc-8): 1 warning
-    u300_defconfig (gcc-8): 1 warning
-    u8500_defconfig (gcc-8): 1 warning
-    versatile_defconfig (gcc-8): 1 warning
-    vexpress_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
-    zx_defconfig (gcc-8): 1 warning
-
-i386:
-    i386_defconfig (gcc-8): 1 warning
-
-mips:
-    bigsur_defconfig (gcc-8): 1 error, 4 warnings
-    decstation_defconfig (gcc-8): 1 error
-    jmr3927_defconfig (gcc-8): 1 error
-    malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    pistachio_defconfig (gcc-8): 1 error
-    sb1250_swarm_defconfig (gcc-8): 1 error, 4 warnings
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-    x86_64_defconfig (gcc-8): 1 warning
-
-Errors summary:
-
-    2    (.text+0x1c8): undefined reference to `iommu_is_span_boundary'
-    1    mm/zsmalloc.c:2434:27: error: 'struct zs_pool' has no member named=
- 'migration_wait'
-    1    cc1: error: '-march=3Dr3900' requires '-mfp32'
-    1    cc1: error: '-march=3Dr3000' requires '-mfp32'
-
-Warnings summary:
-
-    98   fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitia=
-lized in this function [-Wmaybe-uninitialized]
-    8    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOT=
-LB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (C=
-AVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NL=
-M_XLR_BOARD)
-    1    {standard input}:29: Warning: macro instruction expanded into mult=
-iple instructions
-    1    .config:1023:warning: override: UNWINDER_GUESS changes choice state
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0 secti=
-on mismatches
-
-Errors:
-    (.text+0x1c8): undefined reference to `iommu_is_span_boundary'
-
-Warnings:
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    cc1: error: '-march=3Dr3000' requires '-mfp32'
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    cc1: error: '-march=3Dr3900' requires '-mfp32'
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    {standard input}:29: Warning: macro instruction expanded into multiple =
-instructions
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    mm/zsmalloc.c:2434:27: error: 'struct zs_pool' has no member named 'mig=
-ration_wait'
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0=
- section mismatches
-
-Errors:
-    (.text+0x1c8): undefined reference to `iommu_is_span_boundary'
-
-Warnings:
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1023:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----
-For more info write to <info@kernelci.org>
+----Next_Part(Tue_Aug_27_17_42_50_2019_694)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+Please queue up the following bug fixes for v4.19 and v5.2 -stable
+respectively, thanks!
+
+----Next_Part(Tue_Aug_27_17_42_50_2019_694)--
+Content-Type: Application/Octet-Stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="net_419.mbox"
+
+RnJvbSAxN2E0MjZlYjg4YmFmNDVjOTBjNjgwNjA3M2VhMWMzZjVkYTQ0NWI5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBWYWt1bCBHYXJnIDx2YWt1bC5nYXJnQG54cC5jb20+CkRhdGU6
+IE1vbiwgMTAgU2VwIDIwMTggMjI6NTM6NDYgKzA1MzAKU3ViamVjdDogW1BBVENIIDEvOF0gbmV0
+L3RsczogRml4ZWQgcmV0dXJuIHZhbHVlIHdoZW4KIHRsc19jb21wbGV0ZV9wZW5kaW5nX3dvcmso
+KSBmYWlscwoKWyBVcHN0cmVhbSBjb21taXQgMTUwMDg1NzkxYWZiODA1NGUxMWQyZTA4MGQ0Yjlj
+ZDc1NWRkN2Y2OSBdCgpJbiB0bHNfc3dfc2VuZG1zZygpIGFuZCB0bHNfc3dfc2VuZHBhZ2UoKSwg
+dGhlIHZhcmlhYmxlICdyZXQnIGhhcwpiZWVuIHNldCB0byByZXR1cm4gdmFsdWUgb2YgdGxzX2Nv
+bXBsZXRlX3BlbmRpbmdfd29yaygpLiBUaGlzIGFsbG93cwpyZXR1cm4gb2YgcHJvcGVyIGVycm9y
+IGNvZGUgaWYgdGxzX2NvbXBsZXRlX3BlbmRpbmdfd29yaygpIGZhaWxzLgoKRml4ZXM6IDNjNGQ3
+NTU5MTU5YiAoInRsczoga2VybmVsIFRMUyBzdXBwb3J0IikKU2lnbmVkLW9mZi1ieTogVmFrdWwg
+R2FyZyA8dmFrdWwuZ2FyZ0BueHAuY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIg
+PGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3Rscy90bHNfc3cuYyB8IDEwICsrKysrKy0t
+LS0KIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pCgpkaWZm
+IC0tZ2l0IGEvbmV0L3Rscy90bHNfc3cuYyBiL25ldC90bHMvdGxzX3N3LmMKaW5kZXggNjg0OGE4
+MTk2NzExLi5iYmIyZGE3MGU4NzAgMTAwNjQ0Ci0tLSBhL25ldC90bHMvdGxzX3N3LmMKKysrIGIv
+bmV0L3Rscy90bHNfc3cuYwpAQCAtMzU0LDcgKzM1NCw3IEBAIGludCB0bHNfc3dfc2VuZG1zZyhz
+dHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBtc2doZHIgKm1zZywgc2l6ZV90IHNpemUpCiB7CiAJc3Ry
+dWN0IHRsc19jb250ZXh0ICp0bHNfY3R4ID0gdGxzX2dldF9jdHgoc2spOwogCXN0cnVjdCB0bHNf
+c3dfY29udGV4dF90eCAqY3R4ID0gdGxzX3N3X2N0eF90eCh0bHNfY3R4KTsKLQlpbnQgcmV0ID0g
+MDsKKwlpbnQgcmV0OwogCWludCByZXF1aXJlZF9zaXplOwogCWxvbmcgdGltZW8gPSBzb2NrX3Nu
+ZHRpbWVvKHNrLCBtc2ctPm1zZ19mbGFncyAmIE1TR19ET05UV0FJVCk7CiAJYm9vbCBlb3IgPSAh
+KG1zZy0+bXNnX2ZsYWdzICYgTVNHX01PUkUpOwpAQCAtMzcwLDcgKzM3MCw4IEBAIGludCB0bHNf
+c3dfc2VuZG1zZyhzdHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBtc2doZHIgKm1zZywgc2l6ZV90IHNp
+emUpCiAKIAlsb2NrX3NvY2soc2spOwogCi0JaWYgKHRsc19jb21wbGV0ZV9wZW5kaW5nX3dvcmso
+c2ssIHRsc19jdHgsIG1zZy0+bXNnX2ZsYWdzLCAmdGltZW8pKQorCXJldCA9IHRsc19jb21wbGV0
+ZV9wZW5kaW5nX3dvcmsoc2ssIHRsc19jdHgsIG1zZy0+bXNnX2ZsYWdzLCAmdGltZW8pOworCWlm
+IChyZXQpCiAJCWdvdG8gc2VuZF9lbmQ7CiAKIAlpZiAodW5saWtlbHkobXNnLT5tc2dfY29udHJv
+bGxlbikpIHsKQEAgLTUwNSw3ICs1MDYsNyBAQCBpbnQgdGxzX3N3X3NlbmRwYWdlKHN0cnVjdCBz
+b2NrICpzaywgc3RydWN0IHBhZ2UgKnBhZ2UsCiB7CiAJc3RydWN0IHRsc19jb250ZXh0ICp0bHNf
+Y3R4ID0gdGxzX2dldF9jdHgoc2spOwogCXN0cnVjdCB0bHNfc3dfY29udGV4dF90eCAqY3R4ID0g
+dGxzX3N3X2N0eF90eCh0bHNfY3R4KTsKLQlpbnQgcmV0ID0gMDsKKwlpbnQgcmV0OwogCWxvbmcg
+dGltZW8gPSBzb2NrX3NuZHRpbWVvKHNrLCBmbGFncyAmIE1TR19ET05UV0FJVCk7CiAJYm9vbCBl
+b3I7CiAJc2l6ZV90IG9yaWdfc2l6ZSA9IHNpemU7CkBAIC01MjUsNyArNTI2LDggQEAgaW50IHRs
+c19zd19zZW5kcGFnZShzdHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBwYWdlICpwYWdlLAogCiAJc2tf
+Y2xlYXJfYml0KFNPQ0tXUV9BU1lOQ19OT1NQQUNFLCBzayk7CiAKLQlpZiAodGxzX2NvbXBsZXRl
+X3BlbmRpbmdfd29yayhzaywgdGxzX2N0eCwgZmxhZ3MsICZ0aW1lbykpCisJcmV0ID0gdGxzX2Nv
+bXBsZXRlX3BlbmRpbmdfd29yayhzaywgdGxzX2N0eCwgZmxhZ3MsICZ0aW1lbyk7CisJaWYgKHJl
+dCkKIAkJZ290byBzZW5kcGFnZV9lbmQ7CiAKIAkvKiBDYWxsIHRoZSBza19zdHJlYW0gZnVuY3Rp
+b25zIHRvIG1hbmFnZSB0aGUgc25kYnVmIG1lbS4gKi8KLS0gCjIuMjAuMQoKCkZyb20gMjc0MTlk
+MjYxMWY0NmExMmY3N2RlZDk1MGVjN2U0Yjc5ZDFiYmQ5OCBNb24gU2VwIDE3IDAwOjAwOjAwIDIw
+MDEKRnJvbTogSmFrdWIgS2ljaW5za2kgPGpha3ViLmtpY2luc2tpQG5ldHJvbm9tZS5jb20+CkRh
+dGU6IEZyaSwgOSBBdWcgMjAxOSAxODozNjoyMyAtMDcwMApTdWJqZWN0OiBbUEFUQ0ggMi84XSBu
+ZXQvdGxzOiBzd2FwIHNrX3dyaXRlX3NwYWNlIG9uIGNsb3NlCgpbIFVwc3RyZWFtIGNvbW1pdCA1
+N2M3MjJlOTMyY2ZiODJlOTgyMGJiYWFlMWIxZjcyMjJlYTk3YjUyIF0KCk5vdyB0aGF0IHdlIHN3
+YXAgdGhlIG9yaWdpbmFsIHByb3RvIGFuZCBjbGVhciB0aGUgVUxQIHBvaW50ZXIKb24gY2xvc2Ug
+d2UgaGF2ZSB0byBtYWtlIHN1cmUgbm8gY2FsbGJhY2sgd2lsbCB0cnkgdG8gYWNjZXNzCnRoZSBm
+cmVlZCBzdGF0ZS4gc2tfd3JpdGVfc3BhY2UgaXMgbm90IHBhcnQgb2Ygc2tfcHJvdCwgcmVtZW1i
+ZXIKdG8gc3dhcCBpdC4KClJlcG9ydGVkLWJ5OiBzeXpib3QrZGNkYzlkZWVmYWVjNDQ3ODVmMzJA
+c3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQpGaXhlczogOTVmYTE0NTQ3OWZiICgiYnBmOiBzb2Nr
+bWFwL3RscywgY2xvc2UgY2FuIHJhY2Ugd2l0aCBtYXAgZnJlZSIpClNpZ25lZC1vZmYtYnk6IEph
+a3ViIEtpY2luc2tpIDxqYWt1Yi5raWNpbnNraUBuZXRyb25vbWUuY29tPgpTaWduZWQtb2ZmLWJ5
+OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3Rscy90bHNf
+bWFpbi5jIHwgMSArCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykKCmRpZmYgLS1naXQg
+YS9uZXQvdGxzL3Rsc19tYWluLmMgYi9uZXQvdGxzL3Rsc19tYWluLmMKaW5kZXggNGMwYWM3OWY4
+MmQ0Li5mNjM2YWZmMTFkNTEgMTAwNjQ0Ci0tLSBhL25ldC90bHMvdGxzX21haW4uYworKysgYi9u
+ZXQvdGxzL3Rsc19tYWluLmMKQEAgLTMwMSw2ICszMDEsNyBAQCBzdGF0aWMgdm9pZCB0bHNfc2tf
+cHJvdG9fY2xvc2Uoc3RydWN0IHNvY2sgKnNrLCBsb25nIHRpbWVvdXQpCiAjZWxzZQogCXsKICNl
+bmRpZgorCQlzay0+c2tfd3JpdGVfc3BhY2UgPSBjdHgtPnNrX3dyaXRlX3NwYWNlOwogCQl0bHNf
+Y3R4X2ZyZWUoY3R4KTsKIAkJY3R4ID0gTlVMTDsKIAl9Ci0tIAoyLjIwLjEKCgpGcm9tIDUxMWI1
+MmJiZTI1YWNhZDVmODg0MjFhZmQ3MDIzMTI4OTA5ZGEyNjYgTW9uIFNlcCAxNyAwMDowMDowMCAy
+MDAxCkZyb206IEpvaG4gRmFzdGFiZW5kIDxqb2huLmZhc3RhYmVuZEBnbWFpbC5jb20+CkRhdGU6
+IFdlZCwgMTQgQXVnIDIwMTkgMDU6MzE6NTQgKzAwMDAKU3ViamVjdDogW1BBVENIIDMvOF0gbmV0
+OiB0bHMsIGZpeCBza193cml0ZV9zcGFjZSBOVUxMIHdyaXRlIHdoZW4gdHggZGlzYWJsZWQKClsg
+VXBzdHJlYW0gY29tbWl0IGQ4NWYwMTc3NTg1MGEzNWVhZTQ3YTAwOTA4MzliYWY1MTBjMWVmMTIg
+XQoKVGhlIGN0eC0+c2tfd3JpdGVfc3BhY2UgcG9pbnRlciBpcyBvbmx5IHNldCB3aGVuIFRMUyB0
+eCBtb2RlIGlzIGVuYWJsZWQuCldoZW4gcnVubmluZyB3aXRob3V0IFRYIG1vZGUgaXRzIGEgbnVs
+bCBwb2ludGVyIGJ1dCB3ZSBzdGlsbCBzZXQgdGhlCnNrIHNrX3dyaXRlX3NwYWNlIHBvaW50ZXIg
+b24gY2xvc2UoKS4KCkZpeCB0aGUgY2xvc2UgcGF0aCB0byBvbmx5IG92ZXJ3cml0ZSBzay0+c2tf
+d3JpdGVfc3BhY2Ugd2hlbiB0aGUgY3VycmVudApwb2ludGVyIGlzIHRvIHRoZSB0bHNfd3JpdGVf
+c3BhY2UgZnVuY3Rpb24gaW5kaWNhdGluZyB0aGUgdGxzIG1vZHVsZSBzaG91bGQKY2xlYW4gaXQg
+dXAgcHJvcGVybHkgYXMgd2VsbC4KClJlcG9ydGVkLWJ5OiBIaWxsZiBEYW50b24gPGhkYW50b25A
+c2luYS5jb20+CkNjOiBZaW5nIFh1ZSA8eWluZy54dWVAd2luZHJpdmVyLmNvbT4KQ2M6IEFuZHJl
+eSBLb25vdmFsb3YgPGFuZHJleWtudmxAZ29vZ2xlLmNvbT4KRml4ZXM6IDU3YzcyMmU5MzJjZmIg
+KCJuZXQvdGxzOiBzd2FwIHNrX3dyaXRlX3NwYWNlIG9uIGNsb3NlIikKU2lnbmVkLW9mZi1ieTog
+Sm9obiBGYXN0YWJlbmQgPGpvaG4uZmFzdGFiZW5kQGdtYWlsLmNvbT4KUmV2aWV3ZWQtYnk6IEph
+a3ViIEtpY2luc2tpIDxqYWt1Yi5raWNpbnNraUBuZXRyb25vbWUuY29tPgpTaWduZWQtb2ZmLWJ5
+OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3Rscy90bHNf
+bWFpbi5jIHwgMyArKy0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRp
+b24oLSkKCmRpZmYgLS1naXQgYS9uZXQvdGxzL3Rsc19tYWluLmMgYi9uZXQvdGxzL3Rsc19tYWlu
+LmMKaW5kZXggZjYzNmFmZjExZDUxLi4zMjg4YmRmZjk4ODkgMTAwNjQ0Ci0tLSBhL25ldC90bHMv
+dGxzX21haW4uYworKysgYi9uZXQvdGxzL3Rsc19tYWluLmMKQEAgLTMwMSw3ICszMDEsOCBAQCBz
+dGF0aWMgdm9pZCB0bHNfc2tfcHJvdG9fY2xvc2Uoc3RydWN0IHNvY2sgKnNrLCBsb25nIHRpbWVv
+dXQpCiAjZWxzZQogCXsKICNlbmRpZgotCQlzay0+c2tfd3JpdGVfc3BhY2UgPSBjdHgtPnNrX3dy
+aXRlX3NwYWNlOworCQlpZiAoc2stPnNrX3dyaXRlX3NwYWNlID09IHRsc193cml0ZV9zcGFjZSkK
+KwkJCXNrLT5za193cml0ZV9zcGFjZSA9IGN0eC0+c2tfd3JpdGVfc3BhY2U7CiAJCXRsc19jdHhf
+ZnJlZShjdHgpOwogCQljdHggPSBOVUxMOwogCX0KLS0gCjIuMjAuMQoKCkZyb20gMDVmNjc1OTI4
+N2RjMTE3NjhjMWRhM2VhMDEyOGY4MTYxMTBkNjViMyBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEK
+RnJvbTogSGFuZ2JpbiBMaXUgPGxpdWhhbmdiaW5AZ21haWwuY29tPgpEYXRlOiBUdWUsIDIwIEF1
+ZyAyMDE5IDEwOjE5OjQ3ICswODAwClN1YmplY3Q6IFtQQVRDSCA0LzhdIGlwdjYvYWRkcmNvbmY6
+IGFsbG93IGFkZGluZyBtdWx0aWNhc3QgYWRkciBpZgogSUZBX0ZfTUNBVVRPSk9JTiBpcyBzZXQK
+ClsgVXBzdHJlYW0gY29tbWl0IGYxN2Y3NjQ4YTQ5YWE2NzI4NjQ5ZGRmNzliZGJjYWM0ZjE5NzBj
+ZTQgXQoKSW4gY29tbWl0IDkzYTcxNGQ2YjUzZCAoIm11bHRpY2FzdDogRXh0ZW5kIGlwIGFkZHJl
+c3MgY29tbWFuZCB0byBlbmFibGUKbXVsdGljYXN0IGdyb3VwIGpvaW4vbGVhdmUgb24iKSB3ZSBh
+ZGRlZCBhIG5ldyBmbGFnIElGQV9GX01DQVVUT0pPSU4KdG8gbWFrZSB1c2VyIGFibGUgdG8gYWRk
+IG11bHRpY2FzdCBhZGRyZXNzIG9uIGV0aGVybmV0IGludGVyZmFjZS4KClRoaXMgd29ya3MgZm9y
+IElQdjQsIGJ1dCBub3QgZm9yIElQdjYuIFNlZSB0aGUgaW5ldDZfYWRkcl9hZGQgY29kZS4KCnN0
+YXRpYyBpbnQgaW5ldDZfYWRkcl9hZGQoKQp7CgkuLi4KCWlmIChjZmctPmlmYV9mbGFncyAmIElG
+QV9GX01DQVVUT0pPSU4pIHsKCQlpcHY2X21jX2NvbmZpZyhuZXQtPmlwdjYubWNfYXV0b2pvaW5f
+c2ssIHRydWUuLi4pCgl9CgoJaWZwID0gaXB2Nl9hZGRfYWRkcihpZGV2LCBjZmcsIHRydWUsIGV4
+dGFjayk7IDwtIGFsd2F5cyBmYWlsIHdpdGggbWFkZHIKCWlmICghSVNfRVJSKGlmcCkpIHsKCQku
+Li4KCX0gZWxzZSBpZiAoY2ZnLT5pZmFfZmxhZ3MgJiBJRkFfRl9NQ0FVVE9KT0lOKSB7CgkJaXB2
+Nl9tY19jb25maWcobmV0LT5pcHY2Lm1jX2F1dG9qb2luX3NrLCBmYWxzZS4uLikKCX0KfQoKQnV0
+IGluIGlwdjZfYWRkX2FkZHIoKSBpdCB3aWxsIGNoZWNrIHRoZSBhZGRyZXNzIHR5cGUgYW5kIHJl
+amVjdCBtdWx0aWNhc3QKYWRkcmVzcyBkaXJlY3RseS4gU28gdGhpcyBmZWF0dXJlIGlzIG5ldmVy
+IHdvcmtlZCBmb3IgSVB2Ni4KCldlIHNob3VsZCBub3QgcmVtb3ZlIHRoZSBtdWx0aWNhc3QgYWRk
+cmVzcyBjaGVjayB0b3RhbGx5IGluIGlwdjZfYWRkX2FkZHIoKSwKYnV0IGNvdWxkIGFjY2VwdCBt
+dWx0aWNhc3QgYWRkcmVzcyBvbmx5IHdoZW4gSUZBX0ZfTUNBVVRPSk9JTiBmbGFnIHN1cHBsaWVk
+LgoKdjI6IHVwZGF0ZSBjb21taXQgZGVzY3JpcHRpb24KCkZpeGVzOiA5M2E3MTRkNmI1M2QgKCJt
+dWx0aWNhc3Q6IEV4dGVuZCBpcCBhZGRyZXNzIGNvbW1hbmQgdG8gZW5hYmxlIG11bHRpY2FzdCBn
+cm91cCBqb2luL2xlYXZlIG9uIikKUmVwb3J0ZWQtYnk6IEppYW5saW4gU2hpIDxqaXNoaUByZWRo
+YXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBIYW5nYmluIExpdSA8bGl1aGFuZ2JpbkBnbWFpbC5jb20+
+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0t
+CiBuZXQvaXB2Ni9hZGRyY29uZi5jIHwgMyArKy0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlv
+bnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9uZXQvaXB2Ni9hZGRyY29uZi5jIGIv
+bmV0L2lwdjYvYWRkcmNvbmYuYwppbmRleCBjNTdlZmQ1YzViMzguLjQ5ZTJmNmRhYzY0NiAxMDA2
+NDQKLS0tIGEvbmV0L2lwdjYvYWRkcmNvbmYuYworKysgYi9uZXQvaXB2Ni9hZGRyY29uZi5jCkBA
+IC05OTUsNyArOTk1LDggQEAgaXB2Nl9hZGRfYWRkcihzdHJ1Y3QgaW5ldDZfZGV2ICppZGV2LCBz
+dHJ1Y3QgaWZhNl9jb25maWcgKmNmZywKIAlpbnQgZXJyID0gMDsKIAogCWlmIChhZGRyX3R5cGUg
+PT0gSVBWNl9BRERSX0FOWSB8fAotCSAgICBhZGRyX3R5cGUgJiBJUFY2X0FERFJfTVVMVElDQVNU
+IHx8CisJICAgIChhZGRyX3R5cGUgJiBJUFY2X0FERFJfTVVMVElDQVNUICYmCisJICAgICAhKGNm
+Zy0+aWZhX2ZsYWdzICYgSUZBX0ZfTUNBVVRPSk9JTikpIHx8CiAJICAgICghKGlkZXYtPmRldi0+
+ZmxhZ3MgJiBJRkZfTE9PUEJBQ0spICYmCiAJICAgICBhZGRyX3R5cGUgJiBJUFY2X0FERFJfTE9P
+UEJBQ0spKQogCQlyZXR1cm4gRVJSX1BUUigtRUFERFJOT1RBVkFJTCk7Ci0tIAoyLjIwLjEKCgpG
+cm9tIGY1YzEwNWMyODIwYjU3YWM0YjcyOWMxOWM2NzAyZjE1ZWFmNTdiMjUgTW9uIFNlcCAxNyAw
+MDowMDowMCAyMDAxCkZyb206IERhdmlkIEFoZXJuIDxkc2FoZXJuQGdtYWlsLmNvbT4KRGF0ZTog
+V2VkLCAxOSBKdW4gMjAxOSAxMDo1MDoyNCAtMDcwMApTdWJqZWN0OiBbUEFUQ0ggNS84XSBpcHY2
+OiBEZWZhdWx0IGZpYjZfdHlwZSB0byBSVE5fVU5JQ0FTVCB3aGVuIG5vdCBzZXQKClsgVXBzdHJl
+YW0gY29tbWl0IGM3MDM2ZDk3YWNkMjUyN2NlZjE0NWI1ZWY5YWQxYTM3ZWQyMWJiZTYgXQoKQSB1
+c2VyIHJlcG9ydGVkIHRoYXQgcm91dGVzIGFyZSBnZXR0aW5nIGluc3RhbGxlZCB3aXRoIHR5cGUg
+MCAoUlROX1VOU1BFQykKd2hlcmUgYmVmb3JlIHRoZSByb3V0ZXMgd2VyZSBSVE5fVU5JQ0FTVC4g
+T25lIGV4YW1wbGUgaXMgZnJvbSBhY2NlbC1wcHAKd2hpY2ggYXBwYXJlbnRseSBzdGlsbCB1c2Vz
+IHRoZSBpb2N0bCBpbnRlcmZhY2UgYW5kIGRvZXMgbm90IHNldApydG1zZ190eXBlLiBBbm90aGVy
+IGlzIHRoZSBuZXRsaW5rIGludGVyZmFjZSB3aGVyZSBpcHY2IGRvZXMgbm90IHJlcXVpcmUKcnRt
+X3R5cGUgdG8gYmUgc2V0ICh2NCBkb2VzKS4gUHJpb3IgdG8gdGhlIGNvbW1pdCBpbiB0aGUgRml4
+ZXMgdGFnIHRoZQppcHY2IHN0YWNrIGNvbnZlcnRlZCB0eXBlIDAgdG8gUlROX1VOSUNBU1QsIHNv
+IHJlc3RvcmUgdGhhdCBiZWhhdmlvci4KCkZpeGVzOiBlODQ3OGU4MGU1YTcgKCJuZXQvaXB2Njog
+U2F2ZSByb3V0ZSB0eXBlIGluIHJ0Nl9pbmZvIikKU2lnbmVkLW9mZi1ieTogRGF2aWQgQWhlcm4g
+PGRzYWhlcm5AZ21haWwuY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVt
+QGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L2lwdjYvcm91dGUuYyB8IDIgKy0KIDEgZmlsZSBjaGFu
+Z2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL25ldC9pcHY2
+L3JvdXRlLmMgYi9uZXQvaXB2Ni9yb3V0ZS5jCmluZGV4IDgxMjIwMDc3ZDYyZi4uYzg4NTg2Mzgw
+MTM0IDEwMDY0NAotLS0gYS9uZXQvaXB2Ni9yb3V0ZS5jCisrKyBiL25ldC9pcHY2L3JvdXRlLmMK
+QEAgLTMxMDksNyArMzEwOSw3IEBAIHN0YXRpYyBzdHJ1Y3QgZmliNl9pbmZvICppcDZfcm91dGVf
+aW5mb19jcmVhdGUoc3RydWN0IGZpYjZfY29uZmlnICpjZmcsCiAJcnQtPmZpYjZfbWV0cmljID0g
+Y2ZnLT5mY19tZXRyaWM7CiAJcnQtPmZpYjZfbmgubmhfd2VpZ2h0ID0gMTsKIAotCXJ0LT5maWI2
+X3R5cGUgPSBjZmctPmZjX3R5cGU7CisJcnQtPmZpYjZfdHlwZSA9IGNmZy0+ZmNfdHlwZSA/IDog
+UlROX1VOSUNBU1Q7CiAKIAkvKiBXZSBjYW5ub3QgYWRkIHRydWUgcm91dGVzIHZpYSBsb29wYmFj
+ayBoZXJlLAogCSAgIHRoZXkgd291bGQgcmVzdWx0IGluIGtlcm5lbCBsb29waW5nOyBwcm9tb3Rl
+IHRoZW0gdG8gcmVqZWN0IHJvdXRlcwotLSAKMi4yMC4xCgoKRnJvbSBhNWJlMTU5YmM3YzhjMTIx
+NTQxMmI2NTYzY2RhZjg5ODI3ZTZmOTE0IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBK
+YXNvbiBCYXJvbiA8amJhcm9uQGFrYW1haS5jb20+CkRhdGU6IE1vbiwgMTkgQXVnIDIwMTkgMTQ6
+MzY6MDEgLTA0MDAKU3ViamVjdDogW1BBVENIIDYvOF0gbmV0L3NtYzogbWFrZSBzdXJlIEVQT0xM
+T1VUIGlzIHJhaXNlZAoKWyBVcHN0cmVhbSBjb21taXQgNDY1MWQxODAyZjcwNjNlNGQ4YzBiY2Fk
+OTU3ZjQ2ZWNlMGMwNDAyNCBdCgpDdXJyZW50bHksIHdlIGFyZSBvbmx5IGV4cGxpY2l0bHkgc2V0
+dGluZyBTT0NLX05PU1BBQ0Ugb24gYSB3cml0ZSB0aW1lb3V0CmZvciBub24tYmxvY2tpbmcgc29j
+a2V0cy4gRXBvbGwoKSBlZGdlLXRyaWdnZXIgbW9kZSByZWxpZXMgb24gU09DS19OT1NQQUNFCmJl
+aW5nIHNldCB3aGVuIC1FQUdBSU4gaXMgcmV0dXJuZWQgdG8gZW5zdXJlIHRoYXQgRVBPTExPVVQg
+aXMgcmFpc2VkLgpFeHBhbmQgdGhlIHNldHRpbmcgb2YgU09DS19OT1NQQUNFIHRvIG5vbi1ibG9j
+a2luZyBzb2NrZXRzIGFzIHdlbGwgdGhhdCBjYW4KdXNlIFNPX1NORFRJTUVPIHRvIGFkanVzdCB0
+aGVpciB3cml0ZSB0aW1lb3V0LiBUaGlzIG1pcnJvcnMgdGhlIGJlaGF2aW9yCnRoYXQgRXJpYyBE
+dW1hemV0IGludHJvZHVjZWQgZm9yIHRjcCBzb2NrZXRzLgoKU2lnbmVkLW9mZi1ieTogSmFzb24g
+QmFyb24gPGpiYXJvbkBha2FtYWkuY29tPgpDYzogRXJpYyBEdW1hemV0IDxlZHVtYXpldEBnb29n
+bGUuY29tPgpDYzogVXJzdWxhIEJyYXVuIDx1YnJhdW5AbGludXguaWJtLmNvbT4KQ2M6IEthcnN0
+ZW4gR3JhdWwgPGtncmF1bEBsaW51eC5pYm0uY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBN
+aWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3NtYy9zbWNfdHguYyB8IDYgKyst
+LS0tCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL25ldC9zbWMvc21jX3R4LmMgYi9uZXQvc21jL3NtY190eC5jCmluZGV4IGQ4MzY2
+ZWQ1MTc1Ny4uMjgzNjFhZWY5OTgyIDEwMDY0NAotLS0gYS9uZXQvc21jL3NtY190eC5jCisrKyBi
+L25ldC9zbWMvc21jX3R4LmMKQEAgLTc1LDEzICs3NSwxMSBAQCBzdGF0aWMgaW50IHNtY190eF93
+YWl0KHN0cnVjdCBzbWNfc29jayAqc21jLCBpbnQgZmxhZ3MpCiAJREVGSU5FX1dBSVRfRlVOQyh3
+YWl0LCB3b2tlbl93YWtlX2Z1bmN0aW9uKTsKIAlzdHJ1Y3Qgc21jX2Nvbm5lY3Rpb24gKmNvbm4g
+PSAmc21jLT5jb25uOwogCXN0cnVjdCBzb2NrICpzayA9ICZzbWMtPnNrOwotCWJvb2wgbm9ibG9j
+azsKIAlsb25nIHRpbWVvOwogCWludCByYyA9IDA7CiAKIAkvKiBzaW1pbGFyIHRvIHNrX3N0cmVh
+bV93YWl0X21lbW9yeSAqLwogCXRpbWVvID0gc29ja19zbmR0aW1lbyhzaywgZmxhZ3MgJiBNU0df
+RE9OVFdBSVQpOwotCW5vYmxvY2sgPSB0aW1lbyA/IGZhbHNlIDogdHJ1ZTsKIAlhZGRfd2FpdF9x
+dWV1ZShza19zbGVlcChzayksICZ3YWl0KTsKIAl3aGlsZSAoMSkgewogCQlza19zZXRfYml0KFNP
+Q0tXUV9BU1lOQ19OT1NQQUNFLCBzayk7CkBAIC05Niw4ICs5NCw4IEBAIHN0YXRpYyBpbnQgc21j
+X3R4X3dhaXQoc3RydWN0IHNtY19zb2NrICpzbWMsIGludCBmbGFncykKIAkJCWJyZWFrOwogCQl9
+CiAJCWlmICghdGltZW8pIHsKLQkJCWlmIChub2Jsb2NrKQotCQkJCXNldF9iaXQoU09DS19OT1NQ
+QUNFLCAmc2stPnNrX3NvY2tldC0+ZmxhZ3MpOworCQkJLyogZW5zdXJlIEVQT0xMT1VUIGlzIHN1
+YnNlcXVlbnRseSBnZW5lcmF0ZWQgKi8KKwkJCXNldF9iaXQoU09DS19OT1NQQUNFLCAmc2stPnNr
+X3NvY2tldC0+ZmxhZ3MpOwogCQkJcmMgPSAtRUFHQUlOOwogCQkJYnJlYWs7CiAJCX0KLS0gCjIu
+MjAuMQoKCkZyb20gYTE0MDA4NGI5ZDNlMThjNzk3Njk3ZGZkOGY3MjRkY2FjMTkyZmIyMiBNb24g
+U2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogRXJpYyBEdW1hemV0IDxlZHVtYXpldEBnb29nbGUu
+Y29tPgpEYXRlOiBGcmksIDE2IEF1ZyAyMDE5IDIxOjI2OjIyIC0wNzAwClN1YmplY3Q6IFtQQVRD
+SCA3LzhdIHRjcDogbWFrZSBzdXJlIEVQT0xMT1VUIHdvbnQgYmUgbWlzc2VkCgpbIFVwc3RyZWFt
+IGNvbW1pdCBlZjhkOGNjZGMyMTZmNzk3ZTY2Y2I0YTEzNzJmNWM0YzI4NWNlMWU0IF0KCkFzIEph
+c29uIEJhcm9uIGV4cGxhaW5lZCBpbiBjb21taXQgNzkwYmE0NTY2YzFhICgidGNwOiBzZXQgU09D
+S19OT1NQQUNFCnVuZGVyIG1lbW9yeSBwcmVzc3VyZSIpLCBpdCBpcyBjcnVjaWFsIHdlIHByb3Bl
+cmx5IHNldCBTT0NLX05PU1BBQ0UKd2hlbiBuZWVkZWQuCgpIb3dldmVyLCBKYXNvbiBwYXRjaCBo
+YWQgYSBidWcsIGJlY2F1c2UgdGhlICdub25ibG9ja2luZycgc3RhdHVzCmFzIGZhciBhcyBza19z
+dHJlYW1fd2FpdF9tZW1vcnkoKSBpcyBjb25jZXJuZWQgaXMgZ292ZXJuZWQKYnkgTVNHX0RPTlRX
+QUlUIGZsYWcgcGFzc2VkIGF0IHNlbmRtc2coKSB0aW1lIDoKCiAgICBsb25nIHRpbWVvID0gc29j
+a19zbmR0aW1lbyhzaywgZmxhZ3MgJiBNU0dfRE9OVFdBSVQpOwoKU28gaXQgaXMgdmVyeSBwb3Nz
+aWJsZSB0aGF0IHRjcCBzZW5kbXNnKCkgY2FsbHMgc2tfc3RyZWFtX3dhaXRfbWVtb3J5KCksCmFu
+ZCB0aGF0IHNrX3N0cmVhbV93YWl0X21lbW9yeSgpIHJldHVybnMgLUVBR0FJTiB3aXRoIFNPQ0tf
+Tk9TUEFDRQpjbGVhcmVkLCBpZiBzay0+c2tfc25kdGltZW8gaGFzIGJlZW4gc2V0IHRvIGEgc21h
+bGwgKGJ1dCBub3QgemVybykKdmFsdWUuCgpUaGlzIHBhdGNoIHJlbW92ZXMgdGhlICdub2Jsb2Nr
+JyB2YXJpYWJsZSBzaW5jZSB3ZSBtdXN0IGFsd2F5cwpzZXQgU09DS19OT1NQQUNFIGlmIC1FQUdB
+SU4gaXMgcmV0dXJuZWQuCgpJdCBhbHNvIHJlbmFtZXMgdGhlIGRvX25vbmJsb2NrIGxhYmVsIHNp
+bmNlIHdlIG1pZ2h0IHJlYWNoIHRoaXMKY29kZSBwYXRoIGV2ZW4gaWYgd2Ugd2VyZSBpbiBibG9j
+a2luZyBtb2RlLgoKRml4ZXM6IDc5MGJhNDU2NmMxYSAoInRjcDogc2V0IFNPQ0tfTk9TUEFDRSB1
+bmRlciBtZW1vcnkgcHJlc3N1cmUiKQpTaWduZWQtb2ZmLWJ5OiBFcmljIER1bWF6ZXQgPGVkdW1h
+emV0QGdvb2dsZS5jb20+CkNjOiBKYXNvbiBCYXJvbiA8amJhcm9uQGFrYW1haS5jb20+ClJlcG9y
+dGVkLWJ5OiBWbGFkaW1pciBSdXRza3kgIDxydXRza3lAZ29vZ2xlLmNvbT4KQWNrZWQtYnk6IFNv
+aGVpbCBIYXNzYXMgWWVnYW5laCA8c29oZWlsQGdvb2dsZS5jb20+CkFja2VkLWJ5OiBOZWFsIENh
+cmR3ZWxsIDxuY2FyZHdlbGxAZ29vZ2xlLmNvbT4KQWNrZWQtYnk6IEphc29uIEJhcm9uIDxqYmFy
+b25AYWthbWFpLmNvbT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZl
+bWxvZnQubmV0PgotLS0KIG5ldC9jb3JlL3N0cmVhbS5jIHwgMTYgKysrKysrKysrLS0tLS0tLQog
+MSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
+aXQgYS9uZXQvY29yZS9zdHJlYW0uYyBiL25ldC9jb3JlL3N0cmVhbS5jCmluZGV4IDdkMzI5ZmIx
+ZjU1My4uN2Y1ZWFhOTVhNjc1IDEwMDY0NAotLS0gYS9uZXQvY29yZS9zdHJlYW0uYworKysgYi9u
+ZXQvY29yZS9zdHJlYW0uYwpAQCAtMTIwLDcgKzEyMCw2IEBAIGludCBza19zdHJlYW1fd2FpdF9t
+ZW1vcnkoc3RydWN0IHNvY2sgKnNrLCBsb25nICp0aW1lb19wKQogCWludCBlcnIgPSAwOwogCWxv
+bmcgdm1fd2FpdCA9IDA7CiAJbG9uZyBjdXJyZW50X3RpbWVvID0gKnRpbWVvX3A7Ci0JYm9vbCBu
+b2Jsb2NrID0gKCp0aW1lb19wID8gZmFsc2UgOiB0cnVlKTsKIAlERUZJTkVfV0FJVF9GVU5DKHdh
+aXQsIHdva2VuX3dha2VfZnVuY3Rpb24pOwogCiAJaWYgKHNrX3N0cmVhbV9tZW1vcnlfZnJlZShz
+aykpCkBAIC0xMzMsMTEgKzEzMiw4IEBAIGludCBza19zdHJlYW1fd2FpdF9tZW1vcnkoc3RydWN0
+IHNvY2sgKnNrLCBsb25nICp0aW1lb19wKQogCiAJCWlmIChzay0+c2tfZXJyIHx8IChzay0+c2tf
+c2h1dGRvd24gJiBTRU5EX1NIVVRET1dOKSkKIAkJCWdvdG8gZG9fZXJyb3I7Ci0JCWlmICghKnRp
+bWVvX3ApIHsKLQkJCWlmIChub2Jsb2NrKQotCQkJCXNldF9iaXQoU09DS19OT1NQQUNFLCAmc2st
+PnNrX3NvY2tldC0+ZmxhZ3MpOwotCQkJZ290byBkb19ub25ibG9jazsKLQkJfQorCQlpZiAoISp0
+aW1lb19wKQorCQkJZ290byBkb19lYWdhaW47CiAJCWlmIChzaWduYWxfcGVuZGluZyhjdXJyZW50
+KSkKIAkJCWdvdG8gZG9faW50ZXJydXB0ZWQ7CiAJCXNrX2NsZWFyX2JpdChTT0NLV1FfQVNZTkNf
+Tk9TUEFDRSwgc2spOwpAQCAtMTY5LDcgKzE2NSwxMyBAQCBpbnQgc2tfc3RyZWFtX3dhaXRfbWVt
+b3J5KHN0cnVjdCBzb2NrICpzaywgbG9uZyAqdGltZW9fcCkKIGRvX2Vycm9yOgogCWVyciA9IC1F
+UElQRTsKIAlnb3RvIG91dDsKLWRvX25vbmJsb2NrOgorZG9fZWFnYWluOgorCS8qIE1ha2Ugc3Vy
+ZSB0aGF0IHdoZW5ldmVyIEVBR0FJTiBpcyByZXR1cm5lZCwgRVBPTExPVVQgZXZlbnQgY2FuCisJ
+ICogYmUgZ2VuZXJhdGVkIGxhdGVyLgorCSAqIFdoZW4gVENQIHJlY2VpdmVzIEFDSyBwYWNrZXRz
+IHRoYXQgbWFrZSByb29tLCB0Y3BfY2hlY2tfc3BhY2UoKQorCSAqIG9ubHkgY2FsbHMgdGNwX25l
+d19zcGFjZSgpIGlmIFNPQ0tfTk9TUEFDRSBpcyBzZXQuCisJICovCisJc2V0X2JpdChTT0NLX05P
+U1BBQ0UsICZzay0+c2tfc29ja2V0LT5mbGFncyk7CiAJZXJyID0gLUVBR0FJTjsKIAlnb3RvIG91
+dDsKIGRvX2ludGVycnVwdGVkOgotLSAKMi4yMC4xCgoKRnJvbSA0OTY3NDYxOTkxOWExNjc3YjQ4
+MTJmYTRmYTJkYmFjY2I4NTkyYmMwIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBIYW5n
+YmluIExpdSA8bGl1aGFuZ2JpbkBnbWFpbC5jb20+CkRhdGU6IFRodSwgMjIgQXVnIDIwMTkgMjI6
+MTk6NDggKzA4MDAKU3ViamVjdDogW1BBVENIIDgvOF0gaXB2NC9pY21wOiBmaXggcnQgZHN0IGRl
+diBudWxsIHBvaW50ZXIgZGVyZWZlcmVuY2UKClsgVXBzdHJlYW0gY29tbWl0IGUyYzY5MzkzNDE5
+NGZkM2I0ZTc5NTYzNTkzNDg4MzM1NGMwNmViYzkgXQoKSW4gX19pY21wX3NlbmQoKSB0aGVyZSBp
+cyBhIHBvc3NpYmlsaXR5IHRoYXQgdGhlIHJ0LT5kc3QuZGV2IGlzIE5VTEwsCmUsZywgd2l0aCB0
+dW5uZWwgY29sbGVjdF9tZCBtb2RlLCB3aGljaCB3aWxsIGNhdXNlIGtlcm5lbCBjcmFzaC4KSGVy
+ZSBpcyB3aGF0IHRoZSBjb2RlIHBhdGggbG9va3MgbGlrZSwgZm9yIEdSRToKCi0gaXA2Z3JlX3R1
+bm5lbF94bWl0CiAgLSBpcDZncmVfeG1pdF9pcHY0CiAgICAtIF9fZ3JlNl94bWl0CiAgICAgIC0g
+aXA2X3RubF94bWl0CiAgICAgICAgLSBpZiBza2ItPmxlbiAtIHQtPnR1bl9obGVuIC0gZXRoX2hs
+ZW4gPiBtdHU7IHJldHVybiAtRU1TR1NJWkUKICAgIC0gaWNtcF9zZW5kCiAgICAgIC0gbmV0ID0g
+ZGV2X25ldChydC0+ZHN0LmRldik7IDwtLSBoZXJlCgpUaGUgcmVhc29uIGlzIF9fbWV0YWRhdGFf
+ZHN0X2luaXQoKSBpbml0IGRzdC0+ZGV2IHRvIE5VTEwgYnkgZGVmYXVsdC4KV2UgY291bGQgbm90
+IGZpeCBpdCBpbiBfX21ldGFkYXRhX2RzdF9pbml0KCkgYXMgdGhlcmUgaXMgbm8gZGV2IHN1cHBs
+aWVkLgpPbiB0aGUgb3RoZXIgaGFuZCwgdGhlIHJlYXNvbiB3ZSBuZWVkIHJ0LT5kc3QuZGV2IGlz
+IHRvIGdldCB0aGUgbmV0LgpTbyB3ZSBjYW4ganVzdCB0cnkgZ2V0IGl0IGZyb20gc2tiLT5kZXYg
+d2hlbiBydC0+ZHN0LmRldiBpcyBOVUxMLgoKdjQ6IEp1bGlhbiBBbmFzdGFzb3YgcmVtaW5kIHNr
+Yi0+ZGV2IGFsc28gY291bGQgYmUgTlVMTC4gV2UnZCBiZXR0ZXIKc3RpbGwgdXNlIGRzdC5kZXYg
+YW5kIGRvIGEgY2hlY2sgdG8gYXZvaWQgY3Jhc2guCgp2MzogTm8gY2hhbmdlcy4KCnYyOiBmaXgg
+dGhlIGlzc3VlIGluIF9faWNtcF9zZW5kKCkgaW5zdGVhZCBvZiB1cGRhdGluZyBzaGFyZWQgZHN0
+IGRldgppbiB7aXBfbWQsIGlwNn1fdHVubmVsX3htaXQuCgpGaXhlczogYzhiMzRlNjgwYTA5ICgi
+aXBfdHVubmVsOiBBZGQgdG5sX3VwZGF0ZV9wbXR1IGluIGlwX21kX3R1bm5lbF94bWl0IikKU2ln
+bmVkLW9mZi1ieTogSGFuZ2JpbiBMaXUgPGxpdWhhbmdiaW5AZ21haWwuY29tPgpSZXZpZXdlZC1i
+eTogSnVsaWFuIEFuYXN0YXNvdiA8amFAc3NpLmJnPgpBY2tlZC1ieTogSm9uYXRoYW4gTGVtb24g
+PGpvbmF0aGFuLmxlbW9uQGdtYWlsLmNvbT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVy
+IDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIG5ldC9pcHY0L2ljbXAuYyB8IDggKysrKysrKy0K
+IDEgZmlsZSBjaGFuZ2VkLCA3IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1n
+aXQgYS9uZXQvaXB2NC9pY21wLmMgYi9uZXQvaXB2NC9pY21wLmMKaW5kZXggYWQ3NWM0NjhlY2Zi
+Li4wMTY3ZTIzZDFjOGYgMTAwNjQ0Ci0tLSBhL25ldC9pcHY0L2ljbXAuYworKysgYi9uZXQvaXB2
+NC9pY21wLmMKQEAgLTU4Nyw3ICs1ODcsMTMgQEAgdm9pZCBfX2ljbXBfc2VuZChzdHJ1Y3Qgc2tf
+YnVmZiAqc2tiX2luLCBpbnQgdHlwZSwgaW50IGNvZGUsIF9fYmUzMiBpbmZvLAogCiAJaWYgKCFy
+dCkKIAkJZ290byBvdXQ7Ci0JbmV0ID0gZGV2X25ldChydC0+ZHN0LmRldik7CisKKwlpZiAocnQt
+PmRzdC5kZXYpCisJCW5ldCA9IGRldl9uZXQocnQtPmRzdC5kZXYpOworCWVsc2UgaWYgKHNrYl9p
+bi0+ZGV2KQorCQluZXQgPSBkZXZfbmV0KHNrYl9pbi0+ZGV2KTsKKwllbHNlCisJCWdvdG8gb3V0
+OwogCiAJLyoKIAkgKglGaW5kIHRoZSBvcmlnaW5hbCBoZWFkZXIuIEl0IGlzIGV4cGVjdGVkIHRv
+IGJlIHZhbGlkLCBvZiBjb3Vyc2UuCi0tIAoyLjIwLjEKCg==
+
+----Next_Part(Tue_Aug_27_17_42_50_2019_694)--
+Content-Type: Application/Octet-Stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="net_52.mbox"
+
+RnJvbSBhMzAwNjQ4YTU5N2JhZjFmZjc0ODYzYmVkOGRkMjdjNzY4YWExZDQ3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYW5nYmluIExpdSA8bGl1aGFuZ2JpbkBnbWFpbC5jb20+CkRh
+dGU6IFR1ZSwgMjAgQXVnIDIwMTkgMTA6MTk6NDcgKzA4MDAKU3ViamVjdDogW1BBVENIIDAxLzEw
+XSBpcHY2L2FkZHJjb25mOiBhbGxvdyBhZGRpbmcgbXVsdGljYXN0IGFkZHIgaWYKIElGQV9GX01D
+QVVUT0pPSU4gaXMgc2V0CgpbIFVwc3RyZWFtIGNvbW1pdCBmMTdmNzY0OGE0OWFhNjcyODY0OWRk
+Zjc5YmRiY2FjNGYxOTcwY2U0IF0KCkluIGNvbW1pdCA5M2E3MTRkNmI1M2QgKCJtdWx0aWNhc3Q6
+IEV4dGVuZCBpcCBhZGRyZXNzIGNvbW1hbmQgdG8gZW5hYmxlCm11bHRpY2FzdCBncm91cCBqb2lu
+L2xlYXZlIG9uIikgd2UgYWRkZWQgYSBuZXcgZmxhZyBJRkFfRl9NQ0FVVE9KT0lOCnRvIG1ha2Ug
+dXNlciBhYmxlIHRvIGFkZCBtdWx0aWNhc3QgYWRkcmVzcyBvbiBldGhlcm5ldCBpbnRlcmZhY2Uu
+CgpUaGlzIHdvcmtzIGZvciBJUHY0LCBidXQgbm90IGZvciBJUHY2LiBTZWUgdGhlIGluZXQ2X2Fk
+ZHJfYWRkIGNvZGUuCgpzdGF0aWMgaW50IGluZXQ2X2FkZHJfYWRkKCkKewoJLi4uCglpZiAoY2Zn
+LT5pZmFfZmxhZ3MgJiBJRkFfRl9NQ0FVVE9KT0lOKSB7CgkJaXB2Nl9tY19jb25maWcobmV0LT5p
+cHY2Lm1jX2F1dG9qb2luX3NrLCB0cnVlLi4uKQoJfQoKCWlmcCA9IGlwdjZfYWRkX2FkZHIoaWRl
+diwgY2ZnLCB0cnVlLCBleHRhY2spOyA8LSBhbHdheXMgZmFpbCB3aXRoIG1hZGRyCglpZiAoIUlT
+X0VSUihpZnApKSB7CgkJLi4uCgl9IGVsc2UgaWYgKGNmZy0+aWZhX2ZsYWdzICYgSUZBX0ZfTUNB
+VVRPSk9JTikgewoJCWlwdjZfbWNfY29uZmlnKG5ldC0+aXB2Ni5tY19hdXRvam9pbl9zaywgZmFs
+c2UuLi4pCgl9Cn0KCkJ1dCBpbiBpcHY2X2FkZF9hZGRyKCkgaXQgd2lsbCBjaGVjayB0aGUgYWRk
+cmVzcyB0eXBlIGFuZCByZWplY3QgbXVsdGljYXN0CmFkZHJlc3MgZGlyZWN0bHkuIFNvIHRoaXMg
+ZmVhdHVyZSBpcyBuZXZlciB3b3JrZWQgZm9yIElQdjYuCgpXZSBzaG91bGQgbm90IHJlbW92ZSB0
+aGUgbXVsdGljYXN0IGFkZHJlc3MgY2hlY2sgdG90YWxseSBpbiBpcHY2X2FkZF9hZGRyKCksCmJ1
+dCBjb3VsZCBhY2NlcHQgbXVsdGljYXN0IGFkZHJlc3Mgb25seSB3aGVuIElGQV9GX01DQVVUT0pP
+SU4gZmxhZyBzdXBwbGllZC4KCnYyOiB1cGRhdGUgY29tbWl0IGRlc2NyaXB0aW9uCgpGaXhlczog
+OTNhNzE0ZDZiNTNkICgibXVsdGljYXN0OiBFeHRlbmQgaXAgYWRkcmVzcyBjb21tYW5kIHRvIGVu
+YWJsZSBtdWx0aWNhc3QgZ3JvdXAgam9pbi9sZWF2ZSBvbiIpClJlcG9ydGVkLWJ5OiBKaWFubGlu
+IFNoaSA8amlzaGlAcmVkaGF0LmNvbT4KU2lnbmVkLW9mZi1ieTogSGFuZ2JpbiBMaXUgPGxpdWhh
+bmdiaW5AZ21haWwuY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRh
+dmVtbG9mdC5uZXQ+Ci0tLQogbmV0L2lwdjYvYWRkcmNvbmYuYyB8IDMgKystCiAxIGZpbGUgY2hh
+bmdlZCwgMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvbmV0L2lw
+djYvYWRkcmNvbmYuYyBiL25ldC9pcHY2L2FkZHJjb25mLmMKaW5kZXggMDgxYmI1MTdlNDBkLi4y
+NDU0ZmNlNmZiZmEgMTAwNjQ0Ci0tLSBhL25ldC9pcHY2L2FkZHJjb25mLmMKKysrIGIvbmV0L2lw
+djYvYWRkcmNvbmYuYwpAQCAtMTA0NSw3ICsxMDQ1LDggQEAgaXB2Nl9hZGRfYWRkcihzdHJ1Y3Qg
+aW5ldDZfZGV2ICppZGV2LCBzdHJ1Y3QgaWZhNl9jb25maWcgKmNmZywKIAlpbnQgZXJyID0gMDsK
+IAogCWlmIChhZGRyX3R5cGUgPT0gSVBWNl9BRERSX0FOWSB8fAotCSAgICBhZGRyX3R5cGUgJiBJ
+UFY2X0FERFJfTVVMVElDQVNUIHx8CisJICAgIChhZGRyX3R5cGUgJiBJUFY2X0FERFJfTVVMVElD
+QVNUICYmCisJICAgICAhKGNmZy0+aWZhX2ZsYWdzICYgSUZBX0ZfTUNBVVRPSk9JTikpIHx8CiAJ
+ICAgICghKGlkZXYtPmRldi0+ZmxhZ3MgJiBJRkZfTE9PUEJBQ0spICYmCiAJICAgICAhbmV0aWZf
+aXNfbDNfbWFzdGVyKGlkZXYtPmRldikgJiYKIAkgICAgIGFkZHJfdHlwZSAmIElQVjZfQUREUl9M
+T09QQkFDSykpCi0tIAoyLjIwLjEKCgpGcm9tIDc1MDMzYmEzNTk2ODNhNmJmMWI0MWI1ODU4NTJi
+MWEwY2QzZTA2OWUgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IFN0ZWZhbm8gQnJpdmlv
+IDxzYnJpdmlvQHJlZGhhdC5jb20+CkRhdGU6IFR1ZSwgMTMgQXVnIDIwMTkgMDA6NDY6MDEgKzAy
+MDAKU3ViamVjdDogW1BBVENIIDAyLzEwXSBpcHY2OiBGaXggcmV0dXJuIHZhbHVlIG9mIGlwdjZf
+bWNfbWF5X3B1bGwoKSBmb3IKIG1hbGZvcm1lZCBwYWNrZXRzCgpDb21taXQgYmE1ZWE2MTQ2MjJk
+ICgiYnJpZGdlOiBzaW1wbGlmeSBpcF9tY19jaGVja19pZ21wKCkgYW5kCmlwdjZfbWNfY2hlY2tf
+bWxkKCkgY2FsbHMiKSByZXBsYWNlcyBkaXJlY3QgY2FsbHMgdG8gcHNrYl9tYXlfcHVsbCgpCmlu
+IGJyX2lwdjZfbXVsdGljYXN0X21sZDJfcmVwb3J0KCkgd2l0aCBjYWxscyB0byBpcHY2X21jX21h
+eV9wdWxsKCksCnRoYXQgcmV0dXJucyAtRUlOVkFMIG9uIGJ1ZmZlcnMgdG9vIHNob3J0IHRvIGJl
+IHZhbGlkIElQdjYgcGFja2V0cywKd2hpbGUgbWFpbnRhaW5pbmcgdGhlIHByZXZpb3VzIGhhbmRs
+aW5nIG9mIHRoZSByZXR1cm4gY29kZS4KClRoaXMgbGVhZHMgdG8gdGhlIGRpcmVjdCBvcHBvc2l0
+ZSBvZiB0aGUgaW50ZW5kZWQgZWZmZWN0OiBpZiB0aGUKcGFja2V0IGlzIG1hbGZvcm1lZCwgLUVJ
+TlZBTCBldmFsdWF0ZXMgYXMgdHJ1ZSwgYW5kIHdlJ2xsIGhhcHBpbHkKcHJvY2VlZCB3aXRoIHRo
+ZSBwcm9jZXNzaW5nLgoKUmV0dXJuIDAgaWYgdGhlIHBhY2tldCBpcyB0b28gc2hvcnQsIGluIHRo
+ZSBzYW1lIHdheSBhcyB0aGlzIHdhcwpmaXhlZCBmb3IgSVB2NCBieSBjb21taXQgMDgzYjc4YTll
+ZDY0ICgiaXA6IGZpeCBpcF9tY19tYXlfcHVsbCgpCnJldHVybiB2YWx1ZSIpLgoKSSBkb24ndCBo
+YXZlIGEgcmVwcm9kdWNlciBmb3IgdGhpcywgdW5saWtlIHRoZSBvbmUgcmVmZXJyZWQgdG8gYnkK
+dGhlIElQdjQgY29tbWl0LCBidXQgdGhpcyBpcyBjbGVhcmx5IGJyb2tlbi4KCkZpeGVzOiBiYTVl
+YTYxNDYyMmQgKCJicmlkZ2U6IHNpbXBsaWZ5IGlwX21jX2NoZWNrX2lnbXAoKSBhbmQgaXB2Nl9t
+Y19jaGVja19tbGQoKSBjYWxscyIpClNpZ25lZC1vZmYtYnk6IFN0ZWZhbm8gQnJpdmlvIDxzYnJp
+dmlvQHJlZGhhdC5jb20+CkFja2VkLWJ5OiBHdWlsbGF1bWUgTmF1bHQgPGduYXVsdEByZWRoYXQu
+Y29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+
+Ci0tLQogaW5jbHVkZS9uZXQvYWRkcmNvbmYuaCB8IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGlu
+c2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbmV0L2FkZHJj
+b25mLmggYi9pbmNsdWRlL25ldC9hZGRyY29uZi5oCmluZGV4IGJlY2RhZDU3Njg1OS4uM2Y2MmIz
+NDdiMDRhIDEwMDY0NAotLS0gYS9pbmNsdWRlL25ldC9hZGRyY29uZi5oCisrKyBiL2luY2x1ZGUv
+bmV0L2FkZHJjb25mLmgKQEAgLTIwNiw3ICsyMDYsNyBAQCBzdGF0aWMgaW5saW5lIGludCBpcHY2
+X21jX21heV9wdWxsKHN0cnVjdCBza19idWZmICpza2IsCiAJCQkJICAgdW5zaWduZWQgaW50IGxl
+bikKIHsKIAlpZiAoc2tiX3RyYW5zcG9ydF9vZmZzZXQoc2tiKSArIGlwdjZfdHJhbnNwb3J0X2xl
+bihza2IpIDwgbGVuKQotCQlyZXR1cm4gLUVJTlZBTDsKKwkJcmV0dXJuIDA7CiAKIAlyZXR1cm4g
+cHNrYl9tYXlfcHVsbChza2IsIGxlbik7CiB9Ci0tIAoyLjIwLjEKCgpGcm9tIDFkZjU1MWY0ZjM4
+MzcwNGE4NGIxNGU2MjRmMjcwMzM5N2VjNzc5NzcgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZy
+b206IEFudG9pbmUgVGVuYXJ0IDxhbnRvaW5lLnRlbmFydEBib290bGluLmNvbT4KRGF0ZTogV2Vk
+LCAyMSBBdWcgMjAxOSAxNjo0MToyMyArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMDMvMTBdIG5ldDog
+Y3BzdzogZml4IE5VTEwgcG9pbnRlciBleGNlcHRpb24gaW4gdGhlIHByb2JlCiBlcnJvciBwYXRo
+CgpbIFVwc3RyZWFtIGNvbW1pdCAyZDY4M2VhYWVlYjlkMzNkMjM2NzRhZTYzNWUwZWYxNDQ4NTIz
+ZDE4IF0KCkluIGNlcnRhaW4gY2FzZXMgd2hlbiB0aGUgcHJvYmUgZnVuY3Rpb24gZmFpbHMgdGhl
+IGVycm9yIHBhdGggY2FsbHMKY3Bzd19yZW1vdmVfZHQoKSBiZWZvcmUgY2FsbGluZyBwbGF0Zm9y
+bV9zZXRfZHJ2ZGF0YSgpLiBUaGlzIGlzIGFuCmlzc3VlIGFzIGNwc3dfcmVtb3ZlX2R0KCkgdXNl
+cyBwbGF0Zm9ybV9nZXRfZHJ2ZGF0YSgpIHRvIHJldHJpZXZlIHRoZQpjcHN3X2NvbW1vbiBkYXRh
+IGFuZCBsZWRzIHRvIGEgTlVMTCBwb2ludGVyIGV4Y2VwdGlvbi4gVGhpcyBwYXRjaGVzCmZpeGVz
+IGl0IGJ5IGNhbGxpbmcgcGxhdGZvcm1fc2V0X2RydmRhdGEoKSBlYXJsaWVyIGluIHRoZSBwcm9i
+ZS4KCkZpeGVzOiA4M2E4NDcxYmEyNTUgKCJuZXQ6IGV0aGVybmV0OiB0aTogY3BzdzogcmVmYWN0
+b3IgcHJvYmUgdG8gZ3JvdXAgY29tbW9uIGh3IGluaXRpYWxpemF0aW9uIikKUmVwb3J0ZWQtYnk6
+IE1heGltZSBDaGV2YWxsaWVyIDxtYXhpbWUuY2hldmFsbGllckBib290bGluLmNvbT4KU2lnbmVk
+LW9mZi1ieTogQW50b2luZSBUZW5hcnQgPGFudG9pbmUudGVuYXJ0QGJvb3RsaW4uY29tPgpSZXZp
+ZXdlZC1ieTogR3J5Z29yaWkgU3RyYXNoa28gPGdyeWdvcmlpLnN0cmFzaGtvQHRpLmNvbT4KU2ln
+bmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIGRy
+aXZlcnMvbmV0L2V0aGVybmV0L3RpL2Nwc3cuYyB8IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGlu
+c2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L2V0aGVy
+bmV0L3RpL2Nwc3cuYyBiL2RyaXZlcnMvbmV0L2V0aGVybmV0L3RpL2Nwc3cuYwppbmRleCA0ZTMw
+MjZmOWFiZWQuLjk2MmRiYjNhY2Q3NyAxMDA2NDQKLS0tIGEvZHJpdmVycy9uZXQvZXRoZXJuZXQv
+dGkvY3Bzdy5jCisrKyBiL2RyaXZlcnMvbmV0L2V0aGVybmV0L3RpL2Nwc3cuYwpAQCAtMjM3Miw2
+ICsyMzcyLDcgQEAgc3RhdGljIGludCBjcHN3X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2Ug
+KnBkZXYpCiAJaWYgKCFjcHN3KQogCQlyZXR1cm4gLUVOT01FTTsKIAorCXBsYXRmb3JtX3NldF9k
+cnZkYXRhKHBkZXYsIGNwc3cpOwogCWNwc3ctPmRldiA9IGRldjsKIAogCW1vZGUgPSBkZXZtX2dw
+aW9kX2dldF9hcnJheV9vcHRpb25hbChkZXYsICJtb2RlIiwgR1BJT0RfT1VUX0xPVyk7CkBAIC0y
+NDc2LDcgKzI0NzcsNiBAQCBzdGF0aWMgaW50IGNwc3dfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2Rl
+dmljZSAqcGRldikKIAkJZ290byBjbGVhbl9jcHRzOwogCX0KIAotCXBsYXRmb3JtX3NldF9kcnZk
+YXRhKHBkZXYsIG5kZXYpOwogCXByaXYgPSBuZXRkZXZfcHJpdihuZGV2KTsKIAlwcml2LT5jcHN3
+ID0gY3BzdzsKIAlwcml2LT5uZGV2ID0gbmRldjsKLS0gCjIuMjAuMQoKCkZyb20gMjZjYzA4OTA2
+NmI3Y2YzMzIwNDYwOTA1MGRkODMxZDlkMmQzZjQ2MiBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEK
+RnJvbTogTGkgUm9uZ1FpbmcgPGxpcm9uZ3FpbmdAYmFpZHUuY29tPgpEYXRlOiBUdWUsIDIwIEF1
+ZyAyMDE5IDEzOjUyOjQ3ICswODAwClN1YmplY3Q6IFtQQVRDSCAwNC8xMF0gbmV0OiBmaXggX19p
+cF9tY19pbmNfZ3JvdXAgdXNhZ2UKClsgVXBzdHJlYW0gY29tbWl0IGExYzRjZDY3ODQwZWY4MGY2
+Y2E1ZjczMzI2ZmE5YTY3MTkzMDNhOTUgXQoKaW4gaXBfbWNfaW5jX2dyb3VwLCBtZW1vcnkgYWxs
+b2NhdGlvbiBmbGFnLCBub3QgbWNhc3QgbW9kZSwgaXMgZXhwZWN0ZWQKYnkgX19pcF9tY19pbmNf
+Z3JvdXAKCnNpbWlsYXIgaXNzdWUgaW4gX19pcF9tY19qb2luX2dyb3VwLCBib3RoIG1jYXNlIG1v
+ZGUgYW5kIGdmcF90IGFyZSBuZWVkZWQKaGVyZSwgc28gdXNlIF9fX19pcF9tY19pbmNfZ3JvdXAo
+Li4uKQoKRml4ZXM6IDlmYjIwODAxZGFiNCAoIm5ldDogRml4IGlwX21jX3tkZWMsaW5jfV9ncm91
+cCBhbGxvY2F0aW9uIGNvbnRleHQiKQpTaWduZWQtb2ZmLWJ5OiBMaSBSb25nUWluZyA8bGlyb25n
+cWluZ0BiYWlkdS5jb20+ClNpZ25lZC1vZmYtYnk6IEZsb3JpYW4gRmFpbmVsbGkgPGYuZmFpbmVs
+bGlAZ21haWwuY29tPgpTaWduZWQtb2ZmLWJ5OiBaaGFuZyBZdSA8emhhbmd5dTMxQGJhaWR1LmNv
+bT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0Pgot
+LS0KIG5ldC9pcHY0L2lnbXAuYyB8IDQgKystLQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9u
+cygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9uZXQvaXB2NC9pZ21wLmMgYi9uZXQv
+aXB2NC9pZ21wLmMKaW5kZXggODUxMDdiZjgxMmYyLi5iNWIwODM0ZWM1ZWUgMTAwNjQ0Ci0tLSBh
+L25ldC9pcHY0L2lnbXAuYworKysgYi9uZXQvaXB2NC9pZ21wLmMKQEAgLTE0NzQsNyArMTQ3NCw3
+IEBAIEVYUE9SVF9TWU1CT0woX19pcF9tY19pbmNfZ3JvdXApOwogCiB2b2lkIGlwX21jX2luY19n
+cm91cChzdHJ1Y3QgaW5fZGV2aWNlICppbl9kZXYsIF9fYmUzMiBhZGRyKQogewotCV9faXBfbWNf
+aW5jX2dyb3VwKGluX2RldiwgYWRkciwgTUNBU1RfRVhDTFVERSk7CisJX19pcF9tY19pbmNfZ3Jv
+dXAoaW5fZGV2LCBhZGRyLCBHRlBfS0VSTkVMKTsKIH0KIEVYUE9SVF9TWU1CT0woaXBfbWNfaW5j
+X2dyb3VwKTsKIApAQCAtMjE5Niw3ICsyMTk2LDcgQEAgc3RhdGljIGludCBfX2lwX21jX2pvaW5f
+Z3JvdXAoc3RydWN0IHNvY2sgKnNrLCBzdHJ1Y3QgaXBfbXJlcW4gKmltciwKIAlpbWwtPnNmbGlz
+dCA9IE5VTEw7CiAJaW1sLT5zZm1vZGUgPSBtb2RlOwogCXJjdV9hc3NpZ25fcG9pbnRlcihpbmV0
+LT5tY19saXN0LCBpbWwpOwotCV9faXBfbWNfaW5jX2dyb3VwKGluX2RldiwgYWRkciwgbW9kZSk7
+CisJX19fX2lwX21jX2luY19ncm91cChpbl9kZXYsIGFkZHIsIG1vZGUsIEdGUF9LRVJORUwpOwog
+CWVyciA9IDA7CiBkb25lOgogCXJldHVybiBlcnI7Ci0tIAoyLjIwLjEKCgpGcm9tIGI2NzFmMGRj
+NWVkNmFlMjM1MTJmYjA4NTQ0NjBjMTAyMjZlMjQyNDQgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAx
+CkZyb206IEphc29uIEJhcm9uIDxqYmFyb25AYWthbWFpLmNvbT4KRGF0ZTogTW9uLCAxOSBBdWcg
+MjAxOSAxNDozNjowMSAtMDQwMApTdWJqZWN0OiBbUEFUQ0ggMDUvMTBdIG5ldC9zbWM6IG1ha2Ug
+c3VyZSBFUE9MTE9VVCBpcyByYWlzZWQKClsgVXBzdHJlYW0gY29tbWl0IDQ2NTFkMTgwMmY3MDYz
+ZTRkOGMwYmNhZDk1N2Y0NmVjZTBjMDQwMjQgXQoKQ3VycmVudGx5LCB3ZSBhcmUgb25seSBleHBs
+aWNpdGx5IHNldHRpbmcgU09DS19OT1NQQUNFIG9uIGEgd3JpdGUgdGltZW91dApmb3Igbm9uLWJs
+b2NraW5nIHNvY2tldHMuIEVwb2xsKCkgZWRnZS10cmlnZ2VyIG1vZGUgcmVsaWVzIG9uIFNPQ0tf
+Tk9TUEFDRQpiZWluZyBzZXQgd2hlbiAtRUFHQUlOIGlzIHJldHVybmVkIHRvIGVuc3VyZSB0aGF0
+IEVQT0xMT1VUIGlzIHJhaXNlZC4KRXhwYW5kIHRoZSBzZXR0aW5nIG9mIFNPQ0tfTk9TUEFDRSB0
+byBub24tYmxvY2tpbmcgc29ja2V0cyBhcyB3ZWxsIHRoYXQgY2FuCnVzZSBTT19TTkRUSU1FTyB0
+byBhZGp1c3QgdGhlaXIgd3JpdGUgdGltZW91dC4gVGhpcyBtaXJyb3JzIHRoZSBiZWhhdmlvcgp0
+aGF0IEVyaWMgRHVtYXpldCBpbnRyb2R1Y2VkIGZvciB0Y3Agc29ja2V0cy4KClNpZ25lZC1vZmYt
+Ynk6IEphc29uIEJhcm9uIDxqYmFyb25AYWthbWFpLmNvbT4KQ2M6IEVyaWMgRHVtYXpldCA8ZWR1
+bWF6ZXRAZ29vZ2xlLmNvbT4KQ2M6IFVyc3VsYSBCcmF1biA8dWJyYXVuQGxpbnV4LmlibS5jb20+
+CkNjOiBLYXJzdGVuIEdyYXVsIDxrZ3JhdWxAbGludXguaWJtLmNvbT4KU2lnbmVkLW9mZi1ieTog
+RGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIG5ldC9zbWMvc21jX3R4
+LmMgfCA2ICsrLS0tLQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlv
+bnMoLSkKCmRpZmYgLS1naXQgYS9uZXQvc21jL3NtY190eC5jIGIvbmV0L3NtYy9zbWNfdHguYwpp
+bmRleCBmMGRlMzIzZDE1ZDYuLjZjOGYwOWMxY2U1MSAxMDA2NDQKLS0tIGEvbmV0L3NtYy9zbWNf
+dHguYworKysgYi9uZXQvc21jL3NtY190eC5jCkBAIC03NiwxMyArNzYsMTEgQEAgc3RhdGljIGlu
+dCBzbWNfdHhfd2FpdChzdHJ1Y3Qgc21jX3NvY2sgKnNtYywgaW50IGZsYWdzKQogCURFRklORV9X
+QUlUX0ZVTkMod2FpdCwgd29rZW5fd2FrZV9mdW5jdGlvbik7CiAJc3RydWN0IHNtY19jb25uZWN0
+aW9uICpjb25uID0gJnNtYy0+Y29ubjsKIAlzdHJ1Y3Qgc29jayAqc2sgPSAmc21jLT5zazsKLQli
+b29sIG5vYmxvY2s7CiAJbG9uZyB0aW1lbzsKIAlpbnQgcmMgPSAwOwogCiAJLyogc2ltaWxhciB0
+byBza19zdHJlYW1fd2FpdF9tZW1vcnkgKi8KIAl0aW1lbyA9IHNvY2tfc25kdGltZW8oc2ssIGZs
+YWdzICYgTVNHX0RPTlRXQUlUKTsKLQlub2Jsb2NrID0gdGltZW8gPyBmYWxzZSA6IHRydWU7CiAJ
+YWRkX3dhaXRfcXVldWUoc2tfc2xlZXAoc2spLCAmd2FpdCk7CiAJd2hpbGUgKDEpIHsKIAkJc2tf
+c2V0X2JpdChTT0NLV1FfQVNZTkNfTk9TUEFDRSwgc2spOwpAQCAtOTcsOCArOTUsOCBAQCBzdGF0
+aWMgaW50IHNtY190eF93YWl0KHN0cnVjdCBzbWNfc29jayAqc21jLCBpbnQgZmxhZ3MpCiAJCQli
+cmVhazsKIAkJfQogCQlpZiAoIXRpbWVvKSB7Ci0JCQlpZiAobm9ibG9jaykKLQkJCQlzZXRfYml0
+KFNPQ0tfTk9TUEFDRSwgJnNrLT5za19zb2NrZXQtPmZsYWdzKTsKKwkJCS8qIGVuc3VyZSBFUE9M
+TE9VVCBpcyBzdWJzZXF1ZW50bHkgZ2VuZXJhdGVkICovCisJCQlzZXRfYml0KFNPQ0tfTk9TUEFD
+RSwgJnNrLT5za19zb2NrZXQtPmZsYWdzKTsKIAkJCXJjID0gLUVBR0FJTjsKIAkJCWJyZWFrOwog
+CQl9Ci0tIAoyLjIwLjEKCgpGcm9tIGQyOTYxOWE4NDJmMjc1OWFhMWFkMGRlN2ZmNWYzZjFhZDE5
+OWM3ZWMgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEVyaWMgRHVtYXpldCA8ZWR1bWF6
+ZXRAZ29vZ2xlLmNvbT4KRGF0ZTogRnJpLCAxNiBBdWcgMjAxOSAyMToyNjoyMiAtMDcwMApTdWJq
+ZWN0OiBbUEFUQ0ggMDYvMTBdIHRjcDogbWFrZSBzdXJlIEVQT0xMT1VUIHdvbnQgYmUgbWlzc2Vk
+CgpbIFVwc3RyZWFtIGNvbW1pdCBlZjhkOGNjZGMyMTZmNzk3ZTY2Y2I0YTEzNzJmNWM0YzI4NWNl
+MWU0IF0KCkFzIEphc29uIEJhcm9uIGV4cGxhaW5lZCBpbiBjb21taXQgNzkwYmE0NTY2YzFhICgi
+dGNwOiBzZXQgU09DS19OT1NQQUNFCnVuZGVyIG1lbW9yeSBwcmVzc3VyZSIpLCBpdCBpcyBjcnVj
+aWFsIHdlIHByb3Blcmx5IHNldCBTT0NLX05PU1BBQ0UKd2hlbiBuZWVkZWQuCgpIb3dldmVyLCBK
+YXNvbiBwYXRjaCBoYWQgYSBidWcsIGJlY2F1c2UgdGhlICdub25ibG9ja2luZycgc3RhdHVzCmFz
+IGZhciBhcyBza19zdHJlYW1fd2FpdF9tZW1vcnkoKSBpcyBjb25jZXJuZWQgaXMgZ292ZXJuZWQK
+YnkgTVNHX0RPTlRXQUlUIGZsYWcgcGFzc2VkIGF0IHNlbmRtc2coKSB0aW1lIDoKCiAgICBsb25n
+IHRpbWVvID0gc29ja19zbmR0aW1lbyhzaywgZmxhZ3MgJiBNU0dfRE9OVFdBSVQpOwoKU28gaXQg
+aXMgdmVyeSBwb3NzaWJsZSB0aGF0IHRjcCBzZW5kbXNnKCkgY2FsbHMgc2tfc3RyZWFtX3dhaXRf
+bWVtb3J5KCksCmFuZCB0aGF0IHNrX3N0cmVhbV93YWl0X21lbW9yeSgpIHJldHVybnMgLUVBR0FJ
+TiB3aXRoIFNPQ0tfTk9TUEFDRQpjbGVhcmVkLCBpZiBzay0+c2tfc25kdGltZW8gaGFzIGJlZW4g
+c2V0IHRvIGEgc21hbGwgKGJ1dCBub3QgemVybykKdmFsdWUuCgpUaGlzIHBhdGNoIHJlbW92ZXMg
+dGhlICdub2Jsb2NrJyB2YXJpYWJsZSBzaW5jZSB3ZSBtdXN0IGFsd2F5cwpzZXQgU09DS19OT1NQ
+QUNFIGlmIC1FQUdBSU4gaXMgcmV0dXJuZWQuCgpJdCBhbHNvIHJlbmFtZXMgdGhlIGRvX25vbmJs
+b2NrIGxhYmVsIHNpbmNlIHdlIG1pZ2h0IHJlYWNoIHRoaXMKY29kZSBwYXRoIGV2ZW4gaWYgd2Ug
+d2VyZSBpbiBibG9ja2luZyBtb2RlLgoKRml4ZXM6IDc5MGJhNDU2NmMxYSAoInRjcDogc2V0IFNP
+Q0tfTk9TUEFDRSB1bmRlciBtZW1vcnkgcHJlc3N1cmUiKQpTaWduZWQtb2ZmLWJ5OiBFcmljIER1
+bWF6ZXQgPGVkdW1hemV0QGdvb2dsZS5jb20+CkNjOiBKYXNvbiBCYXJvbiA8amJhcm9uQGFrYW1h
+aS5jb20+ClJlcG9ydGVkLWJ5OiBWbGFkaW1pciBSdXRza3kgIDxydXRza3lAZ29vZ2xlLmNvbT4K
+QWNrZWQtYnk6IFNvaGVpbCBIYXNzYXMgWWVnYW5laCA8c29oZWlsQGdvb2dsZS5jb20+CkFja2Vk
+LWJ5OiBOZWFsIENhcmR3ZWxsIDxuY2FyZHdlbGxAZ29vZ2xlLmNvbT4KQWNrZWQtYnk6IEphc29u
+IEJhcm9uIDxqYmFyb25AYWthbWFpLmNvbT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVy
+IDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIG5ldC9jb3JlL3N0cmVhbS5jIHwgMTYgKysrKysr
+KysrLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMo
+LSkKCmRpZmYgLS1naXQgYS9uZXQvY29yZS9zdHJlYW0uYyBiL25ldC9jb3JlL3N0cmVhbS5jCmlu
+ZGV4IGU5NGJiMDJhNTYyOS4uNGYxZDRhYTVmYjM4IDEwMDY0NAotLS0gYS9uZXQvY29yZS9zdHJl
+YW0uYworKysgYi9uZXQvY29yZS9zdHJlYW0uYwpAQCAtMTIwLDcgKzEyMCw2IEBAIGludCBza19z
+dHJlYW1fd2FpdF9tZW1vcnkoc3RydWN0IHNvY2sgKnNrLCBsb25nICp0aW1lb19wKQogCWludCBl
+cnIgPSAwOwogCWxvbmcgdm1fd2FpdCA9IDA7CiAJbG9uZyBjdXJyZW50X3RpbWVvID0gKnRpbWVv
+X3A7Ci0JYm9vbCBub2Jsb2NrID0gKCp0aW1lb19wID8gZmFsc2UgOiB0cnVlKTsKIAlERUZJTkVf
+V0FJVF9GVU5DKHdhaXQsIHdva2VuX3dha2VfZnVuY3Rpb24pOwogCiAJaWYgKHNrX3N0cmVhbV9t
+ZW1vcnlfZnJlZShzaykpCkBAIC0xMzMsMTEgKzEzMiw4IEBAIGludCBza19zdHJlYW1fd2FpdF9t
+ZW1vcnkoc3RydWN0IHNvY2sgKnNrLCBsb25nICp0aW1lb19wKQogCiAJCWlmIChzay0+c2tfZXJy
+IHx8IChzay0+c2tfc2h1dGRvd24gJiBTRU5EX1NIVVRET1dOKSkKIAkJCWdvdG8gZG9fZXJyb3I7
+Ci0JCWlmICghKnRpbWVvX3ApIHsKLQkJCWlmIChub2Jsb2NrKQotCQkJCXNldF9iaXQoU09DS19O
+T1NQQUNFLCAmc2stPnNrX3NvY2tldC0+ZmxhZ3MpOwotCQkJZ290byBkb19ub25ibG9jazsKLQkJ
+fQorCQlpZiAoISp0aW1lb19wKQorCQkJZ290byBkb19lYWdhaW47CiAJCWlmIChzaWduYWxfcGVu
+ZGluZyhjdXJyZW50KSkKIAkJCWdvdG8gZG9faW50ZXJydXB0ZWQ7CiAJCXNrX2NsZWFyX2JpdChT
+T0NLV1FfQVNZTkNfTk9TUEFDRSwgc2spOwpAQCAtMTY5LDcgKzE2NSwxMyBAQCBpbnQgc2tfc3Ry
+ZWFtX3dhaXRfbWVtb3J5KHN0cnVjdCBzb2NrICpzaywgbG9uZyAqdGltZW9fcCkKIGRvX2Vycm9y
+OgogCWVyciA9IC1FUElQRTsKIAlnb3RvIG91dDsKLWRvX25vbmJsb2NrOgorZG9fZWFnYWluOgor
+CS8qIE1ha2Ugc3VyZSB0aGF0IHdoZW5ldmVyIEVBR0FJTiBpcyByZXR1cm5lZCwgRVBPTExPVVQg
+ZXZlbnQgY2FuCisJICogYmUgZ2VuZXJhdGVkIGxhdGVyLgorCSAqIFdoZW4gVENQIHJlY2VpdmVz
+IEFDSyBwYWNrZXRzIHRoYXQgbWFrZSByb29tLCB0Y3BfY2hlY2tfc3BhY2UoKQorCSAqIG9ubHkg
+Y2FsbHMgdGNwX25ld19zcGFjZSgpIGlmIFNPQ0tfTk9TUEFDRSBpcyBzZXQuCisJICovCisJc2V0
+X2JpdChTT0NLX05PU1BBQ0UsICZzay0+c2tfc29ja2V0LT5mbGFncyk7CiAJZXJyID0gLUVBR0FJ
+TjsKIAlnb3RvIG91dDsKIGRvX2ludGVycnVwdGVkOgotLSAKMi4yMC4xCgoKRnJvbSA5ZjI4Y2Vk
+MmFmYjI2NjJhM2Y1MDg2YmNjMThlNTg3MTg3ZmJjZDQ3IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAw
+MQpGcm9tOiBBbGV4ZXkgS29kYW5ldiA8YWxleGV5LmtvZGFuZXZAb3JhY2xlLmNvbT4KRGF0ZTog
+RnJpLCAyMyBBdWcgMjAxOSAyMDo1MTo0MyArMDMwMApTdWJqZWN0OiBbUEFUQ0ggMDcvMTBdIGlw
+djQ6IG1wbHM6IGZpeCBtcGxzX3htaXQgZm9yIGlwdHVubmVsCgpbIFVwc3RyZWFtIGNvbW1pdCA4
+MDNmM2UyMmFlMTAwMDNhODNjNzgxNDk4YzBhYzM0Y2ZlMzQ2M2ZmIF0KCldoZW4gdXNpbmcgbXBs
+cyBvdmVyIGdyZS9ncmU2IHNldHVwLCBydC0+cnRfZ3c0IGFkZHJlc3MgaXMgbm90IHNldCwgdGhl
+CnNhbWUgZm9yIHJ0LT5ydF9nd19mYW1pbHkuICBUaGVyZWZvcmUsIHdoZW4gcnQtPnJ0X2d3X2Zh
+bWlseSBpcyBjaGVja2VkCmluIG1wbHNfeG1pdCgpLCBuZWlnaF94bWl0KCkgY2FsbCBpcyBza2lw
+cGVkLiBBcyBhIHJlc3VsdCwgc3VjaCBzZXR1cApkb2Vzbid0IHdvcmsgYW55bW9yZS4KClRoaXMg
+aXNzdWUgd2FzIGZvdW5kIHdpdGggTFRQIG1wbHMwMyB0ZXN0cy4KCkZpeGVzOiAxNTUwYzE3MTkz
+NWQgKCJpcHY0OiBQcmVwYXJlIHJ0YWJsZSBmb3IgSVB2NiBnYXRld2F5IikKU2lnbmVkLW9mZi1i
+eTogQWxleGV5IEtvZGFuZXYgPGFsZXhleS5rb2RhbmV2QG9yYWNsZS5jb20+ClJldmlld2VkLWJ5
+OiBEYXZpZCBBaGVybiA8ZHNhaGVybkBnbWFpbC5jb20+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMu
+IE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0tCiBuZXQvbXBscy9tcGxzX2lwdHVubmVs
+LmMgfCA4ICsrKystLS0tCiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0IGRlbGV0
+aW9ucygtKQoKZGlmZiAtLWdpdCBhL25ldC9tcGxzL21wbHNfaXB0dW5uZWwuYyBiL25ldC9tcGxz
+L21wbHNfaXB0dW5uZWwuYwppbmRleCBkMjVlOTFkN2JkYzEuLjQ0YjY3NTAxNjM5MyAxMDA2NDQK
+LS0tIGEvbmV0L21wbHMvbXBsc19pcHR1bm5lbC5jCisrKyBiL25ldC9tcGxzL21wbHNfaXB0dW5u
+ZWwuYwpAQCAtMTMzLDEyICsxMzMsMTIgQEAgc3RhdGljIGludCBtcGxzX3htaXQoc3RydWN0IHNr
+X2J1ZmYgKnNrYikKIAltcGxzX3N0YXRzX2luY19vdXR1Y2FzdHBrdHMob3V0X2Rldiwgc2tiKTsK
+IAogCWlmIChydCkgewotCQlpZiAocnQtPnJ0X2d3X2ZhbWlseSA9PSBBRl9JTkVUKQotCQkJZXJy
+ID0gbmVpZ2hfeG1pdChORUlHSF9BUlBfVEFCTEUsIG91dF9kZXYsICZydC0+cnRfZ3c0LAotCQkJ
+CQkgc2tiKTsKLQkJZWxzZSBpZiAocnQtPnJ0X2d3X2ZhbWlseSA9PSBBRl9JTkVUNikKKwkJaWYg
+KHJ0LT5ydF9nd19mYW1pbHkgPT0gQUZfSU5FVDYpCiAJCQllcnIgPSBuZWlnaF94bWl0KE5FSUdI
+X05EX1RBQkxFLCBvdXRfZGV2LCAmcnQtPnJ0X2d3NiwKIAkJCQkJIHNrYik7CisJCWVsc2UKKwkJ
+CWVyciA9IG5laWdoX3htaXQoTkVJR0hfQVJQX1RBQkxFLCBvdXRfZGV2LCAmcnQtPnJ0X2d3NCwK
+KwkJCQkJIHNrYik7CiAJfSBlbHNlIGlmIChydDYpIHsKIAkJaWYgKGlwdjZfYWRkcl92NG1hcHBl
+ZCgmcnQ2LT5ydDZpX2dhdGV3YXkpKSB7CiAJCQkvKiA2UEUgKFJGQyA0Nzk4KSAqLwotLSAKMi4y
+MC4xCgoKRnJvbSA1MjBmZjNmZDI4ZmZkMzIwY2E1ZTljMDU4OTc0ODkzZmQwMzJmMGMxIE1vbiBT
+ZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBZaS1IdW5nIFdlaSA8eWlodW5nLndlaUBnbWFpbC5j
+b20+CkRhdGU6IFRodSwgMjIgQXVnIDIwMTkgMTM6MTc6NTAgLTA3MDAKU3ViamVjdDogW1BBVENI
+IDA4LzEwXSBvcGVudnN3aXRjaDogRml4IGNvbm50cmFjayBjYWNoZSB3aXRoIHRpbWVvdXQKClsg
+VXBzdHJlYW0gY29tbWl0IDcxNzc4OTUxNTRlNmEzNTE3OWQzMzJmNGE1ODRkMzk2YzUwZDA2MTIg
+XQoKVGhpcyBwYXRjaCBhZGRyZXNzZXMgYSBjb25udHJhY2sgY2FjaGUgaXNzdWUgd2l0aCB0aW1l
+b3V0IHBvbGljeS4KQ3VycmVudGx5LCB3ZSBkbyBub3QgY2hlY2sgaWYgdGhlIHRpbWVvdXQgZXh0
+ZW5zaW9uIGlzIHNldCBwcm9wZXJseSBpbiB0aGUKY2FjaGVkIGNvbm50cmFjayBlbnRyeS4gIFRo
+dXMsIGFmdGVyIHBhY2tldCByZWNpcmN1bGF0ZSBmcm9tIGNvbm50cmFjawphY3Rpb24sIHRoZSB0
+aW1lb3V0IHBvbGljeSBpcyBub3QgYXBwbGllZCBwcm9wZXJseS4gIFRoaXMgcGF0Y2ggZml4ZXMg
+dGhlCmFmb3JlbWVudGlvbmVkIGlzc3VlLgoKRml4ZXM6IDA2YmQyYmRmMTlkMiAoIm9wZW52c3dp
+dGNoOiBBZGQgdGltZW91dCBzdXBwb3J0IHRvIGN0IGFjdGlvbiIpClJlcG9ydGVkLWJ5OiBrYnVp
+bGQgdGVzdCByb2JvdCA8bGtwQGludGVsLmNvbT4KU2lnbmVkLW9mZi1ieTogWWktSHVuZyBXZWkg
+PHlpaHVuZy53ZWlAZ21haWwuY29tPgpBY2tlZC1ieTogUHJhdmluIEIgU2hlbGFyIDxwc2hlbGFy
+QG92bi5vcmc+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0
+Lm5ldD4KLS0tCiBuZXQvb3BlbnZzd2l0Y2gvY29ubnRyYWNrLmMgfCAxMyArKysrKysrKysrKysr
+CiAxIGZpbGUgY2hhbmdlZCwgMTMgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL25ldC9vcGVu
+dnN3aXRjaC9jb25udHJhY2suYyBiL25ldC9vcGVudnN3aXRjaC9jb25udHJhY2suYwppbmRleCA4
+NDhjNmViNTUwNjQuLjRkNzg5NjEzNWU3MyAxMDA2NDQKLS0tIGEvbmV0L29wZW52c3dpdGNoL2Nv
+bm50cmFjay5jCisrKyBiL25ldC9vcGVudnN3aXRjaC9jb25udHJhY2suYwpAQCAtNjcsNiArNjcs
+NyBAQCBzdHJ1Y3Qgb3ZzX2Nvbm50cmFja19pbmZvIHsKIAlzdHJ1Y3QgbWRfbWFyayBtYXJrOwog
+CXN0cnVjdCBtZF9sYWJlbHMgbGFiZWxzOwogCWNoYXIgdGltZW91dFtDVE5MX1RJTUVPVVRfTkFN
+RV9NQVhdOworCXN0cnVjdCBuZl9jdF90aW1lb3V0ICpuZl9jdF90aW1lb3V0OwogI2lmIElTX0VO
+QUJMRUQoQ09ORklHX05GX05BVCkKIAlzdHJ1Y3QgbmZfbmF0X3JhbmdlMiByYW5nZTsgIC8qIE9u
+bHkgcHJlc2VudCBmb3IgU1JDIE5BVCBhbmQgRFNUIE5BVC4gKi8KICNlbmRpZgpAQCAtNjk3LDYg
+KzY5OCwxNCBAQCBzdGF0aWMgYm9vbCBza2JfbmZjdF9jYWNoZWQoc3RydWN0IG5ldCAqbmV0LAog
+CQlpZiAoaGVscCAmJiByY3VfYWNjZXNzX3BvaW50ZXIoaGVscC0+aGVscGVyKSAhPSBpbmZvLT5o
+ZWxwZXIpCiAJCQlyZXR1cm4gZmFsc2U7CiAJfQorCWlmIChpbmZvLT5uZl9jdF90aW1lb3V0KSB7
+CisJCXN0cnVjdCBuZl9jb25uX3RpbWVvdXQgKnRpbWVvdXRfZXh0OworCisJCXRpbWVvdXRfZXh0
+ID0gbmZfY3RfdGltZW91dF9maW5kKGN0KTsKKwkJaWYgKCF0aW1lb3V0X2V4dCB8fCBpbmZvLT5u
+Zl9jdF90aW1lb3V0ICE9CisJCSAgICByY3VfZGVyZWZlcmVuY2UodGltZW91dF9leHQtPnRpbWVv
+dXQpKQorCQkJcmV0dXJuIGZhbHNlOworCX0KIAkvKiBGb3JjZSBjb25udHJhY2sgZW50cnkgZGly
+ZWN0aW9uIHRvIHRoZSBjdXJyZW50IHBhY2tldD8gKi8KIAlpZiAoaW5mby0+Zm9yY2UgJiYgQ1RJ
+TkZPMkRJUihjdGluZm8pICE9IElQX0NUX0RJUl9PUklHSU5BTCkgewogCQkvKiBEZWxldGUgdGhl
+IGNvbm50cmFjayBlbnRyeSBpZiBjb25maXJtZWQsIGVsc2UganVzdCByZWxlYXNlCkBAIC0xNjU3
+LDYgKzE2NjYsMTAgQEAgaW50IG92c19jdF9jb3B5X2FjdGlvbihzdHJ1Y3QgbmV0ICpuZXQsIGNv
+bnN0IHN0cnVjdCBubGF0dHIgKmF0dHIsCiAJCQkJICAgICAgY3RfaW5mby50aW1lb3V0KSkKIAkJ
+CXByX2luZm9fcmF0ZWxpbWl0ZWQoIkZhaWxlZCB0byBhc3NvY2lhdGVkIHRpbWVvdXQgIgogCQkJ
+CQkgICAgInBvbGljeSBgJXMnXG4iLCBjdF9pbmZvLnRpbWVvdXQpOworCQllbHNlCisJCQljdF9p
+bmZvLm5mX2N0X3RpbWVvdXQgPSByY3VfZGVyZWZlcmVuY2UoCisJCQkJbmZfY3RfdGltZW91dF9m
+aW5kKGN0X2luZm8uY3QpLT50aW1lb3V0KTsKKwogCX0KIAogCWlmIChoZWxwZXIpIHsKLS0gCjIu
+MjAuMQoKCkZyb20gNzVlNTliYjZlYTlhODE3MWJmOWU3Yjg4OWFjOWRjMjdmOWZhMGNjZiBNb24g
+U2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogSGFuZ2JpbiBMaXUgPGxpdWhhbmdiaW5AZ21haWwu
+Y29tPgpEYXRlOiBUaHUsIDIyIEF1ZyAyMDE5IDIyOjE5OjQ4ICswODAwClN1YmplY3Q6IFtQQVRD
+SCAwOS8xMF0gaXB2NC9pY21wOiBmaXggcnQgZHN0IGRldiBudWxsIHBvaW50ZXIgZGVyZWZlcmVu
+Y2UKClsgVXBzdHJlYW0gY29tbWl0IGUyYzY5MzkzNDE5NGZkM2I0ZTc5NTYzNTkzNDg4MzM1NGMw
+NmViYzkgXQoKSW4gX19pY21wX3NlbmQoKSB0aGVyZSBpcyBhIHBvc3NpYmlsaXR5IHRoYXQgdGhl
+IHJ0LT5kc3QuZGV2IGlzIE5VTEwsCmUsZywgd2l0aCB0dW5uZWwgY29sbGVjdF9tZCBtb2RlLCB3
+aGljaCB3aWxsIGNhdXNlIGtlcm5lbCBjcmFzaC4KSGVyZSBpcyB3aGF0IHRoZSBjb2RlIHBhdGgg
+bG9va3MgbGlrZSwgZm9yIEdSRToKCi0gaXA2Z3JlX3R1bm5lbF94bWl0CiAgLSBpcDZncmVfeG1p
+dF9pcHY0CiAgICAtIF9fZ3JlNl94bWl0CiAgICAgIC0gaXA2X3RubF94bWl0CiAgICAgICAgLSBp
+ZiBza2ItPmxlbiAtIHQtPnR1bl9obGVuIC0gZXRoX2hsZW4gPiBtdHU7IHJldHVybiAtRU1TR1NJ
+WkUKICAgIC0gaWNtcF9zZW5kCiAgICAgIC0gbmV0ID0gZGV2X25ldChydC0+ZHN0LmRldik7IDwt
+LSBoZXJlCgpUaGUgcmVhc29uIGlzIF9fbWV0YWRhdGFfZHN0X2luaXQoKSBpbml0IGRzdC0+ZGV2
+IHRvIE5VTEwgYnkgZGVmYXVsdC4KV2UgY291bGQgbm90IGZpeCBpdCBpbiBfX21ldGFkYXRhX2Rz
+dF9pbml0KCkgYXMgdGhlcmUgaXMgbm8gZGV2IHN1cHBsaWVkLgpPbiB0aGUgb3RoZXIgaGFuZCwg
+dGhlIHJlYXNvbiB3ZSBuZWVkIHJ0LT5kc3QuZGV2IGlzIHRvIGdldCB0aGUgbmV0LgpTbyB3ZSBj
+YW4ganVzdCB0cnkgZ2V0IGl0IGZyb20gc2tiLT5kZXYgd2hlbiBydC0+ZHN0LmRldiBpcyBOVUxM
+LgoKdjQ6IEp1bGlhbiBBbmFzdGFzb3YgcmVtaW5kIHNrYi0+ZGV2IGFsc28gY291bGQgYmUgTlVM
+TC4gV2UnZCBiZXR0ZXIKc3RpbGwgdXNlIGRzdC5kZXYgYW5kIGRvIGEgY2hlY2sgdG8gYXZvaWQg
+Y3Jhc2guCgp2MzogTm8gY2hhbmdlcy4KCnYyOiBmaXggdGhlIGlzc3VlIGluIF9faWNtcF9zZW5k
+KCkgaW5zdGVhZCBvZiB1cGRhdGluZyBzaGFyZWQgZHN0IGRldgppbiB7aXBfbWQsIGlwNn1fdHVu
+bmVsX3htaXQuCgpGaXhlczogYzhiMzRlNjgwYTA5ICgiaXBfdHVubmVsOiBBZGQgdG5sX3VwZGF0
+ZV9wbXR1IGluIGlwX21kX3R1bm5lbF94bWl0IikKU2lnbmVkLW9mZi1ieTogSGFuZ2JpbiBMaXUg
+PGxpdWhhbmdiaW5AZ21haWwuY29tPgpSZXZpZXdlZC1ieTogSnVsaWFuIEFuYXN0YXNvdiA8amFA
+c3NpLmJnPgpBY2tlZC1ieTogSm9uYXRoYW4gTGVtb24gPGpvbmF0aGFuLmxlbW9uQGdtYWlsLmNv
+bT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0Pgot
+LS0KIG5ldC9pcHY0L2ljbXAuYyB8IDggKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCA3IGluc2Vy
+dGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9uZXQvaXB2NC9pY21wLmMgYi9u
+ZXQvaXB2NC9pY21wLmMKaW5kZXggN2M4NTdjNzJhYWQxLi45MmIzZDJkMTEzOWUgMTAwNjQ0Ci0t
+LSBhL25ldC9pcHY0L2ljbXAuYworKysgYi9uZXQvaXB2NC9pY21wLmMKQEAgLTU4Miw3ICs1ODIs
+MTMgQEAgdm9pZCBfX2ljbXBfc2VuZChzdHJ1Y3Qgc2tfYnVmZiAqc2tiX2luLCBpbnQgdHlwZSwg
+aW50IGNvZGUsIF9fYmUzMiBpbmZvLAogCiAJaWYgKCFydCkKIAkJZ290byBvdXQ7Ci0JbmV0ID0g
+ZGV2X25ldChydC0+ZHN0LmRldik7CisKKwlpZiAocnQtPmRzdC5kZXYpCisJCW5ldCA9IGRldl9u
+ZXQocnQtPmRzdC5kZXYpOworCWVsc2UgaWYgKHNrYl9pbi0+ZGV2KQorCQluZXQgPSBkZXZfbmV0
+KHNrYl9pbi0+ZGV2KTsKKwllbHNlCisJCWdvdG8gb3V0OwogCiAJLyoKIAkgKglGaW5kIHRoZSBv
+cmlnaW5hbCBoZWFkZXIuIEl0IGlzIGV4cGVjdGVkIHRvIGJlIHZhbGlkLCBvZiBjb3Vyc2UuCi0t
+IAoyLjIwLjEKCgpGcm9tIDQ2NzQ1YWUyZmUxMWQ0MDBhMjNhYjliYzAwMWMyYWFjY2E3MzRhOGMg
+TW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEhhbmdiaW4gTGl1IDxsaXVoYW5nYmluQGdt
+YWlsLmNvbT4KRGF0ZTogVGh1LCAyMiBBdWcgMjAxOSAyMjoxOTo0OSArMDgwMApTdWJqZWN0OiBb
+UEFUQ0ggMTAvMTBdIHhmcm0veGZybV9wb2xpY3k6IGZpeCBkc3QgZGV2IG51bGwgcG9pbnRlciBk
+ZXJlZmVyZW5jZQogaW4gY29sbGVjdF9tZCBtb2RlCgpbIFVwc3RyZWFtIGNvbW1pdCBjM2I0YzNh
+NDdlMDVkNWZlY2Y3MzU0ZDc1ODI0YTlkMWIzN2YzZTg0IF0KCkluIGRlY29kZV9zZXNzaW9uezQs
+Nn0gdGhlcmUgaXMgYSBwb3NzaWJpbGl0eSB0aGF0IHRoZSBza2IgZHN0IGRldiBpcyBOVUxMLApl
+LGcsIHdpdGggdHVubmVsIGNvbGxlY3RfbWQgbW9kZSwgd2hpY2ggd2lsbCBjYXVzZSBrZXJuZWwg
+Y3Jhc2guCkhlcmUgaXMgd2hhdCB0aGUgY29kZSBwYXRoIGxvb2tzIGxpa2UsIGZvciBHUkU6Cgot
+IGlwNmdyZV90dW5uZWxfeG1pdAogIC0gaXA2Z3JlX3htaXRfaXB2NgogICAgLSBfX2dyZTZfeG1p
+dAogICAgICAtIGlwNl90bmxfeG1pdAogICAgICAgIC0gaWYgc2tiLT5sZW4gLSB0LT50dW5faGxl
+biAtIGV0aF9obGVuID4gbXR1OyByZXR1cm4gLUVNU0dTSVpFCiAgICAtIGljbXB2Nl9zZW5kCiAg
+ICAgIC0gaWNtcHY2X3JvdXRlX2xvb2t1cAogICAgICAgIC0geGZybV9kZWNvZGVfc2Vzc2lvbl9y
+ZXZlcnNlCiAgICAgICAgICAtIGRlY29kZV9zZXNzaW9uNAogICAgICAgICAgICAtIG9pZiA9IHNr
+Yl9kc3Qoc2tiKS0+ZGV2LT5pZmluZGV4OyA8LS0gaGVyZQogICAgICAgICAgLSBkZWNvZGVfc2Vz
+c2lvbjYKICAgICAgICAgICAgLSBvaWYgPSBza2JfZHN0KHNrYiktPmRldi0+aWZpbmRleDsgPC0t
+IGhlcmUKClRoZSByZWFzb24gaXMgX19tZXRhZGF0YV9kc3RfaW5pdCgpIGluaXQgZHN0LT5kZXYg
+dG8gTlVMTCBieSBkZWZhdWx0LgpXZSBjb3VsZCBub3QgZml4IGl0IGluIF9fbWV0YWRhdGFfZHN0
+X2luaXQoKSBhcyB0aGVyZSBpcyBubyBkZXYgc3VwcGxpZWQuCk9uIHRoZSBvdGhlciBoYW5kLCB0
+aGUgc2tiX2RzdChza2IpLT5kZXYgaXMgYWN0dWFsbHkgbm90IG5lZWRlZCBhcyB3ZQpjYWxsZWQg
+ZGVjb2RlX3Nlc3Npb257NCw2fSB2aWEgeGZybV9kZWNvZGVfc2Vzc2lvbl9yZXZlcnNlKCksIHNv
+IG9pZiBpcyBub3QKdXNlZCBieTogZmw0LT5mbG93aTRfb2lmID0gcmV2ZXJzZSA/IHNrYi0+c2ti
+X2lpZiA6IG9pZjsKClNvIG1ha2UgYSBkc3QgZGV2IGNoZWNrIGhlcmUgc2hvdWxkIGJlIGNsZWFu
+IGFuZCBzYWZlLgoKdjQ6IE5vIGNoYW5nZXMuCgp2MzogTm8gY2hhbmdlcy4KCnYyOiBmaXggdGhl
+IGlzc3VlIGluIGRlY29kZV9zZXNzaW9uezQsNn0gaW5zdGVhZCBvZiB1cGRhdGluZyBzaGFyZWQg
+ZHN0IGRldgppbiB7aXBfbWQsIGlwNn1fdHVubmVsX3htaXQuCgpGaXhlczogOGQ3OTI2NmJjNDhj
+ICgiaXA2X3R1bm5lbDogYWRkIGNvbGxlY3RfbWQgbW9kZSB0byBJUHY2IHR1bm5lbHMiKQpTaWdu
+ZWQtb2ZmLWJ5OiBIYW5nYmluIExpdSA8bGl1aGFuZ2JpbkBnbWFpbC5jb20+ClRlc3RlZC1ieTog
+Sm9uYXRoYW4gTGVtb24gPGpvbmF0aGFuLmxlbW9uQGdtYWlsLmNvbT4KU2lnbmVkLW9mZi1ieTog
+RGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIG5ldC94ZnJtL3hmcm1f
+cG9saWN5LmMgfCA0ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbmV0L3hmcm0veGZybV9wb2xpY3kuYyBiL25ldC94ZnJt
+L3hmcm1fcG9saWN5LmMKaW5kZXggODJiZTc3ODBiYmU4Li5kNTM0MjY4N2ZkY2EgMTAwNjQ0Ci0t
+LSBhL25ldC94ZnJtL3hmcm1fcG9saWN5LmMKKysrIGIvbmV0L3hmcm0veGZybV9wb2xpY3kuYwpA
+QCAtMzI3Miw3ICszMjcyLDcgQEAgZGVjb2RlX3Nlc3Npb240KHN0cnVjdCBza19idWZmICpza2Is
+IHN0cnVjdCBmbG93aSAqZmwsIGJvb2wgcmV2ZXJzZSkKIAlzdHJ1Y3QgZmxvd2k0ICpmbDQgPSAm
+ZmwtPnUuaXA0OwogCWludCBvaWYgPSAwOwogCi0JaWYgKHNrYl9kc3Qoc2tiKSkKKwlpZiAoc2ti
+X2RzdChza2IpICYmIHNrYl9kc3Qoc2tiKS0+ZGV2KQogCQlvaWYgPSBza2JfZHN0KHNrYiktPmRl
+di0+aWZpbmRleDsKIAogCW1lbXNldChmbDQsIDAsIHNpemVvZihzdHJ1Y3QgZmxvd2k0KSk7CkBA
+IC0zMzkwLDcgKzMzOTAsNyBAQCBkZWNvZGVfc2Vzc2lvbjYoc3RydWN0IHNrX2J1ZmYgKnNrYiwg
+c3RydWN0IGZsb3dpICpmbCwgYm9vbCByZXZlcnNlKQogCiAJbmV4dGhkciA9IG5oW25ob2ZmXTsK
+IAotCWlmIChza2JfZHN0KHNrYikpCisJaWYgKHNrYl9kc3Qoc2tiKSAmJiBza2JfZHN0KHNrYikt
+PmRldikKIAkJb2lmID0gc2tiX2RzdChza2IpLT5kZXYtPmlmaW5kZXg7CiAKIAltZW1zZXQoZmw2
+LCAwLCBzaXplb2Yoc3RydWN0IGZsb3dpNikpOwotLSAKMi4yMC4xCgo=
+
+----Next_Part(Tue_Aug_27_17_42_50_2019_694)----
