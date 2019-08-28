@@ -2,124 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FB79FA8E
-	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 08:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D390F9FB3C
+	for <lists+stable@lfdr.de>; Wed, 28 Aug 2019 09:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726147AbfH1GdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Aug 2019 02:33:11 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:33310 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbfH1GdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 02:33:10 -0400
-Received: by mail-wr1-f45.google.com with SMTP id u16so1232704wrr.0
-        for <stable@vger.kernel.org>; Tue, 27 Aug 2019 23:33:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X1yhKOlwZt3ckU1UTDVKv31wkwEm5zEQvv0sjz9IxvM=;
-        b=IZg3r9WXhJEmb169z4W/87gXgX+Yp3CCkUAbcOcfioRMFzvEIWDmzPd+TdN3mR3SYQ
-         5t2tOggDN3NfbAtIlmZyfHMBB7bCyjgC3jfvlEMt8Dpr3xloKeP6m2OleZG+OWE8qDjO
-         +PIfcMejKWLLBQyrSEM/oxaTt74cN8sTJpUWF9TRc6aj7OXnz97PHr7aWMrwND/t4rsV
-         AR7I4T3fD3ue4APmWlQhmN5EFVI8yX+IsoezAeNY2TbRzPU1gNXNtnIrcloa2/vM/WVr
-         Tjfj8L2ntey14aNZ6ZyfR+cv4pIjZwseGT/l3kcS1mjaTo8N7c2v0mcbwGxvvZkGdxs8
-         N0WQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X1yhKOlwZt3ckU1UTDVKv31wkwEm5zEQvv0sjz9IxvM=;
-        b=I8LzkUoYYBDCaKkxdccQ0SJVRckGnKo+rP/XW7G8Ntrs8vvjSfMZoHFDhHKLkxtnbb
-         Y4euwbrpqV022AvuLv78Aq7kPB3iMf2wr+PUqJP7skWgfdhL/A/MHmkZBEGw6ZUNUVV6
-         2cMdlWOpZjow28vc8COQIpMNz7UTYKV764c5p5KUwl5YX/hGJEJDEG2M5Sb0+JmfTWE6
-         WtjmwA+CvA0AnhJfgDKmwJxt1ABrLwfw5W/Pt4pW4egcgcHcO3MEV+WmIWafO304RDWr
-         fA5VdDsWdlCeCw7PaxnJHzhKaGggIJCDFVb2yUFQuFyXPPsBW8LfoCu2lPnALL/77T6C
-         N4+w==
-X-Gm-Message-State: APjAAAVjZhFqfQTHe1zv8cD73/mx/lY4QEm8oEvJf4Fft0vxrFxdFF2L
-        v6xj4wHqvGoFLLafI8jToZYa1+QTYp/5WA==
-X-Google-Smtp-Source: APXvYqz7saLIy1uY/2fhdq1FG4FIzaDDFuXCri1AQb2Sopdtde6NlcP2HMvezJPKaydZcNhHpa8Aag==
-X-Received: by 2002:adf:cd84:: with SMTP id q4mr2335053wrj.232.1566973988327;
-        Tue, 27 Aug 2019 23:33:08 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n8sm2977963wma.7.2019.08.27.23.33.06
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 27 Aug 2019 23:33:06 -0700 (PDT)
-Message-ID: <5d662022.1c69fb81.84659.dc22@mx.google.com>
-Date:   Tue, 27 Aug 2019 23:33:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726271AbfH1HOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Aug 2019 03:14:22 -0400
+Received: from bastet.se.axis.com ([195.60.68.11]:35414 "EHLO
+        bastet.se.axis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726253AbfH1HOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Aug 2019 03:14:22 -0400
+X-Greylist: delayed 416 seconds by postgrey-1.27 at vger.kernel.org; Wed, 28 Aug 2019 03:14:21 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by bastet.se.axis.com (Postfix) with ESMTP id 94C4918489;
+        Wed, 28 Aug 2019 09:07:24 +0200 (CEST)
+X-Axis-User: NO
+X-Axis-NonUser: YES
+X-Virus-Scanned: Debian amavisd-new at bastet.se.axis.com
+Received: from bastet.se.axis.com ([IPv6:::ffff:127.0.0.1])
+        by localhost (bastet.se.axis.com [::ffff:127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id hq3WF_UGHAyI; Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from boulder03.se.axis.com (boulder03.se.axis.com [10.0.8.17])
+        by bastet.se.axis.com (Postfix) with ESMTPS id 7D936182F4;
+        Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from boulder03.se.axis.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 68FDD1E06E;
+        Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from boulder03.se.axis.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5BDB11E064;
+        Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from seth.se.axis.com (unknown [10.0.2.172])
+        by boulder03.se.axis.com (Postfix) with ESMTP;
+        Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from XBOX03.axis.com (xbox03.axis.com [10.0.5.17])
+        by seth.se.axis.com (Postfix) with ESMTP id 4F111229A;
+        Wed, 28 Aug 2019 09:07:23 +0200 (CEST)
+Received: from lnxricardw1.se.axis.com (10.0.5.60) by XBOX03.axis.com
+ (10.0.5.17) with Microsoft SMTP Server (TLS) id 15.0.1365.1; Wed, 28 Aug 2019
+ 09:07:23 +0200
+Date:   Wed, 28 Aug 2019 09:07:17 +0200
+From:   Ricard Wanderlof <ricard.wanderlof@axis.com>
+X-X-Sender: ricardw@lnxricardw1.se.axis.com
+To:     Sasha Levin <sashal@kernel.org>
+CC:     Mark Brown <broonie@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.2 040/123] ASoC: Fail card instantiation if
+ DAI format setup fails
+In-Reply-To: <20190828021311.GV5281@sasha-vm>
+Message-ID: <alpine.DEB.2.20.1908280859060.5799@lnxricardw1.se.axis.com>
+References: <20190814021047.14828-1-sashal@kernel.org> <20190814021047.14828-40-sashal@kernel.org> <20190814092213.GC4640@sirena.co.uk> <20190826013515.GG5281@sasha-vm> <20190827110014.GD23391@sirena.co.uk> <20190828021311.GV5281@sasha-vm>
+User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.190-44-g7c5529b85097
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 109 boots: 2 failed,
- 97 passed with 10 offline (v4.9.190-44-g7c5529b85097)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="US-ASCII"
+X-Originating-IP: [10.0.5.60]
+X-ClientProxiedBy: XBOX04.axis.com (10.0.5.18) To XBOX03.axis.com (10.0.5.17)
+X-TM-AS-GCONF: 00
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 109 boots: 2 failed, 97 passed with 10 offline =
-(v4.9.190-44-g7c5529b85097)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.190-44-g7c5529b85097/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.190-44-g7c5529b85097/
+On Wed, 28 Aug 2019, Sasha Levin wrote:
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.190-44-g7c5529b85097
-Git Commit: 7c5529b85097ab741ffb2c03b344c4925e489336
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
+> On Tue, Aug 27, 2019 at 12:00:14PM +0100, Mark Brown wrote:
+> > On Sun, Aug 25, 2019 at 09:35:15PM -0400, Sasha Levin wrote:
+> > > On Wed, Aug 14, 2019 at 10:22:13AM +0100, Mark Brown wrote:
+> > 
+> > > > > If the DAI format setup fails, there is no valid communication format
+> > > > > between CPU and CODEC, so fail card instantiation, rather than
+> > > continue
+> > > > > with a card that will most likely not function properly.
+> > 
+> > > > This is another one where if nobody noticed a problem already and things
+> > > > just happened to be working this might break things, it's vanishingly
+> > > > unlikely to fix anything that was broken.
+> > 
+> > > Same as the other patch: this patch suggests it fixes a real bug, and if
+> > > this patch is broken let's fix it.
+> > 
+> > If anyone ran into this on the older kernel and fixed or worked
+> > around it locally there's a reasonable chance this will then
+> > break what they're doing.  The patch itself is perfectly fine but
+> 
+> But there's not much we can do here. We can't hold off on fixing
+> breakage such as this because existing users have workarounds for this.
+> Are we breaking kernel ABI with this patch then?
+> 
+> And what about new users? We'll let them get hit by the issue and
+> develop their own workarounds?
 
-Boot Failures Detected:
+My $0.02 here: In my specific case, we noticed the problem because there 
+was an unexpected left shift in the captured audio data, since the codec 
+and CPU DAIs were using different formats when the DAI format was not 
+explicitly set. The fix for that was to add
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+simple-audio-card,format= "i2s";
 
-    multi_v7_defconfig:
-        gcc-8:
-            exynos5250-snow: 1 failed lab
+to the devicetree audio card section which of course should have been 
+there all the time. The fact that the kernel failed halt the 
+initialization of the audio card lengthened the debug time, but did not 
+provoke me to attempt a workaround, since the information (the error 
+printout from the ALSA framework when an invalid daifmt setting was made) 
+was actually right there in the kernel log.
 
-Offline Platforms:
+Possibly there might be other usecases, but in our case, if the kernel had 
+stopped the audio initialization it would then have been more obvious 
+where to start looking.
 
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+/Ricard
+-- 
+Ricard Wolf Wanderlof                           ricardw(at)axis.com
+Axis Communications AB, Lund, Sweden            www.axis.com
+Phone +46 46 272 2016                           Fax +46 46 13 61 30
