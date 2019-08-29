@@ -2,397 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AA1A275B
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 21:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62198A277E
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 22:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbfH2Tfk convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 29 Aug 2019 15:35:40 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:46058 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726245AbfH2Tfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 15:35:40 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B05403084288
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 19:35:39 +0000 (UTC)
-Received: from [172.54.40.213] (cpt-1017.paas.prod.upshift.rdu2.redhat.com [10.0.19.43])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6B7445D9C9;
-        Thu, 29 Aug 2019 19:35:34 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.2F852E4F8D.XB0DVCA1OM@redhat.com>
-X-Gitlab-Pipeline-ID: 130651
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/130651
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Thu, 29 Aug 2019 19:35:39 +0000 (UTC)
-Date:   Thu, 29 Aug 2019 15:35:40 -0400
+        id S1727045AbfH2UAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 16:00:07 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:44181 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727929AbfH2UAH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 16:00:07 -0400
+Received: by mail-pg1-f193.google.com with SMTP id i18so2141027pgl.11
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 13:00:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=S9d3dFoh7F6gGH5LTQyJ8UyxGo/MvVuvj+hyEE/NkTM=;
+        b=CH3Z10dMKFNa5EUmXWfmO9kVZYBLmTzxs99xBrQZa34CnaWlLZ/e/TJGcWMmfgsVB6
+         fbGWYVF61zStU3OZ3c4J09h572gEWcekJS9a9s1STntCydJRS4S+bJjKr1GFFPevhKjB
+         uZXZuULcjvP9TNWnWZ5gUtJuhXkCpGo5Q1FylX1MGpXn4QIk5JEjXSX1Q1MWBWAsfSZh
+         Y3XGxXaszNMDvWfih8zVS5X6l5P1jhp0JnKuzXXsLsas1cnOI0l6wWvsEjPjBR0TMyLp
+         ZP5J3Hy4nDNsUH7UsCts6P9CduZTxfhth9z6VwRWe6YZX49SH0wun0MhB+e7V7D2e2kT
+         LlUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=S9d3dFoh7F6gGH5LTQyJ8UyxGo/MvVuvj+hyEE/NkTM=;
+        b=FXWGDzbgR94GYLew4/+P4AH3d3+f9FbG9RmLeGWtYme1OStlGOt5148yAPErroeDQm
+         oX/WiTOqL647I2UyCcg7iG5RkPKvdccKCR9y1D60b4TuaE14AWCyWG64f7DO40PJj+f+
+         ofLy352oG3X9nbtXArT9MYltLECDfsEP+oPlg5gpPLIu8y35hNDAdHLG1O8z6jhmPCml
+         8UGs8rcjL2Jdx1T7p7f6JhTNku2Y9W6bAr6AkR1EWO0GaTmj/Ql94KfATpTBsJoA7MRv
+         1LbvSDgDf3LNWkB6cNlFblEaeRH1U+ebiqya7f3cq5p4oQau00WHJLC32/PHhyI98ljh
+         topg==
+X-Gm-Message-State: APjAAAXvx5YK7VdmTVyZGCGLrn3uzmY34zbTV7NmRLXBX6oD/udLH0Zh
+        9/IgTTITO12sOLayjGxwT8t0i5yFxuA=
+X-Google-Smtp-Source: APXvYqwgfpvBc6rpBf/WbtITtoaWYyjizOJiXzMZpQhfc76Y+pvPxSdoJdzus+CAnHFnfaEjre9aBw==
+X-Received: by 2002:a63:5951:: with SMTP id j17mr9734953pgm.143.1567108805398;
+        Thu, 29 Aug 2019 13:00:05 -0700 (PDT)
+Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
+        by smtp.gmail.com with ESMTPSA id u7sm3053766pgr.94.2019.08.29.13.00.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Aug 2019 13:00:04 -0700 (PDT)
+From:   Mathieu Poirier <mathieu.poirier@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     architt@codeaurora.org, a.hajda@samsung.com,
+        Laurent.pinchart@ideasonboard.com, airlied@linux.ie, jsarha@ti.com,
+        tomi.valkeinen@ti.com, vinholikatti@gmail.com,
+        jejb@linux.vnet.ibm.com, martin.petersen@oracle.com,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: [BACKPORT 4.19.y 1/3] drm/bridge: tfp410: fix memleak in get_modes()
+Date:   Thu, 29 Aug 2019 13:59:59 -0600
+Message-Id: <20190829200001.17092-2-mathieu.poirier@linaro.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190829200001.17092-1-mathieu.poirier@linaro.org>
+References: <20190829200001.17092-1-mathieu.poirier@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-Hello,
+commit c08f99c39083ab55a9c93b3e93cef48711294dad upstream
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+We don't free the edid blob allocated by the call to drm_get_edid(),
+causing a memleak. Fix this by calling kfree(edid) at the end of the
+get_modes().
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: f7d5b3dc4792 - Linux 5.2.10
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190610135739.6077-1-tomi.valkeinen@ti.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+---
+ drivers/gpu/drm/bridge/ti-tfp410.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-The results of these automated tests are provided below.
+diff --git a/drivers/gpu/drm/bridge/ti-tfp410.c b/drivers/gpu/drm/bridge/ti-tfp410.c
+index c3e32138c6bb..9dc109df0808 100644
+--- a/drivers/gpu/drm/bridge/ti-tfp410.c
++++ b/drivers/gpu/drm/bridge/ti-tfp410.c
+@@ -64,7 +64,12 @@ static int tfp410_get_modes(struct drm_connector *connector)
+ 
+ 	drm_connector_update_edid_property(connector, edid);
+ 
+-	return drm_add_edid_modes(connector, edid);
++	ret = drm_add_edid_modes(connector, edid);
++
++	kfree(edid);
++
++	return ret;
++
+ fallback:
+ 	/* No EDID, fallback on the XGA standard modes */
+ 	ret = drm_add_modes_noedid(connector, 1920, 1200);
+-- 
+2.17.1
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/130651
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: f7d5b3dc4792 - Linux 5.2.10
-
-
-We grabbed the 0c7efce02eb4 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  asoc-simple_card_utils.h-care-null-dai-at-asoc_simpl.patch
-  asoc-simple-card-fix-an-use-after-free-in-simple_dai.patch
-  asoc-simple-card-fix-an-use-after-free-in-simple_for.patch
-  asoc-audio-graph-card-fix-use-after-free-in-graph_da.patch
-  asoc-audio-graph-card-fix-an-use-after-free-in-graph.patch
-  asoc-audio-graph-card-add-missing-const-at-graph_get.patch
-  regulator-axp20x-fix-dcdca-and-dcdcd-for-axp806.patch
-  regulator-axp20x-fix-dcdc5-and-dcdc6-for-axp803.patch
-  asoc-samsung-odroid-fix-an-use-after-free-issue-for-.patch
-  asoc-samsung-odroid-fix-a-double-free-issue-for-cpu_.patch
-  asoc-intel-bytcht_es8316-add-quirk-for-irbis-nb41-ne.patch
-  hid-logitech-hidpp-add-usb-pid-for-a-few-more-suppor.patch
-  hid-add-044f-b320-thrustmaster-inc.-2-in-1-dt.patch
-  mips-kernel-only-use-i8253-clocksource-with-periodic.patch
-  mips-fix-cacheinfo.patch
-  libbpf-sanitize-var-to-conservative-1-byte-int.patch
-  netfilter-ebtables-fix-a-memory-leak-bug-in-compat.patch
-  asoc-dapm-fix-handling-of-custom_stop_condition-on-d.patch
-  asoc-sof-use-__u32-instead-of-uint32_t-in-uapi-heade.patch
-  spi-pxa2xx-balance-runtime-pm-enable-disable-on-erro.patch
-  bpf-sockmap-sock_map_delete-needs-to-use-xchg.patch
-  bpf-sockmap-synchronize_rcu-before-free-ing-map.patch
-  bpf-sockmap-only-create-entry-if-ulp-is-not-already-.patch
-  selftests-bpf-fix-sendmsg6_prog-on-s390.patch
-  asoc-dapm-fix-a-memory-leak-bug.patch
-  bonding-force-slave-speed-check-after-link-state-rec.patch
-  net-mvpp2-don-t-check-for-3-consecutive-idle-frames-.patch
-  selftests-forwarding-gre_multipath-enable-ipv4-forwa.patch
-  selftests-forwarding-gre_multipath-fix-flower-filter.patch
-  selftests-bpf-add-another-gso_segs-access.patch
-  libbpf-fix-using-uninitialized-ioctl-results.patch
-  can-dev-call-netif_carrier_off-in-register_candev.patch
-  can-mcp251x-add-error-check-when-wq-alloc-failed.patch
-  can-gw-fix-error-path-of-cgw_module_init.patch
-  asoc-fail-card-instantiation-if-dai-format-setup-fai.patch
-  staging-fbtft-fix-gpio-handling.patch
-  libbpf-silence-gcc8-warning-about-string-truncation.patch
-  st21nfca_connectivity_event_received-null-check-the-.patch
-  st_nci_hci_connectivity_event_received-null-check-th.patch
-  nl-mac-80211-fix-interface-combinations-on-crypto-co.patch
-  asoc-ti-davinci-mcasp-fix-clk-pdir-handling-for-i2s-.patch
-  asoc-rockchip-fix-mono-capture.patch
-  asoc-ti-davinci-mcasp-correct-slot_width-posed-const.patch
-  net-usb-qmi_wwan-add-the-broadmobi-bm818-card.patch
-  qed-rdma-fix-the-hw_ver-returned-in-device-attribute.patch
-  isdn-misdn-hfcsusb-fix-possible-null-pointer-derefer.patch
-  habanalabs-fix-f-w-download-in-be-architecture.patch
-  mac80211_hwsim-fix-possible-null-pointer-dereference.patch
-  net-stmmac-manage-errors-returned-by-of_get_mac_addr.patch
-  netfilter-ipset-actually-allow-destination-mac-addre.patch
-  netfilter-ipset-copy-the-right-mac-address-in-bitmap.patch
-  netfilter-ipset-fix-rename-concurrency-with-listing.patch
-  rxrpc-fix-potential-deadlock.patch
-  rxrpc-fix-the-lack-of-notification-when-sendmsg-fail.patch
-  nvmem-use-the-same-permissions-for-eeprom-as-for-nvm.patch
-  iwlwifi-mvm-avoid-races-in-rate-init-and-rate-perfor.patch
-  iwlwifi-dbg_ini-move-iwl_dbg_tlv_load_bin-out-of-deb.patch
-  iwlwifi-dbg_ini-move-iwl_dbg_tlv_free-outside-of-deb.patch
-  iwlwifi-fix-locking-in-delayed-gtk-setting.patch
-  iwlwifi-mvm-send-lq-command-always-async.patch
-  enetc-fix-build-error-without-phylib.patch
-  isdn-hfcsusb-fix-misdn-driver-crash-caused-by-transf.patch
-  net-phy-phy_led_triggers-fix-a-possible-null-pointer.patch
-  perf-bench-numa-fix-cpu0-binding.patch
-  spi-pxa2xx-add-support-for-intel-tiger-lake.patch
-  can-sja1000-force-the-string-buffer-null-terminated.patch
-  can-peak_usb-force-the-string-buffer-null-terminated.patch
-  asoc-amd-acp3x-use-dma_ops-of-parent-device-for-acp3.patch
-  net-ethernet-qlogic-qed-force-the-string-buffer-null.patch
-  enetc-select-phylib-while-config_fsl_enetc_vf-is-set.patch
-  nfsv4-fix-a-credential-refcount-leak-in-nfs41_check_.patch
-  nfsv4-when-recovering-state-fails-with-eagain-retry-.patch
-  nfsv4.1-fix-open-stateid-recovery.patch
-  nfsv4.1-only-reap-expired-delegations.patch
-  nfsv4-fix-a-potential-sleep-while-atomic-in-nfs4_do_.patch
-  nfs-fix-regression-whereby-fscache-errors-are-appear.patch
-  hid-quirks-set-the-increment_usage_on_duplicate-quir.patch
-  hid-input-fix-a4tech-horizontal-wheel-custom-usage.patch
-  drm-rockchip-suspend-dp-late.patch
-  smb3-fix-potential-memory-leak-when-processing-compo.patch
-  smb3-kernel-oops-mounting-a-encryptdata-share-with-c.patch
-  sched-deadline-fix-double-accounting-of-rq-running-b.patch
-  sched-psi-reduce-psimon-fifo-priority.patch
-  sched-psi-do-not-require-setsched-permission-from-th.patch
-  s390-protvirt-avoid-memory-sharing-for-diag-308-set-.patch
-  s390-mm-fix-dump_pagetables-top-level-page-table-wal.patch
-  s390-put-_stext-and-_etext-into-.text-section.patch
-  ata-rb532_cf-fix-unused-variable-warning-in-rb532_pa.patch
-  net-cxgb3_main-fix-a-resource-leak-in-a-error-path-i.patch
-  net-stmmac-fix-issues-when-number-of-queues-4.patch
-  net-stmmac-tc-do-not-return-a-fragment-entry.patch
-  drm-amdgpu-pin-the-csb-buffer-on-hw-init-for-gfx-v8.patch
-  net-hisilicon-make-hip04_tx_reclaim-non-reentrant.patch
-  net-hisilicon-fix-hip04-xmit-never-return-tx_busy.patch
-  net-hisilicon-fix-dma_map_single-failed-on-arm64.patch
-  nfsv4-ensure-state-recovery-handles-etimedout-correc.patch
-  libata-have-ata_scsi_rw_xlat-fail-invalid-passthroug.patch
-  libata-add-sg-safety-checks-in-sff-pio-transfers.patch
-  x86-lib-cpu-address-missing-prototypes-warning.patch
-  drm-vmwgfx-fix-memory-leak-when-too-many-retries-hav.patch
-  block-aoe-fix-kernel-crash-due-to-atomic-sleep-when-.patch
-  block-bfq-handle-null-return-value-by-bfq_init_rq.patch
-  perf-ftrace-fix-failure-to-set-cpumask-when-only-one.patch
-  perf-cpumap-fix-writing-to-illegal-memory-in-handlin.patch
-  perf-pmu-events-fix-missing-cpu_clk_unhalted.core-ev.patch
-  dt-bindings-riscv-fix-the-schema-compatible-string-f.patch
-  kvm-arm64-don-t-write-junk-to-sysregs-on-reset.patch
-  kvm-arm-don-t-write-junk-to-cp15-registers-on-reset.patch
-  selftests-kvm-adding-config-fragments.patch
-  iwlwifi-mvm-disable-tx-amsdu-on-older-nics.patch
-  hid-wacom-correct-misreported-ekr-ring-values.patch
-  hid-wacom-correct-distance-scale-for-2nd-gen-intuos-devices.patch
-  revert-kvm-x86-mmu-zap-only-the-relevant-pages-when-removing-a-memslot.patch
-  revert-dm-bufio-fix-deadlock-with-loop-device.patch
-  clk-socfpga-stratix10-fix-rate-caclulationg-for-cnt_clks.patch
-  ceph-clear-page-dirty-before-invalidate-page.patch
-  ceph-don-t-try-fill-file_lock-on-unsuccessful-getfilelock-reply.patch
-  libceph-fix-pg-split-vs-osd-re-connect-race.patch
-  drm-amdgpu-gfx9-update-pg_flags-after-determining-if-gfx-off-is-possible.patch
-  drm-nouveau-don-t-retry-infinitely-when-receiving-no-data-on-i2c-over-aux.patch
-  scsi-ufs-fix-null-pointer-dereference-in-ufshcd_config_vreg_hpm.patch
-  gpiolib-never-report-open-drain-source-lines-as-input-to-user-space.patch
-  drivers-hv-vmbus-fix-virt_to_hvpfn-for-x86_pae.patch
-  userfaultfd_release-always-remove-uffd-flags-and-clear-vm_userfaultfd_ctx.patch
-  x86-retpoline-don-t-clobber-rflags-during-call_nospec-on-i386.patch
-  x86-apic-handle-missing-global-clockevent-gracefully.patch
-  x86-cpu-amd-clear-rdrand-cpuid-bit-on-amd-family-15h-16h.patch
-  x86-boot-save-fields-explicitly-zero-out-everything-else.patch
-  x86-boot-fix-boot-regression-caused-by-bootparam-sanitizing.patch
-  ib-hfi1-unsafe-psn-checking-for-tid-rdma-read-resp-packet.patch
-  ib-hfi1-add-additional-checks-when-handling-tid-rdma-read-resp-packet.patch
-  ib-hfi1-add-additional-checks-when-handling-tid-rdma-write-data-packet.patch
-  ib-hfi1-drop-stale-tid-rdma-packets-that-cause-tiderr.patch
-  psi-get-poll_work-to-run-when-calling-poll-syscall-next-time.patch
-  dm-kcopyd-always-complete-failed-jobs.patch
-  dm-dust-use-dust-block-size-for-badblocklist-index.patch
-  dm-btree-fix-order-of-block-initialization-in-btree_split_beneath.patch
-  dm-integrity-fix-a-crash-due-to-bug_on-in-__journal_read_write.patch
-  dm-raid-add-missing-cleanup-in-raid_ctr.patch
-  dm-space-map-metadata-fix-missing-store-of-apply_bops-return-value.patch
-  dm-table-fix-invalid-memory-accesses-with-too-high-sector-number.patch
-  dm-zoned-improve-error-handling-in-reclaim.patch
-  dm-zoned-improve-error-handling-in-i-o-map-code.patch
-  dm-zoned-properly-handle-backing-device-failure.patch
-  genirq-properly-pair-kobject_del-with-kobject_add.patch
-  mm-z3fold.c-fix-race-between-migration-and-destruction.patch
-  mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
-  mm-memcontrol-flush-percpu-vmstats-before-releasing-memcg.patch
-  mm-memcontrol-flush-percpu-vmevents-before-releasing-memcg.patch
-  mm-page_owner-handle-thp-splits-correctly.patch
-  mm-zsmalloc.c-migration-can-leave-pages-in-zs_empty-indefinitely.patch
-  mm-zsmalloc.c-fix-race-condition-in-zs_destroy_pool.patch
-  mm-kasan-fix-false-positive-invalid-free-reports-with-config_kasan_sw_tags-y.patch
-  xfs-fix-missing-ilock-unlock-when-xfs_setattr_nonsize-fails-due-to-edquot.patch
-  ib-hfi1-drop-stale-tid-rdma-packets.patch
-  dm-zoned-fix-potential-null-dereference-in-dmz_do_re.patch
-  io_uring-fix-potential-hang-with-polled-io.patch
-  io_uring-don-t-enter-poll-loop-if-we-have-cqes-pendi.patch
-  io_uring-add-need_resched-check-in-inner-poll-loop.patch
-  powerpc-allow-flush_-inval_-dcache_range-to-work-across-ranges-4gb.patch
-  rxrpc-fix-local-endpoint-refcounting.patch
-  rxrpc-fix-read-after-free-in-rxrpc_queue_local.patch
-  rxrpc-fix-local-endpoint-replacement.patch
-  rxrpc-fix-local-refcounting.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ AMTU (Abstract Machine Test Utility) [9]
-         ✅ LTP: openposix test suite [10]
-         ✅ Ethernet drivers sanity [11]
-         ✅ Networking socket: fuzz [12]
-         ✅ audit: audit testsuite test [13]
-         ✅ httpd: mod_ssl smoke sanity [14]
-         ✅ iotop: sanity [15]
-         ✅ tuned: tune-processes-through-perf [16]
-         ✅ Usex - version 1.9-29 [17]
-         ✅ storage: SCSI VPD [18]
-         ✅ stress: stress-ng [19]
-         🚧 ✅ LTP lite [20]
-         🚧 ✅ CIFS Connectathon [21]
-         🚧 ✅ Networking bridge: sanity [22]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ AMTU (Abstract Machine Test Utility) [9]
-         ✅ LTP: openposix test suite [10]
-         ✅ Ethernet drivers sanity [11]
-         ✅ Networking socket: fuzz [12]
-         ✅ audit: audit testsuite test [13]
-         ✅ httpd: mod_ssl smoke sanity [14]
-         ✅ iotop: sanity [15]
-         ✅ tuned: tune-processes-through-perf [16]
-         ✅ Usex - version 1.9-29 [17]
-         🚧 ⚡⚡⚡ LTP lite [20]
-         🚧 ✅ CIFS Connectathon [21]
-         🚧 ✅ Networking bridge: sanity [22]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ AMTU (Abstract Machine Test Utility) [9]
-         ✅ LTP: openposix test suite [10]
-         ✅ Ethernet drivers sanity [11]
-         ✅ Networking socket: fuzz [12]
-         ✅ audit: audit testsuite test [13]
-         ✅ httpd: mod_ssl smoke sanity [14]
-         ✅ iotop: sanity [15]
-         ✅ tuned: tune-processes-through-perf [16]
-         ✅ pciutils: sanity smoke test [23]
-         ✅ Usex - version 1.9-29 [17]
-         ✅ storage: SCSI VPD [18]
-         ✅ stress: stress-ng [19]
-         🚧 ❌ LTP lite [20]
-         🚧 ✅ CIFS Connectathon [21]
-         🚧 ✅ Networking bridge: sanity [22]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/cifs/connectathon
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/bridge/sanity_check
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
