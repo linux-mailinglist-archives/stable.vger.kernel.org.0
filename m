@@ -2,87 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B864A1906
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78867A190D
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbfH2Lj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:39:28 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:54202 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725990AbfH2Lj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:39:28 -0400
-Received: by mail-wm1-f41.google.com with SMTP id 10so3351051wmp.3
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:39:26 -0700 (PDT)
+        id S1726889AbfH2LkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 07:40:10 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38701 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726379AbfH2LkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:40:10 -0400
+Received: by mail-pf1-f195.google.com with SMTP id o70so1876987pfg.5
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:40:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AYgvbiTAQ3inOXOlhATPG0lFzAaxSuycKjeCu+6mjow=;
-        b=yK+OqhKjgmyO1bWqo07FLu35wzIMDUtc4C6gC0UDI5NqALHmGePQ5+XBsbl7peBVoT
-         +PpcuCHJqPPY/Vu2wrRQv+hSNryt3emLRyd1LDV83wyIBg6aG37YO4X+CnPhekyUcp5M
-         cUjbLi3FWtStuoOzvLBhDjBKB+8MciDxJC8g6btvRz06NDBYv/p9gKrTQAFf1e2h7f83
-         NcJ3x7xOONqRSGrwk8GYb7NVJOveR2cpcIEjOvZkVjqaAF8DRRRoVkBSVF+MsniO9/Nr
-         DxTxg2laVVSKsL0Gfm95GOdYEWSNwUvYclF+KpfOQgYgLLBy9X3ndibHBm+AizeCojgJ
-         k9mg==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=NYPdFLxnP2SpVPuKchfoNl7WNRTdf28Sddkoq+zSktk=;
+        b=Ip9Rj1WgWixO0eEXukO7vDK+ZT/ww9GvUEQkD4LC64n0/0Qc8GDEpoiJuF0HhCPuHv
+         8k4jneSJtvEEBym3sMHR53AkA3eg71HYWuNxXW1CcXtubN79R/IgzxxMfWiolR6p76mJ
+         RjT3LqZ8+4eLAnLRK0mUAkZvRBlAjc5cHW/67Mk1xB4JqrGKuXSDRUSAqoGeI+vFf12T
+         KA592ORTLduKPak+3fJDP31m5Q3P9d2+SPjjxhWGqlOA6xMEpymJ+Y1tqS7eJD8fFxp3
+         3grDR3y9gQgOb/Z2rRaY8jXXMc0dRwtsv0403OLzRGTji/E1Fsrui/kqBTZ5Z56MRqN4
+         oE5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AYgvbiTAQ3inOXOlhATPG0lFzAaxSuycKjeCu+6mjow=;
-        b=mrRcHdXc4lZRa0CZ2SweBJMYoZLdR7ymTll86LxOWqeqQpvcFsF6DXxYByb0pKYgS4
-         12OBP0admmsBjzcUM0BsQ1hL1rItETfheH1RPYyrENfHbCc1mrOvEuf3JROUM8+V/LdP
-         vKU7slEqdDl5eXr0YCkcUAIrnvsqRvfuRm4wAiGi1MJqgh11bnPm6rkGQIRCizl3PKsP
-         pADRhPReFYKT2iGVySLkLdlwGhXd2Jrt79wVXlExjgyJQlWk5yoeCjXeWbLar+VDp4JB
-         p5/+S/wEGPV+WdnaKSfyRiKbxM6P9W5Rc8ez+E3oXf0xnm0gu45VYrM5g8xooowBhvyP
-         oIPA==
-X-Gm-Message-State: APjAAAVWfTiqwN/tjD+oWJlId2GSZIbp8Pr/EtftnqX4e3dt+wBvWO+j
-        jnwP77zLMo6QlCXaXu3mIEaOnxy7wk+AUw==
-X-Google-Smtp-Source: APXvYqzpI+j4VTgWTm0sBFhg624s7PZC8lap1brhcj4pYzTDhrrxJEyJOKg7flUfWzf3ihAWvZ+/ug==
-X-Received: by 2002:a05:600c:2311:: with SMTP id 17mr10851851wmo.68.1567078765867;
-        Thu, 29 Aug 2019 04:39:25 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w13sm5322407wre.44.2019.08.29.04.39.24
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=NYPdFLxnP2SpVPuKchfoNl7WNRTdf28Sddkoq+zSktk=;
+        b=rZH3D7CQZJ6Insfv8ZGB70ins3TAfwpWet5ab4WFMiDpCGQw8sN4VsqSFIBmh7VSm0
+         iAuTBvOsPqRW9JwxN27WNbFod6OsLxpirTJPrEVVHgiKJYpFfsruUX9QA9p767F3LIFu
+         noRCaLpaY7TrV9Jyl5cbb/6Q60e8Y1mxByGAqmU7vcKoyoj5a2ylDf/5oUwfhm7yZ0LD
+         +fLPmS/XLm7LLjIQT3oilDwQQLRjEh4QYBQjAgQ7H3uJ2S07Eze2hCQwq2QTLgDx5Bxa
+         +guBDXKAHtBz7o/z9HmcjeQVU2vhIH7Xj75ou5LWTC3LGeyCAHWvlzjo3xu83VK6nZ99
+         fOwQ==
+X-Gm-Message-State: APjAAAV3TgKS7zr0kDPvvnWLkymu96DxB09PbD+baa+4JL5ho7wNA5yn
+        wAhAIcog0EHxJl3ZTpihlDKR0qoXP0k=
+X-Google-Smtp-Source: APXvYqzEAzoTB6eQRNtv7b/1zJHW4m8QqYQpqNOMdCVDQ9YzPCbag3DRbr3h+bUoBTWPo4qrzC12pA==
+X-Received: by 2002:a65:50c5:: with SMTP id s5mr7913573pgp.368.1567078809383;
+        Thu, 29 Aug 2019 04:40:09 -0700 (PDT)
+Received: from localhost ([122.167.132.221])
+        by smtp.gmail.com with ESMTPSA id a18sm3924333pfn.156.2019.08.29.04.40.08
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Aug 2019 04:39:25 -0700 (PDT)
-Message-ID: <5d67b96d.1c69fb81.d93d8.7a30@mx.google.com>
-Date:   Thu, 29 Aug 2019 04:39:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.69
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y boot: 77 boots: 1 failed, 76 passed (v4.19.69)
+        Thu, 29 Aug 2019 04:40:08 -0700 (PDT)
+Date:   Thu, 29 Aug 2019 17:10:06 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com, guohanjun@huawei.com
+Subject: Re: [PATCH ARM32 v4.4 V2 00/47] V4.4 backport of arm32 Spectre
+ patches
+Message-ID: <20190829114006.ptxnynqcetqbprbm@vireshk-i7>
+References: <cover.1564646727.git.viresh.kumar@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1564646727.git.viresh.kumar@linaro.org>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 77 boots: 1 failed, 76 passed (v4.19.69)
+On 01-08-19, 13:45, Viresh Kumar wrote:
+> Hello,
+> 
+> Here is an attempt to backport arm32 spectre patches to v4.4 stable
+> tree. This was last tried around an year back by David Long [1]. He was
+> backporting only a subset (18) of patches and this series include a lot
+> of other patches present in Russell's spectre branch.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.69/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.69/
+It's been almost 4 weeks since the first post on this. Can someone
+please help with reviews ?
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.69
-Git Commit: 97ab07e11fbf55c86c3758e07ab295028bf17f94
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 39 unique boards, 18 SoC families, 14 builds out of 206
+thanks.
 
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+viresh
