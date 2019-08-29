@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB793A1731
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF3AA16B7
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727691AbfH2Kxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58114 "EHLO mail.kernel.org"
+        id S1728182AbfH2Kun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728167AbfH2Kum (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726852AbfH2Kum (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 29 Aug 2019 06:50:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25B5623405;
-        Thu, 29 Aug 2019 10:50:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 200EA23428;
+        Thu, 29 Aug 2019 10:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075840;
-        bh=Tohnue6jgZf0kCeuaIKW6SJ72fwGuoIpEm40KHoo9PU=;
+        s=default; t=1567075842;
+        bh=JrorarxX0tWOFWXgQKQbgJPurWxAoIUAhi1ugVUbjl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OX1NXpQy7r+11mes7C5RBGAu7XOKxZJCGGwWYa8aVN0Z8xOj6OAnYOfkAUQRuiwk0
-         /DowYwTQlL91Zc+iwfYy8tR32UQlfrJN60gM5kpmJtjtk78j6BTu/jypiOV6UK0jNQ
-         J6m9jeqfSbkHswDSp+cyVErUOV8T9vFZXISAfO3w=
+        b=BCgjLwA6MuLqC8Gwl3WbxoRFq0Hfw6jLLpdwpVsy+nEgPaWrLd5Jp9EHflib4JFLS
+         z+wJOkhh+jWYNyEin1dOLyWUjAOedMKPZdweC3RnuRh+naF3rhPW/g6gPhHYaLbDf1
+         3/mn1bOdmhtNXfO29rteJmLHSTTsdOE4+9jI2vg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Jessica Yu <jeyu@kernel.org>, Martin Kaiser <lists@kaiser.cx>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        David Lechner <david@lechnology.com>,
+        Martin Kaiser <martin@kaiser.cx>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 27/29] remoteproc: qcom: q6v5: shore up resource probe handling
-Date:   Thu, 29 Aug 2019 06:50:07 -0400
-Message-Id: <20190829105009.2265-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 28/29] modules: always page-align module section allocations
+Date:   Thu, 29 Aug 2019 06:50:08 -0400
+Message-Id: <20190829105009.2265-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -44,108 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit 1e2517d126171a41f801738ffd19687836cd178a ]
+[ Upstream commit 38f054d549a869f22a02224cd276a27bf14b6171 ]
 
-Commit d5269c4553a6 ("remoteproc: qcom: q6v5: Propagate EPROBE_DEFER")
-fixed up our probe code to handle -EPROBE_DEFER, but it ignored one of
-our interrupts, and it also didn't really handle all the other error
-codes you might get (e.g., with a bad DT definition). Handle those all
-explicitly.
+Some arches (e.g., arm64, x86) have moved towards non-executable
+module_alloc() allocations for security hardening reasons. That means
+that the module loader will need to set the text section of a module to
+executable, regardless of whether or not CONFIG_STRICT_MODULE_RWX is set.
 
-Fixes: d5269c4553a6 ("remoteproc: qcom: q6v5: Propagate EPROBE_DEFER")
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+When CONFIG_STRICT_MODULE_RWX=y, module section allocations are always
+page-aligned to handle memory rwx permissions. On some arches with
+CONFIG_STRICT_MODULE_RWX=n however, when setting the module text to
+executable, the BUG_ON() in frob_text() gets triggered since module
+section allocations are not page-aligned when CONFIG_STRICT_MODULE_RWX=n.
+Since the set_memory_* API works with pages, and since we need to call
+set_memory_x() regardless of whether CONFIG_STRICT_MODULE_RWX is set, we
+might as well page-align all module section allocations for ease of
+managing rwx permissions of module sections (text, rodata, etc).
+
+Fixes: 2eef1399a866 ("modules: fix BUG when load module with rodata=n")
+Reported-by: Martin Kaiser <lists@kaiser.cx>
+Reported-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Tested-by: David Lechner <david@lechnology.com>
+Tested-by: Martin Kaiser <martin@kaiser.cx>
+Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5.c | 44 +++++++++++++++++++++++++++-------
- 1 file changed, 36 insertions(+), 8 deletions(-)
+ kernel/module.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5.c b/drivers/remoteproc/qcom_q6v5.c
-index e9ab90c19304f..602af839421de 100644
---- a/drivers/remoteproc/qcom_q6v5.c
-+++ b/drivers/remoteproc/qcom_q6v5.c
-@@ -188,6 +188,14 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
- 	init_completion(&q6v5->stop_done);
+diff --git a/kernel/module.c b/kernel/module.c
+index 3fda10c549a25..2dec3d4a9b627 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -76,14 +76,9 @@
  
- 	q6v5->wdog_irq = platform_get_irq_byname(pdev, "wdog");
-+	if (q6v5->wdog_irq < 0) {
-+		if (q6v5->wdog_irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"failed to retrieve wdog IRQ: %d\n",
-+				q6v5->wdog_irq);
-+		return q6v5->wdog_irq;
-+	}
-+
- 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->wdog_irq,
- 					NULL, q6v5_wdog_interrupt,
- 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-@@ -198,8 +206,13 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
- 	}
+ /*
+  * Modules' sections will be aligned on page boundaries
+- * to ensure complete separation of code and data, but
+- * only when CONFIG_STRICT_MODULE_RWX=y
++ * to ensure complete separation of code and data
+  */
+-#ifdef CONFIG_STRICT_MODULE_RWX
+ # define debug_align(X) ALIGN(X, PAGE_SIZE)
+-#else
+-# define debug_align(X) (X)
+-#endif
  
- 	q6v5->fatal_irq = platform_get_irq_byname(pdev, "fatal");
--	if (q6v5->fatal_irq == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	if (q6v5->fatal_irq < 0) {
-+		if (q6v5->fatal_irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"failed to retrieve fatal IRQ: %d\n",
-+				q6v5->fatal_irq);
-+		return q6v5->fatal_irq;
-+	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->fatal_irq,
- 					NULL, q6v5_fatal_interrupt,
-@@ -211,8 +224,13 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
- 	}
- 
- 	q6v5->ready_irq = platform_get_irq_byname(pdev, "ready");
--	if (q6v5->ready_irq == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	if (q6v5->ready_irq < 0) {
-+		if (q6v5->ready_irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"failed to retrieve ready IRQ: %d\n",
-+				q6v5->ready_irq);
-+		return q6v5->ready_irq;
-+	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->ready_irq,
- 					NULL, q6v5_ready_interrupt,
-@@ -224,8 +242,13 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
- 	}
- 
- 	q6v5->handover_irq = platform_get_irq_byname(pdev, "handover");
--	if (q6v5->handover_irq == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	if (q6v5->handover_irq < 0) {
-+		if (q6v5->handover_irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"failed to retrieve handover IRQ: %d\n",
-+				q6v5->handover_irq);
-+		return q6v5->handover_irq;
-+	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->handover_irq,
- 					NULL, q6v5_handover_interrupt,
-@@ -238,8 +261,13 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
- 	disable_irq(q6v5->handover_irq);
- 
- 	q6v5->stop_irq = platform_get_irq_byname(pdev, "stop-ack");
--	if (q6v5->stop_irq == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	if (q6v5->stop_irq < 0) {
-+		if (q6v5->stop_irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"failed to retrieve stop-ack IRQ: %d\n",
-+				q6v5->stop_irq);
-+		return q6v5->stop_irq;
-+	}
- 
- 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->stop_irq,
- 					NULL, q6v5_stop_interrupt,
+ /* If this is set, the section belongs in the init part of the module */
+ #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
 -- 
 2.20.1
 
