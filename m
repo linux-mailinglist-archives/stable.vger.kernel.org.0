@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCE5A18B7
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC980A18B9
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbfH2LfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:35:09 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:37503 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725990AbfH2LfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:35:09 -0400
-Received: by mail-pl1-f195.google.com with SMTP id bj8so1451884plb.4
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:35:08 -0700 (PDT)
+        id S1727131AbfH2LfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 07:35:12 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:38983 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727072AbfH2LfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:35:11 -0400
+Received: by mail-pg1-f193.google.com with SMTP id u17so1447141pgi.6
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:35:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=1IdhsUs/fdllTh2EJ+ScRqWrO1uX9GsPUvP6PugnTR0=;
-        b=nxI85UwxnbVBJqSbq8Ywtoc623bVciPB583W6cIvsNcR9oBenNkMhgmn56N8dl7tHE
-         HCJXonvD30tGaKZHMMV+hUfBy0X963d3yoXUwEU4wjSg1Z72lbwKhxPibPpL4vvKT/sr
-         d9eU0YSkgUUaRy9GZaJXXWZccVQd7hOExhRb4tLvsZBKRmh5CCx4FM+iAh/eQCsKLWWp
-         FIY3VPxy1ObVuPcERjVujhSRX3z9hbu98dIF01oxC51utQfIXqj2ZtYwJ+WWA85tkvl2
-         4cF/61lyqS+8CzAr/GFd2AGhz0eitx64Llmj8Bs0pXoci4lMlRg6vnKzxGxcF7afafI0
-         OAOg==
+        bh=gNlfncScxDREAT7VjTEXAFzdaeKYbTqQ4JYCBMZ7gaA=;
+        b=nr9Gk8pFzTEB0x/gTQjg70ogkUAAe3PHOryfDr3XdOw9hGozLABdCRERUdlFdyM7+w
+         XHQw4yTqjOc8IyDdh+/0FqzVT4e1ygwvvGGySH8M6jc170I3CFooffLknoEUesluak5N
+         cxL5uYIwuadRSsXimRlPBaq/8VvZLJsE1kbwhTrwzDOZqRlUVflQjLZfJfNNwvA1UvUV
+         /0dbHEI2+EGV0WVYNpHt3fXS1ewsXIvWvbUYjW0AFggyhIJSNlYHsFFRF4jIhgR4nxda
+         yIWg7uib71hLdizQQgudJGAhAGNeIYZX+h063Xjs2s6Jkw5Kxyc575C0eeCvUpZxCEt1
+         B5jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1IdhsUs/fdllTh2EJ+ScRqWrO1uX9GsPUvP6PugnTR0=;
-        b=nzc+bMDn9x0oy0k79dQnB2e+7k5RYgRK/wkhTjppKc/UwU/lqgkcb+SRezfJ22x7vr
-         uw1hJjJncdBxOoj97r4to4wGntlFZZ6CilKoUQCMCDjJHhPAL3wII4JB3TRXeIeL8Ql+
-         mZjObrwi0jFJOdco2X2mJsMOfFHZeEq1QLomf/g4rRl4D/dYkrVe5uYkHJ5bYTTocLqC
-         +mfq1xn2RLkmZtnp1JtsVNA9O4pZ8/jS5Q4CLH8uwKq1S/FgrsAOO9zRP/GJEEUlwSa7
-         8DYGqdO+WQwyNmDVO4RUkXQDXp91Ck5cnuAD9sip8pBiu3MUJ8E4d6BMx4bLPglR1lMT
-         JyEg==
-X-Gm-Message-State: APjAAAUrP6HevA4j9SCavWoHoL8tND4J0OG5XzBPjCqwoLORfRiVoFpj
-        P62KphGSA6/8ExGs8Rlub1NsT8bx+es=
-X-Google-Smtp-Source: APXvYqzj9QSx3MtgHt1qHIKICzNCPI0f7DNQySSHpINOygIRFz1OPV0EPaWQ+yDXuf1zgDx8qUKSew==
-X-Received: by 2002:a17:902:f217:: with SMTP id gn23mr9333792plb.21.1567078508102;
-        Thu, 29 Aug 2019 04:35:08 -0700 (PDT)
+        bh=gNlfncScxDREAT7VjTEXAFzdaeKYbTqQ4JYCBMZ7gaA=;
+        b=dgHmuL2lX84wQdTAO4AztqqoC5c+/PgRYoxF4MBXgKN0SqqFXoVz8eO6uv9Jr/KRnl
+         Cu2YUgbmMO8ESdAtvDv6VYJCNJ2Dtii1cub+Y89F40g5YDtvUNwM2i2oCH9u3YIsUUYv
+         4UkIkhQ1ZJ2xWZkaO6Hq87uY4yqGHNRtQY9mIpmG6SkuO2kFrHgv8apH/WnQQ3nHLDl5
+         ZxbNE023IFmAOXUIBX21kt/Z14g1oJuOleM+6KqUsy/O2QKZSpGyoGQ1e+cgqtlaRfwU
+         8w5CUbcGLEaaWA9Q8bUZGacXOg9scQ2M0OwCHjiHJlFUddT3BJaZJozab+VDqkboC7fP
+         waOA==
+X-Gm-Message-State: APjAAAWREuNUYcu+X1QvIegzcec/l9zStCl3z9vMTVNWno+a9AN+9Drk
+        CuAkkc9vay9AzQUV1Ac9gpHemAFfkbc=
+X-Google-Smtp-Source: APXvYqxaRmbjVog/4nw9seikvSB7LtDuhZkYKTDMv2tEWPXr5U+mLgf1hoaM7vkP2NpyY98Km++xqQ==
+X-Received: by 2002:a63:c03:: with SMTP id b3mr8067964pgl.23.1567078510622;
+        Thu, 29 Aug 2019 04:35:10 -0700 (PDT)
 Received: from localhost ([122.167.132.221])
-        by smtp.gmail.com with ESMTPSA id u18sm2794235pfl.29.2019.08.29.04.35.07
+        by smtp.gmail.com with ESMTPSA id n10sm2183349pgv.67.2019.08.29.04.35.09
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Aug 2019 04:35:07 -0700 (PDT)
+        Thu, 29 Aug 2019 04:35:10 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
         Mark Rutland <mark.rutland@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH ARM64 v4.4 V3 06/44] arm64: entry: Ensure branch through syscall table is bounded under speculation
-Date:   Thu, 29 Aug 2019 17:03:51 +0530
-Message-Id: <093a9777605bdd2ab2c33948a4e7a3fbb275de4d.1567077734.git.viresh.kumar@linaro.org>
+Subject: [PATCH ARM64 v4.4 V3 07/44] arm64: uaccess: Prevent speculative use of the current addr_limit
+Date:   Thu, 29 Aug 2019 17:03:52 +0530
+Message-Id: <dbe69b13f77052abf5d342b2775b1ebdbcce241a.1567077734.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1567077734.git.viresh.kumar@linaro.org>
 References: <cover.1567077734.git.viresh.kumar@linaro.org>
@@ -70,58 +70,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will.deacon@arm.com>
 
-commit 6314d90e64936c584f300a52ef173603fb2461b5 upstream.
+commit c2f0ad4fc089cff81cef6a13d04b399980ecbfcc upstream.
 
-In a similar manner to array_index_mask_nospec, this patch introduces an
-assembly macro (mask_nospec64) which can be used to bound a value under
-speculation. This macro is then used to ensure that the indirect branch
-through the syscall table is bounded under speculation, with out-of-range
-addresses speculating as calls to sys_io_setup (0).
+A mispredicted conditional call to set_fs could result in the wrong
+addr_limit being forwarded under speculation to a subsequent access_ok
+check, potentially forming part of a spectre-v1 attack using uaccess
+routines.
+
+This patch prevents this forwarding from taking place, but putting heavy
+barriers in set_fs after writing the addr_limit.
 
 Reviewed-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: use existing scno & sc_nr definitions ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/assembler.h | 11 +++++++++++
- arch/arm64/kernel/entry.S          |  1 +
- 2 files changed, 12 insertions(+)
+ arch/arm64/include/asm/uaccess.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-index 683c2875278f..2b30363a3a89 100644
---- a/arch/arm64/include/asm/assembler.h
-+++ b/arch/arm64/include/asm/assembler.h
-@@ -102,6 +102,17 @@
- 	hint	#20
- 	.endm
- 
-+/*
-+ * Sanitise a 64-bit bounded index wrt speculation, returning zero if out
-+ * of bounds.
-+ */
-+	.macro	mask_nospec64, idx, limit, tmp
-+	sub	\tmp, \idx, \limit
-+	bic	\tmp, \tmp, \idx
-+	and	\idx, \idx, \tmp, asr #63
-+	csdb
-+	.endm
+diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+index 75363d723262..fc11c50af558 100644
+--- a/arch/arm64/include/asm/uaccess.h
++++ b/arch/arm64/include/asm/uaccess.h
+@@ -62,6 +62,13 @@ extern int fixup_exception(struct pt_regs *regs);
+ static inline void set_fs(mm_segment_t fs)
+ {
+ 	current_thread_info()->addr_limit = fs;
 +
- #define USER(l, x...)				\
- 9999:	x;					\
- 	.section __ex_table,"a";		\
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 4c5013b09dcb..e6aec982dea9 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -697,6 +697,7 @@ el0_svc_naked:					// compat entry point
- 	b.ne	__sys_trace
- 	cmp     scno, sc_nr                     // check upper syscall limit
- 	b.hs	ni_sys
-+	mask_nospec64 scno, sc_nr, x19	// enforce bounds for syscall number
- 	ldr	x16, [stbl, scno, lsl #3]	// address in the syscall table
- 	blr	x16				// call sys_* routine
- 	b	ret_fast_syscall
++	/*
++	 * Prevent a mispredicted conditional call to set_fs from forwarding
++	 * the wrong address limit to access_ok under speculation.
++	 */
++	dsb(nsh);
++	isb();
+ }
+ 
+ #define segment_eq(a, b)	((a) == (b))
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
