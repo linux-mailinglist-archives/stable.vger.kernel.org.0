@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE593A2387
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A78A23A3
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729638AbfH2SQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58172 "EHLO mail.kernel.org"
+        id S1729852AbfH2SQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:16:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728236AbfH2SQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:16:11 -0400
+        id S1729845AbfH2SQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:16:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6228F23404;
-        Thu, 29 Aug 2019 18:16:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42F102189D;
+        Thu, 29 Aug 2019 18:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102570;
-        bh=YaV+f0950vjRD5TeumxAXpgg2lCSSecBsPFAdte19FQ=;
+        s=default; t=1567102603;
+        bh=vkDsvW6YxEClSTHDUNfXZoqYbz0eXMOBlKudZDeaniU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQPmj9J474XRAC57GsCmWTPer88hbCdzU0vS0+HGGCulwmEOUUsNwjsMvq5tcPfmF
-         hnNxwt2yQt5y2QVS2PvmLEmjIR6R6dr9TwKF5KIBo0bEZKGVBFb6TVvxVIVjyg2p7e
-         LELgrXkkyRX+8uMt0ffdhBjlUczJtYRMniD8vA2g=
+        b=2NbKBQZzazUM/CoAfpQJnWhzfUnF6cFc8BekaptQ/ruevqncmyPVBUTYQYGFGUAmJ
+         CIeTWePufwXXoylY1akaQV0rbHArKmWfBLEMi28nNS89nLDLhqTmmmAXWB3JbzrPV6
+         eDPG7e4gOBb50u3Z9Eya0KLUJVCPJ/bOZIi7SqaI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bill Kuzeja <William.Kuzeja@stratus.com>,
-        Bill Kuzeja <william.kuzeja@stratus.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/45] scsi: qla2xxx: Fix gnl.l memory leak on adapter init failure
-Date:   Thu, 29 Aug 2019 14:15:16 -0400
-Message-Id: <20190829181547.8280-16-sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 38/45] selftests: kvm: fix state save/load on processors without XSAVE
+Date:   Thu, 29 Aug 2019 14:15:38 -0400
+Message-Id: <20190829181547.8280-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
 References: <20190829181547.8280-1-sashal@kernel.org>
@@ -45,80 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bill Kuzeja <William.Kuzeja@stratus.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 26fa656e9a0cbccddf7db132ea020d2169dbe46e ]
+[ Upstream commit 54577e5018a8c0cb79c9a0fa118a55c68715d398 ]
 
-If HBA initialization fails unexpectedly (exiting via probe_failed:), we
-may fail to free vha->gnl.l. So that we don't attempt to double free, set
-this pointer to NULL after a free and check for NULL at probe_failed: so we
-know whether or not to call dma_free_coherent.
+state_test and smm_test are failing on older processors that do not
+have xcr0.  This is because on those processor KVM does provide
+support for KVM_GET/SET_XSAVE (to avoid having to rely on the older
+KVM_GET/SET_FPU) but not for KVM_GET/SET_XCRS.
 
-Signed-off-by: Bill Kuzeja <william.kuzeja@stratus.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |  2 ++
- drivers/scsi/qla2xxx/qla_os.c   | 11 ++++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ tools/testing/selftests/kvm/lib/x86.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index f8f4d3ea67f3f..15d493f30810f 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2191,6 +2191,8 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
- 	dma_free_coherent(&ha->pdev->dev, vha->gnl.size, vha->gnl.l,
- 	    vha->gnl.ldma);
+diff --git a/tools/testing/selftests/kvm/lib/x86.c b/tools/testing/selftests/kvm/lib/x86.c
+index a3122f1949a8e..4d35eba73dc97 100644
+--- a/tools/testing/selftests/kvm/lib/x86.c
++++ b/tools/testing/selftests/kvm/lib/x86.c
+@@ -809,9 +809,11 @@ struct kvm_x86_state *vcpu_save_state(struct kvm_vm *vm, uint32_t vcpuid)
+         TEST_ASSERT(r == 0, "Unexpected result from KVM_GET_XSAVE, r: %i",
+                 r);
  
-+	vha->gnl.l = NULL;
-+
- 	vfree(vha->scan.l);
- 
- 	if (vha->qpair && vha->qpair->vp_idx == vha->vp_idx) {
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 42b8f0d3e580d..02fa81f122c22 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3395,6 +3395,12 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
- 
- probe_failed:
-+	if (base_vha->gnl.l) {
-+		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
-+				base_vha->gnl.l, base_vha->gnl.ldma);
-+		base_vha->gnl.l = NULL;
+-	r = ioctl(vcpu->fd, KVM_GET_XCRS, &state->xcrs);
+-        TEST_ASSERT(r == 0, "Unexpected result from KVM_GET_XCRS, r: %i",
+-                r);
++	if (kvm_check_cap(KVM_CAP_XCRS)) {
++		r = ioctl(vcpu->fd, KVM_GET_XCRS, &state->xcrs);
++		TEST_ASSERT(r == 0, "Unexpected result from KVM_GET_XCRS, r: %i",
++			    r);
 +	}
-+
- 	if (base_vha->timer_active)
- 		qla2x00_stop_timer(base_vha);
- 	base_vha->flags.online = 0;
-@@ -3624,7 +3630,7 @@ qla2x00_remove_one(struct pci_dev *pdev)
- 	if (!atomic_read(&pdev->enable_cnt)) {
- 		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
- 		    base_vha->gnl.l, base_vha->gnl.ldma);
--
-+		base_vha->gnl.l = NULL;
- 		scsi_host_put(base_vha->host);
- 		kfree(ha);
- 		pci_set_drvdata(pdev, NULL);
-@@ -3663,6 +3669,8 @@ qla2x00_remove_one(struct pci_dev *pdev)
- 	dma_free_coherent(&ha->pdev->dev,
- 		base_vha->gnl.size, base_vha->gnl.l, base_vha->gnl.ldma);
  
-+	base_vha->gnl.l = NULL;
-+
- 	vfree(base_vha->scan.l);
+ 	r = ioctl(vcpu->fd, KVM_GET_SREGS, &state->sregs);
+         TEST_ASSERT(r == 0, "Unexpected result from KVM_GET_SREGS, r: %i",
+@@ -858,9 +860,11 @@ void vcpu_load_state(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_x86_state *s
+         TEST_ASSERT(r == 0, "Unexpected result from KVM_SET_XSAVE, r: %i",
+                 r);
  
- 	if (IS_QLAFX00(ha))
-@@ -4602,6 +4610,7 @@ struct scsi_qla_host *qla2x00_create_host(struct scsi_host_template *sht,
- 		    "Alloc failed for scan database.\n");
- 		dma_free_coherent(&ha->pdev->dev, vha->gnl.size,
- 		    vha->gnl.l, vha->gnl.ldma);
-+		vha->gnl.l = NULL;
- 		scsi_remove_host(vha->host);
- 		return NULL;
- 	}
+-	r = ioctl(vcpu->fd, KVM_SET_XCRS, &state->xcrs);
+-        TEST_ASSERT(r == 0, "Unexpected result from KVM_SET_XCRS, r: %i",
+-                r);
++	if (kvm_check_cap(KVM_CAP_XCRS)) {
++		r = ioctl(vcpu->fd, KVM_SET_XCRS, &state->xcrs);
++		TEST_ASSERT(r == 0, "Unexpected result from KVM_SET_XCRS, r: %i",
++			    r);
++	}
+ 
+ 	r = ioctl(vcpu->fd, KVM_SET_SREGS, &state->sregs);
+         TEST_ASSERT(r == 0, "Unexpected result from KVM_SET_SREGS, r: %i",
 -- 
 2.20.1
 
