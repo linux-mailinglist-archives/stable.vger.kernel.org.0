@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FA2A1745
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 072B1A173F
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728098AbfH2Kue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57876 "EHLO mail.kernel.org"
+        id S1728124AbfH2Kuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbfH2Kue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:34 -0400
+        id S1728100AbfH2Kuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 207282173E;
-        Thu, 29 Aug 2019 10:50:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CE2E2341B;
+        Thu, 29 Aug 2019 10:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075832;
-        bh=7pQ3zLdVbcKZHrcATLCC4qK5jFKHe/pZSZMuUtpgVME=;
+        s=default; t=1567075834;
+        bh=16fTqFdG9M6Y56zMIAUmBN+BNC2ON1gMz7VKsrMtRFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1po/dyOi0EAVgH/Z2L8NrMSjReJSLZonpI5Hzp74vqamTX4ee+1yXkVz6GIqe08cK
-         WNpTEWIp5nRyEbPALXsf/EpfvZozo+8mQcuJUk0LTAoz+QHSIrXauBHn0YuDDn8g5S
-         99jG0DLFK+afvp/5Q7/LiEL/Q9htU+g1cPRbPBRo=
+        b=JZasuvFj07H2Ibug+zXTjiSK56l0voJTwT3mQasMiq5MSF/B0KPAc3QgRBThCiXEd
+         aorFFL//OUT/hy5ecfEgCyX3ZFQVVXCbdn9Eo2X8BJMr/bPbjCe3LdR4oDEoQx4iIM
+         cm232DrWVY3pdUis8B6lLZy2ODPLxaBT1FehNdgY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Jones <drjones@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 20/29] KVM: arm/arm64: Only skip MMIO insn once
-Date:   Thu, 29 Aug 2019 06:50:00 -0400
-Message-Id: <20190829105009.2265-20-sashal@kernel.org>
+Cc:     Stefano Brivio <sbrivio@redhat.com>, Chen Yi <yiche@redhat.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 21/29] netfilter: ipset: Actually allow destination MAC address for hash:ip,mac sets too
+Date:   Thu, 29 Aug 2019 06:50:01 -0400
+Message-Id: <20190829105009.2265-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -44,56 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Jones <drjones@redhat.com>
+From: Stefano Brivio <sbrivio@redhat.com>
 
-[ Upstream commit 2113c5f62b7423e4a72b890bd479704aa85c81ba ]
+[ Upstream commit b89d15480d0cacacae1a0fe0b3da01b529f2914f ]
 
-If after an MMIO exit to userspace a VCPU is immediately run with an
-immediate_exit request, such as when a signal is delivered or an MMIO
-emulation completion is needed, then the VCPU completes the MMIO
-emulation and immediately returns to userspace. As the exit_reason
-does not get changed from KVM_EXIT_MMIO in these cases we have to
-be careful not to complete the MMIO emulation again, when the VCPU is
-eventually run again, because the emulation does an instruction skip
-(and doing too many skips would be a waste of guest code :-) We need
-to use additional VCPU state to track if the emulation is complete.
-As luck would have it, we already have 'mmio_needed', which even
-appears to be used in this way by other architectures already.
+In commit 8cc4ccf58379 ("ipset: Allow matching on destination MAC address
+for mac and ipmac sets"), ipset.git commit 1543514c46a7, I removed the
+KADT check that prevents matching on destination MAC addresses for
+hash:mac sets, but forgot to remove the same check for hash:ip,mac set.
 
-Fixes: 0d640732dbeb ("arm64: KVM: Skip MMIO insn after emulation")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Drop this check: functionality is now commented in man pages and there's
+no reason to restrict to source MAC address matching anymore.
+
+Reported-by: Chen Yi <yiche@redhat.com>
+Fixes: 8cc4ccf58379 ("ipset: Allow matching on destination MAC address for mac and ipmac sets")
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/mmio.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/ipset/ip_set_hash_ipmac.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/virt/kvm/arm/mmio.c b/virt/kvm/arm/mmio.c
-index 08443a15e6be8..3caee91bca089 100644
---- a/virt/kvm/arm/mmio.c
-+++ b/virt/kvm/arm/mmio.c
-@@ -98,6 +98,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	unsigned int len;
- 	int mask;
+diff --git a/net/netfilter/ipset/ip_set_hash_ipmac.c b/net/netfilter/ipset/ip_set_hash_ipmac.c
+index fd87de3ed55b3..75c21c8b76514 100644
+--- a/net/netfilter/ipset/ip_set_hash_ipmac.c
++++ b/net/netfilter/ipset/ip_set_hash_ipmac.c
+@@ -95,10 +95,6 @@ hash_ipmac4_kadt(struct ip_set *set, const struct sk_buff *skb,
+ 	struct hash_ipmac4_elem e = { .ip = 0, { .foo[0] = 0, .foo[1] = 0 } };
+ 	struct ip_set_ext ext = IP_SET_INIT_KEXT(skb, opt, set);
  
-+	/* Detect an already handled MMIO return */
-+	if (unlikely(!vcpu->mmio_needed))
-+		return 0;
-+
-+	vcpu->mmio_needed = 0;
-+
- 	if (!run->mmio.is_write) {
- 		len = run->mmio.len;
- 		if (len > sizeof(unsigned long))
-@@ -200,6 +206,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
- 	run->mmio.is_write	= is_write;
- 	run->mmio.phys_addr	= fault_ipa;
- 	run->mmio.len		= len;
-+	vcpu->mmio_needed	= 1;
- 
- 	if (!ret) {
- 		/* We handled the access successfully in the kernel. */
+-	 /* MAC can be src only */
+-	if (!(opt->flags & IPSET_DIM_TWO_SRC))
+-		return 0;
+-
+ 	if (skb_mac_header(skb) < skb->head ||
+ 	    (skb_mac_header(skb) + ETH_HLEN) > skb->data)
+ 		return -EINVAL;
 -- 
 2.20.1
 
