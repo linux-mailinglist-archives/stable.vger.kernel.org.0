@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8CBA1739
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DB1A1738
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727046AbfH2KyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57986 "EHLO mail.kernel.org"
+        id S1727938AbfH2Kuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728132AbfH2Kuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:37 -0400
+        id S1728148AbfH2Kui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E5962173E;
-        Thu, 29 Aug 2019 10:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D49CA2342B;
+        Thu, 29 Aug 2019 10:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075836;
-        bh=4HwPwdkwP5ccqwcPRUDXB3DKKiH9S0DRxugyWR3hUU8=;
+        s=default; t=1567075837;
+        bh=SpQSLdYBvyq82meyXXWCtVnYVpt4u878OvYEkOU5qS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5PhsPfMisHJwGF27l5Lm11j2Edb+IZ1gWDg4IFLHlssENywD42ksAcvA0OxLy7Xa
-         yQyaPhxeFcL833A5iho+OkBkLkbLS9n3tChGn8sd6uLUmKJ4cyGyRx9snNWpxMQNjt
-         83yKNbHvcyaHkYSEh8b0B4xYp+xPf5hfRhPviJy4=
+        b=qTA6bGvxlhbxgT2HeFR8Q6yjPBdza8DjKL32zeBy4ZIqLFc9uv12SaFxGKxcI5Rng
+         +6orEfvlKGwv8kVWCwMjnCBlXg2V9Hx0lduKeOWnEmMiM1RaClfnOSZ9On2HEKa9mR
+         pj58K6SJjDcomfD1H6N4hf5oaZcbBXRJ1UUoU4XM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/29] ALSA: usb-audio: Check mixer unit bitmap yet more strictly
-Date:   Thu, 29 Aug 2019 06:50:03 -0400
-Message-Id: <20190829105009.2265-23-sashal@kernel.org>
+Cc:     David Abdurachmanov <david.abdurachmanov@gmail.com>,
+        Olof Johansson <olof@lixom.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/29] riscv: remove unused variable in ftrace
+Date:   Thu, 29 Aug 2019 06:50:04 -0400
+Message-Id: <20190829105009.2265-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -41,98 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Abdurachmanov <david.abdurachmanov@gmail.com>
 
-[ Upstream commit f9f0e9ed350e15d51ad07364b4cf910de50c472a ]
+[ Upstream commit 397182e0db56b8894a43631ce72de14d90a29834 ]
 
-The bmControls (for UAC1) or bmMixerControls (for UAC2/3) bitmap has a
-variable size depending on both input and output pins.  Its size is to
-fit with input * output bits.  The problem is that the input size
-can't be determined simply from the unit descriptor itself but it
-needs to parse the whole connected sources.  Although the
-uac_mixer_unit_get_channels() tries to check some possible overflow of
-this bitmap, it's incomplete due to the lack of the  evaluation of
-input pins.
+Noticed while building kernel-4.20.0-0.rc5.git2.1.fc30 for
+Fedora 30/RISCV.
 
-For covering possible overflows, this patch adds the bitmap overflow
-check in the loop of input pins in parse_audio_mixer_unit().
+[..]
+BUILDSTDERR: arch/riscv/kernel/ftrace.c: In function 'prepare_ftrace_return':
+BUILDSTDERR: arch/riscv/kernel/ftrace.c:135:6: warning: unused variable 'err' [-Wunused-variable]
+BUILDSTDERR:   int err;
+BUILDSTDERR:       ^~~
+[..]
 
-Fixes: 0bfe5e434e66 ("ALSA: usb-audio: Check mixer unit descriptors more strictly")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
+Fixes: e949b6db51dc1 ("riscv/function_graph: Simplify with function_graph_enter()")
+Reviewed-by: Olof Johansson <olof@lixom.net>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 36 ++++++++++++++++++++++++++++--------
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ arch/riscv/kernel/ftrace.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 4b3e1c48ca2f3..b0c5d4ef61374 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -754,7 +754,6 @@ static int uac_mixer_unit_get_channels(struct mixer_build *state,
- 				       struct uac_mixer_unit_descriptor *desc)
+diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+index c433f6d3dd64f..a840b7d074f7d 100644
+--- a/arch/riscv/kernel/ftrace.c
++++ b/arch/riscv/kernel/ftrace.c
+@@ -132,7 +132,6 @@ void prepare_ftrace_return(unsigned long *parent, unsigned long self_addr,
  {
- 	int mu_channels;
--	void *c;
+ 	unsigned long return_hooker = (unsigned long)&return_to_handler;
+ 	unsigned long old;
+-	int err;
  
- 	if (desc->bLength < sizeof(*desc))
- 		return -EINVAL;
-@@ -777,13 +776,6 @@ static int uac_mixer_unit_get_channels(struct mixer_build *state,
- 		break;
- 	}
- 
--	if (!mu_channels)
--		return 0;
--
--	c = uac_mixer_unit_bmControls(desc, state->mixer->protocol);
--	if (c - (void *)desc + (mu_channels - 1) / 8 >= desc->bLength)
--		return 0; /* no bmControls -> skip */
--
- 	return mu_channels;
- }
- 
-@@ -2028,6 +2020,31 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid,
-  * Mixer Unit
-  */
- 
-+/* check whether the given in/out overflows bmMixerControls matrix */
-+static bool mixer_bitmap_overflow(struct uac_mixer_unit_descriptor *desc,
-+				  int protocol, int num_ins, int num_outs)
-+{
-+	u8 *hdr = (u8 *)desc;
-+	u8 *c = uac_mixer_unit_bmControls(desc, protocol);
-+	size_t rest; /* remaining bytes after bmMixerControls */
-+
-+	switch (protocol) {
-+	case UAC_VERSION_1:
-+	default:
-+		rest = 1; /* iMixer */
-+		break;
-+	case UAC_VERSION_2:
-+		rest = 2; /* bmControls + iMixer */
-+		break;
-+	case UAC_VERSION_3:
-+		rest = 6; /* bmControls + wMixerDescrStr */
-+		break;
-+	}
-+
-+	/* overflow? */
-+	return c + (num_ins * num_outs + 7) / 8 + rest > hdr + hdr[0];
-+}
-+
- /*
-  * build a mixer unit control
-  *
-@@ -2156,6 +2173,9 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid,
- 		if (err < 0)
- 			return err;
- 		num_ins += iterm.channels;
-+		if (mixer_bitmap_overflow(desc, state->mixer->protocol,
-+					  num_ins, num_outs))
-+			break;
- 		for (; ich < num_ins; ich++) {
- 			int och, ich_has_controls = 0;
- 
+ 	if (unlikely(atomic_read(&current->tracing_graph_pause)))
+ 		return;
 -- 
 2.20.1
 
