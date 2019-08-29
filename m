@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE589A23ED
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025FBA23D9
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728170AbfH2STV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
+        id S1730340AbfH2SSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730317AbfH2SSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:18:09 -0400
+        id S1730334AbfH2SSK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:18:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 008222173E;
-        Thu, 29 Aug 2019 18:18:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1668920828;
+        Thu, 29 Aug 2019 18:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102688;
-        bh=ujvp1p1YhOa9w3WPCpb4c4nB5ta5oSCXhedSlRXePDQ=;
+        s=default; t=1567102689;
+        bh=Ogyck2ZoGhJppzSaw6fv33s60/hJwU3KTj2pLWwGsJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOBiFvureGt5RF6qLJToxFa1KE+3u6+d3mceHVLssNHocrrMSGQDsI+p+5Gg3oxE8
-         jIBZhL5eOJVhIojvoj0hSxtxdQwt/0Wv5EDW3C5Y3mBofitpnbJQ5LIgj2CqpwjOkv
-         NK3zWhecjr2fe767k6MO//o69ymhg6H7NQBKJ5OE=
+        b=RzBBLu3lXV+SaOtvYtfs7pE6bOYJ33Cp+W1oWe2cWcWDQYP6zeqIi3bkJ6BTuAl8S
+         i3bsegbKZFOfRLgMcLoUAfbYWsUQ/6WITAAy5CmItFkSvwu293chDWfKN6X3e3hZFu
+         S727CPewruqAKD8tOfcJ8qwD9iohFDquuAkSvclI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/15] gpio: Fix build error of function redefinition
-Date:   Thu, 29 Aug 2019 14:17:52 -0400
-Message-Id: <20190829181802.9619-5-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/15] cxgb4: fix a memory leak bug
+Date:   Thu, 29 Aug 2019 14:17:53 -0400
+Message-Id: <20190829181802.9619-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181802.9619-1-sashal@kernel.org>
 References: <20190829181802.9619-1-sashal@kernel.org>
@@ -43,66 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 68e03b85474a51ec1921b4d13204782594ef7223 ]
+[ Upstream commit c554336efa9bbc28d6ec14efbee3c7d63c61a34f ]
 
-when do randbuilding, I got this error:
+In blocked_fl_write(), 't' is not deallocated if bitmap_parse_user() fails,
+leading to a memory leak bug. To fix this issue, free t before returning
+the error.
 
-In file included from drivers/hwmon/pmbus/ucd9000.c:19:0:
-./include/linux/gpio/driver.h:576:1: error: redefinition of gpiochip_add_pin_range
- gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
- ^~~~~~~~~~~~~~~~~~~~~~
-In file included from drivers/hwmon/pmbus/ucd9000.c:18:0:
-./include/linux/gpio.h:245:1: note: previous definition of gpiochip_add_pin_range was here
- gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
- ^~~~~~~~~~~~~~~~~~~~~~
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 964cb341882f ("gpio: move pincontrol calls to <linux/gpio/driver.h>")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20190731123814.46624-1-yuehaibing@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/gpio.h | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/gpio.h b/include/linux/gpio.h
-index d12b5d566e4b1..11555bd821b73 100644
---- a/include/linux/gpio.h
-+++ b/include/linux/gpio.h
-@@ -229,30 +229,6 @@ static inline int irq_to_gpio(unsigned irq)
- 	return -EINVAL;
- }
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
+index 4269944c5db53..129d6095749a4 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
+@@ -2673,8 +2673,10 @@ static ssize_t blocked_fl_write(struct file *filp, const char __user *ubuf,
+ 		return -ENOMEM;
  
--static inline int
--gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
--		       unsigned int gpio_offset, unsigned int pin_offset,
--		       unsigned int npins)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline int
--gpiochip_add_pingroup_range(struct gpio_chip *chip,
--			struct pinctrl_dev *pctldev,
--			unsigned int gpio_offset, const char *pin_group)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline void
--gpiochip_remove_pin_ranges(struct gpio_chip *chip)
--{
--	WARN_ON(1);
--}
--
- static inline int devm_gpio_request(struct device *dev, unsigned gpio,
- 				    const char *label)
- {
+ 	err = bitmap_parse_user(ubuf, count, t, adap->sge.egr_sz);
+-	if (err)
++	if (err) {
++		kvfree(t);
+ 		return err;
++	}
+ 
+ 	bitmap_copy(adap->sge.blocked_fl, t, adap->sge.egr_sz);
+ 	t4_free_mem(t);
 -- 
 2.20.1
 
