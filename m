@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B155A252E
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC00A24FF
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728716AbfH2S3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
+        id S1729194AbfH2SPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728293AbfH2SPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:15:08 -0400
+        id S1729216AbfH2SPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:15:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75BFF2189D;
-        Thu, 29 Aug 2019 18:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 921DA23426;
+        Thu, 29 Aug 2019 18:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102508;
-        bh=5GRht+bIAa0hz22+5MeBH34xCjSsB4QkhPYcDHuiw80=;
+        s=default; t=1567102513;
+        bh=nXmAoySra2wHVmQxvsxSHEs4TACze4t9dD+qq2bM55I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5QQ9ubKlBOvZqQV5UvFpfDzIU0eDuoaHG0BqF9UzHr/3f2m1seoD5jETrNHaAxKr
-         RxzaNnfHtGrIP0i02WYOXzQ6xGsO2Ag/MFFgSEroKvGGf6g4eJP5VxSNroacC6JSLW
-         cDK1C40y/Exeq/E498rbNeQvPXy1MLwaeBeNgtyE=
+        b=cyWUx2goZDQRTnxjQ1HMeuiDO5fpABNJ/1io7H9vqH5KcoKcupvBBh1yWYIfI6cPc
+         TqcJW2GDTDvxZSTTRvbQBYyKvONvee2HJq87IO8oGTgKFefmfEBCO7IRmH6Ai3Gt5t
+         RqOjT2TfnyEsUcNeTxhudyR8xb2WyCoaedn+Wlyc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 58/76] io_uring: don't enter poll loop if we have CQEs pending
-Date:   Thu, 29 Aug 2019 14:12:53 -0400
-Message-Id: <20190829181311.7562-58-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 61/76] infiniband: hfi1: fix a memory leak bug
+Date:   Thu, 29 Aug 2019 14:12:56 -0400
+Message-Id: <20190829181311.7562-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -42,68 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit a3a0e43fd77013819e4b6f55e37e0efe8e35d805 ]
+[ Upstream commit b08afa064c320e5d85cdc27228426b696c4c8dae ]
 
-We need to check if we have CQEs pending before starting a poll loop,
-as those could be the events we will be spinning for (and hence we'll
-find none). This can happen if a CQE triggers an error, or if it is
-found by eg an IRQ before we get a chance to find it through polling.
+In fault_opcodes_read(), 'data' is not deallocated if debugfs_file_get()
+fails, leading to a memory leak. To fix this bug, introduce the 'free_data'
+label to free 'data' before returning the error.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Acked-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Link: https://lore.kernel.org/r/1566156571-4335-1-git-send-email-wenwen@cs.uga.edu
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/hfi1/fault.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5bb01d84f38d3..83e3cede11220 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -618,6 +618,13 @@ static void io_put_req(struct io_kiocb *req)
- 		io_free_req(req);
+diff --git a/drivers/infiniband/hw/hfi1/fault.c b/drivers/infiniband/hw/hfi1/fault.c
+index 93613e5def9b7..814324d172950 100644
+--- a/drivers/infiniband/hw/hfi1/fault.c
++++ b/drivers/infiniband/hw/hfi1/fault.c
+@@ -214,7 +214,7 @@ static ssize_t fault_opcodes_read(struct file *file, char __user *buf,
+ 		return -ENOMEM;
+ 	ret = debugfs_file_get(file->f_path.dentry);
+ 	if (unlikely(ret))
+-		return ret;
++		goto free_data;
+ 	bit = find_first_bit(fault->opcodes, bitsize);
+ 	while (bit < bitsize) {
+ 		zero = find_next_zero_bit(fault->opcodes, bitsize, bit);
+@@ -232,6 +232,7 @@ static ssize_t fault_opcodes_read(struct file *file, char __user *buf,
+ 	data[size - 1] = '\n';
+ 	data[size] = '\0';
+ 	ret = simple_read_from_buffer(buf, len, pos, data, size);
++free_data:
+ 	kfree(data);
+ 	return ret;
  }
- 
-+static unsigned io_cqring_events(struct io_cq_ring *ring)
-+{
-+	/* See comment at the top of this file */
-+	smp_rmb();
-+	return READ_ONCE(ring->r.tail) - READ_ONCE(ring->r.head);
-+}
-+
- /*
-  * Find and free completed poll iocbs
-  */
-@@ -756,6 +763,14 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
- 	do {
- 		int tmin = 0;
- 
-+		/*
-+		 * Don't enter poll loop if we already have events pending.
-+		 * If we do, we can potentially be spinning for commands that
-+		 * already triggered a CQE (eg in error).
-+		 */
-+		if (io_cqring_events(ctx->cq_ring))
-+			break;
-+
- 		/*
- 		 * If a submit got punted to a workqueue, we can have the
- 		 * application entering polling for a command before it gets
-@@ -2232,13 +2247,6 @@ static int io_ring_submit(struct io_ring_ctx *ctx, unsigned int to_submit)
- 	return submit;
- }
- 
--static unsigned io_cqring_events(struct io_cq_ring *ring)
--{
--	/* See comment at the top of this file */
--	smp_rmb();
--	return READ_ONCE(ring->r.tail) - READ_ONCE(ring->r.head);
--}
--
- /*
-  * Wait until events become available, if we don't already have some. The
-  * application must reap them itself, as they reside on the shared cq ring.
 -- 
 2.20.1
 
