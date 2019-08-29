@@ -2,119 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE88A1940
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C61A1985
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 14:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbfH2LsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:48:24 -0400
-Received: from mail-vs1-f67.google.com ([209.85.217.67]:44696 "EHLO
-        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727257AbfH2LsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:48:24 -0400
-Received: by mail-vs1-f67.google.com with SMTP id c7so2162787vse.11
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:48:23 -0700 (PDT)
+        id S1727270AbfH2MFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 08:05:02 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33233 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727040AbfH2MFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 08:05:02 -0400
+Received: by mail-wr1-f66.google.com with SMTP id u16so3198101wrr.0
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 05:05:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=s/UJems08T/e/rVWLn74/4KxusO+sjRC5wAOV+EnKhk=;
-        b=H+j5n2T6jtb6MwAMzHofdA21fuRGODOcXiTYmfqYykH8AI8+EWEVZdRtn93zzmiATq
-         udC9h4dfqPtFy2IqgaU05NHnCFEXDH1Cfuvb/QQKnuznz5UZkCJCr+JJrgGev2bGJ0rA
-         rzHXDijZvxRtWIpJyvYl+HQ/5KWOoMT81qH9fdtCrz/oa50tdIr7mv1iBHjWOGxwKJzS
-         MoM+Srm0rNbZhmZBpDzhZHgILudvPlkE19MwVGrNyjs+c9Sg/6PHgDbuQc9SeyWqOoJr
-         uoewzCmcxNaM/N8FHAMfrnqhoLFzAVGctOE7Fz7qhFamwDsyjaiIRzJJCtIiv9miVXR+
-         z65g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=iBZBknW9STKXFye67wz4a2dk/IxdRaMVXopAcZVG1EQ=;
+        b=w0TKA6HGYDlAm0uoFrV6gjdQAempa0VToN8vvQ+51rSGLpOz8P2OkgMc8p4gEJ5jpg
+         rPwiyFXkEcBW3QYjheklg9sGpYeSbNcn/wC3mXLqo8syKvUZB1N4TNSMpexx6IXoCXU+
+         aw86vlVAU/jwmlh691QvlRc9AJOKIRESIUXe1+nnoST2fAc4V+hqyFJ/rf7jO6xBc/6K
+         4mgsdD+HN62JQ6RTf4Agx7LUs2Ru5AfZUwGrHvYTtDd37rNMZ8Boh9x45HZivUI95IjI
+         3nIqm0Fwg2ZaIsNwdL0P6gzK0Jz6rJp9aWbUtvV52lbJw19VlyJbh9/yz6o2q2dHbQDK
+         da5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=s/UJems08T/e/rVWLn74/4KxusO+sjRC5wAOV+EnKhk=;
-        b=kNYR8T8591v/g6VsBJugvV7Nwgwn3ZWtNDLfTmN/XfN/dqI1xppCwl7UXoy1iVBOBq
-         FoLNJR3tCyl/0L+SWP3/DwQvSf6EbjLqClkJb843l+D+REMI7ULjGvL5pEX67V37GhLp
-         0hDaRzo0im+BJHg+dBTp+SW/zyoIccjgNSA1YYQyfCbcs13gg8ZDfUyNotOm7Uc67ILH
-         0xBeI3jS1ydg3Kcw0on0K4jVXNvzjqsTv7q84MThhczaC8USkipRcWfIpfid8L3Nks9g
-         n37342FC7HiJqBE0DQTyogc8lnwIDC9XYyk7uK2k1YJr3jtN6RERldvydPOiQLzyQiIW
-         MFqw==
-X-Gm-Message-State: APjAAAUEKKu9EbzzAaSXFYUHV3NYerzDrF6FWLih4K+xrDESHgWjt3Xo
-        rpuHk6f9fyXrQTiHJ/BI9ixBAwZEEvWHSoee2/jjDw==
-X-Google-Smtp-Source: APXvYqyg1IFDOT7WWebRNY7RJ6UtG+ER8Z41eJQOQjNZsUNVdCjdRynrBHgIgliKUfU02boEkrdRE+zsaPUvVJY6MPU=
-X-Received: by 2002:a67:347:: with SMTP id 68mr5223627vsd.35.1567079303139;
- Thu, 29 Aug 2019 04:48:23 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=iBZBknW9STKXFye67wz4a2dk/IxdRaMVXopAcZVG1EQ=;
+        b=U2g91TXTILc3epr+qR2lorXx8C3lGb7TLo5x+PmdutBfsZplYlwUvDWrgzYrNDu0Zf
+         eLtFZybJdPPRuxuT7Fncml+SNYxM67MXtVYfpn65P26EEX49MQnMK1qBN/BWuoZ+sFT3
+         H3dpKduIPQptfAm5kVGBW8GaMq5WgJFUvH5WnaTBU1zsxsqtXIEdAKapfZ/dB1Y2ETTv
+         JBTjY5o19eB0cShAeFsTPKGtkEHJ7GVUqkQ9YFX7NYaLhYDjLHbG9UC99Ff45V9LvSdr
+         hvYu1hTFcso8RJFTExqx/aNT0bNAqLCcWlc/PvSu6xT940z/BdprmQsDjVZrbTbYmsvt
+         Mh2A==
+X-Gm-Message-State: APjAAAVrjIaP5Jwv2stbnrcgUNlxE57MI+v/lLRrY2wuvKHa2DhbOViy
+        IF7PBWnJS/E+pV+yUM6XaOJBDidgRWRAEw==
+X-Google-Smtp-Source: APXvYqxxZ5VG89zmA/IkVfEIAWFMiYXj3y2boKn1Tow4jNj6axm1bbr70MkWW5wgLgrgwZDpgSIHIg==
+X-Received: by 2002:a5d:66c5:: with SMTP id k5mr11464942wrw.304.1567080300086;
+        Thu, 29 Aug 2019 05:05:00 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u129sm2672088wmb.12.2019.08.29.05.04.58
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 29 Aug 2019 05:04:59 -0700 (PDT)
+Message-ID: <5d67bf6b.1c69fb81.af6bd.c6e1@mx.google.com>
+Date:   Thu, 29 Aug 2019 05:04:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190829104928.27404-1-yamada.masahiro@socionext.com>
-In-Reply-To: <20190829104928.27404-1-yamada.masahiro@socionext.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Thu, 29 Aug 2019 13:47:47 +0200
-Message-ID: <CAPDyKFooFQgBgK3N1Ob9rsT_7-5kqC9i7PeMxkkeAbnDP+Fwnw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] mmc: sdhci-cadence: enable v4_mode to fix ADMA 64-bit addressing
-To:     Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc:     "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Piotr Sroka <piotrs@cadence.com>,
-        "# 4.0+" <stable@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.11
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable/linux-5.2.y boot: 83 boots: 1 failed, 82 passed (v5.2.11)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 29 Aug 2019 at 12:49, Masahiro Yamada
-<yamada.masahiro@socionext.com> wrote:
->
-> The IP datasheet says this controller is compatible with SD Host
-> Specification Version v4.00.
->
-> As it turned out, the ADMA of this IP does not work with 64-bit mode
-> when it is in the Version 3.00 compatible mode; it understands the
-> old 64-bit descriptor table (as defined in SDHCI v2), but the ADMA
-> System Address Register (SDHCI_ADMA_ADDRESS) cannot point to the
-> 64-bit address.
->
-> I noticed this issue only after commit bd2e75633c80 ("dma-contiguous:
-> use fallback alloc_pages for single pages"). Prior to that commit,
-> dma_set_mask_and_coherent() returned the dma address that fits in
-> 32-bit range, at least for the default arm64 configuration
-> (arch/arm64/configs/defconfig). Now the host->adma_addr exceeds the
-> 32-bit limit, causing the real problem for the Socionext SoCs.
-> (As a side-note, I was also able to reproduce the issue for older
-> kernels by turning off CONFIG_DMA_CMA.)
->
-> Call sdhci_enable_v4_mode() to fix this.
->
-> I think it is better to back-port this, but only possible for v4.20+.
->
-> When this driver was merged (v4.10), the v4 mode support did not exist.
-> It was added by commit b3f80b434f72 ("mmc: sdhci: Add sd host v4 mode")
-> i.e. v4.20.
->
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+stable/linux-5.2.y boot: 83 boots: 1 failed, 82 passed (v5.2.11)
 
-Applied for fixes, by adding below tag, thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+2.y/kernel/v5.2.11/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.2.y/ke=
+rnel/v5.2.11/
 
-Fixes: b3f80b434f72 ("mmc: sdhci: Add sd host v4 mode")
+Tree: stable
+Branch: linux-5.2.y
+Git Describe: v5.2.11
+Git Commit: c3915fe1bf1235dbf3b0bced734c960202915bd5
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 44 unique boards, 18 SoC families, 14 builds out of 209
 
-Kind regards
-Uffe
+Boot Failure Detected:
 
-> ---
->
->  drivers/mmc/host/sdhci-cadence.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/mmc/host/sdhci-cadence.c b/drivers/mmc/host/sdhci-cadence.c
-> index 163d1cf4367e..44139fceac24 100644
-> --- a/drivers/mmc/host/sdhci-cadence.c
-> +++ b/drivers/mmc/host/sdhci-cadence.c
-> @@ -369,6 +369,7 @@ static int sdhci_cdns_probe(struct platform_device *pdev)
->         host->mmc_host_ops.execute_tuning = sdhci_cdns_execute_tuning;
->         host->mmc_host_ops.hs400_enhanced_strobe =
->                                 sdhci_cdns_hs400_enhanced_strobe;
-> +       sdhci_enable_v4_mode(host);
->
->         sdhci_get_of_property(pdev);
->
-> --
-> 2.17.1
->
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
