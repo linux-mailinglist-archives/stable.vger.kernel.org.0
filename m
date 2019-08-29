@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C021A2539
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D043DA2531
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729152AbfH2SPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        id S1729159AbfH2SPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729125AbfH2SPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:15:04 -0400
+        id S1729149AbfH2SPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:15:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1305B23407;
-        Thu, 29 Aug 2019 18:15:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AE3B2189D;
+        Thu, 29 Aug 2019 18:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102503;
-        bh=7Duq5gO18jH/qa/5J91ieVvtbecfCbQ9i5hLM1vO4xI=;
+        s=default; t=1567102504;
+        bh=XZKfI7GPEXf1VuEVjRMuwNrmQbjMSQI1t/1wy7dJtws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzCht8j124mUZtLsUokwbfFUX7FfL3FGZHWsPaZcdh5tRb2XdUtFGMEgpjoocC+UD
-         BmdzHfKksX8eWSxb+6miofxufBRC/6rw055YmvEdZZ6YpWJRBlwf2LsduY0Gj9PsIL
-         ytpYi+75jhieUds4ZIKqRlo2jt2cRlKKgy51/DxQ=
+        b=EG/RO7LrTqEtX2vI8SM4WzWeIq1YiDXozI8GnQSPTV8mQhz3NkAvoivYHDeu4mXfJ
+         vZwvUBelD6AIsfJ45wMkPjqHeugAnxJbp4tCQrnwmK44nYftOWxwSdixhheRVGgQ28
+         ff3a1/t41lb+J4Ng8BsScz4lAEMFI3HZFuPX6gp4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 54/76] Tools: hv: kvp: eliminate 'may be used uninitialized' warning
-Date:   Thu, 29 Aug 2019 14:12:49 -0400
-Message-Id: <20190829181311.7562-54-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        "Jeffrey M . Birnbaum" <jmbnyc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 55/76] io_uring: fix potential hang with polled IO
+Date:   Thu, 29 Aug 2019 14:12:50 -0400
+Message-Id: <20190829181311.7562-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,40 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 89eb4d8d25722a0a0194cf7fa47ba602e32a6da7 ]
+[ Upstream commit 500f9fbadef86466a435726192f4ca4df7d94236 ]
 
-When building hv_kvp_daemon GCC-8.3 complains:
+If a request issue ends up being punted to async context to avoid
+blocking, we can get into a situation where the original application
+enters the poll loop for that very request before it has been issued.
+This should not be an issue, except that the polling will hold the
+io_uring uring_ctx mutex for the duration of the poll. When the async
+worker has actually issued the request, it needs to acquire this mutex
+to add the request to the poll issued list. Since the application
+polling is already holding this mutex, the workqueue sleeps on the
+mutex forever, and the application thus never gets a chance to poll for
+the very request it was interested in.
 
-hv_kvp_daemon.c: In function ‘kvp_get_ip_info.constprop’:
-hv_kvp_daemon.c:812:30: warning: ‘ip_buffer’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-  struct hv_kvp_ipaddr_value *ip_buffer;
+Fix this by ensuring that the polling drops the uring_ctx occasionally
+if it's not making any progress.
 
-this seems to be a false positive: we only use ip_buffer when
-op == KVP_OP_GET_IP_INFO and it is only unset when op == KVP_OP_ENUMERATE.
-
-Silence the warning by initializing ip_buffer to NULL.
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reported-by: Jeffrey M. Birnbaum <jmbnyc@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/hv/hv_kvp_daemon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 36 +++++++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index d7e06fe0270ee..6d809abaf338a 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -809,7 +809,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
- 	int sn_offset = 0;
- 	int error = 0;
- 	char *buffer;
--	struct hv_kvp_ipaddr_value *ip_buffer;
-+	struct hv_kvp_ipaddr_value *ip_buffer = NULL;
- 	char cidr_mask[5]; /* /xyz */
- 	int weight;
- 	int i;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 61018559e8fe6..5bb01d84f38d3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -743,11 +743,34 @@ static void io_iopoll_reap_events(struct io_ring_ctx *ctx)
+ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
+ 			   long min)
+ {
+-	int ret = 0;
++	int iters, ret = 0;
++
++	/*
++	 * We disallow the app entering submit/complete with polling, but we
++	 * still need to lock the ring to prevent racing with polled issue
++	 * that got punted to a workqueue.
++	 */
++	mutex_lock(&ctx->uring_lock);
+ 
++	iters = 0;
+ 	do {
+ 		int tmin = 0;
+ 
++		/*
++		 * If a submit got punted to a workqueue, we can have the
++		 * application entering polling for a command before it gets
++		 * issued. That app will hold the uring_lock for the duration
++		 * of the poll right here, so we need to take a breather every
++		 * now and then to ensure that the issue has a chance to add
++		 * the poll to the issued list. Otherwise we can spin here
++		 * forever, while the workqueue is stuck trying to acquire the
++		 * very same mutex.
++		 */
++		if (!(++iters & 7)) {
++			mutex_unlock(&ctx->uring_lock);
++			mutex_lock(&ctx->uring_lock);
++		}
++
+ 		if (*nr_events < min)
+ 			tmin = min - *nr_events;
+ 
+@@ -757,6 +780,7 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
+ 		ret = 0;
+ 	} while (min && !*nr_events && !need_resched());
+ 
++	mutex_unlock(&ctx->uring_lock);
+ 	return ret;
+ }
+ 
+@@ -2073,15 +2097,7 @@ static int io_sq_thread(void *data)
+ 			unsigned nr_events = 0;
+ 
+ 			if (ctx->flags & IORING_SETUP_IOPOLL) {
+-				/*
+-				 * We disallow the app entering submit/complete
+-				 * with polling, but we still need to lock the
+-				 * ring to prevent racing with polled issue
+-				 * that got punted to a workqueue.
+-				 */
+-				mutex_lock(&ctx->uring_lock);
+ 				io_iopoll_check(ctx, &nr_events, 0);
+-				mutex_unlock(&ctx->uring_lock);
+ 			} else {
+ 				/*
+ 				 * Normal IO, just pretend everything completed.
+@@ -2978,9 +2994,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 		min_complete = min(min_complete, ctx->cq_entries);
+ 
+ 		if (ctx->flags & IORING_SETUP_IOPOLL) {
+-			mutex_lock(&ctx->uring_lock);
+ 			ret = io_iopoll_check(ctx, &nr_events, min_complete);
+-			mutex_unlock(&ctx->uring_lock);
+ 		} else {
+ 			ret = io_cqring_wait(ctx, min_complete, sig, sigsz);
+ 		}
 -- 
 2.20.1
 
