@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A52FA25B3
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BEFA25AF
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728916AbfH2SOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728967AbfH2SOp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 29 Aug 2019 14:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56290 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728949AbfH2SOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:14:40 -0400
+        id S1727978AbfH2SOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:14:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4F8E2339E;
-        Thu, 29 Aug 2019 18:14:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 860152339E;
+        Thu, 29 Aug 2019 18:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102479;
-        bh=baCRx9JVUqRa9cCGCXJT1DbEF8aU4ZfGASvfIub9WjI=;
+        s=default; t=1567102483;
+        bh=G/rydemY/se9oRI2oc9ftz0a3FwIJOnjndeX+QAiB20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoUOBfx2QKCTHcSfolNg+8xu2tWLk5CKoi4vDznXY2bihR/kJHfXjE60vPWEd2wtP
-         EMLA6qs4RSaYCmDx+whhdngvc+e2cPkgtm3nAyf/zoxeTUgAcVvxeM+r7/FtjVqdT6
-         YtltlZJ5vZWYQWUkZzODvsw2BBnNg6yNjg3jLMzA=
+        b=gOCbRoOsMZEqosza4vZyH+k1uR4tVJF0Wz5YCD3fYYJ66giH9WGCRK5mojF6iOLXC
+         AlVAvd1AzfZQ7wkJPIf98YZOFK2U7oR+aqDSO9qpAfdb0KPfySx9Nwg0mLa35tY8gE
+         NKCmF6sDYyj4c6rBNoIgmbsd9pn1RR3gXaa+q03A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
+        Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
+        "Devesh K . Singh" <devesh_singh@in.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 41/76] cx82310_eth: fix a memory leak bug
-Date:   Thu, 29 Aug 2019 14:12:36 -0400
-Message-Id: <20190829181311.7562-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 43/76] ibmvnic: Unmap DMA address of TX descriptor buffers after use
+Date:   Thu, 29 Aug 2019 14:12:38 -0400
+Message-Id: <20190829181311.7562-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -44,38 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 1eca92eef18719027d394bf1a2d276f43e7cf886 ]
+[ Upstream commit 80f0fe0934cd3daa13a5e4d48a103f469115b160 ]
 
-In cx82310_bind(), 'dev->partial_data' is allocated through kmalloc().
-Then, the execution waits for the firmware to become ready. If the firmware
-is not ready in time, the execution is terminated. However, the allocated
-'dev->partial_data' is not deallocated on this path, leading to a memory
-leak bug. To fix this issue, free 'dev->partial_data' before returning the
-error.
+There's no need to wait until a completion is received to unmap
+TX descriptor buffers that have been passed to the hypervisor.
+Instead unmap it when the hypervisor call has completed. This patch
+avoids the possibility that a buffer will not be unmapped because
+a TX completion is lost or mishandled.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Tested-by: Devesh K. Singh <devesh_singh@in.ibm.com>
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cx82310_eth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/usb/cx82310_eth.c b/drivers/net/usb/cx82310_eth.c
-index 5519248a791eb..32b08b18e1208 100644
---- a/drivers/net/usb/cx82310_eth.c
-+++ b/drivers/net/usb/cx82310_eth.c
-@@ -163,7 +163,8 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
- 	}
- 	if (!timeout) {
- 		dev_err(&udev->dev, "firmware not ready in time\n");
--		return -ETIMEDOUT;
-+		ret = -ETIMEDOUT;
-+		goto err;
- 	}
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 3da6800732656..cebd20f3128d4 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1568,6 +1568,8 @@ static netdev_tx_t ibmvnic_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 		lpar_rc = send_subcrq_indirect(adapter, handle_array[queue_num],
+ 					       (u64)tx_buff->indir_dma,
+ 					       (u64)num_entries);
++		dma_unmap_single(dev, tx_buff->indir_dma,
++				 sizeof(tx_buff->indir_arr), DMA_TO_DEVICE);
+ 	} else {
+ 		tx_buff->num_entries = num_entries;
+ 		lpar_rc = send_subcrq(adapter, handle_array[queue_num],
+@@ -2788,7 +2790,6 @@ static int ibmvnic_complete_tx(struct ibmvnic_adapter *adapter,
+ 	union sub_crq *next;
+ 	int index;
+ 	int i, j;
+-	u8 *first;
  
- 	/* enable ethernet mode (?) */
+ restart_loop:
+ 	while (pending_scrq(adapter, scrq)) {
+@@ -2818,14 +2819,6 @@ static int ibmvnic_complete_tx(struct ibmvnic_adapter *adapter,
+ 
+ 				txbuff->data_dma[j] = 0;
+ 			}
+-			/* if sub_crq was sent indirectly */
+-			first = &txbuff->indir_arr[0].generic.first;
+-			if (*first == IBMVNIC_CRQ_CMD) {
+-				dma_unmap_single(dev, txbuff->indir_dma,
+-						 sizeof(txbuff->indir_arr),
+-						 DMA_TO_DEVICE);
+-				*first = 0;
+-			}
+ 
+ 			if (txbuff->last_frag) {
+ 				dev_kfree_skb_any(txbuff->skb);
 -- 
 2.20.1
 
