@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DE5AA23B9
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B497A2400
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729270AbfH2SR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59626 "EHLO mail.kernel.org"
+        id S1729979AbfH2SUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730056AbfH2SR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:17:26 -0400
+        id S1730271AbfH2SR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:17:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA756233FF;
-        Thu, 29 Aug 2019 18:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA422233FF;
+        Thu, 29 Aug 2019 18:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102645;
-        bh=fpGtBiyS7m6TOwvedRKgse5RgDyXTn2wLot9cLDJWQk=;
+        s=default; t=1567102676;
+        bh=Wja6VqfCilwc3YHL7O41vyxi8Rnh2cRte0lRT6l2i8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8pYW7dBK7niYSh/M80RnaVkG2AgwdMe1FKlhspdc5dMiL5HrBeTv2dBMkQ4cPQf+
-         0Pwqv5J/9ZDsDW45PlYBOAB/nx5WpKaP70IdvbwJ/5uwpnnoZXEWnEEK8x3iIdBUK0
-         Q2YvEWG0vTZvA/CUUzgbhhAuYVheIUihus56wzdg=
+        b=VJiRZXXFNPWxKPtz2J15XIRBu7xUWm8ZS8gh0tOMu3c0MJNrA6koKQC+CvFOR6MWj
+         VnYj3ZjCsCOtzsfBAvH22LEmMRDp/ZUStOagrL204DCVamsB7y8gxRvHUR9VqHvses
+         QZpZfQEj0fmz6XCQheJVnlmXI5D+IHT24ivIfjjY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Righi <andrea.righi@canonical.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 19/27] kprobes: Fix potential deadlock in kprobe_optimizer()
-Date:   Thu, 29 Aug 2019 14:16:45 -0400
-Message-Id: <20190829181655.8741-19-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org
+Subject: [PATCH AUTOSEL 4.9 12/16] Tools: hv: kvp: eliminate 'may be used uninitialized' warning
+Date:   Thu, 29 Aug 2019 14:17:30 -0400
+Message-Id: <20190829181736.9040-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
-References: <20190829181655.8741-1-sashal@kernel.org>
+In-Reply-To: <20190829181736.9040-1-sashal@kernel.org>
+References: <20190829181736.9040-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,159 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit f1c6ece23729257fb46562ff9224cf5f61b818da ]
+[ Upstream commit 89eb4d8d25722a0a0194cf7fa47ba602e32a6da7 ]
 
-lockdep reports the following deadlock scenario:
+When building hv_kvp_daemon GCC-8.3 complains:
 
- WARNING: possible circular locking dependency detected
+hv_kvp_daemon.c: In function ‘kvp_get_ip_info.constprop’:
+hv_kvp_daemon.c:812:30: warning: ‘ip_buffer’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  struct hv_kvp_ipaddr_value *ip_buffer;
 
- kworker/1:1/48 is trying to acquire lock:
- 000000008d7a62b2 (text_mutex){+.+.}, at: kprobe_optimizer+0x163/0x290
+this seems to be a false positive: we only use ip_buffer when
+op == KVP_OP_GET_IP_INFO and it is only unset when op == KVP_OP_ENUMERATE.
 
- but task is already holding lock:
- 00000000850b5e2d (module_mutex){+.+.}, at: kprobe_optimizer+0x31/0x290
+Silence the warning by initializing ip_buffer to NULL.
 
- which lock already depends on the new lock.
-
- the existing dependency chain (in reverse order) is:
-
- -> #1 (module_mutex){+.+.}:
-        __mutex_lock+0xac/0x9f0
-        mutex_lock_nested+0x1b/0x20
-        set_all_modules_text_rw+0x22/0x90
-        ftrace_arch_code_modify_prepare+0x1c/0x20
-        ftrace_run_update_code+0xe/0x30
-        ftrace_startup_enable+0x2e/0x50
-        ftrace_startup+0xa7/0x100
-        register_ftrace_function+0x27/0x70
-        arm_kprobe+0xb3/0x130
-        enable_kprobe+0x83/0xa0
-        enable_trace_kprobe.part.0+0x2e/0x80
-        kprobe_register+0x6f/0xc0
-        perf_trace_event_init+0x16b/0x270
-        perf_kprobe_init+0xa7/0xe0
-        perf_kprobe_event_init+0x3e/0x70
-        perf_try_init_event+0x4a/0x140
-        perf_event_alloc+0x93a/0xde0
-        __do_sys_perf_event_open+0x19f/0xf30
-        __x64_sys_perf_event_open+0x20/0x30
-        do_syscall_64+0x65/0x1d0
-        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- -> #0 (text_mutex){+.+.}:
-        __lock_acquire+0xfcb/0x1b60
-        lock_acquire+0xca/0x1d0
-        __mutex_lock+0xac/0x9f0
-        mutex_lock_nested+0x1b/0x20
-        kprobe_optimizer+0x163/0x290
-        process_one_work+0x22b/0x560
-        worker_thread+0x50/0x3c0
-        kthread+0x112/0x150
-        ret_from_fork+0x3a/0x50
-
- other info that might help us debug this:
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(module_mutex);
-                                lock(text_mutex);
-                                lock(module_mutex);
-   lock(text_mutex);
-
-  *** DEADLOCK ***
-
-As a reproducer I've been using bcc's funccount.py
-(https://github.com/iovisor/bcc/blob/master/tools/funccount.py),
-for example:
-
- # ./funccount.py '*interrupt*'
-
-That immediately triggers the lockdep splat.
-
-Fix by acquiring text_mutex before module_mutex in kprobe_optimizer().
-
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N. Rao <naveen.n.rao@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: d5b844a2cf50 ("ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()")
-Link: http://lkml.kernel.org/r/20190812184302.GA7010@xps-13
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/hv/hv_kvp_daemon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index ec11bb986a8b4..c43bc2bc5b2ca 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -483,6 +483,7 @@ static DECLARE_DELAYED_WORK(optimizing_work, kprobe_optimizer);
-  */
- static void do_optimize_kprobes(void)
- {
-+	lockdep_assert_held(&text_mutex);
- 	/*
- 	 * The optimization/unoptimization refers online_cpus via
- 	 * stop_machine() and cpu-hotplug modifies online_cpus.
-@@ -500,9 +501,7 @@ static void do_optimize_kprobes(void)
- 	    list_empty(&optimizing_list))
- 		return;
- 
--	mutex_lock(&text_mutex);
- 	arch_optimize_kprobes(&optimizing_list);
--	mutex_unlock(&text_mutex);
- }
- 
- /*
-@@ -513,6 +512,7 @@ static void do_unoptimize_kprobes(void)
- {
- 	struct optimized_kprobe *op, *tmp;
- 
-+	lockdep_assert_held(&text_mutex);
- 	/* See comment in do_optimize_kprobes() */
- 	lockdep_assert_cpus_held();
- 
-@@ -520,7 +520,6 @@ static void do_unoptimize_kprobes(void)
- 	if (list_empty(&unoptimizing_list))
- 		return;
- 
--	mutex_lock(&text_mutex);
- 	arch_unoptimize_kprobes(&unoptimizing_list, &freeing_list);
- 	/* Loop free_list for disarming */
- 	list_for_each_entry_safe(op, tmp, &freeing_list, list) {
-@@ -537,7 +536,6 @@ static void do_unoptimize_kprobes(void)
- 		} else
- 			list_del_init(&op->list);
- 	}
--	mutex_unlock(&text_mutex);
- }
- 
- /* Reclaim all kprobes on the free_list */
-@@ -563,6 +561,7 @@ static void kprobe_optimizer(struct work_struct *work)
- {
- 	mutex_lock(&kprobe_mutex);
- 	cpus_read_lock();
-+	mutex_lock(&text_mutex);
- 	/* Lock modules while optimizing kprobes */
- 	mutex_lock(&module_mutex);
- 
-@@ -590,6 +589,7 @@ static void kprobe_optimizer(struct work_struct *work)
- 	do_free_cleaned_kprobes();
- 
- 	mutex_unlock(&module_mutex);
-+	mutex_unlock(&text_mutex);
- 	cpus_read_unlock();
- 	mutex_unlock(&kprobe_mutex);
- 
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 1774800668168..a3ac283a985ae 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -878,7 +878,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
+ 	int sn_offset = 0;
+ 	int error = 0;
+ 	char *buffer;
+-	struct hv_kvp_ipaddr_value *ip_buffer;
++	struct hv_kvp_ipaddr_value *ip_buffer = NULL;
+ 	char cidr_mask[5]; /* /xyz */
+ 	int weight;
+ 	int i;
 -- 
 2.20.1
 
