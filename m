@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA54A24F4
+	by mail.lfdr.de (Postfix) with ESMTP id 727F9A24F2
 	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729371AbfH2SPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57354 "EHLO mail.kernel.org"
+        id S1727894AbfH2S1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:27:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbfH2SPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:15:37 -0400
+        id S1729372AbfH2SPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:15:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E59A72342B;
-        Thu, 29 Aug 2019 18:15:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDED023427;
+        Thu, 29 Aug 2019 18:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102536;
-        bh=dVA703rK6IxI1rxx+YY4+dmvvsctabIC5SH1lxPtYk8=;
+        s=default; t=1567102537;
+        bh=pbhhtTjqHGaVTb6b/qL8/sUcq+cEXuTLSfp3vcATJdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c01ddU3jx7RgTp3wkQ15q0qg8czrN6kjezGq1bLpOcUGoOpjQ5JcnXaXzf4JxADKH
-         3dW6PSIwSx5rHN/V8aPfIBl/BJYXlTbOCpmkk6v3Nb5AFWIc0vdCUvDpRfqP8l95GU
-         4OIBm7YsNd67yyvEeyEbsF2bMmCpvXFSgSiSoVNk=
+        b=dzsb+bDuGpQ76IWR2il2hw5XYHgeKCuTHhmUj4+ZW9+jEU8nLrHVq2M/nLOh5muM2
+         f6c9IYLMVVPzL1u1qIRVwrnjpN26ZuzYJK31KfEVRlt1i3OjAsteOi+1Xf8x+EbCFe
+         of3y+X9jUvS0eekvpVyvsycqqQblAF2O8WJbQsjs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Dionne <marc.dionne@auristor.com>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
         David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 71/76] afs: Fix possible oops in afs_lookup trace event
-Date:   Thu, 29 Aug 2019 14:13:06 -0400
-Message-Id: <20190829181311.7562-71-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 72/76] afs: use correct afs_call_type in yfs_fs_store_opaque_acl2
+Date:   Thu, 29 Aug 2019 14:13:07 -0400
+Message-Id: <20190829181311.7562-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -43,49 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Dionne <marc.dionne@auristor.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit c4c613ff08d92e72bf64a65ec35a2c3aa1cfcd06 ]
+[ Upstream commit 7533be858f5b9a036b9f91556a3ed70786abca8e ]
 
-The afs_lookup trace event can cause the following:
+It seems that 'yfs_RXYFSStoreOpaqueACL2' should be use in
+yfs_fs_store_opaque_acl2().
 
-[  216.576777] BUG: kernel NULL pointer dereference, address: 000000000000023b
-[  216.576803] #PF: supervisor read access in kernel mode
-[  216.576813] #PF: error_code(0x0000) - not-present page
-...
-[  216.576913] RIP: 0010:trace_event_raw_event_afs_lookup+0x9e/0x1c0 [kafs]
-
-If the inode from afs_do_lookup() is an error other than ENOENT, or if it
-is ENOENT and afs_try_auto_mntpt() returns an error, the trace event will
-try to dereference the error pointer as a valid pointer.
-
-Use IS_ERR_OR_NULL to only pass a valid pointer for the trace, or NULL.
-
-Ideally the trace would include the error value, but for now just avoid
-the oops.
-
-Fixes: 80548b03991f ("afs: Add more tracepoints")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Fixes: f5e4546347bc ("afs: Implement YFS ACL setting")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dir.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/afs/yfsclient.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index da9563d62b327..c50cc3f6f4553 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -952,7 +952,8 @@ static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
- 				 inode ? AFS_FS_I(inode) : NULL);
- 	} else {
- 		trace_afs_lookup(dvnode, &dentry->d_name,
--				 inode ? AFS_FS_I(inode) : NULL);
-+				 IS_ERR_OR_NULL(inode) ? NULL
-+				 : AFS_FS_I(inode));
- 	}
- 	return d;
- }
+diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
+index 18722aaeda33a..a1baf3f1f14d1 100644
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -2155,7 +2155,7 @@ int yfs_fs_store_opaque_acl2(struct afs_fs_cursor *fc, const struct afs_acl *acl
+ 	       key_serial(fc->key), vnode->fid.vid, vnode->fid.vnode);
+ 
+ 	size = round_up(acl->size, 4);
+-	call = afs_alloc_flat_call(net, &yfs_RXYFSStoreStatus,
++	call = afs_alloc_flat_call(net, &yfs_RXYFSStoreOpaqueACL2,
+ 				   sizeof(__be32) * 2 +
+ 				   sizeof(struct yfs_xdr_YFSFid) +
+ 				   sizeof(__be32) + size,
 -- 
 2.20.1
 
