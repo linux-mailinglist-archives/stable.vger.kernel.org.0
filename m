@@ -2,83 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9A3A2302
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB468A2310
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:13:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727087AbfH2SKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:10:13 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38097 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726739AbfH2SKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 14:10:13 -0400
-Received: by mail-wm1-f66.google.com with SMTP id o184so4768304wme.3
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 11:10:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=u1bkJ15fC89bJz963TxG3EzWz/GOs2l6FItbrizeY1o=;
-        b=I5upSZ6EFD+MQqpRkf8detvvAGOcDX5ay/h58etJdevx9BoDMTHJLwFfuhgsFcUoaH
-         2HfmVcnbGDbQAoLLinx5qSPjOT4Q6X+TxeEzJCPaJyDgYGjmrMhHv3pdZH4yaLAmo9jF
-         q61ycaJRNcxAWRbfBCdknOHhi5lgelhQ1CfZY8l5MT07W198Q6ICPkyRoLQU5Q84gtFl
-         jsjeXT81zVDZS1Y+Qz8k6sifHEib45fRknv6aY2T5IPXlqdo8pdwGpMbF4mP8d/5TU83
-         5ZALmgofePBBK1XRMvfMJOsUvmrMi9k+CNp0iKbxbG/bmstrd28qhelcHCW9rXYJEIFV
-         VSMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=u1bkJ15fC89bJz963TxG3EzWz/GOs2l6FItbrizeY1o=;
-        b=Sx2ocW4wLrbcwCt0p/Dn23yFEOObRhuIaRVcQgzxW2Z5Ftldal7I01dgvz7PXcr1aN
-         3UVBjShbl2N4JKFQj4JfANexdkkVxVAg/8MR2RKW/nyisAzTYZTDQGN1/W2QR8sIGz6F
-         TrHAJaFqQ0vPVMa010rxvbOSmi45Axg5xcsVs6g6SK8XGBDPHv5WVGbkVq6lI2y1M6wm
-         ujCxivRlidYkdJYjTnWkSVFmzw4xH4UWBZHi9aW6ym6pDvnJdQSNpWi0LMl5qT2Nrt0w
-         /RE5U5gAp7SE/lzvhvqOoUlemD1yBXvCyONXdL7424fqJJCwaxVcfGrQ+4K6GiupVAJN
-         YKcg==
-X-Gm-Message-State: APjAAAVgX9WziVPc3hVqpBXWzkJormo2cqWW3x757zGrxKWJuPPosdW0
-        x554ML3ny03QT8pvGHRvdcSkfGQM7qosHg+ZCLE=
-X-Google-Smtp-Source: APXvYqxj8NNP8J26AnQpNK1sSul9KMErP30G1+7hbwzmChwOP8GLVVL7w9Q1YEVsYwuZWbrI7Kb8OGSfC8kdzXEq5Hs=
-X-Received: by 2002:a1c:7217:: with SMTP id n23mr12981907wmc.70.1567102210702;
- Thu, 29 Aug 2019 11:10:10 -0700 (PDT)
+        id S1727899AbfH2SNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:13:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726661AbfH2SNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:13:14 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 307E521874;
+        Thu, 29 Aug 2019 18:13:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567102393;
+        bh=eF5DfDYj7vzJJwsDctZbpjiYwWB/aovBZTyRp1T5PMk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VqD7Uf5BeVR8hNnKS695qezuXsuaSrUwMnGxFsCigvfuoI87La7FAStI9fabVdBSH
+         Abeqlci+iYFB1ZHBJsHvccFSxs3p4up/AUw6eYL5fACmNPINSn3HZlX3SzBSV1STLe
+         UPKWJq/LNgtZQO/tD8N0Kuc8axs+d/iXW88Ro7vQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 01/76] batman-adv: Fix netlink dumping of all mcast_flags buckets
+Date:   Thu, 29 Aug 2019 14:11:56 -0400
+Message-Id: <20190829181311.7562-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Received: by 2002:a1c:6a01:0:0:0:0:0 with HTTP; Thu, 29 Aug 2019 11:10:09
- -0700 (PDT)
-Reply-To: soumailasorgho@yandex.com
-From:   Mr Soumaila Sorgho <abdoulissouf500@gmail.com>
-Date:   Thu, 29 Aug 2019 11:10:09 -0700
-Message-ID: <CAC3fHb6KiOpyK8D+MSBQSEVpy5L-sCzS+JqU9qCYsrhOp+VRqw@mail.gmail.com>
-Subject: Greetings From Mr. Soumaila Sorgho
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Sven Eckelmann <sven@narfation.org>
+
+[ Upstream commit fa3a03da549a889fc9dbc0d3c5908eb7882cac8f ]
+
+The bucket variable is only updated outside the loop over the mcast_flags
+buckets. It will only be updated during a dumping run when the dumping has
+to be interrupted and a new message has to be started.
+
+This could result in repeated or missing entries when the multicast flags
+are dumped to userspace.
+
+Fixes: d2d489b7d851 ("batman-adv: Add inconsistent multicast netlink dump detection")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/batman-adv/multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index ec54e236e3454..50fe9dfb088b6 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -1653,7 +1653,7 @@ __batadv_mcast_flags_dump(struct sk_buff *msg, u32 portid,
+ 
+ 	while (bucket_tmp < hash->size) {
+ 		if (batadv_mcast_flags_dump_bucket(msg, portid, cb, hash,
+-						   *bucket, &idx_tmp))
++						   bucket_tmp, &idx_tmp))
+ 			break;
+ 
+ 		bucket_tmp++;
 -- 
-Greetings From Mr. Soumaila Sorgho
+2.20.1
 
-    I have a Mutual/Beneficial Business Project that would be
-beneficial to you. I only have two questions to ask of you, if you are
-interested.
-
- 1. Can you handle this project?
- 2. Can I give you this trust?
-
- Please note that the deal requires high level of maturity, honesty
-and secrecy. This will involve moving some money from my office, on
-trust to your hands or bank account. Also note that i will do
-everything to make sure that the money is moved as a purely legitimate
-fund, so you will not be exposed to any risk.
-
- I request for your full co-operation. I will give you details and
-procedure when I receive your reply, to commence this transaction, I
-require you to immediately indicate your interest by a return reply. I
-will be waiting for your response in a timely manner.
-
- Contact Email: soumailasorgho@yandex.com
- Best Regard,
- Mr. Soumaila Sorgho
-
- NOTE: If you received this message in your SPAM/JUNK folder, that is
-because of the restrictions implemented by your Internet Service
-Provider, treat it genuinely.
