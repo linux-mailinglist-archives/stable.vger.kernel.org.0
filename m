@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C468EA1750
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B5BA174E
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727978AbfH2Ku2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57736 "EHLO mail.kernel.org"
+        id S1727331AbfH2Kye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727958AbfH2Ku2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:28 -0400
+        id S1727998AbfH2Ku3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12C9C23407;
-        Thu, 29 Aug 2019 10:50:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21F6023405;
+        Thu, 29 Aug 2019 10:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075826;
-        bh=w6TWzwYQCOFc+SP0vuZbTqWNDsaU89e3UP1OXZwNXp8=;
+        s=default; t=1567075828;
+        bh=1PDDwa62TovBTA6YWNtEKEwSvnc8ibL6y5KWyB5arQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Kfn3uf1+DZq7hNh2xDNOqN7L4VMc2J2XAVYfnVQ+hnJYFy/6lhNzy1+JkGftbpwF
-         yoCdx0SBVV5LjBb+pmvA4VP/wX2i+SmpSCfmp8uIPxtDQh8PQmTVA/wva6kWgwrvWf
-         nE2w+0rL85mapwBRT2EKDSjlqGO2Ci5AAj9xyaL0=
+        b=G2h8anLRNnfRyUPBKdNIQQ5mQWZS8I8dXprE0anIQ9+/i3Uy9g3RCPWFlZ9sV9C7Q
+         vWKxsFs3cwrwCBD+vhixIDzN5V/HqErQEJh/Mq8z6guwPUSSb76r10S7u9NplosIW8
+         0DOPdprI7QlH4XPVwJROcCLklAnw13H2XrOxyGPA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/29] netfilter: nf_tables: use-after-free in failing rule with bound set
-Date:   Thu, 29 Aug 2019 06:49:55 -0400
-Message-Id: <20190829105009.2265-15-sashal@kernel.org>
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 16/29] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
+Date:   Thu, 29 Aug 2019 06:49:56 -0400
+Message-Id: <20190829105009.2265-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -44,143 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Oleg Nesterov <oleg@redhat.com>
 
-[ Upstream commit 6a0a8d10a3661a036b55af695542a714c429ab7c ]
+[ Upstream commit 46d0b24c5ee10a15dfb25e20642f5a5ed59c5003 ]
 
-If a rule that has already a bound anonymous set fails to be added, the
-preparation phase releases the rule and the bound set. However, the
-transaction object from the abort path still has a reference to the set
-object that is stale, leading to a use-after-free when checking for the
-set->bound field. Add a new field to the transaction that specifies if
-the set is bound, so the abort path can skip releasing it since the rule
-command owns it and it takes care of releasing it. After this update,
-the set->bound field is removed.
+userfaultfd_release() should clear vm_flags/vm_userfaultfd_ctx even if
+mm->core_state != NULL.
 
-[   24.649883] Unable to handle kernel paging request at virtual address 0000000000040434
-[   24.657858] Mem abort info:
-[   24.660686]   ESR = 0x96000004
-[   24.663769]   Exception class = DABT (current EL), IL = 32 bits
-[   24.669725]   SET = 0, FnV = 0
-[   24.672804]   EA = 0, S1PTW = 0
-[   24.675975] Data abort info:
-[   24.678880]   ISV = 0, ISS = 0x00000004
-[   24.682743]   CM = 0, WnR = 0
-[   24.685723] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000428952000
-[   24.692207] [0000000000040434] pgd=0000000000000000
-[   24.697119] Internal error: Oops: 96000004 [#1] SMP
-[...]
-[   24.889414] Call trace:
-[   24.891870]  __nf_tables_abort+0x3f0/0x7a0
-[   24.895984]  nf_tables_abort+0x20/0x40
-[   24.899750]  nfnetlink_rcv_batch+0x17c/0x588
-[   24.904037]  nfnetlink_rcv+0x13c/0x190
-[   24.907803]  netlink_unicast+0x18c/0x208
-[   24.911742]  netlink_sendmsg+0x1b0/0x350
-[   24.915682]  sock_sendmsg+0x4c/0x68
-[   24.919185]  ___sys_sendmsg+0x288/0x2c8
-[   24.923037]  __sys_sendmsg+0x7c/0xd0
-[   24.926628]  __arm64_sys_sendmsg+0x2c/0x38
-[   24.930744]  el0_svc_common.constprop.0+0x94/0x158
-[   24.935556]  el0_svc_handler+0x34/0x90
-[   24.939322]  el0_svc+0x8/0xc
-[   24.942216] Code: 37280300 f9404023 91014262 aa1703e0 (f9401863)
-[   24.948336] ---[ end trace cebbb9dcbed3b56f ]---
+Otherwise a page fault can see userfaultfd_missing() == T and use an
+already freed userfaultfd_ctx.
 
-Fixes: f6ac85858976 ("netfilter: nf_tables: unbind set in rule from commit path")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: http://lkml.kernel.org/r/20190820160237.GB4983@redhat.com
+Fixes: 04f5866e41fb ("coredump: fix race condition between mmget_not_zero()/get_task_mm() and core dumping")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h |  9 +++++++--
- net/netfilter/nf_tables_api.c     | 15 ++++++++++-----
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ fs/userfaultfd.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index f2be5d041ba3a..7685cbda9f28b 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -418,8 +418,7 @@ struct nft_set {
- 	unsigned char			*udata;
- 	/* runtime data below here */
- 	const struct nft_set_ops	*ops ____cacheline_aligned;
--	u16				flags:13,
--					bound:1,
-+	u16				flags:14,
- 					genmask:2;
- 	u8				klen;
- 	u8				dlen;
-@@ -1337,12 +1336,15 @@ struct nft_trans_rule {
- struct nft_trans_set {
- 	struct nft_set			*set;
- 	u32				set_id;
-+	bool				bound;
- };
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index e1ebdbe40032e..9c2955f67f708 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -881,6 +881,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	/* len == 0 means wake all */
+ 	struct userfaultfd_wake_range range = { .len = 0, };
+ 	unsigned long new_flags;
++	bool still_valid;
  
- #define nft_trans_set(trans)	\
- 	(((struct nft_trans_set *)trans->data)->set)
- #define nft_trans_set_id(trans)	\
- 	(((struct nft_trans_set *)trans->data)->set_id)
-+#define nft_trans_set_bound(trans)	\
-+	(((struct nft_trans_set *)trans->data)->bound)
+ 	WRITE_ONCE(ctx->released, true);
  
- struct nft_trans_chain {
- 	bool				update;
-@@ -1373,12 +1375,15 @@ struct nft_trans_table {
- struct nft_trans_elem {
- 	struct nft_set			*set;
- 	struct nft_set_elem		elem;
-+	bool				bound;
- };
- 
- #define nft_trans_elem_set(trans)	\
- 	(((struct nft_trans_elem *)trans->data)->set)
- #define nft_trans_elem(trans)	\
- 	(((struct nft_trans_elem *)trans->data)->elem)
-+#define nft_trans_elem_set_bound(trans)	\
-+	(((struct nft_trans_elem *)trans->data)->bound)
- 
- struct nft_trans_obj {
- 	struct nft_object		*obj;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 29ff59dd99ace..2145581d7b3dc 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -121,9 +121,14 @@ static void nft_set_trans_bind(const struct nft_ctx *ctx, struct nft_set *set)
- 		return;
- 
- 	list_for_each_entry_reverse(trans, &net->nft.commit_list, list) {
--		if (trans->msg_type == NFT_MSG_NEWSET &&
--		    nft_trans_set(trans) == set) {
--			set->bound = true;
-+		switch (trans->msg_type) {
-+		case NFT_MSG_NEWSET:
-+			if (nft_trans_set(trans) == set)
-+				nft_trans_set_bound(trans) = true;
-+			break;
-+		case NFT_MSG_NEWSETELEM:
-+			if (nft_trans_elem_set(trans) == set)
-+				nft_trans_elem_set_bound(trans) = true;
- 			break;
+@@ -896,8 +897,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	 * taking the mmap_sem for writing.
+ 	 */
+ 	down_write(&mm->mmap_sem);
+-	if (!mmget_still_valid(mm))
+-		goto skip_mm;
++	still_valid = mmget_still_valid(mm);
+ 	prev = NULL;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		cond_resched();
+@@ -908,19 +908,20 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 			continue;
  		}
+ 		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
+-		prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
+-				 new_flags, vma->anon_vma,
+-				 vma->vm_file, vma->vm_pgoff,
+-				 vma_policy(vma),
+-				 NULL_VM_UFFD_CTX);
+-		if (prev)
+-			vma = prev;
+-		else
+-			prev = vma;
++		if (still_valid) {
++			prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
++					 new_flags, vma->anon_vma,
++					 vma->vm_file, vma->vm_pgoff,
++					 vma_policy(vma),
++					 NULL_VM_UFFD_CTX);
++			if (prev)
++				vma = prev;
++			else
++				prev = vma;
++		}
+ 		vma->vm_flags = new_flags;
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
  	}
-@@ -6656,7 +6661,7 @@ static int __nf_tables_abort(struct net *net)
- 			break;
- 		case NFT_MSG_NEWSET:
- 			trans->ctx.table->use--;
--			if (nft_trans_set(trans)->bound) {
-+			if (nft_trans_set_bound(trans)) {
- 				nft_trans_destroy(trans);
- 				break;
- 			}
-@@ -6668,7 +6673,7 @@ static int __nf_tables_abort(struct net *net)
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_NEWSETELEM:
--			if (nft_trans_elem_set(trans)->bound) {
-+			if (nft_trans_elem_set_bound(trans)) {
- 				nft_trans_destroy(trans);
- 				break;
- 			}
+-skip_mm:
+ 	up_write(&mm->mmap_sem);
+ 	mmput(mm);
+ wakeup:
 -- 
 2.20.1
 
