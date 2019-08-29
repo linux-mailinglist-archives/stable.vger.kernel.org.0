@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A29A1767
+	by mail.lfdr.de (Postfix) with ESMTP id CA367A1768
 	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbfH2KuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57550 "EHLO mail.kernel.org"
+        id S1727022AbfH2Ky7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:54:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727779AbfH2KuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:21 -0400
+        id S1727791AbfH2KuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D8FF23405;
-        Thu, 29 Aug 2019 10:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B37A223403;
+        Thu, 29 Aug 2019 10:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075820;
-        bh=N1h7TtJ875q5awe/vvwWXc4y4CcTeulGLtMQqFmYWl0=;
+        s=default; t=1567075821;
+        bh=IYyyR7M7rGBO8OqHSI9KXgCb+rxiIEbdYid7/md1cm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9uQNTPvcS/M5o1/b8FBvx4g52JtUU0AQ2mJfUDY26lfhczk45+sqqdPqWv7CwP9a
-         QgsZtnQ7Cimb3fcUlqmURbrv1t+r1RySAUIVdAW+Dkwj0wvKorugaseOUnwrXCx8sO
-         ukNvGBiMhnv+0BMVvChtWWbujNnefWwuu85m/1ok=
+        b=yO9WzsPAwt4HfSb/W5RX3vLiI8Wtp2TUo2oPcZJg4ou6WNOtbd0NBX0/aeYdUVr1A
+         GH5zFkQ8KqL9ZXhpBnOQMKvwNLgO8QRFGqUOglDBMJigwAWiByKiM9m+hcgHS8+mmT
+         yUPzXU4rE52rC/DhOatd85rkDvviNxZVUB720sFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangbin Liu <liuhangbin@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/29] selftests: fib_rule_tests: use pre-defined DEV_ADDR
-Date:   Thu, 29 Aug 2019 06:49:49 -0400
-Message-Id: <20190829105009.2265-9-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 10/29] x86/ftrace: Fix warning and considate ftrace_jmp_replace() and ftrace_call_replace()
+Date:   Thu, 29 Aug 2019 06:49:50 -0400
+Message-Id: <20190829105009.2265-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -45,45 +42,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 34632975cafdd07ce80e85c2eda4e9c16b5f2faa ]
+[ Upstream commit 745cfeaac09ce359130a5451d90cb0bd4094c290 ]
 
-DEV_ADDR is defined but not used. Use it in address setting.
-Do the same with IPv6 for consistency.
+Arnd reported the following compiler warning:
 
-Reported-by: David Ahern <dsahern@gmail.com>
-Fixes: fc82d93e57e3 ("selftests: fib_rule_tests: fix local IPv4 address typo")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+arch/x86/kernel/ftrace.c:669:23: error: 'ftrace_jmp_replace' defined but not used [-Werror=unused-function]
+
+The ftrace_jmp_replace() function now only has a single user and should be
+simply moved by that user. But looking at the code, it shows that
+ftrace_jmp_replace() is similar to ftrace_call_replace() except that instead
+of using the opcode of 0xe8 it uses 0xe9. It makes more sense to consolidate
+that function into one implementation that both ftrace_jmp_replace() and
+ftrace_call_replace() use by passing in the op code separate.
+
+The structure in ftrace_code_union is also modified to replace the "e8"
+field with the more appropriate name "op".
+
+Cc: stable@vger.kernel.org
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20190304200748.1418790-1-arnd@arndb.de
+Fixes: d2a68c4effd8 ("x86/ftrace: Do not call function graph from dynamic trampolines")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fib_rule_tests.sh | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/ftrace.c | 42 ++++++++++++++++------------------------
+ 1 file changed, 17 insertions(+), 25 deletions(-)
 
-diff --git a/tools/testing/selftests/net/fib_rule_tests.sh b/tools/testing/selftests/net/fib_rule_tests.sh
-index 1ba069967fa2b..ba2d9fab28d0f 100755
---- a/tools/testing/selftests/net/fib_rule_tests.sh
-+++ b/tools/testing/selftests/net/fib_rule_tests.sh
-@@ -15,6 +15,7 @@ GW_IP6=2001:db8:1::2
- SRC_IP6=2001:db8:1::3
- 
- DEV_ADDR=192.51.100.1
-+DEV_ADDR6=2001:db8:1::1
- DEV=dummy0
- 
- log_test()
-@@ -55,8 +56,8 @@ setup()
- 
- 	$IP link add dummy0 type dummy
- 	$IP link set dev dummy0 up
--	$IP address add 192.51.100.1/24 dev dummy0
--	$IP -6 address add 2001:db8:1::1/64 dev dummy0
-+	$IP address add $DEV_ADDR/24 dev dummy0
-+	$IP -6 address add $DEV_ADDR6/64 dev dummy0
- 
- 	set +e
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 50d309662d78c..5790671857e55 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -53,7 +53,7 @@ int ftrace_arch_code_modify_post_process(void)
+ union ftrace_code_union {
+ 	char code[MCOUNT_INSN_SIZE];
+ 	struct {
+-		unsigned char e8;
++		unsigned char op;
+ 		int offset;
+ 	} __attribute__((packed));
+ };
+@@ -63,20 +63,23 @@ static int ftrace_calc_offset(long ip, long addr)
+ 	return (int)(addr - ip);
  }
+ 
+-static unsigned char *ftrace_call_replace(unsigned long ip, unsigned long addr)
++static unsigned char *
++ftrace_text_replace(unsigned char op, unsigned long ip, unsigned long addr)
+ {
+ 	static union ftrace_code_union calc;
+ 
+-	calc.e8		= 0xe8;
++	calc.op		= op;
+ 	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
+ 
+-	/*
+-	 * No locking needed, this must be called via kstop_machine
+-	 * which in essence is like running on a uniprocessor machine.
+-	 */
+ 	return calc.code;
+ }
+ 
++static unsigned char *
++ftrace_call_replace(unsigned long ip, unsigned long addr)
++{
++	return ftrace_text_replace(0xe8, ip, addr);
++}
++
+ static inline int
+ within(unsigned long addr, unsigned long start, unsigned long end)
+ {
+@@ -686,22 +689,6 @@ int __init ftrace_dyn_arch_init(void)
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_X86_64) || defined(CONFIG_FUNCTION_GRAPH_TRACER)
+-static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
+-{
+-	static union ftrace_code_union calc;
+-
+-	/* Jmp not a call (ignore the .e8) */
+-	calc.e8		= 0xe9;
+-	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
+-
+-	/*
+-	 * ftrace external locks synchronize the access to the static variable.
+-	 */
+-	return calc.code;
+-}
+-#endif
+-
+ /* Currently only x86_64 supports dynamic trampolines */
+ #ifdef CONFIG_X86_64
+ 
+@@ -923,8 +910,8 @@ static void *addr_from_call(void *ptr)
+ 		return NULL;
+ 
+ 	/* Make sure this is a call */
+-	if (WARN_ON_ONCE(calc.e8 != 0xe8)) {
+-		pr_warn("Expected e8, got %x\n", calc.e8);
++	if (WARN_ON_ONCE(calc.op != 0xe8)) {
++		pr_warn("Expected e8, got %x\n", calc.op);
+ 		return NULL;
+ 	}
+ 
+@@ -995,6 +982,11 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ extern void ftrace_graph_call(void);
+ 
++static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
++{
++	return ftrace_text_replace(0xe9, ip, addr);
++}
++
+ static int ftrace_mod_jmp(unsigned long ip, void *func)
+ {
+ 	unsigned char *new;
 -- 
 2.20.1
 
