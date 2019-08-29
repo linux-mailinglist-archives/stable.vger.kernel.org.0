@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE2DA16FA
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96985A16F7
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbfH2Kw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59140 "EHLO mail.kernel.org"
+        id S1728044AbfH2KwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:52:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbfH2KvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:51:15 -0400
+        id S1728552AbfH2KvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:51:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D84EB2173E;
-        Thu, 29 Aug 2019 10:51:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C48B2341C;
+        Thu, 29 Aug 2019 10:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075874;
-        bh=qlCOFZjNYI2nNPOt+PsqTthpDctJ6cRrpNMdWEJrrLI=;
+        s=default; t=1567075875;
+        bh=GzeRH4UgyVOHI0ey86YhHXT1lIRYzwFIUv1/hmjQmCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+clGxND6JmQeK5rrFLFqq22mIFy1Bttpej90QRx089OxvcUyLjorf7Y6nc/uI0n/
-         b/5+SIYCqetzQPdShjVZkXWTNJ8f25+FCusHJ1WHnk+W45j4rEYy8PONmf3amH4/6A
-         eKSxdpr9xt2KC1qJHNwg9fmvls4Pco0jdTfGCijs=
+        b=S+YXI7P0GVfHsBInUPcElNsOyvzqNlCPTSM18b62xSixH0NcyiAWiKcu0kzVsJ1CE
+         gUI9JaWjwVsi6GgkQ8b+Eg+jW4QS7kynhtNp4al8SZYO0ZSQxNVUmZtrta2TGOYz9U
+         x2qQZwdv1M8/3flSlEjWy/MHNPgINL8YqNc4j1Go=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 2/6] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
-Date:   Thu, 29 Aug 2019 06:51:06 -0400
-Message-Id: <20190829105110.2748-2-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 3/6] mac80211: fix possible sta leak
+Date:   Thu, 29 Aug 2019 06:51:07 -0400
+Message-Id: <20190829105110.2748-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105110.2748-1-sashal@kernel.org>
 References: <20190829105110.2748-1-sashal@kernel.org>
@@ -52,89 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 46d0b24c5ee10a15dfb25e20642f5a5ed59c5003 ]
+[ Upstream commit 5fd2f91ad483baffdbe798f8a08f1b41442d1e24 ]
 
-userfaultfd_release() should clear vm_flags/vm_userfaultfd_ctx even if
-mm->core_state != NULL.
+If TDLS station addition is rejected, the sta memory is leaked.
+Avoid this by moving the check before the allocation.
 
-Otherwise a page fault can see userfaultfd_missing() == T and use an
-already freed userfaultfd_ctx.
-
-Link: http://lkml.kernel.org/r/20190820160237.GB4983@redhat.com
-Fixes: 04f5866e41fb ("coredump: fix race condition between mmget_not_zero()/get_task_mm() and core dumping")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
-Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 7ed5285396c2 ("mac80211: don't initiate TDLS connection if station is not associated to AP")
+Link: https://lore.kernel.org/r/20190801073033.7892-1-johannes@sipsolutions.net
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/userfaultfd.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ net/mac80211/cfg.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index f187e02d267e2..fe1c146f4032e 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -431,6 +431,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
- 	/* len == 0 means wake all */
- 	struct userfaultfd_wake_range range = { .len = 0, };
- 	unsigned long new_flags;
-+	bool still_valid;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 7349bf26ae7b3..1999a7eaa6920 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1211,6 +1211,11 @@ static int ieee80211_add_station(struct wiphy *wiphy, struct net_device *dev,
+ 	if (is_multicast_ether_addr(mac))
+ 		return -EINVAL;
  
- 	ACCESS_ONCE(ctx->released) = true;
++	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER) &&
++	    sdata->vif.type == NL80211_IFTYPE_STATION &&
++	    !sdata->u.mgd.associated)
++		return -EINVAL;
++
+ 	sta = sta_info_alloc(sdata, mac, GFP_KERNEL);
+ 	if (!sta)
+ 		return -ENOMEM;
+@@ -1228,10 +1233,6 @@ static int ieee80211_add_station(struct wiphy *wiphy, struct net_device *dev,
+ 	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER))
+ 		sta->sta.tdls = true;
  
-@@ -446,8 +447,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
- 	 * taking the mmap_sem for writing.
- 	 */
- 	down_write(&mm->mmap_sem);
--	if (!mmget_still_valid(mm))
--		goto skip_mm;
-+	still_valid = mmget_still_valid(mm);
- 	prev = NULL;
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 		cond_resched();
-@@ -458,19 +458,20 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
- 			continue;
- 		}
- 		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
--		prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
--				 new_flags, vma->anon_vma,
--				 vma->vm_file, vma->vm_pgoff,
--				 vma_policy(vma),
--				 NULL_VM_UFFD_CTX);
--		if (prev)
--			vma = prev;
--		else
--			prev = vma;
-+		if (still_valid) {
-+			prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
-+					 new_flags, vma->anon_vma,
-+					 vma->vm_file, vma->vm_pgoff,
-+					 vma_policy(vma),
-+					 NULL_VM_UFFD_CTX);
-+			if (prev)
-+				vma = prev;
-+			else
-+				prev = vma;
-+		}
- 		vma->vm_flags = new_flags;
- 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
- 	}
--skip_mm:
- 	up_write(&mm->mmap_sem);
- 	mmput(mm);
- wakeup:
+-	if (sta->sta.tdls && sdata->vif.type == NL80211_IFTYPE_STATION &&
+-	    !sdata->u.mgd.associated)
+-		return -EINVAL;
+-
+ 	err = sta_apply_parameters(local, sta, params);
+ 	if (err) {
+ 		sta_info_free(local, sta);
 -- 
 2.20.1
 
