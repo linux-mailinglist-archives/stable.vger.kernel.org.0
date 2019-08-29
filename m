@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 992FDA23AA
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47126A23B2
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729891AbfH2SQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58954 "EHLO mail.kernel.org"
+        id S1729977AbfH2SRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:17:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728654AbfH2SQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:16:54 -0400
+        id S1729973AbfH2SRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:17:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ACA62341B;
-        Thu, 29 Aug 2019 18:16:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B63C2339E;
+        Thu, 29 Aug 2019 18:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102612;
-        bh=gTanq0p86gaTdfODTA2HnD4pvQYAj3g9WBxr2OM955c=;
+        s=default; t=1567102628;
+        bh=m07sN8fT7BcmNOI/kKuan0Nj68T0l/5+cfjhl5mxOa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDFEgPrU5BDvnw7f2GEas/qL46Us49j6BW0fIthsz1WvqvGIh3/YPPCFiZOpIhBUX
-         eXq1I3mMKSL9Fsq+PNXEZruH898S0K/YL0ZtYnhHv00y2kKQoch6OS1URQaV2VQohh
-         mflU4UsiiokWgIMvUcYRRDtgO7yZGTUyDEGyJCNE=
+        b=KWS6yShUfh+0KXj9wsEeMwZ3Rrxx8IEPHVldTfZMIOIKiy12SkCI1VW/gVbSl3uhA
+         j3m0tXKu2RyB+x6R5N41xQEjkGbS04Xql1fMug9ZyPB14pO/XgiIj9fK+gdWWal5GX
+         SOafMj97UqqvR4CL1ofPs6/vftU3ciuKR5/0urbM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Dave Martin <dave.martin@arm.com>,
-        Julien Grall <julien.grall@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 4.19 45/45] KVM: arm/arm64: VGIC: Properly initialise private IRQ affinity
-Date:   Thu, 29 Aug 2019 14:15:45 -0400
-Message-Id: <20190829181547.8280-45-sashal@kernel.org>
+Cc:     Alexandre Courbot <acourbot@chromium.org>,
+        Tomasz Figa <tfiga@chromium.org>, CK Hu <ck.hu@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 09/27] drm/mediatek: set DMA max segment size
+Date:   Thu, 29 Aug 2019 14:16:35 -0400
+Message-Id: <20190829181655.8741-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
-References: <20190829181547.8280-1-sashal@kernel.org>
+In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
+References: <20190829181655.8741-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,116 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Alexandre Courbot <acourbot@chromium.org>
 
-[ Upstream commit 2e16f3e926ed48373c98edea85c6ad0ef69425d1 ]
+[ Upstream commit 070955558e820b9a89c570b91b1f21762f62b288 ]
 
-At the moment we initialise the target *mask* of a virtual IRQ to the
-VCPU it belongs to, even though this mask is only defined for GICv2 and
-quickly runs out of bits for many GICv3 guests.
-This behaviour triggers an UBSAN complaint for more than 32 VCPUs:
-------
-[ 5659.462377] UBSAN: Undefined behaviour in virt/kvm/arm/vgic/vgic-init.c:223:21
-[ 5659.471689] shift exponent 32 is too large for 32-bit type 'unsigned int'
-------
-Also for GICv3 guests the reporting of TARGET in the "vgic-state" debugfs
-dump is wrong, due to this very same problem.
+This driver requires imported PRIME buffers to appear contiguously in
+its IO address space. Make sure this is the case by setting the maximum
+DMA segment size to a more suitable value than the default 64KB.
 
-Because there is no requirement to create the VGIC device before the
-VCPUs (and QEMU actually does it the other way round), we can't safely
-initialise mpidr or targets in kvm_vgic_vcpu_init(). But since we touch
-every private IRQ for each VCPU anyway later (in vgic_init()), we can
-just move the initialisation of those fields into there, where we
-definitely know the VGIC type.
-
-On the way make sure we really have either a VGICv2 or a VGICv3 device,
-since the existing code is just checking for "VGICv3 or not", silently
-ignoring the uninitialised case.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reported-by: Dave Martin <dave.martin@arm.com>
-Tested-by: Julien Grall <julien.grall@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/vgic/vgic-init.c | 30 ++++++++++++++++++++----------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 35 ++++++++++++++++++++++++--
+ drivers/gpu/drm/mediatek/mtk_drm_drv.h |  2 ++
+ 2 files changed, 35 insertions(+), 2 deletions(-)
 
-diff --git a/virt/kvm/arm/vgic/vgic-init.c b/virt/kvm/arm/vgic/vgic-init.c
-index 8196e4f8731fb..cd75df25fe140 100644
---- a/virt/kvm/arm/vgic/vgic-init.c
-+++ b/virt/kvm/arm/vgic/vgic-init.c
-@@ -19,6 +19,7 @@
- #include <linux/cpu.h>
- #include <linux/kvm_host.h>
- #include <kvm/arm_vgic.h>
-+#include <asm/kvm_emulate.h>
- #include <asm/kvm_mmu.h>
- #include "vgic.h"
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 4a89cd2e4f1c5..034b50080304f 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -185,6 +185,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ 	struct mtk_drm_private *private = drm->dev_private;
+ 	struct platform_device *pdev;
+ 	struct device_node *np;
++	struct device *dma_dev;
+ 	int ret;
  
-@@ -175,12 +176,18 @@ static int kvm_vgic_dist_init(struct kvm *kvm, unsigned int nr_spis)
- 		irq->vcpu = NULL;
- 		irq->target_vcpu = vcpu0;
- 		kref_init(&irq->refcount);
--		if (dist->vgic_model == KVM_DEV_TYPE_ARM_VGIC_V2) {
-+		switch (dist->vgic_model) {
-+		case KVM_DEV_TYPE_ARM_VGIC_V2:
- 			irq->targets = 0;
- 			irq->group = 0;
--		} else {
-+			break;
-+		case KVM_DEV_TYPE_ARM_VGIC_V3:
- 			irq->mpidr = 0;
- 			irq->group = 1;
-+			break;
-+		default:
-+			kfree(dist->spis);
-+			return -EINVAL;
- 		}
+ 	if (!iommu_present(&platform_bus_type))
+@@ -242,7 +243,29 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ 		goto err_component_unbind;
  	}
+ 
+-	private->dma_dev = &pdev->dev;
++	dma_dev = &pdev->dev;
++	private->dma_dev = dma_dev;
++
++	/*
++	 * Configure the DMA segment size to make sure we get contiguous IOVA
++	 * when importing PRIME buffers.
++	 */
++	if (!dma_dev->dma_parms) {
++		private->dma_parms_allocated = true;
++		dma_dev->dma_parms =
++			devm_kzalloc(drm->dev, sizeof(*dma_dev->dma_parms),
++				     GFP_KERNEL);
++	}
++	if (!dma_dev->dma_parms) {
++		ret = -ENOMEM;
++		goto err_component_unbind;
++	}
++
++	ret = dma_set_max_seg_size(dma_dev, (unsigned int)DMA_BIT_MASK(32));
++	if (ret) {
++		dev_err(dma_dev, "Failed to set DMA segment size\n");
++		goto err_unset_dma_parms;
++	}
+ 
+ 	/*
+ 	 * We don't use the drm_irq_install() helpers provided by the DRM
+@@ -252,13 +275,16 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ 	drm->irq_enabled = true;
+ 	ret = drm_vblank_init(drm, MAX_CRTC);
+ 	if (ret < 0)
+-		goto err_component_unbind;
++		goto err_unset_dma_parms;
+ 
+ 	drm_kms_helper_poll_init(drm);
+ 	drm_mode_config_reset(drm);
+ 
  	return 0;
-@@ -220,7 +227,6 @@ int kvm_vgic_vcpu_init(struct kvm_vcpu *vcpu)
- 		irq->intid = i;
- 		irq->vcpu = NULL;
- 		irq->target_vcpu = vcpu;
--		irq->targets = 1U << vcpu->vcpu_id;
- 		kref_init(&irq->refcount);
- 		if (vgic_irq_is_sgi(i)) {
- 			/* SGIs */
-@@ -230,11 +236,6 @@ int kvm_vgic_vcpu_init(struct kvm_vcpu *vcpu)
- 			/* PPIs */
- 			irq->config = VGIC_CONFIG_LEVEL;
- 		}
--
--		if (dist->vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3)
--			irq->group = 1;
--		else
--			irq->group = 0;
- 	}
  
- 	if (!irqchip_in_kernel(vcpu->kvm))
-@@ -297,10 +298,19 @@ int vgic_init(struct kvm *kvm)
++err_unset_dma_parms:
++	if (private->dma_parms_allocated)
++		dma_dev->dma_parms = NULL;
+ err_component_unbind:
+ 	component_unbind_all(drm->dev, drm);
+ err_config_cleanup:
+@@ -269,9 +295,14 @@ static int mtk_drm_kms_init(struct drm_device *drm)
  
- 		for (i = 0; i < VGIC_NR_PRIVATE_IRQS; i++) {
- 			struct vgic_irq *irq = &vgic_cpu->private_irqs[i];
--			if (dist->vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3)
-+			switch (dist->vgic_model) {
-+			case KVM_DEV_TYPE_ARM_VGIC_V3:
- 				irq->group = 1;
--			else
-+				irq->mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
-+				break;
-+			case KVM_DEV_TYPE_ARM_VGIC_V2:
- 				irq->group = 0;
-+				irq->targets = 1U << idx;
-+				break;
-+			default:
-+				ret = -EINVAL;
-+				goto out;
-+			}
- 		}
- 	}
+ static void mtk_drm_kms_deinit(struct drm_device *drm)
+ {
++	struct mtk_drm_private *private = drm->dev_private;
++
+ 	drm_kms_helper_poll_fini(drm);
+ 	drm_atomic_helper_shutdown(drm);
  
++	if (private->dma_parms_allocated)
++		private->dma_dev->dma_parms = NULL;
++
+ 	component_unbind_all(drm->dev, drm);
+ 	drm_mode_config_cleanup(drm);
+ }
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.h b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
+index c3378c452c0a0..445dd45e65ebc 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.h
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
+@@ -56,6 +56,8 @@ struct mtk_drm_private {
+ 	} commit;
+ 
+ 	struct drm_atomic_state *suspend_state;
++
++	bool dma_parms_allocated;
+ };
+ 
+ extern struct platform_driver mtk_ddp_driver;
 -- 
 2.20.1
 
