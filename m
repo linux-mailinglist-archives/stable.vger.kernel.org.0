@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FC3A2321
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F4CA2329
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbfH2SNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1728560AbfH2SNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728395AbfH2SNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:13:40 -0400
+        id S1728546AbfH2SNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:13:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 542B32189D;
-        Thu, 29 Aug 2019 18:13:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 190FF23428;
+        Thu, 29 Aug 2019 18:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102419;
-        bh=dkhchyWdtMxa8jcjPXHapPWPE4rhmniDAp/Qs15YCTE=;
+        s=default; t=1567102428;
+        bh=E7EHSvLSZJd4GlOj41JTabPK+yrB+jUT8faqfwhNk9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ei3R/AIepm5x8fmRuA7bGr2p4oXeNNyCCRXCbe5XV99Pi/bf4UdQJxyvZPUGybT0s
-         h22DiHW+5ZFDDN6oG0ddRWpMkMNUtWcRsi9jd+udMgqQrx68zR5/0NOkuU7T+RmbNT
-         7oFAATNfsnZcVt4TRHj72OjNkkfouOKjITaDWwLI=
+        b=0DmZWkYkLy4Y4WnclpxLJz3C+adDj7wfkocSASRHun+cV/+3p159PEBdnrsMS+HOM
+         Q2FEUwmPcWhE66U0JG3f5AW/DXoekPaPFJO9iqkHp6JnSIZcRcB/3KvZDrq3odELuB
+         b41Yk+wgqLj1ztU0sqIHudkKhbbiFO0y4b8H3rUA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        syzbot+1e0edc4b8b7494c28450@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 13/76] rxrpc: Fix local endpoint refcounting
-Date:   Thu, 29 Aug 2019 14:12:08 -0400
-Message-Id: <20190829181311.7562-13-sashal@kernel.org>
+Cc:     Harish Bandi <c-hbandi@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 19/76] Bluetooth: hci_qca: Send VS pre shutdown command.
+Date:   Thu, 29 Aug 2019 14:12:14 -0400
+Message-Id: <20190829181311.7562-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -44,288 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Harish Bandi <c-hbandi@codeaurora.org>
 
-[ Upstream commit 730c5fd42c1e3652a065448fd235cb9fafb2bd10 ]
+[ Upstream commit a2780889e247561744dd8efbd3478a1999b72ae3 ]
 
-The object lifetime management on the rxrpc_local struct is broken in that
-the rxrpc_local_processor() function is expected to clean up and remove an
-object - but it may get requeued by packets coming in on the backing UDP
-socket once it starts running.
+WCN399x chips are coex chips, it needs a VS pre shutdown
+command while turning off the BT. So that chip can inform
+BT is OFF to other active clients.
 
-This may result in the assertion in rxrpc_local_rcu() firing because the
-memory has been scheduled for RCU destruction whilst still queued:
-
-	rxrpc: Assertion failed
-	------------[ cut here ]------------
-	kernel BUG at net/rxrpc/local_object.c:468!
-
-Note that if the processor comes around before the RCU free function, it
-will just do nothing because ->dead is true.
-
-Fix this by adding a separate refcount to count active users of the
-endpoint that causes the endpoint to be destroyed when it reaches 0.
-
-The original refcount can then be used to refcount objects through the work
-processor and cause the memory to be rcu freed when that reaches 0.
-
-Fixes: 4f95dd78a77e ("rxrpc: Rework local endpoint management")
-Reported-by: syzbot+1e0edc4b8b7494c28450@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Harish Bandi <c-hbandi@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/af_rxrpc.c     |  4 +-
- net/rxrpc/ar-internal.h  |  5 ++-
- net/rxrpc/input.c        | 16 ++++++--
- net/rxrpc/local_object.c | 86 +++++++++++++++++++++++++---------------
- 4 files changed, 72 insertions(+), 39 deletions(-)
+ drivers/bluetooth/btqca.c   | 21 +++++++++++++++++++++
+ drivers/bluetooth/btqca.h   |  7 +++++++
+ drivers/bluetooth/hci_qca.c |  3 +++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
-index d09eaf1535441..8c9bd3ae9edf7 100644
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -193,7 +193,7 @@ static int rxrpc_bind(struct socket *sock, struct sockaddr *saddr, int len)
- 
- service_in_use:
- 	write_unlock(&local->services_lock);
--	rxrpc_put_local(local);
-+	rxrpc_unuse_local(local);
- 	ret = -EADDRINUSE;
- error_unlock:
- 	release_sock(&rx->sk);
-@@ -901,7 +901,7 @@ static int rxrpc_release_sock(struct sock *sk)
- 	rxrpc_queue_work(&rxnet->service_conn_reaper);
- 	rxrpc_queue_work(&rxnet->client_conn_reaper);
- 
--	rxrpc_put_local(rx->local);
-+	rxrpc_unuse_local(rx->local);
- 	rx->local = NULL;
- 	key_put(rx->key);
- 	rx->key = NULL;
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 80335b4ee4fd6..6a231c8f43066 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -254,7 +254,8 @@ struct rxrpc_security {
-  */
- struct rxrpc_local {
- 	struct rcu_head		rcu;
--	atomic_t		usage;
-+	atomic_t		active_users;	/* Number of users of the local endpoint */
-+	atomic_t		usage;		/* Number of references to the structure */
- 	struct rxrpc_net	*rxnet;		/* The network ns in which this resides */
- 	struct list_head	link;
- 	struct socket		*socket;	/* my UDP socket */
-@@ -1002,6 +1003,8 @@ struct rxrpc_local *rxrpc_lookup_local(struct net *, const struct sockaddr_rxrpc
- struct rxrpc_local *rxrpc_get_local(struct rxrpc_local *);
- struct rxrpc_local *rxrpc_get_local_maybe(struct rxrpc_local *);
- void rxrpc_put_local(struct rxrpc_local *);
-+struct rxrpc_local *rxrpc_use_local(struct rxrpc_local *);
-+void rxrpc_unuse_local(struct rxrpc_local *);
- void rxrpc_queue_local(struct rxrpc_local *);
- void rxrpc_destroy_all_locals(struct rxrpc_net *);
- 
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 5bd6f1546e5c6..ee95d1cd1cdf2 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -1108,8 +1108,12 @@ static void rxrpc_post_packet_to_local(struct rxrpc_local *local,
- {
- 	_enter("%p,%p", local, skb);
- 
--	skb_queue_tail(&local->event_queue, skb);
--	rxrpc_queue_local(local);
-+	if (rxrpc_get_local_maybe(local)) {
-+		skb_queue_tail(&local->event_queue, skb);
-+		rxrpc_queue_local(local);
-+	} else {
-+		rxrpc_free_skb(skb, rxrpc_skb_rx_freed);
-+	}
+diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
+index 0ee5acb685a10..ee25e6ae1a098 100644
+--- a/drivers/bluetooth/btqca.c
++++ b/drivers/bluetooth/btqca.c
+@@ -99,6 +99,27 @@ static int qca_send_reset(struct hci_dev *hdev)
+ 	return 0;
  }
  
- /*
-@@ -1119,8 +1123,12 @@ static void rxrpc_reject_packet(struct rxrpc_local *local, struct sk_buff *skb)
- {
- 	CHECK_SLAB_OKAY(&local->usage);
- 
--	skb_queue_tail(&local->reject_queue, skb);
--	rxrpc_queue_local(local);
-+	if (rxrpc_get_local_maybe(local)) {
-+		skb_queue_tail(&local->reject_queue, skb);
-+		rxrpc_queue_local(local);
-+	} else {
-+		rxrpc_free_skb(skb, rxrpc_skb_rx_freed);
-+	}
- }
- 
- /*
-diff --git a/net/rxrpc/local_object.c b/net/rxrpc/local_object.c
-index b1c71bad510b7..9798159ee65fa 100644
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -79,6 +79,7 @@ static struct rxrpc_local *rxrpc_alloc_local(struct rxrpc_net *rxnet,
- 	local = kzalloc(sizeof(struct rxrpc_local), GFP_KERNEL);
- 	if (local) {
- 		atomic_set(&local->usage, 1);
-+		atomic_set(&local->active_users, 1);
- 		local->rxnet = rxnet;
- 		INIT_LIST_HEAD(&local->link);
- 		INIT_WORK(&local->processor, rxrpc_local_processor);
-@@ -266,11 +267,8 @@ struct rxrpc_local *rxrpc_lookup_local(struct net *net,
- 		 * bind the transport socket may still fail if we're attempting
- 		 * to use a local address that the dying object is still using.
- 		 */
--		if (!rxrpc_get_local_maybe(local)) {
--			cursor = cursor->next;
--			list_del_init(&local->link);
-+		if (!rxrpc_use_local(local))
- 			break;
--		}
- 
- 		age = "old";
- 		goto found;
-@@ -284,7 +282,10 @@ struct rxrpc_local *rxrpc_lookup_local(struct net *net,
- 	if (ret < 0)
- 		goto sock_error;
- 
--	list_add_tail(&local->link, cursor);
-+	if (cursor != &rxnet->local_endpoints)
-+		list_replace(cursor, &local->link);
-+	else
-+		list_add_tail(&local->link, cursor);
- 	age = "new";
- 
- found:
-@@ -342,7 +343,8 @@ struct rxrpc_local *rxrpc_get_local_maybe(struct rxrpc_local *local)
- }
- 
- /*
-- * Queue a local endpoint.
-+ * Queue a local endpoint unless it has become unreferenced and pass the
-+ * caller's reference to the work item.
-  */
- void rxrpc_queue_local(struct rxrpc_local *local)
- {
-@@ -351,15 +353,8 @@ void rxrpc_queue_local(struct rxrpc_local *local)
- 	if (rxrpc_queue_work(&local->processor))
- 		trace_rxrpc_local(local, rxrpc_local_queued,
- 				  atomic_read(&local->usage), here);
--}
--
--/*
-- * A local endpoint reached its end of life.
-- */
--static void __rxrpc_put_local(struct rxrpc_local *local)
--{
--	_enter("%d", local->debug_id);
--	rxrpc_queue_work(&local->processor);
-+	else
-+		rxrpc_put_local(local);
- }
- 
- /*
-@@ -375,10 +370,45 @@ void rxrpc_put_local(struct rxrpc_local *local)
- 		trace_rxrpc_local(local, rxrpc_local_put, n, here);
- 
- 		if (n == 0)
--			__rxrpc_put_local(local);
-+			call_rcu(&local->rcu, rxrpc_local_rcu);
- 	}
- }
- 
-+/*
-+ * Start using a local endpoint.
-+ */
-+struct rxrpc_local *rxrpc_use_local(struct rxrpc_local *local)
++int qca_send_pre_shutdown_cmd(struct hci_dev *hdev)
 +{
-+	unsigned int au;
++	struct sk_buff *skb;
++	int err;
 +
-+	local = rxrpc_get_local_maybe(local);
-+	if (!local)
-+		return NULL;
++	bt_dev_dbg(hdev, "QCA pre shutdown cmd");
 +
-+	au = atomic_fetch_add_unless(&local->active_users, 1, 0);
-+	if (au == 0) {
-+		rxrpc_put_local(local);
-+		return NULL;
++	skb = __hci_cmd_sync(hdev, QCA_PRE_SHUTDOWN_CMD, 0,
++				NULL, HCI_INIT_TIMEOUT);
++	if (IS_ERR(skb)) {
++		err = PTR_ERR(skb);
++		bt_dev_err(hdev, "QCA preshutdown_cmd failed (%d)", err);
++		return err;
 +	}
 +
-+	return local;
++	kfree_skb(skb);
++
++	return 0;
 +}
++EXPORT_SYMBOL_GPL(qca_send_pre_shutdown_cmd);
 +
-+/*
-+ * Cease using a local endpoint.  Once the number of active users reaches 0, we
-+ * start the closure of the transport in the work processor.
-+ */
-+void rxrpc_unuse_local(struct rxrpc_local *local)
-+{
-+	unsigned int au;
-+
-+	au = atomic_dec_return(&local->active_users);
-+	if (au == 0)
-+		rxrpc_queue_local(local);
-+	else
-+		rxrpc_put_local(local);
-+}
-+
- /*
-  * Destroy a local endpoint's socket and then hand the record to RCU to dispose
-  * of.
-@@ -393,16 +423,6 @@ static void rxrpc_local_destroyer(struct rxrpc_local *local)
- 
- 	_enter("%d", local->debug_id);
- 
--	/* We can get a race between an incoming call packet queueing the
--	 * processor again and the work processor starting the destruction
--	 * process which will shut down the UDP socket.
--	 */
--	if (local->dead) {
--		_leave(" [already dead]");
--		return;
--	}
--	local->dead = true;
--
- 	mutex_lock(&rxnet->local_mutex);
- 	list_del_init(&local->link);
- 	mutex_unlock(&rxnet->local_mutex);
-@@ -422,13 +442,11 @@ static void rxrpc_local_destroyer(struct rxrpc_local *local)
- 	 */
- 	rxrpc_purge_queue(&local->reject_queue);
- 	rxrpc_purge_queue(&local->event_queue);
--
--	_debug("rcu local %d", local->debug_id);
--	call_rcu(&local->rcu, rxrpc_local_rcu);
- }
- 
- /*
-- * Process events on an endpoint
-+ * Process events on an endpoint.  The work item carries a ref which
-+ * we must release.
-  */
- static void rxrpc_local_processor(struct work_struct *work)
+ static void qca_tlv_check_data(struct rome_config *config,
+ 				const struct firmware *fw)
  {
-@@ -441,8 +459,10 @@ static void rxrpc_local_processor(struct work_struct *work)
+diff --git a/drivers/bluetooth/btqca.h b/drivers/bluetooth/btqca.h
+index e9c9999596035..f2a9e576a86ce 100644
+--- a/drivers/bluetooth/btqca.h
++++ b/drivers/bluetooth/btqca.h
+@@ -13,6 +13,7 @@
+ #define EDL_PATCH_TLV_REQ_CMD		(0x1E)
+ #define EDL_NVM_ACCESS_SET_REQ_CMD	(0x01)
+ #define MAX_SIZE_PER_TLV_SEGMENT	(243)
++#define QCA_PRE_SHUTDOWN_CMD		(0xFC08)
  
- 	do {
- 		again = false;
--		if (atomic_read(&local->usage) == 0)
--			return rxrpc_local_destroyer(local);
-+		if (atomic_read(&local->active_users) == 0) {
-+			rxrpc_local_destroyer(local);
-+			break;
-+		}
- 
- 		if (!skb_queue_empty(&local->reject_queue)) {
- 			rxrpc_reject_packets(local);
-@@ -454,6 +474,8 @@ static void rxrpc_local_processor(struct work_struct *work)
- 			again = true;
- 		}
- 	} while (again);
-+
-+	rxrpc_put_local(local);
+ #define EDL_CMD_REQ_RES_EVT		(0x00)
+ #define EDL_PATCH_VER_RES_EVT		(0x19)
+@@ -130,6 +131,7 @@ int qca_uart_setup(struct hci_dev *hdev, uint8_t baudrate,
+ 		   enum qca_btsoc_type soc_type, u32 soc_ver);
+ int qca_read_soc_version(struct hci_dev *hdev, u32 *soc_version);
+ int qca_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr);
++int qca_send_pre_shutdown_cmd(struct hci_dev *hdev);
+ static inline bool qca_is_wcn399x(enum qca_btsoc_type soc_type)
+ {
+ 	return soc_type == QCA_WCN3990 || soc_type == QCA_WCN3998;
+@@ -161,4 +163,9 @@ static inline bool qca_is_wcn399x(enum qca_btsoc_type soc_type)
+ {
+ 	return false;
  }
++
++static inline int qca_send_pre_shutdown_cmd(struct hci_dev *hdev)
++{
++	return -EOPNOTSUPP;
++}
+ #endif
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index f41fb2c02e4fd..d88b024eaf566 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1319,6 +1319,9 @@ static int qca_power_off(struct hci_dev *hdev)
+ {
+ 	struct hci_uart *hu = hci_get_drvdata(hdev);
  
- /*
++	/* Perform pre shutdown command */
++	qca_send_pre_shutdown_cmd(hdev);
++
+ 	qca_power_shutdown(hu);
+ 	return 0;
+ }
 -- 
 2.20.1
 
