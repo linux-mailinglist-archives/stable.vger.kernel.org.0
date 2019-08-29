@@ -2,90 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD24A1770
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:57:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B94F6A175F
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727594AbfH2Kzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:55:31 -0400
-Received: from conuserg-12.nifty.com ([210.131.2.79]:17274 "EHLO
-        conuserg-12.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726983AbfH2KuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 06:50:09 -0400
-Received: from localhost.localdomain (p14092-ipngnfx01kyoto.kyoto.ocn.ne.jp [153.142.97.92]) (authenticated)
-        by conuserg-12.nifty.com with ESMTP id x7TAnTof013730;
-        Thu, 29 Aug 2019 19:49:29 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-12.nifty.com x7TAnTof013730
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1567075772;
-        bh=bONSGLTFaXqEMmGlC9jNWtPpXwIX2FvApbhg5YEacHY=;
+        id S1727392AbfH2KuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57290 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726518AbfH2KuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:12 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C892E2173E;
+        Thu, 29 Aug 2019 10:50:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567075811;
+        bh=PzTwA2pEqna/zzPNz2QZGbcV1R9WOr2kYGIXWC3dDt4=;
         h=From:To:Cc:Subject:Date:From;
-        b=tf+IoCMZ8FnlxiyVUG2h+Gy5Y+i7OqvaRwxaxqL44y7HIrFVR5O1s87bCOlAVmSDO
-         0d6p10gASi9nIjm3tDfdhjHFq2KynTVYZMS2Hlvk3AOIz/8dDmc2vTMjKCG9jY/Brk
-         nC/tc+Qn1zmMeux84bhSFkZNsGLaRebjUI7E/tWaArsJJJPQcMMfr+cGQz6Zra2blq
-         xjYDwGglnO4+WpI83mNxsv5PgnG6GLm8JdX+aWaIfGZxr3u8WEm2BTUd/0T9kQwbOc
-         Sfuw5ClVm1CZS5pnCftjK0KGbta7/T3IeQ6x7tWiQPE0KlFFxJUwN87qtqg/vvZxqN
-         nGBUW9VnhYAYw==
-X-Nifty-SrcIP: [153.142.97.92]
-From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-To:     linux-mmc@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Piotr Sroka <piotrs@cadence.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] mmc: sdhci-cadence: enable v4_mode to fix ADMA 64-bit addressing
-Date:   Thu, 29 Aug 2019 19:49:26 +0900
-Message-Id: <20190829104928.27404-1-yamada.masahiro@socionext.com>
-X-Mailer: git-send-email 2.17.1
+        b=rVqKkXHj7k4Ku3WJMyn1JPCyltp9UO0uzWgqvYkQpqnClVPnN6TPRtXCCZ1DbhlXo
+         wP5Ba+1c+qyrMaS5GAMdzxjl+F+CKUapAC7vgI7Rcl5k5b1K9lPd9XnzBUL7H0haRn
+         l+lWcyyApr7bRmizrRKs7UQn+eRidH5DndEJRuFE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Dexuan Cui <decui@microsoft.com>,
+        Sunil Muthuswamy <sunilmut@microsoft.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com
+Subject: [PATCH AUTOSEL 4.19 01/29] hv_sock: Fix hang when a connection is closed
+Date:   Thu, 29 Aug 2019 06:49:41 -0400
+Message-Id: <20190829105009.2265-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The IP datasheet says this controller is compatible with SD Host
-Specification Version v4.00.
+From: Dexuan Cui <decui@microsoft.com>
 
-As it turned out, the ADMA of this IP does not work with 64-bit mode
-when it is in the Version 3.00 compatible mode; it understands the
-old 64-bit descriptor table (as defined in SDHCI v2), but the ADMA
-System Address Register (SDHCI_ADMA_ADDRESS) cannot point to the
-64-bit address.
+[ Upstream commit 685703b497bacea8765bb409d6b73455b73c540e ]
 
-I noticed this issue only after commit bd2e75633c80 ("dma-contiguous:
-use fallback alloc_pages for single pages"). Prior to that commit,
-dma_set_mask_and_coherent() returned the dma address that fits in
-32-bit range, at least for the default arm64 configuration
-(arch/arm64/configs/defconfig). Now the host->adma_addr exceeds the
-32-bit limit, causing the real problem for the Socionext SoCs.
-(As a side-note, I was also able to reproduce the issue for older
-kernels by turning off CONFIG_DMA_CMA.)
+There is a race condition for an established connection that is being closed
+by the guest: the refcnt is 4 at the end of hvs_release() (Note: here the
+'remove_sock' is false):
 
-Call sdhci_enable_v4_mode() to fix this.
+1 for the initial value;
+1 for the sk being in the bound list;
+1 for the sk being in the connected list;
+1 for the delayed close_work.
 
-I think it is better to back-port this, but only possible for v4.20+.
+After hvs_release() finishes, __vsock_release() -> sock_put(sk) *may*
+decrease the refcnt to 3.
 
-When this driver was merged (v4.10), the v4 mode support did not exist.
-It was added by commit b3f80b434f72 ("mmc: sdhci: Add sd host v4 mode")
-i.e. v4.20.
+Concurrently, hvs_close_connection() runs in another thread:
+  calls vsock_remove_sock() to decrease the refcnt by 2;
+  call sock_put() to decrease the refcnt to 0, and free the sk;
+  next, the "release_sock(sk)" may hang due to use-after-free.
 
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+In the above, after hvs_release() finishes, if hvs_close_connection() runs
+faster than "__vsock_release() -> sock_put(sk)", then there is not any issue,
+because at the beginning of hvs_close_connection(), the refcnt is still 4.
+
+The issue can be resolved if an extra reference is taken when the
+connection is established.
+
+Fixes: a9eeb998c28d ("hv_sock: Add support for delayed close")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ net/vmw_vsock/hyperv_transport.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- drivers/mmc/host/sdhci-cadence.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/mmc/host/sdhci-cadence.c b/drivers/mmc/host/sdhci-cadence.c
-index 163d1cf4367e..44139fceac24 100644
---- a/drivers/mmc/host/sdhci-cadence.c
-+++ b/drivers/mmc/host/sdhci-cadence.c
-@@ -369,6 +369,7 @@ static int sdhci_cdns_probe(struct platform_device *pdev)
- 	host->mmc_host_ops.execute_tuning = sdhci_cdns_execute_tuning;
- 	host->mmc_host_ops.hs400_enhanced_strobe =
- 				sdhci_cdns_hs400_enhanced_strobe;
-+	sdhci_enable_v4_mode(host);
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 9c7da811d130f..98f193fd5315e 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -320,6 +320,11 @@ static void hvs_close_connection(struct vmbus_channel *chan)
+ 	lock_sock(sk);
+ 	hvs_do_close_lock_held(vsock_sk(sk), true);
+ 	release_sock(sk);
++
++	/* Release the refcnt for the channel that's opened in
++	 * hvs_open_connection().
++	 */
++	sock_put(sk);
+ }
  
- 	sdhci_get_of_property(pdev);
+ static void hvs_open_connection(struct vmbus_channel *chan)
+@@ -388,6 +393,9 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 	}
  
+ 	set_per_channel_state(chan, conn_from_host ? new : sk);
++
++	/* This reference will be dropped by hvs_close_connection(). */
++	sock_hold(conn_from_host ? new : sk);
+ 	vmbus_set_chn_rescind_callback(chan, hvs_close_connection);
+ 
+ 	/* Set the pending send size to max packet size to always get
 -- 
-2.17.1
+2.20.1
 
