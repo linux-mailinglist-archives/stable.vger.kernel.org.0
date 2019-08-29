@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74060A1B04
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 15:10:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A56A1A1B0A
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 15:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727176AbfH2NKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 09:10:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59176 "EHLO mx1.suse.de"
+        id S1726739AbfH2NKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 09:10:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59170 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726739AbfH2NKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727008AbfH2NKl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 29 Aug 2019 09:10:41 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 4F857AFC3;
+        by mx1.suse.de (Postfix) with ESMTP id 50966B03D;
         Thu, 29 Aug 2019 13:10:40 +0000 (UTC)
 Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id BC3D11E2F9E; Thu, 29 Aug 2019 15:10:39 +0200 (CEST)
+        id BFDA81E43A8; Thu, 29 Aug 2019 15:10:39 +0200 (CEST)
 From:   Jan Kara <jack@suse.cz>
 To:     <linux-xfs@vger.kernel.org>
 Cc:     <linux-mm@kvack.org>, Amir Goldstein <amir73il@gmail.com>,
@@ -24,9 +24,9 @@ Cc:     <linux-mm@kvack.org>, Amir Goldstein <amir73il@gmail.com>,
         Boaz Harrosh <boaz@plexistor.com>,
         <linux-fsdevel@vger.kernel.org>, Jan Kara <jack@suse.cz>,
         stable@vger.kernel.org
-Subject: [PATCH 1/3] mm: Handle MADV_WILLNEED through vfs_fadvise()
-Date:   Thu, 29 Aug 2019 15:10:32 +0200
-Message-Id: <20190829131034.10563-2-jack@suse.cz>
+Subject: [PATCH 2/3] fs: Export generic_fadvise()
+Date:   Thu, 29 Aug 2019 15:10:33 +0200
+Message-Id: <20190829131034.10563-3-jack@suse.cz>
 X-Mailer: git-send-email 2.16.4
 In-Reply-To: <20190829131034.10563-1-jack@suse.cz>
 References: <20190829131034.10563-1-jack@suse.cz>
@@ -35,66 +35,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently handling of MADV_WILLNEED hint calls directly into readahead
-code. Handle it by calling vfs_fadvise() instead so that filesystem can
-use its ->fadvise() callback to acquire necessary locks or otherwise
-prepare for the request.
+Filesystems will need to call this function from their fadvise handlers.
 
-Suggested-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Boaz Harrosh <boazh@netapp.com>
 CC: stable@vger.kernel.org
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- mm/madvise.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ include/linux/fs.h | 2 ++
+ mm/fadvise.c       | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/mm/madvise.c b/mm/madvise.c
-index 968df3aa069f..bac973b9f2cc 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -14,6 +14,7 @@
- #include <linux/userfaultfd_k.h>
- #include <linux/hugetlb.h>
- #include <linux/falloc.h>
-+#include <linux/fadvise.h>
- #include <linux/sched.h>
- #include <linux/ksm.h>
- #include <linux/fs.h>
-@@ -275,6 +276,7 @@ static long madvise_willneed(struct vm_area_struct *vma,
- 			     unsigned long start, unsigned long end)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 997a530ff4e9..bc1b40fb0db7 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -3531,6 +3531,8 @@ extern void inode_nohighmem(struct inode *inode);
+ /* mm/fadvise.c */
+ extern int vfs_fadvise(struct file *file, loff_t offset, loff_t len,
+ 		       int advice);
++extern int generic_fadvise(struct file *file, loff_t offset, loff_t len,
++			   int advice);
+ 
+ #if defined(CONFIG_IO_URING)
+ extern struct sock *io_uring_get_socket(struct file *file);
+diff --git a/mm/fadvise.c b/mm/fadvise.c
+index 467bcd032037..4f17c83db575 100644
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -27,8 +27,7 @@
+  * deactivate the pages and clear PG_Referenced.
+  */
+ 
+-static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
+-			   int advice)
++int generic_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
  {
- 	struct file *file = vma->vm_file;
-+	loff_t offset;
- 
- 	*prev = vma;
- #ifdef CONFIG_SWAP
-@@ -298,12 +300,20 @@ static long madvise_willneed(struct vm_area_struct *vma,
- 		return 0;
+ 	struct inode *inode;
+ 	struct address_space *mapping;
+@@ -178,6 +177,7 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
  	}
- 
--	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--	if (end > vma->vm_end)
--		end = vma->vm_end;
--	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--
--	force_page_cache_readahead(file->f_mapping, file, start, end - start);
-+	/*
-+	 * Filesystem's fadvise may need to take various locks.  We need to
-+	 * explicitly grab a reference because the vma (and hence the
-+	 * vma's reference to the file) can go away as soon as we drop
-+	 * mmap_sem.
-+	 */
-+	*prev = NULL;	/* tell sys_madvise we drop mmap_sem */
-+	get_file(file);
-+	up_read(&current->mm->mmap_sem);
-+	offset = (loff_t)(start - vma->vm_start)
-+			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
-+	vfs_fadvise(file, offset, end - start, POSIX_FADV_WILLNEED);
-+	fput(file);
-+	down_read(&current->mm->mmap_sem);
  	return 0;
  }
++EXPORT_SYMBOL(generic_fadvise);
  
+ int vfs_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
+ {
 -- 
 2.16.4
 
