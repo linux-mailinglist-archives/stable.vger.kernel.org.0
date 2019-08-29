@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D72B7A171B
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771FBA16BC
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728293AbfH2Kuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58342 "EHLO mail.kernel.org"
+        id S1728303AbfH2Kuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728267AbfH2Kut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:49 -0400
+        id S1728294AbfH2Kuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FAE323405;
-        Thu, 29 Aug 2019 10:50:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FA412173E;
+        Thu, 29 Aug 2019 10:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075848;
-        bh=qi0wl+US15Lm7qS4rUAZnRWyImORiNrhtDC3zuCNeZ8=;
+        s=default; t=1567075849;
+        bh=L1yVC3rnPFRRolPJlkmoEEORLM7PJgCXDPecs1CxcTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4PCoZwz/zxjskfl1s+9BKhqCqC6gj4irKPJl4gxy8/OSkjVtOeVDEZzp5s1HK6MG
-         AXHB23PBznSAhW2izOAGjqumOsG39CIQ4khtAUhcIH2jzrUS6CBO1tFBnjPSMQWGsl
-         74UTt4+0sibow0ev6nnbDXqPrglJyoTE1Q4XQtxg=
+        b=ilPqGS73Z/N0d4nvJJQ+AkbPPI6iP2RnNbr1gsxoGXINDheHjck+G0zWwZ1OSpUQV
+         KldS1Nlw757lhEXd1rMnXOnKzE3dSWIT/RjUkKelsG5SWA8AmHYtYk7NZ0DdBkf1TR
+         NjL2c7frt/GHwPphnE1ZM6VYpggQaYpTcHnCLL50=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 04/14] ALSA: line6: Fix memory leak at line6_init_pcm() error path
-Date:   Thu, 29 Aug 2019 06:50:33 -0400
-Message-Id: <20190829105043.2508-4-sashal@kernel.org>
+Cc:     Tyler Hicks <tyhicks@canonical.com>, Todd Kjos <tkjos@android.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.14 05/14] binder: take read mode of mmap_sem in binder_alloc_free_page()
+Date:   Thu, 29 Aug 2019 06:50:34 -0400
+Message-Id: <20190829105043.2508-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105043.2508-1-sashal@kernel.org>
 References: <20190829105043.2508-1-sashal@kernel.org>
@@ -41,59 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tyler Hicks <tyhicks@canonical.com>
 
-[ Upstream commit 1bc8d18c75fef3b478dbdfef722aae09e2a9fde7 ]
+[ Upstream commit 60d4885710836595192c42d3e04b27551d30ec91 ]
 
-I forgot to release the allocated object at the early error path in
-line6_init_pcm().  For addressing it, slightly shuffle the code so
-that the PCM destructor (pcm->private_free) is assigned properly
-before all error paths.
+Restore the behavior of locking mmap_sem for reading in
+binder_alloc_free_page(), as was first done in commit 3013bf62b67a
+("binder: reduce mmap_sem write-side lock"). That change was
+inadvertently reverted by commit 5cec2d2e5839 ("binder: fix race between
+munmap() and direct reclaim").
 
-Fixes: 3450121997ce ("ALSA: line6: Fix write on zero-sized buffer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In addition, change the name of the label for the error path to
+accurately reflect that we're taking the lock for reading.
+
+Backporting note: This fix is only needed when *both* of the commits
+mentioned above are applied. That's an unlikely situation since they
+both landed during the development of v5.1 but only one of them is
+targeted for stable.
+
+Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
+Acked-by: Todd Kjos <tkjos@android.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/line6/pcm.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/android/binder_alloc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/line6/pcm.c b/sound/usb/line6/pcm.c
-index f5614507a81c4..896add5ffee38 100644
---- a/sound/usb/line6/pcm.c
-+++ b/sound/usb/line6/pcm.c
-@@ -552,6 +552,15 @@ int line6_init_pcm(struct usb_line6 *line6,
- 	line6pcm->volume_monitor = 255;
- 	line6pcm->line6 = line6;
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index e0b0399ff7ec8..81c67459259ec 100644
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -949,8 +949,8 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 	mm = alloc->vma_vm_mm;
+ 	if (!mmget_not_zero(mm))
+ 		goto err_mmget;
+-	if (!down_write_trylock(&mm->mmap_sem))
+-		goto err_down_write_mmap_sem_failed;
++	if (!down_read_trylock(&mm->mmap_sem))
++		goto err_down_read_mmap_sem_failed;
+ 	vma = binder_alloc_get_vma(alloc);
  
-+	spin_lock_init(&line6pcm->out.lock);
-+	spin_lock_init(&line6pcm->in.lock);
-+	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
-+
-+	line6->line6pcm = line6pcm;
-+
-+	pcm->private_data = line6pcm;
-+	pcm->private_free = line6_cleanup_pcm;
-+
- 	line6pcm->max_packet_size_in =
- 		usb_maxpacket(line6->usbdev,
- 			usb_rcvisocpipe(line6->usbdev, ep_read), 0);
-@@ -564,15 +573,6 @@ int line6_init_pcm(struct usb_line6 *line6,
- 		return -EINVAL;
+ 	list_lru_isolate(lru, item);
+@@ -965,7 +965,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 
+ 		trace_binder_unmap_user_end(alloc, index);
  	}
+-	up_write(&mm->mmap_sem);
++	up_read(&mm->mmap_sem);
+ 	mmput(mm);
  
--	spin_lock_init(&line6pcm->out.lock);
--	spin_lock_init(&line6pcm->in.lock);
--	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
--
--	line6->line6pcm = line6pcm;
--
--	pcm->private_data = line6pcm;
--	pcm->private_free = line6_cleanup_pcm;
--
- 	err = line6_create_audio_out_urbs(line6pcm);
- 	if (err < 0)
- 		return err;
+ 	trace_binder_unmap_kernel_start(alloc, index);
+@@ -980,7 +980,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 	mutex_unlock(&alloc->mutex);
+ 	return LRU_REMOVED_RETRY;
+ 
+-err_down_write_mmap_sem_failed:
++err_down_read_mmap_sem_failed:
+ 	mmput_async(mm);
+ err_mmget:
+ err_page_already_freed:
 -- 
 2.20.1
 
