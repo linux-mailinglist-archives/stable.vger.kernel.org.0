@@ -2,41 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 985C6A1761
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67472A176E
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727606AbfH2KuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
+        id S1727061AbfH2KzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727481AbfH2KuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727600AbfH2KuP (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 29 Aug 2019 06:50:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA885233FF;
-        Thu, 29 Aug 2019 10:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D2D92173E;
+        Thu, 29 Aug 2019 10:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075814;
-        bh=VkLcKxus2piQ7+tKe7x1UHvTz40zStRHNSgPH/Ho+Nc=;
+        s=default; t=1567075815;
+        bh=eYpZNX+vviP0iqdloe8IdyPbr4uR78Nhm3OiA3AA1LM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCVLnFXMJ858Q6FVQ3o0ziI06hdHYZFTmDNTRmhELyoSKuyu/157SEcQUjLmmf1qx
-         9SidYwJk09Y7BQ/QqkDg14WqB7eeLueNI4uR3aDnFtB6e4QuDIKmvOCyVEFVaZIczV
-         tQGr0SvjcHQ9EYeBR4jds0sJk6IazEA8lg+qNFlo=
+        b=HSLxpaZ81qPZ8jJZhc46n46cyCzLM7fckQo8mK1EqZOXGFYzVzX4c+MBIsalbUXDi
+         Mv16ntS1L31umzey/AdrgasB2gN7JxlAg26phOefruPvQuP2Q1UWgRu/a7WYiAeNLs
+         PomekSYfFUcEaZdf52dslIu0aXNzhjekKUceS7Xc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Righi <andrea.righi@canonical.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 03/29] kprobes: Fix potential deadlock in kprobe_optimizer()
-Date:   Thu, 29 Aug 2019 06:49:43 -0400
-Message-Id: <20190829105009.2265-3-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 04/29] ALSA: line6: Fix memory leak at line6_init_pcm() error path
+Date:   Thu, 29 Aug 2019 06:49:44 -0400
+Message-Id: <20190829105009.2265-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -49,159 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f1c6ece23729257fb46562ff9224cf5f61b818da ]
+[ Upstream commit 1bc8d18c75fef3b478dbdfef722aae09e2a9fde7 ]
 
-lockdep reports the following deadlock scenario:
+I forgot to release the allocated object at the early error path in
+line6_init_pcm().  For addressing it, slightly shuffle the code so
+that the PCM destructor (pcm->private_free) is assigned properly
+before all error paths.
 
- WARNING: possible circular locking dependency detected
-
- kworker/1:1/48 is trying to acquire lock:
- 000000008d7a62b2 (text_mutex){+.+.}, at: kprobe_optimizer+0x163/0x290
-
- but task is already holding lock:
- 00000000850b5e2d (module_mutex){+.+.}, at: kprobe_optimizer+0x31/0x290
-
- which lock already depends on the new lock.
-
- the existing dependency chain (in reverse order) is:
-
- -> #1 (module_mutex){+.+.}:
-        __mutex_lock+0xac/0x9f0
-        mutex_lock_nested+0x1b/0x20
-        set_all_modules_text_rw+0x22/0x90
-        ftrace_arch_code_modify_prepare+0x1c/0x20
-        ftrace_run_update_code+0xe/0x30
-        ftrace_startup_enable+0x2e/0x50
-        ftrace_startup+0xa7/0x100
-        register_ftrace_function+0x27/0x70
-        arm_kprobe+0xb3/0x130
-        enable_kprobe+0x83/0xa0
-        enable_trace_kprobe.part.0+0x2e/0x80
-        kprobe_register+0x6f/0xc0
-        perf_trace_event_init+0x16b/0x270
-        perf_kprobe_init+0xa7/0xe0
-        perf_kprobe_event_init+0x3e/0x70
-        perf_try_init_event+0x4a/0x140
-        perf_event_alloc+0x93a/0xde0
-        __do_sys_perf_event_open+0x19f/0xf30
-        __x64_sys_perf_event_open+0x20/0x30
-        do_syscall_64+0x65/0x1d0
-        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- -> #0 (text_mutex){+.+.}:
-        __lock_acquire+0xfcb/0x1b60
-        lock_acquire+0xca/0x1d0
-        __mutex_lock+0xac/0x9f0
-        mutex_lock_nested+0x1b/0x20
-        kprobe_optimizer+0x163/0x290
-        process_one_work+0x22b/0x560
-        worker_thread+0x50/0x3c0
-        kthread+0x112/0x150
-        ret_from_fork+0x3a/0x50
-
- other info that might help us debug this:
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(module_mutex);
-                                lock(text_mutex);
-                                lock(module_mutex);
-   lock(text_mutex);
-
-  *** DEADLOCK ***
-
-As a reproducer I've been using bcc's funccount.py
-(https://github.com/iovisor/bcc/blob/master/tools/funccount.py),
-for example:
-
- # ./funccount.py '*interrupt*'
-
-That immediately triggers the lockdep splat.
-
-Fix by acquiring text_mutex before module_mutex in kprobe_optimizer().
-
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N. Rao <naveen.n.rao@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: d5b844a2cf50 ("ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()")
-Link: http://lkml.kernel.org/r/20190812184302.GA7010@xps-13
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 3450121997ce ("ALSA: line6: Fix write on zero-sized buffer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/usb/line6/pcm.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 29ff6635d2597..714d63f60460b 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -483,6 +483,7 @@ static DECLARE_DELAYED_WORK(optimizing_work, kprobe_optimizer);
-  */
- static void do_optimize_kprobes(void)
- {
-+	lockdep_assert_held(&text_mutex);
- 	/*
- 	 * The optimization/unoptimization refers online_cpus via
- 	 * stop_machine() and cpu-hotplug modifies online_cpus.
-@@ -500,9 +501,7 @@ static void do_optimize_kprobes(void)
- 	    list_empty(&optimizing_list))
- 		return;
+diff --git a/sound/usb/line6/pcm.c b/sound/usb/line6/pcm.c
+index 78c2d6cab3b52..531564269444e 100644
+--- a/sound/usb/line6/pcm.c
++++ b/sound/usb/line6/pcm.c
+@@ -554,6 +554,15 @@ int line6_init_pcm(struct usb_line6 *line6,
+ 	line6pcm->volume_monitor = 255;
+ 	line6pcm->line6 = line6;
  
--	mutex_lock(&text_mutex);
- 	arch_optimize_kprobes(&optimizing_list);
--	mutex_unlock(&text_mutex);
- }
- 
- /*
-@@ -513,6 +512,7 @@ static void do_unoptimize_kprobes(void)
- {
- 	struct optimized_kprobe *op, *tmp;
- 
-+	lockdep_assert_held(&text_mutex);
- 	/* See comment in do_optimize_kprobes() */
- 	lockdep_assert_cpus_held();
- 
-@@ -520,7 +520,6 @@ static void do_unoptimize_kprobes(void)
- 	if (list_empty(&unoptimizing_list))
- 		return;
- 
--	mutex_lock(&text_mutex);
- 	arch_unoptimize_kprobes(&unoptimizing_list, &freeing_list);
- 	/* Loop free_list for disarming */
- 	list_for_each_entry_safe(op, tmp, &freeing_list, list) {
-@@ -537,7 +536,6 @@ static void do_unoptimize_kprobes(void)
- 		} else
- 			list_del_init(&op->list);
++	spin_lock_init(&line6pcm->out.lock);
++	spin_lock_init(&line6pcm->in.lock);
++	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
++
++	line6->line6pcm = line6pcm;
++
++	pcm->private_data = line6pcm;
++	pcm->private_free = line6_cleanup_pcm;
++
+ 	line6pcm->max_packet_size_in =
+ 		usb_maxpacket(line6->usbdev,
+ 			usb_rcvisocpipe(line6->usbdev, ep_read), 0);
+@@ -566,15 +575,6 @@ int line6_init_pcm(struct usb_line6 *line6,
+ 		return -EINVAL;
  	}
--	mutex_unlock(&text_mutex);
- }
  
- /* Reclaim all kprobes on the free_list */
-@@ -563,6 +561,7 @@ static void kprobe_optimizer(struct work_struct *work)
- {
- 	mutex_lock(&kprobe_mutex);
- 	cpus_read_lock();
-+	mutex_lock(&text_mutex);
- 	/* Lock modules while optimizing kprobes */
- 	mutex_lock(&module_mutex);
- 
-@@ -590,6 +589,7 @@ static void kprobe_optimizer(struct work_struct *work)
- 	do_free_cleaned_kprobes();
- 
- 	mutex_unlock(&module_mutex);
-+	mutex_unlock(&text_mutex);
- 	cpus_read_unlock();
- 	mutex_unlock(&kprobe_mutex);
- 
+-	spin_lock_init(&line6pcm->out.lock);
+-	spin_lock_init(&line6pcm->in.lock);
+-	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
+-
+-	line6->line6pcm = line6pcm;
+-
+-	pcm->private_data = line6pcm;
+-	pcm->private_free = line6_cleanup_pcm;
+-
+ 	err = line6_create_audio_out_urbs(line6pcm);
+ 	if (err < 0)
+ 		return err;
 -- 
 2.20.1
 
