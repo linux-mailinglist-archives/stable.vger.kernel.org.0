@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF3CA2541
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B42A253E
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729057AbfH2SOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56476 "EHLO mail.kernel.org"
+        id S1729099AbfH2SPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729031AbfH2SOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:14:52 -0400
+        id S1729082AbfH2SO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:14:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A532C23404;
-        Thu, 29 Aug 2019 18:14:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E534823405;
+        Thu, 29 Aug 2019 18:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102491;
-        bh=Sjz+ob3tjn27OF37DZBGEmsnfNuVRsOjYEddGEdbDeM=;
+        s=default; t=1567102497;
+        bh=cIBmie2SDl6fWDIBpvZGPqToFNOLY9z40Csdp2T6Pt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nm/W27LvX5q6jIutVpNBx4y9VV45hJGKvwDYLv2D9OPRfC8mUhw3H49VTEC9BbUSb
-         V/efdCElcEh30PXIAD1svT6WraFeTy2/GLL26XHSLDzjfpPv1AYYtoVzXl6PNtWZKe
-         WePXPeZF2R4MBdqiYgaFw1vdMg+XV343dN9stSa4=
+        b=ySz//tuwyBcxQVLhVK74jU6TYVKKyjYKBBAAYi7OxLYyA0r8eM/sDnEqoH5jhZgpG
+         0Y1DPR/b8UbQKH6dp7s5DYeeX+stdjH/+C6S5AJuPW9zpybqM2xYhCu/BksKBw/jsc
+         Rnp3GR7pa0aWL0klT1w0k65ykK+wg9819r6KRDeY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 47/76] sched/core: Schedule new worker even if PI-blocked
-Date:   Thu, 29 Aug 2019 14:12:42 -0400
-Message-Id: <20190829181311.7562-47-sashal@kernel.org>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 50/76] HID: cp2112: prevent sleeping function called from invalid context
+Date:   Thu, 29 Aug 2019 14:12:45 -0400
+Message-Id: <20190829181311.7562-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -45,59 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[ Upstream commit b0fdc01354f45d43f082025636ef808968a27b36 ]
+[ Upstream commit 2d05dba2b25ecb0f8fc3a0b4eb2232da6454a47b ]
 
-If a task is PI-blocked (blocking on sleeping spinlock) then we don't want to
-schedule a new kworker if we schedule out due to lock contention because !RT
-does not do that as well. A spinning spinlock disables preemption and a worker
-does not schedule out on lock contention (but spin).
+When calling request_threaded_irq() with a CP2112, the function
+cp2112_gpio_irq_startup() is called in a IRQ context.
 
-On RT the RW-semaphore implementation uses an rtmutex so
-tsk_is_pi_blocked() will return true if a task blocks on it. In this case we
-will now start a new worker which may deadlock if one worker is waiting on
-progress from another worker. Since a RW-semaphore starts a new worker on !RT,
-we should do the same on RT.
+Therefore we can not sleep, and we can not call
+cp2112_gpio_direction_input() there.
 
-XFS is able to trigger this deadlock.
+Move the call to cp2112_gpio_direction_input() earlier to have a working
+driver.
 
-Allow to schedule new worker if the current worker is PI-blocked.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20190816160626.12742-1-bigeasy@linutronix.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/hid-cp2112.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4d5962232a553..42bc2986520d7 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3469,7 +3469,7 @@ void __noreturn do_task_dead(void)
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 8bbe3d0cbe5d9..8fd44407a0df7 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1152,8 +1152,6 @@ static unsigned int cp2112_gpio_irq_startup(struct irq_data *d)
  
- static inline void sched_submit_work(struct task_struct *tsk)
- {
--	if (!tsk->state || tsk_is_pi_blocked(tsk))
-+	if (!tsk->state)
- 		return;
+ 	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
  
- 	/*
-@@ -3485,6 +3485,9 @@ static inline void sched_submit_work(struct task_struct *tsk)
- 		preempt_enable_no_resched();
+-	cp2112_gpio_direction_input(gc, d->hwirq);
+-
+ 	if (!dev->gpio_poll) {
+ 		dev->gpio_poll = true;
+ 		schedule_delayed_work(&dev->gpio_poll_worker, 0);
+@@ -1201,6 +1199,12 @@ static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
+ 		return PTR_ERR(dev->desc[pin]);
  	}
  
-+	if (tsk_is_pi_blocked(tsk))
-+		return;
++	ret = cp2112_gpio_direction_input(&dev->gc, pin);
++	if (ret < 0) {
++		dev_err(dev->gc.parent, "Failed to set GPIO to input dir\n");
++		goto err_desc;
++	}
 +
- 	/*
- 	 * If we are going to sleep and we have plugged IO queued,
- 	 * make sure to submit it to avoid deadlocks.
+ 	ret = gpiochip_lock_as_irq(&dev->gc, pin);
+ 	if (ret) {
+ 		dev_err(dev->gc.parent, "Failed to lock GPIO as interrupt\n");
 -- 
 2.20.1
 
