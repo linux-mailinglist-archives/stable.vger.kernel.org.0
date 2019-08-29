@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A48EDA172C
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB70A172A
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728236AbfH2Kur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58266 "EHLO mail.kernel.org"
+        id S1727142AbfH2Kxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728216AbfH2Kuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:46 -0400
+        id S1728231AbfH2Kur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A927623405;
-        Thu, 29 Aug 2019 10:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD3812173E;
+        Thu, 29 Aug 2019 10:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075845;
-        bh=ONx14oMxgGVjejwC1H+cAhSrLULeYa5AfyZ3w2hjqZA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WyGH4v+mf7QdMMIM046pQ2TH5Ybho6KjBiDkCfBlN7IfP/2+L81/zLQV3fv6jmg72
-         4bg9GcF8wXcnojAH2yd/SckHzXMJkVcNb73fD8BbjV+5bgBTKEqFCVxLGJPAkmrE5S
-         nI1HbyiWNHayBEEgFDDB1FfQzCdb0Xdq14wXgjpY=
+        s=default; t=1567075846;
+        bh=792YrIutp1VH0G5GT41lD60mWP3POfR0m6XxGIUG/CQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZNz8FRcczQycoNtOYL34iXYtl8rw8W2oeLmOz4/wtGXXo572Z85IJZAl3JjY/oBWq
+         D5AQoFY3/xjrLBJpV1I1zUGIDGQwf5l1Gai5AS5tmIVTplC1XPkOzGDATj8Ldep1dc
+         4QuSfLOKPxgLGti9GWCFypbbK/Fbf1Bws0dgyjx0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dexuan Cui <decui@microsoft.com>,
-        Sunil Muthuswamy <sunilmut@microsoft.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com
-Subject: [PATCH AUTOSEL 4.14 01/14] hv_sock: Fix hang when a connection is closed
-Date:   Thu, 29 Aug 2019 06:50:30 -0400
-Message-Id: <20190829105043.2508-1-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/14] Revert "dm bufio: fix deadlock with loop device"
+Date:   Thu, 29 Aug 2019 06:50:31 -0400
+Message-Id: <20190829105043.2508-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190829105043.2508-1-sashal@kernel.org>
+References: <20190829105043.2508-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,69 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 685703b497bacea8765bb409d6b73455b73c540e ]
+[ Upstream commit cf3591ef832915892f2499b7e54b51d4c578b28c ]
 
-There is a race condition for an established connection that is being closed
-by the guest: the refcnt is 4 at the end of hvs_release() (Note: here the
-'remove_sock' is false):
+Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
+fix has been made available with commit d0a255e795ab ("loop: set
+PF_MEMALLOC_NOIO for the worker thread").
 
-1 for the initial value;
-1 for the sk being in the bound list;
-1 for the sk being in the connected list;
-1 for the delayed close_work.
+Note that the fix offered by commit bd293d071ffe doesn't really prevent
+the deadlock from occuring - if we look at the stacktrace reported by
+Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
+i.e. it has already successfully taken the mutex. Changing the mutex
+from mutex_lock to mutex_trylock won't help with deadlocks that happen
+afterwards.
 
-After hvs_release() finishes, __vsock_release() -> sock_put(sk) *may*
-decrease the refcnt to 3.
+PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
+   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
+   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
+   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
+   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
+   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
+   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
+   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
+   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
+   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
+   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
+  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
+  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
+  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
+  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
+  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
 
-Concurrently, hvs_close_connection() runs in another thread:
-  calls vsock_remove_sock() to decrease the refcnt by 2;
-  call sock_put() to decrease the refcnt to 0, and free the sk;
-  next, the "release_sock(sk)" may hang due to use-after-free.
-
-In the above, after hvs_release() finishes, if hvs_close_connection() runs
-faster than "__vsock_release() -> sock_put(sk)", then there is not any issue,
-because at the beginning of hvs_close_connection(), the refcnt is still 4.
-
-The issue can be resolved if an extra reference is taken when the
-connection is established.
-
-Fixes: a9eeb998c28d ("hv_sock: Add support for delayed close")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
+Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/hyperv_transport.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/md/dm-bufio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 52ac3e49c7efd..ec72a5edaa1b8 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -320,6 +320,11 @@ static void hvs_close_connection(struct vmbus_channel *chan)
- 	lock_sock(sk);
- 	hvs_do_close_lock_held(vsock_sk(sk), true);
- 	release_sock(sk);
-+
-+	/* Release the refcnt for the channel that's opened in
-+	 * hvs_open_connection().
-+	 */
-+	sock_put(sk);
- }
+diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
+index b7d3b62dae7f9..1e17e6421da32 100644
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1630,7 +1630,9 @@ dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+ 	unsigned long freed;
  
- static void hvs_open_connection(struct vmbus_channel *chan)
-@@ -389,6 +394,9 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 	}
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (!dm_bufio_trylock(c))
++	if (sc->gfp_mask & __GFP_FS)
++		dm_bufio_lock(c);
++	else if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
  
- 	set_per_channel_state(chan, conn_from_host ? new : sk);
-+
-+	/* This reference will be dropped by hvs_close_connection(). */
-+	sock_hold(conn_from_host ? new : sk);
- 	vmbus_set_chn_rescind_callback(chan, hvs_close_connection);
- 
- 	/* Set the pending send size to max packet size to always get
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 -- 
 2.20.1
 
