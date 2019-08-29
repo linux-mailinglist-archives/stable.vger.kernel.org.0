@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1899A18D6
+	by mail.lfdr.de (Postfix) with ESMTP id F213EA18D7
 	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbfH2LgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:36:03 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:33366 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727308AbfH2LgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:36:03 -0400
-Received: by mail-pf1-f195.google.com with SMTP id g2so1887636pfq.0
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:36:02 -0700 (PDT)
+        id S1727500AbfH2LgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 07:36:06 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:34935 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727421AbfH2LgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:36:05 -0400
+Received: by mail-pl1-f194.google.com with SMTP id gn20so1458748plb.2
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:36:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=7MRMdAKqkkU6zuM8WMZXIs4D8fug3sxafZUJy2Rr9SE=;
-        b=vVyItguL9T0AvEViFa6gaLhPAmahCHeVKFUQUra0d6N2G4hqPollf08VuWeFOE9cBh
-         Lsiwu15etnFK2vSd1r9aUQUNXxmm0bhzIYLZwOJM7YJ4e4EvoyopMk/sgq61pF/ASV0K
-         pk0M6I87Fr5urQifhikKA380i6Xgyuom8EGazvueaXiErtGr4mHYKTvQFTHaxX4sDDlW
-         7uvild1QJG9MTTWygJwfV97GnKpUuSMtUFOWRAS4uNRqB1j1Fh9WCQt+4ROoHyM3Pmdt
-         MVTvnqSQ/CVD5sBY6HXUP6/L2I2sVz9vd6NhfpQgBGFIL4nnAfEI6C00IosmJAddGp48
-         Pw/g==
+        bh=y6GazOWQm4IOOc6xrMbLHqM6mIdOvxmzg2BIOtMFGqg=;
+        b=LyNvyEL50rTrdkIjipcrLCUtIh4hp0sPiDDZNm2ss9LdOgbQO2Z5KQJOoEpkvAXgJp
+         2QpodfuPyGGaNRQadqdv3j4PfCLK26hknY1obYrHuUurdxwNueTidXsjcit+3hLKtwUU
+         YJlmFFKYU1L5PDFxZLaGsjkMsWjdNOHI9EBneFPah8x5LtE4AejBca8qWlYGVNSlThKx
+         ni6xB0phzYbDpMgrCZkMABWszq7FpzhMhJTOv8FHHzGtpsLIE82jHJ+YifCYESWcpIRk
+         l6ayd71M7UMDayZrv68qBPQeQtbsYENCskRHqqVefLjRudwLeNUS4vpNxFHaYW0av0Wo
+         zolQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7MRMdAKqkkU6zuM8WMZXIs4D8fug3sxafZUJy2Rr9SE=;
-        b=dLjBX/wf59wN0swS/JDkW6G1uTr88sM1qFDF7IH0rhvyCoTq++XyWCOxza7d/CsqdE
-         FPHyqi42jlNk9s7dmJdLQYUL8fbzsyjwtmCa8S72XnzaaZcxGKKFcdSbMlVXC+1JHJET
-         J1g0Lcz3KkqPmIjLqeNuvXV2m/s7SLyH1u2JM0yABp5/lFQr48QmboO9js31TidEgbDp
-         4YCOjVBGqZQdyq/qFzDQntIqUx/rautEurQuMfrRF7+87p+5MNT+XMS4bb3nTM7doGVG
-         CSGoo2aeYs+VXwDDjoZbE8hPqzXVJcSm8yVfoqXoIDZWKAqnus+2p5QZYNwO/MpigPOU
-         zJCA==
-X-Gm-Message-State: APjAAAWt5ZeZGgwWxTi+nrM92KVyDfzpsSYk58ZznEC0u4fk+VazWHFn
-        XEtargTwJfJmjl0DqySb3gwfX7mJqKg=
-X-Google-Smtp-Source: APXvYqx09NvbWyJDyhBqvJWFlmQUkCvuPwXDQHyszuIuaqDXtBbe1WI75BVFuKEHVWUqerklEQkg8g==
-X-Received: by 2002:a63:ff66:: with SMTP id s38mr8030413pgk.363.1567078561992;
-        Thu, 29 Aug 2019 04:36:01 -0700 (PDT)
+        bh=y6GazOWQm4IOOc6xrMbLHqM6mIdOvxmzg2BIOtMFGqg=;
+        b=kRtPlZ2Aa6PfAr8CU4Z1D9/+yIvA6XecVDp4iPP5pl6QAy0ZoA6ZomIvh1e0ypLXjC
+         ScDRH0zMesd4UacAQGf9Y6EeGpyoTsF2wRJGjMb0Gl2TYVb6Sbpuv4GBPXx69guaXGZQ
+         ZDbermqOGww+x9CHPJjkg2yF1xwY+0UViVJ/TXgrm2GoAwtkSuxolq7K0AZT+A3HAjwF
+         9yypXFyb95MqPSMxmFguCZMjCJVBl/5HY4faRythqYUOzT7ruOsh1gSdQhWryBFGnTw6
+         w+uPiLFhm/Tzjbv3L1ShnDZlEzLhhXspicW5zzj9xx+gvJjLfFmx6EE0VyP5lpwSJvU7
+         hniw==
+X-Gm-Message-State: APjAAAVbAPEYTxAjtzXc50yXn7Mqw+MPXBJCDQQl2mxgu8DiVdc/n5YC
+        /bX+ycrduNDJYshnYGQdVrq10oOPnDo=
+X-Google-Smtp-Source: APXvYqylU6VlJeIPHMWviGMFk9YcyO6Wnq/64uLquncZiKttj/4gMdRzMRgHYQuDzEEIjF7963d3Tw==
+X-Received: by 2002:a17:902:fa5:: with SMTP id 34mr9509568plz.285.1567078564877;
+        Thu, 29 Aug 2019 04:36:04 -0700 (PDT)
 Received: from localhost ([122.167.132.221])
-        by smtp.gmail.com with ESMTPSA id a5sm1939293pjs.31.2019.08.29.04.36.01
+        by smtp.gmail.com with ESMTPSA id 4sm3138639pfe.76.2019.08.29.04.36.03
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Aug 2019 04:36:01 -0700 (PDT)
+        Thu, 29 Aug 2019 04:36:04 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
         Mark Rutland <mark.rutland@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH ARM64 v4.4 V3 26/44] arm64: Move BP hardening to check_and_switch_context
-Date:   Thu, 29 Aug 2019 17:04:11 +0530
-Message-Id: <d2f9dccdd85950989be37aebdaece9aef0a6a9b5.1567077734.git.viresh.kumar@linaro.org>
+Subject: [PATCH ARM64 v4.4 V3 27/44] arm64: entry: Apply BP hardening for high-priority synchronous exceptions
+Date:   Thu, 29 Aug 2019 17:04:12 +0530
+Message-Id: <711165f3d8dce609dfb777b3705fe1b58ca237cf.1567077734.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1567077734.git.viresh.kumar@linaro.org>
 References: <cover.1567077734.git.viresh.kumar@linaro.org>
@@ -68,53 +68,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit a8e4c0a919ae310944ed2c9ace11cf3ccd8a609b upstream.
+commit 5dfc6ed27710c42cbc15db5c0d4475699991da0a upstream.
 
-We call arm64_apply_bp_hardening() from post_ttbr_update_workaround,
-which has the unexpected consequence of being triggered on every
-exception return to userspace when ARM64_SW_TTBR0_PAN is selected,
-even if no context switch actually occured.
+Software-step and PC alignment fault exceptions have higher priority than
+instruction abort exceptions, so apply the BP hardening hooks there too
+if the user PC appears to reside in kernel space.
 
-This is a bit suboptimal, and it would be more logical to only
-invalidate the branch predictor when we actually switch to
-a different mm.
-
-In order to solve this, move the call to arm64_apply_bp_hardening()
-into check_and_switch_context(), where we're guaranteed to pick
-a different mm context.
-
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Reported-by: Dan Hettena <dhettena@nvidia.com>
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ v4.4: Resolved rebase conflicts ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/mm/context.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/entry.S | 6 ++++--
+ arch/arm64/mm/fault.c     | 9 +++++++++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/mm/context.c b/arch/arm64/mm/context.c
-index be42bd3dca5c..de5afc27b4e6 100644
---- a/arch/arm64/mm/context.c
-+++ b/arch/arm64/mm/context.c
-@@ -183,6 +183,8 @@ void check_and_switch_context(struct mm_struct *mm, unsigned int cpu)
- 	raw_spin_unlock_irqrestore(&cpu_asid_lock, flags);
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 05bfc71639fc..42a141f01f3b 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -530,8 +530,10 @@ ENDPROC(el1_irq)
+ 	 * Stack or PC alignment exception handling
+ 	 */
+ 	mrs	x26, far_el1
+-	// enable interrupts before calling the main handler
+-	enable_dbg_and_irq
++	enable_dbg
++#ifdef CONFIG_TRACE_IRQFLAGS
++	bl	trace_hardirqs_off
++#endif
+ 	ct_user_exit
+ 	mov	x0, x26
+ 	mov	x1, x25
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 1878c881a247..082f385b6592 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -561,6 +561,12 @@ asmlinkage void __exception do_sp_pc_abort(unsigned long addr,
+ 	struct siginfo info;
+ 	struct task_struct *tsk = current;
  
- switch_mm_fastpath:
-+	arm64_apply_bp_hardening();
++	if (user_mode(regs)) {
++		if (instruction_pointer(regs) > TASK_SIZE)
++			arm64_apply_bp_hardening();
++		local_irq_enable();
++	}
 +
- 	cpu_switch_mm(mm->pgd, mm);
- }
+ 	if (show_unhandled_signals && unhandled_signal(tsk, SIGBUS))
+ 		pr_info_ratelimited("%s[%d]: %s exception: pc=%p sp=%p\n",
+ 				    tsk->comm, task_pid_nr(tsk),
+@@ -621,6 +627,9 @@ asmlinkage int __exception do_debug_exception(unsigned long addr_if_watchpoint,
+ 	if (interrupts_enabled(regs))
+ 		trace_hardirqs_off();
  
-@@ -193,8 +195,6 @@ asmlinkage void post_ttbr_update_workaround(void)
- 			"ic iallu; dsb nsh; isb",
- 			ARM64_WORKAROUND_CAVIUM_27456,
- 			CONFIG_CAVIUM_ERRATUM_27456));
--
--	arm64_apply_bp_hardening();
- }
- 
- static int asids_init(void)
++	if (user_mode(regs) && instruction_pointer(regs) > TASK_SIZE)
++		arm64_apply_bp_hardening();
++
+ 	if (!inf->fn(addr_if_watchpoint, esr, regs)) {
+ 		rv = 1;
+ 	} else {
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
