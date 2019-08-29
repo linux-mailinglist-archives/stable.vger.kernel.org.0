@@ -2,128 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0EC9A264B
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0C5A2687
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbfH2SoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:44:17 -0400
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:46713 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726518AbfH2SoR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 14:44:17 -0400
-Received: by mail-yw1-f66.google.com with SMTP id 201so1417014ywo.13
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 11:44:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=poorly.run; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Y0CIg3NVlgXeInnLw0PrlDfAySS6GEabvcH9ZTG2R7Q=;
-        b=InpYZstdqbCIKyy+HjlkWYc66380kSdA6vXpPRrTKq4uXw9ekphazbrnIw6bwbzBzb
-         7edoejK/7waY8exYn+JrLpcXUC2lSmNFM1G9y6iGb1z9Y2tDGJD/fpFffCEHzOT1YPDh
-         u4ZXGF0g7yb7uvNEERKYPHPeyYqNOXNTpuDnNUuXwS7bLp6hVJMHIU6a8sJUgwNtx6SR
-         rH5qehF9L9u75OwlCesmid2/lULlpcmdw9ICLW7lWBN/KjJHiEButiMjcjFjVIxUyG0a
-         n7tEiYKvEfKsu0WMQmS6JFBZKWCOkGqONRs40SENLqdV0xvsR0k9gctaGL5Mwp4nvjyl
-         OOUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Y0CIg3NVlgXeInnLw0PrlDfAySS6GEabvcH9ZTG2R7Q=;
-        b=bDSk3Gtz98yBy+ZnK/E9LLJrd2C3KjbDJYDO80h5wCj8GITldMrrMfmlDJrr76XUsM
-         H9ZinNAIU8tuDkpGpKwVGYIL3SF0/BDZoE0y7OTgqVD9bge/Pzf+1sIQRBWb0y210O3z
-         p+WCpuA6dsfZe7B0F2Pk8aJFgQ7UBsEZ7i/uHfk1cwlfVJ1ReopwWYMak/HoL0f2JZs0
-         T22pwoGLPAasz7Ti6ldpvPDj2mEYmJiG8DREwMTlwRCOu9S8G+Igpmy6zNjYy43fvK0J
-         75cbi6b+313RYGZeYOjGA62QK4UeZUP4C5yv8MuU5ojplBTdOl1u1B4F1wsTSTFMHnPX
-         t5cg==
-X-Gm-Message-State: APjAAAXjbbWyhGyJWkw9Q31lgX0da7Vgu1ELZdOM1O7WJbiKBwaId9+l
-        DKcIF6SqZvTWKGE4wxNv3NuZwA==
-X-Google-Smtp-Source: APXvYqwfHTKwJ0mIS2bakEIGWA+OzHB1IgmPpfPQ6tDR80PPpVr+YxxDwDw0znbrJvYqp9p71/hDrQ==
-X-Received: by 2002:a81:70c7:: with SMTP id l190mr7946781ywc.280.1567104256441;
-        Thu, 29 Aug 2019 11:44:16 -0700 (PDT)
-Received: from localhost ([2620:0:1013:11:89c6:2139:5435:371d])
-        by smtp.gmail.com with ESMTPSA id i20sm638407ywg.96.2019.08.29.11.44.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2019 11:44:15 -0700 (PDT)
-Date:   Thu, 29 Aug 2019 14:44:15 -0400
-From:   Sean Paul <sean@poorly.run>
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     Sean Paul <sean@poorly.run>, dri-devel@lists.freedesktop.org,
-        Sean Paul <seanpaul@chromium.org>,
-        Todd Previte <tprevite@gmail.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm: mst: Fix query_payload ack reply struct
-Message-ID: <20190829184415.GI218215@art_vandelay>
-References: <20190829165223.129662-1-sean@poorly.run>
- <9927a099fc5f0140ea92e34f017186d9ffe0bb13.camel@redhat.com>
+        id S1727707AbfH2Szi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:55:38 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:51274 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727146AbfH2Szi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 14:55:38 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1i3PZt-0004wC-NS; Thu, 29 Aug 2019 20:55:25 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B6CFA1C07C3;
+        Thu, 29 Aug 2019 20:55:24 +0200 (CEST)
+Date:   Thu, 29 Aug 2019 18:55:24 -0000
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/mm/cpa: Prevent large page split when ftrace
+ flips RW on kernel text
+Cc:     Song Liu <songliubraving@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <alpine.DEB.2.21.1908282355340.1938@nanos.tec.linutronix.de>
+References: <alpine.DEB.2.21.1908282355340.1938@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9927a099fc5f0140ea92e34f017186d9ffe0bb13.camel@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <156710492460.9654.8831877201682543400.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 29, 2019 at 01:06:58PM -0400, Lyude Paul wrote:
-> Is it worth actually CCing stable on this? This patch is certainly correct but
-> I don't think we use this struct for anything quite yet.
-> 
-> Otherwise: Reviewed-by: Lyude Paul <lyude@redhat.com>
+The following commit has been merged into the x86/urgent branch of tip:
 
-Thanks for the review! I've stripped the cc stable tag and pushed to
-drm-misc-next. We'll have to keep an eye out for Sasha's stable AI bot, I'm
-guessing it'll try to backport this to stable regardless.
+Commit-ID:     7af0145067bc429a09ac4047b167c0971c9f0dc7
+Gitweb:        https://git.kernel.org/tip/7af0145067bc429a09ac4047b167c0971c9f0dc7
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 29 Aug 2019 00:31:34 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 29 Aug 2019 20:48:44 +02:00
 
-Sean
+x86/mm/cpa: Prevent large page split when ftrace flips RW on kernel text
 
-> 
-> On Thu, 2019-08-29 at 12:52 -0400, Sean Paul wrote:
-> > From: Sean Paul <seanpaul@chromium.org>
-> > 
-> > Spec says[1] Allocated_PBN is 16 bits
-> > 
-> > [1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
-> > 
-> > Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper
-> > (v0.6)")
-> > Cc: Lyude Paul <lyude@redhat.com>
-> > Cc: Todd Previte <tprevite@gmail.com>
-> > Cc: Dave Airlie <airlied@redhat.com>
-> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-> > Cc: Sean Paul <sean@poorly.run>
-> > Cc: David Airlie <airlied@linux.ie>
-> > Cc: Daniel Vetter <daniel@ffwll.ch>
-> > Cc: dri-devel@lists.freedesktop.org
-> > Cc: <stable@vger.kernel.org> # v3.17+
-> > Signed-off-by: Sean Paul <seanpaul@chromium.org>
-> > ---
-> >  include/drm/drm_dp_mst_helper.h | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/include/drm/drm_dp_mst_helper.h
-> > b/include/drm/drm_dp_mst_helper.h
-> > index 2ba6253ea6d3..fc349204a71b 100644
-> > --- a/include/drm/drm_dp_mst_helper.h
-> > +++ b/include/drm/drm_dp_mst_helper.h
-> > @@ -334,7 +334,7 @@ struct drm_dp_resource_status_notify {
-> >  
-> >  struct drm_dp_query_payload_ack_reply {
-> >  	u8 port_number;
-> > -	u8 allocated_pbn;
-> > +	u16 allocated_pbn;
-> >  };
-> >  
-> >  struct drm_dp_sideband_msg_req_body {
-> -- 
-> Cheers,
-> 	Lyude Paul
-> 
+ftrace does not use text_poke() for enabling trace functionality. It uses
+its own mechanism and flips the whole kernel text to RW and back to RO.
 
--- 
-Sean Paul, Software Engineer, Google / Chromium OS
+The CPA rework removed a loop based check of 4k pages which tried to
+preserve a large page by checking each 4k page whether the change would
+actually cover all pages in the large page.
+
+This resulted in endless loops for nothing as in testing it turned out that
+it actually never preserved anything. Of course testing missed to include
+ftrace, which is the one and only case which benefitted from the 4k loop.
+
+As a consequence enabling function tracing or ftrace based kprobes results
+in a full 4k split of the kernel text, which affects iTLB performance.
+
+The kernel RO protection is the only valid case where this can actually
+preserve large pages.
+
+All other static protections (RO data, data NX, PCI, BIOS) are truly
+static.  So a conflict with those protections which results in a split
+should only ever happen when a change of memory next to a protected region
+is attempted. But these conflicts are rightfully splitting the large page
+to preserve the protected regions. In fact a change to the protected
+regions itself is a bug and is warned about.
+
+Add an exception for the static protection check for kernel text RO when
+the to be changed region spawns a full large page which allows to preserve
+the large mappings. This also prevents the syslog to be spammed about CPA
+violations when ftrace is used.
+
+The exception needs to be removed once ftrace switched over to text_poke()
+which avoids the whole issue.
+
+Fixes: 585948f4f695 ("x86/mm/cpa: Avoid the 4k pages check completely")
+Reported-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Song Liu <songliubraving@fb.com>
+Reviewed-by: Song Liu <songliubraving@fb.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282355340.1938@nanos.tec.linutronix.de
+---
+ arch/x86/mm/pageattr.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
+
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 6a9a77a..e14e95e 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -516,7 +516,7 @@ static inline void check_conflict(int warnlvl, pgprot_t prot, pgprotval_t val,
+  */
+ static inline pgprot_t static_protections(pgprot_t prot, unsigned long start,
+ 					  unsigned long pfn, unsigned long npg,
+-					  int warnlvl)
++					  unsigned long lpsize, int warnlvl)
+ {
+ 	pgprotval_t forbidden, res;
+ 	unsigned long end;
+@@ -535,9 +535,17 @@ static inline pgprot_t static_protections(pgprot_t prot, unsigned long start,
+ 	check_conflict(warnlvl, prot, res, start, end, pfn, "Text NX");
+ 	forbidden = res;
+ 
+-	res = protect_kernel_text_ro(start, end);
+-	check_conflict(warnlvl, prot, res, start, end, pfn, "Text RO");
+-	forbidden |= res;
++	/*
++	 * Special case to preserve a large page. If the change spawns the
++	 * full large page mapping then there is no point to split it
++	 * up. Happens with ftrace and is going to be removed once ftrace
++	 * switched to text_poke().
++	 */
++	if (lpsize != (npg * PAGE_SIZE) || (start & (lpsize - 1))) {
++		res = protect_kernel_text_ro(start, end);
++		check_conflict(warnlvl, prot, res, start, end, pfn, "Text RO");
++		forbidden |= res;
++	}
+ 
+ 	/* Check the PFN directly */
+ 	res = protect_pci_bios(pfn, pfn + npg - 1);
+@@ -819,7 +827,7 @@ static int __should_split_large_page(pte_t *kpte, unsigned long address,
+ 	 * extra conditional required here.
+ 	 */
+ 	chk_prot = static_protections(old_prot, lpaddr, old_pfn, numpages,
+-				      CPA_CONFLICT);
++				      psize, CPA_CONFLICT);
+ 
+ 	if (WARN_ON_ONCE(pgprot_val(chk_prot) != pgprot_val(old_prot))) {
+ 		/*
+@@ -855,7 +863,7 @@ static int __should_split_large_page(pte_t *kpte, unsigned long address,
+ 	 * protection requirement in the large page.
+ 	 */
+ 	new_prot = static_protections(req_prot, lpaddr, old_pfn, numpages,
+-				      CPA_DETECT);
++				      psize, CPA_DETECT);
+ 
+ 	/*
+ 	 * If there is a conflict, split the large page.
+@@ -906,7 +914,8 @@ static void split_set_pte(struct cpa_data *cpa, pte_t *pte, unsigned long pfn,
+ 	if (!cpa->force_static_prot)
+ 		goto set;
+ 
+-	prot = static_protections(ref_prot, address, pfn, npg, CPA_PROTECT);
++	/* Hand in lpsize = 0 to enforce the protection mechanism */
++	prot = static_protections(ref_prot, address, pfn, npg, 0, CPA_PROTECT);
+ 
+ 	if (pgprot_val(prot) == pgprot_val(ref_prot))
+ 		goto set;
+@@ -1503,7 +1512,8 @@ static int __change_page_attr(struct cpa_data *cpa, int primary)
+ 		pgprot_val(new_prot) |= pgprot_val(cpa->mask_set);
+ 
+ 		cpa_inc_4k_install();
+-		new_prot = static_protections(new_prot, address, pfn, 1,
++		/* Hand in lpsize = 0 to enforce the protection mechanism */
++		new_prot = static_protections(new_prot, address, pfn, 1, 0,
+ 					      CPA_PROTECT);
+ 
+ 		new_prot = pgprot_clear_protnone_bits(new_prot);
