@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBA4A246D
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A9BA246C
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729119AbfH2SRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
+        id S1729959AbfH2SXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:23:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729934AbfH2SRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:17:01 -0400
+        id S1729940AbfH2SRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:17:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31097233FF;
-        Thu, 29 Aug 2019 18:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F2CF2189D;
+        Thu, 29 Aug 2019 18:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102620;
-        bh=O1EYD+mSrrIKSbPQmCF5Ywc4o5fhlICEumH33oOznOg=;
+        s=default; t=1567102622;
+        bh=nEu9r5lbzeulnKsEgKOYbBvLHJcwBjg28QDmTSDWWFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TipztOZfRmaGvjowuEv4gJJMgLtAK6a7vkV9pxkp0VPlErCYtovo5BwN661th5e2Z
-         gTbwykDjiB7aysWr47dEa4zGvIZKMyp3V23o6QZdxngYUhqBKyZAyJyhGvzgVh3f6/
-         f49qaudvthh9Z2rT+m0Lo3qeqTejTOaNVrJYKPn8=
+        b=gSozmAA53nf8nWMyCUyj46O0geLmFW4DoQrL0XSGoEcKwaq2Jo91Hc85KrX/K3Pd3
+         NeRguU82ARZddIBaid+8qUSoADmdxqV0dlwZXb5buK2nCHrAFlHofjbbQkg7UhtJqy
+         GbAq2bmcsXj1kJoWHSkV3DUeTv8gzA7LHdBwuX48=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 03/27] net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
-Date:   Thu, 29 Aug 2019 14:16:29 -0400
-Message-Id: <20190829181655.8741-3-sashal@kernel.org>
+Cc:     Matthias Kaehlcke <mka@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/27] Bluetooth: btqca: Add a short delay before downloading the NVM
+Date:   Thu, 29 Aug 2019 14:16:30 -0400
+Message-Id: <20190829181655.8741-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
 References: <20190829181655.8741-1-sashal@kernel.org>
@@ -44,54 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 125b7e0949d4e72b15c2b1a1590f8cece985a918 ]
+[ Upstream commit 8059ba0bd0e4694e51c2ee6438a77b325f06c0d5 ]
 
-clang warns:
+On WCN3990 downloading the NVM sometimes fails with a "TLV response
+size mismatch" error:
 
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: warning: use of logical
-'&&' with constant operand [-Wconstant-logical-operand]
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                  ^  ~~~~~~~~~~~~
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: use '&' for a
-bitwise operation
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                  ^~
-                                                  &
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: remove constant to
-silence this warning
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                 ~^~~~~~~~~~~~~~~
-1 warning generated.
+[  174.949955] Bluetooth: btqca.c:qca_download_firmware() hci0: QCA Downloading qca/crnv21.bin
+[  174.958718] Bluetooth: btqca.c:qca_tlv_send_segment() hci0: QCA TLV response size mismatch
 
-Explicitly check that NET_IP_ALIGN is not zero, which matches how this
-is checked in other parts of the tree. Because NET_IP_ALIGN is a build
-time constant, this check will be constant folded away during
-optimization.
+It seems the controller needs a short time after downloading the
+firmware before it is ready for the NVM. A delay as short as 1 ms
+seems sufficient, make it 10 ms just in case. No event is received
+during the delay, hence we don't just silently drop an extra event.
 
-Fixes: 82a9928db560 ("tc35815: Enable StripCRC feature")
-Link: https://github.com/ClangBuiltLinux/linux/issues/608
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/toshiba/tc35815.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/btqca.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
-index cce9c9ed46aa9..9146068979d2c 100644
---- a/drivers/net/ethernet/toshiba/tc35815.c
-+++ b/drivers/net/ethernet/toshiba/tc35815.c
-@@ -1497,7 +1497,7 @@ tc35815_rx(struct net_device *dev, int limit)
- 			pci_unmap_single(lp->pci_dev,
- 					 lp->rx_skbs[cur_bd].skb_dma,
- 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
--			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-+			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
- 				memmove(skb->data, skb->data - NET_IP_ALIGN,
- 					pkt_len);
- 			data = skb_put(skb, pkt_len);
+diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
+index 0bbdfcef2aa84..a48a61f22f823 100644
+--- a/drivers/bluetooth/btqca.c
++++ b/drivers/bluetooth/btqca.c
+@@ -363,6 +363,9 @@ int qca_uart_setup_rome(struct hci_dev *hdev, uint8_t baudrate)
+ 		return err;
+ 	}
+ 
++	/* Give the controller some time to get ready to receive the NVM */
++	msleep(10);
++
+ 	/* Download NVM configuration */
+ 	config.type = TLV_TYPE_NVM;
+ 	snprintf(config.fwname, sizeof(config.fwname), "qca/nvm_%08x.bin",
 -- 
 2.20.1
 
