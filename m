@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA246A170D
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39056A16C9
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbfH2Kw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58606 "EHLO mail.kernel.org"
+        id S1728437AbfH2KvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:51:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728378AbfH2KvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:51:01 -0400
+        id S1728406AbfH2KvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:51:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E0082173E;
-        Thu, 29 Aug 2019 10:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE07123427;
+        Thu, 29 Aug 2019 10:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075860;
-        bh=8E1ZaQQdv9Tgy5lwu31euuxv9rkT1in47LdivFwcPEE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lMpSRt9i7K1xZV/BgEfl20mEXABhz8/7G2nKdTfZteVs3OJ0+b73QLmEJsYAZbkZ
-         eJiDiQXcAOgYkvZ5Rgdll1zh4HDRFzk8LihbzAHpM7ob1Q0U302BQYtejpTIqSXqx9
-         x5glDl0LTfBlF/Xnu88qZ0aJNxSMsofDElqa3sN4=
+        s=default; t=1567075862;
+        bh=W9/8cZ2NH+5BLpKFeiMoDnXmV9ygV43yv2Ej3121GIY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=f6m0pJree6dZZkdpfsQF+jXYHHNUpieX4K/OitJqNjKXp4bcQwKsH/mJejHZWyhqo
+         b4m3vXq5dUBhWpg084tdvnOeEaTdVWmfFrzuCR9Sy3N00+t3tTrwaDTa+ECfMYSezy
+         4888n2SnNl2iqbr01Gsq44qWW+d5JnhXSnNzU/d8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Miroslav Benes <mbenes@suse.cz>, Jessica Yu <jeyu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/14] kernel/module: Fix mem leak in module_add_modinfo_attrs
-Date:   Thu, 29 Aug 2019 06:50:43 -0400
-Message-Id: <20190829105043.2508-14-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/8] Revert "dm bufio: fix deadlock with loop device"
+Date:   Thu, 29 Aug 2019 06:50:53 -0400
+Message-Id: <20190829105100.2649-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190829105043.2508-1-sashal@kernel.org>
-References: <20190829105043.2508-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,100 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit bc6f2a757d525e001268c3658bd88822e768f8db ]
+[ Upstream commit cf3591ef832915892f2499b7e54b51d4c578b28c ]
 
-In module_add_modinfo_attrs if sysfs_create_file
-fails, we forget to free allocated modinfo_attrs
-and roll back the sysfs files.
+Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
+fix has been made available with commit d0a255e795ab ("loop: set
+PF_MEMALLOC_NOIO for the worker thread").
 
-Fixes: 03e88ae1b13d ("[PATCH] fix module sysfs files reference counting")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Note that the fix offered by commit bd293d071ffe doesn't really prevent
+the deadlock from occuring - if we look at the stacktrace reported by
+Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
+i.e. it has already successfully taken the mutex. Changing the mutex
+from mutex_lock to mutex_trylock won't help with deadlocks that happen
+afterwards.
+
+PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
+   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
+   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
+   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
+   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
+   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
+   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
+   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
+   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
+   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
+   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
+  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
+  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
+  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
+  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
+  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
+Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/md/dm-bufio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 4b372c14d9a1f..4685675912414 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1695,6 +1695,8 @@ static int add_usage_links(struct module *mod)
- 	return ret;
- }
+diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
+index 673ce38735ff7..c837defb5e4dd 100644
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1585,7 +1585,9 @@ dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+ 	unsigned long freed;
  
-+static void module_remove_modinfo_attrs(struct module *mod, int end);
-+
- static int module_add_modinfo_attrs(struct module *mod)
- {
- 	struct module_attribute *attr;
-@@ -1709,24 +1711,34 @@ static int module_add_modinfo_attrs(struct module *mod)
- 		return -ENOMEM;
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (!dm_bufio_trylock(c))
++	if (sc->gfp_mask & __GFP_FS)
++		dm_bufio_lock(c);
++	else if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
  
- 	temp_attr = mod->modinfo_attrs;
--	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
-+	for (i = 0; (attr = modinfo_attrs[i]); i++) {
- 		if (!attr->test || attr->test(mod)) {
- 			memcpy(temp_attr, attr, sizeof(*temp_attr));
- 			sysfs_attr_init(&temp_attr->attr);
- 			error = sysfs_create_file(&mod->mkobj.kobj,
- 					&temp_attr->attr);
-+			if (error)
-+				goto error_out;
- 			++temp_attr;
- 		}
- 	}
-+
-+	return 0;
-+
-+error_out:
-+	if (i > 0)
-+		module_remove_modinfo_attrs(mod, --i);
- 	return error;
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- 	struct module_attribute *attr;
- 	int i;
- 
- 	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
-+		if (end >= 0 && i > end)
-+			break;
- 		/* pick a field to test for end of list */
- 		if (!attr->attr.name)
- 			break;
-@@ -1814,7 +1826,7 @@ static int mod_sysfs_setup(struct module *mod,
- 	return 0;
- 
- out_unreg_modinfo_attrs:
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- out_unreg_param:
- 	module_param_sysfs_remove(mod);
- out_unreg_holders:
-@@ -1850,7 +1862,7 @@ static void mod_sysfs_fini(struct module *mod)
- {
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- }
- 
-@@ -1866,7 +1878,7 @@ static void init_param_lock(struct module *mod)
- static void mod_sysfs_teardown(struct module *mod)
- {
- 	del_usage_links(mod);
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- 	module_param_sysfs_remove(mod);
- 	kobject_put(mod->mkobj.drivers_dir);
- 	kobject_put(mod->holders_dir);
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 -- 
 2.20.1
 
