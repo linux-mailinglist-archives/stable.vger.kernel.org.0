@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3774EA25D9
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F55A25DB
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbfH2SNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
+        id S1728532AbfH2SNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:13:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728490AbfH2SNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:13:45 -0400
+        id S1728503AbfH2SNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:13:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5885023405;
-        Thu, 29 Aug 2019 18:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D082339E;
+        Thu, 29 Aug 2019 18:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102424;
-        bh=JqJfHtTLl3cwcE+vmBm9Cyl5Qi9vXylINoDckON63Ak=;
+        s=default; t=1567102426;
+        bh=/APi8MhdMaI1X9POkFVoeegdl5V7Rfg/wP5JWu/pxf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0ntnSFsnOr14HKpFNEItgGa8N6sK4lpj4kB/vQ8Q/rvP722qc1i2ib4TLywm+kC0
-         AWAlIE++pF8u4rSUA8LjTFsvVUEDGTxDXt/m8gGIGj8lPzbkEmJpy/pe+1k/oGEC72
-         q6Rf83NpPhUtTSdn1aVwNjR2K2sFh7a7L4TuNuOQ=
+        b=NEf62xWtvGCcmfYsfNa0m7sONMphArwetnyjj65+bjWY66RQERfqzLV+CrjEUWdB+
+         WmgpOYFMrOtQEjR3V5un8yMoX+yBzlTIJnjMR5WB67lMI8kCPbF3IfrySN6Q2o55h/
+         MQWm772AM5EC2frpRd3SY+zQRh/wWIXRIfuNKX04=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dexuan Cui <decui@microsoft.com>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 16/76] hv_netvsc: Fix a warning of suspicious RCU usage
-Date:   Thu, 29 Aug 2019 14:12:11 -0400
-Message-Id: <20190829181311.7562-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.2 17/76] net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
+Date:   Thu, 29 Aug 2019 14:12:12 -0400
+Message-Id: <20190829181311.7562-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
@@ -44,52 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 6d0d779dca73cd5acb649c54f81401f93098b298 ]
+[ Upstream commit 125b7e0949d4e72b15c2b1a1590f8cece985a918 ]
 
-This fixes a warning of "suspicious rcu_dereference_check() usage"
-when nload runs.
+clang warns:
 
-Fixes: 776e726bfb34 ("netvsc: fix RCU warning in get_stats")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: warning: use of logical
+'&&' with constant operand [-Wconstant-logical-operand]
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                  ^  ~~~~~~~~~~~~
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: use '&' for a
+bitwise operation
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                  ^~
+                                                  &
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: remove constant to
+silence this warning
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                 ~^~~~~~~~~~~~~~~
+1 warning generated.
+
+Explicitly check that NET_IP_ALIGN is not zero, which matches how this
+is checked in other parts of the tree. Because NET_IP_ALIGN is a build
+time constant, this check will be constant folded away during
+optimization.
+
+Fixes: 82a9928db560 ("tc35815: Enable StripCRC feature")
+Link: https://github.com/ClangBuiltLinux/linux/issues/608
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/toshiba/tc35815.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 3544e19915792..e8fce6d715ef0 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -1239,12 +1239,15 @@ static void netvsc_get_stats64(struct net_device *net,
- 			       struct rtnl_link_stats64 *t)
- {
- 	struct net_device_context *ndev_ctx = netdev_priv(net);
--	struct netvsc_device *nvdev = rcu_dereference_rtnl(ndev_ctx->nvdev);
-+	struct netvsc_device *nvdev;
- 	struct netvsc_vf_pcpu_stats vf_tot;
- 	int i;
- 
-+	rcu_read_lock();
-+
-+	nvdev = rcu_dereference(ndev_ctx->nvdev);
- 	if (!nvdev)
--		return;
-+		goto out;
- 
- 	netdev_stats_to_stats64(t, &net->stats);
- 
-@@ -1283,6 +1286,8 @@ static void netvsc_get_stats64(struct net_device *net,
- 		t->rx_packets	+= packets;
- 		t->multicast	+= multicast;
- 	}
-+out:
-+	rcu_read_unlock();
- }
- 
- static int netvsc_set_mac_addr(struct net_device *ndev, void *p)
+diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
+index c50a9772f4aff..3b5a26b05295f 100644
+--- a/drivers/net/ethernet/toshiba/tc35815.c
++++ b/drivers/net/ethernet/toshiba/tc35815.c
+@@ -1504,7 +1504,7 @@ tc35815_rx(struct net_device *dev, int limit)
+ 			pci_unmap_single(lp->pci_dev,
+ 					 lp->rx_skbs[cur_bd].skb_dma,
+ 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+-			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
++			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
+ 				memmove(skb->data, skb->data - NET_IP_ALIGN,
+ 					pkt_len);
+ 			data = skb_put(skb, pkt_len);
 -- 
 2.20.1
 
