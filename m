@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A273A235B
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35505A2369
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbfH2SPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:15:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
+        id S1728946AbfH2SPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:15:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729194AbfH2SPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:15:13 -0400
+        id S1729307AbfH2SPa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:15:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EF092339E;
-        Thu, 29 Aug 2019 18:15:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09DAC23403;
+        Thu, 29 Aug 2019 18:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102512;
-        bh=koxCPy5DUegL9f1JbTv6u/+jKYiW7/zmbZvd+ZOA9lQ=;
+        s=default; t=1567102529;
+        bh=daF/PX4Ijm80cFU8SbPUPm1tciP79fQ1UuLIBgd+6cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzNzCH3SPq9bWTHecob1o5QITF1REMHQQHN7nZABCVh0z4Y/+SApAuZ1iIRMNwOHa
-         P7ZxEejjVjHmxKz6uW1IV04SaNRwCI3V5AILHOsv8sG0SxhBzFw8UxodtzuMgqBiTx
-         oleYp4Nn4PVwcGqk1qwlNTTynKFnSQgRmwM9URJY=
+        b=ekIR7PTNPIiLkcRN2lZpzqWOCTeHU+qlFkpxr2MdvtnRkJ6pn+/Nv/GQec1BcJWip
+         7yz0/Nn48qGiWXJxEscfPPH2sFkaJqQhSsXZHjNvL6i6qB1490zz0jq/mwEFD37Pgc
+         bJvC2HxvjJ3ARCH+/5yVhP9j76q5GRqLU9Z6YU+o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 60/76] IB/mlx4: Fix memory leaks
-Date:   Thu, 29 Aug 2019 14:12:55 -0400
-Message-Id: <20190829181311.7562-60-sashal@kernel.org>
+Cc:     =?UTF-8?q?Nicolai=20H=C3=A4hnle?= <nicolai.haehnle@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 65/76] drm/amdgpu: prevent memory leaks in AMDGPU_CS ioctl
+Date:   Thu, 29 Aug 2019 14:13:00 -0400
+Message-Id: <20190829181311.7562-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
 References: <20190829181311.7562-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,46 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Nicolai Hähnle <nicolai.haehnle@amd.com>
 
-[ Upstream commit 5c1baaa82cea2c815a5180ded402a7cd455d1810 ]
+[ Upstream commit 1a701ea924815b0518733aa8d5d05c1f6fa87062 ]
 
-In mlx4_ib_alloc_pv_bufs(), 'tun_qp->tx_ring' is allocated through
-kcalloc(). However, it is not always deallocated in the following execution
-if an error occurs, leading to memory leaks. To fix this issue, free
-'tun_qp->tx_ring' whenever an error occurs.
+Error out if the AMDGPU_CS ioctl is called with multiple SYNCOBJ_OUT and/or
+TIMELINE_SIGNAL chunks, since otherwise the last chunk wins while the
+allocated array as well as the reference counts of sync objects are leaked.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Acked-by: Leon Romanovsky <leonro@mellanox.com>
-Link: https://lore.kernel.org/r/1566159781-4642-1-git-send-email-wenwen@cs.uga.edu
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Nicolai Hähnle <nicolai.haehnle@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/mad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
-index 68c951491a08a..57079110af9b5 100644
---- a/drivers/infiniband/hw/mlx4/mad.c
-+++ b/drivers/infiniband/hw/mlx4/mad.c
-@@ -1677,8 +1677,6 @@ static int mlx4_ib_alloc_pv_bufs(struct mlx4_ib_demux_pv_ctx *ctx,
- 				    tx_buf_size, DMA_TO_DEVICE);
- 		kfree(tun_qp->tx_ring[i].buf.addr);
- 	}
--	kfree(tun_qp->tx_ring);
--	tun_qp->tx_ring = NULL;
- 	i = MLX4_NUM_TUNNEL_BUFS;
- err:
- 	while (i > 0) {
-@@ -1687,6 +1685,8 @@ static int mlx4_ib_alloc_pv_bufs(struct mlx4_ib_demux_pv_ctx *ctx,
- 				    rx_buf_size, DMA_FROM_DEVICE);
- 		kfree(tun_qp->ring[i].addr);
- 	}
-+	kfree(tun_qp->tx_ring);
-+	tun_qp->tx_ring = NULL;
- 	kfree(tun_qp->ring);
- 	tun_qp->ring = NULL;
- 	return -ENOMEM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+index fe028561dc0e6..bc40d6eabce7d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -1192,6 +1192,9 @@ static int amdgpu_cs_process_syncobj_out_dep(struct amdgpu_cs_parser *p,
+ 	num_deps = chunk->length_dw * 4 /
+ 		sizeof(struct drm_amdgpu_cs_chunk_sem);
+ 
++	if (p->post_deps)
++		return -EINVAL;
++
+ 	p->post_deps = kmalloc_array(num_deps, sizeof(*p->post_deps),
+ 				     GFP_KERNEL);
+ 	p->num_post_deps = 0;
+@@ -1215,8 +1218,7 @@ static int amdgpu_cs_process_syncobj_out_dep(struct amdgpu_cs_parser *p,
+ 
+ 
+ static int amdgpu_cs_process_syncobj_timeline_out_dep(struct amdgpu_cs_parser *p,
+-						      struct amdgpu_cs_chunk
+-						      *chunk)
++						      struct amdgpu_cs_chunk *chunk)
+ {
+ 	struct drm_amdgpu_cs_chunk_syncobj *syncobj_deps;
+ 	unsigned num_deps;
+@@ -1226,6 +1228,9 @@ static int amdgpu_cs_process_syncobj_timeline_out_dep(struct amdgpu_cs_parser *p
+ 	num_deps = chunk->length_dw * 4 /
+ 		sizeof(struct drm_amdgpu_cs_chunk_syncobj);
+ 
++	if (p->post_deps)
++		return -EINVAL;
++
+ 	p->post_deps = kmalloc_array(num_deps, sizeof(*p->post_deps),
+ 				     GFP_KERNEL);
+ 	p->num_post_deps = 0;
 -- 
 2.20.1
 
