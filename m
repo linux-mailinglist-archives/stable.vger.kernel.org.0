@@ -2,86 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78867A190D
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE88A1940
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbfH2LkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:40:10 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38701 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726379AbfH2LkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:40:10 -0400
-Received: by mail-pf1-f195.google.com with SMTP id o70so1876987pfg.5
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:40:10 -0700 (PDT)
+        id S1727398AbfH2LsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 07:48:24 -0400
+Received: from mail-vs1-f67.google.com ([209.85.217.67]:44696 "EHLO
+        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727257AbfH2LsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:48:24 -0400
+Received: by mail-vs1-f67.google.com with SMTP id c7so2162787vse.11
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:48:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=NYPdFLxnP2SpVPuKchfoNl7WNRTdf28Sddkoq+zSktk=;
-        b=Ip9Rj1WgWixO0eEXukO7vDK+ZT/ww9GvUEQkD4LC64n0/0Qc8GDEpoiJuF0HhCPuHv
-         8k4jneSJtvEEBym3sMHR53AkA3eg71HYWuNxXW1CcXtubN79R/IgzxxMfWiolR6p76mJ
-         RjT3LqZ8+4eLAnLRK0mUAkZvRBlAjc5cHW/67Mk1xB4JqrGKuXSDRUSAqoGeI+vFf12T
-         KA592ORTLduKPak+3fJDP31m5Q3P9d2+SPjjxhWGqlOA6xMEpymJ+Y1tqS7eJD8fFxp3
-         3grDR3y9gQgOb/Z2rRaY8jXXMc0dRwtsv0403OLzRGTji/E1Fsrui/kqBTZ5Z56MRqN4
-         oE5A==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=s/UJems08T/e/rVWLn74/4KxusO+sjRC5wAOV+EnKhk=;
+        b=H+j5n2T6jtb6MwAMzHofdA21fuRGODOcXiTYmfqYykH8AI8+EWEVZdRtn93zzmiATq
+         udC9h4dfqPtFy2IqgaU05NHnCFEXDH1Cfuvb/QQKnuznz5UZkCJCr+JJrgGev2bGJ0rA
+         rzHXDijZvxRtWIpJyvYl+HQ/5KWOoMT81qH9fdtCrz/oa50tdIr7mv1iBHjWOGxwKJzS
+         MoM+Srm0rNbZhmZBpDzhZHgILudvPlkE19MwVGrNyjs+c9Sg/6PHgDbuQc9SeyWqOoJr
+         uoewzCmcxNaM/N8FHAMfrnqhoLFzAVGctOE7Fz7qhFamwDsyjaiIRzJJCtIiv9miVXR+
+         z65g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=NYPdFLxnP2SpVPuKchfoNl7WNRTdf28Sddkoq+zSktk=;
-        b=rZH3D7CQZJ6Insfv8ZGB70ins3TAfwpWet5ab4WFMiDpCGQw8sN4VsqSFIBmh7VSm0
-         iAuTBvOsPqRW9JwxN27WNbFod6OsLxpirTJPrEVVHgiKJYpFfsruUX9QA9p767F3LIFu
-         noRCaLpaY7TrV9Jyl5cbb/6Q60e8Y1mxByGAqmU7vcKoyoj5a2ylDf/5oUwfhm7yZ0LD
-         +fLPmS/XLm7LLjIQT3oilDwQQLRjEh4QYBQjAgQ7H3uJ2S07Eze2hCQwq2QTLgDx5Bxa
-         +guBDXKAHtBz7o/z9HmcjeQVU2vhIH7Xj75ou5LWTC3LGeyCAHWvlzjo3xu83VK6nZ99
-         fOwQ==
-X-Gm-Message-State: APjAAAV3TgKS7zr0kDPvvnWLkymu96DxB09PbD+baa+4JL5ho7wNA5yn
-        wAhAIcog0EHxJl3ZTpihlDKR0qoXP0k=
-X-Google-Smtp-Source: APXvYqzEAzoTB6eQRNtv7b/1zJHW4m8QqYQpqNOMdCVDQ9YzPCbag3DRbr3h+bUoBTWPo4qrzC12pA==
-X-Received: by 2002:a65:50c5:: with SMTP id s5mr7913573pgp.368.1567078809383;
-        Thu, 29 Aug 2019 04:40:09 -0700 (PDT)
-Received: from localhost ([122.167.132.221])
-        by smtp.gmail.com with ESMTPSA id a18sm3924333pfn.156.2019.08.29.04.40.08
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Aug 2019 04:40:08 -0700 (PDT)
-Date:   Thu, 29 Aug 2019 17:10:06 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com, guohanjun@huawei.com
-Subject: Re: [PATCH ARM32 v4.4 V2 00/47] V4.4 backport of arm32 Spectre
- patches
-Message-ID: <20190829114006.ptxnynqcetqbprbm@vireshk-i7>
-References: <cover.1564646727.git.viresh.kumar@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=s/UJems08T/e/rVWLn74/4KxusO+sjRC5wAOV+EnKhk=;
+        b=kNYR8T8591v/g6VsBJugvV7Nwgwn3ZWtNDLfTmN/XfN/dqI1xppCwl7UXoy1iVBOBq
+         FoLNJR3tCyl/0L+SWP3/DwQvSf6EbjLqClkJb843l+D+REMI7ULjGvL5pEX67V37GhLp
+         0hDaRzo0im+BJHg+dBTp+SW/zyoIccjgNSA1YYQyfCbcs13gg8ZDfUyNotOm7Uc67ILH
+         0xBeI3jS1ydg3Kcw0on0K4jVXNvzjqsTv7q84MThhczaC8USkipRcWfIpfid8L3Nks9g
+         n37342FC7HiJqBE0DQTyogc8lnwIDC9XYyk7uK2k1YJr3jtN6RERldvydPOiQLzyQiIW
+         MFqw==
+X-Gm-Message-State: APjAAAUEKKu9EbzzAaSXFYUHV3NYerzDrF6FWLih4K+xrDESHgWjt3Xo
+        rpuHk6f9fyXrQTiHJ/BI9ixBAwZEEvWHSoee2/jjDw==
+X-Google-Smtp-Source: APXvYqyg1IFDOT7WWebRNY7RJ6UtG+ER8Z41eJQOQjNZsUNVdCjdRynrBHgIgliKUfU02boEkrdRE+zsaPUvVJY6MPU=
+X-Received: by 2002:a67:347:: with SMTP id 68mr5223627vsd.35.1567079303139;
+ Thu, 29 Aug 2019 04:48:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1564646727.git.viresh.kumar@linaro.org>
-User-Agent: NeoMutt/20180716-391-311a52
+References: <20190829104928.27404-1-yamada.masahiro@socionext.com>
+In-Reply-To: <20190829104928.27404-1-yamada.masahiro@socionext.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Thu, 29 Aug 2019 13:47:47 +0200
+Message-ID: <CAPDyKFooFQgBgK3N1Ob9rsT_7-5kqC9i7PeMxkkeAbnDP+Fwnw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] mmc: sdhci-cadence: enable v4_mode to fix ADMA 64-bit addressing
+To:     Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc:     "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Piotr Sroka <piotrs@cadence.com>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01-08-19, 13:45, Viresh Kumar wrote:
-> Hello,
-> 
-> Here is an attempt to backport arm32 spectre patches to v4.4 stable
-> tree. This was last tried around an year back by David Long [1]. He was
-> backporting only a subset (18) of patches and this series include a lot
-> of other patches present in Russell's spectre branch.
+On Thu, 29 Aug 2019 at 12:49, Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+>
+> The IP datasheet says this controller is compatible with SD Host
+> Specification Version v4.00.
+>
+> As it turned out, the ADMA of this IP does not work with 64-bit mode
+> when it is in the Version 3.00 compatible mode; it understands the
+> old 64-bit descriptor table (as defined in SDHCI v2), but the ADMA
+> System Address Register (SDHCI_ADMA_ADDRESS) cannot point to the
+> 64-bit address.
+>
+> I noticed this issue only after commit bd2e75633c80 ("dma-contiguous:
+> use fallback alloc_pages for single pages"). Prior to that commit,
+> dma_set_mask_and_coherent() returned the dma address that fits in
+> 32-bit range, at least for the default arm64 configuration
+> (arch/arm64/configs/defconfig). Now the host->adma_addr exceeds the
+> 32-bit limit, causing the real problem for the Socionext SoCs.
+> (As a side-note, I was also able to reproduce the issue for older
+> kernels by turning off CONFIG_DMA_CMA.)
+>
+> Call sdhci_enable_v4_mode() to fix this.
+>
+> I think it is better to back-port this, but only possible for v4.20+.
+>
+> When this driver was merged (v4.10), the v4 mode support did not exist.
+> It was added by commit b3f80b434f72 ("mmc: sdhci: Add sd host v4 mode")
+> i.e. v4.20.
+>
+> Cc: <stable@vger.kernel.org> # v4.20+
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-It's been almost 4 weeks since the first post on this. Can someone
-please help with reviews ?
+Applied for fixes, by adding below tag, thanks!
 
-thanks.
+Fixes: b3f80b434f72 ("mmc: sdhci: Add sd host v4 mode")
 
--- 
-viresh
+Kind regards
+Uffe
+
+> ---
+>
+>  drivers/mmc/host/sdhci-cadence.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/mmc/host/sdhci-cadence.c b/drivers/mmc/host/sdhci-cadence.c
+> index 163d1cf4367e..44139fceac24 100644
+> --- a/drivers/mmc/host/sdhci-cadence.c
+> +++ b/drivers/mmc/host/sdhci-cadence.c
+> @@ -369,6 +369,7 @@ static int sdhci_cdns_probe(struct platform_device *pdev)
+>         host->mmc_host_ops.execute_tuning = sdhci_cdns_execute_tuning;
+>         host->mmc_host_ops.hs400_enhanced_strobe =
+>                                 sdhci_cdns_hs400_enhanced_strobe;
+> +       sdhci_enable_v4_mode(host);
+>
+>         sdhci_get_of_property(pdev);
+>
+> --
+> 2.17.1
+>
