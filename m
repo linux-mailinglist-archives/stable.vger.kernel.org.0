@@ -2,63 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B30DA2669
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0EC9A264B
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728180AbfH2StF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:49:05 -0400
-Received: from msa509.odn.ne.jp ([210.134.90.9]:52260 "EHLO cmsa509.odn.ne.jp"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728162AbfH2StF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:49:05 -0400
-X-Greylist: delayed 303 seconds by postgrey-1.27 at vger.kernel.org; Thu, 29 Aug 2019 14:49:04 EDT
-Received: from vmsa502.odn.ne.jp by cmsa502.odn.ne.jp with ESMTP
-          id <20190829184359390.SFLD.4247.cmsa502.odn.ne.jp@msa502.odn.ne.jp>
-          for <stable@vger.kernel.org>; Fri, 30 Aug 2019 03:43:59 +0900
-Received: from msrg5021.rgserv.odn.ne.jp by vmsa502.odn.ne.jp with ESMTP
-          id <20190829184359309.HTII.110056.vmsa502.odn.ne.jp@msa502.odn.ne.jp>;
-          Fri, 30 Aug 2019 03:43:59 +0900
-Received: from wem502 (210.134.90.72) by msrg5021.rgserv.odn.ne.jp (9.0.018.07.06)
-        id 5D234F6900877A79; Fri, 30 Aug 2019 03:43:59 +0900
-Message-ID: <5D234F6900877A79@msrg5021.rgserv.odn.ne.jp> (added by
-            postmaster@msrg5021.rgserv.odn.ne.jp)
-Date:   Fri, 30 Aug 2019 3:43:59 +0900
-From:   Zaya Hero <aap70820@hkg.odn.ne.jp>
-Reply-To: zayahero1992@gmail.com
-Subject: =?iso-2022-jp?Q?RE=1B$B!'=1B(B&#32039;=1B$B5^=1B(B?=
+        id S1727779AbfH2SoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:44:17 -0400
+Received: from mail-yw1-f66.google.com ([209.85.161.66]:46713 "EHLO
+        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726518AbfH2SoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 14:44:17 -0400
+Received: by mail-yw1-f66.google.com with SMTP id 201so1417014ywo.13
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 11:44:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=poorly.run; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Y0CIg3NVlgXeInnLw0PrlDfAySS6GEabvcH9ZTG2R7Q=;
+        b=InpYZstdqbCIKyy+HjlkWYc66380kSdA6vXpPRrTKq4uXw9ekphazbrnIw6bwbzBzb
+         7edoejK/7waY8exYn+JrLpcXUC2lSmNFM1G9y6iGb1z9Y2tDGJD/fpFffCEHzOT1YPDh
+         u4ZXGF0g7yb7uvNEERKYPHPeyYqNOXNTpuDnNUuXwS7bLp6hVJMHIU6a8sJUgwNtx6SR
+         rH5qehF9L9u75OwlCesmid2/lULlpcmdw9ICLW7lWBN/KjJHiEButiMjcjFjVIxUyG0a
+         n7tEiYKvEfKsu0WMQmS6JFBZKWCOkGqONRs40SENLqdV0xvsR0k9gctaGL5Mwp4nvjyl
+         OOUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Y0CIg3NVlgXeInnLw0PrlDfAySS6GEabvcH9ZTG2R7Q=;
+        b=bDSk3Gtz98yBy+ZnK/E9LLJrd2C3KjbDJYDO80h5wCj8GITldMrrMfmlDJrr76XUsM
+         H9ZinNAIU8tuDkpGpKwVGYIL3SF0/BDZoE0y7OTgqVD9bge/Pzf+1sIQRBWb0y210O3z
+         p+WCpuA6dsfZe7B0F2Pk8aJFgQ7UBsEZ7i/uHfk1cwlfVJ1ReopwWYMak/HoL0f2JZs0
+         T22pwoGLPAasz7Ti6ldpvPDj2mEYmJiG8DREwMTlwRCOu9S8G+Igpmy6zNjYy43fvK0J
+         75cbi6b+313RYGZeYOjGA62QK4UeZUP4C5yv8MuU5ojplBTdOl1u1B4F1wsTSTFMHnPX
+         t5cg==
+X-Gm-Message-State: APjAAAXjbbWyhGyJWkw9Q31lgX0da7Vgu1ELZdOM1O7WJbiKBwaId9+l
+        DKcIF6SqZvTWKGE4wxNv3NuZwA==
+X-Google-Smtp-Source: APXvYqwfHTKwJ0mIS2bakEIGWA+OzHB1IgmPpfPQ6tDR80PPpVr+YxxDwDw0znbrJvYqp9p71/hDrQ==
+X-Received: by 2002:a81:70c7:: with SMTP id l190mr7946781ywc.280.1567104256441;
+        Thu, 29 Aug 2019 11:44:16 -0700 (PDT)
+Received: from localhost ([2620:0:1013:11:89c6:2139:5435:371d])
+        by smtp.gmail.com with ESMTPSA id i20sm638407ywg.96.2019.08.29.11.44.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Aug 2019 11:44:15 -0700 (PDT)
+Date:   Thu, 29 Aug 2019 14:44:15 -0400
+From:   Sean Paul <sean@poorly.run>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     Sean Paul <sean@poorly.run>, dri-devel@lists.freedesktop.org,
+        Sean Paul <seanpaul@chromium.org>,
+        Todd Previte <tprevite@gmail.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm: mst: Fix query_payload ack reply struct
+Message-ID: <20190829184415.GI218215@art_vandelay>
+References: <20190829165223.129662-1-sean@poorly.run>
+ <9927a099fc5f0140ea92e34f017186d9ffe0bb13.camel@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-Sensitivity: Normal
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9927a099fc5f0140ea92e34f017186d9ffe0bb13.camel@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-&#20146;&#29233;的朋友，
+On Thu, Aug 29, 2019 at 01:06:58PM -0400, Lyude Paul wrote:
+> Is it worth actually CCing stable on this? This patch is certainly correct but
+> I don't think we use this struct for anything quite yet.
+> 
+> Otherwise: Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-我的名字是Capt.Zaya Hero，我正在&#23547;找一个可靠且&#20540;得信&#36182;的人来建立&#20146;切的&#20851;系，如果&#20320;能得到更多&#20851;于价&#20540;250万美元的商&#19994;交易的&#35814;&#32454;信息，我将很高&#20852;回到我的身&#36793;，我需要&#20320;的&#24110;助才能通&#36807;外交手段将&#36825;250万美元&#27719;入&#20320;的家庭住址。
+Thanks for the review! I've stripped the cc stable tag and pushed to
+drm-misc-next. We'll have to keep an eye out for Sasha's stable AI bot, I'm
+guessing it'll try to backport this to stable regardless.
 
-2018年1月1日，在我&#20204;&#20026;ISIS石油&#35774;施的一名&#32422;旦&#39134;行&#21592;（人&#36136;）&#25191;行救援任&#21153;期&#38388;，在伊斯&#20848;国首都叙利&#20122;的Raqqa&#36827;行了一次特&#21035;残酷的交火，在&#20987;&#36133;他&#20204;之后，我遇到了一个包含&#20004;个波峰的箱子。属于伊斯&#20848;国的&#36190;助商和支持者的巨&#39069;&#36164;金，我相信&#36825;&#31508;&#36164;金是用于&#36141;&#20080;武器和&#24377;&#33647;的，因此我&#20204;同意9名&#38470;&#20891;&#20891;官就&#35813;救援任&#21153;表示，&#36825;&#31508;&#36164;金将被包含在内并在我&#20204;所有人
+Sean
 
-在我&#20204;分享了&#36825;&#31508;&#38065;之后，我&#33719;得了2,500.000.00美元（&#20004;百万，五十万美元）的&#20221;&#39069;，
+> 
+> On Thu, 2019-08-29 at 12:52 -0400, Sean Paul wrote:
+> > From: Sean Paul <seanpaul@chromium.org>
+> > 
+> > Spec says[1] Allocated_PBN is 16 bits
+> > 
+> > [1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
+> > 
+> > Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper
+> > (v0.6)")
+> > Cc: Lyude Paul <lyude@redhat.com>
+> > Cc: Todd Previte <tprevite@gmail.com>
+> > Cc: Dave Airlie <airlied@redhat.com>
+> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+> > Cc: Sean Paul <sean@poorly.run>
+> > Cc: David Airlie <airlied@linux.ie>
+> > Cc: Daniel Vetter <daniel@ffwll.ch>
+> > Cc: dri-devel@lists.freedesktop.org
+> > Cc: <stable@vger.kernel.org> # v3.17+
+> > Signed-off-by: Sean Paul <seanpaul@chromium.org>
+> > ---
+> >  include/drm/drm_dp_mst_helper.h | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/include/drm/drm_dp_mst_helper.h
+> > b/include/drm/drm_dp_mst_helper.h
+> > index 2ba6253ea6d3..fc349204a71b 100644
+> > --- a/include/drm/drm_dp_mst_helper.h
+> > +++ b/include/drm/drm_dp_mst_helper.h
+> > @@ -334,7 +334,7 @@ struct drm_dp_resource_status_notify {
+> >  
+> >  struct drm_dp_query_payload_ack_reply {
+> >  	u8 port_number;
+> > -	u8 allocated_pbn;
+> > +	u16 allocated_pbn;
+> >  };
+> >  
+> >  struct drm_dp_sideband_msg_req_body {
+> -- 
+> Cheers,
+> 	Lyude Paul
+> 
 
-我正在&#35831;求&#20320;&#20026;我保&#25252;它直到我来到&#20320;的国家，我很清楚&#20320;可能会害怕&#36825;个提&#35758;，但我想告&#35785;&#20320;我已&#32463;与安全&#36135;物做出了&#22362;&#23454;的安排&#19987;&#38376;从事外交交付的公司，他&#20204;承&#35834;通&#36807;外交手段将&#36164;金交&#32473;我&#36873;&#25321;的任何目的地。
-
-以下是送&#36135;公司地址。
-
-洲&#38469;送&#36135;服&#21153;
-&#24635;公司：阿&#32852;酋迪拜国&#38469;机&#22330;3号航站楼
-&#30005;&#35805;：+971 1557 4687 98
-&#30005;子&#37038;件：info@intercontdelivery.com
-&#30005;子&#37038;件：asia@intercontdelivery.com
-&#30005;子&#37038;件：usa@intercontdelivery.com
-网站：www.intercontdelivery.com
-
-送&#36135;服&#21153;将由安全&#36135;&#36816;公司合法&#22788;理，并且在此&#36807;程中不会有任何形式的&#39118;&#38505;，&#36825;&#31508;款&#39033;将作&#20026;外交&#36135;物&#36827;行密封和安全包装，并将在&#24744;的国家通&#36807;外交官方法。我已&#32463;决定在&#27719;款&#32473;&#20320;后一次用&#24635;金&#39069;的40％&#36180;&#20607;&#20320;，而剩余的余&#39069;将是我在&#20320;所在国家的投&#36164;&#36164;金，希望&#20320;能&#24110;助我。
-
-最好的祝福
-
-USS。 Zaya Hero
+-- 
+Sean Paul, Software Engineer, Google / Chromium OS
