@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9364EA18B2
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5EBA18B3
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 13:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbfH2Le4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 07:34:56 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43182 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725990AbfH2Le4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:34:56 -0400
-Received: by mail-pg1-f194.google.com with SMTP id k3so1435351pgb.10
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:34:55 -0700 (PDT)
+        id S1727026AbfH2Le7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 07:34:59 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:42387 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726983AbfH2Le6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 07:34:58 -0400
+Received: by mail-pg1-f196.google.com with SMTP id p3so1434875pgb.9
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 04:34:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=t+8ZINgorfc9/vHqnYTLmiCH63MmZJ4ah1lcUclNBnY=;
-        b=nCZcANTj/VNAghMCqmhGdelYjpzJSNUODI1MeolRwGX3zV0RZ6cTZyhBDhxf30vbvg
-         IkLKsTO09Sw7p8F+QQZ/dyIU6LDSLt14M+i7RWDo+xmqe+7UZrE1gpasqOae5bUnmtnY
-         bZYtRNqdELatX3EBN5JSjhvVUEazVL+8ZG4DKfRLhmxrbw+IKn6J/1c6V2cMMkThVNvr
-         +HjrmOBBAziBdsZj2nUzXPwD5hES6Ujave3wFaUXCN3sqQeC9opJK2OXRegCxJPNivSv
-         CBPquIEQBdQjpnSgkAFjNOyT8/fSEdG1h4P3pvDHVQvjfjJjVzJZVORmthdGiEFBUzA1
-         zKgA==
+        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
+        b=gtKVgQDc9GJLsqxkdO8KHXtp476POxHclR4w6cx/eJloeqLLtmxIGGY7ToOzR9UfpY
+         mtkJxWZmFxaWeQhYjV62uXXInNjF5dDf3djI1IZn1tEjn3YELqzx15He1/yBUkAa2J/g
+         yVMauTVFsu9mNLCSBCkJ6jcqVA0VN6/sqzVXuvS61g0flUiw+pRqovwedo858JXI0stW
+         K2gPSOtM1b4XhMfLMPiqGfe7kKMa2XLwpUKvz+ZtOKHEsTXbxzuhOcxMppZiT8t0HgNa
+         JGxLu/qgJJgU0RhLcEK1vrGGYXoKvf5QIWb0p2jOHiYT8LLyW1KJdljpq4hkNtbUc5Xm
+         BZ4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=t+8ZINgorfc9/vHqnYTLmiCH63MmZJ4ah1lcUclNBnY=;
-        b=jb9ZtKbjWVancD5tkfl9SHeWJd7mS4hX5DUoyOio0ulDEbJXSPD8foTCGT3hMbEFSz
-         5AwX7vQuE5Q2jl+doWwHpcEFSh0zyhKG4VcBXO8ESUcaunGih0xGIPt2sJVM6vCiS2xw
-         WAIGLYMqkHj+Kr5M2fHW1XlvmGyJdfOjgAd1PLZ2wZNALJqXmQfzBl4DD7bLTI0O51LO
-         cGfQRpXqFr6n0HbsEqcW0ZlV+S+cA+Zv2cKl4CbS5OpHF90hB2YRiSJ53BL/dJrbJ8GL
-         C5nGGkSJl2zEEAYKya4i6D/RB4b1gIjnL3yb6nV7eB82M8/XCCrBR+aeR73oT6yonHGX
-         l4qA==
-X-Gm-Message-State: APjAAAXbdS4wapjurPOTIcTl1m9rddiOqfVP+OGxPTKEMsfmAdCwif7o
-        qyU9icvZztuEA9Bc3YRF9XbprsB93OU=
-X-Google-Smtp-Source: APXvYqwVAEkYsaqs2EGjLMxvvx5pOK5LU4zwdYV4A967VszTg1UARgiOFPbnuWKUVg2RyXVB8OHOIQ==
-X-Received: by 2002:a62:53c3:: with SMTP id h186mr10792040pfb.178.1567078495033;
-        Thu, 29 Aug 2019 04:34:55 -0700 (PDT)
+        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
+        b=HHJs0hCxghGPLwOLArn7hABzPu5uqtICREBYNo5okjWvkaOyBWUYlG4LfdJZPbwq97
+         b4Z/5yFizdGqQUww35Z65pswOlr5RoKIH5biCdgwRuwirwLxIv8baXQY3XgVR9Ql8nIZ
+         HqHJpeYaibnXllZdOOdhlqkeXUhaHyd3VZtsItjbx9AqRURwoFjfcj0y9Jon6rGS0cVM
+         oXCpCNCMZv3H1f+XRKvZp18WrFFcCV94S7e2VpsGd0SlRG6BvgCpyI+tBjrFGnUZFfIA
+         9NqxSNoFTRNEmMsPi+5kNIPdmzTzKbU35h3PU7jcXG6+OiXJ4H1Cl0iqxT+nPnISHkpw
+         X91A==
+X-Gm-Message-State: APjAAAWxgp7hyeWnIjXxLt5uL5dTssZEYCiFB+IJMc5cTgDhcUk0yxZa
+        rI7IdrMOi19YeAfiw5o6IOns2LvYFPY=
+X-Google-Smtp-Source: APXvYqwO22ljl8QyLHHOEWlyuVEGRkqUeNBwuzUvKpQv4Nedz3khH8mTN63Qx7dTcn8EznD5ND6ViA==
+X-Received: by 2002:a62:1444:: with SMTP id 65mr10603079pfu.145.1567078497711;
+        Thu, 29 Aug 2019 04:34:57 -0700 (PDT)
 Received: from localhost ([122.167.132.221])
-        by smtp.gmail.com with ESMTPSA id a13sm2564706pfn.104.2019.08.29.04.34.54
+        by smtp.gmail.com with ESMTPSA id d20sm2784549pfo.90.2019.08.29.04.34.56
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Aug 2019 04:34:54 -0700 (PDT)
+        Thu, 29 Aug 2019 04:34:57 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
         Mark Rutland <mark.rutland@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH ARM64 v4.4 V3 01/44] arm64: barrier: Add CSDB macros to control data-value prediction
-Date:   Thu, 29 Aug 2019 17:03:46 +0530
-Message-Id: <4ba4e0d015f2e044e3eaf57e1239ae3e12d5a80e.1567077734.git.viresh.kumar@linaro.org>
+Subject: [PATCH ARM64 v4.4 V3 02/44] arm64: Implement array_index_mask_nospec()
+Date:   Thu, 29 Aug 2019 17:03:47 +0530
+Message-Id: <a01785b993e2b39864ee0cab09695ae23a02b2f5.1567077734.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1567077734.git.viresh.kumar@linaro.org>
 References: <cover.1567077734.git.viresh.kumar@linaro.org>
@@ -68,54 +68,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 669474e772b952b14f4de4845a1558fd4c0414a4 upstream.
+commit 022620eed3d0bc4bf2027326f599f5ad71c2ea3f upstream.
 
-For CPUs capable of data value prediction, CSDB waits for any outstanding
-predictions to architecturally resolve before allowing speculative execution
-to continue. Provide macros to expose it to the arch code.
+Provide an optimised, assembly implementation of array_index_mask_nospec()
+for arm64 so that the compiler is not in a position to transform the code
+in ways which affect its ability to inhibit speculation (e.g. by introducing
+conditional branches).
+
+This is similar to the sequence used by x86, modulo architectural differences
+in the carry/borrow flags.
 
 Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/assembler.h | 7 +++++++
- arch/arm64/include/asm/barrier.h   | 2 ++
- 2 files changed, 9 insertions(+)
+ arch/arm64/include/asm/barrier.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-index f68abb17aa4b..683c2875278f 100644
---- a/arch/arm64/include/asm/assembler.h
-+++ b/arch/arm64/include/asm/assembler.h
-@@ -95,6 +95,13 @@
- 	dmb	\opt
- 	.endm
- 
-+/*
-+ * Value prediction barrier
-+ */
-+	.macro	csdb
-+	hint	#20
-+	.endm
-+
- #define USER(l, x...)				\
- 9999:	x;					\
- 	.section __ex_table,"a";		\
 diff --git a/arch/arm64/include/asm/barrier.h b/arch/arm64/include/asm/barrier.h
-index f2d2c0bbe21b..574486634c62 100644
+index 574486634c62..7c25e3e11b6d 100644
 --- a/arch/arm64/include/asm/barrier.h
 +++ b/arch/arm64/include/asm/barrier.h
-@@ -28,6 +28,8 @@
- #define dmb(opt)	asm volatile("dmb " #opt : : : "memory")
- #define dsb(opt)	asm volatile("dsb " #opt : : : "memory")
+@@ -37,6 +37,27 @@
+ #define dma_rmb()	dmb(oshld)
+ #define dma_wmb()	dmb(oshst)
  
-+#define csdb()		asm volatile("hint #20" : : : "memory")
++/*
++ * Generate a mask for array_index__nospec() that is ~0UL when 0 <= idx < sz
++ * and 0 otherwise.
++ */
++#define array_index_mask_nospec array_index_mask_nospec
++static inline unsigned long array_index_mask_nospec(unsigned long idx,
++						    unsigned long sz)
++{
++	unsigned long mask;
 +
- #define mb()		dsb(sy)
- #define rmb()		dsb(ld)
- #define wmb()		dsb(st)
++	asm volatile(
++	"	cmp	%1, %2\n"
++	"	sbc	%0, xzr, xzr\n"
++	: "=r" (mask)
++	: "r" (idx), "Ir" (sz)
++	: "cc");
++
++	csdb();
++	return mask;
++}
++
+ #define smp_mb()	dmb(ish)
+ #define smp_rmb()	dmb(ishld)
+ #define smp_wmb()	dmb(ishst)
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
