@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE01A1760
+	by mail.lfdr.de (Postfix) with ESMTP id 985C6A1761
 	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727063AbfH2KuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57352 "EHLO mail.kernel.org"
+        id S1727606AbfH2KuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727183AbfH2KuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:13 -0400
+        id S1727481AbfH2KuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEED523405;
-        Thu, 29 Aug 2019 10:50:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA885233FF;
+        Thu, 29 Aug 2019 10:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075812;
-        bh=tI7BVHUHMKckWqBXe4y7OV4tqVnz9jbrLOH9mlq0l1M=;
+        s=default; t=1567075814;
+        bh=VkLcKxus2piQ7+tKe7x1UHvTz40zStRHNSgPH/Ho+Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI4s/MbEjcRdNxGnRUYsejtMd2cSOi61dlnPQJT5S49UPv7JR7WfgIKjFjsKH3Oy7
-         oar6VbpR/wVoO5hpzHf9AIgtYnzSgLPqkGadlgw7bYadZB4Fh3cLqab49e+S8AtEp2
-         pHUtZAfwig5Nfbq+8kQD206JvT0jJfupxG5JOwZo=
+        b=wCVLnFXMJ858Q6FVQ3o0ziI06hdHYZFTmDNTRmhELyoSKuyu/157SEcQUjLmmf1qx
+         9SidYwJk09Y7BQ/QqkDg14WqB7eeLueNI4uR3aDnFtB6e4QuDIKmvOCyVEFVaZIczV
+         tQGr0SvjcHQ9EYeBR4jds0sJk6IazEA8lg+qNFlo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/29] Revert "dm bufio: fix deadlock with loop device"
-Date:   Thu, 29 Aug 2019 06:49:42 -0400
-Message-Id: <20190829105009.2265-2-sashal@kernel.org>
+Cc:     Andrea Righi <andrea.righi@canonical.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/29] kprobes: Fix potential deadlock in kprobe_optimizer()
+Date:   Thu, 29 Aug 2019 06:49:43 -0400
+Message-Id: <20190829105009.2265-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -43,63 +49,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-[ Upstream commit cf3591ef832915892f2499b7e54b51d4c578b28c ]
+[ Upstream commit f1c6ece23729257fb46562ff9224cf5f61b818da ]
 
-Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
-fix has been made available with commit d0a255e795ab ("loop: set
-PF_MEMALLOC_NOIO for the worker thread").
+lockdep reports the following deadlock scenario:
 
-Note that the fix offered by commit bd293d071ffe doesn't really prevent
-the deadlock from occuring - if we look at the stacktrace reported by
-Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
-i.e. it has already successfully taken the mutex. Changing the mutex
-from mutex_lock to mutex_trylock won't help with deadlocks that happen
-afterwards.
+ WARNING: possible circular locking dependency detected
 
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
+ kworker/1:1/48 is trying to acquire lock:
+ 000000008d7a62b2 (text_mutex){+.+.}, at: kprobe_optimizer+0x163/0x290
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
-Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+ but task is already holding lock:
+ 00000000850b5e2d (module_mutex){+.+.}, at: kprobe_optimizer+0x31/0x290
+
+ which lock already depends on the new lock.
+
+ the existing dependency chain (in reverse order) is:
+
+ -> #1 (module_mutex){+.+.}:
+        __mutex_lock+0xac/0x9f0
+        mutex_lock_nested+0x1b/0x20
+        set_all_modules_text_rw+0x22/0x90
+        ftrace_arch_code_modify_prepare+0x1c/0x20
+        ftrace_run_update_code+0xe/0x30
+        ftrace_startup_enable+0x2e/0x50
+        ftrace_startup+0xa7/0x100
+        register_ftrace_function+0x27/0x70
+        arm_kprobe+0xb3/0x130
+        enable_kprobe+0x83/0xa0
+        enable_trace_kprobe.part.0+0x2e/0x80
+        kprobe_register+0x6f/0xc0
+        perf_trace_event_init+0x16b/0x270
+        perf_kprobe_init+0xa7/0xe0
+        perf_kprobe_event_init+0x3e/0x70
+        perf_try_init_event+0x4a/0x140
+        perf_event_alloc+0x93a/0xde0
+        __do_sys_perf_event_open+0x19f/0xf30
+        __x64_sys_perf_event_open+0x20/0x30
+        do_syscall_64+0x65/0x1d0
+        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+ -> #0 (text_mutex){+.+.}:
+        __lock_acquire+0xfcb/0x1b60
+        lock_acquire+0xca/0x1d0
+        __mutex_lock+0xac/0x9f0
+        mutex_lock_nested+0x1b/0x20
+        kprobe_optimizer+0x163/0x290
+        process_one_work+0x22b/0x560
+        worker_thread+0x50/0x3c0
+        kthread+0x112/0x150
+        ret_from_fork+0x3a/0x50
+
+ other info that might help us debug this:
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(module_mutex);
+                                lock(text_mutex);
+                                lock(module_mutex);
+   lock(text_mutex);
+
+  *** DEADLOCK ***
+
+As a reproducer I've been using bcc's funccount.py
+(https://github.com/iovisor/bcc/blob/master/tools/funccount.py),
+for example:
+
+ # ./funccount.py '*interrupt*'
+
+That immediately triggers the lockdep splat.
+
+Fix by acquiring text_mutex before module_mutex in kprobe_optimizer().
+
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Naveen N. Rao <naveen.n.rao@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: d5b844a2cf50 ("ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()")
+Link: http://lkml.kernel.org/r/20190812184302.GA7010@xps-13
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/kprobes.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
-index b1d0ae2dbd3dd..dc385b70e4c33 100644
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1602,7 +1602,9 @@ dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
- 	unsigned long freed;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 29ff6635d2597..714d63f60460b 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -483,6 +483,7 @@ static DECLARE_DELAYED_WORK(optimizing_work, kprobe_optimizer);
+  */
+ static void do_optimize_kprobes(void)
+ {
++	lockdep_assert_held(&text_mutex);
+ 	/*
+ 	 * The optimization/unoptimization refers online_cpus via
+ 	 * stop_machine() and cpu-hotplug modifies online_cpus.
+@@ -500,9 +501,7 @@ static void do_optimize_kprobes(void)
+ 	    list_empty(&optimizing_list))
+ 		return;
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (!dm_bufio_trylock(c))
-+	if (sc->gfp_mask & __GFP_FS)
-+		dm_bufio_lock(c);
-+	else if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+-	mutex_lock(&text_mutex);
+ 	arch_optimize_kprobes(&optimizing_list);
+-	mutex_unlock(&text_mutex);
+ }
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+ /*
+@@ -513,6 +512,7 @@ static void do_unoptimize_kprobes(void)
+ {
+ 	struct optimized_kprobe *op, *tmp;
+ 
++	lockdep_assert_held(&text_mutex);
+ 	/* See comment in do_optimize_kprobes() */
+ 	lockdep_assert_cpus_held();
+ 
+@@ -520,7 +520,6 @@ static void do_unoptimize_kprobes(void)
+ 	if (list_empty(&unoptimizing_list))
+ 		return;
+ 
+-	mutex_lock(&text_mutex);
+ 	arch_unoptimize_kprobes(&unoptimizing_list, &freeing_list);
+ 	/* Loop free_list for disarming */
+ 	list_for_each_entry_safe(op, tmp, &freeing_list, list) {
+@@ -537,7 +536,6 @@ static void do_unoptimize_kprobes(void)
+ 		} else
+ 			list_del_init(&op->list);
+ 	}
+-	mutex_unlock(&text_mutex);
+ }
+ 
+ /* Reclaim all kprobes on the free_list */
+@@ -563,6 +561,7 @@ static void kprobe_optimizer(struct work_struct *work)
+ {
+ 	mutex_lock(&kprobe_mutex);
+ 	cpus_read_lock();
++	mutex_lock(&text_mutex);
+ 	/* Lock modules while optimizing kprobes */
+ 	mutex_lock(&module_mutex);
+ 
+@@ -590,6 +589,7 @@ static void kprobe_optimizer(struct work_struct *work)
+ 	do_free_cleaned_kprobes();
+ 
+ 	mutex_unlock(&module_mutex);
++	mutex_unlock(&text_mutex);
+ 	cpus_read_unlock();
+ 	mutex_unlock(&kprobe_mutex);
+ 
 -- 
 2.20.1
 
