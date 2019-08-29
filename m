@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7AEA2471
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDAAAA2470
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729912AbfH2SQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
+        id S1729922AbfH2SQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728556AbfH2SQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:16:58 -0400
+        id S1729890AbfH2SQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:16:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B4832189D;
-        Thu, 29 Aug 2019 18:16:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63E0423403;
+        Thu, 29 Aug 2019 18:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102617;
-        bh=EuMjjEGx2MFzb26c4JDylJlINgym/vHqNxNZSc+0fw8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ho69awwU9GzUoCPUeuhMmiWhalO1yaQydHOyQ2GeH5yIirTLQCKRQTD5oANXvLvi2
-         v9JQU+Ij9sX4xd+HS1Dq7/+0ObmsunoncoOGVxsHkCcldoRb1arJCsEhiHRdf1yt1s
-         gCQ1NTe+fbC4JDYk9qrdhFlPoa1kM+fEWwualiAc=
+        s=default; t=1567102618;
+        bh=D+8zjNwZ8CrhkbgQn80DEiwKxkuOAmXsZZc/8oApyLs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Qg+FCSZ5qx4Ax/MUUknRBG+s2FtfvaCwNkJDUF25kSi9sWA+F5xlbD3wlxFSHQkp+
+         OaGhH8qBpO60vLqu/RsJ77DYMV+atztU55vCCatudQkDL5IpwlMZdsQhu4sF7D2Dp0
+         iSIlHhfAXm8BrfcwEQ3BhPLpg8OyfR+25K0fIGn8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fuqian Huang <huangfq.daxian@gmail.com>,
+Cc:     Dexuan Cui <decui@microsoft.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/27] net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
-Date:   Thu, 29 Aug 2019 14:16:27 -0400
-Message-Id: <20190829181655.8741-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/27] hv_netvsc: Fix a warning of suspicious RCU usage
+Date:   Thu, 29 Aug 2019 14:16:28 -0400
+Message-Id: <20190829181655.8741-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
+References: <20190829181655.8741-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,48 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fuqian Huang <huangfq.daxian@gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 8c25d0887a8bd0e1ca2074ac0c6dff173787a83b ]
+[ Upstream commit 6d0d779dca73cd5acb649c54f81401f93098b298 ]
 
-As spin_unlock_irq will enable interrupts.
-Function tsi108_stat_carry is called from interrupt handler tsi108_irq.
-Interrupts are enabled in interrupt handler.
-Use spin_lock_irqsave/spin_unlock_irqrestore instead of spin_(un)lock_irq
-in IRQ context to avoid this.
+This fixes a warning of "suspicious rcu_dereference_check() usage"
+when nload runs.
 
-Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Fixes: 776e726bfb34 ("netvsc: fix RCU warning in get_stats")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/tundra/tsi108_eth.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
-index c2d15d9c0c33b..455979e47424c 100644
---- a/drivers/net/ethernet/tundra/tsi108_eth.c
-+++ b/drivers/net/ethernet/tundra/tsi108_eth.c
-@@ -381,9 +381,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
- static void tsi108_stat_carry(struct net_device *dev)
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index eb92720dd1c4a..33c1f6548fb79 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1170,12 +1170,15 @@ static void netvsc_get_stats64(struct net_device *net,
+ 			       struct rtnl_link_stats64 *t)
  {
- 	struct tsi108_prv_data *data = netdev_priv(dev);
-+	unsigned long flags;
- 	u32 carry1, carry2;
+ 	struct net_device_context *ndev_ctx = netdev_priv(net);
+-	struct netvsc_device *nvdev = rcu_dereference_rtnl(ndev_ctx->nvdev);
++	struct netvsc_device *nvdev;
+ 	struct netvsc_vf_pcpu_stats vf_tot;
+ 	int i;
  
--	spin_lock_irq(&data->misclock);
-+	spin_lock_irqsave(&data->misclock, flags);
++	rcu_read_lock();
++
++	nvdev = rcu_dereference(ndev_ctx->nvdev);
+ 	if (!nvdev)
+-		return;
++		goto out;
  
- 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
- 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
-@@ -451,7 +452,7 @@ static void tsi108_stat_carry(struct net_device *dev)
- 			      TSI108_STAT_TXPAUSEDROP_CARRY,
- 			      &data->tx_pause_drop);
+ 	netdev_stats_to_stats64(t, &net->stats);
  
--	spin_unlock_irq(&data->misclock);
-+	spin_unlock_irqrestore(&data->misclock, flags);
+@@ -1214,6 +1217,8 @@ static void netvsc_get_stats64(struct net_device *net,
+ 		t->rx_packets	+= packets;
+ 		t->multicast	+= multicast;
+ 	}
++out:
++	rcu_read_unlock();
  }
  
- /* Read a stat counter atomically with respect to carries.
+ static int netvsc_set_mac_addr(struct net_device *ndev, void *p)
 -- 
 2.20.1
 
