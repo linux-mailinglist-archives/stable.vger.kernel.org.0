@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2ABAA1E80
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 17:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BE5A1E96
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 17:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbfH2PK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 11:10:57 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:52396 "EHLO
+        id S1727834AbfH2PN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 11:13:26 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:52447 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726973AbfH2PK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 11:10:57 -0400
+        with ESMTP id S1727233AbfH2PNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 11:13:25 -0400
 Received: from 162-237-133-238.lightspeed.rcsntx.sbcglobal.net ([162.237.133.238] helo=elm)
         by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
         (Exim 4.76)
         (envelope-from <tyhicks@canonical.com>)
-        id 1i3M4d-0001RJ-7M; Thu, 29 Aug 2019 15:10:55 +0000
-Date:   Thu, 29 Aug 2019 10:10:52 -0500
+        id 1i3M71-0001ey-7k; Thu, 29 Aug 2019 15:13:23 +0000
+Date:   Thu, 29 Aug 2019 10:13:20 -0500
 From:   Tyler Hicks <tyhicks@canonical.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Todd Kjos <tkjos@android.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         devel@driverdev.osuosl.org
-Subject: Re: [PATCH AUTOSEL 4.14 05/14] binder: take read mode of mmap_sem in
+Subject: Re: [PATCH AUTOSEL 4.19 11/29] binder: take read mode of mmap_sem in
  binder_alloc_free_page()
-Message-ID: <20190829151052.GB27650@elm>
-References: <20190829105043.2508-1-sashal@kernel.org>
- <20190829105043.2508-5-sashal@kernel.org>
+Message-ID: <20190829151320.GC27650@elm>
+References: <20190829105009.2265-1-sashal@kernel.org>
+ <20190829105009.2265-11-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190829105043.2508-5-sashal@kernel.org>
+In-Reply-To: <20190829105009.2265-11-sashal@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hello, Sasha!
 
-On 2019-08-29 06:50:34, Sasha Levin wrote:
+On 2019-08-29 06:49:51, Sasha Levin wrote:
 > From: Tyler Hicks <tyhicks@canonical.com>
 > 
 > [ Upstream commit 60d4885710836595192c42d3e04b27551d30ec91 ]
@@ -59,13 +59,9 @@ On 2019-08-29 06:50:34, Sasha Levin wrote:
 > both landed during the development of v5.1 but only one of them is
 > targeted for stable.
 
-This patch isn't meant to be applied to 4.14 since commit 3013bf62b67a
+This patch isn't meant to be applied to 4.19 since commit 3013bf62b67a
 ("binder: reduce mmap_sem write-side lock") was never brought back to
-4.14.
-
-My backporting note above isn't helpful for AUTOSEL purposes. Do you
-have a suggestion for what I could have done in the patch tags to convey
-that guidance to AUTOSEL?
+4.19.
 
 Tyler
 
@@ -80,10 +76,10 @@ Tyler
 >  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
 > diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-> index e0b0399ff7ec8..81c67459259ec 100644
+> index a654ccfd1a222..21dc20c52cd4d 100644
 > --- a/drivers/android/binder_alloc.c
 > +++ b/drivers/android/binder_alloc.c
-> @@ -949,8 +949,8 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+> @@ -962,8 +962,8 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 >  	mm = alloc->vma_vm_mm;
 >  	if (!mmget_not_zero(mm))
 >  		goto err_mmget;
@@ -94,7 +90,7 @@ Tyler
 >  	vma = binder_alloc_get_vma(alloc);
 >  
 >  	list_lru_isolate(lru, item);
-> @@ -965,7 +965,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+> @@ -978,7 +978,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 >  
 >  		trace_binder_unmap_user_end(alloc, index);
 >  	}
@@ -103,7 +99,7 @@ Tyler
 >  	mmput(mm);
 >  
 >  	trace_binder_unmap_kernel_start(alloc, index);
-> @@ -980,7 +980,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+> @@ -993,7 +993,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 >  	mutex_unlock(&alloc->mutex);
 >  	return LRU_REMOVED_RETRY;
 >  
