@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D515A16F4
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9345A16F3
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbfH2KwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
+        id S1727763AbfH2KwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728559AbfH2KvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:51:17 -0400
+        id S1728579AbfH2KvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:51:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5A8323405;
-        Thu, 29 Aug 2019 10:51:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B85C723427;
+        Thu, 29 Aug 2019 10:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075876;
-        bh=xoxk9jxkuoOZfhocIiS0de+uIj2KTFu3DX/VP0RtgBo=;
+        s=default; t=1567075877;
+        bh=LUbZq5RNgQvDztv0DBqWpD+rrSm6QAldMQFxXL2DynQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3OoZLel88WVmEfiqRKSbY/RmZYPSWeyjk62ZZdbnzK84bpyZvfDRxWE27JyhuOLA
-         dpH+d6gZ8yUUhNcMkw2IHbrIWLaZq9Ma/Gnw7z2ycY3AbL/Qi3mA0eElYikNhPOO2c
-         2hq0yAma89xBmSS+J7yFOZ/Ex3tXeEQ11Ye4v02I=
+        b=Y/F3+Ys8Zu3e5HDY6eVsmMMWyv4g6ksGcW1goytWpkTel3CpViG+frfyQfjJCUCrW
+         yrWgZVnhKbvhSmnwALgLP4wr0IhR/CN7Id96w60FOUY35vdwfK5xhj2FBVaZR7Gqk9
+         EOeU/V6OBvb1lVe4zEhR/NoV9NhmfxfZsb05fMLM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 4/6] scripts/decode_stacktrace: match basepath using shell prefix operator, not regex
-Date:   Thu, 29 Aug 2019 06:51:08 -0400
-Message-Id: <20190829105110.2748-4-sashal@kernel.org>
+Cc:     Andrew Jones <drjones@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 5/6] KVM: arm/arm64: Only skip MMIO insn once
+Date:   Thu, 29 Aug 2019 06:51:09 -0400
+Message-Id: <20190829105110.2748-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105110.2748-1-sashal@kernel.org>
 References: <20190829105110.2748-1-sashal@kernel.org>
@@ -45,37 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Andrew Jones <drjones@redhat.com>
 
-[ Upstream commit 31013836a71e07751a6827f9d2ad41ef502ddaff ]
+[ Upstream commit 2113c5f62b7423e4a72b890bd479704aa85c81ba ]
 
-The basepath may contain special characters, which would confuse the regex
-matcher.  ${var#prefix} does the right thing.
+If after an MMIO exit to userspace a VCPU is immediately run with an
+immediate_exit request, such as when a signal is delivered or an MMIO
+emulation completion is needed, then the VCPU completes the MMIO
+emulation and immediately returns to userspace. As the exit_reason
+does not get changed from KVM_EXIT_MMIO in these cases we have to
+be careful not to complete the MMIO emulation again, when the VCPU is
+eventually run again, because the emulation does an instruction skip
+(and doing too many skips would be a waste of guest code :-) We need
+to use additional VCPU state to track if the emulation is complete.
+As luck would have it, we already have 'mmio_needed', which even
+appears to be used in this way by other architectures already.
 
-Link: http://lkml.kernel.org/r/20190518055946.181563-1-drinkcat@chromium.org
-Fixes: 67a28de47faa8358 ("scripts/decode_stacktrace: only strip base path when a prefix of the path")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0d640732dbeb ("arm64: KVM: Skip MMIO insn after emulation")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/decode_stacktrace.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/kvm/mmio.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index ffc46c7c3afbb..4f5e76f76b9dc 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -64,7 +64,7 @@ parse_symbol() {
- 	fi
+diff --git a/arch/arm/kvm/mmio.c b/arch/arm/kvm/mmio.c
+index ae61e2ea7255b..d2efc033ef8b4 100644
+--- a/arch/arm/kvm/mmio.c
++++ b/arch/arm/kvm/mmio.c
+@@ -98,6 +98,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
+ 	unsigned int len;
+ 	int mask;
  
- 	# Strip out the base of the path
--	code=${code//^$basepath/""}
-+	code=${code#$basepath/}
++	/* Detect an already handled MMIO return */
++	if (unlikely(!vcpu->mmio_needed))
++		return 0;
++
++	vcpu->mmio_needed = 0;
++
+ 	if (!run->mmio.is_write) {
+ 		len = run->mmio.len;
+ 		if (len > sizeof(unsigned long))
+@@ -206,6 +212,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
+ 	run->mmio.is_write	= is_write;
+ 	run->mmio.phys_addr	= fault_ipa;
+ 	run->mmio.len		= len;
++	vcpu->mmio_needed	= 1;
  
- 	# In the case of inlines, move everything to same line
- 	code=${code//$'\n'/' '}
+ 	if (!ret) {
+ 		/* We handled the access successfully in the kernel. */
 -- 
 2.20.1
 
