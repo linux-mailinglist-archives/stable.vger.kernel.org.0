@@ -2,36 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A3CA16F0
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE2DA16FA
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728541AbfH2KvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59066 "EHLO mail.kernel.org"
+        id S1727798AbfH2Kw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728532AbfH2KvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:51:13 -0400
+        id S1728546AbfH2KvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:51:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB16D2341B;
-        Thu, 29 Aug 2019 10:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D84EB2173E;
+        Thu, 29 Aug 2019 10:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075872;
-        bh=0lCEHDxLOQ6yt9rOsavR/pLvEJ18xUFl2UqvqIea3jk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IiASg/y94fjeGLtAettQ6DUoUDBK5us1ylRqDceB8nSWu3AIvf4MMoTPA2F1kaiIn
-         wmJTIW8O/dthpABqSlGBFcEfx5Z16wSK9iB47ZEdX+agDgGHidulcHpnSwrhx27Kfc
-         48xP94K475K9eQ/zaR8ssiuNVaSjyplXFFXWm4Sw=
+        s=default; t=1567075874;
+        bh=qlCOFZjNYI2nNPOt+PsqTthpDctJ6cRrpNMdWEJrrLI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=P+clGxND6JmQeK5rrFLFqq22mIFy1Bttpej90QRx089OxvcUyLjorf7Y6nc/uI0n/
+         b/5+SIYCqetzQPdShjVZkXWTNJ8f25+FCusHJ1WHnk+W45j4rEYy8PONmf3amH4/6A
+         eKSxdpr9xt2KC1qJHNwg9fmvls4Pco0jdTfGCijs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/6] Revert "dm bufio: fix deadlock with loop device"
-Date:   Thu, 29 Aug 2019 06:51:05 -0400
-Message-Id: <20190829105110.2748-1-sashal@kernel.org>
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/6] userfaultfd_release: always remove uffd flags and clear vm_userfaultfd_ctx
+Date:   Thu, 29 Aug 2019 06:51:06 -0400
+Message-Id: <20190829105110.2748-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190829105110.2748-1-sashal@kernel.org>
+References: <20190829105110.2748-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,63 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-[ Upstream commit cf3591ef832915892f2499b7e54b51d4c578b28c ]
+[ Upstream commit 46d0b24c5ee10a15dfb25e20642f5a5ed59c5003 ]
 
-Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
-fix has been made available with commit d0a255e795ab ("loop: set
-PF_MEMALLOC_NOIO for the worker thread").
+userfaultfd_release() should clear vm_flags/vm_userfaultfd_ctx even if
+mm->core_state != NULL.
 
-Note that the fix offered by commit bd293d071ffe doesn't really prevent
-the deadlock from occuring - if we look at the stacktrace reported by
-Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
-i.e. it has already successfully taken the mutex. Changing the mutex
-from mutex_lock to mutex_trylock won't help with deadlocks that happen
-afterwards.
+Otherwise a page fault can see userfaultfd_missing() == T and use an
+already freed userfaultfd_ctx.
 
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
-Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: http://lkml.kernel.org/r/20190820160237.GB4983@redhat.com
+Fixes: 04f5866e41fb ("coredump: fix race condition between mmget_not_zero()/get_task_mm() and core dumping")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/userfaultfd.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
-index 8a6e7646e1c98..b1d5fa0bc8f7b 100644
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1561,7 +1561,9 @@ dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
- 	unsigned long freed;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index f187e02d267e2..fe1c146f4032e 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -431,6 +431,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	/* len == 0 means wake all */
+ 	struct userfaultfd_wake_range range = { .len = 0, };
+ 	unsigned long new_flags;
++	bool still_valid;
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (!dm_bufio_trylock(c))
-+	if (sc->gfp_mask & __GFP_FS)
-+		dm_bufio_lock(c);
-+	else if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+ 	ACCESS_ONCE(ctx->released) = true;
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+@@ -446,8 +447,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 	 * taking the mmap_sem for writing.
+ 	 */
+ 	down_write(&mm->mmap_sem);
+-	if (!mmget_still_valid(mm))
+-		goto skip_mm;
++	still_valid = mmget_still_valid(mm);
+ 	prev = NULL;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		cond_resched();
+@@ -458,19 +458,20 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 			continue;
+ 		}
+ 		new_flags = vma->vm_flags & ~(VM_UFFD_MISSING | VM_UFFD_WP);
+-		prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
+-				 new_flags, vma->anon_vma,
+-				 vma->vm_file, vma->vm_pgoff,
+-				 vma_policy(vma),
+-				 NULL_VM_UFFD_CTX);
+-		if (prev)
+-			vma = prev;
+-		else
+-			prev = vma;
++		if (still_valid) {
++			prev = vma_merge(mm, prev, vma->vm_start, vma->vm_end,
++					 new_flags, vma->anon_vma,
++					 vma->vm_file, vma->vm_pgoff,
++					 vma_policy(vma),
++					 NULL_VM_UFFD_CTX);
++			if (prev)
++				vma = prev;
++			else
++				prev = vma;
++		}
+ 		vma->vm_flags = new_flags;
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+ 	}
+-skip_mm:
+ 	up_write(&mm->mmap_sem);
+ 	mmput(mm);
+ wakeup:
 -- 
 2.20.1
 
