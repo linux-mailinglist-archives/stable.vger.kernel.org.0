@@ -2,101 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D157A1A22
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 14:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74060A1B04
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 15:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbfH2MdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 08:33:02 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:36296 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726739AbfH2MdC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 08:33:02 -0400
-Received: by mail-pf1-f196.google.com with SMTP id w2so1964573pfi.3
-        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 05:33:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=9ZElwPYDF3hkOnMCGjcM+ceRcwzA1o3dcs++AfpAr2Q=;
-        b=lP6LwiRcX+CKxi5zlrF6hLA057Q9b6RXBcsjtZ6JuCvNO1PRIozgrLSburoI81dlVq
-         fHlRAYZhCfXk1HMFhCands6o3UPVnfJHNS8mMMb8cC1chwZY40v3AEg2mQrdx7b4mBDz
-         gs9VjfEwgMwnifKhXYjm9ZmOHhjb4PDaFq4KDlhv1j6sqHDpqhCMFgJohx4NmSoD9cAy
-         XeTx34Sk7PWw2EFMhMlDU+SF9+dOnXfmg6WVhvys914Qp5kolTpfHtM+ngUNyG/YaRiJ
-         Ky+OBPf5s0wVSo/s9ilsBRUQCJeYkSpHWXpODxRaZXTgW2XiiqtU4paqf/hRTIhAadK5
-         EdGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=9ZElwPYDF3hkOnMCGjcM+ceRcwzA1o3dcs++AfpAr2Q=;
-        b=tO79h+tw8igYSyjTsneL89Ap+ihg/QZiPqiavyHVpipp7nHc2FelUOPIsqImsWNprO
-         mw8RTy5GZxGs2J3twitWkoKh03MtWmhQr1qsIrQckGa9PcMApabigjgiK75qkGiRdieE
-         PxIgXf9BVeVSxeLty5D17uyH0IAtEGp0obAUiqzIxjOUD+HzgseRDPSLAeBSAQUPjTVC
-         SzKtCA/FeygkuXKnQrGWug4PnhF9MxU4xm+Grl/MK/B1/keJoT5+V3FvqcK7BbxZZYRF
-         2otstI4VxvXUfWdRrsZD4uebnxNY8hFvCli+P0Y76Bl9o1cmnnqV4sOYVyi/y5TwMWYa
-         s5tg==
-X-Gm-Message-State: APjAAAVPSSqvkzJdGF2MHKtVhP6jeb3AZaRuBblx56AmAU93Y9tD6oQB
-        da628cgnaqNSKzpnQmGvTi4=
-X-Google-Smtp-Source: APXvYqxXWpFDowq+mrgADSaL9kDxl5NO5DmSl2RxCj3g9vs9sSklVTMZHbWEXe5tYJo+UgTxENP2OQ==
-X-Received: by 2002:a63:494d:: with SMTP id y13mr8226371pgk.109.1567081981866;
-        Thu, 29 Aug 2019 05:33:01 -0700 (PDT)
-Received: from localhost ([39.7.51.95])
-        by smtp.gmail.com with ESMTPSA id v12sm2126016pgr.86.2019.08.29.05.33.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Aug 2019 05:33:01 -0700 (PDT)
-Date:   Thu, 29 Aug 2019 21:32:57 +0900
-From:   Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-To:     Jiri Slaby <jslaby@suse.cz>
-Cc:     =?iso-8859-1?Q?Fran=E7ois?= Valenduc <francoisvalenduc@gmail.com>,
-        stable@vger.kernel.org, henryburns@google.com,
-        sergey.senozhatsky@gmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: Kernel 5.2.11 dpes not compile
-Message-ID: <20190829123257.GA8726@jagdpanzerIV>
-References: <CACU-xRs6-oog+4gG-zsn-J9MCRS8xF3y-1Aw+yq_iv6PHP7d+A@mail.gmail.com>
- <015acb3e-6722-70c8-b0d5-822f1505fed2@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <015acb3e-6722-70c8-b0d5-822f1505fed2@suse.cz>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S1727176AbfH2NKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 09:10:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59176 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726739AbfH2NKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 09:10:41 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 4F857AFC3;
+        Thu, 29 Aug 2019 13:10:40 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id BC3D11E2F9E; Thu, 29 Aug 2019 15:10:39 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-xfs@vger.kernel.org>
+Cc:     <linux-mm@kvack.org>, Amir Goldstein <amir73il@gmail.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Boaz Harrosh <boaz@plexistor.com>,
+        <linux-fsdevel@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] mm: Handle MADV_WILLNEED through vfs_fadvise()
+Date:   Thu, 29 Aug 2019 15:10:32 +0200
+Message-Id: <20190829131034.10563-2-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20190829131034.10563-1-jack@suse.cz>
+References: <20190829131034.10563-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On (08/29/19 14:28), Jiri Slaby wrote:
-[..]
-> as is its definition in the structure (and its other uses).
-> 
-> > ./include/linux/wait.h:67:26: note: in definition of macro ‘init_waitqueue_head’
-> >    __init_waitqueue_head((wq_head), #wq_head, &__key);  \
-> >                           ^~~~~~~
-> > scripts/Makefile.build:278: recipe for target 'mm/zsmalloc.o' failed
-> > make[1]: *** [mm/zsmalloc.o] Error 1
-> > Makefile:1073: recipe for target 'mm' failed
-> > 
-> > You can find my configuration file attached.
-> 
-> You forgot to attach it, but you have CONFIG_COMPACTION=n, I assume.
-> 
-> > Does anybody have any idea about this ?
-> 
-> Sure, this will fix it (or turn on compaction):
-> --- a/mm/zsmalloc.c
-> +++ b/mm/zsmalloc.c
-> @@ -2413,7 +2413,9 @@ struct zs_pool *zs_create_pool(const char *name)
->         if (!pool->name)
->                 goto err;
-> 
-> +#ifdef CONFIG_COMPACTION
->         init_waitqueue_head(&pool->migration_wait);
-> +#endif
+Currently handling of MADV_WILLNEED hint calls directly into readahead
+code. Handle it by calling vfs_fadvise() instead so that filesystem can
+use its ->fadvise() callback to acquire necessary locks or otherwise
+prepare for the request.
 
-The fix is correct. I believe Andrew already has the same patch
-in his tree.
+Suggested-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Boaz Harrosh <boazh@netapp.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ mm/madvise.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-	-ss
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 968df3aa069f..bac973b9f2cc 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -14,6 +14,7 @@
+ #include <linux/userfaultfd_k.h>
+ #include <linux/hugetlb.h>
+ #include <linux/falloc.h>
++#include <linux/fadvise.h>
+ #include <linux/sched.h>
+ #include <linux/ksm.h>
+ #include <linux/fs.h>
+@@ -275,6 +276,7 @@ static long madvise_willneed(struct vm_area_struct *vma,
+ 			     unsigned long start, unsigned long end)
+ {
+ 	struct file *file = vma->vm_file;
++	loff_t offset;
+ 
+ 	*prev = vma;
+ #ifdef CONFIG_SWAP
+@@ -298,12 +300,20 @@ static long madvise_willneed(struct vm_area_struct *vma,
+ 		return 0;
+ 	}
+ 
+-	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+-	if (end > vma->vm_end)
+-		end = vma->vm_end;
+-	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+-
+-	force_page_cache_readahead(file->f_mapping, file, start, end - start);
++	/*
++	 * Filesystem's fadvise may need to take various locks.  We need to
++	 * explicitly grab a reference because the vma (and hence the
++	 * vma's reference to the file) can go away as soon as we drop
++	 * mmap_sem.
++	 */
++	*prev = NULL;	/* tell sys_madvise we drop mmap_sem */
++	get_file(file);
++	up_read(&current->mm->mmap_sem);
++	offset = (loff_t)(start - vma->vm_start)
++			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
++	vfs_fadvise(file, offset, end - start, POSIX_FADV_WILLNEED);
++	fput(file);
++	down_read(&current->mm->mmap_sem);
+ 	return 0;
+ }
+ 
+-- 
+2.16.4
+
