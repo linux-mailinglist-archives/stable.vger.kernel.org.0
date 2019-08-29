@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF3AA16B7
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D87A172F
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728182AbfH2Kun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58146 "EHLO mail.kernel.org"
+        id S1728201AbfH2Kuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbfH2Kum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:42 -0400
+        id S1728188AbfH2Kuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 200EA23428;
-        Thu, 29 Aug 2019 10:50:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BF9623426;
+        Thu, 29 Aug 2019 10:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075842;
-        bh=JrorarxX0tWOFWXgQKQbgJPurWxAoIUAhi1ugVUbjl8=;
+        s=default; t=1567075843;
+        bh=f83q1siPucHmVnrzP6Y+fGhWbXT3hG3C/OSD9JDoQlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCgjLwA6MuLqC8Gwl3WbxoRFq0Hfw6jLLpdwpVsy+nEgPaWrLd5Jp9EHflib4JFLS
-         z+wJOkhh+jWYNyEin1dOLyWUjAOedMKPZdweC3RnuRh+naF3rhPW/g6gPhHYaLbDf1
-         3/mn1bOdmhtNXfO29rteJmLHSTTsdOE4+9jI2vg4=
+        b=PHpX/xJ34VbN926OhQx0LmaDDlnGUW6kCkkto1Yl2shuRCOb74YPlTGK9veHZOMtY
+         CZFUQ5m0x97aXfquVxTY6R9t+3w4z0qbJOqyrGWf+aLCl0ZkBY3a07ElyGt9Jzqnag
+         v0ul4vipLSW5tWwJksRL73d2ICEf06pHfzWoItKI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jessica Yu <jeyu@kernel.org>, Martin Kaiser <lists@kaiser.cx>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        David Lechner <david@lechnology.com>,
-        Martin Kaiser <martin@kaiser.cx>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Miroslav Benes <mbenes@suse.cz>, Jessica Yu <jeyu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 28/29] modules: always page-align module section allocations
-Date:   Thu, 29 Aug 2019 06:50:08 -0400
-Message-Id: <20190829105009.2265-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 29/29] kernel/module: Fix mem leak in module_add_modinfo_attrs
+Date:   Thu, 29 Aug 2019 06:50:09 -0400
+Message-Id: <20190829105009.2265-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -46,57 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 38f054d549a869f22a02224cd276a27bf14b6171 ]
+[ Upstream commit bc6f2a757d525e001268c3658bd88822e768f8db ]
 
-Some arches (e.g., arm64, x86) have moved towards non-executable
-module_alloc() allocations for security hardening reasons. That means
-that the module loader will need to set the text section of a module to
-executable, regardless of whether or not CONFIG_STRICT_MODULE_RWX is set.
+In module_add_modinfo_attrs if sysfs_create_file
+fails, we forget to free allocated modinfo_attrs
+and roll back the sysfs files.
 
-When CONFIG_STRICT_MODULE_RWX=y, module section allocations are always
-page-aligned to handle memory rwx permissions. On some arches with
-CONFIG_STRICT_MODULE_RWX=n however, when setting the module text to
-executable, the BUG_ON() in frob_text() gets triggered since module
-section allocations are not page-aligned when CONFIG_STRICT_MODULE_RWX=n.
-Since the set_memory_* API works with pages, and since we need to call
-set_memory_x() regardless of whether CONFIG_STRICT_MODULE_RWX is set, we
-might as well page-align all module section allocations for ease of
-managing rwx permissions of module sections (text, rodata, etc).
-
-Fixes: 2eef1399a866 ("modules: fix BUG when load module with rodata=n")
-Reported-by: Martin Kaiser <lists@kaiser.cx>
-Reported-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Tested-by: David Lechner <david@lechnology.com>
-Tested-by: Martin Kaiser <martin@kaiser.cx>
-Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 03e88ae1b13d ("[PATCH] fix module sysfs files reference counting")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ kernel/module.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/kernel/module.c b/kernel/module.c
-index 3fda10c549a25..2dec3d4a9b627 100644
+index 2dec3d4a9b627..0d86fc73d63d1 100644
 --- a/kernel/module.c
 +++ b/kernel/module.c
-@@ -76,14 +76,9 @@
+@@ -1694,6 +1694,8 @@ static int add_usage_links(struct module *mod)
+ 	return ret;
+ }
  
- /*
-  * Modules' sections will be aligned on page boundaries
-- * to ensure complete separation of code and data, but
-- * only when CONFIG_STRICT_MODULE_RWX=y
-+ * to ensure complete separation of code and data
-  */
--#ifdef CONFIG_STRICT_MODULE_RWX
- # define debug_align(X) ALIGN(X, PAGE_SIZE)
--#else
--# define debug_align(X) (X)
--#endif
++static void module_remove_modinfo_attrs(struct module *mod, int end);
++
+ static int module_add_modinfo_attrs(struct module *mod)
+ {
+ 	struct module_attribute *attr;
+@@ -1708,24 +1710,34 @@ static int module_add_modinfo_attrs(struct module *mod)
+ 		return -ENOMEM;
  
- /* If this is set, the section belongs in the init part of the module */
- #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
+ 	temp_attr = mod->modinfo_attrs;
+-	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
++	for (i = 0; (attr = modinfo_attrs[i]); i++) {
+ 		if (!attr->test || attr->test(mod)) {
+ 			memcpy(temp_attr, attr, sizeof(*temp_attr));
+ 			sysfs_attr_init(&temp_attr->attr);
+ 			error = sysfs_create_file(&mod->mkobj.kobj,
+ 					&temp_attr->attr);
++			if (error)
++				goto error_out;
+ 			++temp_attr;
+ 		}
+ 	}
++
++	return 0;
++
++error_out:
++	if (i > 0)
++		module_remove_modinfo_attrs(mod, --i);
+ 	return error;
+ }
+ 
+-static void module_remove_modinfo_attrs(struct module *mod)
++static void module_remove_modinfo_attrs(struct module *mod, int end)
+ {
+ 	struct module_attribute *attr;
+ 	int i;
+ 
+ 	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
++		if (end >= 0 && i > end)
++			break;
+ 		/* pick a field to test for end of list */
+ 		if (!attr->attr.name)
+ 			break;
+@@ -1813,7 +1825,7 @@ static int mod_sysfs_setup(struct module *mod,
+ 	return 0;
+ 
+ out_unreg_modinfo_attrs:
+-	module_remove_modinfo_attrs(mod);
++	module_remove_modinfo_attrs(mod, -1);
+ out_unreg_param:
+ 	module_param_sysfs_remove(mod);
+ out_unreg_holders:
+@@ -1849,7 +1861,7 @@ static void mod_sysfs_fini(struct module *mod)
+ {
+ }
+ 
+-static void module_remove_modinfo_attrs(struct module *mod)
++static void module_remove_modinfo_attrs(struct module *mod, int end)
+ {
+ }
+ 
+@@ -1865,7 +1877,7 @@ static void init_param_lock(struct module *mod)
+ static void mod_sysfs_teardown(struct module *mod)
+ {
+ 	del_usage_links(mod);
+-	module_remove_modinfo_attrs(mod);
++	module_remove_modinfo_attrs(mod, -1);
+ 	module_param_sysfs_remove(mod);
+ 	kobject_put(mod->mkobj.drivers_dir);
+ 	kobject_put(mod->holders_dir);
 -- 
 2.20.1
 
