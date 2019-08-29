@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C22F8A24A1
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC86BA249B
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728358AbfH2SYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58468 "EHLO mail.kernel.org"
+        id S1729760AbfH2SQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729746AbfH2SQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:16:26 -0400
+        id S1729753AbfH2SQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:16:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2357B2189D;
-        Thu, 29 Aug 2019 18:16:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B91F2339E;
+        Thu, 29 Aug 2019 18:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102585;
-        bh=wqUIqAOQdZDZwLQhc3zJBFZ+4LlvNbuhEy1DRGKsDUY=;
+        s=default; t=1567102586;
+        bh=em3tqHdWgAqd9Ik7eTSlUEpP6WoxfX3uzGf4z8ov/qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cO46U0SVioCJUqlIVdNO0qoNuIQ9xV82RfYLGxzWZt6TPM2rhWLOarb1dg8Poeo1h
-         LpFkKAbFrho5HTk00buaITMEMLqR/9xAzvGgmiDcYaUFzhJzuU9u2cDSJiRpRJygUZ
-         0kyBrnWgiF+UwUpjit7fKcXAj44xGDg49xdtK+Rs=
+        b=hvngjxqvGG9+qe/QrLqnLpKQFcS4FF6Dc2ay/4stHKY+OiUIeklGSLaXOriRroZh0
+         9s3NjNRsCkKQFexSFRZOAVDrGB5KfvgEfBQctjR210xPDx3usmMWwvpeqQ5ZkQOLrh
+         t19x+Xb7Uc3MCDhupCHQTaAPODnDiruyHNgsSvUY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Hemminger <stephen@networkplumber.org>,
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 26/45] net: cavium: fix driver name
-Date:   Thu, 29 Aug 2019 14:15:26 -0400
-Message-Id: <20190829181547.8280-26-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 27/45] wimax/i2400m: fix a memory leak bug
+Date:   Thu, 29 Aug 2019 14:15:27 -0400
+Message-Id: <20190829181547.8280-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
 References: <20190829181547.8280-1-sashal@kernel.org>
@@ -43,37 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 3434341004a380f4e47c3a03d4320d43982162a0 ]
+[ Upstream commit 44ef3a03252844a8753479b0cea7f29e4a804bdc ]
 
-The driver name gets exposed in sysfs under /sys/bus/pci/drivers
-so it should look like other devices. Change it to be common
-format (instead of "Cavium PTP").
+In i2400m_barker_db_init(), 'options_orig' is allocated through kstrdup()
+to hold the original command line options. Then, the options are parsed.
+However, if an error occurs during the parsing process, 'options_orig' is
+not deallocated, leading to a memory leak bug. To fix this issue, free
+'options_orig' before returning the error.
 
-This is a trivial fix that was observed by accident because
-Debian kernels were building this driver into kernel (bug).
-
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/common/cavium_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wimax/i2400m/fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cavium/common/cavium_ptp.c b/drivers/net/ethernet/cavium/common/cavium_ptp.c
-index 6aeb1045c302a..1ab40c97403ba 100644
---- a/drivers/net/ethernet/cavium/common/cavium_ptp.c
-+++ b/drivers/net/ethernet/cavium/common/cavium_ptp.c
-@@ -10,7 +10,7 @@
+diff --git a/drivers/net/wimax/i2400m/fw.c b/drivers/net/wimax/i2400m/fw.c
+index e9fc168bb7345..489cba9b284d1 100644
+--- a/drivers/net/wimax/i2400m/fw.c
++++ b/drivers/net/wimax/i2400m/fw.c
+@@ -351,13 +351,15 @@ int i2400m_barker_db_init(const char *_options)
+ 			}
+ 			result = i2400m_barker_db_add(barker);
+ 			if (result < 0)
+-				goto error_add;
++				goto error_parse_add;
+ 		}
+ 		kfree(options_orig);
+ 	}
+ 	return 0;
  
- #include "cavium_ptp.h"
- 
--#define DRV_NAME	"Cavium PTP Driver"
-+#define DRV_NAME "cavium_ptp"
- 
- #define PCI_DEVICE_ID_CAVIUM_PTP	0xA00C
- #define PCI_DEVICE_ID_CAVIUM_RST	0xA00E
++error_parse_add:
+ error_parse:
++	kfree(options_orig);
+ error_add:
+ 	kfree(i2400m_barker_db);
+ 	return result;
 -- 
 2.20.1
 
