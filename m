@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA367A1768
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9880A1757
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbfH2Ky7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:54:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57580 "EHLO mail.kernel.org"
+        id S1727620AbfH2KuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:50:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727791AbfH2KuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:22 -0400
+        id S1727830AbfH2KuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B37A223403;
-        Thu, 29 Aug 2019 10:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F2D2189D;
+        Thu, 29 Aug 2019 10:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075821;
-        bh=IYyyR7M7rGBO8OqHSI9KXgCb+rxiIEbdYid7/md1cm4=;
+        s=default; t=1567075822;
+        bh=l4bD2X66wQYH9bFuxf5F1FvSh18IMJFDWESpsXZ5qBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yO9WzsPAwt4HfSb/W5RX3vLiI8Wtp2TUo2oPcZJg4ou6WNOtbd0NBX0/aeYdUVr1A
-         GH5zFkQ8KqL9ZXhpBnOQMKvwNLgO8QRFGqUOglDBMJigwAWiByKiM9m+hcgHS8+mmT
-         yUPzXU4rE52rC/DhOatd85rkDvviNxZVUB720sFY=
+        b=Q3PEA99czadxvoNpw2ANW5bfMHOPi8iDoIgTxOJvq//Tm1DTWzCzSTVPCp5f09Gbd
+         +Pmg8z2jP2X3XFko3z+H2GhD1UjSu0lnF6kBDvEzFsDO2+eZ4DfmOp+RIWzzqpLjBR
+         sj/ziuyWctXt9U4oxZzE6NUd8cOxS6cgL0wSRZl8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 10/29] x86/ftrace: Fix warning and considate ftrace_jmp_replace() and ftrace_call_replace()
-Date:   Thu, 29 Aug 2019 06:49:50 -0400
-Message-Id: <20190829105009.2265-10-sashal@kernel.org>
+Cc:     Tyler Hicks <tyhicks@canonical.com>, Todd Kjos <tkjos@android.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.19 11/29] binder: take read mode of mmap_sem in binder_alloc_free_page()
+Date:   Thu, 29 Aug 2019 06:49:51 -0400
+Message-Id: <20190829105009.2265-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -42,124 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Tyler Hicks <tyhicks@canonical.com>
 
-[ Upstream commit 745cfeaac09ce359130a5451d90cb0bd4094c290 ]
+[ Upstream commit 60d4885710836595192c42d3e04b27551d30ec91 ]
 
-Arnd reported the following compiler warning:
+Restore the behavior of locking mmap_sem for reading in
+binder_alloc_free_page(), as was first done in commit 3013bf62b67a
+("binder: reduce mmap_sem write-side lock"). That change was
+inadvertently reverted by commit 5cec2d2e5839 ("binder: fix race between
+munmap() and direct reclaim").
 
-arch/x86/kernel/ftrace.c:669:23: error: 'ftrace_jmp_replace' defined but not used [-Werror=unused-function]
+In addition, change the name of the label for the error path to
+accurately reflect that we're taking the lock for reading.
 
-The ftrace_jmp_replace() function now only has a single user and should be
-simply moved by that user. But looking at the code, it shows that
-ftrace_jmp_replace() is similar to ftrace_call_replace() except that instead
-of using the opcode of 0xe8 it uses 0xe9. It makes more sense to consolidate
-that function into one implementation that both ftrace_jmp_replace() and
-ftrace_call_replace() use by passing in the op code separate.
+Backporting note: This fix is only needed when *both* of the commits
+mentioned above are applied. That's an unlikely situation since they
+both landed during the development of v5.1 but only one of them is
+targeted for stable.
 
-The structure in ftrace_code_union is also modified to replace the "e8"
-field with the more appropriate name "op".
-
-Cc: stable@vger.kernel.org
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20190304200748.1418790-1-arnd@arndb.de
-Fixes: d2a68c4effd8 ("x86/ftrace: Do not call function graph from dynamic trampolines")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
+Acked-by: Todd Kjos <tkjos@android.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c | 42 ++++++++++++++++------------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ drivers/android/binder_alloc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 50d309662d78c..5790671857e55 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -53,7 +53,7 @@ int ftrace_arch_code_modify_post_process(void)
- union ftrace_code_union {
- 	char code[MCOUNT_INSN_SIZE];
- 	struct {
--		unsigned char e8;
-+		unsigned char op;
- 		int offset;
- 	} __attribute__((packed));
- };
-@@ -63,20 +63,23 @@ static int ftrace_calc_offset(long ip, long addr)
- 	return (int)(addr - ip);
- }
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index a654ccfd1a222..21dc20c52cd4d 100644
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -962,8 +962,8 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 	mm = alloc->vma_vm_mm;
+ 	if (!mmget_not_zero(mm))
+ 		goto err_mmget;
+-	if (!down_write_trylock(&mm->mmap_sem))
+-		goto err_down_write_mmap_sem_failed;
++	if (!down_read_trylock(&mm->mmap_sem))
++		goto err_down_read_mmap_sem_failed;
+ 	vma = binder_alloc_get_vma(alloc);
  
--static unsigned char *ftrace_call_replace(unsigned long ip, unsigned long addr)
-+static unsigned char *
-+ftrace_text_replace(unsigned char op, unsigned long ip, unsigned long addr)
- {
- 	static union ftrace_code_union calc;
+ 	list_lru_isolate(lru, item);
+@@ -978,7 +978,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
  
--	calc.e8		= 0xe8;
-+	calc.op		= op;
- 	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
- 
--	/*
--	 * No locking needed, this must be called via kstop_machine
--	 * which in essence is like running on a uniprocessor machine.
--	 */
- 	return calc.code;
- }
- 
-+static unsigned char *
-+ftrace_call_replace(unsigned long ip, unsigned long addr)
-+{
-+	return ftrace_text_replace(0xe8, ip, addr);
-+}
-+
- static inline int
- within(unsigned long addr, unsigned long start, unsigned long end)
- {
-@@ -686,22 +689,6 @@ int __init ftrace_dyn_arch_init(void)
- 	return 0;
- }
- 
--#if defined(CONFIG_X86_64) || defined(CONFIG_FUNCTION_GRAPH_TRACER)
--static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
--{
--	static union ftrace_code_union calc;
--
--	/* Jmp not a call (ignore the .e8) */
--	calc.e8		= 0xe9;
--	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
--
--	/*
--	 * ftrace external locks synchronize the access to the static variable.
--	 */
--	return calc.code;
--}
--#endif
--
- /* Currently only x86_64 supports dynamic trampolines */
- #ifdef CONFIG_X86_64
- 
-@@ -923,8 +910,8 @@ static void *addr_from_call(void *ptr)
- 		return NULL;
- 
- 	/* Make sure this is a call */
--	if (WARN_ON_ONCE(calc.e8 != 0xe8)) {
--		pr_warn("Expected e8, got %x\n", calc.e8);
-+	if (WARN_ON_ONCE(calc.op != 0xe8)) {
-+		pr_warn("Expected e8, got %x\n", calc.op);
- 		return NULL;
+ 		trace_binder_unmap_user_end(alloc, index);
  	}
+-	up_write(&mm->mmap_sem);
++	up_read(&mm->mmap_sem);
+ 	mmput(mm);
  
-@@ -995,6 +982,11 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
- #ifdef CONFIG_DYNAMIC_FTRACE
- extern void ftrace_graph_call(void);
+ 	trace_binder_unmap_kernel_start(alloc, index);
+@@ -993,7 +993,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 	mutex_unlock(&alloc->mutex);
+ 	return LRU_REMOVED_RETRY;
  
-+static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
-+{
-+	return ftrace_text_replace(0xe9, ip, addr);
-+}
-+
- static int ftrace_mod_jmp(unsigned long ip, void *func)
- {
- 	unsigned char *new;
+-err_down_write_mmap_sem_failed:
++err_down_read_mmap_sem_failed:
+ 	mmput_async(mm);
+ err_mmget:
+ err_page_already_freed:
 -- 
 2.20.1
 
