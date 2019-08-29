@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7919A2473
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7AEA2471
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 20:23:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728259AbfH2SX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 14:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58926 "EHLO mail.kernel.org"
+        id S1729912AbfH2SQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 14:16:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbfH2SQv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 14:16:51 -0400
+        id S1728556AbfH2SQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:16:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DCBA2189D;
-        Thu, 29 Aug 2019 18:16:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B4832189D;
+        Thu, 29 Aug 2019 18:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567102610;
-        bh=JfugwJoZrrcuXr7gxgP+D6FbKzm1spHA1BgCwXHQ4GA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dp/Jur9Ya1Hz7dxqlXHVGBWranCQQbnva3yUu8GluHcDH821GnNO6o1lb83yH32aZ
-         vJRKwoH4aCrhK2smDWsK+lKz5NX6KsQ9DWhHc/xn/zZ1HcXX1I4bqPqc4lE028IJBz
-         aHEVUkzHmtYT70KHvgGiBZtLSeZ8JdHg/NVX4eQc=
+        s=default; t=1567102617;
+        bh=EuMjjEGx2MFzb26c4JDylJlINgym/vHqNxNZSc+0fw8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ho69awwU9GzUoCPUeuhMmiWhalO1yaQydHOyQ2GeH5yIirTLQCKRQTD5oANXvLvi2
+         v9JQU+Ij9sX4xd+HS1Dq7/+0ObmsunoncoOGVxsHkCcldoRb1arJCsEhiHRdf1yt1s
+         gCQ1NTe+fbC4JDYk9qrdhFlPoa1kM+fEWwualiAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 44/45] afs: Fix leak in afs_lookup_cell_rcu()
-Date:   Thu, 29 Aug 2019 14:15:44 -0400
-Message-Id: <20190829181547.8280-44-sashal@kernel.org>
+Cc:     Fuqian Huang <huangfq.daxian@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/27] net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
+Date:   Thu, 29 Aug 2019 14:16:27 -0400
+Message-Id: <20190829181655.8741-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
-References: <20190829181547.8280-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,66 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Fuqian Huang <huangfq.daxian@gmail.com>
 
-[ Upstream commit a5fb8e6c02d6a518fb2b1a2b8c2471fa77b69436 ]
+[ Upstream commit 8c25d0887a8bd0e1ca2074ac0c6dff173787a83b ]
 
-Fix a leak on the cell refcount in afs_lookup_cell_rcu() due to
-non-clearance of the default error in the case a NULL cell name is passed
-and the workstation default cell is used.
+As spin_unlock_irq will enable interrupts.
+Function tsi108_stat_carry is called from interrupt handler tsi108_irq.
+Interrupts are enabled in interrupt handler.
+Use spin_lock_irqsave/spin_unlock_irqrestore instead of spin_(un)lock_irq
+in IRQ context to avoid this.
 
-Also put a bit at the end to make sure we don't leak a cell ref if we're
-going to be returning an error.
-
-This leak results in an assertion like the following when the kafs module is
-unloaded:
-
-	AFS: Assertion failed
-	2 == 1 is false
-	0x2 == 0x1 is false
-	------------[ cut here ]------------
-	kernel BUG at fs/afs/cell.c:770!
-	...
-	RIP: 0010:afs_manage_cells+0x220/0x42f [kafs]
-	...
-	 process_one_work+0x4c2/0x82c
-	 ? pool_mayday_timeout+0x1e1/0x1e1
-	 ? do_raw_spin_lock+0x134/0x175
-	 worker_thread+0x336/0x4a6
-	 ? rescuer_thread+0x4af/0x4af
-	 kthread+0x1de/0x1ee
-	 ? kthread_park+0xd4/0xd4
-	 ret_from_fork+0x24/0x30
-
-Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/cell.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/tundra/tsi108_eth.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/cell.c b/fs/afs/cell.c
-index 6127f0fcd62c4..ee07162d35c7a 100644
---- a/fs/afs/cell.c
-+++ b/fs/afs/cell.c
-@@ -76,6 +76,7 @@ struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
- 			cell = rcu_dereference_raw(net->ws_cell);
- 			if (cell) {
- 				afs_get_cell(cell);
-+				ret = 0;
- 				break;
- 			}
- 			ret = -EDESTADDRREQ;
-@@ -110,6 +111,9 @@ struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
+diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
+index c2d15d9c0c33b..455979e47424c 100644
+--- a/drivers/net/ethernet/tundra/tsi108_eth.c
++++ b/drivers/net/ethernet/tundra/tsi108_eth.c
+@@ -381,9 +381,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
+ static void tsi108_stat_carry(struct net_device *dev)
+ {
+ 	struct tsi108_prv_data *data = netdev_priv(dev);
++	unsigned long flags;
+ 	u32 carry1, carry2;
  
- 	done_seqretry(&net->cells_lock, seq);
+-	spin_lock_irq(&data->misclock);
++	spin_lock_irqsave(&data->misclock, flags);
  
-+	if (ret != 0 && cell)
-+		afs_put_cell(net, cell);
-+
- 	return ret == 0 ? cell : ERR_PTR(ret);
+ 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
+ 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
+@@ -451,7 +452,7 @@ static void tsi108_stat_carry(struct net_device *dev)
+ 			      TSI108_STAT_TXPAUSEDROP_CARRY,
+ 			      &data->tx_pause_drop);
+ 
+-	spin_unlock_irq(&data->misclock);
++	spin_unlock_irqrestore(&data->misclock, flags);
  }
  
+ /* Read a stat counter atomically with respect to carries.
 -- 
 2.20.1
 
