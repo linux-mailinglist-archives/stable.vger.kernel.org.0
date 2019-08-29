@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 908CEA16A5
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A93C6A176A
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 12:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfH2KuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 06:50:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57464 "EHLO mail.kernel.org"
+        id S1728364AbfH2KzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 06:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726518AbfH2KuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 06:50:18 -0400
+        id S1727703AbfH2KuT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Aug 2019 06:50:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47E292341C;
-        Thu, 29 Aug 2019 10:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81A7B2173E;
+        Thu, 29 Aug 2019 10:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567075817;
-        bh=Yadv00o9CZAXZqMGbo+z3JawRiSXYtJaQUmJg+FypKk=;
+        s=default; t=1567075818;
+        bh=7nPzp5j46jxzMqq21aflthNQUkUdaJ9bksN7iMbrZVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEdv1O7KUXz1U+1y2SKyP/zm4qCYqxBznD2M8CZDJ1cYl6pgGB7KjAZlcyBpDMe2q
-         vFljd1W/yJ8RuGMBV5X7sQpoJ7y2RQ/J07wuVzm3uNREKlVnHLq/sr6Yw+Y2W7HfI4
-         8+Wz7jBBs0ZDX4bF9d7+M9fcO9d5Fr3Dd36c87P8=
+        b=WeBbuR6NlZUoSj3n9Ela0QkLyChXYVLw9K2TyerhKT7lbVdqEgLbEs9xrxKyD/7Wl
+         WOLqvL+Hgg6VxgAkZxgd26e4rybnkULfBzjMWMzMYPO9TkWRx8u8ivr8wu0iDQS2jI
+         Wjik+zdSJYcZJviYGYREaH1jthm28ok9hS2fsAVQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/29] blk-iolatency: fix STS_AGAIN handling
-Date:   Thu, 29 Aug 2019 06:49:46 -0400
-Message-Id: <20190829105009.2265-6-sashal@kernel.org>
+Cc:     Manikanta Pubbisetty <mpubbise@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/29] {nl,mac}80211: fix interface combinations on crypto controlled devices
+Date:   Thu, 29 Aug 2019 06:49:47 -0400
+Message-Id: <20190829105009.2265-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829105009.2265-1-sashal@kernel.org>
 References: <20190829105009.2265-1-sashal@kernel.org>
@@ -44,123 +44,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Zhou <dennis@kernel.org>
+From: Manikanta Pubbisetty <mpubbise@codeaurora.org>
 
-[ Upstream commit c9b3007feca018d3f7061f5d5a14cb00766ffe9b ]
+[ Upstream commit e6f4051123fd33901e9655a675b22aefcdc5d277 ]
 
-The iolatency controller is based on rq_qos. It increments on
-rq_qos_throttle() and decrements on either rq_qos_cleanup() or
-rq_qos_done_bio(). a3fb01ba5af0 fixes the double accounting issue where
-blk_mq_make_request() may call both rq_qos_cleanup() and
-rq_qos_done_bio() on REQ_NO_WAIT. So checking STS_AGAIN prevents the
-double decrement.
+Commit 33d915d9e8ce ("{nl,mac}80211: allow 4addr AP operation on
+crypto controlled devices") has introduced a change which allows
+4addr operation on crypto controlled devices (ex: ath10k). This
+change has inadvertently impacted the interface combinations logic
+on such devices.
 
-The above works upstream as the only way we can get STS_AGAIN is from
-blk_mq_get_request() failing. The STS_AGAIN handling isn't a real
-problem as bio_endio() skipping only happens on reserved tag allocation
-failures which can only be caused by driver bugs and already triggers
-WARN.
+General rule is that software interfaces like AP/VLAN should not be
+listed under supported interface combinations and should not be
+considered during validation of these combinations; because of the
+aforementioned change, AP/VLAN interfaces(if present) will be checked
+against interfaces supported by the device and blocks valid interface
+combinations.
 
-However, the fix creates a not so great dependency on how STS_AGAIN can
-be propagated. Internally, we (Facebook) carry a patch that kills read
-ahead if a cgroup is io congested or a fatal signal is pending. This
-combined with chained bios progagate their bi_status to the parent is
-not already set can can cause the parent bio to not clean up properly
-even though it was successful. This consequently leaks the inflight
-counter and can hang all IOs under that blkg.
+Consider a case where an AP and AP/VLAN are up and running; when a
+second AP device is brought up on the same physical device, this AP
+will be checked against the AP/VLAN interface (which will not be
+part of supported interface combinations of the device) and blocks
+second AP to come up.
 
-To nip the adverse interaction early, this removes the rq_qos_cleanup()
-callback in iolatency in favor of cleaning up always on the
-rq_qos_done_bio() path.
+Add a new API cfg80211_iftype_allowed() to fix the problem, this
+API works for all devices with/without SW crypto control.
 
-Fixes: a3fb01ba5af0 ("blk-iolatency: only account submitted bios")
-Debugged-by: Tejun Heo <tj@kernel.org>
-Debugged-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
+Fixes: 33d915d9e8ce ("{nl,mac}80211: allow 4addr AP operation on crypto controlled devices")
+Link: https://lore.kernel.org/r/1563779690-9716-1-git-send-email-mpubbise@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iolatency.c | 51 ++++++++++++-------------------------------
- 1 file changed, 14 insertions(+), 37 deletions(-)
+ include/net/cfg80211.h | 15 +++++++++++++++
+ net/mac80211/util.c    |  7 +++----
+ net/wireless/core.c    |  6 ++----
+ net/wireless/nl80211.c |  4 +---
+ net/wireless/util.c    | 27 +++++++++++++++++++++++++--
+ 5 files changed, 46 insertions(+), 13 deletions(-)
 
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 84ecdab41b691..0529e94a20f7f 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -566,10 +566,6 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 	if (!blkg)
- 		return;
+diff --git a/include/net/cfg80211.h b/include/net/cfg80211.h
+index 67e0a990144a6..468deae5d603e 100644
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -6562,6 +6562,21 @@ int cfg80211_external_auth_request(struct net_device *netdev,
+ 				   struct cfg80211_external_auth_params *params,
+ 				   gfp_t gfp);
  
--	/* We didn't actually submit this bio, don't account it. */
--	if (bio->bi_status == BLK_STS_AGAIN)
--		return;
--
- 	iolat = blkg_to_lat(bio->bi_blkg);
- 	if (!iolat)
- 		return;
-@@ -588,40 +584,22 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
++/**
++ * cfg80211_iftype_allowed - check whether the interface can be allowed
++ * @wiphy: the wiphy
++ * @iftype: interface type
++ * @is_4addr: use_4addr flag, must be '0' when check_swif is '1'
++ * @check_swif: check iftype against software interfaces
++ *
++ * Check whether the interface is allowed to operate; additionally, this API
++ * can be used to check iftype against the software interfaces when
++ * check_swif is '1'.
++ */
++bool cfg80211_iftype_allowed(struct wiphy *wiphy, enum nl80211_iftype iftype,
++			     bool is_4addr, u8 check_swif);
++
++
+ /* Logging, debugging and troubleshooting/diagnostic helpers. */
  
- 		inflight = atomic_dec_return(&rqw->inflight);
- 		WARN_ON_ONCE(inflight < 0);
--		if (iolat->min_lat_nsec == 0)
--			goto next;
--		iolatency_record_time(iolat, &bio->bi_issue, now,
--				      issue_as_root);
--		window_start = atomic64_read(&iolat->window_start);
--		if (now > window_start &&
--		    (now - window_start) >= iolat->cur_win_nsec) {
--			if (atomic64_cmpxchg(&iolat->window_start,
--					window_start, now) == window_start)
--				iolatency_check_latencies(iolat, now);
-+		/*
-+		 * If bi_status is BLK_STS_AGAIN, the bio wasn't actually
-+		 * submitted, so do not account for it.
-+		 */
-+		if (iolat->min_lat_nsec && bio->bi_status != BLK_STS_AGAIN) {
-+			iolatency_record_time(iolat, &bio->bi_issue, now,
-+					      issue_as_root);
-+			window_start = atomic64_read(&iolat->window_start);
-+			if (now > window_start &&
-+			    (now - window_start) >= iolat->cur_win_nsec) {
-+				if (atomic64_cmpxchg(&iolat->window_start,
-+					     window_start, now) == window_start)
-+					iolatency_check_latencies(iolat, now);
-+			}
- 		}
--next:
--		wake_up(&rqw->wait);
--		blkg = blkg->parent;
--	}
--}
--
--static void blkcg_iolatency_cleanup(struct rq_qos *rqos, struct bio *bio)
--{
--	struct blkcg_gq *blkg;
--
--	blkg = bio->bi_blkg;
--	while (blkg && blkg->parent) {
--		struct rq_wait *rqw;
--		struct iolatency_grp *iolat;
--
--		iolat = blkg_to_lat(blkg);
--		if (!iolat)
--			goto next;
--
--		rqw = &iolat->rq_wait;
--		atomic_dec(&rqw->inflight);
- 		wake_up(&rqw->wait);
--next:
- 		blkg = blkg->parent;
+ /* wiphy_printk helpers, similar to dev_printk */
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index c59638574cf8b..f101a6460b44b 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -3527,9 +3527,7 @@ int ieee80211_check_combinations(struct ieee80211_sub_if_data *sdata,
  	}
- }
-@@ -637,7 +615,6 @@ static void blkcg_iolatency_exit(struct rq_qos *rqos)
  
- static struct rq_qos_ops blkcg_iolatency_ops = {
- 	.throttle = blkcg_iolatency_throttle,
--	.cleanup = blkcg_iolatency_cleanup,
- 	.done_bio = blkcg_iolatency_done_bio,
- 	.exit = blkcg_iolatency_exit,
- };
+ 	/* Always allow software iftypes */
+-	if (local->hw.wiphy->software_iftypes & BIT(iftype) ||
+-	    (iftype == NL80211_IFTYPE_AP_VLAN &&
+-	     local->hw.wiphy->flags & WIPHY_FLAG_4ADDR_AP)) {
++	if (cfg80211_iftype_allowed(local->hw.wiphy, iftype, 0, 1)) {
+ 		if (radar_detect)
+ 			return -EINVAL;
+ 		return 0;
+@@ -3564,7 +3562,8 @@ int ieee80211_check_combinations(struct ieee80211_sub_if_data *sdata,
+ 
+ 		if (sdata_iter == sdata ||
+ 		    !ieee80211_sdata_running(sdata_iter) ||
+-		    local->hw.wiphy->software_iftypes & BIT(wdev_iter->iftype))
++		    cfg80211_iftype_allowed(local->hw.wiphy,
++					    wdev_iter->iftype, 0, 1))
+ 			continue;
+ 
+ 		params.iftype_num[wdev_iter->iftype]++;
+diff --git a/net/wireless/core.c b/net/wireless/core.c
+index 2a46ec3cb72c1..68660781aa51f 100644
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -1335,10 +1335,8 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
+ 		}
+ 		break;
+ 	case NETDEV_PRE_UP:
+-		if (!(wdev->wiphy->interface_modes & BIT(wdev->iftype)) &&
+-		    !(wdev->iftype == NL80211_IFTYPE_AP_VLAN &&
+-		      rdev->wiphy.flags & WIPHY_FLAG_4ADDR_AP &&
+-		      wdev->use_4addr))
++		if (!cfg80211_iftype_allowed(wdev->wiphy, wdev->iftype,
++					     wdev->use_4addr, 0))
+ 			return notifier_from_errno(-EOPNOTSUPP);
+ 
+ 		if (rfkill_blocked(rdev->rfkill))
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 8e2f03ab4cc9f..2a85bff6a8f35 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3210,9 +3210,7 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
+ 			return err;
+ 	}
+ 
+-	if (!(rdev->wiphy.interface_modes & (1 << type)) &&
+-	    !(type == NL80211_IFTYPE_AP_VLAN && params.use_4addr &&
+-	      rdev->wiphy.flags & WIPHY_FLAG_4ADDR_AP))
++	if (!cfg80211_iftype_allowed(&rdev->wiphy, type, params.use_4addr, 0))
+ 		return -EOPNOTSUPP;
+ 
+ 	err = nl80211_parse_mon_options(rdev, type, info, &params);
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index d57e2f679a3e4..c14e8f6e5e198 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1670,7 +1670,7 @@ int cfg80211_iter_combinations(struct wiphy *wiphy,
+ 	for (iftype = 0; iftype < NUM_NL80211_IFTYPES; iftype++) {
+ 		num_interfaces += params->iftype_num[iftype];
+ 		if (params->iftype_num[iftype] > 0 &&
+-		    !(wiphy->software_iftypes & BIT(iftype)))
++		    !cfg80211_iftype_allowed(wiphy, iftype, 0, 1))
+ 			used_iftypes |= BIT(iftype);
+ 	}
+ 
+@@ -1692,7 +1692,7 @@ int cfg80211_iter_combinations(struct wiphy *wiphy,
+ 			return -ENOMEM;
+ 
+ 		for (iftype = 0; iftype < NUM_NL80211_IFTYPES; iftype++) {
+-			if (wiphy->software_iftypes & BIT(iftype))
++			if (cfg80211_iftype_allowed(wiphy, iftype, 0, 1))
+ 				continue;
+ 			for (j = 0; j < c->n_limits; j++) {
+ 				all_iftypes |= limits[j].types;
+@@ -1895,3 +1895,26 @@ EXPORT_SYMBOL(rfc1042_header);
+ const unsigned char bridge_tunnel_header[] __aligned(2) =
+ 	{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8 };
+ EXPORT_SYMBOL(bridge_tunnel_header);
++
++bool cfg80211_iftype_allowed(struct wiphy *wiphy, enum nl80211_iftype iftype,
++			     bool is_4addr, u8 check_swif)
++
++{
++	bool is_vlan = iftype == NL80211_IFTYPE_AP_VLAN;
++
++	switch (check_swif) {
++	case 0:
++		if (is_vlan && is_4addr)
++			return wiphy->flags & WIPHY_FLAG_4ADDR_AP;
++		return wiphy->interface_modes & BIT(iftype);
++	case 1:
++		if (!(wiphy->software_iftypes & BIT(iftype)) && is_vlan)
++			return wiphy->flags & WIPHY_FLAG_4ADDR_AP;
++		return wiphy->software_iftypes & BIT(iftype);
++	default:
++		break;
++	}
++
++	return false;
++}
++EXPORT_SYMBOL(cfg80211_iftype_allowed);
 -- 
 2.20.1
 
