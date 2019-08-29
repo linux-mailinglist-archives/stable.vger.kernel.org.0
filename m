@@ -2,112 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54BE5A1E96
-	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 17:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9419A1F04
+	for <lists+stable@lfdr.de>; Thu, 29 Aug 2019 17:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727834AbfH2PN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 11:13:26 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:52447 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727233AbfH2PNZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 11:13:25 -0400
-Received: from 162-237-133-238.lightspeed.rcsntx.sbcglobal.net ([162.237.133.238] helo=elm)
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
-        (Exim 4.76)
-        (envelope-from <tyhicks@canonical.com>)
-        id 1i3M71-0001ey-7k; Thu, 29 Aug 2019 15:13:23 +0000
-Date:   Thu, 29 Aug 2019 10:13:20 -0500
-From:   Tyler Hicks <tyhicks@canonical.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Todd Kjos <tkjos@android.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devel@driverdev.osuosl.org
-Subject: Re: [PATCH AUTOSEL 4.19 11/29] binder: take read mode of mmap_sem in
- binder_alloc_free_page()
-Message-ID: <20190829151320.GC27650@elm>
-References: <20190829105009.2265-1-sashal@kernel.org>
- <20190829105009.2265-11-sashal@kernel.org>
+        id S1727906AbfH2PZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Aug 2019 11:25:23 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:46652 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727207AbfH2PZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Aug 2019 11:25:22 -0400
+Received: by mail-qk1-f193.google.com with SMTP id p13so3236516qkg.13;
+        Thu, 29 Aug 2019 08:25:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0mHHzudUkCQcPt1wULA8owTufUJouDmPGZVLzU80PzU=;
+        b=iNyTMQgs2x8237GjAk5cXaA6wwhNWCidgqk7C9GHy4B9loY4lge3i7l9CMEacA/w6z
+         hnMuvvia3nVOvXdNAoCE7AAUMGuAk7Bv5ozGXX/Zefj9kvczbxBZH6eT9Zz6IUUIQwmS
+         xmXUPySsfM4paM9fpRAogQsOhkNZWIdme6pGWl/wi5Hd46kOsY3JbBhYH889OuGLl1NE
+         k0oVXYb4gmvZlnopB9wVLFuuipICjJepQbLHlqS18u90HGy8ls1eIYbySkS2tE7pubIX
+         Zbsogn6lAxmjeFttsEqdzHxSr1rxy6Wr5X1QJbHECEMNoE89ZYJfxdXbZ2ap9hJVTYyO
+         ljOA==
+X-Gm-Message-State: APjAAAVlfghpwOtOkTM+UBcHMNChGpCtD/ljb7QSJDbm7KxVPfFMLDqj
+        LeDpdpHd439ZbaRzQtwi8PiYbwg3QXhGdaf6Jsk=
+X-Google-Smtp-Source: APXvYqxse9IwiB3NzD3hX4SWgAcDhZXn2uWJ0Ujx5Ucz70UYZnwwtgbJfuf5IaBrajYl1n7GZZiZUTBzaq+gWzCJ3g0=
+X-Received: by 2002:a37:4b0d:: with SMTP id y13mr9983002qka.3.1567092321745;
+ Thu, 29 Aug 2019 08:25:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190829105009.2265-11-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <5D562335.7000902@hisilicon.com>
+In-Reply-To: <5D562335.7000902@hisilicon.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Thu, 29 Aug 2019 17:25:05 +0200
+Message-ID: <CAK8P3a1t20bmJxfijrNWnSGoR8BOvUYGxDaoMUTV78Lp_LPi4g@mail.gmail.com>
+Subject: Re: [GIT PULL] Hisilicon fixes for v5.3
+To:     Wei Xu <xuwei5@hisilicon.com>
+Cc:     SoC Team <soc@kernel.org>, "arm@kernel.org" <arm@kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Olof Johansson <olof@lixom.net>,
+        "xuwei (O)" <xuwei5@huawei.com>, Linuxarm <linuxarm@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Zhangyi ac <zhangyi.ac@huawei.com>,
+        "Liguozhu (Kenneth)" <liguozhu@hisilicon.com>,
+        jinying@hisilicon.com, huangdaode <huangdaode@hisilicon.com>,
+        Tangkunshan <tangkunshan@huawei.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Shameerali Kolothum Thodi 
+        <shameerali.kolothum.thodi@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        Shiju Jose <shiju.jose@huawei.com>,
+        "# 3.4.x" <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, Sasha!
+On Fri, Aug 16, 2019 at 5:30 AM Wei Xu <xuwei5@hisilicon.com> wrote:
+>
+> Hi ARM-SoC team,
+>
+> Please consider to pull the following fixes.
+> Thanks!
+>
 
-On 2019-08-29 06:49:51, Sasha Levin wrote:
-> From: Tyler Hicks <tyhicks@canonical.com>
-> 
-> [ Upstream commit 60d4885710836595192c42d3e04b27551d30ec91 ]
-> 
-> Restore the behavior of locking mmap_sem for reading in
-> binder_alloc_free_page(), as was first done in commit 3013bf62b67a
-> ("binder: reduce mmap_sem write-side lock"). That change was
-> inadvertently reverted by commit 5cec2d2e5839 ("binder: fix race between
-> munmap() and direct reclaim").
-> 
-> In addition, change the name of the label for the error path to
-> accurately reflect that we're taking the lock for reading.
-> 
-> Backporting note: This fix is only needed when *both* of the commits
-> mentioned above are applied. That's an unlikely situation since they
-> both landed during the development of v5.1 but only one of them is
-> targeted for stable.
+Pulled into arm/fixes, thanks!
 
-This patch isn't meant to be applied to 4.19 since commit 3013bf62b67a
-("binder: reduce mmap_sem write-side lock") was never brought back to
-4.19.
-
-Tyler
-
-> 
-> Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
-> Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
-> Acked-by: Todd Kjos <tkjos@android.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/android/binder_alloc.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-> index a654ccfd1a222..21dc20c52cd4d 100644
-> --- a/drivers/android/binder_alloc.c
-> +++ b/drivers/android/binder_alloc.c
-> @@ -962,8 +962,8 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
->  	mm = alloc->vma_vm_mm;
->  	if (!mmget_not_zero(mm))
->  		goto err_mmget;
-> -	if (!down_write_trylock(&mm->mmap_sem))
-> -		goto err_down_write_mmap_sem_failed;
-> +	if (!down_read_trylock(&mm->mmap_sem))
-> +		goto err_down_read_mmap_sem_failed;
->  	vma = binder_alloc_get_vma(alloc);
->  
->  	list_lru_isolate(lru, item);
-> @@ -978,7 +978,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
->  
->  		trace_binder_unmap_user_end(alloc, index);
->  	}
-> -	up_write(&mm->mmap_sem);
-> +	up_read(&mm->mmap_sem);
->  	mmput(mm);
->  
->  	trace_binder_unmap_kernel_start(alloc, index);
-> @@ -993,7 +993,7 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
->  	mutex_unlock(&alloc->mutex);
->  	return LRU_REMOVED_RETRY;
->  
-> -err_down_write_mmap_sem_failed:
-> +err_down_read_mmap_sem_failed:
->  	mmput_async(mm);
->  err_mmget:
->  err_page_already_freed:
-> -- 
-> 2.20.1
-> 
+      Arnd
