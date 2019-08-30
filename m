@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F23CA3323
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 10:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28742A33BC
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 11:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbfH3IxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 04:53:04 -0400
-Received: from s3.sipsolutions.net ([144.76.43.62]:33018 "EHLO
-        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbfH3IxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Aug 2019 04:53:04 -0400
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.92.1)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1i3ceU-0001rQ-4I; Fri, 30 Aug 2019 10:53:02 +0200
-Message-ID: <5dc694c33759a32eb3796668a8b396c0133e1ebe.camel@sipsolutions.net>
-Subject: Re: [PATCH] cfg80211: Purge frame registrations on iftype change
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Denis Kenzior <denkenz@gmail.com>, linux-wireless@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Date:   Fri, 30 Aug 2019 10:53:01 +0200
-In-Reply-To: <20190828211110.15005-1-denkenz@gmail.com> (sfid-20190828_231636_661927_AAE3C4AB)
-References: <20190828211110.15005-1-denkenz@gmail.com>
-         (sfid-20190828_231636_661927_AAE3C4AB)
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
+        id S1727386AbfH3JYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 05:24:14 -0400
+Received: from [110.188.70.11] ([110.188.70.11]:50151 "EHLO spam1.hygon.cn"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726461AbfH3JYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Aug 2019 05:24:14 -0400
+Received: from MK-FE.hygon.cn ([172.23.18.61])
+        by spam1.hygon.cn with ESMTP id x7U9NJ98068505;
+        Fri, 30 Aug 2019 17:23:19 +0800 (GMT-8)
+        (envelope-from puwen@hygon.cn)
+Received: from cncheex01.Hygon.cn ([172.23.18.10])
+        by MK-FE.hygon.cn with ESMTP id x7U9N8Lh034383;
+        Fri, 30 Aug 2019 17:23:09 +0800 (GMT-8)
+        (envelope-from puwen@hygon.cn)
+Received: from pw-vbox.hygon.cn (172.23.18.44) by cncheex01.Hygon.cn
+ (172.23.18.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1466.3; Fri, 30 Aug
+ 2019 17:23:14 +0800
+From:   Pu Wen <puwen@hygon.cn>
+To:     <lenb@kernel.org>, <calvin.walton@kepstin.ca>
+CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>, Pu Wen <puwen@hygon.cn>
+Subject: [RFC PATCH] tools/power turbostat: Fix caller parameter of get_tdp_amd()
+Date:   Fri, 30 Aug 2019 17:22:36 +0800
+Message-ID: <1567156956-29634-1-git-send-email-puwen@hygon.cn>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Originating-IP: [172.23.18.44]
+X-ClientProxiedBy: cncheex02.Hygon.cn (172.23.18.12) To cncheex01.Hygon.cn
+ (172.23.18.10)
+X-MAIL: spam1.hygon.cn x7U9NJ98068505
+X-DNSRBL: 
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-08-28 at 16:11 -0500, Denis Kenzior wrote:
-> Currently frame registrations are not purged, even when changing the
-> interface type.  This can lead to potentially weird / dangerous
-> situations where frames possibly not relevant to a given interface
-> type remain registered and mgmt_frame_register is not called for the
-> no-longer-relevant frame types.
+Commit 9392bd98bba760be96ee ("tools/power turbostat: Add support for AMD
+Fam 17h (Zen) RAPL") add a function get_tdp_amd(), the parameter is CPU
+family. But the rapl_probe_amd() function use wrong model parameter.
+Fix the wrong caller parameter of get_tdp_amd() to use family.
 
-I'd argue really just "weird and non-working", hardly dangerous. Even in
-the mac80211 design where we want to not let you intercept e.g. AUTH
-frames in client mode - if you did, then you'd just end up with a non-
-working interface. Not sure I see any "dangerous situation". Not really
-an all that important distinction though.
+Cc: <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+---
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Depending on the design, it may also just be that those registrations
-are *ignored*, because e.g. firmware intercepts the AUTH frame already,
-which would just (maybe) confuse userspace - but that seems unlikely
-since it switched interface type and has no real need for those frames
-then.
-
-> The kernel currently relies on userspace apps to actually purge the
-> registrations themselves, e.g. by closing the nl80211 socket associated
-> with those frames.  However, this requires multiple nl80211 sockets to
-> be open by the userspace app, and for userspace to be aware of all state
-> changes.  This is not something that the kernel should rely on.
-
-I tend to agree with that the kernel shouldn't rely on it.
-
-> This commit adds a call to cfg80211_mlme_purge_registrations() to
-> forcefully remove any registrations left over prior to switching the
-> iftype.
-
-However, I do wonder if we should make this more transactional, and hang
-on to them if the type switching fails. We're not notifying userspace
-that the registrations have disappeared, so if type switching fails and
-it continues to work with the old type rather than throwing its hands up
-and quitting or something, it'd make a possibly bigger mess to just
-silently have removed them already.
-
-I *think* it should be safe to just move this after the switching
-succeeds, since the switching can pretty much only be done at a point
-where nothing is happening on the interface anyway, though that might
-confuse the driver when the remove happens.
-
-Also, perhaps it'd be better to actually hang on to those registrations
-that *are* still possible afterwards? But to not confuse the driver I
-guess that might require unregister/re-register to happen, all of which
-requires hanging on to the list and going through it after the type
-switch completed?
-
-What do you think?
-
-johannes
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 75fc4fb..1cd28eb 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4002,7 +4002,7 @@ void rapl_probe_amd(unsigned int family, unsigned int model)
+ 	rapl_energy_units = ldexp(1.0, -(msr >> 8 & 0x1f));
+ 	rapl_power_units = ldexp(1.0, -(msr & 0xf));
+ 
+-	tdp = get_tdp_amd(model);
++	tdp = get_tdp_amd(family);
+ 
+ 	rapl_joule_counter_range = 0xFFFFFFFF * rapl_energy_units / tdp;
+ 	if (!quiet)
+-- 
+2.7.4
 
