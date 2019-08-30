@@ -2,83 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 829EFA39BB
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 17:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA67A39E9
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 17:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbfH3PB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 11:01:28 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:35583 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727603AbfH3PB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Aug 2019 11:01:28 -0400
-Received: by mail-io1-f66.google.com with SMTP id b10so14662916ioj.2
-        for <stable@vger.kernel.org>; Fri, 30 Aug 2019 08:01:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kepstin.ca; s=google;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=+6AS1wxaosaOlU3Xtuxu0RL5HXDYhQrxbAdoPZ19vYs=;
-        b=pSVl9bYd1QooTuZSyeNmhaOBRtjqTSbV2cgcRm38IMnu3KcnhSyrSo+3S3EKYdRY8t
-         t/NyMeiG+PxGw2spFgAHwQHqxjbRJReIeH96l5s+Q7LD+Gs8rBCq9R5EdnHugT++kidy
-         FLK4veATSyOFDVPTE4PCQXVI89ldXKA56Gdts=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=+6AS1wxaosaOlU3Xtuxu0RL5HXDYhQrxbAdoPZ19vYs=;
-        b=C9K8J8vvnBhE+poUC6mJGGliPDFd4Lz9vDMNoYIFiRBah9dQ7f5HVklvrKA2KC3kqB
-         kT2BD+YQeuqgrPtB42v6P/h70cI96Mi340G5vPf/moSJxplRYambUyA6LMPKiHKJ5Oth
-         A29pdkZlB1pK9z8VBMQv+O50+8+qK+BTm1oRtU2KNbw05EhCGPmB93n6BjAIIEu9yc6e
-         hUSx/nVTo95voXjlNVwzDUoTMg6OEireoNBLMuZQbpuQI/HsEU75A9ljKETxG/uaRBli
-         3XNsW7Qzln++A15maDigk761pe34W9gBZkUvokIXDt8+r4yPUVgopELB/s+vQCoo7z8G
-         TJHA==
-X-Gm-Message-State: APjAAAVcAzWrav9XP2fpGc4tQhBikqPQyohHL5XXGIm62Qk9dyTti97l
-        HDIafg19hn74NgMZUe+MLiusZSw+i+suOKBT
-X-Google-Smtp-Source: APXvYqxq+wRB1RyW9v8NRY8Y3CdZkE2gv/yw5RLu0LHoRhnGJPWY7GmO8OWIDwmh5HDMIuzUuwty6g==
-X-Received: by 2002:a02:6a68:: with SMTP id m40mr16174861jaf.135.1567177287137;
-        Fri, 30 Aug 2019 08:01:27 -0700 (PDT)
-Received: from rocky ([2607:fea8:bea0:e11:9410:aa2:6ab7:15b])
-        by smtp.gmail.com with ESMTPSA id c18sm4580330iod.19.2019.08.30.08.01.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Aug 2019 08:01:26 -0700 (PDT)
-Message-ID: <13610f1bd1c248848611fbf2d46f351bed9ee7f0.camel@kepstin.ca>
-Subject: Re: [RFC PATCH] tools/power turbostat: Fix caller parameter of
- get_tdp_amd()
-From:   Calvin Walton <calvin.walton@kepstin.ca>
-To:     Pu Wen <puwen@hygon.cn>, lenb@kernel.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Date:   Fri, 30 Aug 2019 11:01:16 -0400
-In-Reply-To: <1567156956-29634-1-git-send-email-puwen@hygon.cn>
-References: <1567156956-29634-1-git-send-email-puwen@hygon.cn>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        id S1727850AbfH3PIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 11:08:41 -0400
+Received: from mblankhorst.nl ([141.105.120.124]:33556 "EHLO mblankhorst.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727603AbfH3PIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Aug 2019 11:08:41 -0400
+From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+To:     intel-gfx-trybot@lists.freedesktop.org
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>
+Subject: [PATCH 01/25] drm/i915/dp: Fix dsc bpp calculations.
+Date:   Fri, 30 Aug 2019 17:08:12 +0200
+Message-Id: <20190830150836.7461-1-maarten.lankhorst@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-08-30 at 17:22 +0800, Pu Wen wrote:
-> Commit 9392bd98bba760be96ee ("tools/power turbostat: Add support for
-> AMD
-> Fam 17h (Zen) RAPL") add a function get_tdp_amd(), the parameter is
-> CPU
-> family. But the rapl_probe_amd() function use wrong model parameter.
-> Fix the wrong caller parameter of get_tdp_amd() to use family.
+There was a integer wraparound when mode_clock became too high,
+and we didn't correct for the FEC overhead factor when dividing,
+also the calculations would break at HBR3.
 
-Whoops, good catch. Before, this code was only working because the
-switch statement in get_tdp_amd() has a default case.
+As a result our calculated bpp was way too high, and the link width
+bpp limitation never came into effect.
 
-That said, this patch is effectively a no-op, since the get_tdp_amd()
-function returns the value "250" no matter what argument is passed. The
-only reason the function exists in the first place is that I thought
-there might be a way to read the configured TDP from the CPU, but I
-couldn't find any documentation on how to do that at the time.
+Print out the resulting bpp calcululations as a sanity check, just
+in case we ever have to debug it later on again.
 
-Reviewed-by: Calvin Walton <calvin.walton@kepstin.ca>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
+Cc: <stable@vger.kernel.org> # v5.0+
+Cc: Manasi Navare <manasi.d.navare@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_dp.c | 20 +++++++++++---------
+ drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 202ff3c83524..f6988cf50f79 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4343,10 +4343,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
+ 		DP_DPRX_ESI_LEN;
+ }
+ 
+-u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+-				int mode_clock, int mode_hdisplay)
++u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u32 lane_count,
++				u32 mode_clock, u32 mode_hdisplay)
+ {
+-	u16 bits_per_pixel, max_bpp_small_joiner_ram;
++	u32 bits_per_pixel, max_bpp_small_joiner_ram;
+ 	int i;
+ 
+ 	/*
+@@ -4355,13 +4355,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+ 	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
+ 	 * for MST -> TimeSlotsPerMTP has to be calculated
+ 	 */
+-	bits_per_pixel = (link_clock * lane_count * 8 *
+-			  DP_DSC_FEC_OVERHEAD_FACTOR) /
+-		mode_clock;
++	bits_per_pixel =
++		mul_u32_u32(link_clock, lane_count * 8 * DP_DSC_FEC_OVERHEAD_FACTOR) /
++		mul_u32_u32(1000ULL, mode_clock);
++	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
+ 
+ 	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
+-	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
+-		mode_hdisplay;
++	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER / mode_hdisplay;
++	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
+ 
+ 	/*
+ 	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
+@@ -4371,7 +4372,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+ 
+ 	/* Error out if the max bpp is less than smallest allowed valid bpp */
+ 	if (bits_per_pixel < valid_dsc_bpp[0]) {
+-		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
++		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
++			      bits_per_pixel, valid_dsc_bpp[0]);
+ 		return 0;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
+index e01d1f89409d..586dc9336d63 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.h
++++ b/drivers/gpu/drm/i915/display/intel_dp.h
+@@ -103,8 +103,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
+ bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
+ bool
+ intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
+-u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+-				int mode_clock, int mode_hdisplay);
++u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u32 lane_count,
++				u32 mode_clock, u32 mode_hdisplay);
+ u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
+ 				int mode_hdisplay);
+ 
 -- 
-Calvin Walton <calvin.walton@kepstin.ca>
+2.20.1
 
