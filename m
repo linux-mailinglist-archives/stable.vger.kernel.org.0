@@ -2,59 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A924CA3A6A
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 17:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9DCA3B95
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 18:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbfH3Pd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 11:33:56 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:42255 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727926AbfH3Pd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Aug 2019 11:33:56 -0400
-Received: by mail-io1-f65.google.com with SMTP id n197so12855540iod.9
-        for <stable@vger.kernel.org>; Fri, 30 Aug 2019 08:33:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=xB+81BA86KgsaRgiqzP2wx7BI0uSQpKG6F6d2x2gTac=;
-        b=QDCiTZcf7cbe1dJPtzxWhReTwZhqzvl7weYFRrqsMEpPb9tNGYR7IwaKjJAmw1Qc6l
-         QLCQeSKbHPIncxGuYvtafJRUczTTxgPGavXSWeM8GrIsDMm/yRcmRlC7S9vNpEopwQ+z
-         U1t52rFXB9pZDiTg2J4ySwvt3bFJdQyxQzu4jvZpKBrqhoAshRv+vZkPXsfXk3PAjsNC
-         NJMfSaLU9n3hEKJKBx6fJ2uw4vlQgzd4HNqv3K6yNFkeRVcaNhDSvOBWyxQicvIH8O2q
-         yIsQK7+f/mDg8NSh/LJmPSf9KdnpBdtyRm4qL1e8jXGPICqxXIF5kjecgNtdd7AilfA8
-         zYwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=xB+81BA86KgsaRgiqzP2wx7BI0uSQpKG6F6d2x2gTac=;
-        b=fqmFIYUm2IAyc2vbNGI48b1DxxB1Y9GC1bih723+GeHRXb5r26KABuPqkGY+h7xmp5
-         wu1ZYSAEsaoIU1p9y5f7IpCWjxYXhHfkkHUwb0PuIGCCfNC5vN5ZtYms5f5Tqw2DSBiB
-         aKjIx+Lm3QZh2ipxoVSWHrq2nu2hFL5QdQ1Iw78cVFVYBBO1zp+tZMO/Hi5HhxTdj2oa
-         9lvwYhehO6ZyIMQjcZdIgihdegg7OCTzaP6aipihZPYsuxP6o7CWDk0yw54KmjE6AEyb
-         G3wOnadFF3giKmflIwusP+cC1+79rDM7qoDHfu1AVwwTTtdOy4AkjLVirWF6CWmwegO6
-         xXXg==
-X-Gm-Message-State: APjAAAUqLfxS93JsctFkJAAMpQrk59kNO2XvVVLEavsShq/Qie3I1bnv
-        QCJJebe10e4k/35D0i6brFuqtEkOp7MQxOKySD0=
-X-Google-Smtp-Source: APXvYqxHhoN7HgcGwohEb9lULo6FVygXHVxS14+mDGPDJ4oKfBsJsu19a6J/m86yZ+9s2ikTrq6amCgLvOfu/jmqdeQ=
-X-Received: by 2002:a5e:d70a:: with SMTP id v10mr6133990iom.19.1567179235974;
- Fri, 30 Aug 2019 08:33:55 -0700 (PDT)
+        id S1727922AbfH3QJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 12:09:26 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:47886 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727791AbfH3QJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Aug 2019 12:09:26 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7UG8VnF193537;
+        Fri, 30 Aug 2019 16:09:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2019-08-05;
+ bh=fDZkm7TGgVyRUW7Itan/V6vOBM2/o4OXxKZDDHyHkQk=;
+ b=ar2PzY1a2BDwQZuxJjLGrWiNZgzTbflDX4rYndb/+yTiGDGB0PCqJ598NEmnsESROX+s
+ 2mnjHIK7Y1ZuH+aHhUd2htUGnoz8V9kNYfeURPKdwCHwBG66HtAgJU2QZnolqZmTYStd
+ gEbYNVrWPukV2Ycq1vsu0j7JWlZCPtDBYbbx8HLB61PG/aCX2taeLiUPzHbbihUnDcZN
+ HpTliNZQV9kD2zJDXDzoOsmZvUEwapLR+WJz28sXk+wpXhe9Uh2777MYP0I1b3vMGKZv
+ ZwqCemdEp0Yd6kFi6IsdU9HSw6Y0etUy27ox7HLqH8q4JzBLy/MBbyEpoEXBxg565hE4 fQ== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 2uq6yn81ba-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Aug 2019 16:09:17 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7UFvkZB041739;
+        Fri, 30 Aug 2019 16:02:17 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 2upxabfpfk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Aug 2019 16:02:16 +0000
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x7UG2FYT000919;
+        Fri, 30 Aug 2019 16:02:15 GMT
+Received: from localhost (/67.169.218.210)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 30 Aug 2019 09:02:15 -0700
+Date:   Fri, 30 Aug 2019 09:02:13 -0700
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-xfs@vger.kernel.org, linux-mm@kvack.org,
+        Amir Goldstein <amir73il@gmail.com>,
+        Boaz Harrosh <boaz@plexistor.com>,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 3/3] xfs: Fix stale data exposure when readahead races
+ with hole punch
+Message-ID: <20190830160213.GF5360@magnolia>
+References: <20190829131034.10563-1-jack@suse.cz>
+ <20190829131034.10563-4-jack@suse.cz>
+ <20190829155204.GD5354@magnolia>
+ <20190830152449.GA25069@quack2.suse.cz>
 MIME-Version: 1.0
-Received: by 2002:a4f:f318:0:0:0:0:0 with HTTP; Fri, 30 Aug 2019 08:33:55
- -0700 (PDT)
-Reply-To: graceagwukalu@gmail.com
-From:   grace jennifer mariana <ptanan44@gmail.com>
-Date:   Fri, 30 Aug 2019 08:33:55 -0700
-Message-ID: <CADUDqVx7U=4=4iu-dXYSaj8pCDr5w48cx5NQq0Z6fLrrjUgdJg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190830152449.GA25069@quack2.suse.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9365 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1906280000 definitions=main-1908300159
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9365 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1906280000
+ definitions=main-1908300161
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-5L2g5aW9IO+8jA0K5oiR5pyJ5LiA5Liq6LSi5Yqh5bu66K6u57uZ5L2g77yM5L2g6IO95Zue5aSN
-5oiR77yMDQpKZW5uaWZmZXINCg==
+On Fri, Aug 30, 2019 at 05:24:49PM +0200, Jan Kara wrote:
+> On Thu 29-08-19 08:52:04, Darrick J. Wong wrote:
+> > On Thu, Aug 29, 2019 at 03:10:34PM +0200, Jan Kara wrote:
+> > > Hole puching currently evicts pages from page cache and then goes on to
+> > > remove blocks from the inode. This happens under both XFS_IOLOCK_EXCL
+> > > and XFS_MMAPLOCK_EXCL which provides appropriate serialization with
+> > > racing reads or page faults. However there is currently nothing that
+> > > prevents readahead triggered by fadvise() or madvise() from racing with
+> > > the hole punch and instantiating page cache page after hole punching has
+> > > evicted page cache in xfs_flush_unmap_range() but before it has removed
+> > > blocks from the inode. This page cache page will be mapping soon to be
+> > > freed block and that can lead to returning stale data to userspace or
+> > > even filesystem corruption.
+> > > 
+> > > Fix the problem by protecting handling of readahead requests by
+> > > XFS_IOLOCK_SHARED similarly as we protect reads.
+> > > 
+> > > CC: stable@vger.kernel.org
+> > > Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxjQNmxqmtA_VbYW0Su9rKRk2zobJmahcyeaEVOFKVQ5dw@mail.gmail.com/
+> > > Reported-by: Amir Goldstein <amir73il@gmail.com>
+> > > Signed-off-by: Jan Kara <jack@suse.cz>
+> > 
+> > Is there a test on xfstests to demonstrate this race?
+> 
+> No, but I can try to create one.
+
+<nod> I imgaine this race was hard to spot in the first place...
+
+> > Will test it out though...
+> > 
+> > Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+> 
+> Thanks. BTW, will you pick up these patches please?
+
+Yeah, they looked fine.
+
+--D
+
+> 								Honza
+> 
+> > 
+> > --D
+> > 
+> > > ---
+> > >  fs/xfs/xfs_file.c | 26 ++++++++++++++++++++++++++
+> > >  1 file changed, 26 insertions(+)
+> > > 
+> > > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+> > > index 28101bbc0b78..d952d5962e93 100644
+> > > --- a/fs/xfs/xfs_file.c
+> > > +++ b/fs/xfs/xfs_file.c
+> > > @@ -28,6 +28,7 @@
+> > >  #include <linux/falloc.h>
+> > >  #include <linux/backing-dev.h>
+> > >  #include <linux/mman.h>
+> > > +#include <linux/fadvise.h>
+> > >  
+> > >  static const struct vm_operations_struct xfs_file_vm_ops;
+> > >  
+> > > @@ -933,6 +934,30 @@ xfs_file_fallocate(
+> > >  	return error;
+> > >  }
+> > >  
+> > > +STATIC int
+> > > +xfs_file_fadvise(
+> > > +	struct file	*file,
+> > > +	loff_t		start,
+> > > +	loff_t		end,
+> > > +	int		advice)
+> > > +{
+> > > +	struct xfs_inode *ip = XFS_I(file_inode(file));
+> > > +	int ret;
+
+> > > +	int lockflags = 0;
+> > > +
+> > > +	/*
+> > > +	 * Operations creating pages in page cache need protection from hole
+> > > +	 * punching and similar ops
+> > > +	 */
+> > > +	if (advice == POSIX_FADV_WILLNEED) {
+> > > +		lockflags = XFS_IOLOCK_SHARED;
+> > > +		xfs_ilock(ip, lockflags);
+> > > +	}
+> > > +	ret = generic_fadvise(file, start, end, advice);
+> > > +	if (lockflags)
+> > > +		xfs_iunlock(ip, lockflags);
+> > > +	return ret;
+> > > +}
+> > >  
+> > >  STATIC loff_t
+> > >  xfs_file_remap_range(
+> > > @@ -1232,6 +1257,7 @@ const struct file_operations xfs_file_operations = {
+> > >  	.fsync		= xfs_file_fsync,
+> > >  	.get_unmapped_area = thp_get_unmapped_area,
+> > >  	.fallocate	= xfs_file_fallocate,
+> > > +	.fadvise	= xfs_file_fadvise,
+> > >  	.remap_file_range = xfs_file_remap_range,
+> > >  };
+> > >  
+> > > -- 
+> > > 2.16.4
+> > > 
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
