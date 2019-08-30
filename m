@@ -2,71 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28742A33BC
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 11:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DC1A3428
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 11:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbfH3JYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 05:24:14 -0400
-Received: from [110.188.70.11] ([110.188.70.11]:50151 "EHLO spam1.hygon.cn"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726461AbfH3JYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Aug 2019 05:24:14 -0400
-Received: from MK-FE.hygon.cn ([172.23.18.61])
-        by spam1.hygon.cn with ESMTP id x7U9NJ98068505;
-        Fri, 30 Aug 2019 17:23:19 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from cncheex01.Hygon.cn ([172.23.18.10])
-        by MK-FE.hygon.cn with ESMTP id x7U9N8Lh034383;
-        Fri, 30 Aug 2019 17:23:09 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from pw-vbox.hygon.cn (172.23.18.44) by cncheex01.Hygon.cn
- (172.23.18.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1466.3; Fri, 30 Aug
- 2019 17:23:14 +0800
-From:   Pu Wen <puwen@hygon.cn>
-To:     <lenb@kernel.org>, <calvin.walton@kepstin.ca>
-CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Pu Wen <puwen@hygon.cn>
-Subject: [RFC PATCH] tools/power turbostat: Fix caller parameter of get_tdp_amd()
-Date:   Fri, 30 Aug 2019 17:22:36 +0800
-Message-ID: <1567156956-29634-1-git-send-email-puwen@hygon.cn>
-X-Mailer: git-send-email 2.7.4
+        id S1727307AbfH3Jjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 05:39:52 -0400
+Received: from foss.arm.com ([217.140.110.172]:57218 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726480AbfH3Jjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Aug 2019 05:39:51 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3D48F344;
+        Fri, 30 Aug 2019 02:39:51 -0700 (PDT)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DC1A33F718;
+        Fri, 30 Aug 2019 02:39:49 -0700 (PDT)
+Date:   Fri, 30 Aug 2019 10:39:44 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH ARM64 v4.4 V3 01/44] arm64: barrier: Add CSDB macros to
+ control data-value prediction
+Message-ID: <20190830093943.GA46475@lakrids.cambridge.arm.com>
+References: <cover.1567077734.git.viresh.kumar@linaro.org>
+ <4ba4e0d015f2e044e3eaf57e1239ae3e12d5a80e.1567077734.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [172.23.18.44]
-X-ClientProxiedBy: cncheex02.Hygon.cn (172.23.18.12) To cncheex01.Hygon.cn
- (172.23.18.10)
-X-MAIL: spam1.hygon.cn x7U9NJ98068505
-X-DNSRBL: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ba4e0d015f2e044e3eaf57e1239ae3e12d5a80e.1567077734.git.viresh.kumar@linaro.org>
+User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 9392bd98bba760be96ee ("tools/power turbostat: Add support for AMD
-Fam 17h (Zen) RAPL") add a function get_tdp_amd(), the parameter is CPU
-family. But the rapl_probe_amd() function use wrong model parameter.
-Fix the wrong caller parameter of get_tdp_amd() to use family.
+On Thu, Aug 29, 2019 at 05:03:46PM +0530, Viresh Kumar wrote:
+> From: Will Deacon <will.deacon@arm.com>
+> 
+> commit 669474e772b952b14f4de4845a1558fd4c0414a4 upstream.
+> 
+> For CPUs capable of data value prediction, CSDB waits for any outstanding
+> predictions to architecturally resolve before allowing speculative execution
+> to continue. Provide macros to expose it to the arch code.
+> 
+> Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-Cc: <stable@vger.kernel.org> # v5.1+
-Signed-off-by: Pu Wen <puwen@hygon.cn>
----
- tools/power/x86/turbostat/turbostat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Mark Rutland <mark.rutland@arm.com> [v4.4 backport]
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 75fc4fb..1cd28eb 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4002,7 +4002,7 @@ void rapl_probe_amd(unsigned int family, unsigned int model)
- 	rapl_energy_units = ldexp(1.0, -(msr >> 8 & 0x1f));
- 	rapl_power_units = ldexp(1.0, -(msr & 0xf));
- 
--	tdp = get_tdp_amd(model);
-+	tdp = get_tdp_amd(family);
- 
- 	rapl_joule_counter_range = 0xFFFFFFFF * rapl_energy_units / tdp;
- 	if (!quiet)
--- 
-2.7.4
+Mark.
 
+> ---
+>  arch/arm64/include/asm/assembler.h | 7 +++++++
+>  arch/arm64/include/asm/barrier.h   | 2 ++
+>  2 files changed, 9 insertions(+)
+> 
+> diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+> index f68abb17aa4b..683c2875278f 100644
+> --- a/arch/arm64/include/asm/assembler.h
+> +++ b/arch/arm64/include/asm/assembler.h
+> @@ -95,6 +95,13 @@
+>  	dmb	\opt
+>  	.endm
+>  
+> +/*
+> + * Value prediction barrier
+> + */
+> +	.macro	csdb
+> +	hint	#20
+> +	.endm
+> +
+>  #define USER(l, x...)				\
+>  9999:	x;					\
+>  	.section __ex_table,"a";		\
+> diff --git a/arch/arm64/include/asm/barrier.h b/arch/arm64/include/asm/barrier.h
+> index f2d2c0bbe21b..574486634c62 100644
+> --- a/arch/arm64/include/asm/barrier.h
+> +++ b/arch/arm64/include/asm/barrier.h
+> @@ -28,6 +28,8 @@
+>  #define dmb(opt)	asm volatile("dmb " #opt : : : "memory")
+>  #define dsb(opt)	asm volatile("dsb " #opt : : : "memory")
+>  
+> +#define csdb()		asm volatile("hint #20" : : : "memory")
+> +
+>  #define mb()		dsb(sy)
+>  #define rmb()		dsb(ld)
+>  #define wmb()		dsb(st)
+> -- 
+> 2.21.0.rc0.269.g1a574e7a288b
+> 
