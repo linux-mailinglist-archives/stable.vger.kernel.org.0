@@ -2,82 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B503CA2FE2
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 08:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80B4A304F
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 08:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbfH3G3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 02:29:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60738 "EHLO mail.kernel.org"
+        id S1726236AbfH3G75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 02:59:57 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40632 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726144AbfH3G3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Aug 2019 02:29:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726005AbfH3G75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Aug 2019 02:59:57 -0400
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com [209.85.167.72])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A88F120659;
-        Fri, 30 Aug 2019 06:29:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567146553;
-        bh=w5gHXGlwtkw2+r0MPL+BJkXamsnvdtNRlH2XT0EHQjQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Zl/htVkwO8o8kRP/crnxSsKBzqX5r1VOcAf2+9z2mTsgV1h127OaVZ+P5pSJgFC4a
-         1EjiRvpMeXynfXXQUneSP3UVBl4zFlWzbWlH9RFnc57ehE5WHYYhlyetYUGVNDCw0+
-         vAqlhZHwR9xUo18lZSBQuCV8+NA2wh4UTgYe7Dyw=
-Date:   Fri, 30 Aug 2019 08:29:10 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Tyler Hicks <tyhicks@canonical.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Todd Kjos <tkjos@android.com>,
-        devel@driverdev.osuosl.org
-Subject: Re: [PATCH AUTOSEL 4.19 11/29] binder: take read mode of mmap_sem in
- binder_alloc_free_page()
-Message-ID: <20190830062910.GC15257@kroah.com>
-References: <20190829105009.2265-1-sashal@kernel.org>
- <20190829105009.2265-11-sashal@kernel.org>
- <20190829151320.GC27650@elm>
+        by mx1.redhat.com (Postfix) with ESMTPS id 507D17FDF5
+        for <stable@vger.kernel.org>; Fri, 30 Aug 2019 06:59:57 +0000 (UTC)
+Received: by mail-lf1-f72.google.com with SMTP id n18so108252lfe.22
+        for <stable@vger.kernel.org>; Thu, 29 Aug 2019 23:59:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Vpmsa9DBbnVa1aZPRQX/dxqKBSahl9/K5Vqaz/obSfY=;
+        b=F0uHH+i+oUCTmpHtoR4g+pGHIOeKR/HnkM1WkdluRs8Ha3RC8MjDam4MwZh7Qsma9v
+         J4aVu9TcHly86vO1Ep/duKfrvAlAoFUQDDv/7MVweV/hLhkFKqvXp2yMIKmRLeN8n9pn
+         jfjxGoNbnkS9MI4u3T7pG+oSglOg3Mlp6K3S/72Q7uZ7I49Pr4KOUT5QlnssfHjlt+qG
+         BQe5Zets4RTZcmqDa71imXaQJqMSEmCN3YZtoZYdPJ4xOUOqpWi7T7kXs9USuDsiIqF3
+         ZZ3ybD0qabAGzxgsnJ9IX7M27JbbzUjpTlLBZYS1u9916OCGJ02c8YpOJgdD09ymkwk1
+         SSfQ==
+X-Gm-Message-State: APjAAAVuW3qEwnk0RpclIjNtt2Kyqso4SinbfSjg4HTRXfJebbUfuLIN
+        CYqz1Tc545FWSShDuBBgJESQYtSCZwbQKA4vueeVwCN5MvQ47V5i5tFrKZ0UoNH9ergBCCG19o/
+        3Kj+BcLucy5yDPm5q
+X-Received: by 2002:a19:f819:: with SMTP id a25mr477709lff.45.1567148395361;
+        Thu, 29 Aug 2019 23:59:55 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqz3Q1kEtSKNAinQdyEd8yGfO5Gq60or2rKRFfh9lX1GyLM7KCT5KLuaxjNYHXpnigsOWdKjfw==
+X-Received: by 2002:a19:f819:: with SMTP id a25mr477698lff.45.1567148395141;
+        Thu, 29 Aug 2019 23:59:55 -0700 (PDT)
+Received: from localhost ([146.158.73.239])
+        by smtp.gmail.com with ESMTPSA id x21sm694278ljj.57.2019.08.29.23.59.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Aug 2019 23:59:54 -0700 (PDT)
+Date:   Fri, 30 Aug 2019 08:59:53 +0200
+From:   Oleksandr Natalenko <oleksandr@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Backport 2a92b08b1855 ("mt76: usb: fix rx A-MSDU support")
+Message-ID: <20190830065953.nsye4cq2eisyqcko@butterfly.localdomain>
+References: <20190815090359.eevqqk3vt4dcrw3k@butterfly.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190829151320.GC27650@elm>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190815090359.eevqqk3vt4dcrw3k@butterfly.localdomain>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 29, 2019 at 10:13:20AM -0500, Tyler Hicks wrote:
-> Hello, Sasha!
+On Thu, Aug 15, 2019 at 11:03:59AM +0200, Oleksandr Natalenko wrote:
+> I'd like to get 2a92b08b1855 squeezed into a stable tree since it fixes
+> the following splat in the kernel log when using an MTK-based Wi-Fi
+> access point:
 > 
-> On 2019-08-29 06:49:51, Sasha Levin wrote:
-> > From: Tyler Hicks <tyhicks@canonical.com>
-> > 
-> > [ Upstream commit 60d4885710836595192c42d3e04b27551d30ec91 ]
-> > 
-> > Restore the behavior of locking mmap_sem for reading in
-> > binder_alloc_free_page(), as was first done in commit 3013bf62b67a
-> > ("binder: reduce mmap_sem write-side lock"). That change was
-> > inadvertently reverted by commit 5cec2d2e5839 ("binder: fix race between
-> > munmap() and direct reclaim").
-> > 
-> > In addition, change the name of the label for the error path to
-> > accurately reflect that we're taking the lock for reading.
-> > 
-> > Backporting note: This fix is only needed when *both* of the commits
-> > mentioned above are applied. That's an unlikely situation since they
-> > both landed during the development of v5.1 but only one of them is
-> > targeted for stable.
+> [135577.311588] usb 1-3: rx data too big 2044
+> [135577.311689] usb 1-3: rx data too big 2044
+> [135578.166351] usb 1-3: rx data too big 2044
 > 
-> This patch isn't meant to be applied to 4.19 since commit 3013bf62b67a
-> ("binder: reduce mmap_sem write-side lock") was never brought back to
-> 4.19.
+> See also: https://bugzilla.kernel.org/show_bug.cgi?id=203789
 > 
-> Tyler
+> The patch applies to the v5.2.x series without conficts.
 > 
-> > 
-> > Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
+> Lorenzo, are you fine with this?
 
-But this commit is in 4.19.49
+Gentle ping.
 
-thanks,
-
-greg k-h
+-- 
+  Best regards,
+    Oleksandr Natalenko (post-factum)
+    Senior Software Maintenance Engineer
