@@ -2,102 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 061CBA2D6C
-	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 05:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17176A2F30
+	for <lists+stable@lfdr.de>; Fri, 30 Aug 2019 07:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727783AbfH3DiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Aug 2019 23:38:23 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:52001 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727770AbfH3DiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Aug 2019 23:38:22 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9BEAB307D88C;
-        Fri, 30 Aug 2019 03:38:22 +0000 (UTC)
-Received: from [10.72.12.92] (ovpn-12-92.pek2.redhat.com [10.72.12.92])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A065A5C1D6;
-        Fri, 30 Aug 2019 03:38:17 +0000 (UTC)
-Subject: Re: [PATCH 2/2] vhost/test: fix build for vhost test
-To:     Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com
-Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1726510AbfH3Ftf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 01:49:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54484 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726005AbfH3Ftf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Aug 2019 01:49:35 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 65AC2B671;
+        Fri, 30 Aug 2019 05:49:33 +0000 (UTC)
+Date:   Fri, 30 Aug 2019 07:49:31 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Shakeel Butt <shakeelb@google.com>
+Cc:     Roman Gushchin <guro@fb.com>, linux-mm@kvack.org,
+        cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org
-References: <20190828053700.26022-1-tiwei.bie@intel.com>
- <20190828053700.26022-2-tiwei.bie@intel.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <f74bb96c-b439-7272-bb2f-d2a842dc41a2@redhat.com>
-Date:   Fri, 30 Aug 2019 11:38:16 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Subject: Re: [PATCH] mm: memcontrol: fix percpu vmstats and vmevents flush
+Message-ID: <20190830054931.GN28313@dhcp22.suse.cz>
+References: <20190829203110.129263-1-shakeelb@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20190828053700.26022-2-tiwei.bie@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Fri, 30 Aug 2019 03:38:22 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190829203110.129263-1-shakeelb@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu 29-08-19 13:31:10, Shakeel Butt wrote:
+> Instead of using raw_cpu_read() use per_cpu() to read the actual data of
+> the corresponding cpu otherwise we will be reading the data of the
+> current cpu for the number of online CPUs.
+> 
+> Fixes: bb65f89b7d3d ("mm: memcontrol: flush percpu vmevents before releasing memcg")
+> Fixes: c350a99ea2b1 ("mm: memcontrol: flush percpu vmstats before releasing memcg")
+> Signed-off-by: Shakeel Butt <shakeelb@google.com>
+> Cc: Roman Gushchin <guro@fb.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Johannes Weiner <hannes@cmpxchg.org>
+> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: <stable@vger.kernel.org>
 
-On 2019/8/28 下午1:37, Tiwei Bie wrote:
-> Since vhost_exceeds_weight() was introduced, callers need to specify
-> the packet weight and byte weight in vhost_dev_init(). Note that, the
-> packet weight isn't counted in this patch to keep the original behavior
-> unchanged.
->
-> Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+Ups, missed that when reviewing. Sorry about that.
+
+Acked-by: Michal Hocko <mhocko@suse.com>
+
 > ---
->  drivers/vhost/test.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> index ac4f762c4f65..7804869c6a31 100644
-> --- a/drivers/vhost/test.c
-> +++ b/drivers/vhost/test.c
-> @@ -22,6 +22,12 @@
->   * Using this limit prevents one virtqueue from starving others. */
->  #define VHOST_TEST_WEIGHT 0x80000
+> 
+> Note: The buggy patches were marked for stable therefore adding Cc to
+> stable.
+> 
+>  mm/memcontrol.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> index 26e2999af608..f4e60ee8b845 100644
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -3271,7 +3271,7 @@ static void memcg_flush_percpu_vmstats(struct mem_cgroup *memcg)
 >  
-> +/* Max number of packets transferred before requeueing the job.
-> + * Using this limit prevents one virtqueue from starving others with
-> + * pkts.
-> + */
-> +#define VHOST_TEST_PKT_WEIGHT 256
-> +
->  enum {
->  	VHOST_TEST_VQ = 0,
->  	VHOST_TEST_VQ_MAX = 1,
-> @@ -80,10 +86,8 @@ static void handle_vq(struct vhost_test *n)
->  		}
->  		vhost_add_used_and_signal(&n->dev, vq, head, 0);
->  		total_len += len;
-> -		if (unlikely(total_len >= VHOST_TEST_WEIGHT)) {
-> -			vhost_poll_queue(&vq->poll);
-> +		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
->  			break;
-> -		}
->  	}
+>  	for_each_online_cpu(cpu)
+>  		for (i = 0; i < MEMCG_NR_STAT; i++)
+> -			stat[i] += raw_cpu_read(memcg->vmstats_percpu->stat[i]);
+> +			stat[i] += per_cpu(memcg->vmstats_percpu->stat[i], cpu);
 >  
->  	mutex_unlock(&vq->mutex);
-> @@ -115,7 +119,8 @@ static int vhost_test_open(struct inode *inode, struct file *f)
->  	dev = &n->dev;
->  	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
->  	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
-> -	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV);
-> +	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
-> +		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
+>  	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
+>  		for (i = 0; i < MEMCG_NR_STAT; i++)
+> @@ -3286,8 +3286,8 @@ static void memcg_flush_percpu_vmstats(struct mem_cgroup *memcg)
 >  
->  	f->private_data = n;
+>  		for_each_online_cpu(cpu)
+>  			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+> -				stat[i] += raw_cpu_read(
+> -					pn->lruvec_stat_cpu->count[i]);
+> +				stat[i] += per_cpu(
+> +					pn->lruvec_stat_cpu->count[i], cpu);
 >  
+>  		for (pi = pn; pi; pi = parent_nodeinfo(pi, node))
+>  			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+> @@ -3306,8 +3306,8 @@ static void memcg_flush_percpu_vmevents(struct mem_cgroup *memcg)
+>  
+>  	for_each_online_cpu(cpu)
+>  		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
+> -			events[i] += raw_cpu_read(
+> -				memcg->vmstats_percpu->events[i]);
+> +			events[i] += per_cpu(memcg->vmstats_percpu->events[i],
+> +					     cpu);
+>  
+>  	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
+>  		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
+> -- 
+> 2.23.0.187.g17f5b7556c-goog
+> 
 
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
+-- 
+Michal Hocko
+SUSE Labs
