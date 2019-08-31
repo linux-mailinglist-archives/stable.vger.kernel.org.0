@@ -2,72 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB86A41AD
-	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 04:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875C0A41AC
+	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 04:21:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbfHaCV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Aug 2019 22:21:26 -0400
-Received: from [110.188.70.11] ([110.188.70.11]:21853 "EHLO spam1.hygon.cn"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728364AbfHaCV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Aug 2019 22:21:26 -0400
-Received: from MK-DB.hygon.cn ([172.23.18.60])
-        by spam1.hygon.cn with ESMTP id x7V2KPaf005905;
-        Sat, 31 Aug 2019 10:20:25 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from cncheex01.Hygon.cn ([172.23.18.10])
-        by MK-DB.hygon.cn with ESMTP id x7V2K3Ou098399;
-        Sat, 31 Aug 2019 10:20:03 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from pw-vbox.hygon.cn (172.23.18.44) by cncheex01.Hygon.cn
- (172.23.18.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1466.3; Sat, 31 Aug
- 2019 10:20:23 +0800
-From:   Pu Wen <puwen@hygon.cn>
-To:     <lenb@kernel.org>, <calvin.walton@kepstin.ca>
-CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Pu Wen <puwen@hygon.cn>
-Subject: [RFC PATCH v2] tools/power turbostat: Fix caller parameter of get_tdp_amd()
-Date:   Sat, 31 Aug 2019 10:19:58 +0800
-Message-ID: <1567217998-4356-1-git-send-email-puwen@hygon.cn>
-X-Mailer: git-send-email 2.7.4
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [172.23.18.44]
-X-ClientProxiedBy: cncheex02.Hygon.cn (172.23.18.12) To cncheex01.Hygon.cn
- (172.23.18.10)
-X-MAIL: spam1.hygon.cn x7V2KPaf005905
-X-DNSRBL: 
+        id S1728299AbfHaCVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Aug 2019 22:21:00 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:45304 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726659AbfHaCU7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Aug 2019 22:20:59 -0400
+Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::d71])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id A03E71550AC01;
+        Fri, 30 Aug 2019 19:20:58 -0700 (PDT)
+Date:   Fri, 30 Aug 2019 19:20:49 -0700 (PDT)
+Message-Id: <20190830.192049.1447010488040109227.davem@davemloft.net>
+To:     cpaasch@apple.com
+Cc:     jonathan.lemon@gmail.com, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, tim.froidcoeur@tessares.net,
+        matthieu.baerts@tessares.net, aprout@ll.mit.edu,
+        edumazet@google.com, jtl@netflix.com, linux-kernel@vger.kernel.org,
+        mkubecek@suse.cz, ncardwell@google.com, sashal@kernel.org,
+        ycheng@google.com, netdev@vger.kernel.org
+Subject: Re: [PATCH 4.14] tcp: fix tcp_rtx_queue_tail in case of empty
+ retransmit queue
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20190830232657.GL45416@MacBook-Pro-64.local>
+References: <20190824060351.3776-1-tim.froidcoeur@tessares.net>
+        <400C4757-E7AD-4CCF-8077-79563EA869B1@gmail.com>
+        <20190830232657.GL45416@MacBook-Pro-64.local>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Fri, 30 Aug 2019 19:20:59 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 9392bd98bba760be96ee ("tools/power turbostat: Add support for AMD
-Fam 17h (Zen) RAPL") add a function get_tdp_amd(), the parameter is CPU
-family. But the rapl_probe_amd() function use wrong model parameter.
-Fix the wrong caller parameter of get_tdp_amd() to use family.
+From: Christoph Paasch <cpaasch@apple.com>
+Date: Fri, 30 Aug 2019 16:26:57 -0700
 
-Cc: <stable@vger.kernel.org> # v5.1+
-Signed-off-by: Pu Wen <puwen@hygon.cn>
-Reviewed-by: Calvin Walton <calvin.walton@kepstin.ca>
----
- tools/power/x86/turbostat/turbostat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> (I don't see it in the stable-queue)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 75fc4fb..1cd28eb 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4002,7 +4002,7 @@ void rapl_probe_amd(unsigned int family, unsigned int model)
- 	rapl_energy_units = ldexp(1.0, -(msr >> 8 & 0x1f));
- 	rapl_power_units = ldexp(1.0, -(msr & 0xf));
- 
--	tdp = get_tdp_amd(model);
-+	tdp = get_tdp_amd(family);
- 
- 	rapl_joule_counter_range = 0xFFFFFFFF * rapl_energy_units / tdp;
- 	if (!quiet)
--- 
-2.7.4
-
+I don't handle any stable branch before the most recent two, so this isn't
+my territory.
