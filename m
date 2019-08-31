@@ -2,146 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D6AA45B1
-	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 20:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89643A45F4
+	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 21:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728503AbfHaSFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Aug 2019 14:05:19 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36150 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728481AbfHaSFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Aug 2019 14:05:19 -0400
-Received: by mail-wm1-f66.google.com with SMTP id p13so10683640wmh.1;
-        Sat, 31 Aug 2019 11:05:17 -0700 (PDT)
+        id S1728540AbfHaTfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Aug 2019 15:35:39 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:35004 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728477AbfHaTfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Aug 2019 15:35:38 -0400
+Received: by mail-io1-f68.google.com with SMTP id b10so21164205ioj.2;
+        Sat, 31 Aug 2019 12:35:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cg1fwu+MPCpI46o99kUNkk3DzcQuLSSfn5/pLPnlQmk=;
-        b=cCG3ij4HsfNRBMeQSagh82b3Q6Pdr6zuOM9F+AM3QFjejedmyBrhGd+AV9x2Gq2Hom
-         NX5CXWPhXX8vsQz77lsPbU2JztNpVBgJvBi1xwrQ3aoNWZ67sHsGg9kxrxn+CGy+4VPp
-         R6xXPhYHfEOGG2aUZJqXbIn8Xzhea1nnH8oKFnSDd0YZ0UE39VRtvL2ymuvSWx1RqwQ6
-         tFFaQhCbxa8n5iNNap36PlPAVUUJFn4A2cflOEqkVBV401AbpVy5CvBiyOFzUMyr2rRn
-         ZVgO3E3qadGKak87yGbS1Hzlgj1Y+IijkhaTQs4W169pflSX1rtvKAXd/IKRX2PwpjRs
-         PyJQ==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:reply-to:organization:content-transfer-encoding;
+        bh=8Hqd/SPehqjaIk2A5e2YsWPDyi1jXgD+VxsLa5kvdB4=;
+        b=npg/ARhUtTzphx6ooZRB0DsV6WgbeUFJAs4mus5tNTyae96RlyBIAEIPV7Z1lGwocJ
+         4HKzY240e+G53cicRpohHrdPv0EhCfQKKCpSqP/btau/Ktsc2bzhWlxe3ODAq48FyZf7
+         gT1eF5v/G3Na0Bz990oy4roTpgT2cyAUyxlS0yPKomprfvQErdh6PngE62NWBTCI7u/e
+         QJErUoxqsL3ZUzBwHOOyBuSIsYvrJEQ5W4pyQObWkX+5hvjZ75xvrUjJxzhZVoD6dPaY
+         ibTlz2f2XAUZ1rJx+JfHqD62xg5z26EnVQW+i2Au4Er96Yw9FZdavYxQN0uYQZpc3nkL
+         tg+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:reply-to:organization
          :content-transfer-encoding;
-        bh=cg1fwu+MPCpI46o99kUNkk3DzcQuLSSfn5/pLPnlQmk=;
-        b=gX4thH0l9eJxOxVhHkvpBaUkXzV8QpICRoqaHAjbGp4z7nw77g2Ak1qGuOR6KplvPn
-         G2xt00P+0OJZ7wCsZjkVrHadhKz3GUJO4q+9I2DtOVafbRM+9xgmC2aPFeNTINhOQ/LZ
-         bR8dKROhihaAd4S8NzCfPR/J5APMteIsnVL61FkUGSsyeAXpCGwzyD1/RaW8jEG367zt
-         sTU6umGJ5tGdwMvbL0GWC3VzgPR2Gp4puHUVkm6cv85dgP1QZFLsys2gaop0HJV3YBhD
-         MtlvEOETSH5l+wi822/ADD6q1+WhbONcP/UWbalBT5ebqNNKDHsMBCa1cnR+X0p1zVEs
-         CcEg==
-X-Gm-Message-State: APjAAAUC12WjGw+oxa9hOkEkDNug7TeMKrzCsnxtfUvrAEikw3j6B6ch
-        MZaFo3T2BJD0APsyO18KfxE=
-X-Google-Smtp-Source: APXvYqzaEIjD33uuFBMH28zOJch9FGQc20lyBYMjfo0iWKI8qyrhysZgJUwV0aYFwXnzbTGmPQZ2Fg==
-X-Received: by 2002:a7b:ca5a:: with SMTP id m26mr24394720wml.134.1567274716535;
-        Sat, 31 Aug 2019 11:05:16 -0700 (PDT)
-Received: from giga-mm.localdomain ([195.245.49.151])
-        by smtp.gmail.com with ESMTPSA id 20sm10471642wmj.45.2019.08.31.11.05.15
+        bh=8Hqd/SPehqjaIk2A5e2YsWPDyi1jXgD+VxsLa5kvdB4=;
+        b=lmTjMwZ/uIJNVO/7oQ0+Mw+RLa3fAz1qiDJq7+dteRxi+tBqmLD1xjq9Gt4viwYuJK
+         xIWOB9aZ3up73GqC7O7+ZrCeIXKJnGANSh8OKg1aJofpfTvVnmWOPb6a7qm9mlMc2dSm
+         bp1hwaI03jEwyhNdoULtU5jVrF7rN23lZKaS9I1bXnBKNnDLBBDn4RnBv5yFFW66TBIU
+         pRF4+w8fWrSTbVnsMjdKKWt3qFB6NtBbNPz3oN0+4PZ1eZ7U9hPA37jWVjZTZ5pinI2k
+         5NlVGUlQityK4hK3z1CT9WvzE6esf3hOEnk+L8h34UmJEITqxOdY6kmAOC0WPaVczQ1o
+         D3sQ==
+X-Gm-Message-State: APjAAAXqKWyJmkXVaU3121M/kM82euPAMBrFMW7s/b0z29PurrDeYVxx
+        if7NUrxdghwlrBxudw5mW7TDlom2
+X-Google-Smtp-Source: APXvYqxxWj26OxGM7iJ2cUlCjYPdpj3d21c7TTfcX0yvRNl5d+bhobgzfUWfRj7U7nqEbBiC6MLkJw==
+X-Received: by 2002:a6b:ba54:: with SMTP id k81mr26316892iof.143.1567280137664;
+        Sat, 31 Aug 2019 12:35:37 -0700 (PDT)
+Received: from nuc8.tds (h69-131-112-51.cntcnh.dsl.dynamic.tds.net. [69.131.112.51])
+        by smtp.gmail.com with ESMTPSA id r2sm6937376ioh.61.2019.08.31.12.35.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Aug 2019 11:05:15 -0700 (PDT)
-From:   Alexander Sverdlin <alexander.sverdlin@gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org,
-        linux-spi@vger.kernel.org
-Cc:     Alexander Sverdlin <alexander.sverdlin@gmail.com>,
-        Hartley Sweeten <hsweeten@visionengravers.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Lukasz Majewski <lukma@denx.de>, stable@vger.kernel.org
-Subject: [PATCH] spi: ep93xx: Repair SPI CS lookup tables
-Date:   Sat, 31 Aug 2019 20:04:02 +0200
-Message-Id: <20190831180402.10008-1-alexander.sverdlin@gmail.com>
-X-Mailer: git-send-email 2.21.0
+        Sat, 31 Aug 2019 12:35:37 -0700 (PDT)
+From:   Len Brown <lenb@kernel.org>
+To:     linux-pm@vger.kernel.org
+Cc:     Pu Wen <puwen@hygon.cn>, stable@vger.kernel.org,
+        Calvin Walton <calvin.walton@kepstin.ca>,
+        Len Brown <len.brown@intel.com>
+Subject: [PATCH 17/19] tools/power turbostat: Fix caller parameter of get_tdp_amd()
+Date:   Sat, 31 Aug 2019 15:34:56 -0400
+Message-Id: <9cfa8e042f7cbb1994cc5923e46c78b36f6054f4.1567277326.git.len.brown@intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <adb8049097a9ec4acd09fbd3aa8636199a78df8a.1567277326.git.len.brown@intel.com>
+References: <adb8049097a9ec4acd09fbd3aa8636199a78df8a.1567277326.git.len.brown@intel.com>
 MIME-Version: 1.0
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The actual device name of the SPI controller being registered on EP93xx is
-"spi0" (as seen by gpiod_find_lookup_table()). This patch fixes all
-relevant lookup tables and the following failure (seen on EDB9302):
+From: Pu Wen <puwen@hygon.cn>
 
-ep93xx-spi ep93xx-spi.0: failed to register SPI master
-ep93xx-spi: probe of ep93xx-spi.0 failed with error -22
+Commit 9392bd98bba760be96ee ("tools/power turbostat: Add support for AMD
+Fam 17h (Zen) RAPL") add a function get_tdp_amd(), the parameter is CPU
+family. But the rapl_probe_amd() function use wrong model parameter.
+Fix the wrong caller parameter of get_tdp_amd() to use family.
 
-Fixes: 1dfbf334f1236 ("spi: ep93xx: Convert to use CS GPIO descriptors")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Cc: <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+Reviewed-by: Calvin Walton <calvin.walton@kepstin.ca>
+Signed-off-by: Len Brown <len.brown@intel.com>
 ---
- arch/arm/mach-ep93xx/edb93xx.c       | 2 +-
- arch/arm/mach-ep93xx/simone.c        | 2 +-
- arch/arm/mach-ep93xx/ts72xx.c        | 4 ++--
- arch/arm/mach-ep93xx/vision_ep9307.c | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-ep93xx/edb93xx.c b/arch/arm/mach-ep93xx/edb93xx.c
-index 1f0da76a39de..7b7280c21ee0 100644
---- a/arch/arm/mach-ep93xx/edb93xx.c
-+++ b/arch/arm/mach-ep93xx/edb93xx.c
-@@ -103,7 +103,7 @@ static struct spi_board_info edb93xx_spi_board_info[] __initdata = {
- };
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index f57c4023231e..6cec6aa01241 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4031,7 +4031,7 @@ void rapl_probe_amd(unsigned int family, unsigned int model)
+ 	rapl_energy_units = ldexp(1.0, -(msr >> 8 & 0x1f));
+ 	rapl_power_units = ldexp(1.0, -(msr & 0xf));
  
- static struct gpiod_lookup_table edb93xx_spi_cs_gpio_table = {
--	.dev_id = "ep93xx-spi.0",
-+	.dev_id = "spi0",
- 	.table = {
- 		GPIO_LOOKUP("A", 6, "cs", GPIO_ACTIVE_LOW),
- 		{ },
-diff --git a/arch/arm/mach-ep93xx/simone.c b/arch/arm/mach-ep93xx/simone.c
-index e2658e22bba1..8a53b74dc4b2 100644
---- a/arch/arm/mach-ep93xx/simone.c
-+++ b/arch/arm/mach-ep93xx/simone.c
-@@ -73,7 +73,7 @@ static struct spi_board_info simone_spi_devices[] __initdata = {
-  * v1.3 parts will still work, since the signal on SFRMOUT is automatic.
-  */
- static struct gpiod_lookup_table simone_spi_cs_gpio_table = {
--	.dev_id = "ep93xx-spi.0",
-+	.dev_id = "spi0",
- 	.table = {
- 		GPIO_LOOKUP("A", 1, "cs", GPIO_ACTIVE_LOW),
- 		{ },
-diff --git a/arch/arm/mach-ep93xx/ts72xx.c b/arch/arm/mach-ep93xx/ts72xx.c
-index 582e06e104fd..e0e1b11032f1 100644
---- a/arch/arm/mach-ep93xx/ts72xx.c
-+++ b/arch/arm/mach-ep93xx/ts72xx.c
-@@ -267,7 +267,7 @@ static struct spi_board_info bk3_spi_board_info[] __initdata = {
-  * goes through CPLD
-  */
- static struct gpiod_lookup_table bk3_spi_cs_gpio_table = {
--	.dev_id = "ep93xx-spi.0",
-+	.dev_id = "spi0",
- 	.table = {
- 		GPIO_LOOKUP("F", 3, "cs", GPIO_ACTIVE_LOW),
- 		{ },
-@@ -316,7 +316,7 @@ static struct spi_board_info ts72xx_spi_devices[] __initdata = {
- };
+-	tdp = get_tdp_amd(model);
++	tdp = get_tdp_amd(family);
  
- static struct gpiod_lookup_table ts72xx_spi_cs_gpio_table = {
--	.dev_id = "ep93xx-spi.0",
-+	.dev_id = "spi0",
- 	.table = {
- 		/* DIO_17 */
- 		GPIO_LOOKUP("F", 2, "cs", GPIO_ACTIVE_LOW),
-diff --git a/arch/arm/mach-ep93xx/vision_ep9307.c b/arch/arm/mach-ep93xx/vision_ep9307.c
-index a88a1d807b32..cbcba3136d74 100644
---- a/arch/arm/mach-ep93xx/vision_ep9307.c
-+++ b/arch/arm/mach-ep93xx/vision_ep9307.c
-@@ -242,7 +242,7 @@ static struct spi_board_info vision_spi_board_info[] __initdata = {
- };
- 
- static struct gpiod_lookup_table vision_spi_cs_gpio_table = {
--	.dev_id = "ep93xx-spi.0",
-+	.dev_id = "spi0",
- 	.table = {
- 		GPIO_LOOKUP_IDX("A", 6, "cs", 0, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX("A", 7, "cs", 1, GPIO_ACTIVE_LOW),
+ 	rapl_joule_counter_range = 0xFFFFFFFF * rapl_energy_units / tdp;
+ 	if (!quiet)
 -- 
-2.21.0
+2.20.1
 
