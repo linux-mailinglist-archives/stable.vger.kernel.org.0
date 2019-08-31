@@ -2,96 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 194F9A446A
-	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 14:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75AD2A448F
+	for <lists+stable@lfdr.de>; Sat, 31 Aug 2019 15:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbfHaMUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Aug 2019 08:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726195AbfHaMUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 31 Aug 2019 08:20:39 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CFE3217D7;
-        Sat, 31 Aug 2019 12:20:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567254037;
-        bh=R7PKgZVs8LZzromlzQuOL+4NGSAf6K0NPvomYelKhWk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JzwxQdwoqm28OGFuYSk9PzJy6XDBQl7LLNyw7VA+nqT+aEYytrvjkkm1IThIamprD
-         H4gQ6SFcvObpzYhtyFkB1XWjajELA3D8bwr+mOmQOqElCajQUdsj7UmSuNTDBrvwJK
-         REMMN4dDDQaPm94AIOakXwriHqHFmi9HvsNjabJ4=
-Date:   Sat, 31 Aug 2019 08:20:36 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Tim Froidcoeur <tim.froidcoeur@tessares.net>
-Cc:     matthieu.baerts@tessares.net, aprout@ll.mit.edu, cpaasch@apple.com,
-        davem@davemloft.net, edumazet@google.com,
-        gregkh@linuxfoundation.org, jonathan.lemon@gmail.com,
-        jtl@netflix.com, linux-kernel@vger.kernel.org, mkubecek@suse.cz,
-        ncardwell@google.com, stable@vger.kernel.org, ycheng@google.com,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH 4.14] tcp: fix tcp_rtx_queue_tail in case of empty
- retransmit queue
-Message-ID: <20190831122036.GY5281@sasha-vm>
-References: <529376a4-cf63-f225-ce7c-4747e9966938@tessares.net>
- <20190824060351.3776-1-tim.froidcoeur@tessares.net>
+        id S1726685AbfHaNG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Aug 2019 09:06:56 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:45333 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726516AbfHaNG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Aug 2019 09:06:56 -0400
+Received: by mail-ot1-f68.google.com with SMTP id m24so9525892otp.12
+        for <stable@vger.kernel.org>; Sat, 31 Aug 2019 06:06:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=0b/+FBgU2UV9w3q4QDQDmmt8tCl+C5igL7+aLrC0dPg=;
+        b=MwlYbyNyn1D+Wtbq/wk8vYLI533k0/uaGhjzSQC0qenccft+a8bj1XnJnPonxWtdjh
+         46UsYHj1LU00nPTH2iAqUzfjAhiQITawtzbNSFuFmYx7pEacgcPjups74fvlbjz3xxTk
+         fzPvesw/YezY+cmsn5HHrnxmMfjiz+G7dLg4RoE1T+K+vcO4zAfcTp2V/iy8/d+G56uK
+         2Dp6+JU3PpD2v1wQB44qZdCDdWpEQgCIM2xlGkeBSzoIbfT4bXRiAxwEBdSFiWpQdgz0
+         pX7unTQXvQBW0Iz2EeGCJy609uwUogtjo8nT3bRZh2LaLnhJ71CKIXhY08wi3s5dDmCI
+         0DbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=0b/+FBgU2UV9w3q4QDQDmmt8tCl+C5igL7+aLrC0dPg=;
+        b=tcMwO1cnz7/fbrAmxcngj1Up8Xc/aKDXwXWYaUai0mCNdX7AsGw5JCzNaJJhTJbawO
+         wCoK16jVvZxlNcltiqpok6M759si6Tp5oPSkAJ/etTU6VjDsUM7pwtmSPON+rKcSrf0s
+         1gY1OtsnQgL+gOAjrCzQowk9rbjBOqGJpLHxgF3uRGlWPRADcw0FO7mKOhdbrS1Acaqx
+         y/JK1hRdRoK306oWS1rbe+aHLqNSaO9p551QDd2mkpJHRVbW5MWzXgODE4P767zbjb9P
+         MCy0IBeZgE0eKahdo9pyONUHJniaoT94OHI5W03OUWItmPz1aJf+5z/jifCxRYR8Irsk
+         R9HQ==
+X-Gm-Message-State: APjAAAUY7scaSvdqqxBEl20WdvOxOTvBXIUIJEai7uMklj5/Nel7bkLq
+        iwdXW2//BwyfwYmxr+P/sdZm+2jFLPSmOc1+GEc=
+X-Google-Smtp-Source: APXvYqwE3kTvp1BzWTEean5apRk7sEx/NHepAL3EYvgEgy7vSFV7i5HwZMVIsxOcxpRzV7e9Or5+66x2zhHQMJzOKIo=
+X-Received: by 2002:a9d:4717:: with SMTP id a23mr15621547otf.212.1567256815344;
+ Sat, 31 Aug 2019 06:06:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190824060351.3776-1-tim.froidcoeur@tessares.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Reply-To: tiboabdullah@gmail.com
+Received: by 2002:a05:6830:1e7a:0:0:0:0 with HTTP; Sat, 31 Aug 2019 06:06:54
+ -0700 (PDT)
+From:   Tibo Abdullah <tiboabdullah033@gmail.com>
+Date:   Sat, 31 Aug 2019 06:06:54 -0700
+X-Google-Sender-Auth: HoqvkrIEBGtJL33HphtUoOqFLcg
+Message-ID: <CAHgzGUJiMhXBUUmSrv6j6ShAsqgLeY5aD4HYbmdh4H6unDj9_g@mail.gmail.com>
+Subject: STRICTLY CONFIDENTIAL
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 24, 2019 at 08:03:51AM +0200, Tim Froidcoeur wrote:
->Commit 8c3088f895a0 ("tcp: be more careful in tcp_fragment()")
->triggers following stack trace:
->
->[25244.848046] kernel BUG at ./include/linux/skbuff.h:1406!
->[25244.859335] RIP: 0010:skb_queue_prev+0x9/0xc
->[25244.888167] Call Trace:
->[25244.889182]  <IRQ>
->[25244.890001]  tcp_fragment+0x9c/0x2cf
->[25244.891295]  tcp_write_xmit+0x68f/0x988
->[25244.892732]  __tcp_push_pending_frames+0x3b/0xa0
->[25244.894347]  tcp_data_snd_check+0x2a/0xc8
->[25244.895775]  tcp_rcv_established+0x2a8/0x30d
->[25244.897282]  tcp_v4_do_rcv+0xb2/0x158
->[25244.898666]  tcp_v4_rcv+0x692/0x956
->[25244.899959]  ip_local_deliver_finish+0xeb/0x169
->[25244.901547]  __netif_receive_skb_core+0x51c/0x582
->[25244.903193]  ? inet_gro_receive+0x239/0x247
->[25244.904756]  netif_receive_skb_internal+0xab/0xc6
->[25244.906395]  napi_gro_receive+0x8a/0xc0
->[25244.907760]  receive_buf+0x9a1/0x9cd
->[25244.909160]  ? load_balance+0x17a/0x7b7
->[25244.910536]  ? vring_unmap_one+0x18/0x61
->[25244.911932]  ? detach_buf+0x60/0xfa
->[25244.913234]  virtnet_poll+0x128/0x1e1
->[25244.914607]  net_rx_action+0x12a/0x2b1
->[25244.915953]  __do_softirq+0x11c/0x26b
->[25244.917269]  ? handle_irq_event+0x44/0x56
->[25244.918695]  irq_exit+0x61/0xa0
->[25244.919947]  do_IRQ+0x9d/0xbb
->[25244.921065]  common_interrupt+0x85/0x85
->[25244.922479]  </IRQ>
->
->tcp_rtx_queue_tail() (called by tcp_fragment()) can call
->tcp_write_queue_prev() on the first packet in the queue, which will trigger
->the BUG in tcp_write_queue_prev(), because there is no previous packet.
->
->This happens when the retransmit queue is empty, for example in case of a
->zero window.
->
->Patch is needed for 4.4, 4.9 and 4.14 stable branches.
+Dearest Friend,
 
-There needs to be a better explanation of why it's not needed
-upstream...
+I am Tibo Abdullah, I want to seek your assistance after my discovery
+during auditing in my bank as I'm the manager of Bill and Exchange at
+the Foreign Remittance Department in African Development Bank
+Ouagadougou Burkina Faso.
 
---
-Thanks,
-Sasha
+In my department we discovered a sum of $21.300.000 million in an
+account that belonged to one of our foreign customer. Upon maturity,
+we sent a routine notifications to his forwarding addresses but got no
+response.
+
+After some months, we sent a reminder and finally discovered that our
+customer died from an automobile accident. On further investigation, I
+found out that he did not leave a will and all attempts to trace his
+next of kin were fruitless, I therefore, i want to used my position as
+the Bill and Exchange Manager to have the fund transferred into your
+account in your country.
+
+I therefore made further investigation and discovered that the
+deceased person did not declare any next of kin in all his official
+documents, including his bank deposit paperwork.
+
+It is therefore upon this discovery that I decided as the head of my
+department to make this business proposal to you, to apply for the
+money as the next of kin or relation to the deceased for safety and
+subsequent disbursement, and you will be given 35% of the total
+amount, 60% will be for me and my colleague in my bank, while 5% will
+be for expenses both parties might have incurred during the process of
+transferring.
+
+We will conclude this operation within 21 banking days based on the
+amount of co-operation you will contribute.
+
+You will apply and start the first transfer with Eleven million
+[$11,000.000] upon successful transaction without any disappoint from
+your side, then you shall re-apply for the payment of the remaining
+amount to your account.
+
+upon your positive response and once I am convinced that you are
+capable and will meet up with instruction of a key bank official who
+is deeply involved with me in this business.
+
+I need your strong assurance that you will never,never let me down.
+With my influence and the position of the bank official we can
+transfer this money to any foreigner's reliable account which you can
+provide with assurance that this money will be intact pending our
+physical arrival in your country for sharing. The bank official will
+destroy all documents of transaction immediately we receive this money
+leaving no trace to any place and to build confidence, you can come
+immediately to discuss with me face to face.
+
+Thank you for your understanding as I await your urgent response in
+order to give you more details, don't forget to give me those
+information below before we can go ahead in this business/project.
+
+
+
+Your private telephone number
+
+Your private E-mail address
+
+Your profession
+
+Your country
+
+Your age
+
+
+Yours faithfully,
+
+
+Tibo Abdullah.
