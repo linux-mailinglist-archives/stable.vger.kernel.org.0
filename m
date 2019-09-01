@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5426FA4980
-	for <lists+stable@lfdr.de>; Sun,  1 Sep 2019 14:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E23A4983
+	for <lists+stable@lfdr.de>; Sun,  1 Sep 2019 15:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728826AbfIAM6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Sep 2019 08:58:14 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:36324 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728756AbfIAM6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Sep 2019 08:58:13 -0400
-Received: by mail-wm1-f65.google.com with SMTP id p13so11968095wmh.1;
-        Sun, 01 Sep 2019 05:58:12 -0700 (PDT)
+        id S1728756AbfIANAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Sep 2019 09:00:33 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:35512 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728552AbfIANAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Sep 2019 09:00:32 -0400
+Received: by mail-wm1-f68.google.com with SMTP id n10so1251490wmj.0;
+        Sun, 01 Sep 2019 06:00:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=UxrLHy0xZer5ID4RHyuCqHzVGteGB4HlcmZdUjqBSL4=;
-        b=mFFi1AKPSaWngSR9jtj9CgHSiMvJGrF/gJcubSZhAcKoIP8k1Tn8h0Xb2H4MMpoY98
-         ATkbzsIdx1azRsSUQ70wuqo1zjiARoeps830lySXrbXba0w/4YFfdVhXcwZWkp0fwtZ6
-         4WglBbXxLbyMehj5WsfIYCts15phqU9Ikqg/BP4/TfHTzcM2JNPQJypm7uNUOziVH0sZ
-         fXFLOcK+r3mR7aLL1ySTmKoDMh11++IJL8l6Zqo6fsPJK95dJqStyWxcu8GDibJGBIRl
-         JWlw3CgAMpfVSNAYHeq22BCm/95o+gxuBq72xJamkbYhxobYL6BUwc31VcC7CDbf30pO
-         kV1Q==
+        bh=/kY5ez2UY78GlNnuNQzpPG/veO6d9ypsF/qsZ3kn5iE=;
+        b=Qf+PO/6dtwNFaVxqtGJzKTaKniz8RX6ESuac+SqGHXNMJroDYDHse2EpvXnI1uqf1j
+         BFOg7dyecrIKQlEXcTKZy2diaA7VNcMszCo2/IL5OLspUAl13UwTCG8IWjkAmcPL9H9n
+         kvHwSsgaOB9kHEHzHT5ikPvuq64SnOL1Cx40FuPBcFOUzURaUp2NyFqwmE33tMv8lZKo
+         WdA88vtnDPwjExBd6zXOiL9FU5nW+3oy0wiyMaZ+iDKi7j/WBZTMckmQ0Mlwm1vtsYgv
+         h3hLM7uWQTVZI53G1+VNqw0iJdQrTC7GiQxyqiYPofVd5jgNMIc5iPNyLIxsLLv1JpkX
+         pSeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UxrLHy0xZer5ID4RHyuCqHzVGteGB4HlcmZdUjqBSL4=;
-        b=t4TwZcwUgeqOariipRNDuQNkUzdmZCWcaS6cDkh05G+dz+iSgX0r4KVXde1li3yh1j
-         nME+s169KuKcNYYioJj4stPVQYkqjbI6x4sBOwvFPKSK6eALCQ9PMbXjm7WNoJ+MiSIV
-         9H4NGrK/j0Zhb3Gr5Y97ELAfW1aGChyMqnJf+aI3PZ7R4/Rk1ypc3MLLsw0RzTw3QtwG
-         0myFIIguKRmi5tAPTGhNs3MYNOa/zVewX8lpT2xaSXD1ToHbF2yYS0YfepkBnKeb8j9D
-         mUVhDSDfXia5YXlcrNlPKnNuQ38BSpiAV2mlHQAUnZHeZRy/sMluz4xCS/GZcWNVrU+I
-         TMVw==
-X-Gm-Message-State: APjAAAXnTwWVRJsq+stAV2uEYYSHi8vqmwX4GrGo82yJA+VjQsdGiNg4
-        Zn4VbICbhwIEyBr+13A0liSBcx+lAts=
-X-Google-Smtp-Source: APXvYqwpCH+B/lBvHkPsK4oranhfJRg2I6GN/bqGm9Vi9ZAArUYI1ZCHKIDT0o2hYlbk+wWuHH2+QQ==
-X-Received: by 2002:a7b:cb8e:: with SMTP id m14mr30808692wmi.10.1567342691150;
-        Sun, 01 Sep 2019 05:58:11 -0700 (PDT)
+        bh=/kY5ez2UY78GlNnuNQzpPG/veO6d9ypsF/qsZ3kn5iE=;
+        b=amx/YydvT219raV6mzFJKNUmFNXAXZet+ITpw7di6Zx5FklziqtsIKn23fsW3OY+Ov
+         yIiOig1z0ZPppPDPJBCmlKZVmBQ1i8XZOSEEf7EF4sBCcIQC8yke5vNgAYWDi+z80CIq
+         ZdVl1Cd8celDZp7/yf6WCBdSmDICYFxS3Pvpz+/5Ii6qX0TwRRbZfaYveSQVYa2A6arx
+         PyW4lahbfaL/SAneqbE+mrsIAqk1/HNkil0JBnEJCv3lJ/hXj86Iys4jO4zLXQqV5E+z
+         yQ3L65R1VUXAfgQ2AisSxL4QKs/lzXQOx8i4g5kqgumAUjli43jC95X0XhjpNAQBixTQ
+         FloQ==
+X-Gm-Message-State: APjAAAU+ROxHkkNfWkX70ZBkatMM1aHPyl0REGHexKmj/Npidkt3Xldp
+        GrlcRWwgre4LM3/FLB1g1qlnY4T1ZNU=
+X-Google-Smtp-Source: APXvYqyhivmpE3lMGP6u1JMIOvrjJ4rxcsVaL4kw5hjjdftxOOcZ52sYnbiN8SIqnrz1+BPycOIUSg==
+X-Received: by 2002:a1c:9d0b:: with SMTP id g11mr29085302wme.22.1567342830477;
+        Sun, 01 Sep 2019 06:00:30 -0700 (PDT)
 Received: from eldamar (host85-134-dynamic.30-79-r.retail.telecomitalia.it. [79.30.134.85])
-        by smtp.gmail.com with ESMTPSA id r190sm15294524wmf.0.2019.09.01.05.58.09
+        by smtp.gmail.com with ESMTPSA id o11sm11093069wrw.19.2019.09.01.06.00.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Sep 2019 05:58:09 -0700 (PDT)
-Date:   Sun, 1 Sep 2019 14:58:09 +0200
+        Sun, 01 Sep 2019 06:00:29 -0700 (PDT)
+Date:   Sun, 1 Sep 2019 15:00:28 +0200
 From:   Salvatore Bonaccorso <carnil@debian.org>
 To:     Hui Peng <benquike@gmail.com>
 Cc:     stable@vger.kernel.org,
@@ -54,48 +54,37 @@ Cc:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wenwen Wang <wang6495@umn.edu>, alsa-devel@alsa-project.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Fix an OOB bug in parse_audio_mixer_unit
-Message-ID: <20190901125809.GA23334@eldamar.local>
-References: <20190830214649.27761-1-benquike@gmail.com>
+Subject: Re: [PATCH 2/2] Fix a stack buffer overflow bug in check_input_term
+Message-ID: <20190901130028.GB23334@eldamar.local>
+References: <20190830214730.27842-1-benquike@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190830214649.27761-1-benquike@gmail.com>
+In-Reply-To: <20190830214730.27842-1-benquike@gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 05:46:49PM -0400, Hui Peng wrote:
-> The `uac_mixer_unit_descriptor` shown as below is read from the
-> device side. In `parse_audio_mixer_unit`, `baSourceID` field is
-> accessed from index 0 to `bNrInPins` - 1, the current implementation
-> assumes that descriptor is always valid (the length  of descriptor
-> is no shorter than 5 + `bNrInPins`). If a descriptor read from
-> the device side is invalid, it may trigger out-of-bound memory
-> access.
-> 
-> ```
-> struct uac_mixer_unit_descriptor {
-> 	__u8 bLength;
-> 	__u8 bDescriptorType;
-> 	__u8 bDescriptorSubtype;
-> 	__u8 bUnitID;
-> 	__u8 bNrInPins;
-> 	__u8 baSourceID[];
-> }
-> ```
-> 
-> This patch fixes the bug by add a sanity check on the length of
-> the descriptor.
-> 
-> CVE: CVE-2018-15117
+Hi Hui,
 
-FWIW, the correct CVE id should be probably CVE-2019-15117 here.
+On Fri, Aug 30, 2019 at 05:47:29PM -0400, Hui Peng wrote:
+> `check_input_term` recursively calls itself with input from
+> device side (e.g., uac_input_terminal_descriptor.bCSourceID)
+> as argument (id). In `check_input_term`, if `check_input_term`
+> is called with the same `id` argument as the caller, it triggers
+> endless recursive call, resulting kernel space stack overflow.
+> 
+> This patch fixes the bug by adding a bitmap to `struct mixer_build`
+> to keep track of the checked ids and stop the execution if some id
+> has been checked (similar to how parse_audio_unit handles unitid
+> argument).
+> 
+> CVE: CVE-2018-15118
 
-But there was already a patch queued and released in 5.2.10 and
-4.19.68 for this issue (as far I can see; is this correct?)
+Similar to the previous one, this should be CVE-2019-15118 as far I
+can tell.
 
 Regards,
 Salvatore
