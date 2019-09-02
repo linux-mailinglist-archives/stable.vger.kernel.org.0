@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8D8A5D16
-	for <lists+stable@lfdr.de>; Mon,  2 Sep 2019 22:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D07F5A5D17
+	for <lists+stable@lfdr.de>; Mon,  2 Sep 2019 22:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727183AbfIBUYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Sep 2019 16:24:34 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:54021 "EHLO
+        id S1727192AbfIBUYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Sep 2019 16:24:36 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:51711 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726518AbfIBUYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Sep 2019 16:24:34 -0400
+        by vger.kernel.org with ESMTP id S1726518AbfIBUYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Sep 2019 16:24:36 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DCF9B21C4D;
-        Mon,  2 Sep 2019 16:24:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 02 Sep 2019 16:24:33 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 39C5721DC7;
+        Mon,  2 Sep 2019 16:24:35 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 02 Sep 2019 16:24:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YeCJAU
-        qyeZ2+/WunPDP/6iO0TuMZwhGltsF+gAbzeBM=; b=yGogoRH0AK9Ue4DUt7Irqf
-        WEN5HpdXzOlJhVmDfQYV7EaNU/mZ66wBso2VH+4HrFlrbqk4RcXdf0B5yI7Xq/3/
-        PIeb8GQncBv0enqCtDzYIlyB+j9kssZEJ4H6fnGQZOHTcMFstqm/nWxnEeO0n9//
-        5i1Yu9xv0Q23Qp6ngUqvzI9AN9obkrzyZse09XZJ/AvcmlIe8FwvZPnVvV6okKCT
-        zZ32ujJZo8Z52GwOAaIqDRM1YilDvLRbhq4FvbnzJjPPw0iQByY7atc1Ue77r2XK
-        JfD04Cz9VVZe9VXWPRdywCvnlc/HO004XTVHdo1ThBhLcsLrM7bElnAPlyaN2nyw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dJHUgH
+        pcBUWNnWMN8tRY6x7b8okMfygsOPjA6udYSGE=; b=a8AZpZVUYiyONnm2gNgY3i
+        RcS5qxqJ4I8bp/LGuP9a56lDOLUAU4WjO1w7xrvKI2DdWzQWXopyBWnh+Dhmuy2/
+        rWKJ8AllN5Ultcf7xEpge8Z7r8k4rwtwa9gYDk3cuKm7BPTHmrbaw71UZu51K99Y
+        cQ4J+AZwl20p2x5Zay3yusdGRDjA2d4J9gPReSxJuzKg17DupZlvTcAWdwVsy9kC
+        5MsJALSL3R6VwhLKL/xswNXQoYnOablLZln3PlYYuPHqH1SYVVb9pzeRkunLIaLt
+        6j9XfkAfDQW0OHnO1hSwXGXZ9LAsW1+VLxHvblgCengzYMEx8cPiJT1TS17GZIUg
         ==
-X-ME-Sender: <xms:gXptXerDJVNiOiyLas2dyPEIqdDLj4-6RGkX1weJAV54FOPeVgEaiA>
+X-ME-Sender: <xms:g3ptXYEIqXWEq3-WFzEIaNika018mSBw20Eflo6vsW_-RXWMW35U6g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejtddgudeglecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejtddgudeglecutefuodetgg
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:gXptXT4Tqp6FwdzBZpPvKcP8CXQ1ewrBj3Y7okMUsAhVwXr9w9HdZA>
-    <xmx:gXptXSuqOwlHXEv9fUuhe-My1RKfSZ-FvieMZvARHMYOFLzlf8jZtA>
-    <xmx:gXptXXCeT7-p1vCtJxmi6w690cacCpjTTOzoaQLw1WVI3JcdPgbLcQ>
-    <xmx:gXptXYwjZHs_1d28XLFm7zLAjhL5mtG2pZSnyc6X4loEC-9YpsBBRQ>
+X-ME-Proxy: <xmx:g3ptXVl6rUz-zJw1PpU23e7uBB1Xn7M4TFiMqocjTwh0mQzTo0zprg>
+    <xmx:g3ptXdL6fzv40fW_CQj0GuRvnO56Ruy1GX_kOQxl_lNiXrBSE05pLw>
+    <xmx:g3ptXeaAbbXbAMIEG6p5Ip-ubqp6y9GWMr-44XUmaOm2f5Ly5sQvNw>
+    <xmx:g3ptXRfvToc30nqV2-jm9IMVjlSQmDsd7A4LChRC3TIVAM8BR0rwpA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5C89A8005A;
-        Mon,  2 Sep 2019 16:24:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] uprobes/x86: Fix detection of 32-bit user mode" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C486ED6005A;
+        Mon,  2 Sep 2019 16:24:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] uprobes/x86: Fix detection of 32-bit user mode" failed to apply to 4.4-stable tree
 To:     me@sam.st, dsafonov@virtuozzo.com, mhiramat@kernel.org,
         oleg@redhat.com, srikar@linux.vnet.ibm.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Sep 2019 22:24:30 +0200
-Message-ID: <15674558707513@kroah.com>
+Date:   Mon, 02 Sep 2019 22:24:32 +0200
+Message-ID: <156745587224892@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
