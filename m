@@ -2,70 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD08A5299
-	for <lists+stable@lfdr.de>; Mon,  2 Sep 2019 11:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0773A5431
+	for <lists+stable@lfdr.de>; Mon,  2 Sep 2019 12:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730981AbfIBJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Sep 2019 05:16:06 -0400
-Received: from sonic308-1.consmr.mail.bf2.yahoo.com ([74.6.130.40]:45009 "EHLO
-        sonic308-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730373AbfIBJQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Sep 2019 05:16:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1567415765; bh=tPdyM4f7Tq8kspt5syr9wxbiHLUxanV8lkCr2Pkkkas=; h=Date:From:Reply-To:Subject:From:Subject; b=K6HEFBWt+UlpMXSgAPjmVdWFUR+vjj/CXDuQnQNVkMiZm9E4qnHZARcR6ocjLj5CFM6GPdXX5iPwZbp0ItjuGgBcriRYeiUesBBKYLlis6MaT6Z6crfXmcQlD/lD3BEbTZVFgXKJ9yf1nIy8xnetQZ7loxI88RhzitigpOAhxIZYvczteVf6EwzKGJm9TBgMWhD3o/VHk5gMo2UgQpjKH1Ua3d4tsBS5owloXQy53naIa8YFjsSmYFgSWEP/ovyYaE9J03HaE7fLujDhFHdH7oGv5ysSB3LH9IYDWIdgkmrMnWERleuiOfVOeqDrXQRf5yruiCmWI8EW9wnkxu6k7g==
-X-YMail-OSG: BvqQhCEVM1kqptjWLCl2oej9c_YR1DKFBa58M31xDMDX8OSxzXp3eMqxlq3iMss
- PJGYyv0rFIolKS2vv8KVOG1lml68O2eb7x7E46h48HVXdrJtk7l7MdAEeTZXncCSyCmaAZR_CgKF
- BIWMHI7L__vzzY4oRUyf82nO84r8JKtGaqptXA6e5EUZmdCcuoLvU2HYG6GfttJLW7qrXqnGo3WV
- EDts5IGDTgGb75Y9NcNrR0frNWZihYdBoAwOFBjhuK6PxHCEG1I6Unxuw5wieAS51LH2jNV6kOil
- o_B1LpakK3MCcoyoecVISZi6RUG4DVKOWMgAkK9Q33vCAxX_YsVT.FJAO7iMkctlnv8qddDe1B4B
- UIDx9i_etHQWnDlhP6Xj_swJzMBSm2GXUTR90I3AgTwv7gLiJmsV.9tE3.sNKJnjGSzsCTZYbMNC
- fGwxJl720I0cc0w9enpdLkhav72B.ng4c_m.t42XAvDlXEkrqqtHKcXchgScaq32AzRP1lppVlbY
- yIzS0lbeb_BatnJHMbYJr6KZ80OxVVjCXkZPccYASSf20eVXfaHAh85C39nGsUDBZCKi6qDYnKyo
- Fln57GO1epGjfGfYTUFHdKyF_ImRy4gls06f7yVmUTpgVp1ZDTAYTOxgRyh9scHhQ8LAX7A3.C_Z
- rvM8Dk3LzZIdVSANhBjBRIXVlq7hKLGwkolBKVrucwDf0VMf9V6a.UPQVmscF9TDI9n0LW0g7_9J
- CHxSA2EmiNB4od5nA40fV75mj1vI0GrUNnQ_PU1bmCdnUIhBrSDe_K4bvCkDrEhE2zxOHEMQPt_j
- pmJuud0IrsbsDKbBE8MFh8.Yfx40oaVKu.SDHaDaeJrtKZHCQGCApsM_Hg6MQ7mSay1QIWqaYCq.
- QlI0S8OIVgl23xOTAE_AM4jHta7BFGPpMUOwUpCucxbd9wEHGye0Y6XJwHH3TLs_ovjbo3ti4wBy
- VGqklwyV58Q9gx.QdTgdK5TCYyFpN99rIa202dACRVdfi8jRsfNUcgDlyd5R7oNJMvdWFKAA1dCs
- A7LOeg3S_Kn98AH60JNevjkWx92wimcKE8tFkBlWI1WyVZtcfOgnMVFXzN_VQFAw0srIPfgMDdHp
- FFIVHqnCFzx_UO7PyyRa781ykRZzXLhzqd7PF2z8Kt0YaD4suwWk8badpQy7P8WUUAsNBIWL3FfN
- 16nlvu5DpwR3k_jv69.sV9MuhmiEwuIb0.jb0cbOaWu7xOQWn4F5rUnUvtxKg76MNCtISUNYYeNG
- foclkE4lIo0o-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.bf2.yahoo.com with HTTP; Mon, 2 Sep 2019 09:16:05 +0000
-Date:   Mon, 2 Sep 2019 09:16:02 +0000 (UTC)
-From:   Aisha Gaddafi <aishag00uu@gmail.com>
-Reply-To: gaisha983@gmail.com
-Message-ID: <51127364.734026.1567415762966@mail.yahoo.com>
-Subject: Dear Friend,
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+        id S1730276AbfIBKlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Sep 2019 06:41:11 -0400
+Received: from mout.gmx.net ([212.227.17.20]:48881 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730233AbfIBKlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Sep 2019 06:41:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1567420861;
+        bh=tA/sQectS6ufnSvHQs9vkO51QVeunsmgYTFy/E5vD2g=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=P5fROY8sXDkzBILd2PDfITtt9raoHbEC+4YVSJXR+KhZGb+MT7OPP7+ZzzJr621H3
+         P12jSc0b2QQTyimE1Yf7TvySgxtoUkUJorzQbxS6dICQRy/S64N9FQS4I4zwECFziY
+         uF3lBKfHgFazF3pt/r2hlyrbpcsEX5sBF3brMqnI=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([95.91.214.116]) by mail.gmx.com
+ (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0LkBPy-1ic9qB2n3S-00c941; Mon, 02 Sep 2019 12:41:01 +0200
+From:   Sebastian Parschauer <s.parschauer@gmx.de>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org,
+        Sebastian Parschauer <s.parschauer@gmx.de>,
+        stable@vger.kernel.org
+Subject: [PATCH] HID: Add quirk for HP X500 PIXART OEM mouse
+Date:   Mon,  2 Sep 2019 12:39:30 +0200
+Message-Id: <20190902103930.9004-1-s.parschauer@gmx.de>
+X-Mailer: git-send-email 2.16.4
+X-Provags-ID: V03:K1:D1C0akojf2gEEKL7cxVrGZ//Mx8mKrWggM0ZF3HllFS/N7zPc3P
+ sq1iRJ5F0YoE2LHFUXnrh2UBGE0S4oqXZF2bjTv2RDRSvIgRMB3QQFHFeSz+1PCN4fhMFLl
+ tJZO0X3IlfpNipk5sXpi0d3dQsgLuw1AwdhaB8j2RoxLA7KYod1B+fp3B4AXg+CYfShevUU
+ VaeWN5GFxo32mwXyYkciA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:0hkNiGe8CmM=:mhxssAESCHdrhxzb+GueIe
+ xe4hShyXLwxeeFBK2NZsevnlMOp5g5pD/B9wQii5LS7z/GnJ3bzj6MkPjIEYn7KvFA0zCHvrd
+ TVjoGtPj3VSlNPbaXMNtg2Fq9MLE1/1yQRVLfD0e+Fme4pc0H6nFa6jT0H6KnDiWea1GyIJ7A
+ 0HhjqE+H6O+HiAcFIrGZPahplRyQQj8tXFBj9J6IbEsmDJl8HapZrIWJpxAzE71s5LSf5qSQa
+ Rt13V+BKzQw1/tPRoofUl8ZTzfYqg/BN8M9TFUlKmMClviS6+95qQZFfEDC3I6biwdbCRpoxq
+ zN5dzGj0llUhymt0OvVP0FlKvxPqpmJsKeFFhqTi/noaGKZAARCOsDyUxsY82+o2vBx/lp5FU
+ fdr9QjaxXi0xyFlkBM8+j0LFtkYqMFls40LSCyNdVxdff6YwPcznUwX0gZlVc8hItES1sIxXe
+ rWwozCcisgaKDsB4jbss3DKU0822j4/U6Hs6n4LmAFMeDIzia6c10FKK8Vtws/CT4KxqPwtUJ
+ 3RIZV+Q4x7Oa5FNFjsotUazFzzFzrxkEblyqNCS6j0GF6YPLhawnH9kw9/dPnoL9+S+8KP+pW
+ QxiIKlLL6YJi/e/vifqeo93YP3ZbdTOy+6T8eZRGbH0HpdNYKLmDEsusOc6Ej1D3VjdjHwjp7
+ gt05qlw9EPi+fqkgOof4mzliQjrgA0hvHhGC2yNBNJbhR6X+u6wBs1CKR/BYVgAMBx1aWBYl4
+ 6BLlOPluWRWBRxXlZv5r0AUncVey8bV/EAwaaQ9o5wfbj5czdOeXYJa1wBlXrN/7H2H36wctl
+ 3ZnHXaqBrBo3f6kvcx/qnY2TyO4WcVtknCSA6zVCgwW7YoC8Mem4bB7qgK1perD+thI087+d+
+ Vlb6lCqmD5T7081Vzvg1ASFL+ikHd/ZKmZZHM3fU4P7CGGCgLEWMw82dAFkSrm5+hNvFD2Iz8
+ Ze5Ip1wFR3aavYVoSucVCB2O78Vn1reMeuJhSzfWfGg9rO7lNMBPv9epNAEDUrNXZC6avqZAD
+ ArUKmtsvzM1M4XOcmYt4IkpQfRGzqJUNGwzZbE9gV+3v5ZaMITwRX2rpBV9BCD6dheDbqQgSJ
+ 1JBMEsEqzPkSr/8+h/ddl63svFE+votEQ71Yb2/ubFTSos387m4tVO5en1lWhu5YK/p6r+9Wl
+ 3NskDtzqfUoJ/FOSTBLr31EWGst5p5ftLU3GGQM1VXR/TrYw==
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+The PixArt OEM mice are known for disconnecting every minute in
+runlevel 1 or 3 if they are not always polled. So add quirk
+ALWAYS_POLL for this one as well.
 
-I came across your e-mail contact prior a private search while in need of 
-your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
-three Children. I am the only biological Daughter of late Libyan President 
-(Late Colonel Muammar Gaddafi).
+Ville Viinikka (viinikv) reported and tested the quirk.
+Reference: https://github.com/sriemer/fix-linux-mouse issue 15
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand 
-United State Dollar ($27.500.000.00 ) and i need a trusted investment 
-Manager/Partner because of my current refugee status, however, I am 
-interested in you for investment project assistance in your country, may be 
-from there, we can build business relationship in the nearest future.
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+CC: stable@vger.kernel.org # v4.16+
+=2D--
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-I am willing to negotiate investment/business profit sharing ratio with you 
-base on the future investment earning profits.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0a00be19f7a0..e4d51ce20a6a 100644
+=2D-- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -568,6 +568,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
 
-If you are willing to handle this project on my behalf kindly reply urgent 
-to enable me provide you more information about the investment funds.
+ #define USB_VENDOR_ID_HUION		0x256c
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 166f41f3173b..c50bcd967d99 100644
+=2D-- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -92,6 +92,7 @@ static const struct hid_device_id hid_quirks[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OP=
+TICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), =
+HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_AT=
+ARI), HID_QUIRK_MULTI_INPUT },
+=2D-
+2.16.4
 
-Your Urgent Reply Will Be Appreciated.
-
-Best Regards
-Mrs Aisha Gaddafi
-(gaisha983@gmail.com)
