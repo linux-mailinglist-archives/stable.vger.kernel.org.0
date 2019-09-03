@@ -2,58 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73469A73C5
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7428DA73CF
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725939AbfICTgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 15:36:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58512 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725882AbfICTgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 15:36:05 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 473FCADDA;
-        Tue,  3 Sep 2019 19:36:04 +0000 (UTC)
-Date:   Tue, 3 Sep 2019 21:36:03 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Thomas Lindroth <thomas.lindroth@gmail.com>
-Cc:     Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: [BUG] Early OOM and kernel NULL pointer dereference in 4.19.69
-Message-ID: <20190903193603.GF14028@dhcp22.suse.cz>
-References: <31131c2d-a936-8bbf-e58d-a3baaa457340@gmail.com>
- <20190902071617.GC14028@dhcp22.suse.cz>
- <a07da432-1fc1-67de-ae35-93f157bf9a7d@gmail.com>
- <20190903074132.GM14028@dhcp22.suse.cz>
- <84c47d16-ff5a-9af0-efd4-5ef78d302170@virtuozzo.com>
- <20190903122221.GV14028@dhcp22.suse.cz>
- <c8c3effe-753c-ce1d-60f4-7d6ff2845074@gmail.com>
+        id S1726005AbfICTkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 15:40:01 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:36468 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725882AbfICTkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 15:40:01 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 7181A307D978;
+        Tue,  3 Sep 2019 19:40:01 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-120-59.rdu2.redhat.com [10.10.120.59])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3048660606;
+        Tue,  3 Sep 2019 19:39:58 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e2=2e11?=
+ =?UTF-8?Q?-c3915fe=2ecki_=28stable=29?=
+To:     Greg KH <greg@kroah.com>, CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Xiong Zhou <xzhou@redhat.com>
+References: <cki.EDBAAD9BB8.PJ4CXK5IUR@redhat.com>
+ <20190903062434.GD16647@kroah.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Message-ID: <98810f6d-3bff-61be-f6dd-d24902d497e3@redhat.com>
+Date:   Tue, 3 Sep 2019 15:39:57 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c8c3effe-753c-ce1d-60f4-7d6ff2845074@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190903062434.GD16647@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Tue, 03 Sep 2019 19:40:01 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 03-09-19 20:20:20, Thomas Lindroth wrote:
-[...]
-> If kmem accounting is both broken, unfixable and cause kernel crashes when
-> used why not remove it? Or perhaps disable it per default like
-> cgroup.memory=nokmem or at least print a warning to dmesg if the user tries
-> to user it in a way that cause crashes?
+The aarch64 system failed to boot the CKI kernel due to an infra 
+failure, the xfs generic/114 test
+could be an intermittent issue, I'll let Xiong confirm.
 
-Well, cgroup v1 interfaces and implementation is mostly frozen and users
-are advised to use v2 interface that doesn't suffer from this problem
-because there is no separate kmem limit and both user and kernel charges
-are tight to the same counter.
+https://artifacts.cki-project.org/pipelines/140026/logs/ppc64le_host_1_xfstests_xfs_resultoutputfile.log
 
-We can be more explicit about shortcomings in the documentation but in
-general v1 is deprecated.
+-Rachel
 
--- 
-Michal Hocko
-SUSE Labs
+On 9/3/19 2:24 AM, Greg KH wrote:
+> On Mon, Sep 02, 2019 at 10:38:46PM -0400, CKI Project wrote:
+>> Hello,
+>>
+>> We ran automated tests on a recent commit from this kernel tree:
+>>
+>>         Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>>              Commit: c3915fe1bf12 - Linux 5.2.11
+> Same git commit id fails one test run but passes another?  You all might
+> want to look into this...
+>
+
