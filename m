@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5442FA6E89
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA87A6E8E
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730674AbfICQ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47532 "EHLO mail.kernel.org"
+        id S1730729AbfICQ0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730669AbfICQ0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:35 -0400
+        id S1730725AbfICQ0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E647F23789;
-        Tue,  3 Sep 2019 16:26:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91511238C5;
+        Tue,  3 Sep 2019 16:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527994;
-        bh=99vI5vKcRGeRvP/ZZt4/CfY7lB6MsEgoUTllPFqFQXc=;
+        s=default; t=1567528011;
+        bh=IDegn3PA5hO68dkXxmfnYOmtBRQOB+r1GrT3sBEHpmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dp6fYkyIwKb9eqAotN4S9ZjF3u/UOnXnkQYx8CEwIRlQ4NBV5hESYAsve3r7sA7mW
-         /BSJ0hpsHS+ZtWsk2HVaqngz7BLT/GrcUgCjIYTNx7T7PgxiRXMfdWxBovtAIR8fEc
-         mlq81XCbAF2u7p8g+M9aaxnQhSGGGJ4oVDx4GVkw=
+        b=wCZXqinraaRzNmx7nhj7DvbnWaAMutnvb+qZUS0eV5h2E0Hsc2HLLMKWt23TskIPn
+         Zz2xiTG8kLOBtnybQs0m439SxjnxXDys4hv9XvQKsmNx6WyOzdlJKSI/zabszKPwAU
+         TZa3iFGuz3rOQtnqErw4vLM++qm4Wd5Nl/X+1d8Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Zhao <yuzhao@google.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch alignment
-Date:   Tue,  3 Sep 2019 12:23:16 -0400
-Message-Id: <20190903162519.7136-44-sashal@kernel.org>
+Cc:     Ricardo Biehl Pasquali <pasqualirb@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 052/167] ALSA: pcm: Update hardware pointer before start capture
+Date:   Tue,  3 Sep 2019 12:23:24 -0400
+Message-Id: <20190903162519.7136-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,45 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Zhao <yuzhao@google.com>
+From: Ricardo Biehl Pasquali <pasqualirb@gmail.com>
 
-[ Upstream commit 89f23b6efef554766177bf51aa754bce14c3e7da ]
+[ Upstream commit 64b6acf60b665fffd419c23886a1cbeeb253cfb4 ]
 
-Userspace may request pitch alignment that is not supported by GPU.
-Some requests 32, but GPU ignores it and uses default 64 when cpp is
-4. If GEM object is allocated based on the smaller alignment, GPU
-DMA will go out of bound.
+This ensures the transfer loop won't waste a run to read
+the few frames (if any) between start and hw_ptr update.
+It will wait for the next interrupt with wait_for_avail().
 
-Cc: stable@vger.kernel.org # v4.2+
-Reviewed-by: Michel Dänzer <michel.daenzer@amd.com>
-Signed-off-by: Yu Zhao <yuzhao@google.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ricardo Biehl Pasquali <pasqualirb@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/core/pcm_lib.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index 686a26de50f91..6e67814d33e29 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -527,6 +527,16 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
- 	struct drm_gem_object *obj;
- 	struct amdgpu_framebuffer *amdgpu_fb;
- 	int ret;
-+	struct amdgpu_device *adev = dev->dev_private;
-+	int cpp = drm_format_plane_cpp(mode_cmd->pixel_format, 0);
-+	int pitch = mode_cmd->pitches[0] / cpp;
-+
-+	pitch = amdgpu_align_pitch(adev, pitch, cpp, false);
-+	if (mode_cmd->pitches[0] != pitch) {
-+		DRM_DEBUG_KMS("Invalid pitch: expecting %d but got %d\n",
-+			      pitch, mode_cmd->pitches[0]);
-+		return ERR_PTR(-EINVAL);
-+	}
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+index 7f71c2449af5e..40013b26f6719 100644
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -2172,6 +2172,10 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
+ 	if (err < 0)
+ 		goto _end_unlock;
  
- 	obj = drm_gem_object_lookup(file_priv, mode_cmd->handles[0]);
- 	if (obj ==  NULL) {
++	runtime->twake = runtime->control->avail_min ? : 1;
++	if (runtime->status->state == SNDRV_PCM_STATE_RUNNING)
++		snd_pcm_update_hw_ptr(substream);
++
+ 	if (!is_playback &&
+ 	    runtime->status->state == SNDRV_PCM_STATE_PREPARED) {
+ 		if (size >= runtime->start_threshold) {
+@@ -2185,10 +2189,8 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
+ 		}
+ 	}
+ 
+-	runtime->twake = runtime->control->avail_min ? : 1;
+-	if (runtime->status->state == SNDRV_PCM_STATE_RUNNING)
+-		snd_pcm_update_hw_ptr(substream);
+ 	avail = snd_pcm_avail(substream);
++
+ 	while (size > 0) {
+ 		snd_pcm_uframes_t frames, appl_ptr, appl_ofs;
+ 		snd_pcm_uframes_t cont;
 -- 
 2.20.1
 
