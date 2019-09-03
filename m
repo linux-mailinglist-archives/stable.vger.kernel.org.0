@@ -2,162 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97CE4A72A9
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B32F2A72C0
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726027AbfICSlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:41:07 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54287 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725883AbfICSlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:41:07 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 98D7422267;
-        Tue,  3 Sep 2019 14:41:06 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:41:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6TCRA2
-        XxLnpu7dlikiHqVvs1A02WwdrqYfp85yivxX8=; b=w0DBSAr6wjEnxJGhomGQC5
-        B8SFSAGDrDvgHzOBDAGa9r8VlKcm1MZ+ZkYGWbBdOE6DATpYKcnkFUsuZFjyW9ho
-        lJIGHXYsGjd6kys9W0i8y3Fy3bL7SrNQ08u/eOuVL29VaPfSImUUZ1QbBhIoAcM1
-        45gysis3pqB8GR13+eyDZPrbPC17Ldi/PogkwA2LYeXEdvQlO0kT0tR6eJYDNLal
-        9Zt9NU6B4nK3E4M78akaM+bGjYkFDMS+uI+6bWxXEZP5kTTlwtuDEduNOL7AFsoI
-        2xXAQ1CfItQKRVE05/X7EGhoj/jgzBo9gZcZpLxNy/LJb6nn+CoPHXeLaWPOJGqA
-        ==
-X-ME-Sender: <xms:wrNuXcPtNs4jz7xMzI4tieY8xFerVZ4iujiySdA2JZTLcRWPABhZxg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedgleekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepie
-X-ME-Proxy: <xmx:wrNuXVNykm_svfaY9pdrKQLVto_X1fRsZ6esG6UAXA94rNa8XTR6NQ>
-    <xmx:wrNuXVgb2V12DYdBNsJjcWP5sI0NvrPbmt38pPvJqns8wF6ck8h1gA>
-    <xmx:wrNuXasi0RdrBLvR3JqKWDUi_ZJpaJ4X6i1POWJGMgUF9DsKyUKoDw>
-    <xmx:wrNuXdp_kTU2MlZe0Y992s2WKmQk88NlXuIBkjTfaHZXBS24EfmSmQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 393DED60057;
-        Tue,  3 Sep 2019 14:41:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm/arm64: vgic-v2: Handle SGI bits in GICD_I{S,C}PENDR0" failed to apply to 4.9-stable tree
-To:     maz@kernel.org, andre.przywara@arm.com, will@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Sep 2019 20:40:56 +0200
-Message-ID: <15675360569187@kroah.com>
+        id S1725977AbfICStq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 14:49:46 -0400
+Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:55506 "EHLO
+        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726027AbfICStq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:49:46 -0400
+Received: from pps.filterd (m0134424.ppops.net [127.0.0.1])
+        by mx0b-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x83ICQ3W003437;
+        Tue, 3 Sep 2019 18:49:26 GMT
+Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
+        by mx0b-002e3701.pphosted.com with ESMTP id 2us2qw3g0g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Sep 2019 18:49:26 +0000
+Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
+        by g4t3427.houston.hpe.com (Postfix) with ESMTP id A14C571;
+        Tue,  3 Sep 2019 18:49:24 +0000 (UTC)
+Received: from [16.116.163.9] (unknown [16.116.163.9])
+        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id 7DC7A47;
+        Tue,  3 Sep 2019 18:49:23 +0000 (UTC)
+Subject: Re: [PATCH 2/8] x86/platform/uv: Return UV Hubless System Type
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
+ <20190903001815.893030884@stormcage.eag.rdlabs.hpecorp.net>
+ <20190903064914.GA9914@infradead.org>
+ <0eee6d96-e4fc-763b-a8b9-52c85ddd5531@hpe.com>
+ <20190903154109.GB2791@infradead.org>
+From:   Mike Travis <mike.travis@hpe.com>
+Message-ID: <b342b250-a427-60cf-6189-3eb3225e5c91@hpe.com>
+Date:   Tue, 3 Sep 2019 11:49:53 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190903154109.GB2791@infradead.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
+ definitions=2019-09-02_04:2019-08-29,2019-09-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 spamscore=0 impostorscore=0 mlxlogscore=971 adultscore=0
+ lowpriorityscore=0 phishscore=0 malwarescore=0 mlxscore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1906280000 definitions=main-1909020138
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+On 9/3/2019 8:41 AM, Christoph Hellwig wrote:
+> On Tue, Sep 03, 2019 at 07:12:28AM -0700, Mike Travis wrote:
+>>>> +#define is_uv_hubless _is_uv_hubless
+>>>
+>>> Why the weird macro indirection?
+>>>
+>>>> -static inline int is_uv_hubless(void)	{ return 0; }
+>>>> +static inline int _is_uv_hubless(int uv) { return 0; }
+>>>> +#define is_uv_hubless _is_uv_hubless
+>>>
+>>> And here again.
+>>>
+>>
+>> Sorry, I should have explained this better.  The problem arises because
+>> we have a number of UV specific kernel modules that support multiple
+>> distributions.  And with back porting to earlier distros we cannot
+>> rely on the KERNEL_VERSION macro to define whether the source is being
+>> built for an earlier kernel.  So this allows an ifdef on the function
+>> name to discover if the kernel is before or after these changes.
+> 
+> And none of these matter for upstream.  We'd rather not make the code
+> more convouluted than required.  If you actually really cared about these
+> modules you would simply submit them upstream.
+> 
 
-greg k-h
+That is always being considered for everything we include into the 
+community kernel source.  The problem is a couple of the kernel modules 
+(hwperf being the prime example) is much more tied to hardware and 
+BIOS/FW updates so has to be updated much more often than the current 
+submittal/acceptance process allows.  We do opensource these modules but 
+they are built from single source directories and have to be released as 
+a module into a package that can be installed on different distros. 
+There is not a source version for each kernel version.
 
------------------- original commit in Linus's tree ------------------
-
-From 82e40f558de566fdee214bec68096bbd5e64a6a4 Mon Sep 17 00:00:00 2001
-From: Marc Zyngier <maz@kernel.org>
-Date: Wed, 28 Aug 2019 11:10:16 +0100
-Subject: [PATCH] KVM: arm/arm64: vgic-v2: Handle SGI bits in GICD_I{S,C}PENDR0
- as WI
-
-A guest is not allowed to inject a SGI (or clear its pending state)
-by writing to GICD_ISPENDR0 (resp. GICD_ICPENDR0), as these bits are
-defined as WI (as per ARM IHI 0048B 4.3.7 and 4.3.8).
-
-Make sure we correctly emulate the architecture.
-
-Fixes: 96b298000db4 ("KVM: arm/arm64: vgic-new: Add PENDING registers handlers")
-Cc: stable@vger.kernel.org # 4.7+
-Reported-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-
-diff --git a/virt/kvm/arm/vgic/vgic-mmio.c b/virt/kvm/arm/vgic/vgic-mmio.c
-index 3ba7278fb533..b249220025bc 100644
---- a/virt/kvm/arm/vgic/vgic-mmio.c
-+++ b/virt/kvm/arm/vgic/vgic-mmio.c
-@@ -195,6 +195,12 @@ static void vgic_hw_irq_spending(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
- 	vgic_irq_set_phys_active(irq, true);
- }
- 
-+static bool is_vgic_v2_sgi(struct kvm_vcpu *vcpu, struct vgic_irq *irq)
-+{
-+	return (vgic_irq_is_sgi(irq->intid) &&
-+		vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V2);
-+}
-+
- void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
- 			      gpa_t addr, unsigned int len,
- 			      unsigned long val)
-@@ -207,6 +213,12 @@ void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
- 	for_each_set_bit(i, &val, len * 8) {
- 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
- 
-+		/* GICD_ISPENDR0 SGI bits are WI */
-+		if (is_vgic_v2_sgi(vcpu, irq)) {
-+			vgic_put_irq(vcpu->kvm, irq);
-+			continue;
-+		}
-+
- 		raw_spin_lock_irqsave(&irq->irq_lock, flags);
- 		if (irq->hw)
- 			vgic_hw_irq_spending(vcpu, irq, is_uaccess);
-@@ -254,6 +266,12 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
- 	for_each_set_bit(i, &val, len * 8) {
- 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
- 
-+		/* GICD_ICPENDR0 SGI bits are WI */
-+		if (is_vgic_v2_sgi(vcpu, irq)) {
-+			vgic_put_irq(vcpu->kvm, irq);
-+			continue;
-+		}
-+
- 		raw_spin_lock_irqsave(&irq->irq_lock, flags);
- 
- 		if (irq->hw)
-diff --git a/virt/kvm/arm/vgic/vgic-v2.c b/virt/kvm/arm/vgic/vgic-v2.c
-index 6dd5ad706c92..1059ce2ebfdf 100644
---- a/virt/kvm/arm/vgic/vgic-v2.c
-+++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -184,7 +184,10 @@ void vgic_v2_populate_lr(struct kvm_vcpu *vcpu, struct vgic_irq *irq, int lr)
- 		if (vgic_irq_is_sgi(irq->intid)) {
- 			u32 src = ffs(irq->source);
- 
--			BUG_ON(!src);
-+			if (WARN_RATELIMIT(!src, "No SGI source for INTID %d\n",
-+					   irq->intid))
-+				return;
-+
- 			val |= (src - 1) << GICH_LR_PHYSID_CPUID_SHIFT;
- 			irq->source &= ~(1 << (src - 1));
- 			if (irq->source) {
-diff --git a/virt/kvm/arm/vgic/vgic-v3.c b/virt/kvm/arm/vgic/vgic-v3.c
-index c2c9ce009f63..f7a4219f4617 100644
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -167,7 +167,10 @@ void vgic_v3_populate_lr(struct kvm_vcpu *vcpu, struct vgic_irq *irq, int lr)
- 		    model == KVM_DEV_TYPE_ARM_VGIC_V2) {
- 			u32 src = ffs(irq->source);
- 
--			BUG_ON(!src);
-+			if (WARN_RATELIMIT(!src, "No SGI source for INTID %d\n",
-+					   irq->intid))
-+				return;
-+
- 			val |= (src - 1) << GICH_LR_PHYSID_CPUID_SHIFT;
- 			irq->source &= ~(1 << (src - 1));
- 			if (irq->source) {
+I have seen this method (declare the function with a leading underscore 
+and a #define for the function reference) which is why I'm assuming it's 
+a standard kernel practice?  (I'll find some examples if necessary?)
 
