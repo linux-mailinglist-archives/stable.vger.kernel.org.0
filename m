@@ -2,67 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A85ECA6DEF
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DB1A6E51
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbfICQTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:19:23 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:34218 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727810AbfICQTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 12:19:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=z5XTZr7KAHvUQ4zGXGR/ag1TGXf5dCpTr/unRHYAJ7g=; b=Bur85jcXN6qdZR7BAaREK0n9B
-        zf3aQl5Asp9yOMHp8LiA/lGecRINQL1AtQC2NakcoqnpxdzqWH6YOveapcPtu90WSEaAR1JOIVq40
-        GvSqYZueFIGopfL35Usck7GGsNEn2j/h/k/M07Tu8yufkvEOsVQ5CBbaGm+vYuxllWwfN12me2hob
-        M7OqeqSL5c0QhdGvA0qHdv7wJn9CcsAGaw0pETuU2f3MMuCp6KB4qRZk+M9iAvAxij+LZXXK/I8oV
-        un3lg4mEomBDYDv1UPuLbSYXpVLU0SospuZYymNEqy5HSSeCXNxA9LsQWxKAiSDa5FZSgVJo4M50F
-        OP3qp4+SQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1i5BWX-00068r-Tm; Tue, 03 Sep 2019 16:19:17 +0000
-Date:   Tue, 3 Sep 2019 09:19:17 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Mike Travis <mike.travis@hpe.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in
- is_uvX_hub Ops
-Message-ID: <20190903161917.GA23281@infradead.org>
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
+        id S1730406AbfICQZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45612 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730395AbfICQZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:30 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0485923717;
+        Tue,  3 Sep 2019 16:25:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567527928;
+        bh=ebni2Q/ND9c27z/FRRPtQ6XbVmW0cE2YmgCn70MAkkQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hVbRpHGI1/6Nts9d2y+iYuRvfT+4n55028mT7D2TMxuAYR6qVt1zCxd7pfYtjoiHr
+         J9W9IEeCrXC7/u3Qdoc7RXnzCGcBhh2lOrzp84HvgjaEMfwCLV2ftrcu8skuQQYDAW
+         sPtqBWlCNMauj1MzDGI4BqDM/JQV05Xkk3eqwWjU=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Giridhar Malavali <giridhar.malavali@cavium.com>,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        Himanshu Madhani <himanshu.madhani@cavium.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 004/167] scsi: qla2xxx: Move log messages before issuing command to firmware
+Date:   Tue,  3 Sep 2019 12:22:36 -0400
+Message-Id: <20190903162519.7136-4-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
+References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 02, 2019 at 07:18:23PM -0500, Mike Travis wrote:
-> +#ifdef	UV1_HUB_IS_SUPPORTED
+From: Giridhar Malavali <giridhar.malavali@cavium.com>
 
-All these ifdefs are dead code, please just remove them.
+[ Upstream commit 9fe278f44b4bc06cc61e33b2af65f87d507d13d0 ]
 
-Also it seems like at least the various mmr macros just check
-for a specific version, I think you are much better off just
-using a switch statement for the possible revisions there.
+There is a probability that the SRB structure might have been released by the
+time the debug log message dereferences it.  This patch moved the log messages
+before the command is issued to the firmware to prevent unknown behavior and
+kernel crash
 
-> +		return (uv_hub_info->hub_revision == UV4A_HUB_REVISION_BASE);
+Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Giridhar Malavali <giridhar.malavali@cavium.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Himanshu Madhani <himanshu.madhani@cavium.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/qla2xxx/qla_gs.c   | 15 ++++++-----
+ drivers/scsi/qla2xxx/qla_init.c | 48 +++++++++++++++++----------------
+ 2 files changed, 33 insertions(+), 30 deletions(-)
 
-And none of these braces are required.
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 1f1a05a90d3d7..fc08e46a93ca9 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3360,15 +3360,15 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
+ 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
+ 	sp->done = qla24xx_async_gpsc_sp_done;
+ 
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+-
+ 	ql_dbg(ql_dbg_disc, vha, 0x205e,
+ 	    "Async-%s %8phC hdl=%x loopid=%x portid=%02x%02x%02x.\n",
+ 	    sp->name, fcport->port_name, sp->handle,
+ 	    fcport->loop_id, fcport->d_id.b.domain,
+ 	    fcport->d_id.b.area, fcport->d_id.b.al_pa);
++
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
+ 	return rval;
+ 
+ done_free_sp:
+@@ -3729,13 +3729,14 @@ int qla24xx_async_gpnid(scsi_qla_host_t *vha, port_id_t *id)
+ 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
+ 	sp->done = qla2x00_async_gpnid_sp_done;
+ 
++	ql_dbg(ql_dbg_disc, vha, 0x2067,
++	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
++	    sp->handle, ct_req->req.port_id.port_id);
++
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS)
+ 		goto done_free_sp;
+ 
+-	ql_dbg(ql_dbg_disc, vha, 0x2067,
+-	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
+-	    sp->handle, ct_req->req.port_id.port_id);
+ 	return rval;
+ 
+ done_free_sp:
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index ddce32fe0513a..39a8f4a671aaa 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -247,6 +247,12 @@ qla2x00_async_login(struct scsi_qla_host *vha, fc_port_t *fcport,
+ 
+ 	}
+ 
++	ql_dbg(ql_dbg_disc, vha, 0x2072,
++	    "Async-login - %8phC hdl=%x, loopid=%x portid=%02x%02x%02x "
++		"retries=%d.\n", fcport->port_name, sp->handle, fcport->loop_id,
++	    fcport->d_id.b.domain, fcport->d_id.b.area, fcport->d_id.b.al_pa,
++	    fcport->login_retry);
++
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS) {
+ 		fcport->flags |= FCF_LOGIN_NEEDED;
+@@ -254,11 +260,6 @@ qla2x00_async_login(struct scsi_qla_host *vha, fc_port_t *fcport,
+ 		goto done_free_sp;
+ 	}
+ 
+-	ql_dbg(ql_dbg_disc, vha, 0x2072,
+-	    "Async-login - %8phC hdl=%x, loopid=%x portid=%02x%02x%02x "
+-		"retries=%d.\n", fcport->port_name, sp->handle, fcport->loop_id,
+-	    fcport->d_id.b.domain, fcport->d_id.b.area, fcport->d_id.b.al_pa,
+-	    fcport->login_retry);
+ 	return rval;
+ 
+ done_free_sp:
+@@ -303,15 +304,16 @@ qla2x00_async_logout(struct scsi_qla_host *vha, fc_port_t *fcport)
+ 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+ 
+ 	sp->done = qla2x00_async_logout_sp_done;
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+ 
+ 	ql_dbg(ql_dbg_disc, vha, 0x2070,
+ 	    "Async-logout - hdl=%x loop-id=%x portid=%02x%02x%02x %8phC.\n",
+ 	    sp->handle, fcport->loop_id, fcport->d_id.b.domain,
+ 		fcport->d_id.b.area, fcport->d_id.b.al_pa,
+ 		fcport->port_name);
++
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
+ 	return rval;
+ 
+ done_free_sp:
+@@ -489,13 +491,15 @@ qla2x00_async_adisc(struct scsi_qla_host *vha, fc_port_t *fcport,
+ 	sp->done = qla2x00_async_adisc_sp_done;
+ 	if (data[1] & QLA_LOGIO_LOGIN_RETRIED)
+ 		lio->u.logio.flags |= SRB_LOGIN_RETRIED;
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+ 
+ 	ql_dbg(ql_dbg_disc, vha, 0x206f,
+ 	    "Async-adisc - hdl=%x loopid=%x portid=%06x %8phC.\n",
+ 	    sp->handle, fcport->loop_id, fcport->d_id.b24, fcport->port_name);
++
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
++
+ 	return rval;
+ 
+ done_free_sp:
+@@ -1161,14 +1165,13 @@ int qla24xx_async_gpdb(struct scsi_qla_host *vha, fc_port_t *fcport, u8 opt)
+ 
+ 	sp->done = qla24xx_async_gpdb_sp_done;
+ 
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+-
+ 	ql_dbg(ql_dbg_disc, vha, 0x20dc,
+ 	    "Async-%s %8phC hndl %x opt %x\n",
+ 	    sp->name, fcport->port_name, sp->handle, opt);
+ 
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
+ 	return rval;
+ 
+ done_free_sp:
+@@ -1698,15 +1701,14 @@ qla2x00_async_tm_cmd(fc_port_t *fcport, uint32_t flags, uint32_t lun,
+ 	tm_iocb->u.tmf.data = tag;
+ 	sp->done = qla2x00_tmf_sp_done;
+ 
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+-
+ 	ql_dbg(ql_dbg_taskm, vha, 0x802f,
+ 	    "Async-tmf hdl=%x loop-id=%x portid=%02x%02x%02x.\n",
+ 	    sp->handle, fcport->loop_id, fcport->d_id.b.domain,
+ 	    fcport->d_id.b.area, fcport->d_id.b.al_pa);
+ 
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
+ 	wait_for_completion(&tm_iocb->u.tmf.comp);
+ 
+ 	rval = tm_iocb->u.tmf.data;
+@@ -1790,14 +1792,14 @@ qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
+ 
+ 	sp->done = qla24xx_abort_sp_done;
+ 
+-	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS)
+-		goto done_free_sp;
+-
+ 	ql_dbg(ql_dbg_async, vha, 0x507c,
+ 	    "Abort command issued - hdl=%x, target_id=%x\n",
+ 	    cmd_sp->handle, fcport->tgt_id);
+ 
++	rval = qla2x00_start_sp(sp);
++	if (rval != QLA_SUCCESS)
++		goto done_free_sp;
++
+ 	if (wait) {
+ 		wait_for_completion(&abt_iocb->u.abt.comp);
+ 		rval = abt_iocb->u.abt.comp_status == CS_COMPLETE ?
+-- 
+2.20.1
+
