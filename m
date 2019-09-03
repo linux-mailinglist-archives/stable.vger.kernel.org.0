@@ -2,83 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0EFA615D
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC5CA61C2
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726408AbfICGYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 02:24:37 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:57453 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725848AbfICGYh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:24:37 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 828F4218C1;
-        Tue,  3 Sep 2019 02:24:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 02:24:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=3BS6lEyrBSoMUIis9dZkyk94wu9
-        iSafqkUU21Yn5E2g=; b=B1Iwgv0u72DppAmkz7pdZXA1I5FfFp4725l+Ka3ls0E
-        4LCJBDiyOkl1bDDOOiTsiYhEETm89IVSHlbn/PCsJB7i17gWdpF888SJai9KpvvY
-        viJogme/OIw2z88E1SDIR858JS4NB2ZyhAnZRoTQ8pxDez9m33+S+3o2BTxPcsEf
-        ZZ8JUNpytr0wpMidbJYXjCxzJoOffSHdJzKTaiiC9obX6aHp3Us93w12l6BoWbnG
-        pD2Ys1SChFPi9ALLmV1vETVXvUJFpipWmmquyPnUTxzn4iY+NKOLCtDwEvQ9qmEL
-        uFKWOQfmn21IbHuWPgJ28IsL1eiO842Y0C40qZ/Onag==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=3BS6lE
-        yrBSoMUIis9dZkyk94wu9iSafqkUU21Yn5E2g=; b=x4oY8sYDWDuhbykM1dgk7/
-        YUC1CLKjJZz2a5Q4wDc0PSJm8JqiG/C3IPcEZbq9Dk6xnMXyxBvvd/zzJ482MG4M
-        kKFw/HclCVrCCigYkIHAFXp0TOtAOlYbLpuFJ7z46x2kyOzri9/MsqcOiEXFyYyU
-        Bu0ZpbDIolq4N/EpS+huiwxCILKH4Pq/3U5qcz0v2wCDf4nEIJ8VNP9v3IHiG/QW
-        Duh0VGELcs3rcEODzMuA0gw8kEMMZzIj9tI52OvtIDIT+kAewssIodZ8pPj3Hck+
-        3qQHil0K4nCaMGnSUPEoVytIKZdAuwBVd2ZbBTEyQzRqX5IPIEO/F8xzlrOIVk4g
-        ==
-X-ME-Sender: <xms:JAduXSVmpxsQ2tFqrrEaJ4DBZfPpqbk3gqKo-IyI9LZMmt5gIbzBVg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejuddguddtiecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvg
-    hlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhf
-    rhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:JAduXT3FJnvvuyeB5cBQLStdsZBb9XOVIYb-iWUQWjN1STR67ma6gw>
-    <xmx:JAduXYFohtcKdwvqxCRWTtvdxGYVyLbDl_tIcSGp2QoABybv-HP0zA>
-    <xmx:JAduXRhbU-8iGO3QK5PT7cnp8yrYmdwdjllHR8ljQ1xQknVS0N7Hcw>
-    <xmx:JAduXdxJzrZWSauvunj4NeLqLFQ4RHSX9KxvyAfVlnvqx5FPTIIyhg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D9E8ED60057;
-        Tue,  3 Sep 2019 02:24:35 -0400 (EDT)
-Date:   Tue, 3 Sep 2019 08:24:34 +0200
-From:   Greg KH <greg@kroah.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Xiong Zhou <xzhou@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.2.11-c3915fe.cki (stable)
-Message-ID: <20190903062434.GD16647@kroah.com>
-References: <cki.EDBAAD9BB8.PJ4CXK5IUR@redhat.com>
+        id S1726200AbfICGtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 02:49:23 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:44896 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726062AbfICGtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:49:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=tfxzcR/K46GlOQuPLSue8AsMiNtNZrvvJ84RvNiULXk=; b=iaF0QAsrwvsNe+FOgwFeI99W6
+        U3M/XbSMFaHvkdH7HGdkT/JME96hhOlg/2g8CeA01UwDu+Kzjsd1NHobp3WelEQul88WVO4FjariX
+        s+0oK0OPWcGvjjM2s9Cin+3b7fm/0MiUEaxK8VPJjGP1LJBBtdNJCd+tHuEkTmUzY5N4TMMCwEVem
+        YVWnjXExgTnXyGUvV15MQjeJQoIWi+51qL1PQTzLH5Fcho7WJ5E8yI22dX52tHgcrjVMPJW27+4hE
+        Kw7Ml+CUI9z1PYVEtnN4sCf6Zu+9acxnDTvzoEH7C0fMcyfY/fhvvpK3sAAeOGWyuaj+5wZ2jLQ/7
+        rBwfXgWZQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1i52cs-0005r0-Bb; Tue, 03 Sep 2019 06:49:14 +0000
+Date:   Mon, 2 Sep 2019 23:49:14 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Mike Travis <mike.travis@hpe.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/8] x86/platform/uv: Return UV Hubless System Type
+Message-ID: <20190903064914.GA9914@infradead.org>
+References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
+ <20190903001815.893030884@stormcage.eag.rdlabs.hpecorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cki.EDBAAD9BB8.PJ4CXK5IUR@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190903001815.893030884@stormcage.eag.rdlabs.hpecorp.net>
+User-Agent: Mutt/1.11.4 (2019-03-13)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 02, 2019 at 10:38:46PM -0400, CKI Project wrote:
-> 
-> Hello,
-> 
-> We ran automated tests on a recent commit from this kernel tree:
-> 
->        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->             Commit: c3915fe1bf12 - Linux 5.2.11
+>  static inline bool is_early_uv_system(void)
+>  {
+>  	return !((efi.uv_systab == EFI_INVALID_TABLE_ADDR) || !efi.uv_systab);
 
-Same git commit id fails one test run but passes another?  You all might
-want to look into this...
+No need for the inner braces here.
+
+But woudn't this be nicer as:
+
+	return efi.uv_systab != EFI_INVALID_TABLE_ADDR && efi.uv_systab;
+
+anyway?
+
+> +#define is_uv_hubless _is_uv_hubless
+
+Why the weird macro indirection?
+
+> -static inline int is_uv_hubless(void)	{ return 0; }
+> +static inline int _is_uv_hubless(int uv) { return 0; }
+> +#define is_uv_hubless _is_uv_hubless
+
+And here again.
 
