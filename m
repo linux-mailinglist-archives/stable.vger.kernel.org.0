@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A96BA6F5C
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2C0A6F5A
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730705AbfICQcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:32:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
+        id S1730983AbfICQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731426AbfICQcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:32:16 -0400
+        id S1731431AbfICQcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:32:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E636723431;
-        Tue,  3 Sep 2019 16:32:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C964215EA;
+        Tue,  3 Sep 2019 16:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528335;
-        bh=zolING5hlu8g7qofoznCBJkqeBldmDU3UTOfPwpXwwM=;
+        s=default; t=1567528336;
+        bh=4UCNBBxw3LhMunVdWAChjEp/I1fLorG7hxA5sRYINWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpUHl6S1H6/2RUTV0FRcWpmXtgVDdc/1leU03/nocSNoiQDRcQr1TvsoEGbAY6mP1
-         Q95n+5rpJ8TKwXGLeNiFefKirXih0oBFzBWKiL1Gi/FDEIbxSr3NtxueAG+wb+w3oC
-         u36OqXZxPiznE7pDWqmwiusduOprI4uTgVB/YzmM=
+        b=AvX/AsKiN5L3MmSggGQmEx+Ngq7mvRY3gs7uvjeaGXZW96tnA/OeVJJ4QvI/HBaQ8
+         knkWtxmkavC/C3oIqiNmmbqooMdZB7ivpfcqtelgxNrtsRa7AKGuuH5cBG/2RqgKDW
+         3hzYsZSrHka23wr7nuecu7S79KhtXggdO8VguI68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 165/167] ext4: fix block validity checks for journal inodes using indirect blocks
-Date:   Tue,  3 Sep 2019 12:25:17 -0400
-Message-Id: <20190903162519.7136-165-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 166/167] ext4: unsigned int compared against zero
+Date:   Tue,  3 Sep 2019 12:25:18 -0400
+Message-Id: <20190903162519.7136-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,44 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 170417c8c7bb2cbbdd949bf5c443c0c8f24a203b ]
+[ Upstream commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c ]
 
-Commit 345c0dbf3a30 ("ext4: protect journal inode's blocks using
-block_validity") failed to add an exception for the journal inode in
-ext4_check_blockref(), which is the function used by ext4_get_branch()
-for indirect blocks.  This caused attempts to read from the ext3-style
-journals to fail with:
+There are two cases where u32 variables n and err are being checked
+for less than zero error values, the checks is always false because
+the variables are not signed. Fix this by making the variables ints.
 
-[  848.968550] EXT4-fs error (device sdb7): ext4_get_branch:171: inode #8: block 30343695: comm jbd2/sdb7-8: invalid block
-
-Fix this by adding the missing exception check.
-
+Addresses-Coverity: ("Unsigned compared against 0")
 Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ext4/block_validity.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 9409b1e11a22e..cd7129b622f85 100644
+index cd7129b622f85..e8e27cdc2f677 100644
 --- a/fs/ext4/block_validity.c
 +++ b/fs/ext4/block_validity.c
-@@ -275,6 +275,11 @@ int ext4_check_blockref(const char *function, unsigned int line,
- 	__le32 *bref = p;
- 	unsigned int blk;
+@@ -142,7 +142,8 @@ static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
+ 	struct inode *inode;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_map_blocks map;
+-	u32 i = 0, err = 0, num, n;
++	u32 i = 0, num;
++	int err = 0, n;
  
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
-+
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
+ 	if ((ino < EXT4_ROOT_INO) ||
+ 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
 -- 
 2.20.1
 
