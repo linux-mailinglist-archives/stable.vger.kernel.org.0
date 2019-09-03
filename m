@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99873A6F3C
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C53FA6F37
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729898AbfICQay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50898 "EHLO mail.kernel.org"
+        id S1730864AbfICQar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:30:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730118AbfICQ2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:43 -0400
+        id S1731148AbfICQ2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:28:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9B9E23431;
-        Tue,  3 Sep 2019 16:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C06E215EA;
+        Tue,  3 Sep 2019 16:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528122;
-        bh=P+e9KRq2RbmuZr+hTt0ka7y0UD+ZQcVJc5pyEkgLWLo=;
+        s=default; t=1567528124;
+        bh=IHG4kGjHjXFz0iXgac1HVtFfEUakphe120rav30eSp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7JgiXNFAnaDt+EjZO38JIMck6eCi9yGfhmVRdraGEsVppoTXE7M6CpLhOo9+5xs+
-         9QmcALgdxl/9Lfl2zT/BBpNhr0rm5Fx5cnxARej7U7Q/ttX0RVskSZ1B8gLQNHsIip
-         jMO4HdcxHwngQsIEhFKsm1DBwtzDsYSQpAOpMApM=
+        b=Tay8+3Gl9KIrSc71W5jAAQWzV8d0us9lrjk3uW9g9J0fis+mKc2vPwdz8Njl003BO
+         DRHCIP6GuHdrTxM6SHFArWhEuL3WrdnZSPVIC3RzGPNTArF2rzAKAskWYLklDYqjx/
+         vbWa0O3kplyQRtGYLd9WhlCn1gmpAR7IgHahUg1I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 119/167] cifs: add spinlock for the openFileList to cifsInodeInfo
-Date:   Tue,  3 Sep 2019 12:24:31 -0400
-Message-Id: <20190903162519.7136-119-sashal@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 120/167] clk: tegra: Fix maximum audio sync clock for Tegra124/210
+Date:   Tue,  3 Sep 2019 12:24:32 -0400
+Message-Id: <20190903162519.7136-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,110 +45,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 487317c99477d00f22370625d53be3239febabbe ]
+[ Upstream commit 845d782d91448e0fbca686bca2cc9f9c2a9ba3e7 ]
 
-We can not depend on the tcon->open_file_lock here since in multiuser mode
-we may have the same file/inode open via multiple different tcons.
+The maximum frequency supported for I2S on Tegra124 and Tegra210 is
+24.576MHz (as stated in the Tegra TK1 data sheet for Tegra124 and the
+Jetson TX1 module data sheet for Tegra210). However, the maximum I2S
+frequency is limited to 24MHz because that is the maximum frequency of
+the audio sync clock. Increase the maximum audio sync clock frequency
+to 24.576MHz for Tegra124 and Tegra210 in order to support 24.576MHz
+for I2S.
 
-The current code is race prone and will crash if one user deletes a file
-at the same time a different user opens/create the file.
+Update the tegra_clk_register_sync_source() function so that it does
+not set the initial rate for the sync clocks and use the clock init
+tables to set the initial rate instead.
 
-To avoid this we need to have a spinlock attached to the inode and not the tcon.
-
-RHBZ:  1580165
-
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c   | 1 +
- fs/cifs/cifsglob.h | 5 +++++
- fs/cifs/file.c     | 8 ++++++--
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/clk/tegra/clk-audio-sync.c  | 3 +--
+ drivers/clk/tegra/clk-tegra-audio.c | 7 ++-----
+ drivers/clk/tegra/clk-tegra114.c    | 9 ++++++++-
+ drivers/clk/tegra/clk-tegra124.c    | 9 ++++++++-
+ drivers/clk/tegra/clk-tegra210.c    | 9 ++++++++-
+ drivers/clk/tegra/clk-tegra30.c     | 9 ++++++++-
+ drivers/clk/tegra/clk.h             | 4 ++--
+ 7 files changed, 37 insertions(+), 13 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index fb32f3d6925e8..64e3888f30e6d 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -292,6 +292,7 @@ cifs_alloc_inode(struct super_block *sb)
- 	cifs_inode->uniqueid = 0;
- 	cifs_inode->createtime = 0;
- 	cifs_inode->epoch = 0;
-+	spin_lock_init(&cifs_inode->open_file_lock);
- 	generate_random_uuid(cifs_inode->lease_key);
+diff --git a/drivers/clk/tegra/clk-audio-sync.c b/drivers/clk/tegra/clk-audio-sync.c
+index 92d04ce2dee6b..53cdc0ec40f33 100644
+--- a/drivers/clk/tegra/clk-audio-sync.c
++++ b/drivers/clk/tegra/clk-audio-sync.c
+@@ -55,7 +55,7 @@ const struct clk_ops tegra_clk_sync_source_ops = {
+ };
  
- 	/*
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 0ee0072c1f362..57af9bac0045a 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1287,6 +1287,7 @@ struct cifsInodeInfo {
- 	struct rw_semaphore lock_sem;	/* protect the fields above */
- 	/* BB add in lists for dirty pages i.e. write caching info for oplock */
- 	struct list_head openFileList;
-+	spinlock_t	open_file_lock;	/* protects openFileList */
- 	__u32 cifsAttrs; /* e.g. DOS archive bit, sparse, compressed, system */
- 	unsigned int oplock;		/* oplock/lease level we have */
- 	unsigned int epoch;		/* used to track lease state changes */
-@@ -1687,10 +1688,14 @@ require use of the stronger protocol */
-  *  tcp_ses_lock protects:
-  *	list operations on tcp and SMB session lists
-  *  tcon->open_file_lock protects the list of open files hanging off the tcon
-+ *  inode->open_file_lock protects the openFileList hanging off the inode
-  *  cfile->file_info_lock protects counters and fields in cifs file struct
-  *  f_owner.lock protects certain per file struct operations
-  *  mapping->page_lock protects certain per page operations
-  *
-+ *  Note that the cifs_tcon.open_file_lock should be taken before
-+ *  not after the cifsInodeInfo.open_file_lock
-+ *
-  *  Semaphores
-  *  ----------
-  *  sesSem     operations on smb session
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 933013543edab..8703b5f26f452 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -336,10 +336,12 @@ cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
- 	list_add(&cfile->tlist, &tcon->openFileList);
+ struct clk *tegra_clk_register_sync_source(const char *name,
+-		unsigned long rate, unsigned long max_rate)
++					   unsigned long max_rate)
+ {
+ 	struct tegra_clk_sync_source *sync;
+ 	struct clk_init_data init;
+@@ -67,7 +67,6 @@ struct clk *tegra_clk_register_sync_source(const char *name,
+ 		return ERR_PTR(-ENOMEM);
+ 	}
  
- 	/* if readable file instance put first in list*/
-+	spin_lock(&cinode->open_file_lock);
- 	if (file->f_mode & FMODE_READ)
- 		list_add(&cfile->flist, &cinode->openFileList);
- 	else
- 		list_add_tail(&cfile->flist, &cinode->openFileList);
-+	spin_unlock(&cinode->open_file_lock);
- 	spin_unlock(&tcon->open_file_lock);
+-	sync->rate = rate;
+ 	sync->max_rate = max_rate;
  
- 	if (fid->purge_cache)
-@@ -411,7 +413,9 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
- 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
+ 	init.ops = &tegra_clk_sync_source_ops;
+diff --git a/drivers/clk/tegra/clk-tegra-audio.c b/drivers/clk/tegra/clk-tegra-audio.c
+index b37cae7af26da..02dd6487d855d 100644
+--- a/drivers/clk/tegra/clk-tegra-audio.c
++++ b/drivers/clk/tegra/clk-tegra-audio.c
+@@ -49,8 +49,6 @@ struct tegra_sync_source_initdata {
+ #define SYNC(_name) \
+ 	{\
+ 		.name		= #_name,\
+-		.rate		= 24000000,\
+-		.max_rate	= 24000000,\
+ 		.clk_id		= tegra_clk_ ## _name,\
+ 	}
  
- 	/* remove it from the lists */
-+	spin_lock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->flist);
-+	spin_unlock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->tlist);
+@@ -176,7 +174,7 @@ static void __init tegra_audio_sync_clk_init(void __iomem *clk_base,
+ void __init tegra_audio_clk_init(void __iomem *clk_base,
+ 			void __iomem *pmc_base, struct tegra_clk *tegra_clks,
+ 			struct tegra_audio_clk_info *audio_info,
+-			unsigned int num_plls)
++			unsigned int num_plls, unsigned long sync_max_rate)
+ {
+ 	struct clk *clk;
+ 	struct clk **dt_clk;
+@@ -221,8 +219,7 @@ void __init tegra_audio_clk_init(void __iomem *clk_base,
+ 		if (!dt_clk)
+ 			continue;
  
- 	if (list_empty(&cifsi->openFileList)) {
-@@ -1929,10 +1933,10 @@ struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *cifs_inode,
- 		if (!rc)
- 			return inv_file;
- 		else {
--			spin_lock(&tcon->open_file_lock);
-+			spin_lock(&cifs_inode->open_file_lock);
- 			list_move_tail(&inv_file->flist,
- 					&cifs_inode->openFileList);
--			spin_unlock(&tcon->open_file_lock);
-+			spin_unlock(&cifs_inode->open_file_lock);
- 			cifsFileInfo_put(inv_file);
- 			++refind;
- 			inv_file = NULL;
+-		clk = tegra_clk_register_sync_source(data->name,
+-					data->rate, data->max_rate);
++		clk = tegra_clk_register_sync_source(data->name, sync_max_rate);
+ 		*dt_clk = clk;
+ 	}
+ 
+diff --git a/drivers/clk/tegra/clk-tegra114.c b/drivers/clk/tegra/clk-tegra114.c
+index 1824f014202b0..625d110913308 100644
+--- a/drivers/clk/tegra/clk-tegra114.c
++++ b/drivers/clk/tegra/clk-tegra114.c
+@@ -1190,6 +1190,13 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA114_CLK_XUSB_FALCON_SRC, TEGRA114_CLK_PLL_P, 204000000, 0 },
+ 	{ TEGRA114_CLK_XUSB_HOST_SRC, TEGRA114_CLK_PLL_P, 102000000, 0 },
+ 	{ TEGRA114_CLK_VDE, TEGRA114_CLK_CLK_MAX, 600000000, 0 },
++	{ TEGRA114_CLK_SPDIF_IN_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_I2S0_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_I2S1_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_I2S2_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_I2S3_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_I2S4_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA114_CLK_VIMCLK_SYNC, TEGRA114_CLK_CLK_MAX, 24000000, 0 },
+ 	/* must be the last entry */
+ 	{ TEGRA114_CLK_CLK_MAX, TEGRA114_CLK_CLK_MAX, 0, 0 },
+ };
+@@ -1362,7 +1369,7 @@ static void __init tegra114_clock_init(struct device_node *np)
+ 	tegra114_periph_clk_init(clk_base, pmc_base);
+ 	tegra_audio_clk_init(clk_base, pmc_base, tegra114_clks,
+ 			     tegra114_audio_plls,
+-			     ARRAY_SIZE(tegra114_audio_plls));
++			     ARRAY_SIZE(tegra114_audio_plls), 24000000);
+ 	tegra_pmc_clk_init(pmc_base, tegra114_clks);
+ 	tegra_super_clk_gen4_init(clk_base, pmc_base, tegra114_clks,
+ 					&pll_x_params);
+diff --git a/drivers/clk/tegra/clk-tegra124.c b/drivers/clk/tegra/clk-tegra124.c
+index b6cf28ca2ed29..df0018f7bf7ed 100644
+--- a/drivers/clk/tegra/clk-tegra124.c
++++ b/drivers/clk/tegra/clk-tegra124.c
+@@ -1291,6 +1291,13 @@ static struct tegra_clk_init_table common_init_table[] __initdata = {
+ 	{ TEGRA124_CLK_CSITE, TEGRA124_CLK_CLK_MAX, 0, 1 },
+ 	{ TEGRA124_CLK_TSENSOR, TEGRA124_CLK_CLK_M, 400000, 0 },
+ 	{ TEGRA124_CLK_VIC03, TEGRA124_CLK_PLL_C3, 0, 0 },
++	{ TEGRA124_CLK_SPDIF_IN_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_I2S0_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_I2S1_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_I2S2_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_I2S3_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_I2S4_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA124_CLK_VIMCLK_SYNC, TEGRA124_CLK_CLK_MAX, 24576000, 0 },
+ 	/* must be the last entry */
+ 	{ TEGRA124_CLK_CLK_MAX, TEGRA124_CLK_CLK_MAX, 0, 0 },
+ };
+@@ -1455,7 +1462,7 @@ static void __init tegra124_132_clock_init_pre(struct device_node *np)
+ 	tegra124_periph_clk_init(clk_base, pmc_base);
+ 	tegra_audio_clk_init(clk_base, pmc_base, tegra124_clks,
+ 			     tegra124_audio_plls,
+-			     ARRAY_SIZE(tegra124_audio_plls));
++			     ARRAY_SIZE(tegra124_audio_plls), 24576000);
+ 	tegra_pmc_clk_init(pmc_base, tegra124_clks);
+ 
+ 	/* For Tegra124 & Tegra132, PLLD is the only source for DSIA & DSIB */
+diff --git a/drivers/clk/tegra/clk-tegra210.c b/drivers/clk/tegra/clk-tegra210.c
+index 4e1bc23c98655..f58480fe17674 100644
+--- a/drivers/clk/tegra/clk-tegra210.c
++++ b/drivers/clk/tegra/clk-tegra210.c
+@@ -3369,6 +3369,13 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA210_CLK_SOC_THERM, TEGRA210_CLK_PLL_P, 51000000, 0 },
+ 	{ TEGRA210_CLK_CCLK_G, TEGRA210_CLK_CLK_MAX, 0, 1 },
+ 	{ TEGRA210_CLK_PLL_U_OUT2, TEGRA210_CLK_CLK_MAX, 60000000, 1 },
++	{ TEGRA210_CLK_SPDIF_IN_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_I2S0_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_I2S1_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_I2S2_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_I2S3_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_I2S4_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
++	{ TEGRA210_CLK_VIMCLK_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
+ 	/* This MUST be the last entry. */
+ 	{ TEGRA210_CLK_CLK_MAX, TEGRA210_CLK_CLK_MAX, 0, 0 },
+ };
+@@ -3562,7 +3569,7 @@ static void __init tegra210_clock_init(struct device_node *np)
+ 	tegra210_periph_clk_init(clk_base, pmc_base);
+ 	tegra_audio_clk_init(clk_base, pmc_base, tegra210_clks,
+ 			     tegra210_audio_plls,
+-			     ARRAY_SIZE(tegra210_audio_plls));
++			     ARRAY_SIZE(tegra210_audio_plls), 24576000);
+ 	tegra_pmc_clk_init(pmc_base, tegra210_clks);
+ 
+ 	/* For Tegra210, PLLD is the only source for DSIA & DSIB */
+diff --git a/drivers/clk/tegra/clk-tegra30.c b/drivers/clk/tegra/clk-tegra30.c
+index acfe661b2ae72..e0aaecd98fbff 100644
+--- a/drivers/clk/tegra/clk-tegra30.c
++++ b/drivers/clk/tegra/clk-tegra30.c
+@@ -1267,6 +1267,13 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA30_CLK_GR3D2, TEGRA30_CLK_PLL_C, 300000000, 0 },
+ 	{ TEGRA30_CLK_PLL_U, TEGRA30_CLK_CLK_MAX, 480000000, 0 },
+ 	{ TEGRA30_CLK_VDE, TEGRA30_CLK_CLK_MAX, 600000000, 0 },
++	{ TEGRA30_CLK_SPDIF_IN_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_I2S0_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_I2S1_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_I2S2_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_I2S3_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_I2S4_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_VIMCLK_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
+ 	/* must be the last entry */
+ 	{ TEGRA30_CLK_CLK_MAX, TEGRA30_CLK_CLK_MAX, 0, 0 },
+ };
+@@ -1344,7 +1351,7 @@ static void __init tegra30_clock_init(struct device_node *np)
+ 	tegra30_periph_clk_init();
+ 	tegra_audio_clk_init(clk_base, pmc_base, tegra30_clks,
+ 			     tegra30_audio_plls,
+-			     ARRAY_SIZE(tegra30_audio_plls));
++			     ARRAY_SIZE(tegra30_audio_plls), 24000000);
+ 	tegra_pmc_clk_init(pmc_base, tegra30_clks);
+ 
+ 	tegra_init_dup_clks(tegra_clk_duplicates, clks, TEGRA30_CLK_CLK_MAX);
+diff --git a/drivers/clk/tegra/clk.h b/drivers/clk/tegra/clk.h
+index d2c3a010f8e9b..09bccbb9640c4 100644
+--- a/drivers/clk/tegra/clk.h
++++ b/drivers/clk/tegra/clk.h
+@@ -41,7 +41,7 @@ extern const struct clk_ops tegra_clk_sync_source_ops;
+ extern int *periph_clk_enb_refcnt;
+ 
+ struct clk *tegra_clk_register_sync_source(const char *name,
+-		unsigned long fixed_rate, unsigned long max_rate);
++					   unsigned long max_rate);
+ 
+ /**
+  * struct tegra_clk_frac_div - fractional divider clock
+@@ -796,7 +796,7 @@ void tegra_register_devclks(struct tegra_devclk *dev_clks, int num);
+ void tegra_audio_clk_init(void __iomem *clk_base,
+ 			void __iomem *pmc_base, struct tegra_clk *tegra_clks,
+ 			struct tegra_audio_clk_info *audio_info,
+-			unsigned int num_plls);
++			unsigned int num_plls, unsigned long sync_max_rate);
+ 
+ void tegra_periph_clk_init(void __iomem *clk_base, void __iomem *pmc_base,
+ 			struct tegra_clk *tegra_clks,
 -- 
 2.20.1
 
