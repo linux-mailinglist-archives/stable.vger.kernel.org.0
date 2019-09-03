@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73327A6E4C
+	by mail.lfdr.de (Postfix) with ESMTP id E70D1A6E4D
 	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730321AbfICQZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
+        id S1730328AbfICQZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730307AbfICQZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:12 -0400
+        id S1730322AbfICQZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3490A2343A;
-        Tue,  3 Sep 2019 16:25:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B0A2343A;
+        Tue,  3 Sep 2019 16:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527911;
-        bh=ZnpwUH/bPiEE4wslv4yPlhf2ZtPaAnT2HGWxhurSN98=;
+        s=default; t=1567527915;
+        bh=YaelBjv9CrC3Jq0WoYTd+rflT0fewMxLIJgPOZWkLcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+a3l8pYptK6lnQ+XfHUf+FPXUpOmv0zmCRn8M60zeClwUOwfj2ZdqUXaxvxEtpO1
-         km0lM/t5bUg80YDXDGk7QQWzlz8rBrtHf3rCYc4C5QEdJCR7/k3/Mx2jzgLmnmDNGh
-         9df/qUrFX7r4osWDGDUMS3TMBaP7h6Mi/+wkc4jI=
+        b=yThhcpjJ9ttmo1oTs1wt3c1R1/rgO50Rn6XiBjbSuPsRQNsefJ7r7grfFCqU/Uf2Q
+         uAhnpQsOnf0ThglT40I+UYN58AItz17Y0XZfWvWaSIaZeB7x8tZSD6xrXYkropFo6D
+         RRt7hPu+Wd4eT2Zb/wiZllOuZB/pTqhGafpgaWXk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Harrison <John.C.Harrison@Intel.com>,
-        "Robert M . Fosha" <robert.m.fosha@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Anuj Phogat <anuj.phogat@gmail.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 20/23] drm/i915: Support whitelist workarounds on all engines
-Date:   Tue,  3 Sep 2019 12:24:21 -0400
-Message-Id: <20190903162424.6877-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 23/23] drm/i915/icl: whitelist PS_(DEPTH|INVOCATION)_COUNT
+Date:   Tue,  3 Sep 2019 12:24:24 -0400
+Message-Id: <20190903162424.6877-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162424.6877-1-sashal@kernel.org>
 References: <20190903162424.6877-1-sashal@kernel.org>
@@ -46,150 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
 
-[ Upstream commit ebd2de47a19f1c17ae47f8331aae3cd436766663 ]
+[ Upstream commit cf8f9aa1eda7d916bd23f6b8c226404deb11690c ]
 
-Newer hardware requires setting up whitelists on engines other than
-render. So, extend the whitelist code to support all engines.
+The same tests failing on CFL+ platforms are also failing on ICL.
+Documentation doesn't list the
+WaAllowPMDepthAndInvocationCountAccessFromUMD workaround for ICL but
+applying it fixes the same tests as CFL.
 
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: Robert M. Fosha <robert.m.fosha@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618010108.27499-3-John.C.Harrison@Intel.com
+v2: Use only one whitelist entry (Lionel)
+
+Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Tested-by: Anuj Phogat <anuj.phogat@gmail.com>
+Cc: stable@vger.kernel.org # 6883eab27481: drm/i915: Support flags in whitlist WAs
+Cc: stable@vger.kernel.org
+Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190628120720.21682-4-lionel.g.landwerlin@intel.com
+(cherry picked from commit 3fe0107e45ab396342497e06b8924cdd485cde3b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/intel_workarounds.c | 65 +++++++++++++++++-------
- 1 file changed, 47 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/i915/intel_workarounds.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/gpu/drm/i915/intel_workarounds.c b/drivers/gpu/drm/i915/intel_workarounds.c
-index 1db826b12774e..0b80fde927899 100644
+index efea5a18fa6db..edd57a5e0495f 100644
 --- a/drivers/gpu/drm/i915/intel_workarounds.c
 +++ b/drivers/gpu/drm/i915/intel_workarounds.c
-@@ -1012,48 +1012,79 @@ static void gen9_whitelist_build(struct i915_wa_list *w)
- 	whitelist_reg(w, GEN8_HDC_CHICKEN1);
- }
+@@ -1107,6 +1107,19 @@ static void icl_whitelist_build(struct intel_engine_cs *engine)
  
--static void skl_whitelist_build(struct i915_wa_list *w)
-+static void skl_whitelist_build(struct intel_engine_cs *engine)
- {
-+	struct i915_wa_list *w = &engine->whitelist;
+ 		/* WaEnableStateCacheRedirectToCS:icl */
+ 		whitelist_reg(w, GEN9_SLICE_COMMON_ECO_CHICKEN1);
 +
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
- 	gen9_whitelist_build(w);
++		/*
++		 * WaAllowPMDepthAndInvocationCountAccessFromUMD:icl
++		 *
++		 * This covers 4 register which are next to one another :
++		 *   - PS_INVOCATION_COUNT
++		 *   - PS_INVOCATION_COUNT_UDW
++		 *   - PS_DEPTH_COUNT
++		 *   - PS_DEPTH_COUNT_UDW
++		 */
++		whitelist_reg_ext(w, PS_INVOCATION_COUNT,
++				  RING_FORCE_TO_NONPRIV_RD |
++				  RING_FORCE_TO_NONPRIV_RANGE_4);
+ 		break;
  
- 	/* WaDisableLSQCROPERFforOCL:skl */
- 	whitelist_reg(w, GEN8_L3SQCREG4);
- }
- 
--static void bxt_whitelist_build(struct i915_wa_list *w)
-+static void bxt_whitelist_build(struct intel_engine_cs *engine)
- {
--	gen9_whitelist_build(w);
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
-+	gen9_whitelist_build(&engine->whitelist);
- }
- 
--static void kbl_whitelist_build(struct i915_wa_list *w)
-+static void kbl_whitelist_build(struct intel_engine_cs *engine)
- {
-+	struct i915_wa_list *w = &engine->whitelist;
-+
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
- 	gen9_whitelist_build(w);
- 
- 	/* WaDisableLSQCROPERFforOCL:kbl */
- 	whitelist_reg(w, GEN8_L3SQCREG4);
- }
- 
--static void glk_whitelist_build(struct i915_wa_list *w)
-+static void glk_whitelist_build(struct intel_engine_cs *engine)
- {
-+	struct i915_wa_list *w = &engine->whitelist;
-+
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
- 	gen9_whitelist_build(w);
- 
- 	/* WA #0862: Userspace has to set "Barrier Mode" to avoid hangs. */
- 	whitelist_reg(w, GEN9_SLICE_COMMON_ECO_CHICKEN1);
- }
- 
--static void cfl_whitelist_build(struct i915_wa_list *w)
-+static void cfl_whitelist_build(struct intel_engine_cs *engine)
- {
--	gen9_whitelist_build(w);
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
-+	gen9_whitelist_build(&engine->whitelist);
- }
- 
--static void cnl_whitelist_build(struct i915_wa_list *w)
-+static void cnl_whitelist_build(struct intel_engine_cs *engine)
- {
-+	struct i915_wa_list *w = &engine->whitelist;
-+
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
- 	/* WaEnablePreemptionGranularityControlByUMD:cnl */
- 	whitelist_reg(w, GEN8_CS_CHICKEN1);
- }
- 
--static void icl_whitelist_build(struct i915_wa_list *w)
-+static void icl_whitelist_build(struct intel_engine_cs *engine)
- {
-+	struct i915_wa_list *w = &engine->whitelist;
-+
-+	if (engine->class != RENDER_CLASS)
-+		return;
-+
- 	/* WaAllowUMDToModifyHalfSliceChicken7:icl */
- 	whitelist_reg(w, GEN9_HALF_SLICE_CHICKEN7);
- 
-@@ -1069,24 +1100,22 @@ void intel_engine_init_whitelist(struct intel_engine_cs *engine)
- 	struct drm_i915_private *i915 = engine->i915;
- 	struct i915_wa_list *w = &engine->whitelist;
- 
--	GEM_BUG_ON(engine->id != RCS0);
--
- 	wa_init_start(w, "whitelist");
- 
- 	if (IS_GEN(i915, 11))
--		icl_whitelist_build(w);
-+		icl_whitelist_build(engine);
- 	else if (IS_CANNONLAKE(i915))
--		cnl_whitelist_build(w);
-+		cnl_whitelist_build(engine);
- 	else if (IS_COFFEELAKE(i915))
--		cfl_whitelist_build(w);
-+		cfl_whitelist_build(engine);
- 	else if (IS_GEMINILAKE(i915))
--		glk_whitelist_build(w);
-+		glk_whitelist_build(engine);
- 	else if (IS_KABYLAKE(i915))
--		kbl_whitelist_build(w);
-+		kbl_whitelist_build(engine);
- 	else if (IS_BROXTON(i915))
--		bxt_whitelist_build(w);
-+		bxt_whitelist_build(engine);
- 	else if (IS_SKYLAKE(i915))
--		skl_whitelist_build(w);
-+		skl_whitelist_build(engine);
- 	else if (INTEL_GEN(i915) <= 8)
- 		return;
- 	else
+ 	case VIDEO_DECODE_CLASS:
 -- 
 2.20.1
 
