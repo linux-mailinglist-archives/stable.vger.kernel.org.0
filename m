@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3819FA707A
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DEC8A7074
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730883AbfICQjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45712 "EHLO mail.kernel.org"
+        id S1730623AbfICQj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:39:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730408AbfICQZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:33 -0400
+        id S1729939AbfICQZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73A523717;
-        Tue,  3 Sep 2019 16:25:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FF1623717;
+        Tue,  3 Sep 2019 16:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527932;
-        bh=AsxPs8o9ObK/Jj5GSq7R8RNxsQx5b8ropXh2gycQvB8=;
+        s=default; t=1567527941;
+        bh=OUB517hQEW/tE8hx4gcYRH+OGx2V43iRvpIem4nJ9Lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aw9ACrtDI8yy5DNnJ8yfCRFrFBSi96c6F4Z/9749f6KNRfmoYciQsB5OdDwYnv+j/
-         nrKZgA+38xWzlLH7zxWd7rola9tV9vqKHfQxxak0VxH907gUr7ba9DOjfoKGNcf6IK
-         slmpF6sJ0MYTHB0NrLEKxec5mmvg4/EPjvzVxpJE=
+        b=0yhf0y6bvE9AQBwQd1mkGSfVqZBrgetbuF8BpEgY6MfJub/jSlMTSxyXY8vEi6rft
+         0xTsbsjmgEX14Pd/T6DNzY92j+jzyj1n5rTq/Ts5DVSxTjX+rVq6iZTElFXE6iMz5T
+         Fh5QJyow9zprFEvNQNsNaz06ssiOPIkCTLG05OPc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dexuan Cui <decui@microsoft.com>,
-        "K . Y . Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 006/167] Drivers: hv: kvp: Fix two "this statement may fall through" warnings
-Date:   Tue,  3 Sep 2019 12:22:38 -0400
-Message-Id: <20190903162519.7136-6-sashal@kernel.org>
+Cc:     Feifei Xu <Feifei.Xu@amd.com>, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 010/167] drm/amdgpu: Update gc_9_0 golden settings.
+Date:   Tue,  3 Sep 2019 12:22:42 -0400
+Message-Id: <20190903162519.7136-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -47,67 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Feifei Xu <Feifei.Xu@amd.com>
 
-[ Upstream commit fc62c3b1977d62e6374fd6e28d371bb42dfa5c9d ]
+[ Upstream commit c55045adf7210d246a016c961916f078ed31a951 ]
 
-We don't need to call process_ib_ipinfo() if message->kvp_hdr.operation is
-KVP_OP_GET_IP_INFO in kvp_send_key(), because here we just need to pass on
-the op code from the host to the userspace; when the userspace returns
-the info requested by the host, we pass the info on to the host in
-kvp_respond_to_host() -> process_ob_ipinfo(). BTW, the current buggy code
-actually doesn't cause any harm, because only message->kvp_hdr.operation
-is used by the userspace, in the case of KVP_OP_GET_IP_INFO.
+Add mmDB_DEBUG3 settings.
 
-The patch also adds a missing "break;" in kvp_send_key(). BTW, the current
-buggy code actually doesn't cause any harm, because in the case of
-KVP_OP_SET, the unexpected fall-through corrupts
-message->body.kvp_set.data.key_size, but that is not really used: see
-the definition of struct hv_kvp_exchg_msg_value.
-
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Cc: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Feifei Xu <Feifei.Xu@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hv_kvp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
-index 5eed1e7da15c4..57715a0c81202 100644
---- a/drivers/hv/hv_kvp.c
-+++ b/drivers/hv/hv_kvp.c
-@@ -353,7 +353,6 @@ static void process_ib_ipinfo(void *in_msg, void *out_msg, int op)
- 
- 		out->body.kvp_ip_val.dhcp_enabled = in->kvp_ip_val.dhcp_enabled;
- 
--	default:
- 		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.adapter_id,
- 				MAX_ADAPTER_ID_SIZE,
- 				UTF16_LITTLE_ENDIAN,
-@@ -406,7 +405,7 @@ kvp_send_key(struct work_struct *dummy)
- 		process_ib_ipinfo(in_msg, message, KVP_OP_SET_IP_INFO);
- 		break;
- 	case KVP_OP_GET_IP_INFO:
--		process_ib_ipinfo(in_msg, message, KVP_OP_GET_IP_INFO);
-+		/* We only need to pass on message->kvp_hdr.operation.  */
- 		break;
- 	case KVP_OP_SET:
- 		switch (in_msg->body.kvp_set.data.value_type) {
-@@ -446,6 +445,9 @@ kvp_send_key(struct work_struct *dummy)
- 			break;
- 
- 		}
-+
-+		break;
-+
- 	case KVP_OP_GET:
- 		message->body.kvp_set.data.key_size =
- 			utf16s_to_utf8s(
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index f040ec10eecf6..7824116498169 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -83,6 +83,7 @@ MODULE_FIRMWARE("amdgpu/raven_rlc.bin");
+ static const struct soc15_reg_golden golden_settings_gc_9_0[] =
+ {
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xf00fffff, 0x00000400),
++	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG3, 0x80000000, 0x80000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGB_GPU_ID, 0x0000000f, 0x00000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_BINNER_EVENT_CNTL_3, 0x00000003, 0x82400024),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_ENHANCE, 0x3fffffff, 0x00000001),
 -- 
 2.20.1
 
