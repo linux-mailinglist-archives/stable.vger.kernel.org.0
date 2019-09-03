@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9176A7044
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1C2A7047
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730648AbfICQ03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47382 "EHLO mail.kernel.org"
+        id S1730380AbfICQhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730639AbfICQ02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:28 -0400
+        id S1730644AbfICQ03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FCA623789;
-        Tue,  3 Sep 2019 16:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A01F238F9;
+        Tue,  3 Sep 2019 16:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527987;
-        bh=zcaZGov+Sx+qJqjVxtWIJ7I6t8QnU1clZteyGB2qa3g=;
+        s=default; t=1567527988;
+        bh=9wU8fXpgELV4lRyl9uKSQLh+1yfeZyVEdf8xbVpJvhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdfBNDRh/pm8ntzl4p7nJ5u+9va6LwUYeejYRS3PrDLUlGAclwkc2rycQlD1Q8qZj
-         4f/s8lHO87pgp3F/8gFDu+WdKt2oSKtw2pQmnrrSA/dbStI7wZikgJMTxKw3DEFIy2
-         NZ+i+PX1gRyC5AUyGjqyl2Y4OnG+buc7bh0uYUbo=
+        b=EAp4OQFH80g0hnUAjQTi2iHmkdbTV+GqN3ek9yW+EmyqQ0nsfpSvaPS/WRVFI5uZQ
+         h1hNw2k0vBwgcatOYgKA1TMB4q+w/OS7cA9cJVex+g6Lef/nyneJEerzoiN0MHyZkK
+         P+e6LjirsA4wTdi3PXg1j/G2c0LLNULosOi53XBI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>,
         megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 041/167] scsi: megaraid_sas: Add check for reset adapter bit
-Date:   Tue,  3 Sep 2019 12:23:13 -0400
-Message-Id: <20190903162519.7136-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 042/167] scsi: megaraid_sas: Use 63-bit DMA addressing
+Date:   Tue,  3 Sep 2019 12:23:14 -0400
+Message-Id: <20190903162519.7136-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -47,82 +46,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 
-[ Upstream commit de93b40d98ead27ee2f7f7df93fdd4914a6c8d8d ]
+[ Upstream commit 894169db12463cea08d0e2a9e35f42b291340e5a ]
 
-For SAS3 and later controllers, FW sets the reset adapter bit indicating
-the driver to perform a controller reset.  Driver needs to check if this
-bit is set before doing a reset.  This reduces the driver probe failure
-time to 180seconds in case there is a faulty controller connected.
+Although MegaRAID controllers support 64-bit DMA addressing, as per
+hardware design, DMA address with all 64-bits set
+(0xFFFFFFFF-FFFFFFFF) results in a firmware fault.
 
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Driver will set 63-bit DMA mask to ensure the above address will not be
+used.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 33 +++++++++++++++--------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index b6fc7c6337610..749f10146f630 100644
+index 749f10146f630..bc37666f998e6 100644
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -5218,7 +5218,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
- {
- 	u32 max_sectors_1;
- 	u32 max_sectors_2, tmp_sectors, msix_enable;
--	u32 scratch_pad_2, scratch_pad_3, scratch_pad_4;
-+	u32 scratch_pad_2, scratch_pad_3, scratch_pad_4, status_reg;
- 	resource_size_t base_addr;
- 	struct megasas_register_set __iomem *reg_set;
- 	struct megasas_ctrl_info *ctrl_info = NULL;
-@@ -5226,6 +5226,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
- 	int i, j, loop, fw_msix_count = 0;
- 	struct IOV_111 *iovPtr;
- 	struct fusion_context *fusion;
-+	bool do_adp_reset = true;
+@@ -6056,13 +6056,13 @@ static int megasas_io_attach(struct megasas_instance *instance)
+  * @instance:		Adapter soft state
+  * Description:
+  *
+- * For Ventura, driver/FW will operate in 64bit DMA addresses.
++ * For Ventura, driver/FW will operate in 63bit DMA addresses.
+  *
+  * For invader-
+  *	By default, driver/FW will operate in 32bit DMA addresses
+  *	for consistent DMA mapping but if 32 bit consistent
+- *	DMA mask fails, driver will try with 64 bit consistent
+- *	mask provided FW is true 64bit DMA capable
++ *	DMA mask fails, driver will try with 63 bit consistent
++ *	mask provided FW is true 63bit DMA capable
+  *
+  * For older controllers(Thunderbolt and MFI based adapters)-
+  *	driver/FW will operate in 32 bit consistent DMA addresses.
+@@ -6075,15 +6075,15 @@ megasas_set_dma_mask(struct megasas_instance *instance)
+ 	u32 scratch_pad_2;
  
- 	fusion = instance->ctrl_context;
+ 	pdev = instance->pdev;
+-	consistent_mask = (instance->adapter_type == VENTURA_SERIES) ?
+-				DMA_BIT_MASK(64) : DMA_BIT_MASK(32);
++	consistent_mask = (instance->adapter_type >= VENTURA_SERIES) ?
++				DMA_BIT_MASK(63) : DMA_BIT_MASK(32);
  
-@@ -5274,19 +5275,29 @@ static int megasas_init_fw(struct megasas_instance *instance)
- 	}
+ 	if (IS_DMA64) {
+-		if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) &&
++		if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(63)) &&
+ 		    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)))
+ 			goto fail_set_dma_mask;
  
- 	if (megasas_transition_to_ready(instance, 0)) {
--		atomic_set(&instance->fw_reset_no_pci_access, 1);
--		instance->instancet->adp_reset
--			(instance, instance->reg_set);
--		atomic_set(&instance->fw_reset_no_pci_access, 0);
--		dev_info(&instance->pdev->dev,
--			"FW restarted successfully from %s!\n",
--			__func__);
-+		if (instance->adapter_type >= INVADER_SERIES) {
-+			status_reg = instance->instancet->read_fw_status_reg(
-+					instance->reg_set);
-+			do_adp_reset = status_reg & MFI_RESET_ADAPTER;
-+		}
+-		if ((*pdev->dev.dma_mask == DMA_BIT_MASK(64)) &&
++		if ((*pdev->dev.dma_mask == DMA_BIT_MASK(63)) &&
+ 		    (dma_set_coherent_mask(&pdev->dev, consistent_mask) &&
+ 		     dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)))) {
+ 			/*
+@@ -6096,7 +6096,7 @@ megasas_set_dma_mask(struct megasas_instance *instance)
+ 			if (!(scratch_pad_2 & MR_CAN_HANDLE_64_BIT_DMA_OFFSET))
+ 				goto fail_set_dma_mask;
+ 			else if (dma_set_mask_and_coherent(&pdev->dev,
+-							   DMA_BIT_MASK(64)))
++							   DMA_BIT_MASK(63)))
+ 				goto fail_set_dma_mask;
+ 		}
+ 	} else if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)))
+@@ -6108,8 +6108,8 @@ megasas_set_dma_mask(struct megasas_instance *instance)
+ 		instance->consistent_mask_64bit = true;
  
--		/*waitting for about 30 second before retry*/
--		ssleep(30);
-+		if (do_adp_reset) {
-+			atomic_set(&instance->fw_reset_no_pci_access, 1);
-+			instance->instancet->adp_reset
-+				(instance, instance->reg_set);
-+			atomic_set(&instance->fw_reset_no_pci_access, 0);
-+			dev_info(&instance->pdev->dev,
-+				 "FW restarted successfully from %s!\n",
-+				 __func__);
-+
-+			/*waiting for about 30 second before retry*/
-+			ssleep(30);
+ 	dev_info(&pdev->dev, "%s bit DMA mask and %s bit consistent mask\n",
+-		 ((*pdev->dev.dma_mask == DMA_BIT_MASK(64)) ? "64" : "32"),
+-		 (instance->consistent_mask_64bit ? "64" : "32"));
++		 ((*pdev->dev.dma_mask == DMA_BIT_MASK(64)) ? "63" : "32"),
++		 (instance->consistent_mask_64bit ? "63" : "32"));
  
--		if (megasas_transition_to_ready(instance, 0))
-+			if (megasas_transition_to_ready(instance, 0))
-+				goto fail_ready_state;
-+		} else {
- 			goto fail_ready_state;
-+		}
- 	}
+ 	return 0;
  
- 	megasas_init_ctrl_params(instance);
 -- 
 2.20.1
 
