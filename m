@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03078A6D1A
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 17:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85ECA6DEF
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:19:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728967AbfICPlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 11:41:16 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:53684 "EHLO
+        id S1728860AbfICQTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:19:23 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:34218 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728860AbfICPlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 11:41:15 -0400
+        with ESMTP id S1727810AbfICQTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 12:19:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
         :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=ULjjH4sen9zfb9BXYRsup9ADAXBJxX8uc7RUDCdLvBI=; b=iMLtZaheRsuIIVHr5rl4845Z/
-        DQ4Krr08gV8xH84IYbia5dX0+JhszL5ZcZBnSeyExOmZFBqXF7CcL2MNVCZCq9tyJtdZYKwrJmZCb
-        EglUAwGDTmn5HoxA89fVRVoWsmuRCXZTwoEp2Q03cznjk1R5NHDz0Fo2WlVGzKhnuBdGIUo1hb3Y9
-        uT4AtWQHg+LuKzFCXP79w6r3cLv6R7QKv1ZIzJHSzD3byMeBY9RB+Nqg9cSLyx5BUR2r8yRKVB/ny
-        +O2cQUg5jS8QXvSKwizythOZTh3Qt2gWBn9gS3WJ0y5IR1cPNFSd53JleIPN/dwvgrOd3Pv3qQt+F
-        WrdrrEDEw==;
+         bh=z5XTZr7KAHvUQ4zGXGR/ag1TGXf5dCpTr/unRHYAJ7g=; b=Bur85jcXN6qdZR7BAaREK0n9B
+        zf3aQl5Asp9yOMHp8LiA/lGecRINQL1AtQC2NakcoqnpxdzqWH6YOveapcPtu90WSEaAR1JOIVq40
+        GvSqYZueFIGopfL35Usck7GGsNEn2j/h/k/M07Tu8yufkvEOsVQ5CBbaGm+vYuxllWwfN12me2hob
+        M7OqeqSL5c0QhdGvA0qHdv7wJn9CcsAGaw0pETuU2f3MMuCp6KB4qRZk+M9iAvAxij+LZXXK/I8oV
+        un3lg4mEomBDYDv1UPuLbSYXpVLU0SospuZYymNEqy5HSSeCXNxA9LsQWxKAiSDa5FZSgVJo4M50F
+        OP3qp4+SQ==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1i5Avd-0002Gk-UO; Tue, 03 Sep 2019 15:41:09 +0000
-Date:   Tue, 3 Sep 2019 08:41:09 -0700
+        id 1i5BWX-00068r-Tm; Tue, 03 Sep 2019 16:19:17 +0000
+Date:   Tue, 3 Sep 2019 09:19:17 -0700
 From:   Christoph Hellwig <hch@infradead.org>
 To:     Mike Travis <mike.travis@hpe.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
         "H. Peter Anvin" <hpa@zytor.com>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -39,16 +38,15 @@ Cc:     Christoph Hellwig <hch@infradead.org>,
         Hedi Berriche <hedi.berriche@hpe.com>,
         Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/8] x86/platform/uv: Return UV Hubless System Type
-Message-ID: <20190903154109.GB2791@infradead.org>
+Subject: Re: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in
+ is_uvX_hub Ops
+Message-ID: <20190903161917.GA23281@infradead.org>
 References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903001815.893030884@stormcage.eag.rdlabs.hpecorp.net>
- <20190903064914.GA9914@infradead.org>
- <0eee6d96-e4fc-763b-a8b9-52c85ddd5531@hpe.com>
+ <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0eee6d96-e4fc-763b-a8b9-52c85ddd5531@hpe.com>
+In-Reply-To: <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
@@ -56,25 +54,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 07:12:28AM -0700, Mike Travis wrote:
-> > > +#define is_uv_hubless _is_uv_hubless
-> > 
-> > Why the weird macro indirection?
-> > 
-> > > -static inline int is_uv_hubless(void)	{ return 0; }
-> > > +static inline int _is_uv_hubless(int uv) { return 0; }
-> > > +#define is_uv_hubless _is_uv_hubless
-> > 
-> > And here again.
-> > 
-> 
-> Sorry, I should have explained this better.  The problem arises because
-> we have a number of UV specific kernel modules that support multiple
-> distributions.  And with back porting to earlier distros we cannot
-> rely on the KERNEL_VERSION macro to define whether the source is being
-> built for an earlier kernel.  So this allows an ifdef on the function
-> name to discover if the kernel is before or after these changes.
+On Mon, Sep 02, 2019 at 07:18:23PM -0500, Mike Travis wrote:
+> +#ifdef	UV1_HUB_IS_SUPPORTED
 
-And none of these matter for upstream.  We'd rather not make the code
-more convouluted than required.  If you actually really cared about these
-modules you would simply submit them upstream.
+All these ifdefs are dead code, please just remove them.
+
+Also it seems like at least the various mmr macros just check
+for a specific version, I think you are much better off just
+using a switch statement for the possible revisions there.
+
+> +		return (uv_hub_info->hub_revision == UV4A_HUB_REVISION_BASE);
+
+And none of these braces are required.
