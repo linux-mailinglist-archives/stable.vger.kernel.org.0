@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4982A6E5A
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3373A6E61
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730436AbfICQZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45858 "EHLO mail.kernel.org"
+        id S1730474AbfICQZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbfICQZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:39 -0400
+        id S1730465AbfICQZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB692377D;
-        Tue,  3 Sep 2019 16:25:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F0A823774;
+        Tue,  3 Sep 2019 16:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527938;
-        bh=XlxNZltnNdt+6EtfyRaBtW3SLGlCNlWUzNKBkJGyq/M=;
+        s=default; t=1567527948;
+        bh=K9OcstgoEAF/+7QGbfId/spEmXyKk4gKH5hsBnfLJQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaY/pN1ZiAJlU8M2uM47SkfHk8jxx4hJgAqdtycNv+Y77a5Furqy3hLKY9svk2wRa
-         1LnX+yJt05B6Z5D3bTDRyJ6P2j3indIBuYK10fDja9Vja9PMrHUmCi0HiXJRCmtyBP
-         QWRDfiJlaaV2N6lIE9f1k60PIFY9Xo9dIdVVB2do=
+        b=wb+4hR4sFuf+r6j2E2nYalSeQDGRmNxDui5WmW61JC8N7XEql+adOYHsFvdJfHM5H
+         4uAC4K2yoNqU/okbPRr9+AQwzjEDEZPg7Rf+ZJOHJWePEisoUNWxRwrmevcNuScVtK
+         hw9R4QHBcCiu8h4b+j818OEIbdf/LF98vdTI+ST4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Feifei Xu <Feifei.Xu@amd.com>, Evan Quan <evan.quan@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 009/167] drm/amdgpu/gfx9: Update gfx9 golden settings.
-Date:   Tue,  3 Sep 2019 12:22:41 -0400
-Message-Id: <20190903162519.7136-9-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 015/167] x86/kvm/lapic: preserve gfn_to_hva_cache len on cache reinit
+Date:   Tue,  3 Sep 2019 12:22:47 -0400
+Message-Id: <20190903162519.7136-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -45,35 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feifei Xu <Feifei.Xu@amd.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 54d682d9a5b357eb711994fa94ef1bc44d7ce9d9 ]
+[ Upstream commit a7c42bb6da6b1b54b2e7bd567636d72d87b10a79 ]
 
-Update the goldensettings for vega20.
+vcpu->arch.pv_eoi is accessible through both HV_X64_MSR_VP_ASSIST_PAGE and
+MSR_KVM_PV_EOI_EN so on migration userspace may try to restore them in any
+order. Values match, however, kvm_lapic_enable_pv_eoi() uses different
+length: for Hyper-V case it's the whole struct hv_vp_assist_page, for KVM
+native case it is 8. In case we restore KVM-native MSR last cache will
+be reinitialized with len=8 so trying to access VP assist page beyond
+8 bytes with kvm_read_guest_cached() will fail.
 
-Signed-off-by: Feifei Xu <Feifei.Xu@amd.com>
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Check if we re-initializing cache for the same address and preserve length
+in case it was greater.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 46568497ef181..f040ec10eecf6 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -82,7 +82,7 @@ MODULE_FIRMWARE("amdgpu/raven_rlc.bin");
- 
- static const struct soc15_reg_golden golden_settings_gc_9_0[] =
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index ccf5a04de94c3..973a244081d34 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2631,14 +2631,22 @@ int kvm_hv_vapic_msr_read(struct kvm_vcpu *vcpu, u32 reg, u64 *data)
+ int kvm_lapic_enable_pv_eoi(struct kvm_vcpu *vcpu, u64 data, unsigned long len)
  {
--	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xf00fffff, 0x00000420),
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xf00fffff, 0x00000400),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGB_GPU_ID, 0x0000000f, 0x00000000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_BINNER_EVENT_CNTL_3, 0x00000003, 0x82400024),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_ENHANCE, 0x3fffffff, 0x00000001),
+ 	u64 addr = data & ~KVM_MSR_ENABLED;
++	struct gfn_to_hva_cache *ghc = &vcpu->arch.pv_eoi.data;
++	unsigned long new_len;
++
+ 	if (!IS_ALIGNED(addr, 4))
+ 		return 1;
+ 
+ 	vcpu->arch.pv_eoi.msr_val = data;
+ 	if (!pv_eoi_enabled(vcpu))
+ 		return 0;
+-	return kvm_gfn_to_hva_cache_init(vcpu->kvm, &vcpu->arch.pv_eoi.data,
+-					 addr, len);
++
++	if (addr == ghc->gpa && len <= ghc->len)
++		new_len = ghc->len;
++	else
++		new_len = len;
++
++	return kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, addr, new_len);
+ }
+ 
+ void kvm_apic_accept_events(struct kvm_vcpu *vcpu)
 -- 
 2.20.1
 
