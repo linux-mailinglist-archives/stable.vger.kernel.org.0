@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 176E9A7004
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2374A7001
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730365AbfICQgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:36:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49072 "EHLO mail.kernel.org"
+        id S1731097AbfICQfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:35:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730894AbfICQ1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:27:38 -0400
+        id S1730904AbfICQ1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:27:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CA2D23789;
-        Tue,  3 Sep 2019 16:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 367972343A;
+        Tue,  3 Sep 2019 16:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528057;
-        bh=e8P5DWWIAZiS0ZzSbwx32L4ztDWWO7xTmu6X0xz7n6Q=;
+        s=default; t=1567528058;
+        bh=oaZmRc4FyOxGLfeMfooQb/7p67aLl5E2T6k9jg4Dg7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yu+Be4StFAcXzBY2MjUV7I0hRzF1wbf2PlRPFyYAv4lXcxXFZ7BjnBX2FWBfYeaUJ
-         R8y6iIfqtsYCILhhWNiEw6MErsv0IHn1JB3l2MIB37XItK/6WnOges2jzIGzdB14k3
-         MzNsHHUfsiX3IO/eyBcV8pC7bOoOJvfSqz+YhEZY=
+        b=Z9kZiuLQIvmGc3x7H8Y41JqRNHjaWPerHqwJjp97qUteub48Zz+vGyICSQu25LP7H
+         Cya10J91r3wpqKdMxFiLEmCanUERG0SvJUbv4xO8PN3QBSbGOj3CUa4akFaXD3zp9b
+         a7ByNc2wKTJ0ZawqDyjGMsiNhSEFTtsUeJQ4QQLk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 073/167] x86/kvmclock: set offset for kvm unstable clock
-Date:   Tue,  3 Sep 2019 12:23:45 -0400
-Message-Id: <20190903162519.7136-73-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 074/167] spi: spi-gpio: fix SPI_CS_HIGH capability
+Date:   Tue,  3 Sep 2019 12:23:46 -0400
+Message-Id: <20190903162519.7136-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,53 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit b5179ec4187251a751832193693d6e474d3445ac ]
+[ Upstream commit b89fefda7d4e3a649129584d855be233c7465264 ]
 
-VMs may show incorrect uptime and dmesg printk offsets on hypervisors with
-unstable clock. The problem is produced when VM is rebooted without exiting
-from qemu.
+spi-gpio is capable of dealing with active-high chip-selects.
+Unfortunately, commit 4b859db2c606 ("spi: spi-gpio: add SPI_3WIRE
+support") broke this by setting master->mode_bits, which overrides
+the setting in the spi-bitbang code.  Fix this.
 
-The fix is to calculate clock offset not only for stable clock but for
-unstable clock as well, and use kvm_sched_clock_read() which substracts
-the offset for both clocks.
+[Fixed a trivial conflict with SPI_3WIRE_HIZ support -- broonie]
 
-This is safe, because pvclock_clocksource_read() does the right thing and
-makes sure that clock always goes forward, so once offset is calculated
-with unstable clock, we won't get new reads that are smaller than offset,
-and thus won't get negative results.
-
-Thank you Jon DeVree for helping to reproduce this issue.
-
-Fixes: 857baa87b642 ("sched/clock: Enable sched clock early")
+Fixes: 4b859db2c606 ("spi: spi-gpio: add SPI_3WIRE support")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Reported-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kvmclock.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/spi/spi-gpio.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index 013fe3d21dbb3..2ec202cb9dfd4 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -117,12 +117,8 @@ static u64 kvm_sched_clock_read(void)
+diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
+index 088772ebef9bd..77838d8fd9bb6 100644
+--- a/drivers/spi/spi-gpio.c
++++ b/drivers/spi/spi-gpio.c
+@@ -410,7 +410,7 @@ static int spi_gpio_probe(struct platform_device *pdev)
+ 		return status;
  
- static inline void kvm_sched_clock_init(bool stable)
- {
--	if (!stable) {
--		pv_time_ops.sched_clock = kvm_clock_read;
-+	if (!stable)
- 		clear_sched_clock_stable();
--		return;
--	}
--
- 	kvm_sched_clock_offset = kvm_clock_read();
- 	pv_time_ops.sched_clock = kvm_sched_clock_read;
+ 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 32);
+-	master->mode_bits = SPI_3WIRE | SPI_CPHA | SPI_CPOL;
++	master->mode_bits = SPI_3WIRE | SPI_CPHA | SPI_CPOL | SPI_CS_HIGH;
+ 	master->flags = master_flags;
+ 	master->bus_num = pdev->id;
+ 	/* The master needs to think there is a chipselect even if not connected */
+@@ -437,7 +437,6 @@ static int spi_gpio_probe(struct platform_device *pdev)
+ 		spi_gpio->bitbang.txrx_word[SPI_MODE_3] = spi_gpio_spec_txrx_word_mode3;
+ 	}
+ 	spi_gpio->bitbang.setup_transfer = spi_bitbang_setup_transfer;
+-	spi_gpio->bitbang.flags = SPI_CS_HIGH;
  
+ 	status = spi_bitbang_start(&spi_gpio->bitbang);
+ 	if (status)
 -- 
 2.20.1
 
