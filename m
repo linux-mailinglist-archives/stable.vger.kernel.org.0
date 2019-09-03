@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E304A705A
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA54AA7042
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730608AbfICQib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:38:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47076 "EHLO mail.kernel.org"
+        id S1730604AbfICQ0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbfICQ0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:18 -0400
+        id S1730602AbfICQ0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12DD6238CF;
-        Tue,  3 Sep 2019 16:26:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B02C238CE;
+        Tue,  3 Sep 2019 16:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527977;
-        bh=GThmCo6ekjQevRbJ4RJw3Jp6UbfDong1DpDA0cRpd8I=;
+        s=default; t=1567527979;
+        bh=eK+L9MGfvPLzftIEDXerbgiNvYTvBEHJUW/ZcohqNQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtAAf3YEay/D6BY+jBcM1HgxMVEKM/Zj0c3biXkXaPJAVTsiLk5zO8R6GRxDnYM9K
-         7A9NAsA1v7xfAzgwY9C+lfukwc9uDFZK1rCDzgOnoOsCnTulAJyu5cvyNz7kKTAUSb
-         Zivb9i1tq3yjTY7V4dyRd4tmYst/VgW5qDlhfuuA=
+        b=0aYXvjI637FZDGFn+OUoO1heyMML8XpiH82IRX6SFiWP2VExCSySFfJLNwlAU3x9M
+         9DqHBhSR0Evu5NeljLb+eX2QH5nrY/HvEUch3CkUMQ6PxipQI4Wolx7tVXdPvCVztS
+         7/DtvTmi6ivZMFj+fLVukkJUpeSBJu8dR+Wr+H5w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 033/167] drm/i915: Restore sane defaults for KMS on GEM error load
-Date:   Tue,  3 Sep 2019 12:23:05 -0400
-Message-Id: <20190903162519.7136-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 034/167] drm/i915: Cleanup gt powerstate from gem
+Date:   Tue,  3 Sep 2019 12:23:06 -0400
+Message-Id: <20190903162519.7136-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,53 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 7ed43df720c007d60bee6d81da07bcdc7e4a55ae ]
+[ Upstream commit 30b710840e4b9c9699d3d4b33fb19ad8880d4614 ]
 
-If we fail during GEM initialisation, we scrub the HW state by
-performing a device level GPU resuet. However, we want to leave the
-system in a usable state (with functioning KMS but no GEM) so after
-scrubbing the HW state, we need to restore some sane defaults and
-re-enable the low-level common parts of the GPU (such as the GMCH).
-
-v2: Restore GTT entries.
+Since the gt powerstate is allocated by i915_gem_init, clean it from
+i915_gem_fini for symmetry and to correct the imbalance on error.
 
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20180726085033.4044-2-chris@chris-wilson.co.uk
-Reviewed-by: Michał Winiarski <michal.winiarski@intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180812223642.24865-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_gem.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_gem.c      | 3 +++
+ drivers/gpu/drm/i915/intel_display.c | 4 ----
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index 03cda197fb6b8..5019dfd8bcf16 100644
+index 5019dfd8bcf16..e81abd468a15d 100644
 --- a/drivers/gpu/drm/i915/i915_gem.c
 +++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -5595,6 +5595,8 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
- 		i915_gem_cleanup_userptr(dev_priv);
+@@ -5624,6 +5624,7 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
+ void i915_gem_fini(struct drm_i915_private *dev_priv)
+ {
+ 	i915_gem_suspend_late(dev_priv);
++	intel_disable_gt_powersave(dev_priv);
  
- 	if (ret == -EIO) {
-+		mutex_lock(&dev_priv->drm.struct_mutex);
-+
- 		/*
- 		 * Allow engine initialisation to fail by marking the GPU as
- 		 * wedged. But we only want to do this where the GPU is angry,
-@@ -5605,7 +5607,14 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
- 					"Failed to initialize GPU, declaring it wedged!\n");
- 			i915_gem_set_wedged(dev_priv);
- 		}
--		ret = 0;
-+
-+		/* Minimal basic recovery for KMS */
-+		ret = i915_ggtt_enable_hw(dev_priv);
-+		i915_gem_restore_gtt_mappings(dev_priv);
-+		i915_gem_restore_fences(dev_priv);
-+		intel_init_clock_gating(dev_priv);
-+
-+		mutex_unlock(&dev_priv->drm.struct_mutex);
- 	}
+ 	/* Flush any outstanding unpin_work. */
+ 	i915_gem_drain_workqueue(dev_priv);
+@@ -5635,6 +5636,8 @@ void i915_gem_fini(struct drm_i915_private *dev_priv)
+ 	i915_gem_contexts_fini(dev_priv);
+ 	mutex_unlock(&dev_priv->drm.struct_mutex);
  
- 	i915_gem_drain_freed_objects(dev_priv);
++	intel_cleanup_gt_powersave(dev_priv);
++
+ 	intel_uc_fini_misc(dev_priv);
+ 	i915_gem_cleanup_userptr(dev_priv);
+ 
+diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+index 2622dfc7d2d9a..6902fd2da19ca 100644
+--- a/drivers/gpu/drm/i915/intel_display.c
++++ b/drivers/gpu/drm/i915/intel_display.c
+@@ -15972,8 +15972,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
+ 	flush_work(&dev_priv->atomic_helper.free_work);
+ 	WARN_ON(!llist_empty(&dev_priv->atomic_helper.free_list));
+ 
+-	intel_disable_gt_powersave(dev_priv);
+-
+ 	/*
+ 	 * Interrupts and polling as the first thing to avoid creating havoc.
+ 	 * Too much stuff here (turning of connectors, ...) would
+@@ -16001,8 +15999,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
+ 
+ 	intel_cleanup_overlay(dev_priv);
+ 
+-	intel_cleanup_gt_powersave(dev_priv);
+-
+ 	intel_teardown_gmbus(dev_priv);
+ 
+ 	destroy_workqueue(dev_priv->modeset_wq);
 -- 
 2.20.1
 
