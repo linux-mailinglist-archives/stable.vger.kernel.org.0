@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77ABBA6F70
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7C4A6FA7
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731046AbfICQ2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
+        id S1730634AbfICQeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:34:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731039AbfICQ2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:08 -0400
+        id S1731051AbfICQ2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:28:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65102238C6;
-        Tue,  3 Sep 2019 16:28:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B13EE238C6;
+        Tue,  3 Sep 2019 16:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528087;
-        bh=NdnzEdhOKQCo6wnC0RJ0qayx+6RC9/BYkZg6aPhDzms=;
+        s=default; t=1567528089;
+        bh=zOEvKuP84iy7xxd7ym7VPI3TVVXP8RVt/WegrSzIvrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYJVsOhaAInm3M2gyQjcCU3kqvGssGRlsRucm11JMrNXa7p4WD5tzqucAJx41gvLL
-         j9xXZ8DBWIE6zp8R84EehQ+YsCHOHVzIEUZ6mLEONhwa2hj7qUsTN7cs/Blg+qARL5
-         Yd5pXojzxJM2g3w0osWo2lyq6flGjjTfMk24FJ4I=
+        b=PQW2UsDvYwmrtT8aFI3ULarBUAvxeaOr8Uip+82CaWcRrEfHSAHb8mWwg2jTSrvxD
+         jvPsz8EtEHaKC/8pvxTBnY7CjF351RW8A89jsXNE6aYVzh+PcY7tUvE6kbAiQ4Iio6
+         Fw2IijX6tiqDGKEVi1WkxTArJIW7xO+sKIRPXveA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, stable@kernel.org,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 097/167] ext4: protect journal inode's blocks using block_validity
-Date:   Tue,  3 Sep 2019 12:24:09 -0400
-Message-Id: <20190903162519.7136-97-sashal@kernel.org>
+Cc:     Niklas Cassel <niklas.cassel@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 099/167] ARM: dts: qcom: ipq4019: Fix MSI IRQ type
+Date:   Tue,  3 Sep 2019 12:24:11 -0400
+Message-Id: <20190903162519.7136-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -42,105 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Niklas Cassel <niklas.cassel@linaro.org>
 
-[ Upstream commit 345c0dbf3a30872d9b204db96b5857cd00808cae ]
+[ Upstream commit 97131f85c08e024df49480ed499aae8fb754067f ]
 
-Add the blocks which belong to the journal inode to block_validity's
-system zone so attempts to deallocate or overwrite the journal due a
-corrupted file system where the journal blocks are also claimed by
-another inode.
+The databook clearly states that the MSI IRQ (msi_ctrl_int) is a level
+triggered interrupt.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+The msi_ctrl_int will be high for as long as any MSI status bit is set,
+thus the IRQ type should be set to IRQ_TYPE_LEVEL_HIGH, causing the
+IRQ handler to keep getting called, as long as any MSI status bit is set.
+
+A git grep shows that ipq4019 is the only SoC using snps,dw-pcie that has
+configured this IRQ incorrectly.
+
+Not having the correct IRQ type defined will cause us to lose interrupts,
+which in turn causes timeouts in the PCIe endpoint drivers.
+
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c | 48 ++++++++++++++++++++++++++++++++++++++++
- fs/ext4/inode.c          |  4 ++++
- 2 files changed, 52 insertions(+)
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 913061c0de1b3..9409b1e11a22e 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
- 	printk(KERN_CONT "\n");
- }
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index 2c3168d95a2d5..814ab7283228a 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -389,7 +389,7 @@
+ 			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000
+ 				  0x82000000 0 0x40300000 0x40300000 0 0x400000>;
  
-+static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
-+{
-+	struct inode *inode;
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_map_blocks map;
-+	u32 i = 0, err = 0, num, n;
-+
-+	if ((ino < EXT4_ROOT_INO) ||
-+	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
-+		return -EINVAL;
-+	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
-+	if (IS_ERR(inode))
-+		return PTR_ERR(inode);
-+	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
-+	while (i < num) {
-+		map.m_lblk = i;
-+		map.m_len = num - i;
-+		n = ext4_map_blocks(NULL, inode, &map, 0);
-+		if (n < 0) {
-+			err = n;
-+			break;
-+		}
-+		if (n == 0) {
-+			i++;
-+		} else {
-+			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
-+				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+					   "overlap system zone", map.m_pblk,
-+					   map.m_pblk + map.m_len - 1, ino);
-+				err = -EFSCORRUPTED;
-+				break;
-+			}
-+			err = add_system_zone(sbi, map.m_pblk, n);
-+			if (err < 0)
-+				break;
-+			i += n;
-+		}
-+	}
-+	iput(inode);
-+	return err;
-+}
-+
- int ext4_setup_system_zone(struct super_block *sb)
- {
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
-@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_block *sb)
- 		if (ret)
- 			return ret;
- 	}
-+	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
-+		ret = ext4_protect_reserved_inode(sb,
-+				le32_to_cpu(sbi->s_es->s_journal_inum));
-+		if (ret)
-+			return ret;
-+	}
- 
- 	if (test_opt(sb, DEBUG))
- 		debug_print_tree(sbi);
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index e65559bf77281..cff6277f7a9ff 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -399,6 +399,10 @@ static int __check_block_validity(struct inode *inode, const char *func,
- 				unsigned int line,
- 				struct ext4_map_blocks *map)
- {
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
- 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
- 				   map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
+-			interrupts = <GIC_SPI 141 IRQ_TYPE_EDGE_RISING>;
++			interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
 -- 
 2.20.1
 
