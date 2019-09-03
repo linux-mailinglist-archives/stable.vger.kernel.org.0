@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA70CA6E68
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D371A6E6C
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730094AbfICQ0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:26:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46478 "EHLO mail.kernel.org"
+        id S1730566AbfICQ0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:26:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730522AbfICQZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:59 -0400
+        id S1730497AbfICQ0K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D79723711;
-        Tue,  3 Sep 2019 16:25:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A9CE238CE;
+        Tue,  3 Sep 2019 16:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527958;
-        bh=HlB0kFLFJRGc5nkzsNDy3iGdtD6dK1xJYjtH+voD000=;
+        s=default; t=1567527969;
+        bh=plF5iuZgX7U6b2kvIKYefoXXR8ZqV0zxgADx6/YTaiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npMS1YpbXaEj9TVharNKA4Q+6JltSwqq7jBZoQSrYfBjLVW6XYCtW0Yg5MeXa0F8g
-         PR2YQlI0OQZP98nFYnqVS6+lLp4hmInNQH1wf2cH9Y/GkeYcqmY2LB2DxanQLNtPWx
-         93Mb2LaDxtL7E1/haaYkc6tBXOmCZMyh1EGbyWoQ=
+        b=F+1fxh70DB5RQCDnPXpQNRhOoPkrOXgQ7o6VYb4tUD8qDYKLIs6C+9mr8Mv1T68YM
+         LnEQr1l4RUIAINnL6ATv91zEAwrhxB9oPZX2vYDejU/VrEBAgQpYkiwytx5N3jzRmA
+         0T7BCopGOpms6t4R496kzttBnEJBLhlDE2E0iBCk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Francis <David.Francis@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 022/167] powerplay: Respect units on max dcfclk watermark
-Date:   Tue,  3 Sep 2019 12:22:54 -0400
-Message-Id: <20190903162519.7136-22-sashal@kernel.org>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 029/167] ARM: davinci: dm644x: define gpio interrupts as separate resources
+Date:   Tue,  3 Sep 2019 12:23:01 -0400
+Message-Id: <20190903162519.7136-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -45,38 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Francis <David.Francis@amd.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-[ Upstream commit f191415b24a3ad3fa22088af7cd7fc328a2f469f ]
+[ Upstream commit adcf60ce14c8250761af9de907eb6c7d096c26d3 ]
 
-In a refactor, the watermark clock inputs to
-powerplay from DC were changed from units of 10kHz to
-kHz clocks.
+Since commit eb3744a2dd01 ("gpio: davinci: Do not assume continuous
+IRQ numbering") the davinci GPIO driver fails to probe if we boot
+in legacy mode from any of the board files. Since the driver now
+expects every interrupt to be defined as a separate resource, split
+the definition of IRQ resources instead of having a single continuous
+interrupt range.
 
-One division by 100 was not converted into a division
-by 1000.
-
-Signed-off-by: David Francis <David.Francis@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: eb3744a2dd01 ("gpio: davinci: Do not assume continuous IRQ numbering")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-davinci/dm644x.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-index 2aab1b4759459..a321c465b7dce 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-@@ -674,7 +674,7 @@ int smu_set_watermarks_for_clocks_ranges(void *wt_table,
- 		table->WatermarkRow[1][i].MaxClock =
- 			cpu_to_le16((uint16_t)
- 			(wm_with_clock_ranges->wm_dmif_clocks_ranges[i].wm_max_dcfclk_clk_in_khz) /
--			100);
-+			1000);
- 		table->WatermarkRow[1][i].MinUclk =
- 			cpu_to_le16((uint16_t)
- 			(wm_with_clock_ranges->wm_dmif_clocks_ranges[i].wm_min_mem_clk_in_khz) /
+diff --git a/arch/arm/mach-davinci/dm644x.c b/arch/arm/mach-davinci/dm644x.c
+index 0720da7809a69..de1ec6dc01e94 100644
+--- a/arch/arm/mach-davinci/dm644x.c
++++ b/arch/arm/mach-davinci/dm644x.c
+@@ -492,6 +492,26 @@ static struct resource dm644_gpio_resources[] = {
+ 	},
+ 	{	/* interrupt */
+ 		.start	= IRQ_GPIOBNK0,
++		.end	= IRQ_GPIOBNK0,
++		.flags	= IORESOURCE_IRQ,
++	},
++	{
++		.start	= IRQ_GPIOBNK1,
++		.end	= IRQ_GPIOBNK1,
++		.flags	= IORESOURCE_IRQ,
++	},
++	{
++		.start	= IRQ_GPIOBNK2,
++		.end	= IRQ_GPIOBNK2,
++		.flags	= IORESOURCE_IRQ,
++	},
++	{
++		.start	= IRQ_GPIOBNK3,
++		.end	= IRQ_GPIOBNK3,
++		.flags	= IORESOURCE_IRQ,
++	},
++	{
++		.start	= IRQ_GPIOBNK4,
+ 		.end	= IRQ_GPIOBNK4,
+ 		.flags	= IORESOURCE_IRQ,
+ 	},
 -- 
 2.20.1
 
