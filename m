@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51548A6F57
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC331A709F
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730607AbfICQcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:32:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55896 "EHLO mail.kernel.org"
+        id S1730362AbfICQZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731304AbfICQcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:32:19 -0400
+        id S1730355AbfICQZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CFAC238C5;
-        Tue,  3 Sep 2019 16:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11F432343A;
+        Tue,  3 Sep 2019 16:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528338;
-        bh=VdilDWcuzsVVqy1xSRAXyAiXDXeSNGwCwiyBUksGKcY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/7Bc1Bwa7ewAtqfeuhjYSz2KvJdqiyWDiXRhbpc7QsWzNBvojbLma6+0DaooH9Ym
-         kXdim2N0tQyIkWy2omFVU78de4IczZjMWc5l6jR2qdo8w/j4XCCd5Ab2Oo/kfMpkz4
-         6ccYk8343tkVw8Pn5yFaziHsi3efiUZj1HU/d6jg=
+        s=default; t=1567527921;
+        bh=y6jv+OHUHxEmn5hA5V/b/pfb8RWdE4SDWdiWC+3AyFY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fktxo9kwQhwWMFXoU7eQDyn04xa/nB5bfIOAislXbhxWTJ4g9LGpF9cmGc6rq2ps0
+         VRB42Q6W2KyfuaY0P5a7TblDJND6KmCI2kShRIn+DhNumBMSbcO1I8AwQm2Rz6g+5W
+         LJqybxcRH3j1hlbMqPd97dqhlnP+Lg263ri59lSU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Daniel Drake <drake@endlessm.com>,
-        Aaron Plattner <aplattner@nvidia.com>,
-        Peter Wu <peter@lekensteyn.nl>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Karol Herbst <kherbst@redhat.com>,
-        Maik Freudenberg <hhfeuer@gmx.de>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 167/167] PCI: Reset both NVIDIA GPU and HDA in ThinkPad P50 workaround
-Date:   Tue,  3 Sep 2019 12:25:19 -0400
-Message-Id: <20190903162519.7136-167-sashal@kernel.org>
+Cc:     Jan-Marek Glogowski <glogow@fbihome.de>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 001/167] drm/i915: Re-apply "Perform link quality check, unconditionally during long pulse"
+Date:   Tue,  3 Sep 2019 12:22:33 -0400
+Message-Id: <20190903162519.7136-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
-References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,52 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Jan-Marek Glogowski <glogow@fbihome.de>
 
-[ Upstream commit ad54567ad5d8e938ee6cf02e4f3867f18835ae6e ]
+[ Upstream commit 3cf71bc9904d7ee4a25a822c5dcb54c7804ea388 ]
 
-quirk_reset_lenovo_thinkpad_50_nvgpu() resets NVIDIA GPUs to work around
-an apparent BIOS defect.  It previously used pci_reset_function(), and
-the available method was a bus reset, which was fine because there was
-only one function on the bus.  After b516ea586d71 ("PCI: Enable NVIDIA
-HDA controllers"), there are now two functions (the HDA controller and
-the GPU itself) on the bus, so the reset fails.
+This re-applies the workaround for "some DP sinks, [which] are a
+little nuts" from commit 1a36147bb939 ("drm/i915: Perform link
+quality check unconditionally during long pulse").
+It makes the secondary AOC E2460P monitor connected via DP to an
+acer Veriton N4640G usable again.
 
-Use pci_reset_bus() explicitly instead of pci_reset_function() since it's
-OK to reset both devices.
+This hunk was dropped in commit c85d200e8321 ("drm/i915: Move SST
+DP link retraining into the ->post_hotplug() hook")
 
-[bhelgaas: commit log, add e0547c81bfcf]
-Fixes: b516ea586d71 ("PCI: Enable NVIDIA HDA controllers")
-Fixes: e0547c81bfcf ("PCI: Reset Lenovo ThinkPad P50 nvgpu at boot if necessary")
-Link: https://lore.kernel.org/r/20190801220117.14952-1-lyude@redhat.com
+Fixes: c85d200e8321 ("drm/i915: Move SST DP link retraining into the ->post_hotplug() hook")
+[Cleaned up commit message, added stable cc]
 Signed-off-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Ben Skeggs <bskeggs@redhat.com>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Daniel Drake <drake@endlessm.com>
-Cc: Aaron Plattner <aplattner@nvidia.com>
-Cc: Peter Wu <peter@lekensteyn.nl>
-Cc: Ilia Mirkin <imirkin@alum.mit.edu>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Maik Freudenberg <hhfeuer@gmx.de>
+Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20180825191035.3945-1-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_dp.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 311f8a33e62ff..06be52912dcdb 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5162,7 +5162,7 @@ static void quirk_reset_lenovo_thinkpad_p50_nvgpu(struct pci_dev *pdev)
- 	 */
- 	if (ioread32(map + 0x2240c) & 0x2) {
- 		pci_info(pdev, FW_BUG "GPU left initialized by EFI, resetting\n");
--		ret = pci_reset_function(pdev);
-+		ret = pci_reset_bus(pdev);
- 		if (ret < 0)
- 			pci_err(pdev, "Failed to reset GPU: %d\n", ret);
+diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
+index f92079e19de8d..20cd4c8acecc3 100644
+--- a/drivers/gpu/drm/i915/intel_dp.c
++++ b/drivers/gpu/drm/i915/intel_dp.c
+@@ -4739,6 +4739,22 @@ intel_dp_long_pulse(struct intel_connector *connector,
+ 		 */
+ 		status = connector_status_disconnected;
+ 		goto out;
++	} else {
++		/*
++		 * If display is now connected check links status,
++		 * there has been known issues of link loss triggering
++		 * long pulse.
++		 *
++		 * Some sinks (eg. ASUS PB287Q) seem to perform some
++		 * weird HPD ping pong during modesets. So we can apparently
++		 * end up with HPD going low during a modeset, and then
++		 * going back up soon after. And once that happens we must
++		 * retrain the link to get a picture. That's in case no
++		 * userspace component reacted to intermittent HPD dip.
++		 */
++		struct intel_encoder *encoder = &dp_to_dig_port(intel_dp)->base;
++
++		intel_dp_retrain_link(encoder, ctx);
  	}
+ 
+ 	/*
 -- 
 2.20.1
 
