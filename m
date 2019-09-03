@@ -2,99 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37980A606B
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 07:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C71AA6080
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 07:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725888AbfICFPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 01:15:09 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:34663 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725878AbfICFPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 01:15:09 -0400
-Received: by mail-pf1-f196.google.com with SMTP id b24so10060726pfp.1
-        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 22:15:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ZeFgyFIHCDtxRARd0KAjIBoFG6zEBmwoBwDcSrmUBO4=;
-        b=qK+fUm3oO9zpLsBqRCJYOE3M5fwIde5pU3QD3Vy+RaQP3i6XutK1x1jCr48WwiEstL
-         lSJ2/xGIH3I31pkalrf/j5bcB1HEHxk7WlL8zT7kFkpdozhKoR1Q5Rybzg2Js4mGPEF4
-         /DfF9MXYfamdhrcUxaTztedS75OfQHzJjSBq5QtfdfsBRbenHcvrdK7NPGc6fSVZ5Ufe
-         7ku/DiLD62PLmH5wOh+E/aFfJ1FHR8VDryYWQkxv5eYXGrfkeRPW+8S71rQtRHmT/W89
-         793w4QnOurZU0CLIxiTm7vnDdKTgOPv75Ho/ocZQNDmn1e82BvLwXPrestXCOs+kFpGi
-         eFTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ZeFgyFIHCDtxRARd0KAjIBoFG6zEBmwoBwDcSrmUBO4=;
-        b=LqZYmHsydBlHN2cb+OVyrxVhUtrHoyxOscQB6cMxiGjZncMiioTcNRYioGH4ZyVxhg
-         GjubL8j9+GOQbdnIxzR323Hk4uPmkO+c9QGhcOD0PGv0dlr47gHbKKl1cCQWis9sKJXp
-         2ZK71r/oLee0ytQR1Qs8jAdMr0Hxe5J3feevA6cwDsA+jDp9lHx9tuJNRDEPixu223R4
-         eAfpDct+e+TgcQlZkGeDYEifKqb4Unas89ExHG3ultkxqSRGzTCKZFZ3xaUGdanqyTFT
-         lwJrsJR5Wr3d0K9lcNVQLHaXH3dQHji8Nj0T173hueFT0GMeAn5mRapRlCvyvpnL8I4C
-         2siw==
-X-Gm-Message-State: APjAAAXNCvvTr+SDDF3ZuKq8bDndsPtIObC+tJprkjWJQsDLRk9Uj2+M
-        mMgOwiBmboATpE28QOhW+SX7vA==
-X-Google-Smtp-Source: APXvYqyHtSrm5YyZjYXdqdq+0yUaF32Axr3lTT0vASucA20PnjDHcHbH8EMoHDj2RHxLBsIEORzYSQ==
-X-Received: by 2002:a63:d90f:: with SMTP id r15mr28309557pgg.259.1567487708752;
-        Mon, 02 Sep 2019 22:15:08 -0700 (PDT)
-Received: from localhost ([122.167.132.221])
-        by smtp.gmail.com with ESMTPSA id e9sm20604854pja.17.2019.09.02.22.15.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Sep 2019 22:15:07 -0700 (PDT)
-Date:   Tue, 3 Sep 2019 10:45:05 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH ARM64 v4.4 V3 44/44] arm64: futex: Mask __user pointers
- prior to dereference
-Message-ID: <20190903051505.yere5kimi42e24v7@vireshk-i7>
-References: <cover.1567077734.git.viresh.kumar@linaro.org>
- <965d727955b4a45ac1f12e67c6a433110ef94871.1567077734.git.viresh.kumar@linaro.org>
- <20190830094249.GL46475@lakrids.cambridge.arm.com>
+        id S1726454AbfICFZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 01:25:02 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22780 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725848AbfICFZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 01:25:02 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x835MR3D128550
+        for <stable@vger.kernel.org>; Tue, 3 Sep 2019 01:25:01 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2uqmhtr9px-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 03 Sep 2019 01:25:01 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
+        Tue, 3 Sep 2019 06:24:58 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Tue, 3 Sep 2019 06:24:53 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x835Oqbw59310132
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Sep 2019 05:24:52 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7DC8311C052;
+        Tue,  3 Sep 2019 05:24:52 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26CBE11C04A;
+        Tue,  3 Sep 2019 05:24:52 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  3 Sep 2019 05:24:52 +0000 (GMT)
+Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id E1560A00EC;
+        Tue,  3 Sep 2019 15:24:50 +1000 (AEST)
+From:   "Alastair D'Silva" <alastair@au1.ibm.com>
+To:     alastair@d-silva.org
+Cc:     stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Qian Cai <cai@lca.pw>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Allison Randal <allison@lohutok.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/6] powerpc: Allow flush_icache_range to work across ranges >4GB
+Date:   Tue,  3 Sep 2019 15:23:55 +1000
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190903052407.16638-1-alastair@au1.ibm.com>
+References: <20190903052407.16638-1-alastair@au1.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190830094249.GL46475@lakrids.cambridge.arm.com>
-User-Agent: NeoMutt/20180716-391-311a52
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19090305-0028-0000-0000-00000396EEAF
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19090305-0029-0000-0000-000024593A5E
+Message-Id: <20190903052407.16638-2-alastair@au1.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-03_01:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=642 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1909030060
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30-08-19, 10:42, Mark Rutland wrote:
-> On Thu, Aug 29, 2019 at 05:04:29PM +0530, Viresh Kumar wrote:
-> > From: Will Deacon <will.deacon@arm.com>
-> > 
-> > commit 91b2d3442f6a44dce875670d702af22737ad5eff upstream.
-> > 
-> > The arm64 futex code has some explicit dereferencing of user pointers
-> > where performing atomic operations in response to a futex command. This
-> > patch uses masking to limit any speculative futex operations to within
-> > the user address space.
-> > 
-> > Signed-off-by: Will Deacon <will.deacon@arm.com>
-> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> 
-> This would have made more sense immediately following patch 11, as in
-> mainline and the v4.9 backport. Having things applied in the same order
-> makes it much easier to compare and verify.
+From: Alastair D'Silva <alastair@d-silva.org>
 
-Ahh, indeed the order was that way in the arm64/kpti branch, but not
-in the stable branch where it got applied at the end and I followed
-that order :(
+When calling flush_icache_range with a size >4GB, we were masking
+off the upper 32 bits, so we would incorrectly flush a range smaller
+than intended.
 
-Fixed the ordering now. Thanks.
+This patch replaces the 32 bit shifts with 64 bit ones, so that
+the full size is accounted for.
 
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+Cc: stable@vger.kernel.org
+---
+ arch/powerpc/kernel/misc_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
+index b55a7b4cb543..9bc0aa9aeb65 100644
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -82,7 +82,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5		/* ensure we get enough */
+ 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 1:	dcbst	0,r6
+@@ -98,7 +98,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5
+ 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 2:	icbi	0,r6
 -- 
-viresh
+2.21.0
+
