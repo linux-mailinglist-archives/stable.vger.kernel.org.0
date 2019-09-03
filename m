@@ -2,93 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27ED1A7104
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44584A7111
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbfICQun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:50:43 -0400
-Received: from mail.netline.ch ([148.251.143.178]:45259 "EHLO
-        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729056AbfICQun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 12:50:43 -0400
-X-Greylist: delayed 594 seconds by postgrey-1.27 at vger.kernel.org; Tue, 03 Sep 2019 12:50:41 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by netline-mail3.netline.ch (Postfix) with ESMTP id C88342B2001;
-        Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
-Received: from netline-mail3.netline.ch ([127.0.0.1])
-        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id OTzcp-hFgXy5; Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
-Received: from thor (116.245.63.188.dynamic.wline.res.cust.swisscom.ch [188.63.245.116])
-        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 819202AA15E;
-        Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
-Received: from localhost ([::1])
-        by thor with esmtp (Exim 4.92.1)
-        (envelope-from <michel@daenzer.net>)
-        id 1i5BrI-0007pS-6D; Tue, 03 Sep 2019 18:40:44 +0200
-Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch
- alignment
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Yu Zhao <yuzhao@google.com>, dri-devel@lists.freedesktop.org,
-        amd-gfx@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>
+        id S1730014AbfICQxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:53:50 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41462 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729056AbfICQxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:53:49 -0400
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com [209.85.160.199])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 17B3046217
+        for <stable@vger.kernel.org>; Tue,  3 Sep 2019 16:53:49 +0000 (UTC)
+Received: by mail-qt1-f199.google.com with SMTP id i19so19553203qtq.17
+        for <stable@vger.kernel.org>; Tue, 03 Sep 2019 09:53:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to:user-agent;
+        bh=TIiAFZIjHlLz7PBS/03pE3hbJ7hhmKmUaMbhV6zq5dw=;
+        b=sjG8MwiiULhsxgoZ/wqTxMF9tQZ+y4sow7wCfYnIwnHBoY+zln+eINhdJ2PE7eQGw+
+         P/K2QKicn+UGBCPh4Yl59x97+r5o4sqkSLRKKdgqgmh7Q3XJBXllpZAkZlGa96FOPoN3
+         xMOkjeCUVtOwpwLIWRHWBab7PRCnkW/TqSQN0nIJbHaldE+Xwsx8wHSsZXqHHlfQbLfd
+         4o/612nd170+H8rd3eCm7Pu8OM3ER3vaXIDBKxkKcXSa5vxUbta+lFiAT/QK3R7/P1ow
+         jDTl8hslPFaEL9CqqF3TydeP22j9Bc5yg3UOH9SYqypzKk9VvgMKX610Gkz6Tx5CjjJ5
+         PC1w==
+X-Gm-Message-State: APjAAAXwTxULOVOggkfVdmdxSwHaBw6y9h0aLW6/zSaeNL9lL5SC98ze
+        fxNxBxihWb5zP7r0e7/eTEZB85gZjXI/Gs7bUifzGRudnxBXQOvbgKv6BPAkq//zEBUN2dgmOeU
+        Qmu6oVpNrYMVKhJSF
+X-Received: by 2002:a37:9f46:: with SMTP id i67mr12460261qke.108.1567529628437;
+        Tue, 03 Sep 2019 09:53:48 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqy2RtxOu0+e/HYiXoLPNfFZTtLwLtQQ5mVN9iBaXKzoZQiTiwfOglHbKL3LXBPDM4/BcEk4ZA==
+X-Received: by 2002:a37:9f46:: with SMTP id i67mr12460240qke.108.1567529628217;
+        Tue, 03 Sep 2019 09:53:48 -0700 (PDT)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id p77sm6894259qke.6.2019.09.03.09.53.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Sep 2019 09:53:47 -0700 (PDT)
+Date:   Tue, 3 Sep 2019 09:53:46 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH AUTOSEL 4.19 126/167] tpm: Fix TPM 1.2 Shutdown sequence
+ to prevent future TPM operations
+Message-ID: <20190903165346.hwqlrin77cmzjiti@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: Doug Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
 References: <20190903162519.7136-1-sashal@kernel.org>
- <20190903162519.7136-44-sashal@kernel.org>
-From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
-Openpgp: preference=signencrypt
-Autocrypt: addr=michel@daenzer.net; prefer-encrypt=mutual; keydata=
- mQGiBDsehS8RBACbsIQEX31aYSIuEKxEnEX82ezMR8z3LG8ktv1KjyNErUX9Pt7AUC7W3W0b
- LUhu8Le8S2va6hi7GfSAifl0ih3k6Bv1Itzgnd+7ZmSrvCN8yGJaHNQfAevAuEboIb+MaVHo
- 9EMJj4ikOcRZCmQWw7evu/D9uQdtkCnRY9iJiAGxbwCguBHtpoGMxDOINCr5UU6qt+m4O+UD
- /355ohBBzzyh49lTj0kTFKr0Ozd20G2FbcqHgfFL1dc1MPyigej2gLga2osu2QY0ObvAGkOu
- WBi3LTY8Zs8uqFGDC4ZAwMPoFy3yzu3ne6T7d/68rJil0QcdQjzzHi6ekqHuhst4a+/+D23h
- Za8MJBEcdOhRhsaDVGAJSFEQB1qLBACOs0xN+XblejO35gsDSVVk8s+FUUw3TSWJBfZa3Imp
- V2U2tBO4qck+wqbHNfdnU/crrsHahjzBjvk8Up7VoY8oT+z03sal2vXEonS279xN2B92Tttr
- AgwosujguFO/7tvzymWC76rDEwue8TsADE11ErjwaBTs8ZXfnN/uAANgPLQjTWljaGVsIERh
- ZW56ZXIgPG1pY2hlbEBkYWVuemVyLm5ldD6IXgQTEQIAHgUCQFXxJgIbAwYLCQgHAwIDFQID
- AxYCAQIeAQIXgAAKCRBaga+OatuyAIrPAJ9ykonXI3oQcX83N2qzCEStLNW47gCeLWm/QiPY
- jqtGUnnSbyuTQfIySkK5AQ0EOx6FRRAEAJZkcvklPwJCgNiw37p0GShKmFGGqf/a3xZZEpjI
- qNxzshFRFneZze4f5LhzbX1/vIm5+ZXsEWympJfZzyCmYPw86QcFxyZflkAxHx9LeD+89Elx
- bw6wT0CcLvSv8ROfU1m8YhGbV6g2zWyLD0/naQGVb8e4FhVKGNY2EEbHgFBrAAMGA/0VktFO
- CxFBdzLQ17RCTwCJ3xpyP4qsLJH0yCoA26rH2zE2RzByhrTFTYZzbFEid3ddGiHOBEL+bO+2
- GNtfiYKmbTkj1tMZJ8L6huKONaVrASFzLvZa2dlc2zja9ZSksKmge5BOTKWgbyepEc5qxSju
- YsYrX5xfLgTZC5abhhztpYhGBBgRAgAGBQI7HoVFAAoJEFqBr45q27IAlscAn2Ufk2d6/3p4
- Cuyz/NX7KpL2dQ8WAJ9UD5JEakhfofed8PSqOM7jOO3LCA==
-Message-ID: <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net>
-Date:   Tue, 3 Sep 2019 18:40:43 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+ <20190903162519.7136-126-sashal@kernel.org>
+ <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190903162519.7136-44-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-CA
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-09-03 6:23 p.m., Sasha Levin wrote:
-> From: Yu Zhao <yuzhao@google.com>
-> 
-> [ Upstream commit 89f23b6efef554766177bf51aa754bce14c3e7da ]
+On Tue Sep 03 19, Doug Anderson wrote:
+>Hi,
+>
+>On Tue, Sep 3, 2019 at 9:28 AM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Vadim Sukhomlinov <sukhomlinov@google.com>
+>>
+>> [ Upstream commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 ]
+>>
+>> TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+>> future TPM operations. TPM 1.2 behavior was different, future TPM
+>> operations weren't disabled, causing rare issues. This patch ensures
+>> that future TPM operations are disabled.
+>>
+>> Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+>> [dianders: resolved merge conflicts with mainline]
+>> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+>> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/char/tpm/tpm-chip.c | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+>Jarkko: did you deal with the issues that came up in response to my
+>post?  Are you happy with this going into 4.19 stable at this point?
+>I notice this has your Signed-off-by so maybe?
+>
 
-Hold your horses!
+I think that is just the signed-off-by chain coming from the upstream patch.
+Jarkko mentioned getting to the backports after Linux Plumbers, which is next week.
 
-This commit and c4a32b266da7bb702e60381ca0c35eaddbc89a6c had to be
-reverted, as they caused regressions. See commits
-25ec429e86bb790e40387a550f0501d0ac55a47c &
-92b0730eaf2d549fdfb10ecc8b71f34b9f472c12 .
-
-
-This isn't bolstering confidence in how these patches are selected...
-I'm also a little nervous about others which change values by an order
-of magnitude. There were cases before where such patches were backported
-to branches which didn't have other corresponding changes, so they ended
-up breaking stuff instead of fixing anything.
-
-
--- 
-Earthling Michel Dänzer               |               https://redhat.com
-Libre software enthusiast             |             Mesa and X developer
+>-Doug
