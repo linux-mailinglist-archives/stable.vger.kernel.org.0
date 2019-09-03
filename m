@@ -2,181 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC1EA5E6A
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 02:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9FFA5EB1
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 02:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbfICASh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Sep 2019 20:18:37 -0400
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:1550 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727904AbfICASf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Sep 2019 20:18:35 -0400
-Received: from pps.filterd (m0134423.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x83074Dt014672;
-        Tue, 3 Sep 2019 00:18:18 GMT
-Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2us282kqr9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Sep 2019 00:18:17 +0000
-Received: from stormcage.eag.rdlabs.hpecorp.net (unknown [128.162.236.70])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id 226706A;
-        Tue,  3 Sep 2019 00:18:17 +0000 (UTC)
-Received: by stormcage.eag.rdlabs.hpecorp.net (Postfix, from userid 5508)
-        id CA0D1201EA185; Mon,  2 Sep 2019 19:18:16 -0500 (CDT)
-Message-Id: <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
-User-Agent: quilt/0.46-1
-Date:   Mon, 02 Sep 2019 19:18:23 -0500
-From:   Mike Travis <mike.travis@hpe.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>
-Cc:     Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in is_uvX_hub Ops
-Content-Disposition: inline; filename=mod-is_uvX_hub
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
- definitions=2019-09-02_10:2019-08-29,2019-09-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- mlxscore=0 adultscore=0 mlxlogscore=588 suspectscore=0 clxscore=1015
- lowpriorityscore=0 priorityscore=1501 spamscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1906280000 definitions=main-1909030000
+        id S1725870AbfICAvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Sep 2019 20:51:32 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:33035 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725855AbfICAvc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Sep 2019 20:51:32 -0400
+Received: by mail-wr1-f67.google.com with SMTP id u16so15551144wrr.0
+        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 17:51:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=funYT63YcZCQodshKxXaWJZ130AS9mYvNRV/Z26BEYE=;
+        b=MSW3CniLAwBa2MjKFI0mNhz0dDoHQmKbV7C/Xza9QUuvgKBz+rrvhbE0EQ2Oc+ZQkN
+         wz3VzNKo2uk/WKaKeHQ5QVL4OHGyH2JUnit2CKHO7KinChLHRVlWROR2zHsFG5boSDqy
+         ZYtheyoQ2KSk3+if418sWWPywULORX/eeNy2+iVME0kDVmK5yALZqhuDCriSUe66419n
+         rt7ATa3+fji3TD7dkNEQO/RSloM07I+gq1ZkGcZfVxQ/Whf03IMxpo1b3xvhCvxUE5wT
+         Ng6qAnnNABx3pmYqOOSUUwNIhmAuka50oq7ekqY4Fq8bvkRzWydpfUopY6519xJnIss+
+         yiBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=funYT63YcZCQodshKxXaWJZ130AS9mYvNRV/Z26BEYE=;
+        b=a3IzFkge0yQFtffqcY4rw/1xJxLsqMrcTQZwJl0X54TPfQ2qWVzoBYA1QQWcQEf67x
+         AQmRPKdGYcoZv3txq7VFlIbHGyPWFk1P3/gfxnvIJZk7TgbupTgKt4fm5Kc9VyBN3jY7
+         bEW57VHZpMGNWFK6b9NWc3UOqonC+loz0/h1Y/N//PCkS2XgaKcNSopW7KyZR4Isnt6m
+         7KDW1QLLr5oE4Stb0tRpOTkT1f4JvWpD2J6mhrhLDzL5Suzjsj7TF2aQRpmZpJy9+snB
+         ZBAqshaIfugi4vzw9BruE/XdiRAsLJfd2WfG7ihD2iin8rs7h2pxJtazVvD6bHqErzep
+         IvJg==
+X-Gm-Message-State: APjAAAWBRIwUJlzC4MaUaiMROaiuCp2I+QDqIG+vMSJZJ6p7nW2sRoSN
+        q/FGYCcLwYstAPc/BAW9QhfY6887d58FNg==
+X-Google-Smtp-Source: APXvYqzwFp8hNroFaBaFqfUe7201zdjwKH8Vj5+erRV7n33+fINj8N/VtfFdvM5l0YBKZKC7WJVr4A==
+X-Received: by 2002:a5d:51c6:: with SMTP id n6mr18531933wrv.206.1567471889708;
+        Mon, 02 Sep 2019 17:51:29 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c6sm22697910wrb.60.2019.09.02.17.51.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 02 Sep 2019 17:51:29 -0700 (PDT)
+Message-ID: <5d6db911.1c69fb81.44f28.f7dd@mx.google.com>
+Date:   Mon, 02 Sep 2019 17:51:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.190
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 96 boots: 5 failed,
+ 80 passed with 9 offline, 1 untried/unknown, 1 conflict (v4.4.190)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The references in the is_uvX_hub() function uses the hub_info pointer
-which will be NULL when the system is hubless.  This change avoids
-that NULL dereference.  It is also an optimization in performance.
+stable-rc/linux-4.4.y boot: 96 boots: 5 failed, 80 passed with 9 offline, 1=
+ untried/unknown, 1 conflict (v4.4.190)
 
-Signed-off-by: Mike Travis <mike.travis@hpe.com>
-Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
-Reviewed-by: Dimitri Sivanich <dimitri.sivanich@hpe.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.190/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.190/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.190
+Git Commit: 5e9f4d704f8698b6d655afa7e9fac3509da253bc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 42 unique boards, 17 SoC families, 14 builds out of 190
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+arm:
+    vexpress_defconfig:
+        gcc-8:
+            qemu_arm-virt-gicv3: 4 failed labs
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
 ---
- arch/x86/include/asm/uv/.uv_hub.h.swp |binary
- arch/x86/include/asm/uv/uv_hub.h |   60 ++++++++++++---------------------------
- 1 file changed, 19 insertions(+), 41 deletions(-)
-
-Binary files linux.orig/arch/x86/include/asm/uv/.uv_hub.h.swp and linux/arch/x86/include/asm/uv/.uv_hub.h.swp differ
---- linux.orig/arch/x86/include/asm/uv/uv_hub.h
-+++ linux/arch/x86/include/asm/uv/uv_hub.h
-@@ -19,6 +19,7 @@
- #include <linux/topology.h>
- #include <asm/types.h>
- #include <asm/percpu.h>
-+#include <asm/uv/uv.h>
- #include <asm/uv/uv_mmrs.h>
- #include <asm/uv/bios.h>
- #include <asm/irq_vectors.h>
-@@ -243,83 +244,60 @@ static inline int uv_hub_info_check(int
- #define UV4_HUB_REVISION_BASE		7
- #define UV4A_HUB_REVISION_BASE		8	/* UV4 (fixed) rev 2 */
- 
--#ifdef	UV1_HUB_IS_SUPPORTED
- static inline int is_uv1_hub(void)
- {
--	return uv_hub_info->hub_revision < UV2_HUB_REVISION_BASE;
--}
-+#ifdef	UV1_HUB_IS_SUPPORTED
-+	return is_uv_hubbed(uv(1));
- #else
--static inline int is_uv1_hub(void)
--{
- 	return 0;
--}
- #endif
-+}
- 
--#ifdef	UV2_HUB_IS_SUPPORTED
- static inline int is_uv2_hub(void)
- {
--	return ((uv_hub_info->hub_revision >= UV2_HUB_REVISION_BASE) &&
--		(uv_hub_info->hub_revision < UV3_HUB_REVISION_BASE));
--}
-+#ifdef	UV2_HUB_IS_SUPPORTED
-+	return is_uv_hubbed(uv(2));
- #else
--static inline int is_uv2_hub(void)
--{
- 	return 0;
--}
- #endif
-+}
- 
--#ifdef	UV3_HUB_IS_SUPPORTED
- static inline int is_uv3_hub(void)
- {
--	return ((uv_hub_info->hub_revision >= UV3_HUB_REVISION_BASE) &&
--		(uv_hub_info->hub_revision < UV4_HUB_REVISION_BASE));
--}
-+#ifdef	UV3_HUB_IS_SUPPORTED
-+	return is_uv_hubbed(uv(3));
- #else
--static inline int is_uv3_hub(void)
--{
- 	return 0;
--}
- #endif
-+}
- 
- /* First test "is UV4A", then "is UV4" */
--#ifdef	UV4A_HUB_IS_SUPPORTED
--static inline int is_uv4a_hub(void)
--{
--	return (uv_hub_info->hub_revision >= UV4A_HUB_REVISION_BASE);
--}
--#else
- static inline int is_uv4a_hub(void)
- {
-+#ifdef	UV4A_HUB_IS_SUPPORTED
-+	if (is_uv_hubbed(uv(4)))
-+		return (uv_hub_info->hub_revision == UV4A_HUB_REVISION_BASE);
-+#endif
- 	return 0;
- }
--#endif
- 
--#ifdef	UV4_HUB_IS_SUPPORTED
- static inline int is_uv4_hub(void)
- {
--	return uv_hub_info->hub_revision >= UV4_HUB_REVISION_BASE;
--}
-+#ifdef	UV4_HUB_IS_SUPPORTED
-+	return is_uv_hubbed(uv(4));
- #else
--static inline int is_uv4_hub(void)
--{
- 	return 0;
--}
- #endif
-+}
- 
- static inline int is_uvx_hub(void)
- {
--	if (uv_hub_info->hub_revision >= UV2_HUB_REVISION_BASE)
--		return uv_hub_info->hub_revision;
--
--	return 0;
-+	return (is_uv_hubbed(-2) >= uv(2));
- }
- 
- static inline int is_uv_hub(void)
- {
--#ifdef	UV1_HUB_IS_SUPPORTED
--	return uv_hub_info->hub_revision;
--#endif
--	return is_uvx_hub();
-+	return is_uv1_hub() || is_uvx_hub();
- }
- 
- union uvh_apicid {
-
--- 
+For more info write to <info@kernelci.org>
