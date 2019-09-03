@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 271E0A7316
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD40A7317
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbfICTEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 15:04:42 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60111 "EHLO
+        id S1726090AbfICTEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 15:04:50 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49475 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726005AbfICTEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 15:04:42 -0400
+        by vger.kernel.org with ESMTP id S1726005AbfICTEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 15:04:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1381522033;
-        Tue,  3 Sep 2019 15:04:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 15:04:41 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 3BE9521F82;
+        Tue,  3 Sep 2019 15:04:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 15:04:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XwhFUb
-        OdKmZMU923ofG3JdrXl349D/fo2nBtxeXZdqE=; b=v+Ul9l6vNjRh65NwbXGQP8
-        jeAbeFL/UdhPu+/XbOZhkYL1Dxo9+7x4BkX/8QKokc/ZpSLp6XWVXHRViGxxz/3A
-        UiF0+u18u9us09A6foJIMs6LPQvWI24pvgOdmqcV9UDwGmtqNU0mwaulxU6smj5M
-        JQTSg7HjhJ5Ojca5Bp5fitCJqFxlWq7yxybTfx/V4NdIbcfrgjtosZ0S9CrKO89j
-        VID2d7GxQNhM7x4MYeeEunLmRsXUA/o3i/ly/Q3cCH9e1QfTpVxyezLjI4met7yE
-        ciJMeHZ7RgEQiOiKaPM3vscdh16tFOKjjW1h1FH6LFVL4QdKAtzIV3UM+13Usl2g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=cgwaFt
+        JoEcwGJkbVC2BQwbLBo5b3r5VJWS4XUacxyoY=; b=PCnJQ1LZeg1FcGsNeZPD9Z
+        4XoLGR4Gvynpsas1NUDd96ySt3tIzJDotmC4SdJnh6UIoyrNV5IsYwYOZowOuEjw
+        OjK/mJQsPczGi0WVv7BJYdNZSBOpZHkRbueH3v15jUGxXCUgq5XQdYgrm6IwzCeB
+        CIFeKFZK/01SfOzZnVIJ//QiShfSlHduJm/siom2ADEe+zpibB8PIqNLhwQIcYb8
+        mMJB9mrqp2hU82Vy768kl85HrMZhHwvuu2fzJAaxbAiSie+qnrbnUlyGG7r0y6Xg
+        JcN/3pUhHw6xnJPX9xbtZgbdepRKHzY33wqkCi0zO4Io9NUjYndsZVyyjq5zC0Yg
         ==
-X-ME-Sender: <xms:SLluXRC6AsUbcnrfth8sb5rJX6YJ7QeM1qXsvUg2gF57w6JGQ9IqCw>
+X-ME-Sender: <xms:UbluXbY-61u4GdhD94MYzGZdIs72hEEFRpDuF0kij8eekQ_7sLxpGQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:SLluXcF_3zMt6HEMy2DE3lUkoplLwMwOErnqBh3RPGdZ9pl7k0iEkA>
-    <xmx:SLluXRAEg3pfmfV1Yf8QJcu5Y-lDlkON3T4EYBb7jp61J36IgdCjpw>
-    <xmx:SLluXSkcpK4_Om6qofR8gLeMMV7hCw2UtueeRuX9Xbynztxl_cMmPA>
-    <xmx:SbluXTFQ3Tl5RhnJYa6R--Ox-8SMdkgtjpv8fZu70xm7FklRxv6dhg>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:UbluXXhNvis2JxFQDJmdHV0LGCN0ThBXgLk5WTvQ8L3A6mF5TyjBoA>
+    <xmx:UbluXeazsbLDYHKevVHzOeoHFJ3OEDwieXbVg5VKz0vHWa64u_b4ow>
+    <xmx:UbluXSq-K6VANIuXhqjUCobUEbevMxZhFjbWIc0u9l-qsoO6qixnyQ>
+    <xmx:UbluXQGF5K2n24G-AdIgMVoAqS-sLJb5awZp2BahNPkBK8QYaDg7Qw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0365680068;
-        Tue,  3 Sep 2019 15:04:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] i2c: piix4: Fix port selection for AMD Family 16h Model 30h" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BCE0CD60063;
+        Tue,  3 Sep 2019 15:04:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] i2c: piix4: Fix port selection for AMD Family 16h Model 30h" failed to apply to 4.9-stable tree
 To:     andrew.cooks@opengear.com, jdelvare@suse.de, wsa@the-dreams.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Sep 2019 21:04:38 +0200
-Message-ID: <15675374782510@kroah.com>
+Date:   Tue, 03 Sep 2019 21:04:39 +0200
+Message-ID: <15675374794253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
