@@ -2,51 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34980A7365
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D54A73AE
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbfICTOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 15:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S1726085AbfICTbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 15:31:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:45467 "EHLO gate.crashing.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726005AbfICTOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 15:14:53 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE5B5206BB;
-        Tue,  3 Sep 2019 19:14:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567538092;
-        bh=7sEOV673oFO8l4CmRtVcKS4YMcOs5mJAeAce8k0Y2sc=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=iIfPmASwChsOLbrmvGChZ5ojXK6Dt/uK8VE5XdPn0fj0LEPpixQ9EsdFuxigf3aSX
-         NR6yBIdGukrVVmN3dzS/rrTCona/C0mcq7k7wirrAgmv0zzcn8jzlduaODz4SWbIo9
-         3eY3C2p+zA3NH0QNhP+2c5HRcSExEAJoZJCoIo04=
-Date:   Tue, 3 Sep 2019 21:14:50 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     shakeelb@google.com, akpm@linux-foundation.org, guro@fb.com,
-        hannes@cmpxchg.org, mhocko@suse.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
-Subject: Re: FAILED: patch "[PATCH] mm: memcontrol: fix percpu vmstats and
- vmevents flush" failed to apply to 5.2-stable tree
-Message-ID: <20190903191450.GA25676@kroah.com>
-References: <156753769868234@kroah.com>
-MIME-Version: 1.0
+        id S1725883AbfICTbu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 15:31:50 -0400
+Received: from gate.crashing.org (localhost.localdomain [127.0.0.1])
+        by gate.crashing.org (8.14.1/8.14.1) with ESMTP id x83JVTV8020900;
+        Tue, 3 Sep 2019 14:31:29 -0500
+Received: (from segher@localhost)
+        by gate.crashing.org (8.14.1/8.14.1/Submit) id x83JVTPO020899;
+        Tue, 3 Sep 2019 14:31:29 -0500
+X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
+Date:   Tue, 3 Sep 2019 14:31:28 -0500
+From:   Segher Boessenkool <segher@kernel.crashing.org>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+Message-ID: <20190903193128.GC9749@gate.crashing.org>
+References: <20190812023214.107817-1-natechancellor@gmail.com> <878srdv206.fsf@mpe.ellerman.id.au> <20190828175322.GA121833@archlinux-threadripper> <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com> <20190828184529.GC127646@archlinux-threadripper> <6801a83ed6d54d95b87a41c57ef6e6b0@AcuMS.aculab.com> <20190903055553.GC60296@archlinux-threadripper>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <156753769868234@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190903055553.GC60296@archlinux-threadripper>
+User-Agent: Mutt/1.4.2.3i
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 09:08:18PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Sep 02, 2019 at 10:55:53PM -0700, Nathan Chancellor wrote:
+> On Thu, Aug 29, 2019 at 09:59:48AM +0000, David Laight wrote:
+> > From: Nathan Chancellor
+> > > Sent: 28 August 2019 19:45
+> > ...
+> > > However, I think that -fno-builtin-* would be appropriate here because
+> > > we are providing our own setjmp implementation, meaning clang should not
+> > > be trying to do anything with the builtin implementation like building a
+> > > declaration for it.
+> > 
+> > Isn't implementing setjmp impossible unless you tell the compiler that
+> > you function is 'setjmp-like' ?
 > 
-> The patch below does not apply to the 5.2-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> No idea, PowerPC is the only architecture that does such a thing.
 
-Nevermind, I fixed it up...
+Since setjmp can return more than once, yes, exciting things can happen
+if you do not tell the compiler about this.
+
+
+Segher
