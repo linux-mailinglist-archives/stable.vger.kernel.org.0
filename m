@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD5CA6FCB
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB237A6FC7
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730180AbfICQfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49404 "EHLO mail.kernel.org"
+        id S1731219AbfICQfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:35:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730961AbfICQ1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:27:51 -0400
+        id S1730969AbfICQ1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:27:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97C35238CE;
-        Tue,  3 Sep 2019 16:27:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF84A23789;
+        Tue,  3 Sep 2019 16:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528070;
-        bh=sFhHUfFFO1Bq+l+wG7Y4XqyYWd3tbsAiXcrtF0zOthE=;
+        s=default; t=1567528072;
+        bh=IYyyR7M7rGBO8OqHSI9KXgCb+rxiIEbdYid7/md1cm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srgc/rE1Sveo2Q9PACYgzv5YzGkuhDX8EITVtRRk2CrxJKYI1kw1jRAqJHoXPd39a
-         cGpSmVgChfLFhJV56WOgZQz9ATUnRAskVNsClozNHaDZmjgOKVtC4DDhDA6d32mBsh
-         xrjzSOPvxFHbdv4sBijMz6wlX070zlaJy5HeWT6Y=
+        b=jCiBhg12JczNeZ1/hWa1Giip1v343kkPWQ9z7TrObducII42aYGSPSNICC2t45sUR
+         muQrXB3D2RB6XgcXM9W2j/KLc6m3lkfKO5mr/YehEbgqrtUAFClWuhpgVDFI7kpr7P
+         V0IFrwSlRxlmThAIt6R4SbVuR2gKD5YgyBklmPN0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Shilovsky <pshilov@microsoft.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 084/167] CIFS: Fix error paths in writeback code
-Date:   Tue,  3 Sep 2019 12:23:56 -0400
-Message-Id: <20190903162519.7136-84-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 086/167] x86/ftrace: Fix warning and considate ftrace_jmp_replace() and ftrace_call_replace()
+Date:   Tue,  3 Sep 2019 12:23:58 -0400
+Message-Id: <20190903162519.7136-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,212 +42,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 9a66396f1857cc1de06f4f4771797315e1a4ea56 ]
+[ Upstream commit 745cfeaac09ce359130a5451d90cb0bd4094c290 ]
 
-This patch aims to address writeback code problems related to error
-paths. In particular it respects EINTR and related error codes and
-stores and returns the first error occurred during writeback.
+Arnd reported the following compiler warning:
 
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Acked-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+arch/x86/kernel/ftrace.c:669:23: error: 'ftrace_jmp_replace' defined but not used [-Werror=unused-function]
+
+The ftrace_jmp_replace() function now only has a single user and should be
+simply moved by that user. But looking at the code, it shows that
+ftrace_jmp_replace() is similar to ftrace_call_replace() except that instead
+of using the opcode of 0xe8 it uses 0xe9. It makes more sense to consolidate
+that function into one implementation that both ftrace_jmp_replace() and
+ftrace_call_replace() use by passing in the op code separate.
+
+The structure in ftrace_code_union is also modified to replace the "e8"
+field with the more appropriate name "op".
+
+Cc: stable@vger.kernel.org
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: http://lkml.kernel.org/r/20190304200748.1418790-1-arnd@arndb.de
+Fixes: d2a68c4effd8 ("x86/ftrace: Do not call function graph from dynamic trampolines")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsglob.h | 19 +++++++++++++++++++
- fs/cifs/cifssmb.c  |  7 ++++---
- fs/cifs/file.c     | 29 +++++++++++++++++++++++------
- fs/cifs/inode.c    | 10 ++++++++++
- 4 files changed, 56 insertions(+), 9 deletions(-)
+ arch/x86/kernel/ftrace.c | 42 ++++++++++++++++------------------------
+ 1 file changed, 17 insertions(+), 25 deletions(-)
 
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 6f227cc781e5d..0ee0072c1f362 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1563,6 +1563,25 @@ static inline void free_dfs_info_array(struct dfs_info3_param *param,
- 	kfree(param);
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 50d309662d78c..5790671857e55 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -53,7 +53,7 @@ int ftrace_arch_code_modify_post_process(void)
+ union ftrace_code_union {
+ 	char code[MCOUNT_INSN_SIZE];
+ 	struct {
+-		unsigned char e8;
++		unsigned char op;
+ 		int offset;
+ 	} __attribute__((packed));
+ };
+@@ -63,20 +63,23 @@ static int ftrace_calc_offset(long ip, long addr)
+ 	return (int)(addr - ip);
  }
  
-+static inline bool is_interrupt_error(int error)
-+{
-+	switch (error) {
-+	case -EINTR:
-+	case -ERESTARTSYS:
-+	case -ERESTARTNOHAND:
-+	case -ERESTARTNOINTR:
-+		return true;
-+	}
-+	return false;
-+}
-+
-+static inline bool is_retryable_error(int error)
-+{
-+	if (is_interrupt_error(error) || error == -EAGAIN)
-+		return true;
-+	return false;
-+}
-+
- #define   MID_FREE 0
- #define   MID_REQUEST_ALLOCATED 1
- #define   MID_REQUEST_SUBMITTED 2
-diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
-index 269471c8f42bf..a5cb7b2d1ac5d 100644
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -2042,7 +2042,7 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
+-static unsigned char *ftrace_call_replace(unsigned long ip, unsigned long addr)
++static unsigned char *
++ftrace_text_replace(unsigned char op, unsigned long ip, unsigned long addr)
+ {
+ 	static union ftrace_code_union calc;
  
- 		for (j = 0; j < nr_pages; j++) {
- 			unlock_page(wdata2->pages[j]);
--			if (rc != 0 && rc != -EAGAIN) {
-+			if (rc != 0 && !is_retryable_error(rc)) {
- 				SetPageError(wdata2->pages[j]);
- 				end_page_writeback(wdata2->pages[j]);
- 				put_page(wdata2->pages[j]);
-@@ -2051,7 +2051,7 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
+-	calc.e8		= 0xe8;
++	calc.op		= op;
+ 	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
  
- 		if (rc) {
- 			kref_put(&wdata2->refcount, cifs_writedata_release);
--			if (rc == -EAGAIN)
-+			if (is_retryable_error(rc))
- 				continue;
- 			break;
- 		}
-@@ -2060,7 +2060,8 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
- 		i += nr_pages;
- 	} while (i < wdata->nr_pages);
- 
--	mapping_set_error(inode->i_mapping, rc);
-+	if (rc != 0 && !is_retryable_error(rc))
-+		mapping_set_error(inode->i_mapping, rc);
- 	kref_put(&wdata->refcount, cifs_writedata_release);
+-	/*
+-	 * No locking needed, this must be called via kstop_machine
+-	 * which in essence is like running on a uniprocessor machine.
+-	 */
+ 	return calc.code;
  }
  
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 23cee91ed442e..933013543edab 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -749,7 +749,8 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
- 
- 	if (can_flush) {
- 		rc = filemap_write_and_wait(inode->i_mapping);
--		mapping_set_error(inode->i_mapping, rc);
-+		if (!is_interrupt_error(rc))
-+			mapping_set_error(inode->i_mapping, rc);
- 
- 		if (tcon->unix_ext)
- 			rc = cifs_get_inode_info_unix(&inode, full_path,
-@@ -2137,6 +2138,7 @@ static int cifs_writepages(struct address_space *mapping,
- 	pgoff_t end, index;
- 	struct cifs_writedata *wdata;
- 	int rc = 0;
-+	int saved_rc = 0;
- 
- 	/*
- 	 * If wsize is smaller than the page cache size, default to writing
-@@ -2163,8 +2165,10 @@ static int cifs_writepages(struct address_space *mapping,
- 
- 		rc = server->ops->wait_mtu_credits(server, cifs_sb->wsize,
- 						   &wsize, &credits);
--		if (rc)
-+		if (rc != 0) {
-+			done = true;
- 			break;
-+		}
- 
- 		tofind = min((wsize / PAGE_SIZE) - 1, end - index) + 1;
- 
-@@ -2172,6 +2176,7 @@ static int cifs_writepages(struct address_space *mapping,
- 						  &found_pages);
- 		if (!wdata) {
- 			rc = -ENOMEM;
-+			done = true;
- 			add_credits_and_wake_if(server, credits, 0);
- 			break;
- 		}
-@@ -2200,7 +2205,7 @@ static int cifs_writepages(struct address_space *mapping,
- 		if (rc != 0) {
- 			add_credits_and_wake_if(server, wdata->credits, 0);
- 			for (i = 0; i < nr_pages; ++i) {
--				if (rc == -EAGAIN)
-+				if (is_retryable_error(rc))
- 					redirty_page_for_writepage(wbc,
- 							   wdata->pages[i]);
- 				else
-@@ -2208,7 +2213,7 @@ static int cifs_writepages(struct address_space *mapping,
- 				end_page_writeback(wdata->pages[i]);
- 				put_page(wdata->pages[i]);
- 			}
--			if (rc != -EAGAIN)
-+			if (!is_retryable_error(rc))
- 				mapping_set_error(mapping, rc);
- 		}
- 		kref_put(&wdata->refcount, cifs_writedata_release);
-@@ -2218,6 +2223,15 @@ static int cifs_writepages(struct address_space *mapping,
- 			continue;
- 		}
- 
-+		/* Return immediately if we received a signal during writing */
-+		if (is_interrupt_error(rc)) {
-+			done = true;
-+			break;
-+		}
++static unsigned char *
++ftrace_call_replace(unsigned long ip, unsigned long addr)
++{
++	return ftrace_text_replace(0xe8, ip, addr);
++}
 +
-+		if (rc != 0 && saved_rc == 0)
-+			saved_rc = rc;
-+
- 		wbc->nr_to_write -= nr_pages;
- 		if (wbc->nr_to_write <= 0)
- 			done = true;
-@@ -2235,6 +2249,9 @@ static int cifs_writepages(struct address_space *mapping,
- 		goto retry;
+ static inline int
+ within(unsigned long addr, unsigned long start, unsigned long end)
+ {
+@@ -686,22 +689,6 @@ int __init ftrace_dyn_arch_init(void)
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_X86_64) || defined(CONFIG_FUNCTION_GRAPH_TRACER)
+-static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
+-{
+-	static union ftrace_code_union calc;
+-
+-	/* Jmp not a call (ignore the .e8) */
+-	calc.e8		= 0xe9;
+-	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
+-
+-	/*
+-	 * ftrace external locks synchronize the access to the static variable.
+-	 */
+-	return calc.code;
+-}
+-#endif
+-
+ /* Currently only x86_64 supports dynamic trampolines */
+ #ifdef CONFIG_X86_64
+ 
+@@ -923,8 +910,8 @@ static void *addr_from_call(void *ptr)
+ 		return NULL;
+ 
+ 	/* Make sure this is a call */
+-	if (WARN_ON_ONCE(calc.e8 != 0xe8)) {
+-		pr_warn("Expected e8, got %x\n", calc.e8);
++	if (WARN_ON_ONCE(calc.op != 0xe8)) {
++		pr_warn("Expected e8, got %x\n", calc.op);
+ 		return NULL;
  	}
  
-+	if (saved_rc != 0)
-+		rc = saved_rc;
-+
- 	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
- 		mapping->writeback_index = index;
+@@ -995,6 +982,11 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ extern void ftrace_graph_call(void);
  
-@@ -2266,8 +2283,8 @@ cifs_writepage_locked(struct page *page, struct writeback_control *wbc)
- 	set_page_writeback(page);
- retry_write:
- 	rc = cifs_partialpagewrite(page, 0, PAGE_SIZE);
--	if (rc == -EAGAIN) {
--		if (wbc->sync_mode == WB_SYNC_ALL)
-+	if (is_retryable_error(rc)) {
-+		if (wbc->sync_mode == WB_SYNC_ALL && rc == -EAGAIN)
- 			goto retry_write;
- 		redirty_page_for_writepage(wbc, page);
- 	} else if (rc != 0) {
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index 1fadd314ae7f9..53f3d08898af8 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2261,6 +2261,11 @@ cifs_setattr_unix(struct dentry *direntry, struct iattr *attrs)
- 	 * the flush returns error?
- 	 */
- 	rc = filemap_write_and_wait(inode->i_mapping);
-+	if (is_interrupt_error(rc)) {
-+		rc = -ERESTARTSYS;
-+		goto out;
-+	}
++static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
++{
++	return ftrace_text_replace(0xe9, ip, addr);
++}
 +
- 	mapping_set_error(inode->i_mapping, rc);
- 	rc = 0;
- 
-@@ -2404,6 +2409,11 @@ cifs_setattr_nounix(struct dentry *direntry, struct iattr *attrs)
- 	 * the flush returns error?
- 	 */
- 	rc = filemap_write_and_wait(inode->i_mapping);
-+	if (is_interrupt_error(rc)) {
-+		rc = -ERESTARTSYS;
-+		goto cifs_setattr_exit;
-+	}
-+
- 	mapping_set_error(inode->i_mapping, rc);
- 	rc = 0;
- 
+ static int ftrace_mod_jmp(unsigned long ip, void *func)
+ {
+ 	unsigned char *new;
 -- 
 2.20.1
 
