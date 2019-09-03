@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3373A6E61
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E77A6E63
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730474AbfICQZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S1730489AbfICQZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730465AbfICQZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:49 -0400
+        id S1730480AbfICQZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F0A823774;
-        Tue,  3 Sep 2019 16:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82C092343A;
+        Tue,  3 Sep 2019 16:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527948;
-        bh=K9OcstgoEAF/+7QGbfId/spEmXyKk4gKH5hsBnfLJQE=;
+        s=default; t=1567527949;
+        bh=rsK/26JHP6dw/JKoiZY1zzQkRQGxmrL23SyTuBKBINY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wb+4hR4sFuf+r6j2E2nYalSeQDGRmNxDui5WmW61JC8N7XEql+adOYHsFvdJfHM5H
-         4uAC4K2yoNqU/okbPRr9+AQwzjEDEZPg7Rf+ZJOHJWePEisoUNWxRwrmevcNuScVtK
-         hw9R4QHBcCiu8h4b+j818OEIbdf/LF98vdTI+ST4=
+        b=PSN5SPKZx1M8rpSjnl5/YDpUT3hw8zOI9YcSAnxn4/7JJU6coR8X0c1b0+NVPbFEZ
+         viAv6/OhmbaFo8205hKFi6PSME7VAvBmLjpUXQKlYJkjLqVoBQy92tWv3CalKl9QdW
+         tnBKFF91huhR6sJFKMiLK6/PHUJvmWgj50e4wT0s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 015/167] x86/kvm/lapic: preserve gfn_to_hva_cache len on cache reinit
-Date:   Tue,  3 Sep 2019 12:22:47 -0400
-Message-Id: <20190903162519.7136-15-sashal@kernel.org>
+Cc:     Lyude Paul <lyude@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 016/167] drm/i915: Fix intel_dp_mst_best_encoder()
+Date:   Tue,  3 Sep 2019 12:22:48 -0400
+Message-Id: <20190903162519.7136-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,58 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit a7c42bb6da6b1b54b2e7bd567636d72d87b10a79 ]
+[ Upstream commit a9f9ca33d1fe9325f414914be526c0fc4ba5281c ]
 
-vcpu->arch.pv_eoi is accessible through both HV_X64_MSR_VP_ASSIST_PAGE and
-MSR_KVM_PV_EOI_EN so on migration userspace may try to restore them in any
-order. Values match, however, kvm_lapic_enable_pv_eoi() uses different
-length: for Hyper-V case it's the whole struct hv_vp_assist_page, for KVM
-native case it is 8. In case we restore KVM-native MSR last cache will
-be reinitialized with len=8 so trying to access VP assist page beyond
-8 bytes with kvm_read_guest_cached() will fail.
+Currently, i915 appears to rely on blocking modesets on
+no-longer-present MSTB ports by simply returning NULL for
+->best_encoder(), which in turn causes any new atomic commits that don't
+disable the CRTC to fail. This is wrong however, since we still want to
+allow userspace to disable CRTCs on no-longer-present MSTB ports by
+changing the DPMS state to off and this still requires that we retrieve
+an encoder.
 
-Check if we re-initializing cache for the same address and preserve length
-in case it was greater.
+So, fix this by always returning a valid encoder regardless of the state
+of the MST port.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Changes since v1:
+- Remove mst atomic helper, since this got replaced with a much simpler
+  solution
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181008232437.5571-6-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/intel_dp_mst.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index ccf5a04de94c3..973a244081d34 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2631,14 +2631,22 @@ int kvm_hv_vapic_msr_read(struct kvm_vcpu *vcpu, u32 reg, u64 *data)
- int kvm_lapic_enable_pv_eoi(struct kvm_vcpu *vcpu, u64 data, unsigned long len)
- {
- 	u64 addr = data & ~KVM_MSR_ENABLED;
-+	struct gfn_to_hva_cache *ghc = &vcpu->arch.pv_eoi.data;
-+	unsigned long new_len;
-+
- 	if (!IS_ALIGNED(addr, 4))
- 		return 1;
+diff --git a/drivers/gpu/drm/i915/intel_dp_mst.c b/drivers/gpu/drm/i915/intel_dp_mst.c
+index 1fec0c71b4d95..58ba14966d4f1 100644
+--- a/drivers/gpu/drm/i915/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/intel_dp_mst.c
+@@ -408,8 +408,6 @@ static struct drm_encoder *intel_mst_atomic_best_encoder(struct drm_connector *c
+ 	struct intel_dp *intel_dp = intel_connector->mst_port;
+ 	struct intel_crtc *crtc = to_intel_crtc(state->crtc);
  
- 	vcpu->arch.pv_eoi.msr_val = data;
- 	if (!pv_eoi_enabled(vcpu))
- 		return 0;
--	return kvm_gfn_to_hva_cache_init(vcpu->kvm, &vcpu->arch.pv_eoi.data,
--					 addr, len);
-+
-+	if (addr == ghc->gpa && len <= ghc->len)
-+		new_len = ghc->len;
-+	else
-+		new_len = len;
-+
-+	return kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, addr, new_len);
+-	if (!READ_ONCE(connector->registered))
+-		return NULL;
+ 	return &intel_dp->mst_encoders[crtc->pipe]->base.base;
  }
  
- void kvm_apic_accept_events(struct kvm_vcpu *vcpu)
 -- 
 2.20.1
 
