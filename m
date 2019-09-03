@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3DFA61F8
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BABDA6200
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727530AbfICG4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 02:56:09 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43872 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726473AbfICG4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:56:08 -0400
-Received: by mail-pg1-f194.google.com with SMTP id u72so4400592pgb.10
-        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 23:56:08 -0700 (PDT)
+        id S1727572AbfICG5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 02:57:09 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:34508 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727459AbfICG5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:57:09 -0400
+Received: by mail-pl1-f194.google.com with SMTP id d3so7483412plr.1
+        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 23:57:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=63naJTzVpAIq0B9AEz7oC56daTv5sIo3itON2f7HCdg=;
-        b=qlIc1kZNUSEis4xPtAe2vGproYxzVQ4Sqyq9xvpjUKmmWltJv/1g/l4c/k7azDOSF7
-         TMiWaxjoVaBFuIyIWWMpBTRxRQl2QSgi1TXErgRIgFS0/quWdUWJ06sEgwHatwbuZtzc
-         ZppTe4/4kpyRpaSlYbExx9j+3L1X8gCS7TPK5bylEI6r/Y+5T/VG01xhyA65NM4pMuIH
-         i1QwXYW0nH87NZWZNoULz9kv2StEte877lqujLvYnEK0MXiFMYBUBoLYVskwqkTwQwn8
-         h+65MVd3gQ6oTiTiEnZzBJfMHswIF6ccifNGBiqmqFgMjq5ICFomUz3SdBVD6xeHpf47
-         9QNg==
+        bh=KB/V8KmhO87QpU2qi6NuMt+cmKaMtWbc3N1EFYpdy18=;
+        b=A8hMB12rzSIXxfNLfvQpaXb05wViyP2+l2zkaePY3jY9xLsOYXyLQWNvuXoUjKYdYN
+         aVEdikjHvxlsATSHPqByhDsXFeMegocbBJZB6BrUKuSUM34tMIYiSBRSOaRBDDLzzOOm
+         4c+lh19B+smCdveQxL5zxCOCRiNP2ssUIM4XuQXxl+Iqi4niG/BblKaKI5fdu9kf1tPA
+         qJUgEXWDofovWWdVES/7abXnZRPNKx2VnEVI5u0ABQB5rCFFlAxLrBUP5Xcr5i1z0xWD
+         gAbEPtvR5qlXbdBe+KvwSmpz/tPGBjcIKTp/Hw8T+bZmD7g+tXwXPBt0n1YU+wMO8iZZ
+         ePxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=63naJTzVpAIq0B9AEz7oC56daTv5sIo3itON2f7HCdg=;
-        b=e24dl3QBtwPFdQFLeRYe2Rel6OspJaKPix+E7BXoIuSNXc7rzMc9hVaMEypG7iDutL
-         JUrsJrfIax3ayUvVivHi6P4mgZeTUS0eQoQXPo4T3/46tMTtmj/lk3dkDeHDOyrVc11z
-         8Xzn9F1uZRpddyeG/c00fJlk5Kdc6gQwUg5581TnShPzpRKaJ+CyXXYCDtVHw2TTOi9d
-         //ZWc2r8AdFj08/c65Nbtl5fQmdkFGMJdWIBX0D9fGXzV0KteMKkwhUrdWrr+RMWiE4D
-         13H70FZhvuGd/DzzDIVCl1KTd+DTszV8GbwB68uRw+BF7tW91/rEsIGk1puI8he2YRF9
-         ZR4Q==
-X-Gm-Message-State: APjAAAXDIIQS2vD53qnhAaxUWwR49HiWnmqHDdbVNZIpaoMKak0tL6Oc
-        ltPeohbALI5IqkKop8iNUWOSk7jyMXdPKQ==
-X-Google-Smtp-Source: APXvYqxd/j+T8QJmSIsIzaygKzKALx+cde7roGbSkff1Tptv3dOOMPVjCFVwg3YlkwTTrw/JnG/gHw==
-X-Received: by 2002:a17:90a:b108:: with SMTP id z8mr17183365pjq.108.1567493767618;
-        Mon, 02 Sep 2019 23:56:07 -0700 (PDT)
+        bh=KB/V8KmhO87QpU2qi6NuMt+cmKaMtWbc3N1EFYpdy18=;
+        b=n5d+1fou+wISW1QfY55Lyi7z1kxJd5nu9H9uqhSbpOZgbAcr0kki8uFhVJNxrWJMI3
+         BDFY4+AM8ekcD8ol4JENKuDY0dl2mIvye7HnPVACJLTAqc23NMOTTttSVc/Ys8llJi1I
+         7X1UsU5b1bela/H6Zx7dbrw9e0YOke5CZ3x3i5ZouB1W+P6B2D0Eed4ATUGHZz1oQ1x4
+         7BPYJ1rKh7P/2cijZdQRCVOY+JKprwPqr+XYq1ND6Cj0/jRWXBF1SucXLiYi/2wCBYtJ
+         28IKalfaGoXt6Y0iKXyUoLQ+01SKYXo5fSb+4TwhpbuuSEu/V0KcCd+CJV+IkzmWhOlf
+         jb/g==
+X-Gm-Message-State: APjAAAUZYMQDy/2PaIrj2DWVjfFyXvDPHkOQC21tijymLLGQlc+Igwey
+        yrGXLGAWfptJ5hFyC87e10r2HdJbJZEWeg==
+X-Google-Smtp-Source: APXvYqyfySDW7CEQtmCmNLVRVF0O3NlAe8+q1y4hjyEJb68cAg2PNngFpGF2JKZm/rmzjydG4ijMmQ==
+X-Received: by 2002:a17:902:d886:: with SMTP id b6mr8606471plz.149.1567493828795;
+        Mon, 02 Sep 2019 23:57:08 -0700 (PDT)
 Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.82])
-        by smtp.gmail.com with ESMTPSA id e189sm19370762pgc.15.2019.09.02.23.56.03
+        by smtp.gmail.com with ESMTPSA id p20sm17786228pgi.81.2019.09.02.23.57.04
         (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 02 Sep 2019 23:56:07 -0700 (PDT)
+        Mon, 02 Sep 2019 23:57:08 -0700 (PDT)
 From:   Baolin Wang <baolin.wang@linaro.org>
-To:     stable@vger.kernel.org, chris@chris-wilson.co.uk, airlied@linux.ie
-Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        arnd@arndb.de, baolin.wang@linaro.org, orsonzhai@gmail.com,
-        vincent.guittot@linaro.org, linux-kernel@vger.kernel.org
-Subject: [BACKPORT 4.14.y 1/8] drm/i915/fbdev: Actually configure untiled displays
-Date:   Tue,  3 Sep 2019 14:55:26 +0800
-Message-Id: <5723d9006de706582fb46f9e1e3eb8ce168c2126.1567492316.git.baolin.wang@linaro.org>
+To:     stable@vger.kernel.org, davem@davemloft.net, kuznet@ms2.inr.ac.ru,
+        yoshfuji@linux-ipv6.org, edumazet@google.com
+Cc:     netdev@vger.kernel.org, arnd@arndb.de, baolin.wang@linaro.org,
+        orsonzhai@gmail.com, vincent.guittot@linaro.org,
+        linux-kernel@vger.kernel.org
+Subject: [BACKPORT 4.14.y 2/8] ip6: fix skb leak in ip6frag_expire_frag_queue()
+Date:   Tue,  3 Sep 2019 14:56:42 +0800
+Message-Id: <3cf0695f42e8f1b4172b68ad145a5d2afae39a0e.1567492316.git.baolin.wang@linaro.org>
 X-Mailer: git-send-email 1.7.9.5
 In-Reply-To: <cover.1567492316.git.baolin.wang@linaro.org>
 References: <cover.1567492316.git.baolin.wang@linaro.org>
@@ -59,74 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-If we skipped all the connectors that were not part of a tile, we would
-leave conn_seq=0 and conn_configured=0, convincing ourselves that we
-had stagnated in our configuration attempts. Avoid this situation by
-starting conn_seq=ALL_CONNECTORS, and repeating until we find no more
-connectors to configure.
+Since ip6frag_expire_frag_queue() now pulls the head skb
+from frag queue, we should no longer use skb_get(), since
+this leads to an skb leak.
 
-Fixes: 754a76591b12 ("drm/i915/fbdev: Stop repeating tile configuration on stagnation")
-Reported-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190215123019.32283-1-chris@chris-wilson.co.uk
-Cc: <stable@vger.kernel.org> # v3.19+
+Stefan Bader initially reported a problem in 4.4.stable [1] caused
+by the skb_get(), so this patch should also fix this issue.
+
+296583.091021] kernel BUG at /build/linux-6VmqmP/linux-4.4.0/net/core/skbuff.c:1207!
+[296583.091734] Call Trace:
+[296583.091749]  [<ffffffff81740e50>] __pskb_pull_tail+0x50/0x350
+[296583.091764]  [<ffffffff8183939a>] _decode_session6+0x26a/0x400
+[296583.091779]  [<ffffffff817ec719>] __xfrm_decode_session+0x39/0x50
+[296583.091795]  [<ffffffff818239d0>] icmpv6_route_lookup+0xf0/0x1c0
+[296583.091809]  [<ffffffff81824421>] icmp6_send+0x5e1/0x940
+[296583.091823]  [<ffffffff81753238>] ? __netif_receive_skb+0x18/0x60
+[296583.091838]  [<ffffffff817532b2>] ? netif_receive_skb_internal+0x32/0xa0
+[296583.091858]  [<ffffffffc0199f74>] ? ixgbe_clean_rx_irq+0x594/0xac0 [ixgbe]
+[296583.091876]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091893]  [<ffffffff8183d431>] icmpv6_send+0x21/0x30
+[296583.091906]  [<ffffffff8182b500>] ip6_expire_frag_queue+0xe0/0x120
+[296583.091921]  [<ffffffffc04eb27f>] nf_ct_frag6_expire+0x1f/0x30 [nf_defrag_ipv6]
+[296583.091938]  [<ffffffff810f3b57>] call_timer_fn+0x37/0x140
+[296583.091951]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091968]  [<ffffffff810f5464>] run_timer_softirq+0x234/0x330
+[296583.091982]  [<ffffffff8108a339>] __do_softirq+0x109/0x2b0
+
+Fixes: d4289fcc9b16 ("net: IP6 defrag: use rbtrees for IPv6 defrag")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+Cc: Peter Oskolkov <posk@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/net/ipv6_frag.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/intel_fbdev.c b/drivers/gpu/drm/i915/intel_fbdev.c
-index da2d309..14eb8a0 100644
---- a/drivers/gpu/drm/i915/intel_fbdev.c
-+++ b/drivers/gpu/drm/i915/intel_fbdev.c
-@@ -326,8 +326,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
- 				    bool *enabled, int width, int height)
- {
- 	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
--	unsigned long conn_configured, conn_seq, mask;
- 	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
-+	unsigned long conn_configured, conn_seq;
- 	int i, j;
- 	bool *save_enabled;
- 	bool fallback = true, ret = true;
-@@ -345,10 +345,9 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
- 		drm_modeset_backoff(&ctx);
+diff --git a/include/net/ipv6_frag.h b/include/net/ipv6_frag.h
+index 28aa9b3..1f77fb4 100644
+--- a/include/net/ipv6_frag.h
++++ b/include/net/ipv6_frag.h
+@@ -94,7 +94,6 @@ static inline u32 ip6frag_obj_hashfn(const void *data, u32 len, u32 seed)
+ 		goto out;
  
- 	memcpy(save_enabled, enabled, count);
--	mask = GENMASK(count - 1, 0);
-+	conn_seq = GENMASK(count - 1, 0);
- 	conn_configured = 0;
- retry:
--	conn_seq = conn_configured;
- 	for (i = 0; i < count; i++) {
- 		struct drm_fb_helper_connector *fb_conn;
- 		struct drm_connector *connector;
-@@ -361,7 +360,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
- 		if (conn_configured & BIT(i))
- 			continue;
+ 	head->dev = dev;
+-	skb_get(head);
+ 	spin_unlock(&fq->q.lock);
  
--		if (conn_seq == 0 && !connector->has_tile)
-+		/* First pass, only consider tiled connectors */
-+		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
- 			continue;
- 
- 		if (connector->status == connector_status_connected)
-@@ -465,8 +465,10 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
- 		conn_configured |= BIT(i);
- 	}
- 
--	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
-+	if (conn_configured != conn_seq) { /* repeat until no more are found */
-+		conn_seq = conn_configured;
- 		goto retry;
-+	}
- 
- 	/*
- 	 * If the BIOS didn't enable everything it could, fall back to have the
+ 	icmpv6_send(head, ICMPV6_TIME_EXCEED, ICMPV6_EXC_FRAGTIME, 0);
 -- 
 1.7.9.5
 
