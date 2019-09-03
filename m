@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10EABA6206
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A726A620E
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 08:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727005AbfICG5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 02:57:54 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:42498 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726481AbfICG5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:57:54 -0400
-Received: by mail-pg1-f195.google.com with SMTP id p3so8576481pgb.9
-        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 23:57:53 -0700 (PDT)
+        id S1727402AbfICG6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 02:58:53 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:46829 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727079AbfICG6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 02:58:53 -0400
+Received: by mail-pg1-f193.google.com with SMTP id m3so8562676pgv.13
+        for <stable@vger.kernel.org>; Mon, 02 Sep 2019 23:58:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=AeeV14OyLBTF7KaAD5jDBEtXBCp8zTp9/udCZix5Xks=;
-        b=p9W6jfMk6gjNMTcRQ3sw84ltehgzUrnBrlh77posPmyU5yfQhoe+6buCNhGW0ouOGj
-         fLnPvg2yonl4VXRxfOkrpbcSHkZHd5RiscvSIOx0ZOJ1y1Mw2BDydU+Tq8i/qIRcBIZx
-         +kx/N9qbHhYCGyQIec7LgW6gKOBQYvgFJt2UMX6odCHU2GQWEMxkr04++3zHyCeXc34L
-         7eZJiEuJTgcyNT/uahiEanGfJOlJFyMwu44Dr5DfitUxj8zsp5SQ7BWzq2z52GmNkFUl
-         3SedRw8KmftQPXKutX0FC5A5QVg0B13e2mT1t0uKzT/BB0taIQEJma/91cTQ5vfguCNO
-         LMhg==
+        bh=uoHHEgFr/r/SO8I5nMCow7X4j/JyWHdeMkJD+GMFPiE=;
+        b=PdwDeQPp9bRkpVyUB8ZnEfizHOBfcvi+IexgeYYfm0/QujYrw17S3BbX9Astr2LmOX
+         zwkG55XZnK9eNPTmFKugnMZRQotzoCWVW/1vV7dTgHOAKn7mRI//mOOmY75xG/yd1G74
+         7tJ8WqV0Qm29EjB6IVpudwwyrsqXRmoSAJHKGqWL2lb/Es9uH3EwFA1ft99E5+x6bXkF
+         WfEt4tpdpy0HSafEI6XChqqIrkgf6i4nx+wPTt+WNJ0l26isH8+dgP/mZ5wr1RHRs9Dz
+         TdI4Z3cuNxAQcAMWmuTOZIxy20vEqn+feb17ZRe4whsQKVXDRHYc8O28bz5bnVYEJDtd
+         H05Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=AeeV14OyLBTF7KaAD5jDBEtXBCp8zTp9/udCZix5Xks=;
-        b=QgDG9HYsYpQYEmDecVLg2nOIs4j2bYU6rA19Vqa2wvrLqWKkGutLCd3UXqHGB+UCvW
-         JFa92eq4xI8AjYy0qyUS2gdGaAiE7ZCt73Ggbbar2O5M5m0LKTDOffSM/A4Sve6tmvoZ
-         hjy03KDqpNOh9uRzKWmCNKa2NYK0pmS5vMlWY5cW+D2lJEnoBYdJ1tPh/rOFti21o387
-         6MJoJBrZCXaIZNEPeKDQGzYkhGPcxMfDMByjOhMRFvVCp79DhzWQatd/7J9OOdhgw0JW
-         3QiSqGM3rZZvUrfKTnX2wzvWr48wTiV3chkR1CCqaa0vo6cCu7M1PjFtWFpjYpfxOVuT
-         N+WQ==
-X-Gm-Message-State: APjAAAWvVn6dCuYNHVfdIpa5z6uaaTic/kKv2PIOpdHI5wAakpLRshct
-        kpUypYv6sSh8Xa1sHPOJO+4ynweYiPuYMQ==
-X-Google-Smtp-Source: APXvYqw+7WbV27ga/InS0ExF8ZO/V01r9VugBLs7kebePYey1RQXVTmSVaNT4QvEWAHG7OpHeIYVHw==
-X-Received: by 2002:a17:90a:b781:: with SMTP id m1mr16250972pjr.141.1567493873489;
-        Mon, 02 Sep 2019 23:57:53 -0700 (PDT)
+        bh=uoHHEgFr/r/SO8I5nMCow7X4j/JyWHdeMkJD+GMFPiE=;
+        b=nkbq0GiI0FOfNLhPHxIWso4pWoYVoZ01L8rWjEZc0bQWnhPHhqni5m8eWZt3Ndtl8p
+         5cAfoVWqRCK1/z3pYMYFTGYOxNPQdvXFmDMK4gV6PbWY886y0c0Alsn7GCxS+8R4az7L
+         dHZ6fNU0+N9VIKAXNNH/8YqS+PYpnAgfSBHa/5sSPtDF5SRz/2+H06QNiKcKR6bAw8qR
+         UdI9ka4Mo4pbV0VMtH+0H01FKP+76HYOiqHPFkD5lUKwECGtEENSWP9J6bHW1XgjxmJ5
+         s+U9MTAXu1JJ7LEyltAsdVS41hG1HEopHIQZD9mVQfo1knfn9WP5+Lmxl1/xWExo0o2w
+         qcjA==
+X-Gm-Message-State: APjAAAU9zNVa9jLukxMDj+tWdn8NoP8ql3q4/J/x/eyYFRKhbulGQeki
+        MAJSz10gvLTiRnBsIachdP8DGm+LPtJzdQ==
+X-Google-Smtp-Source: APXvYqzap82tgzKvLQdG4ZjZS7aG4WDG/VFnG3s09pGmnhbkG7ylScuYPfA+bIKIxPx1knoDAwA00Q==
+X-Received: by 2002:a63:1f1f:: with SMTP id f31mr26065616pgf.353.1567493932285;
+        Mon, 02 Sep 2019 23:58:52 -0700 (PDT)
 Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.82])
-        by smtp.gmail.com with ESMTPSA id n66sm307197pfn.90.2019.09.02.23.57.50
+        by smtp.gmail.com with ESMTPSA id b126sm36847718pfa.177.2019.09.02.23.58.48
         (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 02 Sep 2019 23:57:53 -0700 (PDT)
+        Mon, 02 Sep 2019 23:58:51 -0700 (PDT)
 From:   Baolin Wang <baolin.wang@linaro.org>
-To:     stable@vger.kernel.org, peterz@infradead.org, mingo@redhat.com
-Cc:     longman@redhat.com, arnd@arndb.de, baolin.wang@linaro.org,
+To:     stable@vger.kernel.org, vyasevich@gmail.com, nhorman@tuxdriver.com,
+        davem@davemloft.net
+Cc:     hariprasad.kelam@gmail.com, linux-sctp@vger.kernel.org,
+        netdev@vger.kernel.org, arnd@arndb.de, baolin.wang@linaro.org,
         orsonzhai@gmail.com, vincent.guittot@linaro.org,
         linux-kernel@vger.kernel.org
-Subject: [BACKPORT 4.14.y 3/8] locking/lockdep: Add debug_locks check in __lock_downgrade()
-Date:   Tue,  3 Sep 2019 14:57:21 +0800
-Message-Id: <ecdae1a4a913695b66404f0d34250b6812f7c1dd.1567492316.git.baolin.wang@linaro.org>
+Subject: [BACKPORT 4.14.y 4/8] net: sctp: fix warning "NULL check before some freeing functions is not needed"
+Date:   Tue,  3 Sep 2019 14:58:16 +0800
+Message-Id: <0e71732006c11f119826b3be9c1a9ccd102742d8.1567492316.git.baolin.wang@linaro.org>
 X-Mailer: git-send-email 1.7.9.5
 In-Reply-To: <cover.1567492316.git.baolin.wang@linaro.org>
 References: <cover.1567492316.git.baolin.wang@linaro.org>
@@ -59,47 +61,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Hariprasad Kelam <hariprasad.kelam@gmail.com>
 
-Tetsuo Handa had reported he saw an incorrect "downgrading a read lock"
-warning right after a previous lockdep warning. It is likely that the
-previous warning turned off lock debugging causing the lockdep to have
-inconsistency states leading to the lock downgrade warning.
+This patch removes NULL checks before calling kfree.
 
-Fix that by add a check for debug_locks at the beginning of
-__lock_downgrade().
+fixes below issues reported by coccicheck
+net/sctp/sm_make_chunk.c:2586:3-8: WARNING: NULL check before some
+freeing functions is not needed.
+net/sctp/sm_make_chunk.c:2652:3-8: WARNING: NULL check before some
+freeing functions is not needed.
+net/sctp/sm_make_chunk.c:2667:3-8: WARNING: NULL check before some
+freeing functions is not needed.
+net/sctp/sm_make_chunk.c:2684:3-8: WARNING: NULL check before some
+freeing functions is not needed.
 
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Reported-by: syzbot+53383ae265fb161ef488@syzkaller.appspotmail.com
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Link: https://lkml.kernel.org/r/1547093005-26085-1-git-send-email-longman@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- kernel/locking/lockdep.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sctp/sm_make_chunk.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 565005a..5c370c6 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -3650,6 +3650,9 @@ static int reacquire_held_locks(struct task_struct *curr, unsigned int depth,
- 	unsigned int depth;
- 	int i;
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index f67df16..6dac492 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -2586,8 +2586,7 @@ static int sctp_process_param(struct sctp_association *asoc,
+ 	case SCTP_PARAM_STATE_COOKIE:
+ 		asoc->peer.cookie_len =
+ 			ntohs(param.p->length) - sizeof(struct sctp_paramhdr);
+-		if (asoc->peer.cookie)
+-			kfree(asoc->peer.cookie);
++		kfree(asoc->peer.cookie);
+ 		asoc->peer.cookie = kmemdup(param.cookie->body, asoc->peer.cookie_len, gfp);
+ 		if (!asoc->peer.cookie)
+ 			retval = 0;
+@@ -2652,8 +2651,7 @@ static int sctp_process_param(struct sctp_association *asoc,
+ 			goto fall_through;
  
-+	if (unlikely(!debug_locks))
-+		return 0;
-+
- 	depth = curr->lockdep_depth;
- 	/*
- 	 * This function is about (re)setting the class of a held lock,
+ 		/* Save peer's random parameter */
+-		if (asoc->peer.peer_random)
+-			kfree(asoc->peer.peer_random);
++		kfree(asoc->peer.peer_random);
+ 		asoc->peer.peer_random = kmemdup(param.p,
+ 					    ntohs(param.p->length), gfp);
+ 		if (!asoc->peer.peer_random) {
+@@ -2667,8 +2665,7 @@ static int sctp_process_param(struct sctp_association *asoc,
+ 			goto fall_through;
+ 
+ 		/* Save peer's HMAC list */
+-		if (asoc->peer.peer_hmacs)
+-			kfree(asoc->peer.peer_hmacs);
++		kfree(asoc->peer.peer_hmacs);
+ 		asoc->peer.peer_hmacs = kmemdup(param.p,
+ 					    ntohs(param.p->length), gfp);
+ 		if (!asoc->peer.peer_hmacs) {
+@@ -2684,8 +2681,7 @@ static int sctp_process_param(struct sctp_association *asoc,
+ 		if (!ep->auth_enable)
+ 			goto fall_through;
+ 
+-		if (asoc->peer.peer_chunks)
+-			kfree(asoc->peer.peer_chunks);
++		kfree(asoc->peer.peer_chunks);
+ 		asoc->peer.peer_chunks = kmemdup(param.p,
+ 					    ntohs(param.p->length), gfp);
+ 		if (!asoc->peer.peer_chunks)
 -- 
 1.7.9.5
 
