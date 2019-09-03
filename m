@@ -2,53 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE2AA72FD
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 998A9A7306
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726600AbfICS7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:59:31 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50769 "EHLO
+        id S1725883AbfICTDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 15:03:01 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39991 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725962AbfICS7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:59:31 -0400
+        by vger.kernel.org with ESMTP id S1725882AbfICTDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 15:03:01 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 952B72227B;
-        Tue,  3 Sep 2019 14:59:30 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id E3409210AC;
+        Tue,  3 Sep 2019 15:03:00 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:59:30 -0400
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 15:03:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jjS1+r
-        OPVUGfGtrlHjjvrXjuzr1T1lcN+ax3i1GR18c=; b=F0Cg03LqRw8DKmyTJVAXO1
-        b991CPFpunCX6HZHhtPXoguPLITXAO0TU27svxI83/X7mI4BZV0krvZIfpRn1bcg
-        jjVFDXXqNdow/F9S5N9/0mANuF/o0iWqNoKupoT0SE0kbL9MIALA5kDa6ZZ8/bzM
-        q9mR//F5MDomMR6yn1m8aTm4spxT70bdHblBT0mRGkZh1ExjjW2ov9snQVlSJ2+Y
-        BONf+S+v2Rl7PVIMhBxhssna9DBkmD/5yJjyYHUUu45W8DUMRH6ks6LhEnTS1eGK
-        bXJyjR5uMNBo4ZkSu0NO5Ga+D4+12WZ9Y485++i4x8svElAnN/3SLEZa2SR+RR8A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=fUWglh
+        eU+MRjrdPqM0UPQ0pXdB7orVFD7lOHxYEbOF0=; b=Q3d6CVd4NO152RmCQVm+ZY
+        1404D/hsKO8xzARa1iHfvvIcLIwGGaBv6xQZdlJ6oxD5JeZqDDRZIH3HyJ//g1mj
+        AmcJqH1za3Vr39teg1t6oMIsN3rvhb0gd8iAD/HRG3jaJqvWbrq8+Cr+Xx1sKanG
+        7c1S9Wu/ohtarLJOa9sWA2ORD04FrRnkWHk2czVqqkOp2stlTKmf6CEvBza7B1kO
+        ivLi2uiTRrj6RjpL+CK9XxfSIk4nX7sFR2WIRwxFCnmgfa7h15oJV8oTknraUUHg
+        ORpVgJEpnjH5YHNaJlnPow1ns3pIt5tRE6nhCBSdO9/1EhnKjsPOwEMrmc40RF5A
         ==
-X-ME-Sender: <xms:ErhuXcXFI2c-fr_euTeFdveR31JDz4Rh_71wcy8QXSeCQeqQrmPH0A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtvdcutefuodetggdotefrod
+X-ME-Sender: <xms:47huXTducrSp7ehihdmUzlhiRjsHDbDa4k4rZ9mkdIRaW4-ZidKmOQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeh
-X-ME-Proxy: <xmx:ErhuXasEV5gpOwogqRc7kLdChMQgvbIRWDFlSr5WTaP-UPdcZu4Cog>
-    <xmx:ErhuXVYoNbWNPSBUTPLQ2wZ_72Iu34OP30tPfLU-3LYgJ51xnq0LvA>
-    <xmx:ErhuXfd7bLQxJjxxlvBA9v34gsft41etOqcnSsF3ATo0bNSocevsmg>
-    <xmx:ErhuXUM9a3uPt3rJhXoGIRoi53amqrivfHAH5HeeGnPLO30qzntAEQ>
+    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghdplhhirghmugdrtg
+    homhenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:47huXTRiXImreCYMeRxsisGoWGheIj6j9V4HAnEbenA3TNU1S0XekA>
+    <xmx:47huXRfUKiqdwDwGHp11dqpuKgajy65Aa4VBSxshg09HjGNeFLPgPA>
+    <xmx:47huXcva6l9X2LojkotIhg4wEzi_0ZOjBJIiZQ8wXAQ6AXFxLKeOCA>
+    <xmx:5LhuXTY6cufzPD6_sotefzLrieajtTC8R7aXUinRnfNpXfrBeXzX4A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B62F80060;
-        Tue,  3 Sep 2019 14:59:29 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFS: Ensure O_DIRECT reports an error if the bytes" failed to apply to 4.14-stable tree
-To:     trond.myklebust@hammerspace.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 48CC280059;
+        Tue,  3 Sep 2019 15:02:59 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Do not create a new max_bpc prop for MST connectors" failed to apply to 5.2-stable tree
+To:     ville.syrjala@linux.intel.com, daniel.vetter@ffwll.ch,
+        jani.nikula@intel.com, jose.souza@intel.com, lyude@redhat.com,
+        sean@poorly.run
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Sep 2019 20:59:18 +0200
-Message-ID: <1567537158172168@kroah.com>
+Date:   Tue, 03 Sep 2019 21:02:58 +0200
+Message-ID: <156753737870202@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -56,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,84 +70,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From eb2c50da9e256dbbb3ff27694440e4c1900cfef8 Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Mon, 12 Aug 2019 18:04:36 -0400
-Subject: [PATCH] NFS: Ensure O_DIRECT reports an error if the bytes
- read/written is 0
+From ed5fa90660d63bcec4c3a62b03fed9427418b53d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Tue, 20 Aug 2019 19:16:57 +0300
+Subject: [PATCH] drm/i915: Do not create a new max_bpc prop for MST connectors
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-If the attempt to resend the I/O results in no bytes being read/written,
-we must ensure that we report the error.
+We're not allowed to create new properties after device registration
+so for MST connectors we need to either create the max_bpc property
+earlier, or we reuse one we already have. Let's do the latter apporach
+since the corresponding SST connector already has the prop and its
+min/max are correct also for the MST connector.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Fixes: 0a00b77b331a ("nfs: mirroring support for direct io")
-Cc: stable@vger.kernel.org # v3.20+
+The problem was highlighted by commit 4f5368b5541a ("drm/kms:
+Catch mode_object lifetime errors") which results in the following
+spew:
+[ 1330.878941] WARNING: CPU: 2 PID: 1554 at drivers/gpu/drm/drm_mode_object.c:45 __drm_mode_object_add+0xa0/0xb0 [drm]
+...
+[ 1330.879008] Call Trace:
+[ 1330.879023]  drm_property_create+0xba/0x180 [drm]
+[ 1330.879036]  drm_property_create_range+0x15/0x30 [drm]
+[ 1330.879048]  drm_connector_attach_max_bpc_property+0x62/0x80 [drm]
+[ 1330.879086]  intel_dp_add_mst_connector+0x11f/0x140 [i915]
+[ 1330.879094]  drm_dp_add_port.isra.20+0x20b/0x440 [drm_kms_helper]
+...
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 0cb442406168..222d7115db71 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -401,15 +401,21 @@ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
- 	unsigned long bytes = 0;
- 	struct nfs_direct_req *dreq = hdr->dreq;
+Cc: stable@vger.kernel.org
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: sunpeng.li@amd.com
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <sean@poorly.run>
+Fixes: 5ca0ef8a56b8 ("drm/i915: Add max_bpc property for DP MST")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190820161657.9658-1-ville.syrjala@linux.intel.com
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+(cherry picked from commit 1b9bd09630d4db4827cc04d358a41a16a6bc2cb0)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+index 60652ebbdf61..18e4cba76720 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+@@ -539,7 +539,15 @@ static struct drm_connector *intel_dp_add_mst_connector(struct drm_dp_mst_topolo
  
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
--
- 	spin_lock(&dreq->lock);
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags) && (hdr->good_bytes == 0))
-+	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	else
+ 	intel_attach_force_audio_property(connector);
+ 	intel_attach_broadcast_rgb_property(connector);
+-	drm_connector_attach_max_bpc_property(connector, 6, 12);
 +
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0)
- 		nfs_direct_good_bytes(dreq, hdr);
++	/*
++	 * Reuse the prop from the SST connector because we're
++	 * not allowed to create new props after device registration.
++	 */
++	connector->max_bpc_property =
++		intel_dp->attached_connector->base.max_bpc_property;
++	if (connector->max_bpc_property)
++		drm_connector_attach_max_bpc_property(connector, 6, 12);
  
-+	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
-+		dreq->error = 0;
-+
- 	spin_unlock(&dreq->lock);
+ 	return connector;
  
- 	while (!list_empty(&hdr->pages)) {
-@@ -782,16 +788,19 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- 	bool request_commit = false;
- 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
- 
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
--
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
- 	spin_lock(&dreq->lock);
- 
- 	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	if (dreq->error == 0) {
-+
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0) {
- 		nfs_direct_good_bytes(dreq, hdr);
- 		if (nfs_write_need_commit(hdr)) {
- 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 15c254753f88..56cefa0ab804 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1266,6 +1266,7 @@ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
- 	if (!list_empty(&pages)) {
- 		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
- 		hdr->completion_ops->error_cleanup(&pages, err);
-+		nfs_set_pgio_error(hdr, err, hdr->io_start);
- 		return err;
- 	}
- 	return 0;
 
