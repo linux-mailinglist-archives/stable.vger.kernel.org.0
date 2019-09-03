@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38EE6A6FC1
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BC4A6FBD
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730542AbfICQeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:34:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49582 "EHLO mail.kernel.org"
+        id S1730964AbfICQ2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730992AbfICQ16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:27:58 -0400
+        id S1730528AbfICQ17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:27:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B61772343A;
-        Tue,  3 Sep 2019 16:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6B9F238C6;
+        Tue,  3 Sep 2019 16:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528077;
-        bh=K2RqtYrOLPP/Zg4JwaI2CmIg9crPsLHGGZw/haRB/T4=;
+        s=default; t=1567528078;
+        bh=tUGdMBJf65IiFRyiMd6tSnbbwmB1wNqA8i8OFvyBO9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0REfY1DAK+mTQ0PjHwC6pfwBFflZCWUnQqlTFIDeZIfSj7ikWGDY6p8sK0to6UT2S
-         mjh6RCJE7sTi6CqJmHMM6FDXACxxgj/gKRVF9nAYoE0o+TW+pe++OSpHjMmjqxtQVJ
-         M9I5hoVbZd1Pa7KLzrYKocrb6Jdjjmcb74o0ZCNE=
+        b=CY3XEip6PGTrxekHChuxHvldQmPbs5LU0quYXHi4SHgtVlSGK4FuHI91smmHlpLUS
+         ttZdEKkUBPn4om+dk5qGH9oUaA7Gb2QVbfL6HRfoenYMaqU1zXU5HFcPlq8RsBPr8R
+         VUnmo4te8qLC/LFRawLbXA8PC5HCjm6TYQlOOx9U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinh Nguyen <dinguyen@kernel.org>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 090/167] arm64: dts: stratix10: add the sysmgr-syscon property from the gmac's
-Date:   Tue,  3 Sep 2019 12:24:02 -0400
-Message-Id: <20190903162519.7136-90-sashal@kernel.org>
+Cc:     Moni Shoua <monis@mellanox.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 091/167] IB/mlx5: Reset access mask when looping inside page fault handler
+Date:   Tue,  3 Sep 2019 12:24:03 -0400
+Message-Id: <20190903162519.7136-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,56 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Moni Shoua <monis@mellanox.com>
 
-[ Upstream commit 8efd6365417a044db03009724ecc1a9521524913 ]
+[ Upstream commit 1abe186ed8a6593069bc122da55fc684383fdc1c ]
 
-The gmac ethernet driver uses the "altr,sysmgr-syscon" property to
-configure phy settings for the gmac controller.
+If page-fault handler spans multiple MRs then the access mask needs to
+be reset before each MR handling or otherwise write access will be
+granted to mapped pages instead of read-only.
 
-Add the "altr,sysmgr-syscon" property to all gmac nodes.
-
-This patch fixes:
-
-[    0.917530] socfpga-dwmac ff800000.ethernet: No sysmgr-syscon node found
-[    0.924209] socfpga-dwmac ff800000.ethernet: Unable to parse OF data
-
-Cc: stable@vger.kernel.org
-Reported-by: Ley Foon Tan <ley.foon.tan@intel.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Cc: <stable@vger.kernel.org> # 3.19
+Fixes: 7bdf65d411c1 ("IB/mlx5: Handle page faults")
+Reported-by: Jerome Glisse <jglisse@redhat.com>
+Signed-off-by: Moni Shoua <monis@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/mlx5/odp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-index 5089aa64088fc..9a1ea8a464057 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-@@ -140,6 +140,7 @@
- 			tx-fifo-depth = <16384>;
- 			rx-fifo-depth = <16384>;
- 			snps,multicast-filter-bins = <256>;
-+			altr,sysmgr-syscon = <&sysmgr 0x44 0>;
- 			status = "disabled";
- 		};
+diff --git a/drivers/infiniband/hw/mlx5/odp.c b/drivers/infiniband/hw/mlx5/odp.c
+index 9e1cac8cb2609..453e5c4ac19f4 100644
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -497,7 +497,7 @@ void mlx5_ib_free_implicit_mr(struct mlx5_ib_mr *imr)
+ static int pagefault_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
+ 			u64 io_virt, size_t bcnt, u32 *bytes_mapped)
+ {
+-	u64 access_mask = ODP_READ_ALLOWED_BIT;
++	u64 access_mask;
+ 	int npages = 0, page_shift, np;
+ 	u64 start_idx, page_mask;
+ 	struct ib_umem_odp *odp;
+@@ -522,6 +522,7 @@ static int pagefault_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
+ 	page_shift = mr->umem->page_shift;
+ 	page_mask = ~(BIT(page_shift) - 1);
+ 	start_idx = (io_virt - (mr->mmkey.iova & page_mask)) >> page_shift;
++	access_mask = ODP_READ_ALLOWED_BIT;
  
-@@ -156,6 +157,7 @@
- 			tx-fifo-depth = <16384>;
- 			rx-fifo-depth = <16384>;
- 			snps,multicast-filter-bins = <256>;
-+			altr,sysmgr-syscon = <&sysmgr 0x48 0>;
- 			status = "disabled";
- 		};
- 
-@@ -172,6 +174,7 @@
- 			tx-fifo-depth = <16384>;
- 			rx-fifo-depth = <16384>;
- 			snps,multicast-filter-bins = <256>;
-+			altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
- 			status = "disabled";
- 		};
- 
+ 	if (mr->umem->writable)
+ 		access_mask |= ODP_WRITE_ALLOWED_BIT;
 -- 
 2.20.1
 
