@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5FB9A6F07
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EAFAA6F0A
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731087AbfICQ2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:28:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50100 "EHLO mail.kernel.org"
+        id S1731095AbfICQ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731080AbfICQ2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:17 -0400
+        id S1731088AbfICQ2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:28:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EFA3238C6;
-        Tue,  3 Sep 2019 16:28:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 400DE238CE;
+        Tue,  3 Sep 2019 16:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528096;
-        bh=dyrfv+WP+eThW7h6SeQXXHb7vB1kv65ppMyTfn8KQow=;
+        s=default; t=1567528098;
+        bh=C0os0u59lpcVwQNJ3fMkWbkaHLQ/ZyBoPdY1311WfMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iZbDcN0rFadrEOo41N4z2PB+gL7ULkZePJJNhx3OIgeCG9phzPT+1wkyM8BsxQmy
-         nWceNAjZ7oT8/i5b5oeEH6KTCKl83FMzBt302hR1oTLWXxj0xCvIfngiOJ7xGgNM+U
-         B2HcG90eaRfTH/dqvY7f719Kc8N2Obk64eDdNnSc=
+        b=wRCEcicboszdO/yEAIB+ctiSjwCSKJEcaEC3mL0E0oIARwYnDi6xIxYeP+jO5FPv1
+         Bb0Y8pogScSIdChINCtmZyIrITj7T1PWVoGDE+GGwnrE9xjuMQ8lssfwB4LZYt2GSL
+         P1opxFqy8ZMDMoOSx8PhPcLeW9gVZn1uTXOf2kdY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, stable@vger.kernl.org,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 105/167] dm mpath: fix missing call of path selector type->end_io
-Date:   Tue,  3 Sep 2019 12:24:17 -0400
-Message-Id: <20190903162519.7136-105-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        James Smart <james.smart@broadcom.com>,
+        Bart Van Assche <bart.vanassche@wdc.com>,
+        linux-scsi@vger.kernel.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
+        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 106/167] blk-mq: free hw queue's resource in hctx's release handler
+Date:   Tue,  3 Sep 2019 12:24:18 -0400
+Message-Id: <20190903162519.7136-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,141 +50,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 5de719e3d01b4abe0de0d7b857148a880ff2a90b ]
+[ Upstream commit c7e2d94b3d1634988a95ac4d77a72dc7487ece06 ]
 
-After commit 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via
-blk_insert_cloned_request feedback"), map_request() will requeue the tio
-when issued clone request return BLK_STS_RESOURCE or BLK_STS_DEV_RESOURCE.
+Once blk_cleanup_queue() returns, tags shouldn't be used any more,
+because blk_mq_free_tag_set() may be called. Commit 45a9c9d909b2
+("blk-mq: Fix a use-after-free") fixes this issue exactly.
 
-Thus, if device driver status is error, a tio may be requeued multiple
-times until the return value is not DM_MAPIO_REQUEUE.  That means
-type->start_io may be called multiple times, while type->end_io is only
-called when IO complete.
+However, that commit introduces another issue. Before 45a9c9d909b2,
+we are allowed to run queue during cleaning up queue if the queue's
+kobj refcount is held. After that commit, queue can't be run during
+queue cleaning up, otherwise oops can be triggered easily because
+some fields of hctx are freed by blk_mq_free_queue() in blk_cleanup_queue().
 
-In fact, even without commit 396eaf21ee17, setup_clone() failure can
-also cause tio requeue and associated missed call to type->end_io.
+We have invented ways for addressing this kind of issue before, such as:
 
-The service-time path selector selects path based on in_flight_size,
-which is increased by st_start_io() and decreased by st_end_io().
-Missed calls to st_end_io() can lead to in_flight_size count error and
-will cause the selector to make the wrong choice.  In addition,
-queue-length path selector will also be affected.
+	8dc765d438f1 ("SCSI: fix queue cleanup race before queue initialization is done")
+	c2856ae2f315 ("blk-mq: quiesce queue before freeing queue")
 
-To fix the problem, call type->end_io in ->release_clone_rq before tio
-requeue.  map_info is passed to ->release_clone_rq() for map_request()
-error path that result in requeue.
+But still can't cover all cases, recently James reports another such
+kind of issue:
 
-Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
-Cc: stable@vger.kernl.org
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+	https://marc.info/?l=linux-scsi&m=155389088124782&w=2
+
+This issue can be quite hard to address by previous way, given
+scsi_run_queue() may run requeues for other LUNs.
+
+Fixes the above issue by freeing hctx's resources in its release handler, and this
+way is safe becasue tags isn't needed for freeing such hctx resource.
+
+This approach follows typical design pattern wrt. kobject's release handler.
+
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: James Smart <james.smart@broadcom.com>
+Cc: Bart Van Assche <bart.vanassche@wdc.com>
+Cc: linux-scsi@vger.kernel.org,
+Cc: Martin K . Petersen <martin.petersen@oracle.com>,
+Cc: Christoph Hellwig <hch@lst.de>,
+Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
+Reported-by: James Smart <james.smart@broadcom.com>
+Fixes: 45a9c9d909b2 ("blk-mq: Fix a use-after-free")
+Cc: stable@vger.kernel.org
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c         | 17 ++++++++++++++++-
- drivers/md/dm-rq.c            |  8 ++++----
- drivers/md/dm-target.c        |  3 ++-
- include/linux/device-mapper.h |  3 ++-
- 4 files changed, 24 insertions(+), 7 deletions(-)
+ block/blk-core.c     | 3 ++-
+ block/blk-mq-sysfs.c | 6 ++++++
+ block/blk-mq.c       | 8 ++------
+ block/blk-mq.h       | 2 +-
+ 4 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index baa966e2778c0..481e54ded9dc7 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -554,8 +554,23 @@ static int multipath_clone_and_map(struct dm_target *ti, struct request *rq,
- 	return DM_MAPIO_REMAPPED;
- }
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 4a3e1f4178804..af635f878f966 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -816,7 +816,8 @@ void blk_cleanup_queue(struct request_queue *q)
+ 	blk_exit_queue(q);
  
--static void multipath_release_clone(struct request *clone)
-+static void multipath_release_clone(struct request *clone,
-+				    union map_info *map_context)
- {
-+	if (unlikely(map_context)) {
-+		/*
-+		 * non-NULL map_context means caller is still map
-+		 * method; must undo multipath_clone_and_map()
-+		 */
-+		struct dm_mpath_io *mpio = get_mpio(map_context);
-+		struct pgpath *pgpath = mpio->pgpath;
+ 	if (q->mq_ops)
+-		blk_mq_free_queue(q);
++		blk_mq_exit_queue(q);
 +
-+		if (pgpath && pgpath->pg->ps.type->end_io)
-+			pgpath->pg->ps.type->end_io(&pgpath->pg->ps,
-+						    &pgpath->path,
-+						    mpio->nr_bytes);
-+	}
-+
- 	blk_put_request(clone);
- }
+ 	percpu_ref_exit(&q->q_usage_counter);
  
-diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
-index 264b84e274aac..17c6a73c536c6 100644
---- a/drivers/md/dm-rq.c
-+++ b/drivers/md/dm-rq.c
-@@ -219,7 +219,7 @@ static void dm_end_request(struct request *clone, blk_status_t error)
- 	struct request *rq = tio->orig;
+ 	spin_lock_irq(lock);
+diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+index aafb44224c896..0b7297a43ccd2 100644
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -10,6 +10,7 @@
+ #include <linux/smp.h>
  
- 	blk_rq_unprep_clone(clone);
--	tio->ti->type->release_clone_rq(clone);
-+	tio->ti->type->release_clone_rq(clone, NULL);
+ #include <linux/blk-mq.h>
++#include "blk.h"
+ #include "blk-mq.h"
+ #include "blk-mq-tag.h"
  
- 	rq_end_stats(md, rq);
- 	if (!rq->q->mq_ops)
-@@ -270,7 +270,7 @@ static void dm_requeue_original_request(struct dm_rq_target_io *tio, bool delay_
- 	rq_end_stats(md, rq);
- 	if (tio->clone) {
- 		blk_rq_unprep_clone(tio->clone);
--		tio->ti->type->release_clone_rq(tio->clone);
-+		tio->ti->type->release_clone_rq(tio->clone, NULL);
- 	}
- 
- 	if (!rq->q->mq_ops)
-@@ -495,7 +495,7 @@ static int map_request(struct dm_rq_target_io *tio)
- 	case DM_MAPIO_REMAPPED:
- 		if (setup_clone(clone, rq, tio, GFP_ATOMIC)) {
- 			/* -ENOMEM */
--			ti->type->release_clone_rq(clone);
-+			ti->type->release_clone_rq(clone, &tio->info);
- 			return DM_MAPIO_REQUEUE;
- 		}
- 
-@@ -505,7 +505,7 @@ static int map_request(struct dm_rq_target_io *tio)
- 		ret = dm_dispatch_clone_request(clone, rq);
- 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
- 			blk_rq_unprep_clone(clone);
--			tio->ti->type->release_clone_rq(clone);
-+			tio->ti->type->release_clone_rq(clone, &tio->info);
- 			tio->clone = NULL;
- 			if (!rq->q->mq_ops)
- 				r = DM_MAPIO_DELAY_REQUEUE;
-diff --git a/drivers/md/dm-target.c b/drivers/md/dm-target.c
-index 314d17ca64668..64dd0b34fcf49 100644
---- a/drivers/md/dm-target.c
-+++ b/drivers/md/dm-target.c
-@@ -136,7 +136,8 @@ static int io_err_clone_and_map_rq(struct dm_target *ti, struct request *rq,
- 	return DM_MAPIO_KILL;
- }
- 
--static void io_err_release_clone_rq(struct request *clone)
-+static void io_err_release_clone_rq(struct request *clone,
-+				    union map_info *map_context)
+@@ -21,6 +22,11 @@ static void blk_mq_hw_sysfs_release(struct kobject *kobj)
  {
+ 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
+ 						  kobj);
++
++	if (hctx->flags & BLK_MQ_F_BLOCKING)
++		cleanup_srcu_struct(hctx->srcu);
++	blk_free_flush_queue(hctx->fq);
++	sbitmap_free(&hctx->ctx_map);
+ 	free_cpumask_var(hctx->cpumask);
+ 	kfree(hctx->ctxs);
+ 	kfree(hctx);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 70d839b9c3b09..455fda99255a4 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2157,12 +2157,7 @@ static void blk_mq_exit_hctx(struct request_queue *q,
+ 	if (set->ops->exit_hctx)
+ 		set->ops->exit_hctx(hctx, hctx_idx);
+ 
+-	if (hctx->flags & BLK_MQ_F_BLOCKING)
+-		cleanup_srcu_struct(hctx->srcu);
+-
+ 	blk_mq_remove_cpuhp(hctx);
+-	blk_free_flush_queue(hctx->fq);
+-	sbitmap_free(&hctx->ctx_map);
  }
  
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index bef2e36c01b4b..91f9f95ad5066 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -62,7 +62,8 @@ typedef int (*dm_clone_and_map_request_fn) (struct dm_target *ti,
- 					    struct request *rq,
- 					    union map_info *map_context,
- 					    struct request **clone);
--typedef void (*dm_release_clone_request_fn) (struct request *clone);
-+typedef void (*dm_release_clone_request_fn) (struct request *clone,
-+					     union map_info *map_context);
+ static void blk_mq_exit_hw_queues(struct request_queue *q,
+@@ -2662,7 +2657,8 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ }
+ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
  
- /*
-  * Returns:
+-void blk_mq_free_queue(struct request_queue *q)
++/* tags can _not_ be used after returning from blk_mq_exit_queue */
++void blk_mq_exit_queue(struct request_queue *q)
+ {
+ 	struct blk_mq_tag_set	*set = q->tag_set;
+ 
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 9497b47e2526c..5ad9251627f80 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -31,7 +31,7 @@ struct blk_mq_ctx {
+ } ____cacheline_aligned_in_smp;
+ 
+ void blk_mq_freeze_queue(struct request_queue *q);
+-void blk_mq_free_queue(struct request_queue *q);
++void blk_mq_exit_queue(struct request_queue *q);
+ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr);
+ void blk_mq_wake_waiters(struct request_queue *q);
+ bool blk_mq_dispatch_rq_list(struct request_queue *, struct list_head *, bool);
 -- 
 2.20.1
 
