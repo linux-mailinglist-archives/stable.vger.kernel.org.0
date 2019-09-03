@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63CEDA6F2E
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1955EA6F2B
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730262AbfICQaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:30:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51342 "EHLO mail.kernel.org"
+        id S1730724AbfICQaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbfICQ2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:54 -0400
+        id S1730502AbfICQ2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:28:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF2C5238CD;
-        Tue,  3 Sep 2019 16:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1E06238F7;
+        Tue,  3 Sep 2019 16:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528133;
-        bh=GOQcnBgM/52LCuH+agl4jDfZHlMROPIp99AfKXZDnWA=;
+        s=default; t=1567528134;
+        bh=EIdcxOkdkMNL4Z0E6xJ4tDo5+bIlgiXBorMzcKhbaj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsNmK9VJBuGjtbq3quXykdTdhuS8x0UMTHl6o+D9L3reSv2r2jXK4tYiSFkZ8RK9X
-         RDcIXtFjVRy4WR7PGZhrRe2pOM6r3tiGnaV2cLwr6beLsTR8R//01wJvgibXx9V9Ej
-         t9jV89yma5MNB0qSmSNiWsXx+y0qrylVuRTLb/oo=
+        b=OBmzOeksz1FQtG1+TqhAKJ7F2Bvo3UriCue9BJy+Op8aIhLxeDvpgvDsDYxkt/UQt
+         tFVwrVsl4STn/7aH1jUyZGdcAwVdTxrn/ox6O0dUsDX9PSxfh8freeLKykRfwdEWF7
+         PUrpSKsZjWBCGL2FSG3WFEwiNI58qKCwqq16fRKA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 128/167] scsi: zfcp: fix request object use-after-free in send path causing wrong traces
-Date:   Tue,  3 Sep 2019 12:24:40 -0400
-Message-Id: <20190903162519.7136-128-sashal@kernel.org>
+Cc:     "Paulo Alcantara (SUSE)" <paulo@paulo.ac>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilove@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 129/167] cifs: Properly handle auto disabling of serverino option
+Date:   Tue,  3 Sep 2019 12:24:41 -0400
+Message-Id: <20190903162519.7136-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -45,90 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+From: "Paulo Alcantara (SUSE)" <paulo@paulo.ac>
 
-[ Upstream commit 106d45f350c7cac876844dc685845cba4ffdb70b ]
+[ Upstream commit 29fbeb7a908a60a5ae8c50fbe171cb8fdcef1980 ]
 
-When tracing instances where we open and close WKA ports, we also pass the
-request-ID of the respective FSF command.
+Fix mount options comparison when serverino option is turned off later
+in cifs_autodisable_serverino() and thus avoiding mismatch of new cifs
+mounts.
 
-But after successfully sending the FSF command we must not use the
-request-object anymore, as this might result in an use-after-free (see
-"zfcp: fix request object use-after-free in send path causing seqno
-errors" ).
-
-To fix this add a new variable that caches the request-ID before sending
-the request. This won't change during the hand-off to the FCP channel,
-and so it's safe to trace this cached request-ID later, instead of using
-the request object.
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Fixes: d27a7cb91960 ("zfcp: trace on request for open and close of WKA port")
-Cc: <stable@vger.kernel.org> #2.6.38+
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paulo Alcantara (SUSE) <paulo@paulo.ac>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilove@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/cifs/cifs_fs_sb.h | 5 +++++
+ fs/cifs/connect.c    | 8 ++++++--
+ fs/cifs/misc.c       | 1 +
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 3c86e27f094de..aff073a5b52bf 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1594,6 +1594,7 @@ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
+diff --git a/fs/cifs/cifs_fs_sb.h b/fs/cifs/cifs_fs_sb.h
+index 9731d0d891e7e..aba2b48d4da1a 100644
+--- a/fs/cifs/cifs_fs_sb.h
++++ b/fs/cifs/cifs_fs_sb.h
+@@ -72,5 +72,10 @@ struct cifs_sb_info {
+ 	struct delayed_work prune_tlinks;
+ 	struct rcu_head rcu;
+ 	char *prepath;
++	/*
++	 * Indicate whether serverino option was turned off later
++	 * (cifs_autodisable_serverino) in order to match new mounts.
++	 */
++	bool mnt_cifs_serverino_autodisabled;
+ };
+ #endif				/* _CIFS_FS_SB_H */
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index c53a2e86ed544..208430bb66fc6 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3247,12 +3247,16 @@ compare_mount_options(struct super_block *sb, struct cifs_mnt_data *mnt_data)
  {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
- 	struct zfcp_fsf_req *req;
-+	unsigned long req_id = 0;
- 	int retval = -EIO;
+ 	struct cifs_sb_info *old = CIFS_SB(sb);
+ 	struct cifs_sb_info *new = mnt_data->cifs_sb;
++	unsigned int oldflags = old->mnt_cifs_flags & CIFS_MOUNT_MASK;
++	unsigned int newflags = new->mnt_cifs_flags & CIFS_MOUNT_MASK;
  
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1616,6 +1617,8 @@ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
- 	hton24(req->qtcb->bottom.support.d_id, wka_port->d_id);
- 	req->data = wka_port;
+ 	if ((sb->s_flags & CIFS_MS_MASK) != (mnt_data->flags & CIFS_MS_MASK))
+ 		return 0;
  
-+	req_id = req->req_id;
+-	if ((old->mnt_cifs_flags & CIFS_MOUNT_MASK) !=
+-	    (new->mnt_cifs_flags & CIFS_MOUNT_MASK))
++	if (old->mnt_cifs_serverino_autodisabled)
++		newflags &= ~CIFS_MOUNT_SERVER_INUM;
 +
- 	zfcp_fsf_start_timer(req, ZFCP_FSF_REQUEST_TIMEOUT);
- 	retval = zfcp_fsf_req_send(req);
- 	if (retval)
-@@ -1623,7 +1626,7 @@ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
- 	if (!retval)
--		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req->req_id);
-+		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req_id);
- 	return retval;
- }
++	if (oldflags != newflags)
+ 		return 0;
  
-@@ -1649,6 +1652,7 @@ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
+ 	/*
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index facc94e159a16..e45f8e321371c 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -523,6 +523,7 @@ cifs_autodisable_serverino(struct cifs_sb_info *cifs_sb)
  {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
- 	struct zfcp_fsf_req *req;
-+	unsigned long req_id = 0;
- 	int retval = -EIO;
- 
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1671,6 +1675,8 @@ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
- 	req->data = wka_port;
- 	req->qtcb->header.port_handle = wka_port->handle;
- 
-+	req_id = req->req_id;
-+
- 	zfcp_fsf_start_timer(req, ZFCP_FSF_REQUEST_TIMEOUT);
- 	retval = zfcp_fsf_req_send(req);
- 	if (retval)
-@@ -1678,7 +1684,7 @@ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
- 	if (!retval)
--		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req->req_id);
-+		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req_id);
- 	return retval;
- }
- 
+ 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
+ 		cifs_sb->mnt_cifs_flags &= ~CIFS_MOUNT_SERVER_INUM;
++		cifs_sb->mnt_cifs_serverino_autodisabled = true;
+ 		cifs_dbg(VFS, "Autodisabling the use of server inode numbers on %s. This server doesn't seem to support them properly. Hardlinks will not be recognized on this mount. Consider mounting with the \"noserverino\" option to silence this message.\n",
+ 			 cifs_sb_master_tcon(cifs_sb)->treeName);
+ 	}
 -- 
 2.20.1
 
