@@ -2,69 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 390DDA628B
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 09:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62685A62D7
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 09:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727454AbfICHbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 03:31:41 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:40119 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727625AbfICHbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 03:31:41 -0400
-Received: by mail-io1-f67.google.com with SMTP id h144so18340036iof.7
-        for <stable@vger.kernel.org>; Tue, 03 Sep 2019 00:31:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WQcHjUhIyykvxyf0B5rmcg1PJO8P3FdNmL23LoF1Prw=;
-        b=H3mEkOYVFqhNV+UoiQWONlrqjx1bROERrYWrdH5nAJT0J2aP5wqBZ/0zFPdSRA2co8
-         zheeJZDY4Z7xi1cFcCbH+BtZLk0jNuT8nDT5L5Fqk5E6SWCee21F2rT/Jm5KqFmuGG88
-         81VqtVfZq8W/YamTp9w5pfn6bjp+LOBgKqC1c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WQcHjUhIyykvxyf0B5rmcg1PJO8P3FdNmL23LoF1Prw=;
-        b=PPmb5Cvkoyi/lpA1atHAuILaU+CiKWlmSL8zxto8iFQQEwrQb/xchF8WYKEFQpBO2M
-         0snvhYBtHhmRzWsWjzhP4pPuF8z0FQCMwiF0y3JSx3LzYJ6YNsU2mh+iDPesyaPhYISb
-         EvtgORXKsJpYXKrdL2Rt8K6eRwhQJ/Y8K03ywih1RL2Mf626c2a5t02/3e6EdHKLXg/k
-         uNKH320hmziJX+hz3cMI+xhxmfTAeDQX3e4gXeqGukexA6caoVxMneC1DXCMAtMkGkFO
-         DTb/ZracevwuogxbL9bvQPE7bJ5Exs8CJFfwb9AfIo7ffM7Nr39WeohrKeWWKuarjJiN
-         n43g==
-X-Gm-Message-State: APjAAAVhaLyQycNSQprTw3br3Slg402/ALIP+7ypW/yKxvj+eTzDgSpm
-        +5KjuQe/xsYBqDif7RA3uPU2/F/pTVY8kJGQDPGRrA==
-X-Google-Smtp-Source: APXvYqzCCZd8wb8XYWpHZ79t+YRe/yJvetmgBZ/bUXD37N+JpwrIqN065yTsFZRINx9dnoBuaycQwH/36BlLS6YAkmk=
-X-Received: by 2002:a05:6638:3af:: with SMTP id z15mr35450863jap.39.1567495900451;
- Tue, 03 Sep 2019 00:31:40 -0700 (PDT)
+        id S1727892AbfICHld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 03:41:33 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49734 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725895AbfICHld (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 03:41:33 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 95018B649;
+        Tue,  3 Sep 2019 07:41:32 +0000 (UTC)
+Date:   Tue, 3 Sep 2019 09:41:32 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc:     linux-mm@kvack.org, stable@vger.kernel.org
+Subject: Re: [BUG] Early OOM and kernel NULL pointer dereference in 4.19.69
+Message-ID: <20190903074132.GM14028@dhcp22.suse.cz>
+References: <31131c2d-a936-8bbf-e58d-a3baaa457340@gmail.com>
+ <20190902071617.GC14028@dhcp22.suse.cz>
+ <a07da432-1fc1-67de-ae35-93f157bf9a7d@gmail.com>
 MIME-Version: 1.0
-References: <0000000000008d8eac05906691ac@google.com> <20190822233529.4176-1-ebiggers@kernel.org>
-In-Reply-To: <20190822233529.4176-1-ebiggers@kernel.org>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Tue, 3 Sep 2019 09:31:29 +0200
-Message-ID: <CAJfpegvHgcZGFi-Ydyo2j89zQxqAtZ1Lh0+vC6vWeU-aEFZkYQ@mail.gmail.com>
-Subject: Re: [PATCH] fuse: disable irqs for fuse_iqueue::waitq.lock
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-aio <linux-aio@kvack.org>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a07da432-1fc1-67de-ae35-93f157bf9a7d@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 23, 2019 at 1:35 AM Eric Biggers <ebiggers@kernel.org> wrote:
->
-> From: Eric Biggers <ebiggers@google.com>
->
-> When IOCB_CMD_POLL is used on the FUSE device, aio_poll() disables IRQs
-> and takes kioctx::ctx_lock, then fuse_iqueue::waitq.lock.
+On Mon 02-09-19 21:34:29, Thomas Lindroth wrote:
+> On 9/2/19 9:16 AM, Michal Hocko wrote:
+> > On Sun 01-09-19 22:43:05, Thomas Lindroth wrote:
+> > > After upgrading to the 4.19 series I've started getting problems with
+> > > early OOM.
+> > 
+> > What is the kenrel you have updated from? Would it be possible to try
+> > the current Linus' tree?
+> 
+> I did some more testing and it turns out this is not a regression after all.
+> 
+> I followed up on my hunch and monitored memory.kmem.max_usage_in_bytes while
+> running cgexec -g memory:12G bash -c 'find / -xdev -type f -print0 | \
+>         xargs -0 -n 1 -P 8 stat > /dev/null'
+> 
+> Just as memory.kmem.max_usage_in_bytes = memory.kmem.limit_in_bytes the OOM
+> killer kicked in and killed my X server.
+> 
+> Using the find|stat approach it was easy to test the problem in a testing VM.
+> I was able to reproduce the problem in all these kernels:
+>   4.9.0
+>   4.14.0
+>   4.14.115
+>   4.19.0
+>   5.2.11
+> 
+> 5.3-rc6 didn't build in the VM. The build environment is too old probably.
+> 
+> I was curious why I initially couldn't reproduce the problem in 4.14 by
+> building chromium. I was again able to successfully build chromium using
+> 4.14.115. Turns out memory.kmem.max_usage_in_bytes was 1015689216 after
+> building and my limit is set to 1073741824. I guess some unrelated change in
+> memory management raised that slightly for 4.19 triggering the problem.
+> 
+> If you want to reproduce for yourself here are the steps:
+> 1. build any kernel above 4.9 using something like my .config
+> 2. setup a v1 memory cgroup with memory.kmem.limit_in_bytes lower than
+>    memory.limit_in_bytes. I used 100M in my testing VM.
+> 3. Run "find / -xdev -type f -print0 | xargs -0 -n 1 -P 8 stat > /dev/null"
+>    in the cgroup.
+> 4. Assuming there is enough inodes on the rootfs the global OOM killer
+>    should kick in when memory.kmem.max_usage_in_bytes =
+>    memory.kmem.limit_in_bytes and kill something outside the cgroup.
 
-Not in -linus.
+This is certainly a bug. Is this still an OOM triggered from
+pagefault_out_of_memory? Since 4.19 (29ef680ae7c21) the memcg charge
+path should invoke the memcg oom killer directly from the charge path.
+If that doesn't happen then the failing charge is either GFP_NOFS or a
+large allocation.
 
-Which tree was this reproduced with?
+The former has been fixed just recently by http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
+and I suspect this is a fix you are looking for. Although it is curious
+that you can see a global oom even before because the charge path would
+mark an oom situation even for NOFS context and it should trigger the
+memcg oom killer on the way out from the page fault path. So essentially
+the same call trace except the oom killer should be constrained to the
+memcg context.
 
-Thanks,
-Miklos
+Could you try the above patch please?
+
+-- 
+Michal Hocko
+SUSE Labs
