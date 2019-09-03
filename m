@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C798BA702D
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FB5A7027
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730652AbfICQhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47690 "EHLO mail.kernel.org"
+        id S1731051AbfICQhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730681AbfICQ0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:40 -0400
+        id S1730699AbfICQ0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1C95238CD;
-        Tue,  3 Sep 2019 16:26:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C097023789;
+        Tue,  3 Sep 2019 16:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527999;
-        bh=CtmaAsWwoZNRqt4zv2q01+SAMp6zV/HtcJVWUSCftAM=;
+        s=default; t=1567528002;
+        bh=SebfApjkwn1FtARA0bW+W3QhdPA0kSbofoRWILz9//k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ic2JiOQPcqIEQEZ0YjDuEQUMveZhrfqz6n9swfKlx4pCr76LmWUVAPcvzFWmezygT
-         0EKoBEU5HBRo3PVh0TN4Em6gcYoZAqyQxiMVYuJR+HuNR1TPAt/iKabTt82qAFedtI
-         R2wOadfLF+tsvOfgKB4Nh4cyLUqMkyNuqQYHOo8E=
+        b=exo/CpjhndAhqYDRinw3Nn8NFh+8It3G8hqp6KRMFkqTRvuW1gYAxJkctfWRYQ3yi
+         6XZysL7gyVqlr+tajulalyj+MYUN3p+hxlnv8ZCa+M8RzTlOpcelNXZYl1b6r+g35q
+         03MbKVV6oGR4Ica8J7WEeFfKOhGLBYvwl6d/Rvx8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 047/167] btrfs: Use real device structure to verify dev extent
-Date:   Tue,  3 Sep 2019 12:23:19 -0400
-Message-Id: <20190903162519.7136-47-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 048/167] media: vim2m: only cancel work if it is for right context
+Date:   Tue,  3 Sep 2019 12:23:20 -0400
+Message-Id: <20190903162519.7136-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,72 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-[ Upstream commit 1b3922a8bc74231f9a767d1be6d9a061a4d4eeab ]
+[ Upstream commit 240809ef6630a4ce57c273c2d79ffb657cd361eb ]
 
-[BUG]
-Linux v5.0-rc1 will fail fstests/btrfs/163 with the following kernel
-message:
+cancel_delayed_work_sync() was called for any queue, but it should only
+be called for the queue that is associated with the currently running job.
 
-  BTRFS error (device dm-6): dev extent devid 1 physical offset 13631488 len 8388608 is beyond device boundary 0
-  BTRFS error (device dm-6): failed to verify dev extents against chunks: -117
-  BTRFS error (device dm-6): open_ctree failed
+Otherwise, if two filehandles are streaming at the same time, then closing the
+first will cancel the work which might still be running for a job from the
+second filehandle. As a result the second filehandle will never be able to
+finish the job and an attempt to stop streaming on that second filehandle will
+stall.
 
-[CAUSE]
-Commit cf90d884b347 ("btrfs: Introduce mount time chunk <-> dev extent
-mapping check") introduced strict check on dev extents.
+Fixes: 52117be68b82 ("media: vim2m: use cancel_delayed_work_sync instead of flush_schedule_work")
 
-We use btrfs_find_device() with dev uuid and fs uuid set to NULL, and
-only dependent on @devid to find the real device.
-
-For seed devices, we call clone_fs_devices() in open_seed_devices() to
-allow us search seed devices directly.
-
-However clone_fs_devices() just populates devices with devid and dev
-uuid, without populating other essential members, like disk_total_bytes.
-
-This makes any device returned by btrfs_find_device(fs_info, devid,
-NULL, NULL) is just a dummy, with 0 disk_total_bytes, and any dev
-extents on the seed device will not pass the device boundary check.
-
-[FIX]
-This patch will try to verify the device returned by btrfs_find_device()
-and if it's a dummy then re-search in seed devices.
-
-Fixes: cf90d884b347 ("btrfs: Introduce mount time chunk <-> dev extent mapping check")
-CC: stable@vger.kernel.org # 4.19+
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v4.20 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/media/platform/vim2m.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index c20708bfae561..a8297e7489d98 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -7469,6 +7469,18 @@ static int verify_one_dev_extent(struct btrfs_fs_info *fs_info,
- 		ret = -EUCLEAN;
- 		goto out;
- 	}
+diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
+index de7f9fe7e7cd9..7b8cf661f2386 100644
+--- a/drivers/media/platform/vim2m.c
++++ b/drivers/media/platform/vim2m.c
+@@ -801,7 +801,9 @@ static void vim2m_stop_streaming(struct vb2_queue *q)
+ 	struct vb2_v4l2_buffer *vbuf;
+ 	unsigned long flags;
+ 
+-	cancel_delayed_work_sync(&dev->work_run);
++	if (v4l2_m2m_get_curr_priv(dev->m2m_dev) == ctx)
++		cancel_delayed_work_sync(&dev->work_run);
 +
-+	/* It's possible this device is a dummy for seed device */
-+	if (dev->disk_total_bytes == 0) {
-+		dev = find_device(fs_info->fs_devices->seed, devid, NULL);
-+		if (!dev) {
-+			btrfs_err(fs_info, "failed to find seed devid %llu",
-+				  devid);
-+			ret = -EUCLEAN;
-+			goto out;
-+		}
-+	}
-+
- 	if (physical_offset + physical_len > dev->disk_total_bytes) {
- 		btrfs_err(fs_info,
- "dev extent devid %llu physical offset %llu len %llu is beyond device boundary %llu",
+ 	for (;;) {
+ 		if (V4L2_TYPE_IS_OUTPUT(q->type))
+ 			vbuf = v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
 -- 
 2.20.1
 
