@@ -2,139 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 133DAA646D
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 10:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3BF6A6699
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 12:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbfICIzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 04:55:46 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:5730 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726946AbfICIzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 04:55:45 -0400
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 9048D9AD3D7876E57CA4;
-        Tue,  3 Sep 2019 16:55:43 +0800 (CST)
-Received: from [127.0.0.1] (10.177.96.96) by DGGEMS411-HUB.china.huawei.com
- (10.3.19.211) with Microsoft SMTP Server id 14.3.439.0; Tue, 3 Sep 2019
- 16:55:39 +0800
-Subject: Re: [PATCH 4.14] tcp: fix tcp_rtx_queue_tail in case of empty
- retransmit queue
-To:     Tim Froidcoeur <tim.froidcoeur@tessares.net>,
-        <eric.dumazet@gmail.com>
-CC:     David Miller <davem@davemloft.net>,
-        "cpaasch@apple.com" <cpaasch@apple.com>,
-        "jonathan.lemon@gmail.com" <jonathan.lemon@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "matthieu.baerts@tessares.net" <matthieu.baerts@tessares.net>,
-        "aprout@ll.mit.edu" <aprout@ll.mit.edu>,
-        "edumazet@google.com" <edumazet@google.com>,
-        "jtl@netflix.com" <jtl@netflix.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mkubecek@suse.cz" <mkubecek@suse.cz>,
-        "ncardwell@google.com" <ncardwell@google.com>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "ycheng@google.com" <ycheng@google.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-References: <20190824060351.3776-1-tim.froidcoeur@tessares.net>
- <400C4757-E7AD-4CCF-8077-79563EA869B1@gmail.com>
- <20190830232657.GL45416@MacBook-Pro-64.local>
- <20190830.192049.1447010488040109227.davem@davemloft.net>
- <F95AC9340317A84688A5F0DF0246F3F21AAAA8E1@dggeml532-mbs.china.huawei.com>
- <CAOj+RUsqTUF9fuetskRRw26Z=sBM-mELSMcV21Ch06007aP5yQ@mail.gmail.com>
- <F95AC9340317A84688A5F0DF0246F3F21AAB8F82@dggeml512-mbx.china.huawei.com>
- <CAOj+RUvXMaoVKzSeDab4oTn3p=-BJtuhgqwKDCUuhCQWHO7bgQ@mail.gmail.com>
-From:   maowenan <maowenan@huawei.com>
-Message-ID: <88936af6-4b98-c78f-930f-47e5d69c961d@huawei.com>
-Date:   Tue, 3 Sep 2019 16:55:38 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.0
-MIME-Version: 1.0
-In-Reply-To: <CAOj+RUvXMaoVKzSeDab4oTn3p=-BJtuhgqwKDCUuhCQWHO7bgQ@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.177.96.96]
-X-CFilter-Loop: Reflected
+        id S1728490AbfICKf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 06:35:59 -0400
+Received: from smtprelay-out1.synopsys.com ([198.182.47.102]:57250 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727077AbfICKf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 06:35:59 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 7111CC0C4A;
+        Tue,  3 Sep 2019 10:35:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1567506958; bh=hzEcIxH9OkYzQ2wF2QX+ihkL5mVW4n1QxZ4evCVUErM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:In-Reply-To:
+         References:From;
+        b=Nw2gFNkDwaEHAvmWI6x6vWdrQ+2sCSutk1yItj7eStLFz29/9Aic6KJrZmXntJ1tS
+         dP3psLh3BYBZZEBjrxf4cYyDhPh7IJVP26+yVDfRZpnF84y99v+xq+s5svc3tHIg5d
+         6lVvgWuL2plWUz0CtnqXlAMw7Hh5lEC8t81i41PSUBh3vobRVvkri8D1ftjdBzGJUZ
+         B4259R+uU+Rce3JpnM8YD99d9OorlOjGwYsUENqlG92tENtxU5rEyoP+cWYPobyZ6O
+         BkJDKq67/4lPPH+D6U7f/AqfPQUvXp1JpIC4Q6aJ0VNd5upXvux1kJeQTx+S8GLQuC
+         w1Gr53HDwUwmA==
+Received: from de02.synopsys.com (germany.internal.synopsys.com [10.225.17.21])
+        by mailhost.synopsys.com (Postfix) with ESMTP id CD0EEA0069;
+        Tue,  3 Sep 2019 10:35:56 +0000 (UTC)
+Received: from de02dwia024.internal.synopsys.com (de02dwia024.internal.synopsys.com [10.225.19.81])
+        by de02.synopsys.com (Postfix) with ESMTP id B455F3C0D7;
+        Tue,  3 Sep 2019 12:35:56 +0200 (CEST)
+From:   Vitor Soares <Vitor.Soares@synopsys.com>
+To:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-i3c@lists.infradead.org
+Cc:     bbrezillon@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        pgaj@cadence.com, Joao.Pinto@synopsys.com,
+        Vitor Soares <Vitor.Soares@synopsys.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 2/5] i3c: master: make sure ->boardinfo is initialized in add_i3c_dev_locked()
+Date:   Tue,  3 Sep 2019 12:35:51 +0200
+Message-Id: <d8db2c6d6ebb5c1dc577593b353847bd312fd6c0.1567437955.git.vitor.soares@synopsys.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <cover.1567437955.git.vitor.soares@synopsys.com>
+References: <cover.1567437955.git.vitor.soares@synopsys.com>
+In-Reply-To: <cover.1567437955.git.vitor.soares@synopsys.com>
+References: <cover.1567437955.git.vitor.soares@synopsys.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The newdev->boardinfo assignment was missing in
+i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
+propagated to  i3c_dev_desc.
 
-On 2019/9/3 14:58, Tim Froidcoeur wrote:
-> Hi,
-> 
-> I also tried to reproduce this in a targeted way, and run into the
-> same difficulty as you: satisfying the first condition “
-> (sk->sk_wmem_queued >> 1) > limit “.
-> I will not have bandwidth the coming days to try and reproduce it in
-> this way. Maybe simply forcing a very small send buffer using sysctl
-> net.ipv4.tcp_wmem might even do the trick?
-> 
-> I suspect that the bug is easier to trigger with the MPTCP patch like
-> I did originally, due to the way this patch manages the tcp subflow
-> buffers (it can temporarily overfill the buffers, satisfying that
-> first condition more often).
-> 
-> another thing, the stacktrace you shared before seems caused by
-> another issue (corrupted socket?), it will not be solved by the patch
-> we submitted.
+Fix this by trying to initialize device i3c_dev_boardinfo if available.
 
-The trace shows zero window probe message can be BUG_ON in skb_queue_prev,
-this is reproduced on our platform with syzkaller. It can be resolved by
-your fix patch.
-The thing I need to think is why the first condition can be satisfied?
-Eric, Do you have any comments to reproduce it as the first condition
-is hard to be true?
-(sk->sk_wmem_queued >> 1) > limit
+Cc: <stable@vger.kernel.org>
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+---
+Changes in v2:
+  - Change commit message
+  - Change i3c_master_search_i3c_boardinfo(newdev) to
+  i3c_master_init_i3c_dev_boardinfo(newdev)
+  - Add fixes, stable tags
 
-> 
-> kind regards,
-> 
-> Tim
-> 
-> 
-> On Tue, Sep 3, 2019 at 5:22 AM maowenan <maowenan@huawei.com> wrote:
->>
->> Hi Tim,
->>
->>
->>
->> I try to reproduce it with packetdrill or user application, but I can’t.
->>
->> The first condition “ (sk->sk_wmem_queued >> 1) > limit “    can’t be satisfied,
->>
->> This condition is to avoid tiny SO_SNDBUF values set by user.
->>
->> It also adds the some room due to the fact that tcp_sendmsg()
->>
->> and tcp_sendpage() might overshoot sk_wmem_queued by about one full
->>
->> TSO skb (64KB size).
->>
->>
->>
->>         limit = sk->sk_sndbuf + 2 * SKB_TRUESIZE(GSO_MAX_SIZE);
->>
->>         if (unlikely((sk->sk_wmem_queued >> 1) > limit &&
->>
->>                      skb != tcp_rtx_queue_head(sk) &&
->>
->>                      skb != tcp_rtx_queue_tail(sk))) {
->>
->>                 NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
->>
->>                 return -ENOMEM;
->>
->>         }
->>
->>
->>
->> Can you try to reproduce it with packetdrill or C socket application?
->>
->>
-> 
-> 
-> 
+ drivers/i3c/master.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index 586e34f..9fb99bc 100644
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -1798,6 +1798,22 @@ i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
+ 	return NULL;
+ }
+ 
++static void i3c_master_init_i3c_dev_boardinfo(struct i3c_dev_desc *dev)
++{
++	struct i3c_master_controller *master = i3c_dev_get_master(dev);
++	struct i3c_dev_boardinfo *boardinfo;
++
++	if (dev->boardinfo)
++		return;
++
++	list_for_each_entry(boardinfo, &master->boardinfo.i3c, node) {
++		if (dev->info.pid == boardinfo->pid) {
++			dev->boardinfo = boardinfo;
++			return;
++		}
++	}
++}
++
+ /**
+  * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
+  * @master: master used to send frames on the bus
+@@ -1818,8 +1834,9 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 				  u8 addr)
+ {
+ 	struct i3c_device_info info = { .dyn_addr = addr };
+-	struct i3c_dev_desc *newdev, *olddev;
+ 	u8 old_dyn_addr = addr, expected_dyn_addr;
++	enum i3c_addr_slot_status addrstatus;
++	struct i3c_dev_desc *newdev, *olddev;
+ 	struct i3c_ibi_setup ibireq = { };
+ 	bool enable_ibi = false;
+ 	int ret;
+@@ -1878,6 +1895,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 	if (ret)
+ 		goto err_detach_dev;
+ 
++	i3c_master_init_i3c_dev_boardinfo(newdev);
++
+ 	/*
+ 	 * Depending on our previous state, the expected dynamic address might
+ 	 * differ:
+@@ -1895,7 +1914,11 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 	else
+ 		expected_dyn_addr = newdev->info.dyn_addr;
+ 
+-	if (newdev->info.dyn_addr != expected_dyn_addr) {
++	addrstatus = i3c_bus_get_addr_slot_status(&master->bus,
++						  expected_dyn_addr);
++
++	if (newdev->info.dyn_addr != expected_dyn_addr &&
++	    addrstatus == I3C_ADDR_SLOT_FREE) {
+ 		/*
+ 		 * Try to apply the expected dynamic address. If it fails, keep
+ 		 * the address assigned by the master.
+-- 
+2.7.4
 
