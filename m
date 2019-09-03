@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DB1A6E51
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AFECA6E59
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730406AbfICQZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45612 "EHLO mail.kernel.org"
+        id S1730430AbfICQZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730395AbfICQZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:30 -0400
+        id S1729978AbfICQZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0485923717;
-        Tue,  3 Sep 2019 16:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95AC82343A;
+        Tue,  3 Sep 2019 16:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527928;
-        bh=ebni2Q/ND9c27z/FRRPtQ6XbVmW0cE2YmgCn70MAkkQ=;
+        s=default; t=1567527934;
+        bh=QtwAhnKweYbhl+8N4DbYb10qSghZcG2hPSpk/IvtYCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVbRpHGI1/6Nts9d2y+iYuRvfT+4n55028mT7D2TMxuAYR6qVt1zCxd7pfYtjoiHr
-         J9W9IEeCrXC7/u3Qdoc7RXnzCGcBhh2lOrzp84HvgjaEMfwCLV2ftrcu8skuQQYDAW
-         sPtqBWlCNMauj1MzDGI4BqDM/JQV05Xkk3eqwWjU=
+        b=I61pLkgqYGgPrjnlyMTXgILzhyQ1BVfm+AePvaAxG7ysIn2sMjCLH6zyYGDkZLH0m
+         w4dc6cby1MpylOdUTcid7FuKqOS6OEfnKqez1lHEh3yf01iQmKlGyJI4MfZXDZ1HWX
+         06PcylgAWk1unbgqG5nxaW+eTc+QUYbamhmlEeEI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Giridhar Malavali <giridhar.malavali@cavium.com>,
-        "Ewan D . Milne" <emilne@redhat.com>,
-        Himanshu Madhani <himanshu.madhani@cavium.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 004/167] scsi: qla2xxx: Move log messages before issuing command to firmware
-Date:   Tue,  3 Sep 2019 12:22:36 -0400
-Message-Id: <20190903162519.7136-4-sashal@kernel.org>
+Cc:     Zhimin Gu <kookoo.gu@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Chen Yu <yu.c.chen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 007/167] x86, hibernate: Fix nosave_regions setup for hibernation
+Date:   Tue,  3 Sep 2019 12:22:39 -0400
+Message-Id: <20190903162519.7136-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -45,193 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giridhar Malavali <giridhar.malavali@cavium.com>
+From: Zhimin Gu <kookoo.gu@intel.com>
 
-[ Upstream commit 9fe278f44b4bc06cc61e33b2af65f87d507d13d0 ]
+[ Upstream commit cc55f7537db6af371e9c1c6a71161ee40f918824 ]
 
-There is a probability that the SRB structure might have been released by the
-time the debug log message dereferences it.  This patch moved the log messages
-before the command is issued to the firmware to prevent unknown behavior and
-kernel crash
+On 32bit systems, nosave_regions(non RAM areas) located between
+max_low_pfn and max_pfn are not excluded from hibernation snapshot
+currently, which may result in a machine check exception when
+trying to access these unsafe regions during hibernation:
 
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Giridhar Malavali <giridhar.malavali@cavium.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Himanshu Madhani <himanshu.madhani@cavium.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[  612.800453] Disabling lock debugging due to kernel taint
+[  612.805786] mce: [Hardware Error]: CPU 0: Machine Check Exception: 5 Bank 6: fe00000000801136
+[  612.814344] mce: [Hardware Error]: RIP !INEXACT! 60:<00000000d90be566> {swsusp_save+0x436/0x560}
+[  612.823167] mce: [Hardware Error]: TSC 1f5939fe276 ADDR dd000000 MISC 30e0000086
+[  612.830677] mce: [Hardware Error]: PROCESSOR 0:306c3 TIME 1529487426 SOCKET 0 APIC 0 microcode 24
+[  612.839581] mce: [Hardware Error]: Run the above through 'mcelog --ascii'
+[  612.846394] mce: [Hardware Error]: Machine check: Processor context corrupt
+[  612.853380] Kernel panic - not syncing: Fatal machine check
+[  612.858978] Kernel Offset: 0x18000000 from 0xc1000000 (relocation range: 0xc0000000-0xf7ffdfff)
+
+This is because on 32bit systems, pages above max_low_pfn are regarded
+as high memeory, and accessing unsafe pages might cause expected MCE.
+On the problematic 32bit system, there are reserved memory above low
+memory, which triggered the MCE:
+
+e820 memory mapping:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009d7ff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009d800-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000d160cfff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000d160d000-0x00000000d1613fff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x00000000d1614000-0x00000000d1a44fff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000d1a45000-0x00000000d1ecffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000d1ed0000-0x00000000d7eeafff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000d7eeb000-0x00000000d7ffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000d8000000-0x00000000d875ffff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000d8760000-0x00000000d87fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000d8800000-0x00000000d8fadfff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000d8fae000-0x00000000d8ffffff] ACPI data
+[    0.000000] BIOS-e820: [mem 0x00000000d9000000-0x00000000da71bfff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000da71c000-0x00000000da7fffff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x00000000da800000-0x00000000dbb8bfff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000dbb8c000-0x00000000dbffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000dd000000-0x00000000df1fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000f8000000-0x00000000fbffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fec00000-0x00000000fec00fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fed00000-0x00000000fed03fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fed1c000-0x00000000fed1ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fee00000-0x00000000fee00fff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000041edfffff] usable
+
+Fix this problem by changing pfn limit from max_low_pfn to max_pfn.
+This fix does not impact 64bit system because on 64bit max_low_pfn
+is the same as max_pfn.
+
+Signed-off-by: Zhimin Gu <kookoo.gu@intel.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c   | 15 ++++++-----
- drivers/scsi/qla2xxx/qla_init.c | 48 +++++++++++++++++----------------
- 2 files changed, 33 insertions(+), 30 deletions(-)
+ arch/x86/kernel/setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 1f1a05a90d3d7..fc08e46a93ca9 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3360,15 +3360,15 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
- 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
- 	sp->done = qla24xx_async_gpsc_sp_done;
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index b4866badb235a..90ecc108bc8a5 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -1251,7 +1251,7 @@ void __init setup_arch(char **cmdline_p)
+ 	x86_init.hyper.guest_late_init();
  
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
--
- 	ql_dbg(ql_dbg_disc, vha, 0x205e,
- 	    "Async-%s %8phC hdl=%x loopid=%x portid=%02x%02x%02x.\n",
- 	    sp->name, fcport->port_name, sp->handle,
- 	    fcport->loop_id, fcport->d_id.b.domain,
- 	    fcport->d_id.b.area, fcport->d_id.b.al_pa);
-+
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
- 	return rval;
+ 	e820__reserve_resources();
+-	e820__register_nosave_regions(max_low_pfn);
++	e820__register_nosave_regions(max_pfn);
  
- done_free_sp:
-@@ -3729,13 +3729,14 @@ int qla24xx_async_gpnid(scsi_qla_host_t *vha, port_id_t *id)
- 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
- 	sp->done = qla2x00_async_gpnid_sp_done;
+ 	x86_init.resources.reserve_resources();
  
-+	ql_dbg(ql_dbg_disc, vha, 0x2067,
-+	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
-+	    sp->handle, ct_req->req.port_id.port_id);
-+
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS)
- 		goto done_free_sp;
- 
--	ql_dbg(ql_dbg_disc, vha, 0x2067,
--	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
--	    sp->handle, ct_req->req.port_id.port_id);
- 	return rval;
- 
- done_free_sp:
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index ddce32fe0513a..39a8f4a671aaa 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -247,6 +247,12 @@ qla2x00_async_login(struct scsi_qla_host *vha, fc_port_t *fcport,
- 
- 	}
- 
-+	ql_dbg(ql_dbg_disc, vha, 0x2072,
-+	    "Async-login - %8phC hdl=%x, loopid=%x portid=%02x%02x%02x "
-+		"retries=%d.\n", fcport->port_name, sp->handle, fcport->loop_id,
-+	    fcport->d_id.b.domain, fcport->d_id.b.area, fcport->d_id.b.al_pa,
-+	    fcport->login_retry);
-+
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
- 		fcport->flags |= FCF_LOGIN_NEEDED;
-@@ -254,11 +260,6 @@ qla2x00_async_login(struct scsi_qla_host *vha, fc_port_t *fcport,
- 		goto done_free_sp;
- 	}
- 
--	ql_dbg(ql_dbg_disc, vha, 0x2072,
--	    "Async-login - %8phC hdl=%x, loopid=%x portid=%02x%02x%02x "
--		"retries=%d.\n", fcport->port_name, sp->handle, fcport->loop_id,
--	    fcport->d_id.b.domain, fcport->d_id.b.area, fcport->d_id.b.al_pa,
--	    fcport->login_retry);
- 	return rval;
- 
- done_free_sp:
-@@ -303,15 +304,16 @@ qla2x00_async_logout(struct scsi_qla_host *vha, fc_port_t *fcport)
- 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
- 
- 	sp->done = qla2x00_async_logout_sp_done;
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
- 
- 	ql_dbg(ql_dbg_disc, vha, 0x2070,
- 	    "Async-logout - hdl=%x loop-id=%x portid=%02x%02x%02x %8phC.\n",
- 	    sp->handle, fcport->loop_id, fcport->d_id.b.domain,
- 		fcport->d_id.b.area, fcport->d_id.b.al_pa,
- 		fcport->port_name);
-+
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
- 	return rval;
- 
- done_free_sp:
-@@ -489,13 +491,15 @@ qla2x00_async_adisc(struct scsi_qla_host *vha, fc_port_t *fcport,
- 	sp->done = qla2x00_async_adisc_sp_done;
- 	if (data[1] & QLA_LOGIO_LOGIN_RETRIED)
- 		lio->u.logio.flags |= SRB_LOGIN_RETRIED;
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
- 
- 	ql_dbg(ql_dbg_disc, vha, 0x206f,
- 	    "Async-adisc - hdl=%x loopid=%x portid=%06x %8phC.\n",
- 	    sp->handle, fcport->loop_id, fcport->d_id.b24, fcport->port_name);
-+
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
-+
- 	return rval;
- 
- done_free_sp:
-@@ -1161,14 +1165,13 @@ int qla24xx_async_gpdb(struct scsi_qla_host *vha, fc_port_t *fcport, u8 opt)
- 
- 	sp->done = qla24xx_async_gpdb_sp_done;
- 
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
--
- 	ql_dbg(ql_dbg_disc, vha, 0x20dc,
- 	    "Async-%s %8phC hndl %x opt %x\n",
- 	    sp->name, fcport->port_name, sp->handle, opt);
- 
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
- 	return rval;
- 
- done_free_sp:
-@@ -1698,15 +1701,14 @@ qla2x00_async_tm_cmd(fc_port_t *fcport, uint32_t flags, uint32_t lun,
- 	tm_iocb->u.tmf.data = tag;
- 	sp->done = qla2x00_tmf_sp_done;
- 
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
--
- 	ql_dbg(ql_dbg_taskm, vha, 0x802f,
- 	    "Async-tmf hdl=%x loop-id=%x portid=%02x%02x%02x.\n",
- 	    sp->handle, fcport->loop_id, fcport->d_id.b.domain,
- 	    fcport->d_id.b.area, fcport->d_id.b.al_pa);
- 
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
- 	wait_for_completion(&tm_iocb->u.tmf.comp);
- 
- 	rval = tm_iocb->u.tmf.data;
-@@ -1790,14 +1792,14 @@ qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
- 
- 	sp->done = qla24xx_abort_sp_done;
- 
--	rval = qla2x00_start_sp(sp);
--	if (rval != QLA_SUCCESS)
--		goto done_free_sp;
--
- 	ql_dbg(ql_dbg_async, vha, 0x507c,
- 	    "Abort command issued - hdl=%x, target_id=%x\n",
- 	    cmd_sp->handle, fcport->tgt_id);
- 
-+	rval = qla2x00_start_sp(sp);
-+	if (rval != QLA_SUCCESS)
-+		goto done_free_sp;
-+
- 	if (wait) {
- 		wait_for_completion(&abt_iocb->u.abt.comp);
- 		rval = abt_iocb->u.abt.comp_status == CS_COMPLETE ?
 -- 
 2.20.1
 
