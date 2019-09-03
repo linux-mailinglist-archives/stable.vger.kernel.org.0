@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C81A7036
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D10CA7037
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbfICQZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46172 "EHLO mail.kernel.org"
+        id S1730516AbfICQZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730487AbfICQZv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:51 -0400
+        id S1730103AbfICQZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6E4D23697;
-        Tue,  3 Sep 2019 16:25:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75A4823717;
+        Tue,  3 Sep 2019 16:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527950;
-        bh=3HZcg6Wa9KHkOEdnpkOwcP6R0/P6zfM1cCkAiJLfuVA=;
+        s=default; t=1567527953;
+        bh=qUDXs+NRk9kq4QOIe8TO4tnvqCIQP/qICPClCjAc3Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KryyxzS6sCfmWJzps3F/DvOnbU+2LhntOudlxb2vJNc0a3Zuzsfy66F81WxNkNErO
-         FDiHzUEiDHi5UP55layqjllxKSLRafw9YAiyii0iNjoePXqfjNFq0m5B371Wk4H7vs
-         lrIpZDKeYVIfkRW7mEjdkmVDNpyhkLb1OuHrhOyQ=
+        b=dmWpGoTvgLAU39UmPomTJN0cDldoLCAmFcFhgkXF/7hPqzeFCfo3PQRxaknskDlvn
+         Hki1MiXQwZ3+1HJnxHqOT1rGq97dGgDqNrI/u7C8w+OyvENyYaklTy2tyfYXpKuxrv
+         g9oavyA++9iG5MnftRgY0vzrVhW1kh7DmUNcHTq4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+Cc:     Lyude Paul <lyude@redhat.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 017/167] drm/i915: Rename PLANE_CTL_DECOMPRESSION_ENABLE
-Date:   Tue,  3 Sep 2019 12:22:49 -0400
-Message-Id: <20190903162519.7136-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 019/167] drm/atomic_helper: Disallow new modesets on unregistered connectors
+Date:   Tue,  3 Sep 2019 12:22:51 -0400
+Message-Id: <20190903162519.7136-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,71 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit 53867b46fa8443713b3aee520d6ca558b222d829 ]
+[ Upstream commit 4d80273976bf880c4bed9359b8f2d45663140c86 ]
 
-Rename PLANE_CTL_DECOMPRESSION_ENABLE to resemble the bpsec name -
-PLANE_CTL_RENDER_DECOMPRESSION_ENABLE
+With the exception of modesets which would switch the DPMS state of a
+connector from on to off, we want to make sure that we disallow all
+modesets which would result in enabling a new monitor or a new mode
+configuration on a monitor if the connector for the display in question
+is no longer registered. This allows us to stop userspace from trying to
+enable new displays on connectors for an MST topology that were just
+removed from the system, without preventing userspace from disabling
+DPMS on those connectors.
 
-Suggested-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20180822015053.1420-2-dhinakaran.pandiyan@intel.com
+Changes since v5:
+- Fix typo in comment, nothing else
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20181008232437.5571-2-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_reg.h      | 2 +-
- drivers/gpu/drm/i915/intel_display.c | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_atomic_helper.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 16f5d2d938014..4e070afb2738b 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -6531,7 +6531,7 @@ enum {
- #define   PLANE_CTL_YUV422_UYVY			(1 << 16)
- #define   PLANE_CTL_YUV422_YVYU			(2 << 16)
- #define   PLANE_CTL_YUV422_VYUY			(3 << 16)
--#define   PLANE_CTL_DECOMPRESSION_ENABLE	(1 << 15)
-+#define   PLANE_CTL_RENDER_DECOMPRESSION_ENABLE	(1 << 15)
- #define   PLANE_CTL_TRICKLE_FEED_DISABLE	(1 << 14)
- #define   PLANE_CTL_PLANE_GAMMA_DISABLE		(1 << 13) /* Pre-GLK */
- #define   PLANE_CTL_TILED_MASK			(0x7 << 10)
-diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-index 3bd44d042a1d9..f5367bdc04049 100644
---- a/drivers/gpu/drm/i915/intel_display.c
-+++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -3561,11 +3561,11 @@ static u32 skl_plane_ctl_tiling(uint64_t fb_modifier)
- 	case I915_FORMAT_MOD_Y_TILED:
- 		return PLANE_CTL_TILED_Y;
- 	case I915_FORMAT_MOD_Y_TILED_CCS:
--		return PLANE_CTL_TILED_Y | PLANE_CTL_DECOMPRESSION_ENABLE;
-+		return PLANE_CTL_TILED_Y | PLANE_CTL_RENDER_DECOMPRESSION_ENABLE;
- 	case I915_FORMAT_MOD_Yf_TILED:
- 		return PLANE_CTL_TILED_YF;
- 	case I915_FORMAT_MOD_Yf_TILED_CCS:
--		return PLANE_CTL_TILED_YF | PLANE_CTL_DECOMPRESSION_ENABLE;
-+		return PLANE_CTL_TILED_YF | PLANE_CTL_RENDER_DECOMPRESSION_ENABLE;
- 	default:
- 		MISSING_CASE(fb_modifier);
+diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+index c22062cc99923..71c70a031a043 100644
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -307,6 +307,26 @@ update_connector_routing(struct drm_atomic_state *state,
+ 		return 0;
  	}
-@@ -8812,13 +8812,13 @@ skylake_get_initial_plane_config(struct intel_crtc *crtc,
- 		fb->modifier = I915_FORMAT_MOD_X_TILED;
- 		break;
- 	case PLANE_CTL_TILED_Y:
--		if (val & PLANE_CTL_DECOMPRESSION_ENABLE)
-+		if (val & PLANE_CTL_RENDER_DECOMPRESSION_ENABLE)
- 			fb->modifier = I915_FORMAT_MOD_Y_TILED_CCS;
- 		else
- 			fb->modifier = I915_FORMAT_MOD_Y_TILED;
- 		break;
- 	case PLANE_CTL_TILED_YF:
--		if (val & PLANE_CTL_DECOMPRESSION_ENABLE)
-+		if (val & PLANE_CTL_RENDER_DECOMPRESSION_ENABLE)
- 			fb->modifier = I915_FORMAT_MOD_Yf_TILED_CCS;
- 		else
- 			fb->modifier = I915_FORMAT_MOD_Yf_TILED;
+ 
++	crtc_state = drm_atomic_get_new_crtc_state(state,
++						   new_connector_state->crtc);
++	/*
++	 * For compatibility with legacy users, we want to make sure that
++	 * we allow DPMS On->Off modesets on unregistered connectors. Modesets
++	 * which would result in anything else must be considered invalid, to
++	 * avoid turning on new displays on dead connectors.
++	 *
++	 * Since the connector can be unregistered at any point during an
++	 * atomic check or commit, this is racy. But that's OK: all we care
++	 * about is ensuring that userspace can't do anything but shut off the
++	 * display on a connector that was destroyed after its been notified,
++	 * not before.
++	 */
++	if (!READ_ONCE(connector->registered) && crtc_state->active) {
++		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
++				 connector->base.id, connector->name);
++		return -EINVAL;
++	}
++
+ 	funcs = connector->helper_private;
+ 
+ 	if (funcs->atomic_best_encoder)
+@@ -351,7 +371,6 @@ update_connector_routing(struct drm_atomic_state *state,
+ 
+ 	set_best_encoder(state, new_connector_state, new_encoder);
+ 
+-	crtc_state = drm_atomic_get_new_crtc_state(state, new_connector_state->crtc);
+ 	crtc_state->connectors_changed = true;
+ 
+ 	DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] using [ENCODER:%d:%s] on [CRTC:%d:%s]\n",
 -- 
 2.20.1
 
