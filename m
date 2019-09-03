@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4267AA702E
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D64BA702A
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730680AbfICQ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:26:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
+        id S1730684AbfICQ0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730165AbfICQ0i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:38 -0400
+        id S1730678AbfICQ0j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 933CF238C7;
-        Tue,  3 Sep 2019 16:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C801C23789;
+        Tue,  3 Sep 2019 16:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527997;
-        bh=iMc28nEHo4LwcU2m4S1Z3UyNfivaugakbuC8bbOlxuQ=;
+        s=default; t=1567527998;
+        bh=MVLZQSfnTmoyEXqpBENYUw+6JiZTtBhjO8y0I001DNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4IVzicSxrtGse5+0+iqgN3MbGIqlNjux/jQ6/1O6W4IeMBDn0J3XM9kkgKYghIkr
-         8vn3nOW85xRAevJoNC+U8taw9O/QTkHRsjbkzTl7jJiHNr4ghDrUV23cbTM1Wh+e9U
-         84UlSh6CHDxU1dPuxQzAJb4e3nfKbxrtGU2008zM=
+        b=2bXkJ/O7JARS5aeZkot+zMCtqc0dt/SRkCy8nV9vip8XzTU5bMFFenKtmY/YT4fCI
+         QXwT1tuonGPzMHTdBITgs2WY9ex12YnjxUdxjDgnBc3hnuMACesSzV0/PMB0Bqv6RS
+         aS+JvRAiDyVl+24fJt47RHnN06rA+NL5xnbZF3WY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Zhao <yuzhao@google.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 045/167] drm/amdgpu: validate user GEM object size
-Date:   Tue,  3 Sep 2019 12:23:17 -0400
-Message-Id: <20190903162519.7136-45-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 046/167] btrfs: volumes: Make sure no dev extent is beyond device boundary
+Date:   Tue,  3 Sep 2019 12:23:18 -0400
+Message-Id: <20190903162519.7136-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,53 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Zhao <yuzhao@google.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit c4a32b266da7bb702e60381ca0c35eaddbc89a6c ]
+[ Upstream commit 05a37c48604c19b50873fd9663f9140c150469d1 ]
 
-When creating frame buffer, userspace may request to attach to a
-previously allocated GEM object that is smaller than what GPU
-requires. Validation must be done to prevent out-of-bound DMA,
-otherwise it could be exploited to reveal sensitive data.
+Add extra dev extent end check against device boundary.
 
-This fix is not done in a common code path because individual
-driver might have different requirement.
-
-Cc: stable@vger.kernel.org # v4.2+
-Reviewed-by: Michel Dänzer <michel.daenzer@amd.com>
-Signed-off-by: Yu Zhao <yuzhao@google.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/btrfs/volumes.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index 6e67814d33e29..1035a47f81c9c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -527,6 +527,7 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
- 	struct drm_gem_object *obj;
- 	struct amdgpu_framebuffer *amdgpu_fb;
- 	int ret;
-+	int height;
- 	struct amdgpu_device *adev = dev->dev_private;
- 	int cpp = drm_format_plane_cpp(mode_cmd->pixel_format, 0);
- 	int pitch = mode_cmd->pitches[0] / cpp;
-@@ -551,6 +552,13 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
- 		return ERR_PTR(-EINVAL);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 6e008bd5c8cd1..c20708bfae561 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7411,6 +7411,7 @@ static int verify_one_dev_extent(struct btrfs_fs_info *fs_info,
+ 	struct extent_map_tree *em_tree = &fs_info->mapping_tree.map_tree;
+ 	struct extent_map *em;
+ 	struct map_lookup *map;
++	struct btrfs_device *dev;
+ 	u64 stripe_len;
+ 	bool found = false;
+ 	int ret = 0;
+@@ -7460,6 +7461,22 @@ static int verify_one_dev_extent(struct btrfs_fs_info *fs_info,
+ 			physical_offset, devid);
+ 		ret = -EUCLEAN;
  	}
- 
-+	height = ALIGN(mode_cmd->height, 8);
-+	if (obj->size < pitch * height) {
-+		DRM_DEBUG_KMS("Invalid GEM size: expecting >= %d but got %zu\n",
-+			      pitch * height, obj->size);
-+		return ERR_PTR(-EINVAL);
-+	}
 +
- 	amdgpu_fb = kzalloc(sizeof(*amdgpu_fb), GFP_KERNEL);
- 	if (amdgpu_fb == NULL) {
- 		drm_gem_object_put_unlocked(obj);
++	/* Make sure no dev extent is beyond device bondary */
++	dev = btrfs_find_device(fs_info, devid, NULL, NULL);
++	if (!dev) {
++		btrfs_err(fs_info, "failed to find devid %llu", devid);
++		ret = -EUCLEAN;
++		goto out;
++	}
++	if (physical_offset + physical_len > dev->disk_total_bytes) {
++		btrfs_err(fs_info,
++"dev extent devid %llu physical offset %llu len %llu is beyond device boundary %llu",
++			  devid, physical_offset, physical_len,
++			  dev->disk_total_bytes);
++		ret = -EUCLEAN;
++		goto out;
++	}
+ out:
+ 	free_extent_map(em);
+ 	return ret;
 -- 
 2.20.1
 
