@@ -2,101 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95939A728E
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A04EA72A0
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725953AbfICSdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:33:35 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:40073 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725882AbfICSdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:33:35 -0400
+        id S1725914AbfICSkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 14:40:18 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51315 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725883AbfICSkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:40:18 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 6A2FE2B0E;
-        Tue,  3 Sep 2019 14:33:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:33:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=0oVSMAna4kl3ETzzaxWLpTjV167
-        ytiAyprd3AP+QQXw=; b=PserZJwwfQjDUhVLwb/5F3N1u/ETLAjozYldNmdsd59
-        C12dTcJOKvfjFMJBpYqcE8lBbu0G0B2EDDZYNbYj/XcdoDJtgKOyyD/lx4zM6Cqr
-        pcJl1oXdXENQcB5/nnaKcxQf+4JqmtgAD+/gFV858lksC6KktQpTM7cy7ZC7aZS8
-        SodE2PzZRNgZlOc54gsETmMzAz8B38LtP/0B8lS2afS8Vs0bXIC/6ysCrs+QuSem
-        UARqh0pvVnp3bA77ndzrjJx/vaRQiHyIUz47S/JU4ESiceV8nhQmih9l2reoxiHl
-        hdyrCqMewL20r9tRgsHcFIhf0hxxUDg0+SVlqF78iMQ==
+        by mailout.nyi.internal (Postfix) with ESMTP id BC3D622106;
+        Tue,  3 Sep 2019 14:40:17 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:40:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0oVSMA
-        na4kl3ETzzaxWLpTjV167ytiAyprd3AP+QQXw=; b=1AxtKOYrmlq6eSttWS8/0h
-        N1IF6Kb+qO2ihJcgUrNpcbYIG5QSGOOfP/6eRXt4Gkke1NPTbn8mJOFpOIZVNYvD
-        8BVqaZ8yqdXg90wcl2h3qjoC3X4DKIDFenHStLj0GQnytHkQ6HAiWub0QwH5/bXL
-        c0ky4AFwOfUcfKzViNlffue+Mkr9eveH2sYngzmZA1ksbs7Yua27CeVl82WgcVGU
-        EboAfYV6A3wmQr6RfTvWZR2aA4kUxPotd75gmPsmRLXl6/QPXcOdKtpluPBQdgYH
-        mtRiH9J3+NqwxPyRFOgzXjPFCcQHB9+NhSZ9Cp71/JUfpNMkxlOPzJac8c/07URg
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lhq3tc
+        kpjZWGPSRGXC7qqTKjX6h/74Q9js6gtGsZGi8=; b=q/pGd/tI5ET7TI+CT6PPJY
+        vpqU2WlRDb1z4WKB+Twg/BWpM0Z0x7ldClf7nua1xyr3Qi8xSaz9fDnejAHCS4ef
+        7i8qsCB9Ncjzuf+zYRR8v+KZSgOsBz3vvGTWOtTo7oUYZTkfB/hnOAW2lgj7lNa9
+        YaZArCz2aaqP+x7sys7flWy4KrSuML9FU5CPd+bTAGuYfJu/DQTSjrF3JWh3hpPJ
+        Z2zl0Zyfn7RdTkWfk1eGBPp6no0OCFsQDQVlLzRM8d34yolvWKB/k7CmDCFcwToi
+        GJk4xz+bsa0ULq+B/sTopsKEuYl868HF1qD0WxVjE4wkFKpq/8StoUDz6n7KXmEA
         ==
-X-ME-Sender: <xms:_bFuXeHlbcEIwt-w9gyEdsbOdEogfPHRw0o8ZvVgB95SsAe78d2Yiw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedgleejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:j7NuXaEZWQuMeyhaHliQfzgQOyWfy_uurCKXDUHJtBL1VTV0_yv6Pg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehnvggvuggvug
-    drnhgvthenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
-    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:_bFuXcsXOYeI7lCn8pNMPn4p_9g9uT5VRTOnQAjwrQotwpYtt9WjUw>
-    <xmx:_bFuXXDPFV3bBOQY7O5eBBTgLN_G1b-brbKWrUSDd_dwJGmjKv6PVQ>
-    <xmx:_bFuXRQEfS3vOYsq_2-4MSqwe95WFfcClzC6irEJKVdPhLu60ecP7A>
-    <xmx:_rFuXXSQVSipUIezTmy7mUaCzax62G-NbHj3REnGt3Qaj66pFKTQjw>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:j7NuXU6HMH0EeEklK2ULSdlFegpHAEhCjxPxo5cGgAMiHO0YqMukTA>
+    <xmx:j7NuXfmSriR2Bk0Cg039_wzqvZ8Ef9w6H8EQNj9I1ZeYDqOj8NtOOw>
+    <xmx:j7NuXSyLTeGzgPtpPRBufrNyq_0II-o5OFSzv3yMkf9hyzl9gvMufQ>
+    <xmx:kbNuXXbMt7B9D2NtWhPBwxqHFpKqQYdDiRwpj4JF53nw9yKpzEA8KQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 30D57D6005E;
-        Tue,  3 Sep 2019 14:33:33 -0400 (EDT)
-Date:   Tue, 3 Sep 2019 20:33:31 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc:     Baolin Wang <baolin.wang@linaro.org>, stable@vger.kernel.org,
-        vyasevich@gmail.com, nhorman@tuxdriver.com, davem@davemloft.net,
-        hariprasad.kelam@gmail.com, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org, arnd@arndb.de, orsonzhai@gmail.com,
-        vincent.guittot@linaro.org, linux-kernel@vger.kernel.org
-Subject: Re: [BACKPORT 4.14.y 4/8] net: sctp: fix warning "NULL check before
- some freeing functions is not needed"
-Message-ID: <20190903183331.GB26562@kroah.com>
-References: <cover.1567492316.git.baolin.wang@linaro.org>
- <0e71732006c11f119826b3be9c1a9ccd102742d8.1567492316.git.baolin.wang@linaro.org>
- <20190903145206.GB3499@localhost.localdomain>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 00D308005A;
+        Tue,  3 Sep 2019 14:40:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation" failed to apply to 4.19-stable tree
+To:     aik@ozlabs.ru, paulus@ozlabs.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Sep 2019 20:40:13 +0200
+Message-ID: <156753601315657@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190903145206.GB3499@localhost.localdomain>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 11:52:06AM -0300, Marcelo Ricardo Leitner wrote:
-> On Tue, Sep 03, 2019 at 02:58:16PM +0800, Baolin Wang wrote:
-> > From: Hariprasad Kelam <hariprasad.kelam@gmail.com>
-> > 
-> > This patch removes NULL checks before calling kfree.
-> > 
-> > fixes below issues reported by coccicheck
-> > net/sctp/sm_make_chunk.c:2586:3-8: WARNING: NULL check before some
-> > freeing functions is not needed.
-> > net/sctp/sm_make_chunk.c:2652:3-8: WARNING: NULL check before some
-> > freeing functions is not needed.
-> > net/sctp/sm_make_chunk.c:2667:3-8: WARNING: NULL check before some
-> > freeing functions is not needed.
-> > net/sctp/sm_make_chunk.c:2684:3-8: WARNING: NULL check before some
-> > freeing functions is not needed.
-> 
-> Hi. This doesn't seem the kind of patch that should be backported to
-> such old/stable releases. After all, it's just a cleanup.
 
-I agree, this does not seem necessary _unless_ it is needed for a later
-real fix.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ddfd151f3def9258397fcde7a372205a2d661903 Mon Sep 17 00:00:00 2001
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
+Date: Mon, 26 Aug 2019 14:55:20 +1000
+Subject: [PATCH] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation
+ error handling
+
+H_PUT_TCE_INDIRECT handlers receive a page with up to 512 TCEs from
+a guest. Although we verify correctness of TCEs before we do anything
+with the existing tables, there is a small window when a check in
+kvmppc_tce_validate might pass and right after that the guest alters
+the page of TCEs, causing an early exit from the handler and leaving
+srcu_read_lock(&vcpu->kvm->srcu) (virtual mode) or lock_rmap(rmap)
+(real mode) locked.
+
+This fixes the bug by jumping to the common exit code with an appropriate
+unlock.
+
+Cc: stable@vger.kernel.org # v4.11+
+Fixes: 121f80ba68f1 ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+
+diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
+index e99a14798ab0..c4b606fe73eb 100644
+--- a/arch/powerpc/kvm/book3s_64_vio.c
++++ b/arch/powerpc/kvm/book3s_64_vio.c
+@@ -660,8 +660,10 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 		}
+ 		tce = be64_to_cpu(tce);
+ 
+-		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua))
+-			return H_PARAMETER;
++		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt,
+diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
+index f50bbeedfc66..b4f20f13b860 100644
+--- a/arch/powerpc/kvm/book3s_64_vio_hv.c
++++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
+@@ -556,8 +556,10 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 		unsigned long tce = be64_to_cpu(((u64 *)tces)[i]);
+ 
+ 		ua = 0;
+-		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL))
+-			return H_PARAMETER;
++		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
+
