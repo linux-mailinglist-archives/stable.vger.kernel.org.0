@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA54AA7042
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA853A7057
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbfICQ0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:26:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
+        id S1730612AbfICQiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730602AbfICQ0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:19 -0400
+        id S1730608AbfICQ0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B02C238CE;
-        Tue,  3 Sep 2019 16:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6859C23789;
+        Tue,  3 Sep 2019 16:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527979;
-        bh=eK+L9MGfvPLzftIEDXerbgiNvYTvBEHJUW/ZcohqNQI=;
+        s=default; t=1567527980;
+        bh=y4mtFdd/M4192J/pE0CJUfdZ9vvIJgvFr2RKFhXHTls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aYXvjI637FZDGFn+OUoO1heyMML8XpiH82IRX6SFiWP2VExCSySFfJLNwlAU3x9M
-         9DqHBhSR0Evu5NeljLb+eX2QH5nrY/HvEUch3CkUMQ6PxipQI4Wolx7tVXdPvCVztS
-         7/DtvTmi6ivZMFj+fLVukkJUpeSBJu8dR+Wr+H5w=
+        b=YV291SDY9wCYYkPSkFbLAutuTU7aH7htRIc6Yv5pmSG0gTP85J9Dedevt/1nVpmoH
+         yicNQinrOXx66W2P/Z5qDltgTt1+ZbcVA2DAWG1zJFFWFVmNYkIECRJE4LhyqODCrl
+         uIVP1xJGmD9yUJjf+XEs5qiDatqps3jBvMP4E2Eg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 034/167] drm/i915: Cleanup gt powerstate from gem
-Date:   Tue,  3 Sep 2019 12:23:06 -0400
-Message-Id: <20190903162519.7136-34-sashal@kernel.org>
+Cc:     Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 035/167] KVM: PPC: Book3S HV: Fix race between kvm_unmap_hva_range and MMU mode switch
+Date:   Tue,  3 Sep 2019 12:23:07 -0400
+Message-Id: <20190903162519.7136-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,65 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Paul Mackerras <paulus@ozlabs.org>
 
-[ Upstream commit 30b710840e4b9c9699d3d4b33fb19ad8880d4614 ]
+[ Upstream commit 234ff0b729ad882d20f7996591a964965647addf ]
 
-Since the gt powerstate is allocated by i915_gem_init, clean it from
-i915_gem_fini for symmetry and to correct the imbalance on error.
+Testing has revealed an occasional crash which appears to be caused
+by a race between kvmppc_switch_mmu_to_hpt and kvm_unmap_hva_range_hv.
+The symptom is a NULL pointer dereference in __find_linux_pte() called
+from kvm_unmap_radix() with kvm->arch.pgtable == NULL.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20180812223642.24865-1-chris@chris-wilson.co.uk
+Looking at kvmppc_switch_mmu_to_hpt(), it does indeed clear
+kvm->arch.pgtable (via kvmppc_free_radix()) before setting
+kvm->arch.radix to NULL, and there is nothing to prevent
+kvm_unmap_hva_range_hv() or the other MMU callback functions from
+being called concurrently with kvmppc_switch_mmu_to_hpt() or
+kvmppc_switch_mmu_to_radix().
+
+This patch therefore adds calls to spin_lock/unlock on the kvm->mmu_lock
+around the assignments to kvm->arch.radix, and makes sure that the
+partition-scoped radix tree or HPT is only freed after changing
+kvm->arch.radix.
+
+This also takes the kvm->mmu_lock in kvmppc_rmap_reset() to make sure
+that the clearing of each rmap array (one per memslot) doesn't happen
+concurrently with use of the array in the kvm_unmap_hva_range_hv()
+or the other MMU callbacks.
+
+Fixes: 18c3640cefc7 ("KVM: PPC: Book3S HV: Add infrastructure for running HPT guests on radix host")
+Cc: stable@vger.kernel.org # v4.15+
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_gem.c      | 3 +++
- drivers/gpu/drm/i915/intel_display.c | 4 ----
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/kvm/book3s_64_mmu_hv.c |  3 +++
+ arch/powerpc/kvm/book3s_hv.c        | 15 +++++++++++----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index 5019dfd8bcf16..e81abd468a15d 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -5624,6 +5624,7 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
- void i915_gem_fini(struct drm_i915_private *dev_priv)
+diff --git a/arch/powerpc/kvm/book3s_64_mmu_hv.c b/arch/powerpc/kvm/book3s_64_mmu_hv.c
+index 68e14afecac85..a488c105b9234 100644
+--- a/arch/powerpc/kvm/book3s_64_mmu_hv.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_hv.c
+@@ -744,12 +744,15 @@ void kvmppc_rmap_reset(struct kvm *kvm)
+ 	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	slots = kvm_memslots(kvm);
+ 	kvm_for_each_memslot(memslot, slots) {
++		/* Mutual exclusion with kvm_unmap_hva_range etc. */
++		spin_lock(&kvm->mmu_lock);
+ 		/*
+ 		 * This assumes it is acceptable to lose reference and
+ 		 * change bits across a reset.
+ 		 */
+ 		memset(memslot->arch.rmap, 0,
+ 		       memslot->npages * sizeof(*memslot->arch.rmap));
++		spin_unlock(&kvm->mmu_lock);
+ 	}
+ 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ }
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 083dcedba11ce..9595db30e6b87 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3813,12 +3813,15 @@ static int kvmppc_hv_setup_htab_rma(struct kvm_vcpu *vcpu)
+ /* Must be called with kvm->lock held and mmu_ready = 0 and no vcpus running */
+ int kvmppc_switch_mmu_to_hpt(struct kvm *kvm)
  {
- 	i915_gem_suspend_late(dev_priv);
-+	intel_disable_gt_powersave(dev_priv);
++	kvmppc_rmap_reset(kvm);
++	kvm->arch.process_table = 0;
++	/* Mutual exclusion with kvm_unmap_hva_range etc. */
++	spin_lock(&kvm->mmu_lock);
++	kvm->arch.radix = 0;
++	spin_unlock(&kvm->mmu_lock);
+ 	kvmppc_free_radix(kvm);
+ 	kvmppc_update_lpcr(kvm, LPCR_VPM1,
+ 			   LPCR_VPM1 | LPCR_UPRT | LPCR_GTSE | LPCR_HR);
+-	kvmppc_rmap_reset(kvm);
+-	kvm->arch.radix = 0;
+-	kvm->arch.process_table = 0;
+ 	return 0;
+ }
  
- 	/* Flush any outstanding unpin_work. */
- 	i915_gem_drain_workqueue(dev_priv);
-@@ -5635,6 +5636,8 @@ void i915_gem_fini(struct drm_i915_private *dev_priv)
- 	i915_gem_contexts_fini(dev_priv);
- 	mutex_unlock(&dev_priv->drm.struct_mutex);
+@@ -3831,10 +3834,14 @@ int kvmppc_switch_mmu_to_radix(struct kvm *kvm)
+ 	if (err)
+ 		return err;
  
-+	intel_cleanup_gt_powersave(dev_priv);
-+
- 	intel_uc_fini_misc(dev_priv);
- 	i915_gem_cleanup_userptr(dev_priv);
++	kvmppc_rmap_reset(kvm);
++	/* Mutual exclusion with kvm_unmap_hva_range etc. */
++	spin_lock(&kvm->mmu_lock);
++	kvm->arch.radix = 1;
++	spin_unlock(&kvm->mmu_lock);
+ 	kvmppc_free_hpt(&kvm->arch.hpt);
+ 	kvmppc_update_lpcr(kvm, LPCR_UPRT | LPCR_GTSE | LPCR_HR,
+ 			   LPCR_VPM1 | LPCR_UPRT | LPCR_GTSE | LPCR_HR);
+-	kvm->arch.radix = 1;
+ 	return 0;
+ }
  
-diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-index 2622dfc7d2d9a..6902fd2da19ca 100644
---- a/drivers/gpu/drm/i915/intel_display.c
-+++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -15972,8 +15972,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
- 	flush_work(&dev_priv->atomic_helper.free_work);
- 	WARN_ON(!llist_empty(&dev_priv->atomic_helper.free_list));
- 
--	intel_disable_gt_powersave(dev_priv);
--
- 	/*
- 	 * Interrupts and polling as the first thing to avoid creating havoc.
- 	 * Too much stuff here (turning of connectors, ...) would
-@@ -16001,8 +15999,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
- 
- 	intel_cleanup_overlay(dev_priv);
- 
--	intel_cleanup_gt_powersave(dev_priv);
--
- 	intel_teardown_gmbus(dev_priv);
- 
- 	destroy_workqueue(dev_priv->modeset_wq);
 -- 
 2.20.1
 
