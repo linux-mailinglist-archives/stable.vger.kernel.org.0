@@ -2,108 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EE4A71C2
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 19:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E557A71FC
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 19:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728113AbfICRf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 13:35:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55208 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726973AbfICRf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 13:35:56 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A241B22D6D;
-        Tue,  3 Sep 2019 17:35:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567532155;
-        bh=dw+hhKAW5tQSyo+nfNeAdkzgRD3T65p0mOdmv6ZwBpM=;
-        h=Date:From:To:Subject:From;
-        b=FQKHjqi/Zc3BGRNFbKoYY8dB0G22tNtG9egKqxLhPo9S8d5/6aieUBRVaA1SzbWOg
-         U6RjSmLwRr3uHeMQZ8XTOpTByTYFsJjT7NkMlySB9LOv4jaTldw+UjUonYP17ff7XC
-         1AFLHcqaqHbm0gfodu48gOjOHusopO8KWkCQ24hw=
-Date:   Tue, 03 Sep 2019 10:35:55 -0700
-From:   akpm@linux-foundation.org
-To:     guro@fb.com, hannes@cmpxchg.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org, vdavydov.dev@gmail.com
-Subject:  [merged]
- mm-memcontrol-fix-percpu-vmstats-and-vmevents-flush.patch removed from -mm
- tree
-Message-ID: <20190903173555.jZKvr7DXt%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1729644AbfICRxc convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 3 Sep 2019 13:53:32 -0400
+Received: from saturn.retrosnub.co.uk ([46.235.226.198]:60516 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728967AbfICRxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 13:53:32 -0400
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        by saturn.retrosnub.co.uk (Postfix; Retrosnub mail submission) with ESMTPSA id 445299E774F;
+        Tue,  3 Sep 2019 18:53:30 +0100 (BST)
+Date:   Tue, 3 Sep 2019 18:53:28 +0100
+From:   Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        =?UTF-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-iio@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 066/167] iio: adc: exynos-adc: Add S5PV210
+ variant
+Message-ID: <20190903185328.74299c4d@archlinux>
+In-Reply-To: <20190903162519.7136-66-sashal@kernel.org>
+References: <20190903162519.7136-1-sashal@kernel.org>
+        <20190903162519.7136-66-sashal@kernel.org>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue,  3 Sep 2019 12:23:38 -0400
+Sasha Levin <sashal@kernel.org> wrote:
 
-The patch titled
-     Subject: mm: memcontrol: fix percpu vmstats and vmevents flush
-has been removed from the -mm tree.  Its filename was
-     mm-memcontrol-fix-percpu-vmstats-and-vmevents-flush.patch
+> From: Jonathan Bakker <xc-racer2@live.ca>
+> 
+> [ Upstream commit 882bf52fdeab47dbe991cc0e564b0b51c571d0a3 ]
+> 
+> S5PV210's ADC variant is almost the same as v1 except that it has 10
+> channels and doesn't require the pmu register
+> 
+> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+I have no particular objection to adding new IDs (which is more
+or less what this patch is), but I didn't know autosel was
+picking them up.  So a bit of surprise... If intentional
+then fine to apply to stable.
 
-------------------------------------------------------
-From: Shakeel Butt <shakeelb@google.com>
-Subject: mm: memcontrol: fix percpu vmstats and vmevents flush
-
-Instead of using raw_cpu_read() use per_cpu() to read the actual data of
-the corresponding cpu otherwise we will be reading the data of the current
-cpu for the number of online CPUs.
-
-Link: http://lkml.kernel.org/r/20190829203110.129263-1-shakeelb@google.com
-Fixes: bb65f89b7d3d ("mm: memcontrol: flush percpu vmevents before releasing memcg")
-Fixes: c350a99ea2b1 ("mm: memcontrol: flush percpu vmstats before releasing memcg")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memcontrol.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
---- a/mm/memcontrol.c~mm-memcontrol-fix-percpu-vmstats-and-vmevents-flush
-+++ a/mm/memcontrol.c
-@@ -3278,7 +3278,7 @@ static void memcg_flush_percpu_vmstats(s
- 
- 	for_each_online_cpu(cpu)
- 		for (i = min_idx; i < max_idx; i++)
--			stat[i] += raw_cpu_read(memcg->vmstats_percpu->stat[i]);
-+			stat[i] += per_cpu(memcg->vmstats_percpu->stat[i], cpu);
- 
- 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
- 		for (i = min_idx; i < max_idx; i++)
-@@ -3296,8 +3296,8 @@ static void memcg_flush_percpu_vmstats(s
- 
- 		for_each_online_cpu(cpu)
- 			for (i = min_idx; i < max_idx; i++)
--				stat[i] += raw_cpu_read(
--					pn->lruvec_stat_cpu->count[i]);
-+				stat[i] += per_cpu(
-+					pn->lruvec_stat_cpu->count[i], cpu);
- 
- 		for (pi = pn; pi; pi = parent_nodeinfo(pi, node))
- 			for (i = min_idx; i < max_idx; i++)
-@@ -3316,8 +3316,8 @@ static void memcg_flush_percpu_vmevents(
- 
- 	for_each_online_cpu(cpu)
- 		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
--			events[i] += raw_cpu_read(
--				memcg->vmstats_percpu->events[i]);
-+			events[i] += per_cpu(memcg->vmstats_percpu->events[i],
-+					     cpu);
- 
- 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
- 		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
-_
-
-Patches currently in -mm which might be from shakeelb@google.com are
-
+> ---
+>  drivers/iio/adc/exynos_adc.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_adc.c
+> index 4be29ed447559..41da522fc6735 100644
+> --- a/drivers/iio/adc/exynos_adc.c
+> +++ b/drivers/iio/adc/exynos_adc.c
+> @@ -115,6 +115,7 @@
+>  #define MAX_ADC_V2_CHANNELS		10
+>  #define MAX_ADC_V1_CHANNELS		8
+>  #define MAX_EXYNOS3250_ADC_CHANNELS	2
+> +#define MAX_S5PV210_ADC_CHANNELS	10
+>  
+>  /* Bit definitions common for ADC_V1 and ADC_V2 */
+>  #define ADC_CON_EN_START	(1u << 0)
+> @@ -282,6 +283,16 @@ static const struct exynos_adc_data exynos_adc_v1_data = {
+>  	.start_conv	= exynos_adc_v1_start_conv,
+>  };
+>  
+> +static const struct exynos_adc_data exynos_adc_s5pv210_data = {
+> +	.num_channels	= MAX_S5PV210_ADC_CHANNELS,
+> +	.mask		= ADC_DATX_MASK,	/* 12 bit ADC resolution */
+> +
+> +	.init_hw	= exynos_adc_v1_init_hw,
+> +	.exit_hw	= exynos_adc_v1_exit_hw,
+> +	.clear_irq	= exynos_adc_v1_clear_irq,
+> +	.start_conv	= exynos_adc_v1_start_conv,
+> +};
+> +
+>  static void exynos_adc_s3c2416_start_conv(struct exynos_adc *info,
+>  					  unsigned long addr)
+>  {
+> @@ -478,6 +489,9 @@ static const struct of_device_id exynos_adc_match[] = {
+>  	}, {
+>  		.compatible = "samsung,s3c6410-adc",
+>  		.data = &exynos_adc_s3c64xx_data,
+> +	}, {
+> +		.compatible = "samsung,s5pv210-adc",
+> +		.data = &exynos_adc_s5pv210_data,
+>  	}, {
+>  		.compatible = "samsung,exynos-adc-v1",
+>  		.data = &exynos_adc_v1_data,
 
