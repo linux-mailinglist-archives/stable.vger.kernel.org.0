@@ -2,160 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E33BDA70F8
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27ED1A7104
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728576AbfICQtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:49:33 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:51492 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727624AbfICQtc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 12:49:32 -0400
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1i5Bzn-0000Wr-Nx; Tue, 03 Sep 2019 10:49:31 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1i5Bzm-0004Pi-UU; Tue, 03 Sep 2019 10:49:31 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
+        id S1729877AbfICQun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:50:43 -0400
+Received: from mail.netline.ch ([148.251.143.178]:45259 "EHLO
+        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729056AbfICQun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 12:50:43 -0400
+X-Greylist: delayed 594 seconds by postgrey-1.27 at vger.kernel.org; Tue, 03 Sep 2019 12:50:41 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by netline-mail3.netline.ch (Postfix) with ESMTP id C88342B2001;
+        Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
+Received: from netline-mail3.netline.ch ([127.0.0.1])
+        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id OTzcp-hFgXy5; Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
+Received: from thor (116.245.63.188.dynamic.wline.res.cust.swisscom.ch [188.63.245.116])
+        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 819202AA15E;
+        Tue,  3 Sep 2019 18:40:45 +0200 (CEST)
+Received: from localhost ([::1])
+        by thor with esmtp (Exim 4.92.1)
+        (envelope-from <michel@daenzer.net>)
+        id 1i5BrI-0007pS-6D; Tue, 03 Sep 2019 18:40:44 +0200
+Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch
+ alignment
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vineet Gupta <vgupta@synopsys.com>,
-        linux-snps-arc@lists.infradead.org
+        Yu Zhao <yuzhao@google.com>, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org,
+        Alex Deucher <alexander.deucher@amd.com>
 References: <20190903162519.7136-1-sashal@kernel.org>
-        <20190903162519.7136-111-sashal@kernel.org>
-Date:   Tue, 03 Sep 2019 11:49:16 -0500
-In-Reply-To: <20190903162519.7136-111-sashal@kernel.org> (Sasha Levin's
-        message of "Tue, 3 Sep 2019 12:24:23 -0400")
-Message-ID: <87ef0xqq9f.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+ <20190903162519.7136-44-sashal@kernel.org>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Openpgp: preference=signencrypt
+Autocrypt: addr=michel@daenzer.net; prefer-encrypt=mutual; keydata=
+ mQGiBDsehS8RBACbsIQEX31aYSIuEKxEnEX82ezMR8z3LG8ktv1KjyNErUX9Pt7AUC7W3W0b
+ LUhu8Le8S2va6hi7GfSAifl0ih3k6Bv1Itzgnd+7ZmSrvCN8yGJaHNQfAevAuEboIb+MaVHo
+ 9EMJj4ikOcRZCmQWw7evu/D9uQdtkCnRY9iJiAGxbwCguBHtpoGMxDOINCr5UU6qt+m4O+UD
+ /355ohBBzzyh49lTj0kTFKr0Ozd20G2FbcqHgfFL1dc1MPyigej2gLga2osu2QY0ObvAGkOu
+ WBi3LTY8Zs8uqFGDC4ZAwMPoFy3yzu3ne6T7d/68rJil0QcdQjzzHi6ekqHuhst4a+/+D23h
+ Za8MJBEcdOhRhsaDVGAJSFEQB1qLBACOs0xN+XblejO35gsDSVVk8s+FUUw3TSWJBfZa3Imp
+ V2U2tBO4qck+wqbHNfdnU/crrsHahjzBjvk8Up7VoY8oT+z03sal2vXEonS279xN2B92Tttr
+ AgwosujguFO/7tvzymWC76rDEwue8TsADE11ErjwaBTs8ZXfnN/uAANgPLQjTWljaGVsIERh
+ ZW56ZXIgPG1pY2hlbEBkYWVuemVyLm5ldD6IXgQTEQIAHgUCQFXxJgIbAwYLCQgHAwIDFQID
+ AxYCAQIeAQIXgAAKCRBaga+OatuyAIrPAJ9ykonXI3oQcX83N2qzCEStLNW47gCeLWm/QiPY
+ jqtGUnnSbyuTQfIySkK5AQ0EOx6FRRAEAJZkcvklPwJCgNiw37p0GShKmFGGqf/a3xZZEpjI
+ qNxzshFRFneZze4f5LhzbX1/vIm5+ZXsEWympJfZzyCmYPw86QcFxyZflkAxHx9LeD+89Elx
+ bw6wT0CcLvSv8ROfU1m8YhGbV6g2zWyLD0/naQGVb8e4FhVKGNY2EEbHgFBrAAMGA/0VktFO
+ CxFBdzLQ17RCTwCJ3xpyP4qsLJH0yCoA26rH2zE2RzByhrTFTYZzbFEid3ddGiHOBEL+bO+2
+ GNtfiYKmbTkj1tMZJ8L6huKONaVrASFzLvZa2dlc2zja9ZSksKmge5BOTKWgbyepEc5qxSju
+ YsYrX5xfLgTZC5abhhztpYhGBBgRAgAGBQI7HoVFAAoJEFqBr45q27IAlscAn2Ufk2d6/3p4
+ Cuyz/NX7KpL2dQ8WAJ9UD5JEakhfofed8PSqOM7jOO3LCA==
+Message-ID: <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net>
+Date:   Tue, 3 Sep 2019 18:40:43 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1i5Bzm-0004Pi-UU;;;mid=<87ef0xqq9f.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/8C8aNV+b5wpsSiXnS9u4Q5EGxnuEWRB8=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa07.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,
-        T_TooManySym_02,XMSubLong autolearn=disabled version=3.4.2
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.7 XMSubLong Long Subject
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa07 1397; Body=1 Fuz1=1 Fuz2=1]
-        *  0.0 T_TooManySym_01 4+ unique symbols in subject
-        *  0.0 T_TooManySym_02 5+ unique symbols in subject
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Sasha Levin <sashal@kernel.org>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 370 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 2.7 (0.7%), b_tie_ro: 1.94 (0.5%), parse: 0.82
-        (0.2%), extract_message_metadata: 15 (3.9%), get_uri_detail_list: 2.0
-        (0.5%), tests_pri_-1000: 13 (3.6%), tests_pri_-950: 1.31 (0.4%),
-        tests_pri_-900: 1.05 (0.3%), tests_pri_-90: 25 (6.7%), check_bayes: 23
-        (6.3%), b_tokenize: 8 (2.2%), b_tok_get_all: 7 (2.0%), b_comp_prob:
-        2.3 (0.6%), b_tok_touch_all: 3.5 (0.9%), b_finish: 0.63 (0.2%),
-        tests_pri_0: 300 (81.1%), check_dkim_signature: 0.53 (0.1%),
-        check_dkim_adsp: 2.5 (0.7%), poll_dns_idle: 0.68 (0.2%), tests_pri_10:
-        2.1 (0.6%), tests_pri_500: 6 (1.7%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH AUTOSEL 4.19 111/167] signal/arc: Use force_sig_fault where appropriate
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+In-Reply-To: <20190903162519.7136-44-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-CA
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin <sashal@kernel.org> writes:
+On 2019-09-03 6:23 p.m., Sasha Levin wrote:
+> From: Yu Zhao <yuzhao@google.com>
+> 
+> [ Upstream commit 89f23b6efef554766177bf51aa754bce14c3e7da ]
 
-> From: "Eric W. Biederman" <ebiederm@xmission.com>
->
-> [ Upstream commit 15773ae938d8d93d982461990bebad6e1d7a1830 ]
+Hold your horses!
 
-To the best of my knowledge this is just a clean up, no changes in
-behavior are present.
+This commit and c4a32b266da7bb702e60381ca0c35eaddbc89a6c had to be
+reverted, as they caused regressions. See commits
+25ec429e86bb790e40387a550f0501d0ac55a47c &
+92b0730eaf2d549fdfb10ecc8b71f34b9f472c12 .
 
-The only reason I can see to backport this is so that later fixes could
-be applied cleanly.
 
-So while I have no objections to this patch being backported I don't see
-why you would want to either.
+This isn't bolstering confidence in how these patches are selected...
+I'm also a little nervous about others which change values by an order
+of magnitude. There were cases before where such patches were backported
+to branches which didn't have other corresponding changes, so they ended
+up breaking stuff instead of fixing anything.
 
-> Acked-by: Vineet Gupta <vgupta@synopsys.com>
-> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/arc/mm/fault.c | 20 +++++---------------
->  1 file changed, 5 insertions(+), 15 deletions(-)
->
-> diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
-> index f28db0b112a30..a0366f9dca051 100644
-> --- a/arch/arc/mm/fault.c
-> +++ b/arch/arc/mm/fault.c
-> @@ -66,14 +66,12 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
->  	struct vm_area_struct *vma = NULL;
->  	struct task_struct *tsk = current;
->  	struct mm_struct *mm = tsk->mm;
-> -	siginfo_t info;
-> +	int si_code;
->  	int ret;
->  	vm_fault_t fault;
->  	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
->  	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
->  
-> -	clear_siginfo(&info);
-> -
->  	/*
->  	 * We fault-in kernel-space virtual memory on-demand. The
->  	 * 'reference' page table is init_mm.pgd.
-> @@ -91,7 +89,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
->  			return;
->  	}
->  
-> -	info.si_code = SEGV_MAPERR;
-> +	si_code = SEGV_MAPERR;
->  
->  	/*
->  	 * If we're in an interrupt or have no user
-> @@ -119,7 +117,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
->  	 * we can handle it..
->  	 */
->  good_area:
-> -	info.si_code = SEGV_ACCERR;
-> +	si_code = SEGV_ACCERR;
->  
->  	/* Handle protection violation, execute on heap or stack */
->  
-> @@ -204,11 +202,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
->  	/* User mode accesses just cause a SIGSEGV */
->  	if (user_mode(regs)) {
->  		tsk->thread.fault_address = address;
-> -		info.si_signo = SIGSEGV;
-> -		info.si_errno = 0;
-> -		/* info.si_code has been set above */
-> -		info.si_addr = (void __user *)address;
-> -		force_sig_info(SIGSEGV, &info, tsk);
-> +		force_sig_fault(SIGSEGV, si_code, (void __user *)address, tsk);
->  		return;
->  	}
->  
-> @@ -243,9 +237,5 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
->  		goto no_context;
->  
->  	tsk->thread.fault_address = address;
-> -	info.si_signo = SIGBUS;
-> -	info.si_errno = 0;
-> -	info.si_code = BUS_ADRERR;
-> -	info.si_addr = (void __user *)address;
-> -	force_sig_info(SIGBUS, &info, tsk);
-> +	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address, tsk);
->  }
+
+-- 
+Earthling Michel Dänzer               |               https://redhat.com
+Libre software enthusiast             |             Mesa and X developer
