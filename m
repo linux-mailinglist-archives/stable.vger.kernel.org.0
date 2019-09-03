@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEEE0A6ED2
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3366A6EF9
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731190AbfICQ2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:28:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51200 "EHLO mail.kernel.org"
+        id S1730683AbfICQ36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731178AbfICQ2v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:51 -0400
+        id S1731246AbfICQ3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:29:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 484A223431;
-        Tue,  3 Sep 2019 16:28:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D727323431;
+        Tue,  3 Sep 2019 16:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528130;
-        bh=SQyxLkOf/O6d/Hq0r71pzE4mhrqkkJQ4k3Ezo+dnXf8=;
+        s=default; t=1567528142;
+        bh=bxrFUI1nG1BmpNN44zCd3k8niYE3OXSaDuE/GDf/GAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkM0G6QgRKkAg2Co4fV7zfWiXzV5PGWWecY75fvaWTt0+9fAQt108wqMMTlq0/6aI
-         5NP65ZCAvOjRfm4LuPDo8NDee/78KjtUwPkWMP1H1kwiAgeB2/LFvxQZZbJy459ksD
-         G90h5aDqkHvbIZ84JgBvCGSonsfV70vRcmA5oBbo=
+        b=ECElFg7DzI8TItT3ZMmA1DUp0iAhIukaTJEF5Z0ExfsZE3+59eHKQoGubXV5cJISx
+         71+6Y+8A1H7ylo6bd1epYuqW1ATj1/TE33q1ksbWJMl+FBmUxxGXr+7/8SI7YM2tsC
+         N8vRxBDWu10P1TSs4WQozikZC+DztdltxvGmFcAA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 125/167] scsi: target/iblock: Fix overrun in WRITE SAME emulation
-Date:   Tue,  3 Sep 2019 12:24:37 -0400
-Message-Id: <20190903162519.7136-125-sashal@kernel.org>
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 133/167] KVM: VMX: Always signal #GP on WRMSR to MSR_IA32_CR_PAT with bad value
+Date:   Tue,  3 Sep 2019 12:24:45 -0400
+Message-Id: <20190903162519.7136-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -45,44 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 5676234f20fef02f6ca9bd66c63a8860fce62645 ]
+[ Upstream commit d28f4290b53a157191ed9991ad05dffe9e8c0c89 ]
 
-WRITE SAME corrupts data on the block device behind iblock if the command
-is emulated. The emulation code issues (M - 1) * N times more bios than
-requested, where M is the number of 512 blocks per real block size and N is
-the NUMBER OF LOGICAL BLOCKS specified in WRITE SAME command. So, for a
-device with 4k blocks, 7 * N more LBAs gets written after the requested
-range.
+The behavior of WRMSR is in no way dependent on whether or not KVM
+consumes the value.
 
-The issue happens because the number of 512 byte sectors to be written is
-decreased one by one while the real bios are typically from 1 to 8 512 byte
-sectors per bio.
-
-Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 4566654bb9be9 ("KVM: vmx: Inject #GP on invalid PAT CR")
+Cc: stable@vger.kernel.org
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_iblock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
-index 1bc9b14236d8b..854b2bcca7c1a 100644
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -515,7 +515,7 @@ iblock_execute_write_same(struct se_cmd *cmd)
- 
- 		/* Always in 512 byte units for Linux/Block */
- 		block_lba += sg->length >> SECTOR_SHIFT;
--		sectors -= 1;
-+		sectors -= sg->length >> SECTOR_SHIFT;
- 	}
- 
- 	iblock_submit_bios(&list);
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index feff7ed44a2bb..e4bba840a0708 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -4265,9 +4265,10 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 					      MSR_TYPE_W);
+ 		break;
+ 	case MSR_IA32_CR_PAT:
++		if (!kvm_pat_valid(data))
++			return 1;
++
+ 		if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT) {
+-			if (!kvm_pat_valid(data))
+-				return 1;
+ 			vmcs_write64(GUEST_IA32_PAT, data);
+ 			vcpu->arch.pat = data;
+ 			break;
 -- 
 2.20.1
 
