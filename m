@@ -2,122 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAD8A6881
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 14:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F94A6960
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 15:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728288AbfICMWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 08:22:23 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47128 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726631AbfICMWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 08:22:23 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 8C35AB049;
-        Tue,  3 Sep 2019 12:22:21 +0000 (UTC)
-Date:   Tue, 3 Sep 2019 14:22:21 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc:     Thomas Lindroth <thomas.lindroth@gmail.com>, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: [BUG] Early OOM and kernel NULL pointer dereference in 4.19.69
-Message-ID: <20190903122221.GV14028@dhcp22.suse.cz>
-References: <31131c2d-a936-8bbf-e58d-a3baaa457340@gmail.com>
- <20190902071617.GC14028@dhcp22.suse.cz>
- <a07da432-1fc1-67de-ae35-93f157bf9a7d@gmail.com>
- <20190903074132.GM14028@dhcp22.suse.cz>
- <84c47d16-ff5a-9af0-efd4-5ef78d302170@virtuozzo.com>
+        id S1729117AbfICNJG convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 3 Sep 2019 09:09:06 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:12888 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728538AbfICNJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 09:09:06 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 613FB3083392
+        for <stable@vger.kernel.org>; Tue,  3 Sep 2019 13:09:05 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0509919C78;
+        Tue,  3 Sep 2019 13:09:04 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84c47d16-ff5a-9af0-efd4-5ef78d302170@virtuozzo.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
+Message-ID: <cki.71649A69A3.RNJWFTSXOT@redhat.com>
+X-Gitlab-Pipeline-ID: 141232
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/141232
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Tue, 03 Sep 2019 13:09:05 +0000 (UTC)
+Date:   Tue, 3 Sep 2019 09:09:06 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 03-09-19 15:05:22, Andrey Ryabinin wrote:
-> 
-> 
-> On 9/3/19 10:41 AM, Michal Hocko wrote:
-> > On Mon 02-09-19 21:34:29, Thomas Lindroth wrote:
-> >> On 9/2/19 9:16 AM, Michal Hocko wrote:
-> >>> On Sun 01-09-19 22:43:05, Thomas Lindroth wrote:
-> >>>> After upgrading to the 4.19 series I've started getting problems with
-> >>>> early OOM.
-> >>>
-> >>> What is the kenrel you have updated from? Would it be possible to try
-> >>> the current Linus' tree?
-> >>
-> >> I did some more testing and it turns out this is not a regression after all.
-> >>
-> >> I followed up on my hunch and monitored memory.kmem.max_usage_in_bytes while
-> >> running cgexec -g memory:12G bash -c 'find / -xdev -type f -print0 | \
-> >>         xargs -0 -n 1 -P 8 stat > /dev/null'
-> >>
-> >> Just as memory.kmem.max_usage_in_bytes = memory.kmem.limit_in_bytes the OOM
-> >> killer kicked in and killed my X server.
-> >>
-> >> Using the find|stat approach it was easy to test the problem in a testing VM.
-> >> I was able to reproduce the problem in all these kernels:
-> >>   4.9.0
-> >>   4.14.0
-> >>   4.14.115
-> >>   4.19.0
-> >>   5.2.11
-> >>
-> >> 5.3-rc6 didn't build in the VM. The build environment is too old probably.
-> >>
-> >> I was curious why I initially couldn't reproduce the problem in 4.14 by
-> >> building chromium. I was again able to successfully build chromium using
-> >> 4.14.115. Turns out memory.kmem.max_usage_in_bytes was 1015689216 after
-> >> building and my limit is set to 1073741824. I guess some unrelated change in
-> >> memory management raised that slightly for 4.19 triggering the problem.
-> >>
-> >> If you want to reproduce for yourself here are the steps:
-> >> 1. build any kernel above 4.9 using something like my .config
-> >> 2. setup a v1 memory cgroup with memory.kmem.limit_in_bytes lower than
-> >>    memory.limit_in_bytes. I used 100M in my testing VM.
-> >> 3. Run "find / -xdev -type f -print0 | xargs -0 -n 1 -P 8 stat > /dev/null"
-> >>    in the cgroup.
-> >> 4. Assuming there is enough inodes on the rootfs the global OOM killer
-> >>    should kick in when memory.kmem.max_usage_in_bytes =
-> >>    memory.kmem.limit_in_bytes and kill something outside the cgroup.
-> > 
-> > This is certainly a bug. Is this still an OOM triggered from
-> > pagefault_out_of_memory? Since 4.19 (29ef680ae7c21) the memcg charge
-> > path should invoke the memcg oom killer directly from the charge path.
-> > If that doesn't happen then the failing charge is either GFP_NOFS or a
-> > large allocation.
-> > 
-> > The former has been fixed just recently by http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
-> > and I suspect this is a fix you are looking for. Although it is curious
-> > that you can see a global oom even before because the charge path would
-> > mark an oom situation even for NOFS context and it should trigger the
-> > memcg oom killer on the way out from the page fault path. So essentially
-> > the same call trace except the oom killer should be constrained to the
-> > memcg context.
-> > 
-> > Could you try the above patch please?
-> > 
-> 
-> It won't help. We hitting ->kmem limit here, not the ->memory or ->memsw, so try_charge() is successful and
-> only __memcg_kmem_charge_memcg() fails to charge ->kmem and returns -ENOMEM.
-> 
-> Limiting kmem just never worked and it doesn't work now. AFAIK this feature hasn't been finished because 
-> there was no clear purpose/use case found. I remember that there was some discussion on lsfmm about this https://lwn.net/Articles/636331/
-> but I don't remember the discussion itself.
 
-Ohh, right you are. I completely forgot that __memcg_kmem_charge_memcg
-doesn't really trigger the normal charge path but rather charge the
-counter directly.
+Hello,
 
-So you are right. The v1 kmem accounting is broken and probably
-unfixable. Do not use it.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Thanks!
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c3915fe1bf12 - Linux 5.2.11
 
--- 
-Michal Hocko
-SUSE Labs
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/141232
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c3915fe1bf12 - Linux 5.2.11
+
+
+We grabbed the d5e0e6a34f8b commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  dmaengine-ste_dma40-fix-unneeded-variable-warning.patch
+  nvme-multipath-revalidate-nvme_ns_head-gendisk-in-nv.patch
+  afs-fix-the-cb.probeuuid-service-handler-to-reply-co.patch
+  afs-fix-loop-index-mixup-in-afs_deliver_vl_get_entry.patch
+  fs-afs-fix-a-possible-null-pointer-dereference-in-af.patch
+  afs-fix-off-by-one-in-afs_rename-expected-data-versi.patch
+  afs-only-update-d_fsdata-if-different-in-afs_d_reval.patch
+  afs-fix-missing-dentry-data-version-updating.patch
+  nvmet-fix-use-after-free-bug-when-a-port-is-removed.patch
+  nvmet-loop-flush-nvme_delete_wq-when-removing-the-po.patch
+  nvmet-file-fix-nvmet_file_flush-always-returning-an-.patch
+  nvme-core-fix-extra-device_put-call-on-error-path.patch
+  nvme-fix-a-possible-deadlock-when-passthru-commands-.patch
+  nvme-rdma-fix-possible-use-after-free-in-connect-err.patch
+  nvme-fix-controller-removal-race-with-scan-work.patch
+  nvme-pci-fix-async-probe-remove-race.patch
+  soundwire-cadence_master-fix-register-definition-for.patch
+  soundwire-cadence_master-fix-definitions-for-intstat.patch
+  auxdisplay-panel-need-to-delete-scan_timer-when-misc.patch
+  btrfs-trim-check-the-range-passed-into-to-prevent-ov.patch
+  ib-mlx5-fix-implicit-mr-release-flow.patch
+  dmaengine-stm32-mdma-fix-a-possible-null-pointer-der.patch
+  omap-dma-omap_vout_vrfb-fix-off-by-one-fi-value.patch
+  iommu-dma-handle-sg-length-overflow-better.patch
+  dma-direct-don-t-truncate-dma_required_mask-to-bus-a.patch
+  usb-gadget-composite-clear-suspended-on-reset-discon.patch
+  usb-gadget-mass_storage-fix-races-between-fsg_disabl.patch
+  habanalabs-fix-dram-usage-accounting-on-context-tear.patch
+  habanalabs-fix-endianness-handling-for-packets-from-.patch
+  habanalabs-fix-completion-queue-handling-when-host-i.patch
+  habanalabs-fix-endianness-handling-for-internal-qman.patch
+  habanalabs-fix-device-irq-unmasking-for-be-host.patch
+  xen-blkback-fix-memory-leaks.patch
+  arm64-cpufeature-don-t-treat-granule-sizes-as-strict.patch
+  riscv-fix-flush_tlb_range-end-address-for-flush_tlb_.patch
+  i2c-rcar-avoid-race-when-unregistering-slave-client.patch
+  i2c-emev2-avoid-race-when-unregistering-slave-client.patch
+  drm-scheduler-use-job-count-instead-of-peek.patch
+  drm-ast-fixed-reboot-test-may-cause-system-hanged.patch
+  usb-host-fotg2-restart-hcd-after-port-reset.patch
+  tools-hv-fixed-python-pep8-flake8-warnings-for-lsvmb.patch
+  tools-hv-fix-kvp-and-vss-daemons-exit-code.patch
+  locking-rwsem-add-missing-acquire-to-read_slowpath-e.patch
+  lcoking-rwsem-add-missing-acquire-to-read_slowpath-s.patch
+  watchdog-bcm2835_wdt-fix-module-autoload.patch
+  selftests-bpf-install-files-test_xdp_vlan.sh.patch
+  drm-bridge-tfp410-fix-memleak-in-get_modes.patch
+  mt76-usb-fix-rx-a-msdu-support.patch
+  ipv6-addrconf-allow-adding-multicast-addr-if-ifa_f_mcautojoin-is-set.patch
+  ipv6-fix-return-value-of-ipv6_mc_may_pull-for-malformed-packets.patch
+  net-cpsw-fix-null-pointer-exception-in-the-probe-error-path.patch
+  net-fix-__ip_mc_inc_group-usage.patch
+  net-smc-make-sure-epollout-is-raised.patch
+  tcp-make-sure-epollout-wont-be-missed.patch
+  ipv4-mpls-fix-mpls_xmit-for-iptunnel.patch
+  openvswitch-fix-conntrack-cache-with-timeout.patch
+  ipv4-icmp-fix-rt-dst-dev-null-pointer-dereference.patch
+  xfrm-xfrm_policy-fix-dst-dev-null-pointer-dereference-in-collect_md-mode.patch
+  mm-zsmalloc.c-fix-build-when-config_compaction-n.patch
+  alsa-usb-audio-check-mixer-unit-bitmap-yet-more-strictly.patch
+  alsa-hda-ca0132-add-new-sbz-quirk.patch
+  alsa-line6-fix-memory-leak-at-line6_init_pcm-error-path.patch
+  alsa-hda-fixes-inverted-conexant-gpio-mic-mute-led.patch
+  alsa-seq-fix-potential-concurrent-access-to-the-deleted-pool.patch
+  alsa-usb-audio-fix-invalid-null-check-in-snd_emuusb_set_samplerate.patch
+  alsa-usb-audio-add-implicit-fb-quirk-for-behringer-ufx1604.patch
+  kvm-x86-skip-populating-logical-dest-map-if-apic-is-not-sw-enabled.patch
+  kvm-x86-hyper-v-don-t-crash-on-kvm_get_supported_hv_cpuid-when-kvm_intel.nested-is-disabled.patch
+  kvm-x86-don-t-update-rip-or-do-single-step-on-faulting-emulation.patch
+  uprobes-x86-fix-detection-of-32-bit-user-mode.patch
+  x86-mm-cpa-prevent-large-page-split-when-ftrace-flips-rw-on-kernel-text.patch
+  x86-apic-do-not-initialize-ldr-and-dfr-for-bigsmp.patch
+  x86-apic-include-the-ldr-when-clearing-out-apic-registers.patch
+  hid-logitech-hidpp-remove-support-for-the-g700-over-.patch
+  ftrace-fix-null-pointer-dereference-in-t_probe_next.patch
+  ftrace-check-for-successful-allocation-of-hash.patch
+  ftrace-check-for-empty-hash-and-comment-the-race-with-registering-probes.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ AMTU (Abstract Machine Test Utility) [4]
+         ✅ LTP: openposix test suite [5]
+         ✅ Ethernet drivers sanity [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ Networking: igmp conformance test [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         ✅ stress: stress-ng [14]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ Memory function: kaslr [16]
+         🚧 ✅ Networking ipsec: basic netns transport [17]
+         🚧 ✅ Networking ipsec: basic netns tunnel [17]
+         🚧 ✅ trace: ftrace/tracer [18]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [19]
+         🚧 ✅ Storage blktests [20]
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ AMTU (Abstract Machine Test Utility) [4]
+         ✅ LTP: openposix test suite [5]
+         ✅ Ethernet drivers sanity [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ Memory function: kaslr [16]
+         🚧 ✅ Networking ipsec: basic netns tunnel [17]
+         🚧 ✅ trace: ftrace/tracer [18]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [19]
+         🚧 ✅ Storage blktests [20]
+
+
+  x86_64:
+      Host 1:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ AMTU (Abstract Machine Test Utility) [4]
+         ✅ LTP: openposix test suite [5]
+         ✅ Ethernet drivers sanity [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ Networking: igmp conformance test [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ pciutils: sanity smoke test [21]
+         ✅ Usex - version 1.9-29 [13]
+         ✅ stress: stress-ng [14]
+         🚧 ⚡⚡⚡ LTP lite [15]
+         🚧 ✅ Memory function: kaslr [16]
+         🚧 ✅ Networking ipsec: basic netns transport [17]
+         🚧 ✅ Networking ipsec: basic netns tunnel [17]
+         🚧 ✅ trace: ftrace/tracer [18]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [19]
+         🚧 ✅ Storage blktests [20]
+         🚧 ✅ IOMMU boot test [22]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
