@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBCAA6FD6
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9C9A6FCD
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731033AbfICQf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49266 "EHLO mail.kernel.org"
+        id S1730953AbfICQ1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:27:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730937AbfICQ1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:27:46 -0400
+        id S1730944AbfICQ1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:27:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9480238C7;
-        Tue,  3 Sep 2019 16:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 095252343A;
+        Tue,  3 Sep 2019 16:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528065;
-        bh=e02ufRmgAN86RUGECAi/L5SoLpjKjenqfajH47AsiOM=;
+        s=default; t=1567528066;
+        bh=sSeRt6p8HhSAsd59d96a0VCNoOTrr83ZilQQZ+iDj84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTkOK3a+DFHhCE38xgIWU7YwUQOGljKsx1Ao3xuA4L8Z18gBP+jwu+UtEZUOREqr1
-         sykhh0hhBHxk4m4hKsoxbmq2x4Dg3BZ5pp3JZpNLTQm6oVru9eGzk7SRJj/mQC5WQE
-         mDqHkD4NXw01Q/Y7HfV8IAnFbt0uVj+Q+mSpvtCQ=
+        b=Mv3rJM/vgQA2E0imytNrAcX/LgT4tUPdYYO3Nw4HeR+xJBC+kM3Sd1WLlucCq4sO9
+         aAnYneEyMwTZC6HRClXXdEuYOPbskFPSSJpAdaZVu4WyOReopctMkmmrMdzSXiTLhf
+         Fv8Vh7iJ+3s7ZecrDqK2Dm18YYoc1IvbY6AqTs3I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Robertson <dan@dlrobertson.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 080/167] btrfs: init csum_list before possible free
-Date:   Tue,  3 Sep 2019 12:23:52 -0400
-Message-Id: <20190903162519.7136-80-sashal@kernel.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 081/167] PCI: qcom: Fix error handling in runtime PM support
+Date:   Tue,  3 Sep 2019 12:23:53 -0400
+Message-Id: <20190903162519.7136-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,46 +45,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Robertson <dan@dlrobertson.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit e49be14b8d80e23bb7c53d78c21717a474ade76b ]
+[ Upstream commit 6e5da6f7d82474e94c2d4a38cf9ca4edbb3e03a0 ]
 
-The scrub_ctx csum_list member must be initialized before scrub_free_ctx
-is called. If the csum_list is not initialized beforehand, the
-list_empty call in scrub_free_csums will result in a null deref if the
-allocation fails in the for loop.
+The driver does not cope with the fact that probe can fail in a number
+of cases after enabling runtime PM on the device; this results in
+warnings about "Unbalanced pm_runtime_enable". Furthermore if probe
+fails after invoking qcom_pcie_host_init() the power-domain will be left
+referenced.
 
-Fixes: a2de733c78fa ("btrfs: scrub")
-CC: stable@vger.kernel.org # 3.0+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Dan Robertson <dan@dlrobertson.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+As it is not possible for the error handling in qcom_pcie_host_init() to
+handle errors happening after returning from that function the
+pm_runtime_get_sync() is moved to qcom_pcie_probe() as well.
+
+Fixes: 854b69efbdd2 ("PCI: qcom: add runtime pm support to pcie_port")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+[lorenzo.pieralisi@arm.com: updated commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/scrub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-qcom.c | 56 ++++++++++++++++++--------
+ 1 file changed, 39 insertions(+), 17 deletions(-)
 
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index a08a4d6f540f9..916c397704679 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -592,6 +592,7 @@ static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
- 	sctx->pages_per_rd_bio = SCRUB_PAGES_PER_RD_BIO;
- 	sctx->curr = -1;
- 	sctx->fs_info = fs_info;
-+	INIT_LIST_HEAD(&sctx->csum_list);
- 	for (i = 0; i < SCRUB_BIOS_PER_SCTX; ++i) {
- 		struct scrub_bio *sbio;
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 87a8887fd4d3e..79f06c76ae071 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1091,7 +1091,6 @@ static int qcom_pcie_host_init(struct pcie_port *pp)
+ 	struct qcom_pcie *pcie = to_qcom_pcie(pci);
+ 	int ret;
  
-@@ -616,7 +617,6 @@ static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
- 	atomic_set(&sctx->workers_pending, 0);
- 	atomic_set(&sctx->cancel_req, 0);
- 	sctx->csum_size = btrfs_super_csum_size(fs_info->super_copy);
--	INIT_LIST_HEAD(&sctx->csum_list);
+-	pm_runtime_get_sync(pci->dev);
+ 	qcom_ep_reset_assert(pcie);
  
- 	spin_lock_init(&sctx->list_lock);
- 	spin_lock_init(&sctx->stat_lock);
+ 	ret = pcie->ops->init(pcie);
+@@ -1128,7 +1127,6 @@ static int qcom_pcie_host_init(struct pcie_port *pp)
+ 	phy_power_off(pcie->phy);
+ err_deinit:
+ 	pcie->ops->deinit(pcie);
+-	pm_runtime_put(pci->dev);
+ 
+ 	return ret;
+ }
+@@ -1218,6 +1216,12 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	pm_runtime_enable(dev);
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_disable(dev);
++		return ret;
++	}
++
+ 	pci->dev = dev;
+ 	pci->ops = &dw_pcie_ops;
+ 	pp = &pci->pp;
+@@ -1227,44 +1231,56 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+ 	pcie->ops = of_device_get_match_data(dev);
+ 
+ 	pcie->reset = devm_gpiod_get_optional(dev, "perst", GPIOD_OUT_LOW);
+-	if (IS_ERR(pcie->reset))
+-		return PTR_ERR(pcie->reset);
++	if (IS_ERR(pcie->reset)) {
++		ret = PTR_ERR(pcie->reset);
++		goto err_pm_runtime_put;
++	}
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "parf");
+ 	pcie->parf = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(pcie->parf))
+-		return PTR_ERR(pcie->parf);
++	if (IS_ERR(pcie->parf)) {
++		ret = PTR_ERR(pcie->parf);
++		goto err_pm_runtime_put;
++	}
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dbi");
+ 	pci->dbi_base = devm_pci_remap_cfg_resource(dev, res);
+-	if (IS_ERR(pci->dbi_base))
+-		return PTR_ERR(pci->dbi_base);
++	if (IS_ERR(pci->dbi_base)) {
++		ret = PTR_ERR(pci->dbi_base);
++		goto err_pm_runtime_put;
++	}
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "elbi");
+ 	pcie->elbi = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(pcie->elbi))
+-		return PTR_ERR(pcie->elbi);
++	if (IS_ERR(pcie->elbi)) {
++		ret = PTR_ERR(pcie->elbi);
++		goto err_pm_runtime_put;
++	}
+ 
+ 	pcie->phy = devm_phy_optional_get(dev, "pciephy");
+-	if (IS_ERR(pcie->phy))
+-		return PTR_ERR(pcie->phy);
++	if (IS_ERR(pcie->phy)) {
++		ret = PTR_ERR(pcie->phy);
++		goto err_pm_runtime_put;
++	}
+ 
+ 	ret = pcie->ops->get_resources(pcie);
+ 	if (ret)
+-		return ret;
++		goto err_pm_runtime_put;
+ 
+ 	pp->ops = &qcom_pcie_dw_ops;
+ 
+ 	if (IS_ENABLED(CONFIG_PCI_MSI)) {
+ 		pp->msi_irq = platform_get_irq_byname(pdev, "msi");
+-		if (pp->msi_irq < 0)
+-			return pp->msi_irq;
++		if (pp->msi_irq < 0) {
++			ret = pp->msi_irq;
++			goto err_pm_runtime_put;
++		}
+ 	}
+ 
+ 	ret = phy_init(pcie->phy);
+ 	if (ret) {
+ 		pm_runtime_disable(&pdev->dev);
+-		return ret;
++		goto err_pm_runtime_put;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, pcie);
+@@ -1273,10 +1289,16 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(dev, "cannot initialize host\n");
+ 		pm_runtime_disable(&pdev->dev);
+-		return ret;
++		goto err_pm_runtime_put;
+ 	}
+ 
+ 	return 0;
++
++err_pm_runtime_put:
++	pm_runtime_put(dev);
++	pm_runtime_disable(dev);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id qcom_pcie_match[] = {
 -- 
 2.20.1
 
