@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C37BAA6FE0
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA4DA700E
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730778AbfICQ1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:27:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48236 "EHLO mail.kernel.org"
+        id S1730733AbfICQgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbfICQ1F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:27:05 -0400
+        id S1730775AbfICQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:27:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A4B223878;
-        Tue,  3 Sep 2019 16:27:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3239238F7;
+        Tue,  3 Sep 2019 16:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528024;
-        bh=GVW1cx5U0QqEYVtChwRvCbbxVm8+JxfEkJ1U4OKYKYw=;
+        s=default; t=1567528025;
+        bh=OTeV1PH1q33oTfMjdIdSquIrpsJVMLDSZS9mmKvS6Ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj80FSOz0J4LFcF3ti0FpWwev251x8+0bVSfuDI5g9CfiP6vj44JmaFByGvRSCAWa
-         f1sVuvziL/7m5INALStVtCevoOqK/k3aU8xhEEnXdmT1h7FQZCh7aS89WaYs0Egry7
-         8lAHmapVQd5dDMD7BdRmTGeqQcT2TjijFDfiRTZs=
+        b=q7A73irdSDHav87areC1wR7ntG/mQrLttj3YIK7NmWp3h0HFRMhmA00olk5XUre+f
+         v8JWFt6wFdcZzagHvVaIWUhAhkhafeyiRMkDvnumqDQGWOzxsVgWenVx4apedC9ANm
+         e/cZFeJtugiPfaNHvnAjiZ9ozWVz1MzF1syxgDVU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Inki Dae <inki.dae@samsung.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+Cc:     =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 059/167] drm/vblank: Allow dynamic per-crtc max_vblank_count
-Date:   Tue,  3 Sep 2019 12:23:31 -0400
-Message-Id: <20190903162519.7136-59-sashal@kernel.org>
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 060/167] drm/i915/ilk: Fix warning when reading emon_status with no output
+Date:   Tue,  3 Sep 2019 12:23:32 -0400
+Message-Id: <20190903162519.7136-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -47,180 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: José Roberto de Souza <jose.souza@intel.com>
 
-[ Upstream commit ed20151a7699bb2c77eba3610199789a126940c4 ]
+[ Upstream commit cab870b7fdf3c4be747d88de5248b28db7d4055e ]
 
-On i965gm we need to adjust max_vblank_count dynamically
-depending on whether the TV encoder is used or not. To
-that end add a per-crtc max_vblank_count that takes
-precedence over its device wide counterpart. The driver
-can now call drm_crtc_set_max_vblank_count() to configure
-the per-crtc value before calling drm_vblank_on().
+When there is no output no one will hold a runtime_pm reference
+causing a warning when trying to read emom_status in debugfs.
 
-Also looks like there was some discussion about exynos needing
-similar treatment.
+[22.756480] ------------[ cut here ]------------
+[22.756489] RPM wakelock ref not held during HW access
+[22.756578] WARNING: CPU: 0 PID: 1058 at drivers/gpu/drm/i915/intel_drv.h:2104 gen5_read32+0x16b/0x1a0 [i915]
+[22.756580] Modules linked in: snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic i915 coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_intel snd_hda_codec snd_hwdep snd_hda_core e1000e snd_pcm mei_me prime_numbers mei lpc_ich
+[22.756595] CPU: 0 PID: 1058 Comm: debugfs_test Not tainted 4.20.0-rc1-CI-Trybot_3219+ #1
+[22.756597] Hardware name: Hewlett-Packard HP Compaq 8100 Elite SFF PC/304Ah, BIOS 786H1 v01.13 07/14/2011
+[22.756634] RIP: 0010:gen5_read32+0x16b/0x1a0 [i915]
+[22.756637] Code: a4 ea e0 0f 0b e9 d2 fe ff ff 80 3d a5 71 19 00 00 0f 85 d3 fe ff ff 48 c7 c7 48 d0 2d a0 c6 05 91 71 19 00 01 e8 35 a4 ea e0 <0f> 0b e9 b9 fe ff ff e8 69 c6 f2 e0 85 c0 75 92 48 c7 c2 78 d0 2d
+[22.756639] RSP: 0018:ffffc90000f1fd38 EFLAGS: 00010282
+[22.756642] RAX: 0000000000000000 RBX: ffff8801f7ab0000 RCX: 0000000000000006
+[22.756643] RDX: 0000000000000006 RSI: ffffffff8212886a RDI: ffffffff820d6d57
+[22.756645] RBP: 0000000000011020 R08: 0000000043e3d1a8 R09: 0000000000000000
+[22.756647] R10: ffffc90000f1fd80 R11: 0000000000000000 R12: 0000000000000001
+[22.756649] R13: ffff8801f7ab0068 R14: 0000000000000001 R15: ffff88020d53d188
+[22.756651] FS:  00007f2878849980(0000) GS:ffff880213a00000(0000) knlGS:0000000000000000
+[22.756653] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[22.756655] CR2: 00005638deedf028 CR3: 0000000203292001 CR4: 00000000000206f0
+[22.756657] Call Trace:
+[22.756689]  i915_mch_val+0x1b/0x60 [i915]
+[22.756721]  i915_emon_status+0x45/0xd0 [i915]
+[22.756730]  seq_read+0xdb/0x3c0
+[22.756736]  ? lockdep_hardirqs_off+0x94/0xd0
+[22.756740]  ? __slab_free+0x24e/0x510
+[22.756746]  full_proxy_read+0x52/0x90
+[22.756752]  __vfs_read+0x31/0x170
+[22.756759]  ? do_sys_open+0x13b/0x240
+[22.756763]  ? rcu_read_lock_sched_held+0x6f/0x80
+[22.756766]  vfs_read+0x9e/0x140
+[22.756770]  ksys_read+0x50/0xc0
+[22.756775]  do_syscall_64+0x55/0x190
+[22.756781]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[22.756783] RIP: 0033:0x7f28781dc34e
+[22.756786] Code: 00 00 00 00 48 8b 15 71 8c 20 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff c3 0f 1f 40 00 8b 05 ba d0 20 00 85 c0 75 16 31 c0 0f 05 <48> 3d 00 f0 ff ff 77 5a f3 c3 0f 1f 84 00 00 00 00 00 41 54 55 49
+[22.756787] RSP: 002b:00007ffd33fa0d08 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[22.756790] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f28781dc34e
+[22.756792] RDX: 0000000000000200 RSI: 00007ffd33fa0d50 RDI: 0000000000000008
+[22.756794] RBP: 00007ffd33fa0f60 R08: 0000000000000000 R09: 0000000000000020
+[22.756796] R10: 0000000000000000 R11: 0000000000000246 R12: 00005638de45c2c0
+[22.756797] R13: 00007ffd33fa14b0 R14: 0000000000000000 R15: 0000000000000000
+[22.756806] irq event stamp: 47950
+[22.756811] hardirqs last  enabled at (47949): [<ffffffff810fba74>] vprintk_emit+0x124/0x320
+[22.756813] hardirqs last disabled at (47950): [<ffffffff810019b0>] trace_hardirqs_off_thunk+0x1a/0x1c
+[22.756816] softirqs last  enabled at (47518): [<ffffffff81c0033a>] __do_softirq+0x33a/0x4b9
+[22.756820] softirqs last disabled at (47479): [<ffffffff8108df29>] irq_exit+0xa9/0xc0
+[22.756858] WARNING: CPU: 0 PID: 1058 at drivers/gpu/drm/i915/intel_drv.h:2104 gen5_read32+0x16b/0x1a0 [i915]
+[22.756860] ---[ end trace bf56fa7d6a3cbf7a ]
 
-v2: Drop the extra max_vblank_count!=0 check for the
-    WARN(last!=current), will take care of it in i915 code (Daniel)
-    WARN_ON(!inmodeset) (Daniel)
-    WARN_ON(dev->max_vblank_count)
-    Pimp up the docs (Daniel)
-
-Cc: stable@vger.kernel.org
-Cc: Inki Dae <inki.dae@samsung.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20181127182004.28885-1-ville.syrjala@linux.intel.com
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181119230101.32460-1-jose.souza@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_vblank.c | 45 +++++++++++++++++++++++++++++++++---
- include/drm/drm_device.h     |  8 ++++++-
- include/drm/drm_vblank.h     | 22 ++++++++++++++++++
- 3 files changed, 71 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/i915_debugfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-index 28cdcf76b6f99..d1859bcc7ccbc 100644
---- a/drivers/gpu/drm/drm_vblank.c
-+++ b/drivers/gpu/drm/drm_vblank.c
-@@ -105,13 +105,20 @@ static void store_vblank(struct drm_device *dev, unsigned int pipe,
- 	write_sequnlock(&vblank->seqlock);
- }
+diff --git a/drivers/gpu/drm/i915/i915_debugfs.c b/drivers/gpu/drm/i915/i915_debugfs.c
+index f9ce35da4123e..e063e98d1e82e 100644
+--- a/drivers/gpu/drm/i915/i915_debugfs.c
++++ b/drivers/gpu/drm/i915/i915_debugfs.c
+@@ -1788,6 +1788,8 @@ static int i915_emon_status(struct seq_file *m, void *unused)
+ 	if (!IS_GEN5(dev_priv))
+ 		return -ENODEV;
  
-+static u32 drm_max_vblank_count(struct drm_device *dev, unsigned int pipe)
-+{
-+	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
++	intel_runtime_pm_get(dev_priv);
 +
-+	return vblank->max_vblank_count ?: dev->max_vblank_count;
-+}
+ 	ret = mutex_lock_interruptible(&dev->struct_mutex);
+ 	if (ret)
+ 		return ret;
+@@ -1802,6 +1804,8 @@ static int i915_emon_status(struct seq_file *m, void *unused)
+ 	seq_printf(m, "GFX power: %ld\n", gfx);
+ 	seq_printf(m, "Total power: %ld\n", chipset + gfx);
+ 
++	intel_runtime_pm_put(dev_priv);
 +
- /*
-  * "No hw counter" fallback implementation of .get_vblank_counter() hook,
-  * if there is no useable hardware frame counter available.
-  */
- static u32 drm_vblank_no_hw_counter(struct drm_device *dev, unsigned int pipe)
- {
--	WARN_ON_ONCE(dev->max_vblank_count != 0);
-+	WARN_ON_ONCE(drm_max_vblank_count(dev, pipe) != 0);
  	return 0;
  }
  
-@@ -198,6 +205,7 @@ static void drm_update_vblank_count(struct drm_device *dev, unsigned int pipe,
- 	ktime_t t_vblank;
- 	int count = DRM_TIMESTAMP_MAXRETRIES;
- 	int framedur_ns = vblank->framedur_ns;
-+	u32 max_vblank_count = drm_max_vblank_count(dev, pipe);
- 
- 	/*
- 	 * Interrupts were disabled prior to this call, so deal with counter
-@@ -216,9 +224,9 @@ static void drm_update_vblank_count(struct drm_device *dev, unsigned int pipe,
- 		rc = drm_get_last_vbltimestamp(dev, pipe, &t_vblank, in_vblank_irq);
- 	} while (cur_vblank != __get_vblank_counter(dev, pipe) && --count > 0);
- 
--	if (dev->max_vblank_count != 0) {
-+	if (max_vblank_count) {
- 		/* trust the hw counter when it's around */
--		diff = (cur_vblank - vblank->last) & dev->max_vblank_count;
-+		diff = (cur_vblank - vblank->last) & max_vblank_count;
- 	} else if (rc && framedur_ns) {
- 		u64 diff_ns = ktime_to_ns(ktime_sub(t_vblank, vblank->time));
- 
-@@ -1204,6 +1212,37 @@ void drm_crtc_vblank_reset(struct drm_crtc *crtc)
- }
- EXPORT_SYMBOL(drm_crtc_vblank_reset);
- 
-+/**
-+ * drm_crtc_set_max_vblank_count - configure the hw max vblank counter value
-+ * @crtc: CRTC in question
-+ * @max_vblank_count: max hardware vblank counter value
-+ *
-+ * Update the maximum hardware vblank counter value for @crtc
-+ * at runtime. Useful for hardware where the operation of the
-+ * hardware vblank counter depends on the currently active
-+ * display configuration.
-+ *
-+ * For example, if the hardware vblank counter does not work
-+ * when a specific connector is active the maximum can be set
-+ * to zero. And when that specific connector isn't active the
-+ * maximum can again be set to the appropriate non-zero value.
-+ *
-+ * If used, must be called before drm_vblank_on().
-+ */
-+void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
-+				   u32 max_vblank_count)
-+{
-+	struct drm_device *dev = crtc->dev;
-+	unsigned int pipe = drm_crtc_index(crtc);
-+	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
-+
-+	WARN_ON(dev->max_vblank_count);
-+	WARN_ON(!READ_ONCE(vblank->inmodeset));
-+
-+	vblank->max_vblank_count = max_vblank_count;
-+}
-+EXPORT_SYMBOL(drm_crtc_set_max_vblank_count);
-+
- /**
-  * drm_crtc_vblank_on - enable vblank events on a CRTC
-  * @crtc: CRTC in question
-diff --git a/include/drm/drm_device.h b/include/drm/drm_device.h
-index f9c6e0e3aec7d..fa117e11458ae 100644
---- a/include/drm/drm_device.h
-+++ b/include/drm/drm_device.h
-@@ -174,7 +174,13 @@ struct drm_device {
- 	 * races and imprecision over longer time periods, hence exposing a
- 	 * hardware vblank counter is always recommended.
- 	 *
--	 * If non-zeor, &drm_crtc_funcs.get_vblank_counter must be set.
-+	 * This is the statically configured device wide maximum. The driver
-+	 * can instead choose to use a runtime configurable per-crtc value
-+	 * &drm_vblank_crtc.max_vblank_count, in which case @max_vblank_count
-+	 * must be left at zero. See drm_crtc_set_max_vblank_count() on how
-+	 * to use the per-crtc value.
-+	 *
-+	 * If non-zero, &drm_crtc_funcs.get_vblank_counter must be set.
- 	 */
- 	u32 max_vblank_count;           /**< size of vblank counter register */
- 
-diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-index d25a9603ab570..e9c676381fd4f 100644
---- a/include/drm/drm_vblank.h
-+++ b/include/drm/drm_vblank.h
-@@ -128,6 +128,26 @@ struct drm_vblank_crtc {
- 	 * @last: Protected by &drm_device.vbl_lock, used for wraparound handling.
- 	 */
- 	u32 last;
-+	/**
-+	 * @max_vblank_count:
-+	 *
-+	 * Maximum value of the vblank registers for this crtc. This value +1
-+	 * will result in a wrap-around of the vblank register. It is used
-+	 * by the vblank core to handle wrap-arounds.
-+	 *
-+	 * If set to zero the vblank core will try to guess the elapsed vblanks
-+	 * between times when the vblank interrupt is disabled through
-+	 * high-precision timestamps. That approach is suffering from small
-+	 * races and imprecision over longer time periods, hence exposing a
-+	 * hardware vblank counter is always recommended.
-+	 *
-+	 * This is the runtime configurable per-crtc maximum set through
-+	 * drm_crtc_set_max_vblank_count(). If this is used the driver
-+	 * must leave the device wide &drm_device.max_vblank_count at zero.
-+	 *
-+	 * If non-zero, &drm_crtc_funcs.get_vblank_counter must be set.
-+	 */
-+	u32 max_vblank_count;
- 	/**
- 	 * @inmodeset: Tracks whether the vblank is disabled due to a modeset.
- 	 * For legacy driver bit 2 additionally tracks whether an additional
-@@ -206,4 +226,6 @@ bool drm_calc_vbltimestamp_from_scanoutpos(struct drm_device *dev,
- void drm_calc_timestamping_constants(struct drm_crtc *crtc,
- 				     const struct drm_display_mode *mode);
- wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
-+void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
-+				   u32 max_vblank_count);
- #endif
 -- 
 2.20.1
 
