@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21D1CA704C
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FAF8A7043
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731401AbfICQiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
+        id S1730633AbfICQ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:26:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730617AbfICQ0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:26:23 -0400
+        id S1730621AbfICQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:26:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B1C238CD;
-        Tue,  3 Sep 2019 16:26:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF571238F5;
+        Tue,  3 Sep 2019 16:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527982;
-        bh=ClO/bzDIhLULGWnpUsHftP3fg5PSJ+uoh92az27gGyo=;
+        s=default; t=1567527983;
+        bh=PjBn3F/ArEsB92idaMT9+Ob4PL0APGCB8i26BGnEN7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HBmA00I9XkZo6h7TqjneVvk7mIibSb4lLK9IZG82sphmA0Mi22k5Q2LxzC8vLCLwy
-         GUhTGh03Eb8ODNLjsw9xgV4F405iS5W89wr69GsYA1ZngXfT1q1wrWRLvuPmiuzs4X
-         kwvSEsp5La3r0uAcdy/6xW6zCs+inyTkCIS8ecnA=
+        b=Ma2Hbat3vd4nurI2Kf11h2GcrouZHQtNdq79pa5ALE3QbDd81t/AZlNEtZ5Ra/A60
+         wR0v24GGqwe1TaCQTM+pA/ArNnnqpsnh4nK/4RIuEFwoPypfbDtOO3pfnX9zJusc+N
+         dHTkWfGaTsriE+riedKkl9waXYWpgFkXmJ8PnynE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
+Cc:     Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 037/167] Btrfs: fix deadlock with memory reclaim during scrub
-Date:   Tue,  3 Sep 2019 12:23:09 -0400
-Message-Id: <20190903162519.7136-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 038/167] btrfs: Remove extent_io_ops::fill_delalloc
+Date:   Tue,  3 Sep 2019 12:23:10 -0400
+Message-Id: <20190903162519.7136-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -44,125 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit a5fb11429167ee6ddeeacc554efaf5776b36433a ]
+[ Upstream commit 5eaad97af8aeff38debe7d3c69ec3a0d71f8350f ]
 
-When a transaction commit starts, it attempts to pause scrub and it blocks
-until the scrub is paused. So while the transaction is blocked waiting for
-scrub to pause, we can not do memory allocation with GFP_KERNEL from scrub,
-otherwise we risk getting into a deadlock with reclaim.
+This callback is called only from writepage_delalloc which in turn is
+guaranteed to be called from the data page writeout path. In the end
+there is no reason to have the call to this function to be indrected via
+the extent_io_ops structure. This patch removes the callback definition,
+exports the function and calls it directly. No functional changes.
 
-Checking for scrub pause requests is done early at the beginning of the
-while loop of scrub_stripe() and later in the loop, scrub_extent() and
-scrub_raid56_parity() are called, which in turn call scrub_pages() and
-scrub_pages_for_parity() respectively. These last two functions do memory
-allocations using GFP_KERNEL. Same problem could happen while scrubbing
-the super blocks, since it calls scrub_pages().
-
-We also can not have any of the worker tasks, created by the scrub task,
-doing GFP_KERNEL allocations, because before pausing, the scrub task waits
-for all the worker tasks to complete (also done at scrub_stripe()).
-
-So make sure GFP_NOFS is used for the memory allocations because at any
-time a scrub pause request can happen from another task that started to
-commit a transaction.
-
-Fixes: 58c4e173847a ("btrfs: scrub: use GFP_KERNEL on the submission path")
-CC: stable@vger.kernel.org # 4.6+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ rename to btrfs_run_delalloc_range ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/scrub.c | 35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.h     |  3 +++
+ fs/btrfs/extent_io.c | 20 +++++++++-----------
+ fs/btrfs/extent_io.h |  5 -----
+ fs/btrfs/inode.c     | 15 +++++++--------
+ 4 files changed, 19 insertions(+), 24 deletions(-)
 
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index 4bcc275f76128..5a2d10ba747f7 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -322,6 +322,7 @@ static struct full_stripe_lock *insert_full_stripe_lock(
- 	struct rb_node *parent = NULL;
- 	struct full_stripe_lock *entry;
- 	struct full_stripe_lock *ret;
-+	unsigned int nofs_flag;
- 
- 	lockdep_assert_held(&locks_root->lock);
- 
-@@ -339,8 +340,17 @@ static struct full_stripe_lock *insert_full_stripe_lock(
- 		}
- 	}
- 
--	/* Insert new lock */
-+	/*
-+	 * Insert new lock.
-+	 *
-+	 * We must use GFP_NOFS because the scrub task might be waiting for a
-+	 * worker task executing this function and in turn a transaction commit
-+	 * might be waiting the scrub task to pause (which needs to wait for all
-+	 * the worker tasks to complete before pausing).
-+	 */
-+	nofs_flag = memalloc_nofs_save();
- 	ret = kmalloc(sizeof(*ret), GFP_KERNEL);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (!ret)
- 		return ERR_PTR(-ENOMEM);
- 	ret->logical = fstripe_logical;
-@@ -1622,8 +1632,19 @@ static int scrub_add_page_to_wr_bio(struct scrub_ctx *sctx,
- 	mutex_lock(&sctx->wr_lock);
- again:
- 	if (!sctx->wr_curr_bio) {
-+		unsigned int nofs_flag;
-+
-+		/*
-+		 * We must use GFP_NOFS because the scrub task might be waiting
-+		 * for a worker task executing this function and in turn a
-+		 * transaction commit might be waiting the scrub task to pause
-+		 * (which needs to wait for all the worker tasks to complete
-+		 * before pausing).
-+		 */
-+		nofs_flag = memalloc_nofs_save();
- 		sctx->wr_curr_bio = kzalloc(sizeof(*sctx->wr_curr_bio),
- 					      GFP_KERNEL);
-+		memalloc_nofs_restore(nofs_flag);
- 		if (!sctx->wr_curr_bio) {
- 			mutex_unlock(&sctx->wr_lock);
- 			return -ENOMEM;
-@@ -3775,6 +3796,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	struct scrub_ctx *sctx;
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 82682da5a40dd..4644f9b629a53 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3200,6 +3200,9 @@ int btrfs_prealloc_file_range_trans(struct inode *inode,
+ 				    struct btrfs_trans_handle *trans, int mode,
+ 				    u64 start, u64 num_bytes, u64 min_size,
+ 				    loff_t actual_len, u64 *alloc_hint);
++int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
++		u64 start, u64 end, int *page_started, unsigned long *nr_written,
++		struct writeback_control *wbc);
+ extern const struct dentry_operations btrfs_dentry_operations;
+ #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
+ void btrfs_test_inode_set_ops(struct inode *inode);
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 90b0a6eff5350..cb598eb4f3bd1 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3199,7 +3199,7 @@ static void update_nr_written(struct writeback_control *wbc,
+ /*
+  * helper for __extent_writepage, doing all of the delayed allocation setup.
+  *
+- * This returns 1 if our fill_delalloc function did all the work required
++ * This returns 1 if btrfs_run_delalloc_range function did all the work required
+  * to write the page (copy into inline extent).  In this case the IO has
+  * been started and the page is already unlocked.
+  *
+@@ -3220,7 +3220,7 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
  	int ret;
- 	struct btrfs_device *dev;
-+	unsigned int nofs_flag;
+ 	int page_started = 0;
  
- 	if (btrfs_fs_closing(fs_info))
- 		return -EINVAL;
-@@ -3878,6 +3900,16 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	atomic_inc(&fs_info->scrubs_running);
- 	mutex_unlock(&fs_info->scrub_lock);
+-	if (epd->extent_locked || !tree->ops || !tree->ops->fill_delalloc)
++	if (epd->extent_locked)
+ 		return 0;
  
-+	/*
-+	 * In order to avoid deadlock with reclaim when there is a transaction
-+	 * trying to pause scrub, make sure we use GFP_NOFS for all the
-+	 * allocations done at btrfs_scrub_pages() and scrub_pages_for_parity()
-+	 * invoked by our callees. The pausing request is done when the
-+	 * transaction commit starts, and it blocks the transaction until scrub
-+	 * is paused (done at specific points at scrub_stripe() or right above
-+	 * before incrementing fs_info->scrubs_running).
-+	 */
-+	nofs_flag = memalloc_nofs_save();
- 	if (!is_dev_replace) {
- 		/*
- 		 * by holding device list mutex, we can
-@@ -3890,6 +3922,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
+ 	while (delalloc_end < page_end) {
+@@ -3233,18 +3233,16 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
+ 			delalloc_start = delalloc_end + 1;
+ 			continue;
+ 		}
+-		ret = tree->ops->fill_delalloc(inode, page,
+-					       delalloc_start,
+-					       delalloc_end,
+-					       &page_started,
+-					       nr_written, wbc);
++		ret = btrfs_run_delalloc_range(inode, page, delalloc_start,
++				delalloc_end, &page_started, nr_written, wbc);
+ 		/* File system has been set read-only */
+ 		if (ret) {
+ 			SetPageError(page);
+-			/* fill_delalloc should be return < 0 for error
+-			 * but just in case, we use > 0 here meaning the
+-			 * IO is started, so we don't want to return > 0
+-			 * unless things are going well.
++			/*
++			 * btrfs_run_delalloc_range should return < 0 for error
++			 * but just in case, we use > 0 here meaning the IO is
++			 * started, so we don't want to return > 0 unless
++			 * things are going well.
+ 			 */
+ 			ret = ret < 0 ? ret : -EIO;
+ 			goto done;
+diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
+index b4d03e677e1d7..ed27becd963c5 100644
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -106,11 +106,6 @@ struct extent_io_ops {
+ 	/*
+ 	 * Optional hooks, called if the pointer is not NULL
+ 	 */
+-	int (*fill_delalloc)(void *private_data, struct page *locked_page,
+-			     u64 start, u64 end, int *page_started,
+-			     unsigned long *nr_written,
+-			     struct writeback_control *wbc);
+-
+ 	int (*writepage_start_hook)(struct page *page, u64 start, u64 end);
+ 	void (*writepage_end_io_hook)(struct page *page, u64 start, u64 end,
+ 				      struct extent_state *state, int uptodate);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 355ff08e9d44e..bfacce295ef1e 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -110,8 +110,8 @@ static void __endio_write_update_ordered(struct inode *inode,
+  * extent_clear_unlock_delalloc() to clear both the bits EXTENT_DO_ACCOUNTING
+  * and EXTENT_DELALLOC simultaneously, because that causes the reserved metadata
+  * to be released, which we want to happen only when finishing the ordered
+- * extent (btrfs_finish_ordered_io()). Also note that the caller of the
+- * fill_delalloc() callback already does proper cleanup for the first page of
++ * extent (btrfs_finish_ordered_io()). Also note that the caller of
++ * btrfs_run_delalloc_range already does proper cleanup for the first page of
+  * the range, that is, it invokes the callback writepage_end_io_hook() for the
+  * range of the first page.
+  */
+@@ -1599,12 +1599,12 @@ static inline int need_force_cow(struct inode *inode, u64 start, u64 end)
+ }
  
- 	if (!ret)
- 		ret = scrub_enumerate_chunks(sctx, dev, start, end);
-+	memalloc_nofs_restore(nofs_flag);
+ /*
+- * extent_io.c call back to do delayed allocation processing
++ * Function to process delayed allocation (create CoW) for ranges which are
++ * being touched for the first time.
+  */
+-static int run_delalloc_range(void *private_data, struct page *locked_page,
+-			      u64 start, u64 end, int *page_started,
+-			      unsigned long *nr_written,
+-			      struct writeback_control *wbc)
++int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
++		u64 start, u64 end, int *page_started, unsigned long *nr_written,
++		struct writeback_control *wbc)
+ {
+ 	struct inode *inode = private_data;
+ 	int ret;
+@@ -10598,7 +10598,6 @@ static const struct extent_io_ops btrfs_extent_io_ops = {
+ 	.readpage_io_failed_hook = btrfs_readpage_io_failed_hook,
  
- 	wait_event(sctx->list_wait, atomic_read(&sctx->bios_in_flight) == 0);
- 	atomic_dec(&fs_info->scrubs_running);
+ 	/* optional callbacks */
+-	.fill_delalloc = run_delalloc_range,
+ 	.writepage_end_io_hook = btrfs_writepage_end_io_hook,
+ 	.writepage_start_hook = btrfs_writepage_start_hook,
+ 	.set_bit_hook = btrfs_set_bit_hook,
 -- 
 2.20.1
 
