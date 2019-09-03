@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6801A72A2
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA051A72A4
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725953AbfICSkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:40:25 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55963 "EHLO
+        id S1725939AbfICSkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 14:40:41 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:36019 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725883AbfICSkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:40:25 -0400
+        by vger.kernel.org with ESMTP id S1725883AbfICSkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:40:40 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C025222106;
-        Tue,  3 Sep 2019 14:40:24 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:40:24 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id A78502211C;
+        Tue,  3 Sep 2019 14:40:39 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:40:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hYgrf7
-        xvGKmBpZvzZCHyKSiFP4Y4dEPrZNQBL2AD4fg=; b=NydwphBjOqdecMpPO2TAI4
-        AkcaKdOwJl3DIp52q4PLuG+S57Mzw8AzNo8Vt0MB4ReoJGNXnXE8VI7Qyw6fBRSH
-        wi/ggkRB/3x/G0ifyPiuJZxqbzictnY3+c0/haLT3ohr1nzHipMGFR4FXXkFJV5+
-        nfo47XKUkb/72g3k51wPso4TqFAhW3chYupAUPkzFI2FeqDpsap/ih0jGqxPmEV+
-        nMs8c4ZyxIG5ugI3AlpeomLB/a8ef1q/YSyEUi7AxJMlQSYYYcZe243VX0TZlj3F
-        lP9+c2J1Qi7UUtKG03PHgLnf6x2Ic8cgoIi9KgVBVrIamtIfVoBI4pB8ySSqKRog
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GtqY1z
+        Cxfa2X1Ac8CqaLgwq3809Wp/xd6XIszOQtU0Y=; b=vGQFI5L9XMjuTYInpJME+P
+        iAeRTvNtkGw9mYtVrJwj+ymShg1/JGwxLeK6mok2jTwJDh0q1IIp6lmbKL+4MeVA
+        zfZRj+mO05u3BkDFPZAyOuXtOwHCVWtxuO5y8ZXm8AuEEzKQRaqsOz4xNhZyocjc
+        dt+gre3O1PiPXjEquTjf9SyhdRZTzGaWE0h/L5lu9xbpTbWjEhveUi8sGvPAlGVU
+        f/o/R3HqJx2/sIkrkHVcK0y4Cs32kBMdC/NmoVF9WVQ14SpgHaB8Yegs/Hd2iyDk
+        JuuieQ7tCA02PhxeAgQF6TTkDaeVukGwzo5swuhTJGpvvi6jSg9KanRzW1QLUjCw
         ==
-X-ME-Sender: <xms:mLNuXdurGjd9I6Sd4ID1es2Ciol8cdZXtfdHgGoHnBkXSxIVW5awxQ>
+X-ME-Sender: <xms:p7NuXeTN3iC0uE1WpS_zr1ce0NALgqEaPk8zXLoQ035MdMYsxY9UAA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:mLNuXcSFTPQhdNacRcJTTjuF92bKullBEQwWTq2UwOIgz2q3sgcQJw>
-    <xmx:mLNuXS0i5TLCv5teJgst9aVKE_67D05TnhBLMZvcqIA50rd2OVoVeA>
-    <xmx:mLNuXcwRYQIUz7RFbpfaeHfjGLvrGxgFysUvyWs-sMohpGhw9jQGJw>
-    <xmx:mLNuXeIjDo7HAuZru7hRCz5-HCCGJTvQCoyLGnR5H3NRoAgAfUdtXw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:p7NuXYB3LVOfzXNvEO1Djvl2iPByQj0m24KNFE8CMjiz-YM7Ci1EkQ>
+    <xmx:p7NuXW3OYy8iTTLhd_gX__JDenv9SplMyQQPa9M-kHvWdMwtOIf8eg>
+    <xmx:p7NuXeXbb7pw5jyRlXM-a0xldjhiJjePvEXADjibpHC8Gr5EIERWLg>
+    <xmx:p7NuXYSNlOIZ1iNMyfRYZ8Q-UE_886hhnbn7yWuppEVj8xAUvDgwHA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4931680060;
-        Tue,  3 Sep 2019 14:40:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation" failed to apply to 4.14-stable tree
-To:     aik@ozlabs.ru, paulus@ozlabs.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id CA9AFD6005F;
+        Tue,  3 Sep 2019 14:40:38 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm/arm64: vgic: Fix potential deadlock when ap_list is" failed to apply to 4.19-stable tree
+To:     guoheyi@huawei.com, maz@kernel.org, will@kernel.org,
+        yuzenghui@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Sep 2019 20:40:15 +0200
-Message-ID: <156753601548146@kroah.com>
+Date:   Tue, 03 Sep 2019 20:40:37 +0200
+Message-ID: <1567536037189123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,60 +68,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ddfd151f3def9258397fcde7a372205a2d661903 Mon Sep 17 00:00:00 2001
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
-Date: Mon, 26 Aug 2019 14:55:20 +1000
-Subject: [PATCH] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation
- error handling
+From d4a8061a7c5f7c27a2dc002ee4cb89b3e6637e44 Mon Sep 17 00:00:00 2001
+From: Heyi Guo <guoheyi@huawei.com>
+Date: Tue, 27 Aug 2019 12:26:50 +0100
+Subject: [PATCH] KVM: arm/arm64: vgic: Fix potential deadlock when ap_list is
+ long
 
-H_PUT_TCE_INDIRECT handlers receive a page with up to 512 TCEs from
-a guest. Although we verify correctness of TCEs before we do anything
-with the existing tables, there is a small window when a check in
-kvmppc_tce_validate might pass and right after that the guest alters
-the page of TCEs, causing an early exit from the handler and leaving
-srcu_read_lock(&vcpu->kvm->srcu) (virtual mode) or lock_rmap(rmap)
-(real mode) locked.
+If the ap_list is longer than 256 entries, merge_final() in list_sort()
+will call the comparison callback with the same element twice, causing
+a deadlock in vgic_irq_cmp().
 
-This fixes the bug by jumping to the common exit code with an appropriate
-unlock.
+Fix it by returning early when irqa == irqb.
 
-Cc: stable@vger.kernel.org # v4.11+
-Fixes: 121f80ba68f1 ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Cc: stable@vger.kernel.org # 4.7+
+Fixes: 8e4447457965 ("KVM: arm/arm64: vgic-new: Add IRQ sorting")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Heyi Guo <guoheyi@huawei.com>
+[maz: massaged commit log and patch, added Fixes and Cc-stable]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
-index e99a14798ab0..c4b606fe73eb 100644
---- a/arch/powerpc/kvm/book3s_64_vio.c
-+++ b/arch/powerpc/kvm/book3s_64_vio.c
-@@ -660,8 +660,10 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 		}
- 		tce = be64_to_cpu(tce);
+diff --git a/virt/kvm/arm/vgic/vgic.c b/virt/kvm/arm/vgic/vgic.c
+index 04786c8ec77e..ca5e6c6866a4 100644
+--- a/virt/kvm/arm/vgic/vgic.c
++++ b/virt/kvm/arm/vgic/vgic.c
+@@ -254,6 +254,13 @@ static int vgic_irq_cmp(void *priv, struct list_head *a, struct list_head *b)
+ 	bool penda, pendb;
+ 	int ret;
  
--		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua))
--			return H_PARAMETER;
-+		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua)) {
-+			ret = H_PARAMETER;
-+			goto unlock_exit;
-+		}
++	/*
++	 * list_sort may call this function with the same element when
++	 * the list is fairly long.
++	 */
++	if (unlikely(irqa == irqb))
++		return 0;
++
+ 	raw_spin_lock(&irqa->irq_lock);
+ 	raw_spin_lock_nested(&irqb->irq_lock, SINGLE_DEPTH_NESTING);
  
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
- 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt,
-diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
-index f50bbeedfc66..b4f20f13b860 100644
---- a/arch/powerpc/kvm/book3s_64_vio_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
-@@ -556,8 +556,10 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 		unsigned long tce = be64_to_cpu(((u64 *)tces)[i]);
- 
- 		ua = 0;
--		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL))
--			return H_PARAMETER;
-+		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL)) {
-+			ret = H_PARAMETER;
-+			goto unlock_exit;
-+		}
- 
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
- 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
 
