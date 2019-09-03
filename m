@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A446A6FBB
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A469FA6FB7
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730068AbfICQ2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:28:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
+        id S1730973AbfICQej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:34:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731007AbfICQ2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:28:01 -0400
+        id S1731012AbfICQ2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:28:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F4592343A;
-        Tue,  3 Sep 2019 16:27:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF9F238C7;
+        Tue,  3 Sep 2019 16:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567528079;
-        bh=5a1NYFVj1E1tb2pLQaCqcgLB6whCrKzXo36U2GMgsaY=;
+        s=default; t=1567528081;
+        bh=gzq+NjRgMmksXn34dkQZ3dKzR8VqerRUJi/9FJJrSjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGaNe4JkYsKmE5ZyCo4ArOqL+e+29APDnPc//nQOcJ9y5UALfmKwW/d1nP+tATRJR
-         +a4eFzckfO2YkKmZzozJEgsCcDVkhKnUtSKUSHW7CvwHnrtwzCmlbvHSBsf1v/ERTy
-         S/wEN2Rtd1uKl4ytOD7kQdDGfTP2pwWwiJGTQ1sY=
+        b=LllWghzMchxxaIVlx9oXSA79k5f4wFgQdZ9mYJowlWe01I9YmHl975S5f6OtKZb5V
+         h1FRDNJ5GunmMO1SIelePd4r9W6V6bcBTi9kZ2VmJXyrpnZ3zILnJsdGHFCrlBFYey
+         X2c5ZYbHUg472jEQJ/Dge9cAVvpHA5t+aksu3MNQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Gardon <bgardon@google.com>,
+Cc:     WANG Chao <chao.wang@ucloud.cn>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 092/167] kvm: mmu: Fix overflow on kvm mmu page limit calculation
-Date:   Tue,  3 Sep 2019 12:24:04 -0400
-Message-Id: <20190903162519.7136-92-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 093/167] x86/kvm: move kvm_load/put_guest_xcr0 into atomic context
+Date:   Tue,  3 Sep 2019 12:24:05 -0400
+Message-Id: <20190903162519.7136-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 References: <20190903162519.7136-1-sashal@kernel.org>
@@ -43,150 +43,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: WANG Chao <chao.wang@ucloud.cn>
 
-[ Upstream commit bc8a3d8925a8fa09fa550e0da115d95851ce33c6 ]
+[ Upstream commit 1811d979c71621aafc7b879477202d286f7e863b ]
 
-KVM bases its memory usage limits on the total number of guest pages
-across all memslots. However, those limits, and the calculations to
-produce them, use 32 bit unsigned integers. This can result in overflow
-if a VM has more guest pages that can be represented by a u32. As a
-result of this overflow, KVM can use a low limit on the number of MMU
-pages it will allocate. This makes KVM unable to map all of guest memory
-at once, prompting spurious faults.
+guest xcr0 could leak into host when MCE happens in guest mode. Because
+do_machine_check() could schedule out at a few places.
 
-Tested: Ran all kvm-unit-tests on an Intel Haswell machine. This patch
-	introduced no new failures.
+For example:
 
-Signed-off-by: Ben Gardon <bgardon@google.com>
+kvm_load_guest_xcr0
+...
+kvm_x86_ops->run(vcpu) {
+  vmx_vcpu_run
+    vmx_complete_atomic_exit
+      kvm_machine_check
+        do_machine_check
+          do_memory_failure
+            memory_failure
+              lock_page
+
+In this case, host_xcr0 is 0x2ff, guest vcpu xcr0 is 0xff. After schedule
+out, host cpu has guest xcr0 loaded (0xff).
+
+In __switch_to {
+     switch_fpu_finish
+       copy_kernel_to_fpregs
+         XRSTORS
+
+If any bit i in XSTATE_BV[i] == 1 and xcr0[i] == 0, XRSTORS will
+generate #GP (In this case, bit 9). Then ex_handler_fprestore kicks in
+and tries to reinitialize fpu by restoring init fpu state. Same story as
+last #GP, except we get DOUBLE FAULT this time.
+
 Cc: stable@vger.kernel.org
+Signed-off-by: WANG Chao <chao.wang@ucloud.cn>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h | 12 ++++++------
- arch/x86/kvm/mmu.c              | 13 ++++++-------
- arch/x86/kvm/mmu.h              |  2 +-
- arch/x86/kvm/x86.c              |  4 ++--
- 4 files changed, 15 insertions(+), 16 deletions(-)
+ arch/x86/kvm/svm.c |  2 ++
+ arch/x86/kvm/vmx.c |  4 ++++
+ arch/x86/kvm/x86.c | 10 ++++------
+ arch/x86/kvm/x86.h |  2 ++
+ 4 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index b6417454a9d79..0d3f5cf3ff3ea 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -117,7 +117,7 @@ static inline gfn_t gfn_to_index(gfn_t gfn, gfn_t base_gfn, int level)
- }
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 0f33f00aa4dfe..ac2cc2ed7a85f 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5622,6 +5622,7 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
+ 	svm->vmcb->save.cr2 = vcpu->arch.cr2;
  
- #define KVM_PERMILLE_MMU_PAGES 20
--#define KVM_MIN_ALLOC_MMU_PAGES 64
-+#define KVM_MIN_ALLOC_MMU_PAGES 64UL
- #define KVM_MMU_HASH_SHIFT 12
- #define KVM_NUM_MMU_PAGES (1 << KVM_MMU_HASH_SHIFT)
- #define KVM_MIN_FREE_MMU_PAGES 5
-@@ -796,9 +796,9 @@ enum kvm_irqchip_mode {
- };
+ 	clgi();
++	kvm_load_guest_xcr0(vcpu);
  
- struct kvm_arch {
--	unsigned int n_used_mmu_pages;
--	unsigned int n_requested_mmu_pages;
--	unsigned int n_max_mmu_pages;
-+	unsigned long n_used_mmu_pages;
-+	unsigned long n_requested_mmu_pages;
-+	unsigned long n_max_mmu_pages;
- 	unsigned int indirect_shadow_pages;
- 	unsigned long mmu_valid_gen;
- 	struct hlist_head mmu_page_hash[KVM_NUM_MMU_PAGES];
-@@ -1201,8 +1201,8 @@ void kvm_mmu_clear_dirty_pt_masked(struct kvm *kvm,
- 				   gfn_t gfn_offset, unsigned long mask);
- void kvm_mmu_zap_all(struct kvm *kvm);
- void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm, u64 gen);
--unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm);
--void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned int kvm_nr_mmu_pages);
-+unsigned long kvm_mmu_calculate_mmu_pages(struct kvm *kvm);
-+void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long kvm_nr_mmu_pages);
+ 	/*
+ 	 * If this vCPU has touched SPEC_CTRL, restore the guest's value if
+@@ -5769,6 +5770,7 @@ static void svm_vcpu_run(struct kvm_vcpu *vcpu)
+ 	if (unlikely(svm->vmcb->control.exit_code == SVM_EXIT_NMI))
+ 		kvm_before_interrupt(&svm->vcpu);
  
- int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3);
- bool pdptrs_changed(struct kvm_vcpu *vcpu);
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index cdc0c460950f3..88940261fb537 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -1954,7 +1954,7 @@ static int is_empty_shadow_page(u64 *spt)
-  * aggregate version in order to make the slab shrinker
-  * faster
-  */
--static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, int nr)
-+static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, unsigned long nr)
- {
- 	kvm->arch.n_used_mmu_pages += nr;
- 	percpu_counter_add(&kvm_total_used_mmu_pages, nr);
-@@ -2704,7 +2704,7 @@ static bool prepare_zap_oldest_mmu_page(struct kvm *kvm,
-  * Changing the number of mmu pages allocated to the vm
-  * Note: if goal_nr_mmu_pages is too small, you will get dead lock
-  */
--void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned int goal_nr_mmu_pages)
-+void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long goal_nr_mmu_pages)
- {
- 	LIST_HEAD(invalid_list);
++	kvm_put_guest_xcr0(vcpu);
+ 	stgi();
  
-@@ -5926,10 +5926,10 @@ int kvm_mmu_module_init(void)
- /*
-  * Caculate mmu pages needed for kvm.
-  */
--unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm)
-+unsigned long kvm_mmu_calculate_mmu_pages(struct kvm *kvm)
- {
--	unsigned int nr_mmu_pages;
--	unsigned int  nr_pages = 0;
-+	unsigned long nr_mmu_pages;
-+	unsigned long nr_pages = 0;
- 	struct kvm_memslots *slots;
- 	struct kvm_memory_slot *memslot;
- 	int i;
-@@ -5942,8 +5942,7 @@ unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm)
+ 	/* Any pending NMI will happen here */
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 562f5dc4645b6..ee9ff20da3902 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -10756,6 +10756,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
+ 	if (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP)
+ 		vmx_set_interrupt_shadow(vcpu, 0);
+ 
++	kvm_load_guest_xcr0(vcpu);
++
+ 	if (static_cpu_has(X86_FEATURE_PKU) &&
+ 	    kvm_read_cr4_bits(vcpu, X86_CR4_PKE) &&
+ 	    vcpu->arch.pkru != vmx->host_pkru)
+@@ -10971,6 +10973,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
+ 			__write_pkru(vmx->host_pkru);
  	}
  
- 	nr_mmu_pages = nr_pages * KVM_PERMILLE_MMU_PAGES / 1000;
--	nr_mmu_pages = max(nr_mmu_pages,
--			   (unsigned int) KVM_MIN_ALLOC_MMU_PAGES);
-+	nr_mmu_pages = max(nr_mmu_pages, KVM_MIN_ALLOC_MMU_PAGES);
++	kvm_put_guest_xcr0(vcpu);
++
+ 	vmx->nested.nested_run_pending = 0;
+ 	vmx->idt_vectoring_info = 0;
  
- 	return nr_mmu_pages;
- }
-diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
-index 1fab69c0b2f32..65892288bf510 100644
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -69,7 +69,7 @@ bool kvm_can_do_async_pf(struct kvm_vcpu *vcpu);
- int kvm_handle_page_fault(struct kvm_vcpu *vcpu, u64 error_code,
- 				u64 fault_address, char *insn, int insn_len);
- 
--static inline unsigned int kvm_mmu_available_pages(struct kvm *kvm)
-+static inline unsigned long kvm_mmu_available_pages(struct kvm *kvm)
- {
- 	if (kvm->arch.n_max_mmu_pages > kvm->arch.n_used_mmu_pages)
- 		return kvm->arch.n_max_mmu_pages -
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index ed6b43f344b0c..4f564dc17c333 100644
+index 4f564dc17c333..253326aaea9ac 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -4116,7 +4116,7 @@ static int kvm_vm_ioctl_set_identity_map_addr(struct kvm *kvm,
+@@ -713,7 +713,7 @@ void kvm_lmsw(struct kvm_vcpu *vcpu, unsigned long msw)
+ }
+ EXPORT_SYMBOL_GPL(kvm_lmsw);
+ 
+-static void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu)
++void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu)
+ {
+ 	if (kvm_read_cr4_bits(vcpu, X86_CR4_OSXSAVE) &&
+ 			!vcpu->guest_xcr0_loaded) {
+@@ -723,8 +723,9 @@ static void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu)
+ 		vcpu->guest_xcr0_loaded = 1;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(kvm_load_guest_xcr0);
+ 
+-static void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu)
++void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu->guest_xcr0_loaded) {
+ 		if (vcpu->arch.xcr0 != host_xcr0)
+@@ -732,6 +733,7 @@ static void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu)
+ 		vcpu->guest_xcr0_loaded = 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(kvm_put_guest_xcr0);
+ 
+ static int __kvm_set_xcr(struct kvm_vcpu *vcpu, u32 index, u64 xcr)
+ {
+@@ -7648,8 +7650,6 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 		goto cancel_injection;
+ 	}
+ 
+-	kvm_load_guest_xcr0(vcpu);
+-
+ 	if (req_immediate_exit) {
+ 		kvm_make_request(KVM_REQ_EVENT, vcpu);
+ 		kvm_x86_ops->request_immediate_exit(vcpu);
+@@ -7702,8 +7702,6 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 	vcpu->mode = OUTSIDE_GUEST_MODE;
+ 	smp_wmb();
+ 
+-	kvm_put_guest_xcr0(vcpu);
+-
+ 	kvm_before_interrupt(vcpu);
+ 	kvm_x86_ops->handle_external_intr(vcpu);
+ 	kvm_after_interrupt(vcpu);
+diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
+index 1826ed9dd1c8f..8889e0c029a70 100644
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -345,4 +345,6 @@ static inline void kvm_after_interrupt(struct kvm_vcpu *vcpu)
+ 	__this_cpu_write(current_vcpu, NULL);
  }
  
- static int kvm_vm_ioctl_set_nr_mmu_pages(struct kvm *kvm,
--					  u32 kvm_nr_mmu_pages)
-+					 unsigned long kvm_nr_mmu_pages)
- {
- 	if (kvm_nr_mmu_pages < KVM_MIN_ALLOC_MMU_PAGES)
- 		return -EINVAL;
-@@ -4130,7 +4130,7 @@ static int kvm_vm_ioctl_set_nr_mmu_pages(struct kvm *kvm,
- 	return 0;
- }
- 
--static int kvm_vm_ioctl_get_nr_mmu_pages(struct kvm *kvm)
-+static unsigned long kvm_vm_ioctl_get_nr_mmu_pages(struct kvm *kvm)
- {
- 	return kvm->arch.n_max_mmu_pages;
- }
++void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu);
++void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu);
+ #endif
 -- 
 2.20.1
 
