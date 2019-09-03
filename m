@@ -2,102 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC1DA7307
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:03:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271E0A7316
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 21:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725939AbfICTDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 15:03:05 -0400
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:31738 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725882AbfICTDE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 15:03:04 -0400
-Received: from pps.filterd (m0134423.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x83J1Sbv017666;
-        Tue, 3 Sep 2019 19:02:47 GMT
-Received: from g4t3426.houston.hpe.com (g4t3426.houston.hpe.com [15.241.140.75])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2usra9jvf5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Sep 2019 19:02:46 +0000
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g4t3426.houston.hpe.com (Postfix) with ESMTP id 56B7D73;
-        Tue,  3 Sep 2019 19:02:45 +0000 (UTC)
-Received: from [16.116.163.9] (unknown [16.116.163.9])
-        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id 4FB0A47;
-        Tue,  3 Sep 2019 19:02:44 +0000 (UTC)
-Subject: Re: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in is_uvX_hub
- Ops
-From:   Mike Travis <mike.travis@hpe.com>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
- <20190903161917.GA23281@infradead.org>
- <98e34464-f9b7-6e78-6528-96b83f094282@hpe.com>
-Message-ID: <5274bb4e-f063-4a13-72aa-9231da2f7092@hpe.com>
-Date:   Tue, 3 Sep 2019 12:03:14 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726063AbfICTEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 15:04:42 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60111 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726005AbfICTEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 15:04:42 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 1381522033;
+        Tue,  3 Sep 2019 15:04:41 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 15:04:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XwhFUb
+        OdKmZMU923ofG3JdrXl349D/fo2nBtxeXZdqE=; b=v+Ul9l6vNjRh65NwbXGQP8
+        jeAbeFL/UdhPu+/XbOZhkYL1Dxo9+7x4BkX/8QKokc/ZpSLp6XWVXHRViGxxz/3A
+        UiF0+u18u9us09A6foJIMs6LPQvWI24pvgOdmqcV9UDwGmtqNU0mwaulxU6smj5M
+        JQTSg7HjhJ5Ojca5Bp5fitCJqFxlWq7yxybTfx/V4NdIbcfrgjtosZ0S9CrKO89j
+        VID2d7GxQNhM7x4MYeeEunLmRsXUA/o3i/ly/Q3cCH9e1QfTpVxyezLjI4met7yE
+        ciJMeHZ7RgEQiOiKaPM3vscdh16tFOKjjW1h1FH6LFVL4QdKAtzIV3UM+13Usl2g
+        ==
+X-ME-Sender: <xms:SLluXRC6AsUbcnrfth8sb5rJX6YJ7QeM1qXsvUg2gF57w6JGQ9IqCw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:SLluXcF_3zMt6HEMy2DE3lUkoplLwMwOErnqBh3RPGdZ9pl7k0iEkA>
+    <xmx:SLluXRAEg3pfmfV1Yf8QJcu5Y-lDlkON3T4EYBb7jp61J36IgdCjpw>
+    <xmx:SLluXSkcpK4_Om6qofR8gLeMMV7hCw2UtueeRuX9Xbynztxl_cMmPA>
+    <xmx:SbluXTFQ3Tl5RhnJYa6R--Ox-8SMdkgtjpv8fZu70xm7FklRxv6dhg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0365680068;
+        Tue,  3 Sep 2019 15:04:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] i2c: piix4: Fix port selection for AMD Family 16h Model 30h" failed to apply to 4.19-stable tree
+To:     andrew.cooks@opengear.com, jdelvare@suse.de, wsa@the-dreams.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Sep 2019 21:04:38 +0200
+Message-ID: <15675374782510@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <98e34464-f9b7-6e78-6528-96b83f094282@hpe.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
- definitions=2019-09-03_04:2019-09-03,2019-09-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 bulkscore=0 mlxscore=0 suspectscore=0 priorityscore=1501
- phishscore=0 spamscore=0 adultscore=0 mlxlogscore=595 clxscore=1015
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1906280000 definitions=main-1909030188
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 9/3/2019 11:58 AM, Mike Travis wrote:
-> 
-> 
-> On 9/3/2019 9:19 AM, Christoph Hellwig wrote:
->> On Mon, Sep 02, 2019 at 07:18:23PM -0500, Mike Travis wrote:
->>> +#ifdef    UV1_HUB_IS_SUPPORTED
->>
->> All these ifdefs are dead code, please just remove them.
-> 
-> Those ifdefs are not dead code and are being actively used.  Plus UV1 
-> support is dead and I think the last running system died about a year 
-> ago and no support or parts are available.  So undef'ing these macros 
-> will simplify and reduce the size of the object code.
+thanks,
 
-I forgot to add that if we do undef one of those "is supported" the code 
-will eventually be removed, thus simplifying the source even more.  So 
-including the ifdef's in the source make that code easier to find.
-> 
->> Also it seems like at least the various mmr macros just check
->> for a specific version, I think you are much better off just
->> using a switch statement for the possible revisions there.
->>
->>> +        return (uv_hub_info->hub_revision == UV4A_HUB_REVISION_BASE);
-> 
-> The problem is those revision bases can change if a UV HUB revision 
-> changes.  That is why there are ranges and why I'm converting them to 
-> "uv_type".  Some UV kernel source code still needs to know the exact HUB 
-> revision, like (again) hwperf.
-> 
->>
->> And none of these braces are required.
->>
-> 
-> Sure, I can take those out now, but usually I then get bit by 
-> checkpatches which then says "parenthesis's are required".
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c7c06a1532f3fe106687ac82a13492c6a619ff1c Mon Sep 17 00:00:00 2001
+From: Andrew Cooks <andrew.cooks@opengear.com>
+Date: Fri, 2 Aug 2019 14:52:46 +0200
+Subject: [PATCH] i2c: piix4: Fix port selection for AMD Family 16h Model 30h
+
+Family 16h Model 30h SMBus controller needs the same port selection fix
+as described and fixed in commit 0fe16195f891 ("i2c: piix4: Fix SMBus port
+selection for AMD Family 17h chips")
+
+commit 6befa3fde65f ("i2c: piix4: Support alternative port selection
+register") also fixed the port selection for Hudson2, but unfortunately
+this is not the exact same device and the AMD naming and PCI Device IDs
+aren't particularly helpful here.
+
+The SMBus port selection register is common to the following Families
+and models, as documented in AMD's publicly available BIOS and Kernel
+Developer Guides:
+
+ 50742 - Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 55072 - Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 52740 - Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
+
+The Hudson2 PCI Device ID (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) is shared
+between Bolton FCH and Family 16h Model 30h, but the location of the
+SmBus0Sel port selection bits are different:
+
+ 51192 - Bolton Register Reference Guide
+
+We distinguish between Bolton and Family 16h Model 30h using the PCI
+Revision ID:
+
+  Bolton is device 0x780b, revision 0x15
+  Family 16h Model 30h is device 0x780b, revision 0x1F
+  Family 15h Model 60h and 70h are both device 0x790b, revision 0x4A.
+
+The following additional public AMD BKDG documents were checked and do
+not share the same port selection register:
+
+ 42301 - Family 15h Model 00h-0Fh doesn't mention any
+ 42300 - Family 15h Model 10h-1Fh doesn't mention any
+ 49125 - Family 15h Model 30h-3Fh doesn't mention any
+
+ 48751 - Family 16h Model 00h-0Fh uses the previously supported
+         index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
+
+Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org [v4.6+]
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index c46c4bddc7ca..cba325eb852f 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -91,7 +91,7 @@
+ #define SB800_PIIX4_PORT_IDX_MASK	0x06
+ #define SB800_PIIX4_PORT_IDX_SHIFT	1
+ 
+-/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
++/* On kerncz and Hudson2, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
+ #define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
+ #define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
+ #define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+@@ -358,18 +358,16 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	/* Find which register is used for port selection */
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD ||
+ 	    PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON) {
+-		switch (PIIX4_dev->device) {
+-		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
++		if (PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS ||
++		    (PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
++		     PIIX4_dev->revision >= 0x1F)) {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+-			break;
+-		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+-		default:
++		} else {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-			break;
+ 		}
+ 	} else {
+ 		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
+
