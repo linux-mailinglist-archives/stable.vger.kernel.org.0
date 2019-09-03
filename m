@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9F8A72F6
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8B88A72F9
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbfICS7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:59:07 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49521 "EHLO
+        id S1726230AbfICS7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 14:59:21 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55519 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725782AbfICS7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:59:07 -0400
+        by vger.kernel.org with ESMTP id S1725962AbfICS7U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:59:20 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4033122274;
-        Tue,  3 Sep 2019 14:59:06 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:59:06 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id B7FFC2227B;
+        Tue,  3 Sep 2019 14:59:19 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:59:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uFPoKn
-        2kaCRMFz7VygYXrNXDBwlSN6+wHdFd02On9rQ=; b=HafhcFqRGUqQKzLKIQxtoc
-        bE+iC7umW1Baos5zVrk7LSLgUB0s5fbBsRSb8xLG6Rqg+wC/VU/Dcw5wkqtNVJIX
-        m342l9dplHR5Hp170aqMOuh+79T2ZJiRWbSRXx/XZC7FOfV1OxeuujgMZD+Lo1mS
-        kG3CWgzWLWZMxhVbgSHdSsU3Z3jS6AMSbThyiJpSIvqbaq8VGyMxAoMN0Aipzm0s
-        3NmOFwnGdUOLk+U32HHxlSuY0NKzlBdQn9AsmUqUJZn3W55OSZJD6jMA9LzzlyMc
-        xvS15LXMxa/hyVGufsLyGipafu3Kj+qpjROqjX0FBEOHXiV1ZFEPZn/ejxHKF8hw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lav4rV
+        M4+C876TTNgJ2Mdje21gt3pm4YII1VwVobRnY=; b=ij5pTnsQWwdo71WSrvZR+7
+        bmVm37nymqQ24iTF2/7OXtxuEBt4bISxgtvpLh6ViVPsceeGwhq2SCMhOoj+ad2a
+        whXsswJDqb0yEkt1tkuCx7YV0JDEL0CYe1lBJVyE6iVKmTF7XjGsl589EGREeqAp
+        5U1368JbT9UgZmnclfiFRtmYUHs2abNtMlEgLN9MPmnOaTcivAmdTOX7iWNQXtku
+        DDJiZ9xeEWew6f/HS7eGMK9dJVZKaI2Mb2WSC6GtJh3lWrEIP1gBQTNQNVRVYp+h
+        /yju3P3uXeKt/zXc3qwkO9q1AJ++TfGO7Cg/LeQUE8cdHO3eiGogvGUmrs7wGPDQ
         ==
-X-ME-Sender: <xms:-rduXUj4jYaSTnblh4spfL7uMcX2emB1b1vUY9e4TP7OJIfSn8LIiw>
+X-ME-Sender: <xms:B7huXeo5tfM1DettapWBjq210a6Zo3S7DxPucpoDAy2jo54X37mcJw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:-rduXR5aNCyEXLV3an2B9o-GEdQFLm82npeQaxL2sNGLfEnJ1SbxOw>
-    <xmx:-rduXZpjFUsdf1IHPeWZRujC0Mywwv5OTM7xM_WGj-TVUA7wAqZuqQ>
-    <xmx:-rduXXWUMprYKwhwexbeHn6CfOtcD0N8LqxKOLQs2K5CY49Me56e7Q>
-    <xmx:-rduXbrHSuIK0dk9FZInSVmP2aoXf-31CBYUwbRwd80-YtOPJ_-ewQ>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
+X-ME-Proxy: <xmx:B7huXVE_rS5wMhrV8hvYSySAE_eesaFeFUltsy8yy48U7S0SE6FrTg>
+    <xmx:B7huXTorQAd1wMIzlmNtiM-h87a3hh7-wgLqFp08mS0gs9yPIUsnlg>
+    <xmx:B7huXeZSFknMEpdeP-q-2CrrAnRFTMc0e0Iv-QDz2_361nNgFCuqPQ>
+    <xmx:B7huXZenGHmaG-MZVIVo3G4MJ1Xi3dh3hxhZxwsCCEkKUl8bCdiADw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B68AC80061;
-        Tue,  3 Sep 2019 14:59:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4EBD3D60057;
+        Tue,  3 Sep 2019 14:59:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] NFS: Ensure O_DIRECT reports an error if the bytes" failed to apply to 4.4-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 Sep 2019 20:58:56 +0200
-Message-ID: <1567537136103128@kroah.com>
+Date:   Tue, 03 Sep 2019 20:59:17 +0200
+Message-ID: <156753715711198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,50 +67,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f4340e9314dbfadc48758945f85fc3b16612d06f Mon Sep 17 00:00:00 2001
+From eb2c50da9e256dbbb3ff27694440e4c1900cfef8 Mon Sep 17 00:00:00 2001
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Mon, 12 Aug 2019 15:19:54 -0400
-Subject: [PATCH] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()
+Date: Mon, 12 Aug 2019 18:04:36 -0400
+Subject: [PATCH] NFS: Ensure O_DIRECT reports an error if the bytes
+ read/written is 0
 
-If the attempt to resend the pages fails, we need to ensure that we
-clean up those pages that were not transmitted.
+If the attempt to resend the I/O results in no bytes being read/written,
+we must ensure that we report the error.
 
-Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.5+
+Fixes: 0a00b77b331a ("nfs: mirroring support for direct io")
+Cc: stable@vger.kernel.org # v3.20+
 
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 0cb442406168..222d7115db71 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -401,15 +401,21 @@ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
+ 	unsigned long bytes = 0;
+ 	struct nfs_direct_req *dreq = hdr->dreq;
+ 
+-	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
+-		goto out_put;
+-
+ 	spin_lock(&dreq->lock);
+-	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags) && (hdr->good_bytes == 0))
++	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
+ 		dreq->error = hdr->error;
+-	else
++
++	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
++		spin_unlock(&dreq->lock);
++		goto out_put;
++	}
++
++	if (hdr->good_bytes != 0)
+ 		nfs_direct_good_bytes(dreq, hdr);
+ 
++	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
++		dreq->error = 0;
++
+ 	spin_unlock(&dreq->lock);
+ 
+ 	while (!list_empty(&hdr->pages)) {
+@@ -782,16 +788,19 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
+ 	bool request_commit = false;
+ 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
+ 
+-	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
+-		goto out_put;
+-
+ 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
+ 
+ 	spin_lock(&dreq->lock);
+ 
+ 	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
+ 		dreq->error = hdr->error;
+-	if (dreq->error == 0) {
++
++	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
++		spin_unlock(&dreq->lock);
++		goto out_put;
++	}
++
++	if (hdr->good_bytes != 0) {
+ 		nfs_direct_good_bytes(dreq, hdr);
+ 		if (nfs_write_need_commit(hdr)) {
+ 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
 diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index ed4e1b07447b..15c254753f88 100644
+index 15c254753f88..56cefa0ab804 100644
 --- a/fs/nfs/pagelist.c
 +++ b/fs/nfs/pagelist.c
-@@ -1251,20 +1251,22 @@ static void nfs_pageio_complete_mirror(struct nfs_pageio_descriptor *desc,
- int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
- 		      struct nfs_pgio_header *hdr)
- {
--	LIST_HEAD(failed);
-+	LIST_HEAD(pages);
- 
- 	desc->pg_io_completion = hdr->io_completion;
- 	desc->pg_dreq = hdr->dreq;
--	while (!list_empty(&hdr->pages)) {
--		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
-+	list_splice_init(&hdr->pages, &pages);
-+	while (!list_empty(&pages)) {
-+		struct nfs_page *req = nfs_list_entry(pages.next);
- 
- 		if (!nfs_pageio_add_request(desc, req))
--			nfs_list_move_request(req, &failed);
-+			break;
- 	}
- 	nfs_pageio_complete(desc);
--	if (!list_empty(&failed)) {
--		list_move(&failed, &hdr->pages);
--		return desc->pg_error < 0 ? desc->pg_error : -EIO;
-+	if (!list_empty(&pages)) {
-+		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
-+		hdr->completion_ops->error_cleanup(&pages, err);
-+		return err;
+@@ -1266,6 +1266,7 @@ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
+ 	if (!list_empty(&pages)) {
+ 		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
+ 		hdr->completion_ops->error_cleanup(&pages, err);
++		nfs_set_pgio_error(hdr, err, hdr->io_start);
+ 		return err;
  	}
  	return 0;
- }
 
