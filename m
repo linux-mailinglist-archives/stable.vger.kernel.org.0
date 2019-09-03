@@ -2,94 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2092AA72F1
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DC8A72F5
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 20:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726192AbfICS6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 14:58:41 -0400
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:37256 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725782AbfICS6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:58:41 -0400
-Received: from pps.filterd (m0148663.ppops.net [127.0.0.1])
-        by mx0a-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x83IuRI4028761;
-        Tue, 3 Sep 2019 18:58:22 GMT
-Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
-        by mx0a-002e3701.pphosted.com with ESMTP id 2usht0dy7u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Sep 2019 18:58:22 +0000
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id BCEBA66;
-        Tue,  3 Sep 2019 18:58:21 +0000 (UTC)
-Received: from [16.116.163.9] (unknown [16.116.163.9])
-        by g9t2301.houston.hpecorp.net (Postfix) with ESMTP id 80AD44C;
-        Tue,  3 Sep 2019 18:58:19 +0000 (UTC)
-Subject: Re: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in is_uvX_hub
- Ops
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
- <20190903161917.GA23281@infradead.org>
-From:   Mike Travis <mike.travis@hpe.com>
-Message-ID: <98e34464-f9b7-6e78-6528-96b83f094282@hpe.com>
-Date:   Tue, 3 Sep 2019 11:58:49 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1725939AbfICS67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 14:58:59 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46325 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725782AbfICS66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 14:58:58 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 89D332222B;
+        Tue,  3 Sep 2019 14:58:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 03 Sep 2019 14:58:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mLBrhP
+        0oVXXewhstTDOEws2XtGXl9S0Qf0M2NkqPJp8=; b=UjkLbiBcxE8Rd24YqsVHgc
+        z1Zg2S07d7UT9TprdvhPY65WyAwA/WHX4XNmqjTcxwfAUcKW/Kn77NVFpe3Se8i2
+        L6AQ0r+fNQ9sMt3qVEyQS3P+3D/jIJw++6Z61lGhqORxth/1ZdO29XzfZR5b9P9g
+        5s1s1ntyw5EyAze7GbSIMXWiQHojrWomua+0TMc172HHzjH0XVaotGN9u8M6WJOz
+        CD28w2jRrLGofNyRI+RMOg6tH2xwfpH6QJ41j1ztOoQxjljGSw5+tYB0siF/bnyU
+        gwt1Er/+vE11LyhUq3lb8xQX7slYSz7O6as3bqI9oODg3Xn8ZvwYHIXGCzOUcsFA
+        ==
+X-ME-Sender: <xms:8bduXbG7yTs79VpjyQxw9TsSt11m9_jrZfkvMyl2fFzyySKTI_-Lbg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejfedguddtvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:8bduXaNIdmMwwH2ewJcvqLT3rSrru39rsXHu1XUTNp1nsnIVD-NpkQ>
+    <xmx:8bduXSSRQeDxtFaTiPcW7LV9LTQ8KHdyKDiKLb5bCHgbTVxGvl9o9Q>
+    <xmx:8bduXZSNUrP1r0X1IKp2Hy3zgpnOuBe7XHeaBHZGG_AGURTYGKjaTw>
+    <xmx:8bduXQXXDZyTQBcfKSukMmWBcNBI_lIn5E3WXWURf1Fq1mLCGjA0rg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E5E9AD6005F;
+        Tue,  3 Sep 2019 14:58:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()" failed to apply to 4.4-stable tree
+To:     trond.myklebust@hammerspace.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 Sep 2019 20:58:55 +0200
+Message-ID: <1567537135131165@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190903161917.GA23281@infradead.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
- definitions=2019-09-03_04:2019-09-03,2019-09-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- phishscore=0 priorityscore=1501 adultscore=0 suspectscore=0
- mlxlogscore=662 lowpriorityscore=0 spamscore=0 malwarescore=0
- clxscore=1015 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-1906280000 definitions=main-1909030187
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 9/3/2019 9:19 AM, Christoph Hellwig wrote:
-> On Mon, Sep 02, 2019 at 07:18:23PM -0500, Mike Travis wrote:
->> +#ifdef	UV1_HUB_IS_SUPPORTED
-> 
-> All these ifdefs are dead code, please just remove them.
+thanks,
 
-Those ifdefs are not dead code and are being actively used.  Plus UV1 
-support is dead and I think the last running system died about a year 
-ago and no support or parts are available.  So undef'ing these macros 
-will simplify and reduce the size of the object code.
+greg k-h
 
-> Also it seems like at least the various mmr macros just check
-> for a specific version, I think you are much better off just
-> using a switch statement for the possible revisions there.
-> 
->> +		return (uv_hub_info->hub_revision == UV4A_HUB_REVISION_BASE);
+------------------ original commit in Linus's tree ------------------
 
-The problem is those revision bases can change if a UV HUB revision 
-changes.  That is why there are ranges and why I'm converting them to 
-"uv_type".  Some UV kernel source code still needs to know the exact HUB 
-revision, like (again) hwperf.
+From f4340e9314dbfadc48758945f85fc3b16612d06f Mon Sep 17 00:00:00 2001
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Mon, 12 Aug 2019 15:19:54 -0400
+Subject: [PATCH] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()
 
-> 
-> And none of these braces are required.
-> 
+If the attempt to resend the pages fails, we need to ensure that we
+clean up those pages that were not transmitted.
 
-Sure, I can take those out now, but usually I then get bit by 
-checkpatches which then says "parenthesis's are required".
+Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: stable@vger.kernel.org # v4.5+
+
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index ed4e1b07447b..15c254753f88 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -1251,20 +1251,22 @@ static void nfs_pageio_complete_mirror(struct nfs_pageio_descriptor *desc,
+ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
+ 		      struct nfs_pgio_header *hdr)
+ {
+-	LIST_HEAD(failed);
++	LIST_HEAD(pages);
+ 
+ 	desc->pg_io_completion = hdr->io_completion;
+ 	desc->pg_dreq = hdr->dreq;
+-	while (!list_empty(&hdr->pages)) {
+-		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
++	list_splice_init(&hdr->pages, &pages);
++	while (!list_empty(&pages)) {
++		struct nfs_page *req = nfs_list_entry(pages.next);
+ 
+ 		if (!nfs_pageio_add_request(desc, req))
+-			nfs_list_move_request(req, &failed);
++			break;
+ 	}
+ 	nfs_pageio_complete(desc);
+-	if (!list_empty(&failed)) {
+-		list_move(&failed, &hdr->pages);
+-		return desc->pg_error < 0 ? desc->pg_error : -EIO;
++	if (!list_empty(&pages)) {
++		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
++		hdr->completion_ops->error_cleanup(&pages, err);
++		return err;
+ 	}
+ 	return 0;
+ }
+
