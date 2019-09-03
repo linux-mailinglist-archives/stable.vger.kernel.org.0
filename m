@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD35A708E
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 680F6A708F
+	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 18:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730246AbfICQZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 12:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44720 "EHLO mail.kernel.org"
+        id S1730252AbfICQZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 12:25:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730237AbfICQZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 12:25:02 -0400
+        id S1730195AbfICQZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:25:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91A702343A;
-        Tue,  3 Sep 2019 16:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E64BB23711;
+        Tue,  3 Sep 2019 16:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567527901;
-        bh=I4pIN+mEaSuT392rHzLLHJemMjxOuk9bFdVUaNZkqDw=;
+        s=default; t=1567527902;
+        bh=dyScu8qjbZFD3Z1Otv9eApLRGaXOxrDCaQ73RAPBdDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7tKk0i45ekBuKenlqD6dNwEImjyPsTyHQuQQ50S/mlwnSQ0LSFtjpscQr3XzaM04
-         6+8HYpsAtH+Gq0tIDU+ThjYrUtYSZVsOlDXEFvId0Rc5zZqyMjlO8LbQGDYPGWy/iL
-         P9OKmsjtc+T74/Pn4HMl313ZLvA1oH+RC+iYvdVw=
+        b=hSVhRfjPF19hyq4OhTFrxVuYrZO6cV3Oe7+aoMMlel9KKBHqvGL4gwKQrofx7RUpQ
+         sYnl38v5hc96Ux9l0/t9xEMmH2BZlTHPZDQlezJdmPv+4i+ai7u8mdFEu9WwDUzZGG
+         2GChWj7gJf3pD4SbxfwXslLAn76su4Y//W/iE0YY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Stefan Gottwald <gottwald@igel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
         Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 13/23] drm/i915/userptr: Acquire the page lock around set_page_dirty()
-Date:   Tue,  3 Sep 2019 12:24:14 -0400
-Message-Id: <20190903162424.6877-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 14/23] drm/i915: Make sure cdclk is high enough for DP audio on VLV/CHV
+Date:   Tue,  3 Sep 2019 12:24:15 -0400
+Message-Id: <20190903162424.6877-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190903162424.6877-1-sashal@kernel.org>
 References: <20190903162424.6877-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,57 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit aa56a292ce623734ddd30f52d73f527d1f3529b5 ]
+[ Upstream commit a8f196a0fa6391a436f63f360a1fb57031fdf26c ]
 
-set_page_dirty says:
+On VLV/CHV there is some kind of linkage between the cdclk frequency
+and the DP link frequency. The spec says:
+"For DP audio configuration, cdclk frequency shall be set to
+ meet the following requirements:
+ DP Link Frequency(MHz) | Cdclk frequency(MHz)
+ 270                    | 320 or higher
+ 162                    | 200 or higher"
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
+I suspect that would more accurately be expressed as
+"cdclk >= DP link clock", and in any case we can express it like
+that in the code because of the limited set of cdclk (200, 266,
+320, 400 MHz) and link frequencies (162 and 270 MHz) we support.
 
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
+Without this we can end up in a situation where the cdclk
+is too low and enabling DP audio will kill the pipe. Happens
+eg. with 2560x1440 modes where the 266MHz cdclk is sufficient
+to pump the pixels (241.5 MHz dotclock) but is too low for
+the DP audio due to the link frequency being 270 MHz.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
-References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+v2: Spell out the cdclk and link frequencies we actually support
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
-(cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
+Tested-by: Stefan Gottwald <gottwald@igel.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111149
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190717114536.22937-1-ville.syrjala@linux.intel.com
+Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
+(cherry picked from commit bffb31f73b29a60ef693842d8744950c2819851d)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_gem_userptr.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_cdclk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/i915_gem_userptr.c b/drivers/gpu/drm/i915/i915_gem_userptr.c
-index 8079ea3af1039..b1fc15c7f5997 100644
---- a/drivers/gpu/drm/i915/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/i915_gem_userptr.c
-@@ -678,7 +678,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+diff --git a/drivers/gpu/drm/i915/intel_cdclk.c b/drivers/gpu/drm/i915/intel_cdclk.c
+index ae40a8679314e..fd5236da039fb 100644
+--- a/drivers/gpu/drm/i915/intel_cdclk.c
++++ b/drivers/gpu/drm/i915/intel_cdclk.c
+@@ -2269,6 +2269,17 @@ int intel_crtc_compute_min_cdclk(const struct intel_crtc_state *crtc_state)
+ 	if (crtc_state->has_audio && INTEL_GEN(dev_priv) >= 9)
+ 		min_cdclk = max(2 * 96000, min_cdclk);
  
- 	for_each_sgt_page(page, sgt_iter, pages) {
- 		if (obj->mm.dirty)
--			set_page_dirty(page);
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 */
-+			set_page_dirty_lock(page);
- 
- 		mark_page_accessed(page);
- 		put_page(page);
++	/*
++	 * "For DP audio configuration, cdclk frequency shall be set to
++	 *  meet the following requirements:
++	 *  DP Link Frequency(MHz) | Cdclk frequency(MHz)
++	 *  270                    | 320 or higher
++	 *  162                    | 200 or higher"
++	 */
++	if ((IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv)) &&
++	    intel_crtc_has_dp_encoder(crtc_state) && crtc_state->has_audio)
++		min_cdclk = max(crtc_state->port_clock, min_cdclk);
++
+ 	/*
+ 	 * On Valleyview some DSI panels lose (v|h)sync when the clock is lower
+ 	 * than 320000KHz.
 -- 
 2.20.1
 
