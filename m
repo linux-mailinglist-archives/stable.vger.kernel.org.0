@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F90A8FDB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D45CEA8ED3
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389046AbfIDSGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S2388010AbfIDSAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389401AbfIDSGM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:06:12 -0400
+        id S1731866AbfIDSAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5496B23402;
-        Wed,  4 Sep 2019 18:06:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5EAE2339E;
+        Wed,  4 Sep 2019 18:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620371;
-        bh=wi7QPloT7ZupYfLWvxNTgmmg5zP7Awd/iBAz68mCT38=;
+        s=default; t=1567620015;
+        bh=deVjjfaCeWmOjv0MfVPs/hd7Na32HAkwkj1M6fy46S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXXNZjEdA1dQd7WerCZ0YDqc0eqbzINJhinTzUjRe7mcZsPJOpL1DLTHSMCbmrGi6
-         H9drH/Wd6KQbxkNu6FDGjh6YjjHjW005ObBs9WZz5GW46DMcJy5hKlkv+FgnC6UGBo
-         oSJo2yyRNeq7XSsEgzh/bIgDLFerGtuo4LY5YxmA=
+        b=Ybq39GsVF8TRsVc4hh0gfb1lFR9l9rCMvK7IqBmG6h6ebYBbYc1NFK5mom+zEpG7d
+         F2RbAe089RAUdZgl/6OF+e1dL+PZbZx7L6EcdJCH05zA23C1xwGpomeIHrCDv8nizh
+         mSbBOMPHxaGIfIQISGOP56v34uNNSWbBRjCvYKds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dcdc9deefaec44785f32@syzkaller.appspotmail.com,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 32/93] net/tls: swap sk_write_space on close
+        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 42/83] mm/zsmalloc.c: migration can leave pages in ZS_EMPTY indefinitely
 Date:   Wed,  4 Sep 2019 19:53:34 +0200
-Message-Id: <20190904175306.030325372@linuxfoundation.org>
+Message-Id: <20190904175307.501570321@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +49,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Henry Burns <henryburns@google.com>
 
-[ Upstream commit 57c722e932cfb82e9820bbaae1b1f7222ea97b52 ]
+commit 1a87aa03597efa9641e92875b883c94c7f872ccb upstream.
 
-Now that we swap the original proto and clear the ULP pointer
-on close we have to make sure no callback will try to access
-the freed state. sk_write_space is not part of sk_prot, remember
-to swap it.
+In zs_page_migrate() we call putback_zspage() after we have finished
+migrating all pages in this zspage.  However, the return value is
+ignored.  If a zs_free() races in between zs_page_isolate() and
+zs_page_migrate(), freeing the last object in the zspage,
+putback_zspage() will leave the page in ZS_EMPTY for potentially an
+unbounded amount of time.
 
-Reported-by: syzbot+dcdc9deefaec44785f32@syzkaller.appspotmail.com
-Fixes: 95fa145479fb ("bpf: sockmap/tls, close can race with map free")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix this, we need to do the same thing as zs_page_putback() does:
+schedule free_work to occur.
+
+To avoid duplicated code, move the sequence to a new
+putback_zspage_deferred() function which both zs_page_migrate() and
+zs_page_putback() call.
+
+Link: http://lkml.kernel.org/r/20190809181751.219326-1-henryburns@google.com
+Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tls/tls_main.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -301,6 +301,7 @@ static void tls_sk_proto_close(struct so
- #else
- 	{
- #endif
-+		sk->sk_write_space = ctx->sk_write_space;
- 		tls_ctx_free(ctx);
- 		ctx = NULL;
+---
+ mm/zsmalloc.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1939,6 +1939,18 @@ static void dec_zspage_isolation(struct
+ 	zspage->isolated--;
+ }
+ 
++static void putback_zspage_deferred(struct zs_pool *pool,
++				    struct size_class *class,
++				    struct zspage *zspage)
++{
++	enum fullness_group fg;
++
++	fg = putback_zspage(class, zspage);
++	if (fg == ZS_EMPTY)
++		schedule_work(&pool->free_work);
++
++}
++
+ static void replace_sub_page(struct size_class *class, struct zspage *zspage,
+ 				struct page *newpage, struct page *oldpage)
+ {
+@@ -2097,7 +2109,7 @@ int zs_page_migrate(struct address_space
+ 	 * the list if @page is final isolated subpage in the zspage.
+ 	 */
+ 	if (!is_zspage_isolated(zspage))
+-		putback_zspage(class, zspage);
++		putback_zspage_deferred(pool, class, zspage);
+ 
+ 	reset_page(page);
+ 	put_page(page);
+@@ -2144,14 +2156,13 @@ void zs_page_putback(struct page *page)
+ 	spin_lock(&class->lock);
+ 	dec_zspage_isolation(zspage);
+ 	if (!is_zspage_isolated(zspage)) {
+-		fg = putback_zspage(class, zspage);
+ 		/*
+ 		 * Due to page_lock, we cannot free zspage immediately
+ 		 * so let's defer.
+ 		 */
+-		if (fg == ZS_EMPTY)
+-			schedule_work(&pool->free_work);
++		putback_zspage_deferred(pool, class, zspage);
  	}
++
+ 	spin_unlock(&class->lock);
+ }
+ 
 
 
