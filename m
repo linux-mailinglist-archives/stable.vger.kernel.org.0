@@ -2,94 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA99DA842B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 15:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC37FA845E
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 15:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725965AbfIDNIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 09:08:19 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:53599 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729296AbfIDNIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 09:08:18 -0400
-Received: from [222.130.137.249] (helo=[192.168.1.108])
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
-        (Exim 4.76)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1i5V1E-0005EK-L7; Wed, 04 Sep 2019 13:08:16 +0000
-Subject: Re: [PATCH] ALSA: hda/realtek - Fix the problem of two front mics on
- a ThinkCentre
-To:     Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        tiwai@suse.de
-Cc:     stable@vger.kernel.org
-References: <20190904055327.9883-1-hui.wang@canonical.com>
- <20190904123534.ED0DD23402@mail.kernel.org>
-From:   Hui Wang <hui.wang@canonical.com>
-Message-ID: <b5ab2817-dd0a-e8f6-a827-9a5313715a69@canonical.com>
-Date:   Wed, 4 Sep 2019 21:08:10 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1729649AbfIDNTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 09:19:07 -0400
+Received: from mga05.intel.com ([192.55.52.43]:29334 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727900AbfIDNTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 09:19:07 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 06:19:06 -0700
+X-IronPort-AV: E=Sophos;i="5.64,467,1559545200"; 
+   d="scan'208";a="176940991"
+Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.161])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 06:19:02 -0700
+From:   Jani Nikula <jani.nikula@linux.intel.com>
+To:     Baolin Wang <baolin.wang@linaro.org>, stable@vger.kernel.org,
+        chris@chris-wilson.co.uk, airlied@linux.ie
+Cc:     vincent.guittot@linaro.org, arnd@arndb.de, baolin.wang@linaro.org,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, orsonzhai@gmail.com
+Subject: Re: [BACKPORT 4.14.y 1/8] drm/i915/fbdev: Actually configure untiled displays
+In-Reply-To: <5723d9006de706582fb46f9e1e3eb8ce168c2126.1567492316.git.baolin.wang@linaro.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <cover.1567492316.git.baolin.wang@linaro.org> <5723d9006de706582fb46f9e1e3eb8ce168c2126.1567492316.git.baolin.wang@linaro.org>
+Date:   Wed, 04 Sep 2019 16:18:59 +0300
+Message-ID: <878sr442t8.fsf@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20190904123534.ED0DD23402@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Let's drop this patch to v4.9.190 and v4.4.190, it is fine to apply to 
-v5.2.11,  v4.19.69 and v4.14.141 only.
+On Tue, 03 Sep 2019, Baolin Wang <baolin.wang@linaro.org> wrote:
+> From: Chris Wilson <chris@chris-wilson.co.uk>
+>
+> If we skipped all the connectors that were not part of a tile, we would
+> leave conn_seq=0 and conn_configured=0, convincing ourselves that we
+> had stagnated in our configuration attempts. Avoid this situation by
+> starting conn_seq=ALL_CONNECTORS, and repeating until we find no more
+> connectors to configure.
+>
+> Fixes: 754a76591b12 ("drm/i915/fbdev: Stop repeating tile configuration on stagnation")
+> Reported-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190215123019.32283-1-chris@chris-wilson.co.uk
+> Cc: <stable@vger.kernel.org> # v3.19+
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 
-Thanks.
+Please look into the scripts to avoid picking up stuff that has
+subsequently been reverted:
 
-On 2019/9/4 下午8:35, Sasha Levin wrote:
-> Hi,
+commit 9fa246256e09dc30820524401cdbeeaadee94025
+Author: Dave Airlie <airlied@redhat.com>
+Date:   Wed Apr 24 10:47:56 2019 +1000
+
+    Revert "drm/i915/fbdev: Actually configure untiled displays"
+    
+    This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
+    
+    This commit is documented to break userspace X.org modesetting driver in certain configurations.
+    
+    The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
+    
+    This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
+    
+    Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+    Cc: <stable@vger.kernel.org> # v3.19+
+
+
+
+BR,
+Jani.
+
+
+> ---
+>  drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 >
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.2.11, v4.19.69, v4.14.141, v4.9.190, v4.4.190.
->
-> v5.2.11: Build OK!
-> v4.19.69: Build OK!
-> v4.14.141: Build OK!
-> v4.9.190: Failed to apply! Possible dependencies:
->      216d7aebbfbe ("ALSA: hda/realtek - Fix headset mic and speaker on Asus X441SA/X441UV")
->      5824ce8de7b1 ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
->      615966adc4b6 ("ALSA: hda/realtek - Fix headset mic on several Asus laptops with ALC255")
->      823ff161fe51 ("ALSA: hda - Fix click noises on Samsung Ativ Book 8")
->      8da5bbfc7cbb ("ALSA: hda - change the location for one mic on a Lenovo machine")
->      9eb5d0e635eb ("ALSA: hda/realtek - Add support headphone Mic for ALC221 of HP platform")
->      c1732ede5e80 ("ALSA: hda/realtek - Fix headset and mic on several Asus laptops with ALC256")
->      c6790c8e770c ("ALSA: hda/realtek - Add support for headset MIC for ALC622")
->      ca169cc2f9e1 ("ALSA: hda/realtek - Add Dual Codecs support for Lenovo P520/420")
->      f33f79f3d0e5 ("ALSA: hda/realtek - change the location for one of two front microphones")
->
-> v4.4.190: Failed to apply! Possible dependencies:
->      1a3f099101b8 ("ALSA: hda - Fix surround output pins for ASRock B150M mobo")
->      216d7aebbfbe ("ALSA: hda/realtek - Fix headset mic and speaker on Asus X441SA/X441UV")
->      5824ce8de7b1 ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
->      615966adc4b6 ("ALSA: hda/realtek - Fix headset mic on several Asus laptops with ALC255")
->      78f4f7c2341f ("ALSA: hda/realtek - ALC891 headset mode for Dell")
->      823ff161fe51 ("ALSA: hda - Fix click noises on Samsung Ativ Book 8")
->      8da5bbfc7cbb ("ALSA: hda - change the location for one mic on a Lenovo machine")
->      9b51fe3efe4c ("ALSA: hda - On-board speaker fixup on ACER Veriton")
->      9eb5d0e635eb ("ALSA: hda/realtek - Add support headphone Mic for ALC221 of HP platform")
->      abaa2274811d ("ALSA: hda/realtek - fix headset mic detection for MSI MS-B120")
->      c1732ede5e80 ("ALSA: hda/realtek - Fix headset and mic on several Asus laptops with ALC256")
->      c6790c8e770c ("ALSA: hda/realtek - Add support for headset MIC for ALC622")
->      ca169cc2f9e1 ("ALSA: hda/realtek - Add Dual Codecs support for Lenovo P520/420")
->      f33f79f3d0e5 ("ALSA: hda/realtek - change the location for one of two front microphones")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-> --
-> Thanks,
-> Sasha
->
+> diff --git a/drivers/gpu/drm/i915/intel_fbdev.c b/drivers/gpu/drm/i915/intel_fbdev.c
+> index da2d309..14eb8a0 100644
+> --- a/drivers/gpu/drm/i915/intel_fbdev.c
+> +++ b/drivers/gpu/drm/i915/intel_fbdev.c
+> @@ -326,8 +326,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
+>  				    bool *enabled, int width, int height)
+>  {
+>  	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
+> -	unsigned long conn_configured, conn_seq, mask;
+>  	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
+> +	unsigned long conn_configured, conn_seq;
+>  	int i, j;
+>  	bool *save_enabled;
+>  	bool fallback = true, ret = true;
+> @@ -345,10 +345,9 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
+>  		drm_modeset_backoff(&ctx);
+>  
+>  	memcpy(save_enabled, enabled, count);
+> -	mask = GENMASK(count - 1, 0);
+> +	conn_seq = GENMASK(count - 1, 0);
+>  	conn_configured = 0;
+>  retry:
+> -	conn_seq = conn_configured;
+>  	for (i = 0; i < count; i++) {
+>  		struct drm_fb_helper_connector *fb_conn;
+>  		struct drm_connector *connector;
+> @@ -361,7 +360,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
+>  		if (conn_configured & BIT(i))
+>  			continue;
+>  
+> -		if (conn_seq == 0 && !connector->has_tile)
+> +		/* First pass, only consider tiled connectors */
+> +		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
+>  			continue;
+>  
+>  		if (connector->status == connector_status_connected)
+> @@ -465,8 +465,10 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
+>  		conn_configured |= BIT(i);
+>  	}
+>  
+> -	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
+> +	if (conn_configured != conn_seq) { /* repeat until no more are found */
+> +		conn_seq = conn_configured;
+>  		goto retry;
+> +	}
+>  
+>  	/*
+>  	 * If the BIOS didn't enable everything it could, fall back to have the
+
+-- 
+Jani Nikula, Intel Open Source Graphics Center
