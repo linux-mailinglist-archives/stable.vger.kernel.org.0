@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FE0BA90A5
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1868A8E5F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389008AbfIDSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:10:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
+        id S1732978AbfIDR5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390170AbfIDSKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:10:55 -0400
+        id S1732926AbfIDR5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:57:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C2FC23400;
-        Wed,  4 Sep 2019 18:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F8322CED;
+        Wed,  4 Sep 2019 17:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620654;
-        bh=reqK3qDzV0OY1qcf3LHJVujmnjBe/yW+o7i+jB6muVk=;
+        s=default; t=1567619857;
+        bh=gYq1iicek7v5D8s4QWFYPuV+1lvGYw3hEj1hAAt8ffQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGdHn8mdjIWAQY63T0A6/chrIbjfPnQ1yx0kqUFIJoXDD3vdr2EhFBdm85nTsNjbS
-         FW/Ou9mTKslh2Mor0DIIH04N7pYHMpSNQiwGazHqN5Pt0rnagrO3Zv34fOLpHM1jND
-         6sSTAuW3AEimFrukyvia/i9w+XikFjdRtL6YgouI=
+        b=AOK93+chiFxjFna7Pn5EAdIdhkTsR/hSSb/RwP/qzlu1D03rrsdDS6FZATPb08H+B
+         vxRYpz7Eeusuw4jc0NiO9ONisv2G4RytqHs6Yv7xGP4wnijcFykCyfwUdFTs8g1dfc
+         r5szj17wCj6UMAOA+vErDj7LdnlI0O5WD55ln/KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Jan Stancek <jstancek@redhat.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 044/143] lcoking/rwsem: Add missing ACQUIRE to read_slowpath sleep loop
+Subject: [PATCH 4.4 20/77] net: hisilicon: Fix dma_map_single failed on arm64
 Date:   Wed,  4 Sep 2019 19:53:07 +0200
-Message-Id: <20190904175315.793575310@linuxfoundation.org>
+Message-Id: <20190904175305.503358141@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,66 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 99143f82a255e7f054bead8443462fae76dd829e ]
+[ Upstream commit 96a50c0d907ac8f5c3d6b051031a19eb8a2b53e3 ]
 
-While reviewing another read_slowpath patch, both Will and I noticed
-another missing ACQUIRE, namely:
+On the arm64 platform, executing "ifconfig eth0 up" will fail,
+returning "ifconfig: SIOCSIFFLAGS: Input/output error."
 
-  X = 0;
+ndev->dev is not initialized, dma_map_single->get_dma_ops->
+dummy_dma_ops->__dummy_map_page will return DMA_ERROR_CODE
+directly, so when we use dma_map_single, the first parameter
+is to use the device of platform_device.
 
-  CPU0			CPU1
-
-  rwsem_down_read()
-    for (;;) {
-      set_current_state(TASK_UNINTERRUPTIBLE);
-
-                        X = 1;
-                        rwsem_up_write();
-                          rwsem_mark_wake()
-                            atomic_long_add(adjustment, &sem->count);
-                            smp_store_release(&waiter->task, NULL);
-
-      if (!waiter.task)
-        break;
-
-      ...
-    }
-
-  r = X;
-
-Allows 'r == 0'.
-
-Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/rwsem-xadd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 397dedc58432d..385ebcfc31a6d 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -485,8 +485,10 @@ __rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
- 	/* wait to be given the lock */
- 	while (true) {
- 		set_current_state(state);
--		if (!waiter.task)
-+		if (!smp_load_acquire(&waiter.task)) {
-+			/* Orders against rwsem_mark_wake()'s smp_store_release() */
- 			break;
-+		}
- 		if (signal_pending_state(state, current)) {
- 			raw_spin_lock_irq(&sem->wait_lock);
- 			if (waiter.task)
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index a88d233df4e82..def831c89d354 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -157,6 +157,7 @@ struct hip04_priv {
+ 	unsigned int reg_inten;
+ 
+ 	struct napi_struct napi;
++	struct device *dev;
+ 	struct net_device *ndev;
+ 
+ 	struct tx_desc *tx_desc;
+@@ -387,7 +388,7 @@ static int hip04_tx_reclaim(struct net_device *ndev, bool force)
+ 		}
+ 
+ 		if (priv->tx_phys[tx_tail]) {
+-			dma_unmap_single(&ndev->dev, priv->tx_phys[tx_tail],
++			dma_unmap_single(priv->dev, priv->tx_phys[tx_tail],
+ 					 priv->tx_skb[tx_tail]->len,
+ 					 DMA_TO_DEVICE);
+ 			priv->tx_phys[tx_tail] = 0;
+@@ -437,8 +438,8 @@ static int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 		return NETDEV_TX_BUSY;
+ 	}
+ 
+-	phys = dma_map_single(&ndev->dev, skb->data, skb->len, DMA_TO_DEVICE);
+-	if (dma_mapping_error(&ndev->dev, phys)) {
++	phys = dma_map_single(priv->dev, skb->data, skb->len, DMA_TO_DEVICE);
++	if (dma_mapping_error(priv->dev, phys)) {
+ 		dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
+ 	}
+@@ -506,7 +507,7 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 		if (unlikely(!skb))
+ 			net_dbg_ratelimited("build_skb failed\n");
+ 
+-		dma_unmap_single(&ndev->dev, priv->rx_phys[priv->rx_head],
++		dma_unmap_single(priv->dev, priv->rx_phys[priv->rx_head],
+ 				 RX_BUF_SIZE, DMA_FROM_DEVICE);
+ 		priv->rx_phys[priv->rx_head] = 0;
+ 
+@@ -534,9 +535,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 		buf = netdev_alloc_frag(priv->rx_buf_size);
+ 		if (!buf)
+ 			goto done;
+-		phys = dma_map_single(&ndev->dev, buf,
++		phys = dma_map_single(priv->dev, buf,
+ 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
+-		if (dma_mapping_error(&ndev->dev, phys))
++		if (dma_mapping_error(priv->dev, phys))
+ 			goto done;
+ 		priv->rx_buf[priv->rx_head] = buf;
+ 		priv->rx_phys[priv->rx_head] = phys;
+@@ -639,9 +640,9 @@ static int hip04_mac_open(struct net_device *ndev)
+ 	for (i = 0; i < RX_DESC_NUM; i++) {
+ 		dma_addr_t phys;
+ 
+-		phys = dma_map_single(&ndev->dev, priv->rx_buf[i],
++		phys = dma_map_single(priv->dev, priv->rx_buf[i],
+ 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
+-		if (dma_mapping_error(&ndev->dev, phys))
++		if (dma_mapping_error(priv->dev, phys))
+ 			return -EIO;
+ 
+ 		priv->rx_phys[i] = phys;
+@@ -675,7 +676,7 @@ static int hip04_mac_stop(struct net_device *ndev)
+ 
+ 	for (i = 0; i < RX_DESC_NUM; i++) {
+ 		if (priv->rx_phys[i]) {
+-			dma_unmap_single(&ndev->dev, priv->rx_phys[i],
++			dma_unmap_single(priv->dev, priv->rx_phys[i],
+ 					 RX_BUF_SIZE, DMA_FROM_DEVICE);
+ 			priv->rx_phys[i] = 0;
+ 		}
+@@ -826,6 +827,7 @@ static int hip04_mac_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	priv = netdev_priv(ndev);
++	priv->dev = d;
+ 	priv->ndev = ndev;
+ 	platform_set_drvdata(pdev, ndev);
+ 
 -- 
 2.20.1
 
