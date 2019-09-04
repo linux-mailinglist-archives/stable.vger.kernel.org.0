@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 068E6A8E50
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D79A8EDC
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387819AbfIDR5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
+        id S2388392AbfIDSA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387817AbfIDR5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:16 -0400
+        id S2388069AbfIDSA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9939C233FF;
-        Wed,  4 Sep 2019 17:57:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 652B322CEA;
+        Wed,  4 Sep 2019 18:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619836;
-        bh=lvoYBPCWHf1M4QGolVrpEmja9NGSDSPYwAS9mHIB+iM=;
+        s=default; t=1567620025;
+        bh=r2xUOvblUymXMgpxpFPYP2zYelsxZS8P9XezoZwu+yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXOulqrbblklDthciRIrmqlRAa0e8bTYT3+3vvGA+iQFlkUGm1pzo2fPW6TFSdlTM
-         30y9g8XlKlECSZbFra8nx8xE7pSjWnlYFoJTCl/0seWJMTuGyUPHfEdoV7chkhLXQT
-         GNzGvF3XfKp8l4HcSu4uT+kblB9eKmGzC4u+nbKk=
+        b=htSEAeF51YU7ikQ0NnGF3M4F1iX+ENZSiKkpoSi+huKlcVYpub993pX2pxD5K6H14
+         kQD2n5zstf3wDT69JOcJFhs9xmErjGezKwpPj9dkEd0qOh3/VZH9oxdbQ0GnUPMaSQ
+         UnlxCYbrDmZFN9RBaiGLs9huorNtdFRQkLhnkCmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nathan Chancellor <natechancellor@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 51/77] dmaengine: ste_dma40: fix unneeded variable warning
+Subject: [PATCH 4.9 46/83] dmaengine: ste_dma40: fix unneeded variable warning
 Date:   Wed,  4 Sep 2019 19:53:38 +0200
-Message-Id: <20190904175308.222403378@linuxfoundation.org>
+Message-Id: <20190904175307.831982354@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index dd3e7ba273ad0..0fede051f4e1c 100644
+index 8684d11b29bba..68b41daab3a8f 100644
 --- a/drivers/dma/ste_dma40.c
 +++ b/drivers/dma/ste_dma40.c
 @@ -142,7 +142,7 @@ enum d40_events {
