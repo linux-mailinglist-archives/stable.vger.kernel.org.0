@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 260F1A902B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B35A912B
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388738AbfIDSIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
+        id S2390367AbfIDSNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:13:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388987AbfIDSIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:04 -0400
+        id S2390146AbfIDSNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:13:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D068E20870;
-        Wed,  4 Sep 2019 18:08:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A72C8206BA;
+        Wed,  4 Sep 2019 18:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620483;
-        bh=ovHGuXpziaMuM8GQ3V3dazv7Z54p5bDTPpOVQpyIElk=;
+        s=default; t=1567620833;
+        bh=lrCFZBgs7taAitb//K8nDjMil3QsaNgZqYnMNkSRP94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4OWjoSBbJkZ01i8S7oZkWvyMV0SWYx+Sd6kG+q0Dxd9BbdfqbElWRnBgev/GATlc
-         v9wtWUjhz4QX43wy+ClpWmoGb3TeeVaa9dpIVxsUuUDgbIm309YqECdwtsxrMlBc7C
-         V630lWWjrnfGkhrwMPbeGLM9jX+f8IE/7H8RVb9I=
+        b=BgtmedK53JzJLQgmypoDy+AFI6MTim1xoIxhDrSxhB1mBzyQGJ+0jutqApXfaidAn
+         cSnpQJll97QlbZ5/NMV62kMYs3m8UIxI5Qo+zvkNw3Bw9aiaqNxVtqDMTROPYqbVHf
+         HSSZ547pqzC21PXufYVPuEqGuWbYezfPmkh3hdXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiong Zhang <xiong.y.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 4.19 74/93] drm/i915: Dont deballoon unused ggtt drm_mm_node in linux guest
+Subject: [PATCH 5.2 113/143] drm/i915: Call dma_set_max_seg_size() in i915_driver_hw_probe()
 Date:   Wed,  4 Sep 2019 19:54:16 +0200
-Message-Id: <20190904175309.474797022@linuxfoundation.org>
+Message-Id: <20190904175318.818342280@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiong Zhang <xiong.y.zhang@intel.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 0a3dfbb5cd9033752639ef33e319c2f2863c713a upstream.
+commit 32f0a982650b123bdab36865617d3e03ebcacf3b upstream.
 
-The following call trace may exist in linux guest dmesg when guest i915
-driver is unloaded.
-[   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: range [0x0 - 0x0] 0 KiB.
-[   90.776621] BUG: unable to handle kernel NULL pointer dereference at 00000000000000c0
-[   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
-[   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PMD 0
-[   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
-[   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
-[   90.777573] Call Trace:
-[   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
-[   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
-[   90.777792]  i915_driver_unload+0x145/0x180 [i915]
-[   90.777856]  i915_pci_remove+0x15/0x20 [i915]
-[   90.777890]  pci_device_remove+0x3b/0xc0
-[   90.777916]  device_release_driver_internal+0x157/0x220
-[   90.777945]  driver_detach+0x39/0x70
-[   90.777967]  bus_remove_driver+0x51/0xd0
-[   90.777990]  pci_unregister_driver+0x23/0x90
-[   90.778019]  SyS_delete_module+0x1da/0x240
-[   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
-[   90.778072] RIP: 0033:0x7f34312af067
-[   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
-[   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe3dc0
-[   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
+Currently, we don't call dma_set_max_seg_size() for i915 because we
+intentionally do not limit the segment length that the device supports.
+However, this results in a warning being emitted if we try to map
+anything larger than SZ_64K on a kernel with CONFIG_DMA_API_DEBUG_SG
+enabled:
 
-Four drm_mm_node are used to reserve guest ggtt space, but some of them
-may be skipped and not initialised due to space constraints in
-intel_vgt_balloon(). If drm_mm_remove_node() is called with
-uninitialized drm_mm_node, the above call trace occurs.
+[    7.751926] DMA-API: i915 0000:00:02.0: mapping sg segment longer
+than device claims to support [len=98304] [max=65536]
+[    7.751934] WARNING: CPU: 5 PID: 474 at kernel/dma/debug.c:1220
+debug_dma_map_sg+0x20f/0x340
 
-This patch check drm_mm_node's validity before calling
-drm_mm_remove_node().
+This was originally brought up on
+https://bugs.freedesktop.org/show_bug.cgi?id=108517 , and the consensus
+there was it wasn't really useful to set a limit (and that dma-debug
+isn't really all that useful for i915 in the first place). Unfortunately
+though, CONFIG_DMA_API_DEBUG_SG is enabled in the debug configs for
+various distro kernels. Since a WARN_ON() will disable automatic problem
+reporting (and cause any CI with said option enabled to start
+complaining), we really should just fix the problem.
 
-Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size under gvt environment")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
-Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Note that as me and Chris Wilson discussed, the other solution for this
+would be to make DMA-API not make such assumptions when a driver hasn't
+explicitly set a maximum segment size. But, taking a look at the commit
+which originally introduced this behavior, commit 78c47830a5cb
+("dma-debug: check scatterlist segments"), there is an explicit mention
+of this assumption and how it applies to devices with no segment size:
+
+	Conversely, devices which are less limited than the rather
+	conservative defaults, or indeed have no limitations at all
+	(e.g. GPUs with their own internal MMU), should be encouraged to
+	set appropriate dma_parms, as they may get more efficient DMA
+	mapping performance out of it.
+
+So unless there's any concerns (I'm open to discussion!), let's just
+follow suite and call dma_set_max_seg_size() with UINT_MAX as our limit
+to silence any warnings.
+
+Changes since v3:
+* Drop patch for enabling CONFIG_DMA_API_DEBUG_SG in CI. It looks like
+  just turning it on causes the kernel to spit out bogus WARN_ONs()
+  during some igt tests which would otherwise require teaching igt to
+  disable the various DMA-API debugging options causing this. This is
+  too much work to be worth it, since DMA-API debugging is useless for
+  us. So, we'll just settle with this single patch to squelch WARN_ONs()
+  during driver load for users that have CONFIG_DMA_API_DEBUG_SG turned
+  on for some reason.
+* Move dma_set_max_seg_size() call into i915_driver_hw_probe() - Chris
+  Wilson
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com
-(cherry picked from commit 4776f3529d6b1e47f02904ad1d264d25ea22b27b)
+Cc: <stable@vger.kernel.org> # v4.18+
+Link: https://patchwork.freedesktop.org/patch/msgid/20190823205251.14298-1-lyude@redhat.com
+(cherry picked from commit acd674af95d3f627062007429b9c195c6b32361d)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_vgpu.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/i915/i915_drv.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/gpu/drm/i915/i915_vgpu.c
-+++ b/drivers/gpu/drm/i915/i915_vgpu.c
-@@ -100,6 +100,9 @@ static struct _balloon_info_ bl_info;
- static void vgt_deballoon_space(struct i915_ggtt *ggtt,
- 				struct drm_mm_node *node)
- {
-+	if (!drm_mm_node_allocated(node))
-+		return;
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -1569,6 +1569,12 @@ static int i915_driver_init_hw(struct dr
+ 
+ 	pci_set_master(pdev);
+ 
++	/*
++	 * We don't have a max segment size, so set it to the max so sg's
++	 * debugging layer doesn't complain
++	 */
++	dma_set_max_seg_size(&pdev->dev, UINT_MAX);
 +
- 	DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
- 			 node->start,
- 			 node->start + node->size,
+ 	/* overlay on gen2 is broken and can't address above 1G */
+ 	if (IS_GEN(dev_priv, 2)) {
+ 		ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(30));
 
 
