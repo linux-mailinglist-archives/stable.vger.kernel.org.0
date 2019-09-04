@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A84A8FC9
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4C0A8E37
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388974AbfIDSFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:05:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47488 "EHLO mail.kernel.org"
+        id S2387680AbfIDR4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389320AbfIDSFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:05:48 -0400
+        id S2387660AbfIDR4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F078206B8;
-        Wed,  4 Sep 2019 18:05:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 532A122CF7;
+        Wed,  4 Sep 2019 17:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620347;
-        bh=JWpqTs1Xkr5FESLr1COBDjSNLrRS6N11lbXarHZ6rhE=;
+        s=default; t=1567619801;
+        bh=lndBLTP9WJoUmNrqBoF+i/+LEAPtoRlvTT46g5CiN5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OI7cjcUwSu++Oue65yFHiYRCtOY++y8t62vgNHnxsV1IQyKcBvo5b9qdC+Eyv4vTI
-         6vL6vmWpLHAPFXWO810uNuL2pxIzmuhs1uANAoxePJy4sY3T3F8NaGqH6atJuTXn1Z
-         l8w4oL+7Seg/elm/1NiGq7NCnOVOeDkHmhd8m+HU=
+        b=wWhqBwmIMWSi0Goz8Wqrio/gmG9DW7YY3al+Vtw0vtvZjTVqeaDdzqj/YXIEeyzt0
+         rDdn4WsKP249xmbixjbatXaaMZO/Vd1ddejCNwGU8x08QTrowNXKVBUyh9PWHrSgOT
+         8+6kfxgwCBafiJ528ngMj+0f41PijICeXbDlwU7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adrian Vladu <avladu@cloudbasesolutions.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Alessandro Pilotti <apilotti@cloudbasesolutions.com>
-Subject: [PATCH 4.19 24/93] tools: hv: fixed Python pep8/flake8 warnings for lsvmbus
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 39/77] vhost: introduce vhost_exceeds_weight()
 Date:   Wed,  4 Sep 2019 19:53:26 +0200
-Message-Id: <20190904175305.424737415@linuxfoundation.org>
+Message-Id: <20190904175307.232878711@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,152 +46,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5912e791f3018de0a007c8cfa9cb38c97d3e5f5c ]
+commit e82b9b0727ff6d665fff2d326162b460dded554d upstream.
 
-Fixed pep8/flake8 python style code for lsvmbus tool.
+We used to have vhost_exceeds_weight() for vhost-net to:
 
-The TAB indentation was on purpose ignored (pep8 rule W191) to make
-sure the code is complying with the Linux code guideline.
-The following command doe not show any warnings now:
-pep8 --ignore=W191 lsvmbus
-flake8 --ignore=W191 lsvmbus
+- prevent vhost kthread from hogging the cpu
+- balance the time spent between TX and RX
 
-Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
+This function could be useful for vsock and scsi as well. So move it
+to vhost.c. Device must specify a weight which counts the number of
+requests, or it can also specific a byte_weight which counts the
+number of bytes that has been processed.
 
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: Alessandro Pilotti <apilotti@cloudbasesolutions.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+[bwh: Backported to 4.4:
+ - Drop changes to vhost_vsock
+ - In vhost_net, both Tx modes are handled in one loop in handle_tx()
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/hv/lsvmbus | 75 +++++++++++++++++++++++++++---------------------
- 1 file changed, 42 insertions(+), 33 deletions(-)
+ drivers/vhost/net.c   | 18 +++++-------------
+ drivers/vhost/scsi.c  |  9 ++++++++-
+ drivers/vhost/vhost.c | 20 +++++++++++++++++++-
+ drivers/vhost/vhost.h |  6 +++++-
+ 4 files changed, 37 insertions(+), 16 deletions(-)
 
-diff --git a/tools/hv/lsvmbus b/tools/hv/lsvmbus
-index 55e7374bade0d..099f2c44dbed2 100644
---- a/tools/hv/lsvmbus
-+++ b/tools/hv/lsvmbus
-@@ -4,10 +4,10 @@
- import os
- from optparse import OptionParser
- 
-+help_msg = "print verbose messages. Try -vv, -vvv for  more verbose messages"
- parser = OptionParser()
--parser.add_option("-v", "--verbose", dest="verbose",
--		   help="print verbose messages. Try -vv, -vvv for \
--			more verbose messages", action="count")
-+parser.add_option(
-+	"-v", "--verbose", dest="verbose", help=help_msg, action="count")
- 
- (options, args) = parser.parse_args()
- 
-@@ -21,27 +21,28 @@ if not os.path.isdir(vmbus_sys_path):
- 	exit(-1)
- 
- vmbus_dev_dict = {
--	'{0e0b6031-5213-4934-818b-38d90ced39db}' : '[Operating system shutdown]',
--	'{9527e630-d0ae-497b-adce-e80ab0175caf}' : '[Time Synchronization]',
--	'{57164f39-9115-4e78-ab55-382f3bd5422d}' : '[Heartbeat]',
--	'{a9a0f4e7-5a45-4d96-b827-8a841e8c03e6}' : '[Data Exchange]',
--	'{35fa2e29-ea23-4236-96ae-3a6ebacba440}' : '[Backup (volume checkpoint)]',
--	'{34d14be3-dee4-41c8-9ae7-6b174977c192}' : '[Guest services]',
--	'{525074dc-8985-46e2-8057-a307dc18a502}' : '[Dynamic Memory]',
--	'{cfa8b69e-5b4a-4cc0-b98b-8ba1a1f3f95a}' : 'Synthetic mouse',
--	'{f912ad6d-2b17-48ea-bd65-f927a61c7684}' : 'Synthetic keyboard',
--	'{da0a7802-e377-4aac-8e77-0558eb1073f8}' : 'Synthetic framebuffer adapter',
--	'{f8615163-df3e-46c5-913f-f2d2f965ed0e}' : 'Synthetic network adapter',
--	'{32412632-86cb-44a2-9b5c-50d1417354f5}' : 'Synthetic IDE Controller',
--	'{ba6163d9-04a1-4d29-b605-72e2ffb1dc7f}' : 'Synthetic SCSI Controller',
--	'{2f9bcc4a-0069-4af3-b76b-6fd0be528cda}' : 'Synthetic fiber channel adapter',
--	'{8c2eaf3d-32a7-4b09-ab99-bd1f1c86b501}' : 'Synthetic RDMA adapter',
--	'{44c4f61d-4444-4400-9d52-802e27ede19f}' : 'PCI Express pass-through',
--	'{276aacf4-ac15-426c-98dd-7521ad3f01fe}' : '[Reserved system device]',
--	'{f8e65716-3cb3-4a06-9a60-1889c5cccab5}' : '[Reserved system device]',
--	'{3375baf4-9e15-4b30-b765-67acb10d607b}' : '[Reserved system device]',
-+	'{0e0b6031-5213-4934-818b-38d90ced39db}': '[Operating system shutdown]',
-+	'{9527e630-d0ae-497b-adce-e80ab0175caf}': '[Time Synchronization]',
-+	'{57164f39-9115-4e78-ab55-382f3bd5422d}': '[Heartbeat]',
-+	'{a9a0f4e7-5a45-4d96-b827-8a841e8c03e6}': '[Data Exchange]',
-+	'{35fa2e29-ea23-4236-96ae-3a6ebacba440}': '[Backup (volume checkpoint)]',
-+	'{34d14be3-dee4-41c8-9ae7-6b174977c192}': '[Guest services]',
-+	'{525074dc-8985-46e2-8057-a307dc18a502}': '[Dynamic Memory]',
-+	'{cfa8b69e-5b4a-4cc0-b98b-8ba1a1f3f95a}': 'Synthetic mouse',
-+	'{f912ad6d-2b17-48ea-bd65-f927a61c7684}': 'Synthetic keyboard',
-+	'{da0a7802-e377-4aac-8e77-0558eb1073f8}': 'Synthetic framebuffer adapter',
-+	'{f8615163-df3e-46c5-913f-f2d2f965ed0e}': 'Synthetic network adapter',
-+	'{32412632-86cb-44a2-9b5c-50d1417354f5}': 'Synthetic IDE Controller',
-+	'{ba6163d9-04a1-4d29-b605-72e2ffb1dc7f}': 'Synthetic SCSI Controller',
-+	'{2f9bcc4a-0069-4af3-b76b-6fd0be528cda}': 'Synthetic fiber channel adapter',
-+	'{8c2eaf3d-32a7-4b09-ab99-bd1f1c86b501}': 'Synthetic RDMA adapter',
-+	'{44c4f61d-4444-4400-9d52-802e27ede19f}': 'PCI Express pass-through',
-+	'{276aacf4-ac15-426c-98dd-7521ad3f01fe}': '[Reserved system device]',
-+	'{f8e65716-3cb3-4a06-9a60-1889c5cccab5}': '[Reserved system device]',
-+	'{3375baf4-9e15-4b30-b765-67acb10d607b}': '[Reserved system device]',
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 38c3120f92be4..20062531f1eaa 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -293,12 +293,6 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+ 	rcu_read_unlock_bh();
  }
  
+-static bool vhost_exceeds_weight(int pkts, int total_len)
+-{
+-	return total_len >= VHOST_NET_WEIGHT ||
+-	       pkts >= VHOST_NET_PKT_WEIGHT;
+-}
+-
+ /* Expects to be always run from workqueue - which acts as
+  * read-size critical section for our kind of RCU. */
+ static void handle_tx(struct vhost_net *net)
+@@ -421,10 +415,9 @@ static void handle_tx(struct vhost_net *net)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(vhost_exceeds_weight(++sent_pkts, total_len))) {
+-			vhost_poll_queue(&vq->poll);
++		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
++						  total_len)))
+ 			break;
+-		}
+ 	}
+ out:
+ 	mutex_unlock(&vq->mutex);
+@@ -645,10 +638,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, vhost_len);
+ 		total_len += vhost_len;
+-		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+-			vhost_poll_queue(&vq->poll);
++		if (unlikely(vhost_exceeds_weight(vq, ++recv_pkts, total_len)))
+ 			break;
+-		}
+ 	}
+ out:
+ 	mutex_unlock(&vq->mutex);
+@@ -718,7 +709,8 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 		n->vqs[i].vhost_hlen = 0;
+ 		n->vqs[i].sock_hlen = 0;
+ 	}
+-	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
++	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
++		       VHOST_NET_WEIGHT, VHOST_NET_PKT_WEIGHT);
+ 
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT, dev);
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN, dev);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 8fc62a03637a7..47e659eacf17e 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -58,6 +58,12 @@
+ #define VHOST_SCSI_PREALLOC_UPAGES 2048
+ #define VHOST_SCSI_PREALLOC_PROT_SGLS 512
+ 
++/* Max number of requests before requeueing the job.
++ * Using this limit prevents one virtqueue from starving others with
++ * request.
++ */
++#define VHOST_SCSI_WEIGHT 256
 +
- def get_vmbus_dev_attr(dev_name, attr):
- 	try:
- 		f = open('%s/%s/%s' % (vmbus_sys_path, dev_name, attr), 'r')
-@@ -52,6 +53,7 @@ def get_vmbus_dev_attr(dev_name, attr):
+ struct vhost_scsi_inflight {
+ 	/* Wait for the flush operation to finish */
+ 	struct completion comp;
+@@ -1443,7 +1449,8 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ 		vqs[i] = &vs->vqs[i].vq;
+ 		vs->vqs[i].vq.handle_kick = vhost_scsi_handle_kick;
+ 	}
+-	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ);
++	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ,
++		       VHOST_SCSI_WEIGHT, 0);
  
- 	return lines
+ 	vhost_scsi_init_inflight(vs, NULL);
  
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2ed0a356d1d33..0f653f314876e 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -370,8 +370,24 @@ static void vhost_dev_free_iovecs(struct vhost_dev *dev)
+ 		vhost_vq_free_iovecs(dev->vqs[i]);
+ }
+ 
++bool vhost_exceeds_weight(struct vhost_virtqueue *vq,
++			  int pkts, int total_len)
++{
++	struct vhost_dev *dev = vq->dev;
 +
- class VMBus_Dev:
- 	pass
++	if ((dev->byte_weight && total_len >= dev->byte_weight) ||
++	    pkts >= dev->weight) {
++		vhost_poll_queue(&vq->poll);
++		return true;
++	}
++
++	return false;
++}
++EXPORT_SYMBOL_GPL(vhost_exceeds_weight);
++
+ void vhost_dev_init(struct vhost_dev *dev,
+-		    struct vhost_virtqueue **vqs, int nvqs)
++		    struct vhost_virtqueue **vqs, int nvqs,
++		    int weight, int byte_weight)
+ {
+ 	struct vhost_virtqueue *vq;
+ 	int i;
+@@ -386,6 +402,8 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	spin_lock_init(&dev->work_lock);
+ 	INIT_LIST_HEAD(&dev->work_list);
+ 	dev->worker = NULL;
++	dev->weight = weight;
++	dev->byte_weight = byte_weight;
  
-@@ -66,12 +68,13 @@ for f in os.listdir(vmbus_sys_path):
+ 	for (i = 0; i < dev->nvqs; ++i) {
+ 		vq = dev->vqs[i];
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index d3f767448a72c..5ac4869705696 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -127,9 +127,13 @@ struct vhost_dev {
+ 	spinlock_t work_lock;
+ 	struct list_head work_list;
+ 	struct task_struct *worker;
++	int weight;
++	int byte_weight;
+ };
  
- 	chn_vp_mapping = get_vmbus_dev_attr(f, 'channel_vp_mapping')
- 	chn_vp_mapping = [c.strip() for c in chn_vp_mapping]
--	chn_vp_mapping = sorted(chn_vp_mapping,
--		key = lambda c : int(c.split(':')[0]))
-+	chn_vp_mapping = sorted(
-+		chn_vp_mapping, key=lambda c: int(c.split(':')[0]))
- 
--	chn_vp_mapping = ['\tRel_ID=%s, target_cpu=%s' %
--				(c.split(':')[0], c.split(':')[1])
--					for c in chn_vp_mapping]
-+	chn_vp_mapping = [
-+		'\tRel_ID=%s, target_cpu=%s' %
-+		(c.split(':')[0], c.split(':')[1]) for c in chn_vp_mapping
-+	]
- 	d = VMBus_Dev()
- 	d.sysfs_path = '%s/%s' % (vmbus_sys_path, f)
- 	d.vmbus_id = vmbus_id
-@@ -85,7 +88,7 @@ for f in os.listdir(vmbus_sys_path):
- 	vmbus_dev_list.append(d)
- 
- 
--vmbus_dev_list  = sorted(vmbus_dev_list, key = lambda d : int(d.vmbus_id))
-+vmbus_dev_list = sorted(vmbus_dev_list, key=lambda d: int(d.vmbus_id))
- 
- format0 = '%2s: %s'
- format1 = '%2s: Class_ID = %s - %s\n%s'
-@@ -95,9 +98,15 @@ for d in vmbus_dev_list:
- 	if verbose == 0:
- 		print(('VMBUS ID ' + format0) % (d.vmbus_id, d.dev_desc))
- 	elif verbose == 1:
--		print (('VMBUS ID ' + format1) %	\
--			(d.vmbus_id, d.class_id, d.dev_desc, d.chn_vp_mapping))
-+		print(
-+			('VMBUS ID ' + format1) %
-+			(d.vmbus_id, d.class_id, d.dev_desc, d.chn_vp_mapping)
-+		)
- 	else:
--		print (('VMBUS ID ' + format2) % \
--			(d.vmbus_id, d.class_id, d.dev_desc, \
--			d.device_id, d.sysfs_path, d.chn_vp_mapping))
-+		print(
-+			('VMBUS ID ' + format2) %
-+			(
-+				d.vmbus_id, d.class_id, d.dev_desc,
-+				d.device_id, d.sysfs_path, d.chn_vp_mapping
-+			)
-+		)
+-void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs, int nvqs);
++bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int total_len);
++void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
++		    int nvqs, int weight, int byte_weight);
+ long vhost_dev_set_owner(struct vhost_dev *dev);
+ bool vhost_dev_has_owner(struct vhost_dev *dev);
+ long vhost_dev_check_owner(struct vhost_dev *);
 -- 
 2.20.1
 
