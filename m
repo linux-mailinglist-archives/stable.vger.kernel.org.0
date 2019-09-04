@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B83A905F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CA0A9063
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389331AbfIDSJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52448 "EHLO mail.kernel.org"
+        id S2388631AbfIDSJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389914AbfIDSJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:09:16 -0400
+        id S2389928AbfIDSJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:09:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60C22339E;
-        Wed,  4 Sep 2019 18:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67F28208E4;
+        Wed,  4 Sep 2019 18:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620555;
-        bh=mjhjiaq1QdfltCiZlfRzdCMexNftjOrnurhCTR9y43M=;
+        s=default; t=1567620560;
+        bh=F5X2Tw6fGwcM5GWIJCsXtZMbUmjKCSlTq9VUSvzj8tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bta0XaXdY4PJgvsNxydrnlp+TjLZbFSgQ4ekwj5aZW0+9goZ5IFINYEI6mgctWG+7
-         j4Q4ALHMbu0Vzi0fMSgp0K+89DrdPp4bdPVL7PUusugNa5n+vDyBoQw4A2g/RJmsUB
-         XQpXqNRtU2JLKQr42ws74qYLilQCsHAFRpzDC0Iw=
+        b=hjpm6zjXQQA2hQKmhzUTllGFwsv9foCXcu85ncN4gvHUqmQrlnmxWrvUpG9IwkWXB
+         gugKblYx3TflzgiAdk4EKjET6taerZika1994oF+Pi5oIMWV+QEFBIZ8sRRZ3UfeW6
+         tVcinv15iMoB7aIQkqSkbszJECFBAHJd/r7JNCk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 001/143] dmaengine: ste_dma40: fix unneeded variable warning
-Date:   Wed,  4 Sep 2019 19:52:24 +0200
-Message-Id: <20190904175314.264270277@linuxfoundation.org>
+        stable@vger.kernel.org, Anthony Iliopoulos <ailiopoulos@suse.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 002/143] nvme-multipath: revalidate nvme_ns_head gendisk in nvme_validate_ns
+Date:   Wed,  4 Sep 2019 19:52:25 +0200
+Message-Id: <20190904175314.293360423@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
 References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,52 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5d6fb560729a5d5554e23db8d00eb57cd0021083 ]
+[ Upstream commit fab7772bfbcfe8fb8e3e352a6a8fcaf044cded17 ]
 
-clang-9 points out that there are two variables that depending on the
-configuration may only be used in an ARRAY_SIZE() expression but not
-referenced:
+When CONFIG_NVME_MULTIPATH is set, only the hidden gendisk associated
+with the per-controller ns is run through revalidate_disk when a
+rescan is triggered, while the visible blockdev never gets its size
+(bdev->bd_inode->i_size) updated to reflect any capacity changes that
+may have occurred.
 
-drivers/dma/ste_dma40.c:145:12: error: variable 'd40_backup_regs' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
-static u32 d40_backup_regs[] = {
-           ^
-drivers/dma/ste_dma40.c:214:12: error: variable 'd40_backup_regs_chan' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
-static u32 d40_backup_regs_chan[] = {
+This prevents online resizing of nvme block devices and in extension of
+any filesystems atop that will are unable to expand while mounted, as
+userspace relies on the blockdev size for obtaining the disk capacity
+(via BLKGETSIZE/64 ioctls).
 
-Mark these __maybe_unused to shut up the warning.
+Fix this by explicitly revalidating the actual namespace gendisk in
+addition to the per-controller gendisk, when multipath is enabled.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20190712091357.744515-1-arnd@arndb.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Anthony Iliopoulos <ailiopoulos@suse.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ste_dma40.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index 89d710899010d..de8bfd9a76e9e 100644
---- a/drivers/dma/ste_dma40.c
-+++ b/drivers/dma/ste_dma40.c
-@@ -142,7 +142,7 @@ enum d40_events {
-  * when the DMA hw is powered off.
-  * TODO: Add save/restore of D40_DREG_GCC on dma40 v3 or later, if that works.
-  */
--static u32 d40_backup_regs[] = {
-+static __maybe_unused u32 d40_backup_regs[] = {
- 	D40_DREG_LCPA,
- 	D40_DREG_LCLA,
- 	D40_DREG_PRMSE,
-@@ -211,7 +211,7 @@ static u32 d40_backup_regs_v4b[] = {
- 
- #define BACKUP_REGS_SZ_V4B ARRAY_SIZE(d40_backup_regs_v4b)
- 
--static u32 d40_backup_regs_chan[] = {
-+static __maybe_unused u32 d40_backup_regs_chan[] = {
- 	D40_CHAN_REG_SSCFG,
- 	D40_CHAN_REG_SSELT,
- 	D40_CHAN_REG_SSPTR,
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 5deb4deb38209..ab1a2b1ec3637 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1668,6 +1668,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 	if (ns->head->disk) {
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
++		revalidate_disk(ns->head->disk);
+ 	}
+ #endif
+ }
 -- 
 2.20.1
 
