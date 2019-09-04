@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D23A8CFB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56E3A8CF7
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731500AbfIDQUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:20:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59950 "EHLO mail.kernel.org"
+        id S1732121AbfIDQTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731717AbfIDP6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 11:58:06 -0400
+        id S1731828AbfIDP6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 11:58:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E0723400;
-        Wed,  4 Sep 2019 15:58:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF86D23401;
+        Wed,  4 Sep 2019 15:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612685;
-        bh=HG04MnMtyHZXAlO8F+WuIQp+1U7sG5+8U7kCHEbHDaI=;
+        s=default; t=1567612696;
+        bh=kjk+EoecReY9IsVOLIcpYHJWi8ERUAkv7rkSi+iBvn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pJCnAR3liQo/U29tnGQsDUU+DE38RJHlvo9eeaHcT45ISZ2utxM5qLTKlYc7OPv9
-         LUWtEPCS/aXkL60sAShF2geW4B8UlwDY24EODaA/ydvJsK6w9PD7XyTYCIkyQg3aj/
-         tNt6BHUc07fgIBKOVJYzPrI3wLvrpDl2b26Iznng=
+        b=EvpVcIGINZxeYl0g8X4Myh0LTN4n5GAfjI2avWEMt4qObn+dh1H33+Ws32/b0PDj3
+         B6vTjXDWpHUETYPcD37SFZ85ou/3yC5pMZnW4+FgNA3xSl36C9CkshiyYBpklcYvIj
+         fUXcQrWTYGoj7q5v362Fm5iSaCMrJL9g2JplLm6E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        David Lechner <david@lechnology.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 16/94] ARM: dts: Fix incomplete dts data for am3 and am4 mmc
-Date:   Wed,  4 Sep 2019 11:56:21 -0400
-Message-Id: <20190904155739.2816-16-sashal@kernel.org>
+Cc:     Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 24/94] netfilter: xt_nfacct: Fix alignment mismatch in xt_nfacct_match_info
+Date:   Wed,  4 Sep 2019 11:56:29 -0400
+Message-Id: <20190904155739.2816-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 References: <20190904155739.2816-1-sashal@kernel.org>
@@ -44,123 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
 
-[ Upstream commit 5b63fb90adb95a178ad403e1703f59bf1ff2c16b ]
+[ Upstream commit 89a26cd4b501e9511d3cd3d22327fc76a75a38b3 ]
 
-Commit 4e27f752ab8c ("ARM: OMAP2+: Drop mmc platform data for am330x and
-am43xx") dropped legacy mmc platform data for am3 and am4, but missed the
-fact that we never updated the dts files for mmc3 that is directly on l3
-interconnect instead of l4 interconnect. This leads to a situation with
-no legacy platform data and incomplete dts data.
+When running a 64-bit kernel with a 32-bit iptables binary, the size of
+the xt_nfacct_match_info struct diverges.
 
-Let's update the mmc instances on l3 interconnect to probe properly with
-ti-sysc interconnect target module driver to make mmc3 work again. Let's
-still keep legacy "ti,hwmods" property around for v5.2 kernel and only
-drop it later on.
+    kernel: sizeof(struct xt_nfacct_match_info) : 40
+    iptables: sizeof(struct xt_nfacct_match_info)) : 36
 
-Note that there is no need to use property status = "disabled" for mmc3.
-The default for dts is enabled, and runtime PM will idle unused instances
-just fine.
+Trying to append nfacct related rules results in an unhelpful message.
+Although it is suggested to look for more information in dmesg, nothing
+can be found there.
 
-Fixes: 4e27f752ab8c ("ARM: OMAP2+: Drop mmc platform data for am330x and am43xx")
-Reported-by: David Lechner <david@lechnology.com>
-Tested-by: David Lechner <david@lechnology.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+    # iptables -A <chain> -m nfacct --nfacct-name <acct-object>
+    iptables: Invalid argument. Run `dmesg' for more information.
+
+This patch fixes the memory misalignment by enforcing 8-byte alignment
+within the struct's first revision. This solution is often used in many
+other uapi netfilter headers.
+
+Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am33xx.dtsi | 32 ++++++++++++++++++++++++++------
- arch/arm/boot/dts/am4372.dtsi | 32 ++++++++++++++++++++++++++------
- 2 files changed, 52 insertions(+), 12 deletions(-)
+ include/uapi/linux/netfilter/xt_nfacct.h |  5 ++++
+ net/netfilter/xt_nfacct.c                | 36 ++++++++++++++++--------
+ 2 files changed, 30 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index e5c2f71a7c77d..fb6b8aa12cc56 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -234,13 +234,33 @@
- 			interrupt-names = "edma3_tcerrint";
- 		};
+diff --git a/include/uapi/linux/netfilter/xt_nfacct.h b/include/uapi/linux/netfilter/xt_nfacct.h
+index 5c8a4d760ee34..b5123ab8d54a8 100644
+--- a/include/uapi/linux/netfilter/xt_nfacct.h
++++ b/include/uapi/linux/netfilter/xt_nfacct.h
+@@ -11,4 +11,9 @@ struct xt_nfacct_match_info {
+ 	struct nf_acct	*nfacct;
+ };
  
--		mmc3: mmc@47810000 {
--			compatible = "ti,omap4-hsmmc";
-+		target-module@47810000 {
-+			compatible = "ti,sysc-omap2", "ti,sysc";
- 			ti,hwmods = "mmc3";
--			ti,needs-special-reset;
--			interrupts = <29>;
--			reg = <0x47810000 0x1000>;
--			status = "disabled";
-+			reg = <0x478102fc 0x4>,
-+			      <0x47810110 0x4>,
-+			      <0x47810114 0x4>;
-+			reg-names = "rev", "sysc", "syss";
-+			ti,sysc-mask = <(SYSC_OMAP2_CLOCKACTIVITY |
-+					 SYSC_OMAP2_ENAWAKEUP |
-+					 SYSC_OMAP2_SOFTRESET |
-+					 SYSC_OMAP2_AUTOIDLE)>;
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>;
-+			ti,syss-mask = <1>;
-+			clocks = <&l3s_clkctrl AM3_L3S_MMC3_CLKCTRL 0>;
-+			clock-names = "fck";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ranges = <0x0 0x47810000 0x1000>;
++struct xt_nfacct_match_info_v1 {
++	char		name[NFACCT_NAME_MAX];
++	struct nf_acct	*nfacct __attribute__((aligned(8)));
++};
 +
-+			mmc3: mmc@0 {
-+				compatible = "ti,omap4-hsmmc";
-+				ti,needs-special-reset;
-+				interrupts = <29>;
-+				reg = <0x0 0x1000>;
-+			};
- 		};
+ #endif /* _XT_NFACCT_MATCH_H */
+diff --git a/net/netfilter/xt_nfacct.c b/net/netfilter/xt_nfacct.c
+index d0ab1adf5bff8..5aab6df74e0f2 100644
+--- a/net/netfilter/xt_nfacct.c
++++ b/net/netfilter/xt_nfacct.c
+@@ -54,25 +54,39 @@ nfacct_mt_destroy(const struct xt_mtdtor_param *par)
+ 	nfnl_acct_put(info->nfacct);
+ }
  
- 		usb: usb@47400000 {
-diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
-index 55aff4db9c7c2..848e2a8884e2c 100644
---- a/arch/arm/boot/dts/am4372.dtsi
-+++ b/arch/arm/boot/dts/am4372.dtsi
-@@ -228,13 +228,33 @@
- 			interrupt-names = "edma3_tcerrint";
- 		};
+-static struct xt_match nfacct_mt_reg __read_mostly = {
+-	.name       = "nfacct",
+-	.family     = NFPROTO_UNSPEC,
+-	.checkentry = nfacct_mt_checkentry,
+-	.match      = nfacct_mt,
+-	.destroy    = nfacct_mt_destroy,
+-	.matchsize  = sizeof(struct xt_nfacct_match_info),
+-	.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
+-	.me         = THIS_MODULE,
++static struct xt_match nfacct_mt_reg[] __read_mostly = {
++	{
++		.name       = "nfacct",
++		.revision   = 0,
++		.family     = NFPROTO_UNSPEC,
++		.checkentry = nfacct_mt_checkentry,
++		.match      = nfacct_mt,
++		.destroy    = nfacct_mt_destroy,
++		.matchsize  = sizeof(struct xt_nfacct_match_info),
++		.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
++		.me         = THIS_MODULE,
++	},
++	{
++		.name       = "nfacct",
++		.revision   = 1,
++		.family     = NFPROTO_UNSPEC,
++		.checkentry = nfacct_mt_checkentry,
++		.match      = nfacct_mt,
++		.destroy    = nfacct_mt_destroy,
++		.matchsize  = sizeof(struct xt_nfacct_match_info_v1),
++		.usersize   = offsetof(struct xt_nfacct_match_info_v1, nfacct),
++		.me         = THIS_MODULE,
++	},
+ };
  
--		mmc3: mmc@47810000 {
--			compatible = "ti,omap4-hsmmc";
--			reg = <0x47810000 0x1000>;
-+		target-module@47810000 {
-+			compatible = "ti,sysc-omap2", "ti,sysc";
- 			ti,hwmods = "mmc3";
--			ti,needs-special-reset;
--			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
--			status = "disabled";
-+			reg = <0x478102fc 0x4>,
-+			      <0x47810110 0x4>,
-+			      <0x47810114 0x4>;
-+			reg-names = "rev", "sysc", "syss";
-+			ti,sysc-mask = <(SYSC_OMAP2_CLOCKACTIVITY |
-+					 SYSC_OMAP2_ENAWAKEUP |
-+					 SYSC_OMAP2_SOFTRESET |
-+					 SYSC_OMAP2_AUTOIDLE)>;
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>;
-+			ti,syss-mask = <1>;
-+			clocks = <&l3s_clkctrl AM4_L3S_MMC3_CLKCTRL 0>;
-+			clock-names = "fck";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ranges = <0x0 0x47810000 0x1000>;
-+
-+			mmc3: mmc@0 {
-+				compatible = "ti,omap4-hsmmc";
-+				ti,needs-special-reset;
-+				interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
-+				reg = <0x0 0x1000>;
-+			};
- 		};
+ static int __init nfacct_mt_init(void)
+ {
+-	return xt_register_match(&nfacct_mt_reg);
++	return xt_register_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
+ }
  
- 		sham: sham@53100000 {
+ static void __exit nfacct_mt_exit(void)
+ {
+-	xt_unregister_match(&nfacct_mt_reg);
++	xt_unregister_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
+ }
+ 
+ module_init(nfacct_mt_init);
 -- 
 2.20.1
 
