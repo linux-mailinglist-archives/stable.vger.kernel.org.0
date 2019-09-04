@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A97DA916F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FFAA8F97
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389525AbfIDSP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S2388771AbfIDSEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390393AbfIDSP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:15:27 -0400
+        id S1732312AbfIDSEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9501206BA;
-        Wed,  4 Sep 2019 18:15:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D969A233FF;
+        Wed,  4 Sep 2019 18:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620926;
-        bh=0JTnuWsTelDkywrJ0M1VQsfCLhs1bVpfAngi0Bt8z9w=;
+        s=default; t=1567620281;
+        bh=Jm/m4caFgQ2a7ortrK8Zzy+WsfxLIPCafK0O0I0TJjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MweqImoEPg3YsLtcDbAnV4A1kEfK7sFk6vBSMBPQXEZLJLFwPfTXi/nPYFaeMatAE
-         JAsS66t2n26Oq8kTYj8mKgWJWFF8IKm/Npc48ECqs9Hf7COCa/t/HBnFSIho6saMhU
-         aoGPUHQW8ekCw2TGTjUfCTutPiCtdVimkvr9SfPk=
+        b=NZrzvHxrNh+PG223lxJFXzmzj9nPH9yxxqv8JZUFmpJKmDzuNE0pKPH6dKonFFYXr
+         blymOypDHP3440YNfcJ400fXzuJ/1BWWZRvzYKmhd517q8WSvWkL9fAVq6WMHerjCA
+         yGaOqziJ7AtUNCP8NURn0svpQPO9R/0w6hV2gphU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>
-Subject: [PATCH 5.2 107/143] lib: logic_pio: Fix RCU usage
-Date:   Wed,  4 Sep 2019 19:54:10 +0200
-Message-Id: <20190904175318.588086429@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.14 43/57] intel_th: pci: Add Tiger Lake support
+Date:   Wed,  4 Sep 2019 19:54:11 +0200
+Message-Id: <20190904175306.304199267@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,121 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 06709e81c668f5f56c65b806895b278517bd44e0 upstream.
+commit 9c78255fdde45c6b9a1ee30f652f7b34c727f5c7 upstream.
 
-The traversing of io_range_list with list_for_each_entry_rcu()
-is not properly protected by rcu_read_lock() and rcu_read_unlock(),
-so add them.
+This adds support for the Trace Hub in Tiger Lake PCH.
 
-These functions mark the critical section scope where the list is
-protected for the reader, it cannot be  "reclaimed". Any updater - in
-this case, the logical PIO registration functions - cannot update the
-list until the reader exits this critical section.
-
-In addition, the list traversing used in logic_pio_register_range()
-does not need to use the rcu variant.
-
-This is because we are already using io_range_mutex to guarantee mutual
-exclusion from mutating the list.
-
-Cc: stable@vger.kernel.org
-Fixes: 031e3601869c ("lib: Add generic PIO mapping method")
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: stable@vger.kernel.org # v4.14+
+Link: https://lore.kernel.org/r/20190821074955.3925-5-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/logic_pio.c |   49 +++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/lib/logic_pio.c
-+++ b/lib/logic_pio.c
-@@ -46,7 +46,7 @@ int logic_pio_register_range(struct logi
- 	end = new_range->hw_start + new_range->size;
- 
- 	mutex_lock(&io_range_mutex);
--	list_for_each_entry_rcu(range, &io_range_list, list) {
-+	list_for_each_entry(range, &io_range_list, list) {
- 		if (range->fwnode == new_range->fwnode) {
- 			/* range already there */
- 			goto end_register;
-@@ -108,26 +108,38 @@ end_register:
-  */
- struct logic_pio_hwaddr *find_io_range_by_fwnode(struct fwnode_handle *fwnode)
- {
--	struct logic_pio_hwaddr *range;
-+	struct logic_pio_hwaddr *range, *found_range = NULL;
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(range, &io_range_list, list) {
--		if (range->fwnode == fwnode)
--			return range;
-+		if (range->fwnode == fwnode) {
-+			found_range = range;
-+			break;
-+		}
- 	}
--	return NULL;
-+	rcu_read_unlock();
-+
-+	return found_range;
- }
- 
- /* Return a registered range given an input PIO token */
- static struct logic_pio_hwaddr *find_io_range(unsigned long pio)
- {
--	struct logic_pio_hwaddr *range;
-+	struct logic_pio_hwaddr *range, *found_range = NULL;
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(range, &io_range_list, list) {
--		if (in_range(pio, range->io_start, range->size))
--			return range;
-+		if (in_range(pio, range->io_start, range->size)) {
-+			found_range = range;
-+			break;
-+		}
- 	}
--	pr_err("PIO entry token %lx invalid\n", pio);
--	return NULL;
-+	rcu_read_unlock();
-+
-+	if (!found_range)
-+		pr_err("PIO entry token 0x%lx invalid\n", pio);
-+
-+	return found_range;
- }
- 
- /**
-@@ -180,14 +192,23 @@ unsigned long logic_pio_trans_cpuaddr(re
- {
- 	struct logic_pio_hwaddr *range;
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(range, &io_range_list, list) {
- 		if (range->flags != LOGIC_PIO_CPU_MMIO)
- 			continue;
--		if (in_range(addr, range->hw_start, range->size))
--			return addr - range->hw_start + range->io_start;
-+		if (in_range(addr, range->hw_start, range->size)) {
-+			unsigned long cpuaddr;
-+
-+			cpuaddr = addr - range->hw_start + range->io_start;
-+
-+			rcu_read_unlock();
-+			return cpuaddr;
-+		}
- 	}
--	pr_err("addr %llx not registered in io_range_list\n",
--	       (unsigned long long) addr);
-+	rcu_read_unlock();
-+
-+	pr_err("addr %pa not registered in io_range_list\n", &addr);
-+
- 	return ~0UL;
- }
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -188,6 +188,11 @@ static const struct pci_device_id intel_
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x45c5),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
++	{
++		/* Tiger Lake PCH */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa0a6),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
+ 	{ 0 },
+ };
  
 
 
