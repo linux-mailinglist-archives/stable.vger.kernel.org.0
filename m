@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8015A8A16
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F630A8A18
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731864AbfIDP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 11:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
+        id S1731917AbfIDP6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 11:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731893AbfIDP6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 11:58:18 -0400
+        id S1731905AbfIDP6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 11:58:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C3B2342D;
-        Wed,  4 Sep 2019 15:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2764C23697;
+        Wed,  4 Sep 2019 15:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612697;
-        bh=7gN4oGxskhNmUiNRGD1LOaJ12Rz2xRgqnnMm885HDkM=;
+        s=default; t=1567612699;
+        bh=oZpFZfTwuENTY5uN2YsGz9HBvNyxM2bkRXo0R1m53kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBRfGjuz0NELG9IYDkeZOLDmt/3138DPrxlsbkisxkX2MdSGOGYCaeSGkOaw4owNM
-         fXvR3sVxPUnLHmfbkW97IaMeiUCo3TcIczyl1ukwy53gy2hw/HmVKdcEoqW58gzDgy
-         iA4yuLtK/8xJqmML0hvm0FLTexLFd6HP+tU7+IDg=
+        b=WDlDH41TnSdZyXYoWHe1/HEh8r77UeHPdk+dw11niA13TA1In+4tKULeMUCwMAJTc
+         DXEwnuoL+LLXFgi5qIW67yAF8hkcRrgoYYrWWa4nzWcLR6Wg3HufDsZDjLx00fuiBb
+         7isdoJ87pvxWvGgVmDK87AmS1CvD194TxJ2Tejw4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 25/94] NFSv4: Fix return values for nfs4_file_open()
-Date:   Wed,  4 Sep 2019 11:56:30 -0400
-Message-Id: <20190904155739.2816-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 27/94] NFS: Fix initialisation of I/O result struct in nfs_pgio_rpcsetup
+Date:   Wed,  4 Sep 2019 11:56:32 -0400
+Message-Id: <20190904155739.2816-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 References: <20190904155739.2816-1-sashal@kernel.org>
@@ -44,47 +44,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 90cf500e338ab3f3c0f126ba37e36fb6a9058441 ]
+[ Upstream commit 17d8c5d145000070c581f2a8aa01edc7998582ab ]
 
-Currently, we are translating RPC level errors such as timeouts,
-as well as interrupts etc into EOPENSTALE, which forces a single
-replay of the open attempt. What we actually want to do is
-force the replay only in the cases where the returned error
-indicates that the file may have changed on the server.
-
-So the fix is to spell out the exact set of errors where we want
-to return EOPENSTALE.
+Initialise the result count to 0 rather than initialising it to the
+argument count. The reason is that we want to ensure we record the
+I/O stats correctly in the case where an error is returned (for
+instance in the layoutstats).
 
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/nfs/pagelist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 3a507c42c1cae..113be154a1ec6 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -73,13 +73,13 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	if (IS_ERR(inode)) {
- 		err = PTR_ERR(inode);
- 		switch (err) {
--		case -EPERM:
--		case -EACCES:
--		case -EDQUOT:
--		case -ENOSPC:
--		case -EROFS:
--			goto out_put_ctx;
- 		default:
-+			goto out_put_ctx;
-+		case -ENOENT:
-+		case -ESTALE:
-+		case -EISDIR:
-+		case -ENOTDIR:
-+		case -ELOOP:
- 			goto out_drop;
- 		}
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index 6ef5278326b67..3f6760b17d6a9 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -590,7 +590,7 @@ static void nfs_pgio_rpcsetup(struct nfs_pgio_header *hdr,
  	}
+ 
+ 	hdr->res.fattr   = &hdr->fattr;
+-	hdr->res.count   = count;
++	hdr->res.count   = 0;
+ 	hdr->res.eof     = 0;
+ 	hdr->res.verf    = &hdr->verf;
+ 	nfs_fattr_init(&hdr->fattr);
 -- 
 2.20.1
 
