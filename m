@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D89FA8F32
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D12F7A901D
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388364AbfIDSCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42120 "EHLO mail.kernel.org"
+        id S2389660AbfIDSHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388357AbfIDSCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:18 -0400
+        id S2389274AbfIDSHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:07:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3FF022CF5;
-        Wed,  4 Sep 2019 18:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37962206B8;
+        Wed,  4 Sep 2019 18:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620137;
-        bh=iKlpuQSMeuITtvsgkSTyq9B+HDkxfuGvDN/pgv0g3eo=;
+        s=default; t=1567620464;
+        bh=HVPsM3txQgcnk/3lR3lRftJNUg0OBCD3o9erAomK1l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OVe8ZIRx7eNiySNPRazd/QGk4Wg6opc/lYmggVPCgTx2RGHeWCG3XbLI7wX6IO6G5
-         ysdCD8//mXhV/KegAJHSrRUqqGZScP9O5X7eXkKkcCaX0sU3NWZICc7AMWWd7517Yn
-         vbg6V9m0ExdNSgwpyFvFyhviJybs9VX/BbKa1ZIw=
+        b=sGIHI+g2AkWeoOFk837deCsV6uhIZapzC202jYaK8MqU9fOWI+DF76lXBwDuODiNM
+         Pwyq3o6QlsLtj9jxkCxwwFSqAbjP0l4x0+1LEQpg9kxoU2ZwtdEC6zKqsddTEBs3mM
+         fZCdtYqarsx4huAYU16LMFllMdETZv0xAiAc5miA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <robert.hodaszi@digi.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 78/83] Revert "cfg80211: fix processing world regdomain when non modular"
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 4.19 68/93] typec: tcpm: fix a typo in the comparison of pdo_max_voltage
 Date:   Wed,  4 Sep 2019 19:54:10 +0200
-Message-Id: <20190904175310.484764936@linuxfoundation.org>
+Message-Id: <20190904175308.907305241@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hodaszi, Robert <Robert.Hodaszi@digi.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 0d31d4dbf38412f5b8b11b4511d07b840eebe8cb upstream.
+commit a684d8fd87182090ee96e34519ecdf009cef093a upstream.
 
-This reverts commit 96cce12ff6e0 ("cfg80211: fix processing world
-regdomain when non modular").
+There appears to be a typo in the comparison of pdo_max_voltage[i]
+with the previous value, currently it is checking against the
+array pdo_min_voltage rather than pdo_max_voltage. I believe this
+is a typo. Fix this.
 
-Re-triggering a reg_process_hint with the last request on all events,
-can make the regulatory domain fail in case of multiple WiFi modules. On
-slower boards (espacially with mdev), enumeration of the WiFi modules
-can end up in an intersected regulatory domain, and user cannot set it
-with 'iw reg set' anymore.
-
-This is happening, because:
-- 1st module enumerates, queues up a regulatory request
-- request gets processed by __reg_process_hint_driver():
-  - checks if previous was set by CORE -> yes
-    - checks if regulator domain changed -> yes, from '00' to e.g. 'US'
-      -> sends request to the 'crda'
-- 2nd module enumerates, queues up a regulator request (which triggers
-  the reg_todo() work)
-- reg_todo() -> reg_process_pending_hints() sees, that the last request
-  is not processed yet, so it tries to process it again.
-  __reg_process_hint driver() will run again, and:
-  - checks if the last request's initiator was the core -> no, it was
-    the driver (1st WiFi module)
-  - checks, if the previous initiator was the driver -> yes
-    - checks if the regulator domain changed -> yes, it was '00' (set by
-      core, and crda call did not return yet), and should be changed to 'US'
-
-------> __reg_process_hint_driver calls an intersect
-
-Besides, the reg_process_hint call with the last request is meaningless
-since the crda call has a timeout work. If that timeout expires, the
-first module's request will lost.
-
-Cc: stable@vger.kernel.org
-Fixes: 96cce12ff6e0 ("cfg80211: fix processing world regdomain when non modular")
-Signed-off-by: Robert Hodaszi <robert.hodaszi@digi.com>
-Link: https://lore.kernel.org/r/20190614131600.GA13897@a1-hr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Addresses-Coverity: ("Copy-paste error")
+Fixes: 5007e1b5db73 ("typec: tcpm: Validate source and sink caps")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20190822135212.10195-1-colin.king@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/reg.c |    2 +-
+ drivers/usb/typec/tcpm.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2165,7 +2165,7 @@ static void reg_process_pending_hints(vo
- 
- 	/* When last_request->processed becomes true this will be rescheduled */
- 	if (lr && !lr->processed) {
--		reg_process_hint(lr);
-+		pr_debug("Pending regulatory request, waiting for it to be processed...\n");
- 		return;
- 	}
- 
+--- a/drivers/usb/typec/tcpm.c
++++ b/drivers/usb/typec/tcpm.c
+@@ -1445,7 +1445,7 @@ static enum pdo_err tcpm_caps_err(struct
+ 				else if ((pdo_min_voltage(pdo[i]) ==
+ 					  pdo_min_voltage(pdo[i - 1])) &&
+ 					 (pdo_max_voltage(pdo[i]) ==
+-					  pdo_min_voltage(pdo[i - 1])))
++					  pdo_max_voltage(pdo[i - 1])))
+ 					return PDO_ERR_DUPE_PDO;
+ 				break;
+ 			/*
 
 
