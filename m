@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38635A91B5
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89CEAA8FAA
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbfIDSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
+        id S1733057AbfIDSFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388696AbfIDSCM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:12 -0400
+        id S2388825AbfIDSFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E3C521883;
-        Wed,  4 Sep 2019 18:02:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA3DB2339E;
+        Wed,  4 Sep 2019 18:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620132;
+        s=default; t=1567620302;
         bh=r3hHmwvr5gwac8HXyAhPmaX+ldpvoyfb/3IuCoowTQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXqzTzgcQdP/PiOm2IAoMHKqBUt9VqEaktH+4bWr4xaznTecqAw3lkE9nXYD3Pjf4
-         wOrxPV/53pWnJwmjQjgno/WKyDJLn1B1amacE/PEx38MhfYnmGfBPfpNU/X3rGkn7N
-         Idx5Nz2NoyOJtPVzQ1zp9XZIZf9EcHosqcPoAb0Y=
+        b=F2tKM7zzkfFH62XT+jTK9hLNfNbkDTTVa/kg8HeGKsQ+xTiGtr15thAfrL1zRHurC
+         DAZ8mUCKf+OJXAf6mXKnBZcwFkfibf3K0paxLgH3o75nmgSVe9/RrLPNfghiC6Ks7h
+         g/8i5B2pq61ezBJsyWzFOFyw+vJoPMqVm27Cnu70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ding Xiang <dingxiang@cmss.chinamobile.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.9 76/83] stm class: Fix a double free of stm_source_device
-Date:   Wed,  4 Sep 2019 19:54:08 +0200
-Message-Id: <20190904175310.312768172@linuxfoundation.org>
+Subject: [PATCH 4.14 41/57] stm class: Fix a double free of stm_source_device
+Date:   Wed,  4 Sep 2019 19:54:09 +0200
+Message-Id: <20190904175306.005214863@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
