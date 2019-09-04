@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05178A916C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38635A91B5
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390478AbfIDSPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:15:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
+        id S1732895AbfIDSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390456AbfIDSPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:15:21 -0400
+        id S2388696AbfIDSCM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A60442087E;
-        Wed,  4 Sep 2019 18:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E3C521883;
+        Wed,  4 Sep 2019 18:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620921;
-        bh=nDjyrpOByM6yY5SDXXalE77u9RzjwGi6LBtIAPqrq+g=;
+        s=default; t=1567620132;
+        bh=r3hHmwvr5gwac8HXyAhPmaX+ldpvoyfb/3IuCoowTQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AH33CiOyq2wR14QKuT8uPOY383Lngl6AYklG+v6z3zy/8fRixOmdkdD5A022Gzr9/
-         ch/7UNX40AfIvj7Li8iwEICN7y+xAWfHH69FGMSbkAbkVlniBLK3s4O4FsQcpXv8Ha
-         ApQQtkt5gvHt1z8XKo4/5ig6AvWd3qPODLwL8ka4=
+        b=UXqzTzgcQdP/PiOm2IAoMHKqBUt9VqEaktH+4bWr4xaznTecqAw3lkE9nXYD3Pjf4
+         wOrxPV/53pWnJwmjQjgno/WKyDJLn1B1amacE/PEx38MhfYnmGfBPfpNU/X3rGkn7N
+         Idx5Nz2NoyOJtPVzQ1zp9XZIZf9EcHosqcPoAb0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 105/143] NFS: Ensure O_DIRECT reports an error if the bytes read/written is 0
+        Ding Xiang <dingxiang@cmss.chinamobile.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.9 76/83] stm class: Fix a double free of stm_source_device
 Date:   Wed,  4 Sep 2019 19:54:08 +0200
-Message-Id: <20190904175318.483862880@linuxfoundation.org>
+Message-Id: <20190904175310.312768172@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,85 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ding Xiang <dingxiang@cmss.chinamobile.com>
 
-commit eb2c50da9e256dbbb3ff27694440e4c1900cfef8 upstream.
+commit 961b6ffe0e2c403b09a8efe4a2e986b3c415391a upstream.
 
-If the attempt to resend the I/O results in no bytes being read/written,
-we must ensure that we report the error.
+In the error path of stm_source_register_device(), the kfree is
+unnecessary, as the put_device() before it ends up calling
+stm_source_device_release() to free stm_source_device, leading to
+a double free at the outer kfree() call. Remove it.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Fixes: 0a00b77b331a ("nfs: mirroring support for direct io")
-Cc: stable@vger.kernel.org # v3.20+
+Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: 7bd1d4093c2fa ("stm class: Introduce an abstraction for System Trace Module devices")
+Link: https://lore.kernel.org/linux-arm-kernel/1563354988-23826-1-git-send-email-dingxiang@cmss.chinamobile.com/
+Cc: stable@vger.kernel.org # v4.4+
+Link: https://lore.kernel.org/r/20190821074955.3925-2-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/direct.c   |   27 ++++++++++++++++++---------
- fs/nfs/pagelist.c |    1 +
- 2 files changed, 19 insertions(+), 9 deletions(-)
+ drivers/hwtracing/stm/core.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -401,15 +401,21 @@ static void nfs_direct_read_completion(s
- 	unsigned long bytes = 0;
- 	struct nfs_direct_req *dreq = hdr->dreq;
+--- a/drivers/hwtracing/stm/core.c
++++ b/drivers/hwtracing/stm/core.c
+@@ -1107,7 +1107,6 @@ int stm_source_register_device(struct de
  
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
--
- 	spin_lock(&dreq->lock);
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags) && (hdr->good_bytes == 0))
-+	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	else
-+
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0)
- 		nfs_direct_good_bytes(dreq, hdr);
+ err:
+ 	put_device(&src->dev);
+-	kfree(src);
  
-+	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
-+		dreq->error = 0;
-+
- 	spin_unlock(&dreq->lock);
- 
- 	while (!list_empty(&hdr->pages)) {
-@@ -782,16 +788,19 @@ static void nfs_direct_write_completion(
- 	bool request_commit = false;
- 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
- 
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
--
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
- 	spin_lock(&dreq->lock);
- 
- 	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	if (dreq->error == 0) {
-+
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0) {
- 		nfs_direct_good_bytes(dreq, hdr);
- 		if (nfs_write_need_commit(hdr)) {
- 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1268,6 +1268,7 @@ int nfs_pageio_resend(struct nfs_pageio_
- 	if (!list_empty(&pages)) {
- 		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
- 		hdr->completion_ops->error_cleanup(&pages, err);
-+		nfs_set_pgio_error(hdr, err, hdr->io_start);
- 		return err;
- 	}
- 	return 0;
+ 	return err;
+ }
 
 
