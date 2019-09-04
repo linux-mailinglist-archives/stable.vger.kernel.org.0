@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C8EA8B4D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DE8A8BCC
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387407AbfIDQCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
+        id S1731774AbfIDQGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387394AbfIDQCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:02:32 -0400
+        id S1733309AbfIDQCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:02:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73222341D;
-        Wed,  4 Sep 2019 16:02:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451A52339D;
+        Wed,  4 Sep 2019 16:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612951;
-        bh=7qzM2gbgcZH8LjA8YqY/rq6Rfs4xuVzEsRBat+ya2eU=;
+        s=default; t=1567612954;
+        bh=U7yRzAYMW30TIjYy8RlK1FZ5pZc4dDGGUPsgsBmMOss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvWtNsZWdH3NlbyRyCmiFk3sc+IW1u45etNZxmJXBWW6jp8gelLx3xZBjdELvOpio
-         K2+ybqLeytqERMCMs1CQOBOw9eDfjBhij1DqSiofMJ2ik1BzQwkyrhARY7TbiJo8vp
-         xEJ01epSDUjy6dgpd/HgDPRAgQK2BTDdn8YEUHzM=
+        b=GBLoD5UQrt7T/8wE00/9MPi4Rnn5U0uMPQ6bM+0BxEUmGhlkDAhzsn1+9uUoUGUfh
+         pKtLFb/WMMvUYg/JEkUQklJdY6JVlV3bx70RcyEwtFgES6B15ZrQSqQbsuuLp+VAZn
+         zmz94xcZ73JPEDqYO0Jqb1yzQBJY89woi0Y67yDA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/27] qed: Add cleanup in qed_slowpath_start()
-Date:   Wed,  4 Sep 2019 12:02:02 -0400
-Message-Id: <20190904160220.4545-9-sashal@kernel.org>
+Cc:     Doug Berger <opendmb@gmail.com>, Laura Abbott <labbott@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Peng Fan <peng.fan@nxp.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/27] ARM: 8874/1: mm: only adjust sections of valid mm structures
+Date:   Wed,  4 Sep 2019 12:02:03 -0400
+Message-Id: <20190904160220.4545-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
 References: <20190904160220.4545-1-sashal@kernel.org>
@@ -44,44 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit de0e4fd2f07ce3bbdb69dfb8d9426b7227451b69 ]
+[ Upstream commit c51bc12d06b3a5494fbfcbd788a8e307932a06e9 ]
 
-If qed_mcp_send_drv_version() fails, no cleanup is executed, leading to
-memory leaks. To fix this issue, introduce the label 'err4' to perform the
-cleanup work before returning the error.
+A timing hazard exists when an early fork/exec thread begins
+exiting and sets its mm pointer to NULL while a separate core
+tries to update the section information.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit ensures that the mm pointer is not NULL before
+setting its section parameters. The arguments provided by
+commit 11ce4b33aedc ("ARM: 8672/1: mm: remove tasklist locking
+from update_sections_early()") are equally valid for not
+requiring grabbing the task_lock around this check.
+
+Fixes: 08925c2f124f ("ARM: 8464/1: Update all mm structures with section adjustments")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Laura Abbott <labbott@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Rob Herring <robh@kernel.org>
+Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Cc: Peng Fan <peng.fan@nxp.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mm/init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index a769196628d91..708117fc6f733 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -958,7 +958,7 @@ static int qed_slowpath_start(struct qed_dev *cdev,
- 					      &drv_version);
- 		if (rc) {
- 			DP_NOTICE(cdev, "Failed sending drv version command\n");
--			return rc;
-+			goto err4;
- 		}
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index 1565d6b671636..4fb1474141a61 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -698,7 +698,8 @@ static void update_sections_early(struct section_perm perms[], int n)
+ 		if (t->flags & PF_KTHREAD)
+ 			continue;
+ 		for_each_thread(t, s)
+-			set_section_perms(perms, n, true, s->mm);
++			if (s->mm)
++				set_section_perms(perms, n, true, s->mm);
  	}
- 
-@@ -966,6 +966,8 @@ static int qed_slowpath_start(struct qed_dev *cdev,
- 
- 	return 0;
- 
-+err4:
-+	qed_ll2_dealloc_if(cdev);
- err3:
- 	qed_hw_stop(cdev);
- err2:
+ 	read_unlock(&tasklist_lock);
+ 	set_section_perms(perms, n, true, current->active_mm);
 -- 
 2.20.1
 
