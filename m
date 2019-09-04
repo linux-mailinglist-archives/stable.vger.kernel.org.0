@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE627A913F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E11A903F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390756AbfIDSOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:14:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59496 "EHLO mail.kernel.org"
+        id S2389805AbfIDSId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389453AbfIDSOV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:14:21 -0400
+        id S2388734AbfIDSId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B4EB22CF7;
-        Wed,  4 Sep 2019 18:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43BAB2087E;
+        Wed,  4 Sep 2019 18:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620860;
-        bh=QiiWuGcgOjRZ/srI8+ia0peu/RvqTW7WEzFTV7LwK2o=;
+        s=default; t=1567620512;
+        bh=02PczsOJSc4YfEWE2n6BF+65aGR455I13ZDkZ1cTWWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8nQ2EfQj4U0y30WV8ndFenN+Z0q0Gj/h906XDFW3f589s8vz1M1XmVcmHwYfd9eY
-         1q1xNaFYB3whMG1mhweHjFiQYHQJddtiZW8z2SOvK0KCESKI/Q8Ry/dKe4hrHSgJCU
-         QpoM0bK1ZT4nsXqS5h6rZitVZCT1R5LploQsWwSg=
+        b=gmR+vY0d4c8CrqCziuE4aiROWbYtvb3+nl8zpiNES6joYmfVoRjYmQI3btm3fgVkT
+         URveJqosvj4CMyIcfjDWb8OclRlKLucs+9SmqzXhgsBKwWM6qkzh6OxOmYJWmDQ010
+         lPpfFLHBGYhKHoLozXnX0dfwZUlYNlA6grpiZ9Fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 122/143] mm, memcg: partially revert "mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones"
-Date:   Wed,  4 Sep 2019 19:54:25 +0200
-Message-Id: <20190904175319.173967594@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 84/93] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation error handling
+Date:   Wed,  4 Sep 2019 19:54:26 +0200
+Message-Id: <20190904175310.366751053@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+[ Upstream commit ddfd151f3def9258397fcde7a372205a2d661903 ]
 
-commit b4c46484dc3fa3721d68fdfae85c1d7b1f6b5472 upstream.
+H_PUT_TCE_INDIRECT handlers receive a page with up to 512 TCEs from
+a guest. Although we verify correctness of TCEs before we do anything
+with the existing tables, there is a small window when a check in
+kvmppc_tce_validate might pass and right after that the guest alters
+the page of TCEs, causing an early exit from the handler and leaving
+srcu_read_lock(&vcpu->kvm->srcu) (virtual mode) or lock_rmap(rmap)
+(real mode) locked.
 
-Commit 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync
-with the hierarchical ones") effectively decreased the precision of
-per-memcg vmstats_local and per-memcg-per-node lruvec percpu counters.
+This fixes the bug by jumping to the common exit code with an appropriate
+unlock.
 
-That's good for displaying in memory.stat, but brings a serious
-regression into the reclaim process.
-
-One issue I've discovered and debugged is the following:
-lruvec_lru_size() can return 0 instead of the actual number of pages in
-the lru list, preventing the kernel to reclaim last remaining pages.
-Result is yet another dying memory cgroups flooding.  The opposite is
-also happening: scanning an empty lru list is the waste of cpu time.
-
-Also, inactive_list_is_low() can return incorrect values, preventing the
-active lru from being scanned and freed.  It can fail both because the
-size of active and inactive lists are inaccurate, and because the number
-of workingset refaults isn't precise.  In other words, the result is
-pretty random.
-
-I'm not sure, if using the approximate number of slab pages in
-count_shadow_number() is acceptable, but issues described above are
-enough to partially revert the patch.
-
-Let's keep per-memcg vmstat_local batched (they are only used for
-displaying stats to the userspace), but keep lruvec stats precise.  This
-change fixes the dead memcg flooding on my setup.
-
-Link: http://lkml.kernel.org/r/20190817004726.2530670-1-guro@fb.com
-Fixes: 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Acked-by: Yafang Shao <laoar.shao@gmail.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org # v4.11+
+Fixes: 121f80ba68f1 ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/powerpc/kvm/book3s_64_vio.c    | 6 ++++--
+ arch/powerpc/kvm/book3s_64_vio_hv.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -748,15 +748,13 @@ void __mod_lruvec_state(struct lruvec *l
- 	/* Update memcg */
- 	__mod_memcg_state(memcg, idx, val);
+diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
+index 9a3f2646ecc7e..07a8004c3c237 100644
+--- a/arch/powerpc/kvm/book3s_64_vio.c
++++ b/arch/powerpc/kvm/book3s_64_vio.c
+@@ -602,8 +602,10 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
  
-+	/* Update lruvec */
-+	__this_cpu_add(pn->lruvec_stat_local->count[idx], val);
-+
- 	x = val + __this_cpu_read(pn->lruvec_stat_cpu->count[idx]);
- 	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
- 		struct mem_cgroup_per_node *pi;
+ 		if (kvmppc_gpa_to_ua(vcpu->kvm,
+ 				tce & ~(TCE_PCI_READ | TCE_PCI_WRITE),
+-				&ua, NULL))
+-			return H_PARAMETER;
++				&ua, NULL)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
  
--		/*
--		 * Batch local counters to keep them in sync with
--		 * the hierarchical ones.
--		 */
--		__this_cpu_add(pn->lruvec_stat_local->count[idx], x);
- 		for (pi = pn; pi; pi = parent_nodeinfo(pi, pgdat->node_id))
- 			atomic_long_add(x, &pi->lruvec_stat[idx]);
- 		x = 0;
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt,
+diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
+index 6821ead4b4ebc..eb8b11515a7ff 100644
+--- a/arch/powerpc/kvm/book3s_64_vio_hv.c
++++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
+@@ -528,8 +528,10 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 		ua = 0;
+ 		if (kvmppc_gpa_to_ua(vcpu->kvm,
+ 				tce & ~(TCE_PCI_READ | TCE_PCI_WRITE),
+-				&ua, NULL))
+-			return H_PARAMETER;
++				&ua, NULL)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
+-- 
+2.20.1
+
 
 
