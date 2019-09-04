@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FABA8EE9
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 687CAA90E9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388437AbfIDSAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40012 "EHLO mail.kernel.org"
+        id S2390079AbfIDSM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388427AbfIDSAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:42 -0400
+        id S2388962AbfIDSM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7071C22CF5;
-        Wed,  4 Sep 2019 18:00:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01F7E2341D;
+        Wed,  4 Sep 2019 18:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620041;
-        bh=iryYQO161VMi3ttZTGFDeTVGpdK1PfArdz98f7LOIok=;
+        s=default; t=1567620747;
+        bh=RwAewO1EypVLVJLkigioLHmRtyVfLIej5e1mBvm8MZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycB7IOigvRd1f06mxFqwRgYfCZFdE60+wvfsTgMZJMrOpNRqpK9jdPAdR3cLVow47
-         Yv3VVxzTK1fZyKHuzqz7bfWjFqaDGf/Xh6u2v5c/kJkRKcEamRc9DTQz3UUGbX3kFt
-         8vp6oZbA/vimNULmUGJr/swWHy5uAGX0IyY/ORXE=
+        b=eRRtUhN+vuXHBulMqL1djbluABqZhiL8CAnukGpRRN3SIJVkgH6rql70N2CVfLvpV
+         C9ljZ4orasK1MEnsskSPutLPa5VY+XRlTf3YiwA7qnDBks1rzTThKOyRbBS0o3/uLh
+         1lr0GOZdZWEDrVxpLzM+wZanCNzig4+pFyupnBFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 51/83] usb: host: fotg2: restart hcd after port reset
+        syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.2 080/143] USB: cdc-wdm: fix race between write and disconnect due to flag abuse
 Date:   Wed,  4 Sep 2019 19:53:43 +0200
-Message-Id: <20190904175308.222041811@linuxfoundation.org>
+Message-Id: <20190904175317.189160805@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 777758888ffe59ef754cc39ab2f275dc277732f4 ]
+From: Oliver Neukum <oneukum@suse.com>
 
-On the Gemini SoC the FOTG2 stalls after port reset
-so restart the HCD after each port reset.
+commit 1426bd2c9f7e3126e2678e7469dca9fd9fc6dd3e upstream.
 
-Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20190810150458.817-1-linus.walleij@linaro.org
+In case of a disconnect an ongoing flush() has to be made fail.
+Nevertheless we cannot be sure that any pending URB has already
+finished, so although they will never succeed, they still must
+not be touched.
+The clean solution for this is to check for WDM_IN_USE
+and WDM_DISCONNECTED in flush(). There is no point in ever
+clearing WDM_IN_USE, as no further writes make sense.
+
+The issue is as old as the driver.
+
+Fixes: afba937e540c9 ("USB: CDC WDM driver")
+Reported-by: syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190827103436.21143-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/host/fotg210-hcd.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/class/cdc-wdm.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 66efa9a676877..72853020a5426 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -1653,6 +1653,10 @@ static int fotg210_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			/* see what we found out */
- 			temp = check_reset_complete(fotg210, wIndex, status_reg,
- 					fotg210_readl(fotg210, status_reg));
-+
-+			/* restart schedule */
-+			fotg210->command |= CMD_RUN;
-+			fotg210_writel(fotg210, fotg210->command, &fotg210->regs->command);
- 		}
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -587,10 +587,20 @@ static int wdm_flush(struct file *file,
+ {
+ 	struct wdm_device *desc = file->private_data;
  
- 		if (!(temp & (PORT_RESUME|PORT_RESET))) {
--- 
-2.20.1
-
+-	wait_event(desc->wait, !test_bit(WDM_IN_USE, &desc->flags));
++	wait_event(desc->wait,
++			/*
++			 * needs both flags. We cannot do with one
++			 * because resetting it would cause a race
++			 * with write() yet we need to signal
++			 * a disconnect
++			 */
++			!test_bit(WDM_IN_USE, &desc->flags) ||
++			test_bit(WDM_DISCONNECTING, &desc->flags));
+ 
+ 	/* cannot dereference desc->intf if WDM_DISCONNECTING */
+-	if (desc->werr < 0 && !test_bit(WDM_DISCONNECTING, &desc->flags))
++	if (test_bit(WDM_DISCONNECTING, &desc->flags))
++		return -ENODEV;
++	if (desc->werr < 0)
+ 		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
+ 			desc->werr);
+ 
+@@ -974,8 +984,6 @@ static void wdm_disconnect(struct usb_in
+ 	spin_lock_irqsave(&desc->iuspin, flags);
+ 	set_bit(WDM_DISCONNECTING, &desc->flags);
+ 	set_bit(WDM_READ, &desc->flags);
+-	/* to terminate pending flushes */
+-	clear_bit(WDM_IN_USE, &desc->flags);
+ 	spin_unlock_irqrestore(&desc->iuspin, flags);
+ 	wake_up_all(&desc->wait);
+ 	mutex_lock(&desc->rlock);
 
 
