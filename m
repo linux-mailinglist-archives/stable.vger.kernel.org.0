@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2330BA8A9C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAC1A8C56
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732563AbfIDQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:00:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34858 "EHLO mail.kernel.org"
+        id S1732234AbfIDQMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732554AbfIDQAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:00:09 -0400
+        id S1732561AbfIDQAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:00:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB25E20820;
-        Wed,  4 Sep 2019 16:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67C4C22CED;
+        Wed,  4 Sep 2019 16:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612807;
-        bh=OWnVuFGQtNxK4edV8WWlxrCODApxNE/4x30tpYdErYQ=;
+        s=default; t=1567612809;
+        bh=hepvH7SjapywPDPI2SBLLPFx6wumdhL0IWMJt9o1E0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXEq2aaID4lQYz+ZaWgm2HGqbLWY5er66OD7Wky0MoNSE4LPA9Q3fp1zR53x90W1Z
-         /8Jzp9nHnLGYDr8wyAmyyqbGzG98CvJw+MWJeYmE5+eX3FDBdnyRQn315u1iIwHL7C
-         iDV9D14IE7LhqYHABd5ocg2Sc1s0XNOyzypCoWVU=
+        b=iLDTEoiBZmO063BT88eZuIuNGxr/Zu3Vuup4zAUOplNZLRwvLnwfAtDLdbG410iOq
+         9X6HaWO/id/QRWqoCEPK3WA5qdBvnONHvja1O6I9r1g/8S0S85W+aXKQq4WbuaX4Na
+         lwsS4yyqwT76FYI/RuB14HkiWipWp6L/2/CzNhd8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Alexander Aring <aring@mojatatu.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/52] ieee802154: hwsim: unregister hw while hwsim_subscribe_all_others fails
-Date:   Wed,  4 Sep 2019 11:59:14 -0400
-Message-Id: <20190904160004.3671-2-sashal@kernel.org>
+Cc:     Faiz Abbas <faiz_abbas@ti.com>, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 03/52] ARM: dts: am57xx: Disable voltage switching for SD card
+Date:   Wed,  4 Sep 2019 11:59:15 -0400
+Message-Id: <20190904160004.3671-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
@@ -45,98 +43,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-[ Upstream commit de166bbe861738c8bc3e5dad5b03f45d7d6ef914 ]
+[ Upstream commit fb59ee37cfe20d10d19568899d1458a58361246c ]
 
-KASAN report this:
+If UHS speed modes are enabled, a compatible SD card switches down to
+1.8V during enumeration. If after this a software reboot/crash takes
+place and on-chip ROM tries to enumerate the SD card, the difference in
+IO voltages (host @ 3.3V and card @ 1.8V) may end up damaging the card.
 
-kernel BUG at net/mac802154/main.c:130!
-invalid opcode: 0000 [#1] PREEMPT SMP
-CPU: 0 PID: 19932 Comm: modprobe Not tainted 5.1.0-rc6+ #22
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:ieee802154_free_hw+0x2a/0x30 [mac802154]
-Code: 55 48 8d 57 38 48 89 e5 53 48 89 fb 48 8b 47 38 48 39 c2 75 15 48 8d 7f 48 e8 82 85 16 e1 48 8b 7b 28 e8 f9 ef 83 e2 5b 5d c3 <0f> 0b 0f 1f 40 00 55 48 89 e5 53 48 89 fb 0f b6 86 80 00 00 00 88
-RSP: 0018:ffffc90001c7b9f0 EFLAGS: 00010206
-RAX: ffff88822df3aa80 RBX: ffff88823143d5c0 RCX: 0000000000000002
-RDX: ffff88823143d5f8 RSI: ffff88822b1fabc0 RDI: ffff88823143d5c0
-RBP: ffffc90001c7b9f8 R08: 0000000000000000 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000000 R12: 00000000fffffff4
-R13: ffff88822dea4f50 R14: ffff88823143d7c0 R15: 00000000fffffff4
-FS: 00007ff52e999540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fdc06dba768 CR3: 000000023160a000 CR4: 00000000000006f0
-Call Trace:
- hwsim_add_one+0x2dd/0x540 [mac802154_hwsim]
- hwsim_probe+0x2f/0xb0 [mac802154_hwsim]
- platform_drv_probe+0x3a/0x90
- ? driver_sysfs_add+0x79/0xb0
- really_probe+0x1d4/0x2d0
- driver_probe_device+0x50/0xf0
- device_driver_attach+0x54/0x60
- __driver_attach+0x7e/0xd0
- ? device_driver_attach+0x60/0x60
- bus_for_each_dev+0x68/0xc0
- driver_attach+0x19/0x20
- bus_add_driver+0x15e/0x200
- driver_register+0x5b/0xf0
- __platform_driver_register+0x31/0x40
- hwsim_init_module+0x74/0x1000 [mac802154_hwsim]
- ? 0xffffffffa00e9000
- do_one_initcall+0x6c/0x3cc
- ? kmem_cache_alloc_trace+0x248/0x3b0
- do_init_module+0x5b/0x1f1
- load_module+0x1db1/0x2690
- ? m_show+0x1d0/0x1d0
- __do_sys_finit_module+0xc5/0xd0
- __x64_sys_finit_module+0x15/0x20
- do_syscall_64+0x6b/0x1d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7ff52e4a2839
-Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1f f6 2c 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffffa7b3c08 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-RAX: ffffffffffffffda RBX: 00005647560a2a00 RCX: 00007ff52e4a2839
-RDX: 0000000000000000 RSI: 00005647547f3c2e RDI: 0000000000000003
-RBP: 00005647547f3c2e R08: 0000000000000000 R09: 00005647560a2a00
-R10: 0000000000000003 R11: 0000000000000246 R12: 0000000000000000
-R13: 00005647560a2c10 R14: 0000000000040000 R15: 00005647560a2a00
-Modules linked in: mac802154_hwsim(+) mac802154 [last unloaded: mac802154_hwsim]
+The fix for this is to have support for power cycling the card in
+hardware (with a PORz/soft-reset line causing a power cycle of the
+card). Because the beaglebone X15 (rev A,B and C), am57xx-idks and
+am57xx-evms don't have this capability, disable voltage switching for
+these boards.
 
-In hwsim_add_one, if hwsim_subscribe_all_others fails, we
-should call ieee802154_unregister_hw to free resources.
+The major effect of this is that the maximum supported speed
+mode is now high speed(50 MHz) down from SDR104(200 MHz).
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Alexander Aring <aring@mojatatu.com>
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+commit 88a748419b84 ("ARM: dts: am57xx-idk: Remove support for voltage
+switching for SD card") did this only for idk boards. Do it for all
+affected boards.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/am571x-idk.dts                | 7 +------
+ arch/arm/boot/dts/am572x-idk.dts                | 7 +------
+ arch/arm/boot/dts/am574x-idk.dts                | 7 +------
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi | 1 +
+ arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts   | 7 +------
+ arch/arm/boot/dts/am57xx-beagle-x15-revc.dts    | 7 +------
+ 6 files changed, 6 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 20b4c0c21e36a..be1f1a86bcd61 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -821,7 +821,7 @@ static int hwsim_add_one(struct genl_info *info, struct device *dev,
- 		err = hwsim_subscribe_all_others(phy);
- 		if (err < 0) {
- 			mutex_unlock(&hwsim_phys_lock);
--			goto err_reg;
-+			goto err_subscribe;
- 		}
- 	}
- 	list_add_tail(&phy->list, &hwsim_phys);
-@@ -831,6 +831,8 @@ static int hwsim_add_one(struct genl_info *info, struct device *dev,
+diff --git a/arch/arm/boot/dts/am571x-idk.dts b/arch/arm/boot/dts/am571x-idk.dts
+index d9a2049a1ea8a..6bebedfc0f35a 100644
+--- a/arch/arm/boot/dts/am571x-idk.dts
++++ b/arch/arm/boot/dts/am571x-idk.dts
+@@ -98,14 +98,9 @@
+ };
  
- 	return idx;
+ &mmc1 {
+-	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
++	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
+ 	pinctrl-1 = <&mmc1_pins_hs>;
+-	pinctrl-2 = <&mmc1_pins_sdr12>;
+-	pinctrl-3 = <&mmc1_pins_sdr25>;
+-	pinctrl-4 = <&mmc1_pins_sdr50>;
+-	pinctrl-5 = <&mmc1_pins_ddr50_rev20 &mmc1_iodelay_ddr50_conf>;
+-	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
+ };
  
-+err_subscribe:
-+	ieee802154_unregister_hw(phy->hw);
- err_reg:
- 	kfree(pib);
- err_pib:
+ &mmc2 {
+diff --git a/arch/arm/boot/dts/am572x-idk.dts b/arch/arm/boot/dts/am572x-idk.dts
+index 3ef9111d0e8ba..9235173edbd3a 100644
+--- a/arch/arm/boot/dts/am572x-idk.dts
++++ b/arch/arm/boot/dts/am572x-idk.dts
+@@ -20,14 +20,9 @@
+ };
+ 
+ &mmc1 {
+-	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
++	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
+ 	pinctrl-1 = <&mmc1_pins_hs>;
+-	pinctrl-2 = <&mmc1_pins_sdr12>;
+-	pinctrl-3 = <&mmc1_pins_sdr25>;
+-	pinctrl-4 = <&mmc1_pins_sdr50>;
+-	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev20_conf>;
+-	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
+ };
+ 
+ &mmc2 {
+diff --git a/arch/arm/boot/dts/am574x-idk.dts b/arch/arm/boot/dts/am574x-idk.dts
+index 378dfa780ac17..ae43de3297f4f 100644
+--- a/arch/arm/boot/dts/am574x-idk.dts
++++ b/arch/arm/boot/dts/am574x-idk.dts
+@@ -24,14 +24,9 @@
+ };
+ 
+ &mmc1 {
+-	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
++	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
+ 	pinctrl-1 = <&mmc1_pins_hs>;
+-	pinctrl-2 = <&mmc1_pins_default>;
+-	pinctrl-3 = <&mmc1_pins_hs>;
+-	pinctrl-4 = <&mmc1_pins_sdr50>;
+-	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_conf>;
+-	pinctrl-6 = <&mmc1_pins_ddr50 &mmc1_iodelay_sdr104_conf>;
+ };
+ 
+ &mmc2 {
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index ad953113cefbd..d53532b479475 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -433,6 +433,7 @@
+ 
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio6 27 GPIO_ACTIVE_LOW>; /* gpio 219 */
++	no-1-8-v;
+ };
+ 
+ &mmc2 {
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
+index 5a77b334923d0..34c69965821bb 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
+@@ -19,14 +19,9 @@
+ };
+ 
+ &mmc1 {
+-	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
++	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default>;
+ 	pinctrl-1 = <&mmc1_pins_hs>;
+-	pinctrl-2 = <&mmc1_pins_sdr12>;
+-	pinctrl-3 = <&mmc1_pins_sdr25>;
+-	pinctrl-4 = <&mmc1_pins_sdr50>;
+-	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev11_conf>;
+-	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev11_conf>;
+ 	vmmc-supply = <&vdd_3v3>;
+ 	vqmmc-supply = <&ldo1_reg>;
+ };
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+index 17c41da3b55f1..ccd99160bbdfb 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+@@ -19,14 +19,9 @@
+ };
+ 
+ &mmc1 {
+-	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
++	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default>;
+ 	pinctrl-1 = <&mmc1_pins_hs>;
+-	pinctrl-2 = <&mmc1_pins_sdr12>;
+-	pinctrl-3 = <&mmc1_pins_sdr25>;
+-	pinctrl-4 = <&mmc1_pins_sdr50>;
+-	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev20_conf>;
+-	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
+ 	vmmc-supply = <&vdd_3v3>;
+ 	vqmmc-supply = <&ldo1_reg>;
+ };
 -- 
 2.20.1
 
