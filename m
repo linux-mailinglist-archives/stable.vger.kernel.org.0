@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 773AEA8B38
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B6AA8B3C
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733233AbfIDQCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
+        id S1733253AbfIDQCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:02:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733228AbfIDQCU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:02:20 -0400
+        id S1733244AbfIDQCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:02:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA08E2070C;
-        Wed,  4 Sep 2019 16:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D229822CF5;
+        Wed,  4 Sep 2019 16:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612939;
-        bh=WDDmQk9gOFP0z6dEEfHIWljZ+gHsBxUO1ko+buhLRBk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P73Dz37kqR/C0kb4tTmWjBlNSUCpCpjNR/bz1jD5xV1RvOaXwZLEyh6VeL5RUrr3J
-         f78LVm2wdFRCafR5s5q20g1s95D3KoCrcffysPygkaLi9Nzieece7rPcnn3cYIOo0s
-         dioJ8iH4U4mHx16awuqt/dfnhmRn5ah/fjRnJWto=
+        s=default; t=1567612942;
+        bh=soc01mXklDNkUZ7gXsZ0FDUQFGQ4y6UxA6Moa5SC2cs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ErFaZqRUvZHUp5Ll9g8MYILTjnEWvTJas+FI9p/5zad8dKoMJYO9gFr2h598jx2oH
+         qc3U4PBEIqhvkuX2ZOVgeP84z5egQlmTZT9Y+gN3pPibSfoIyLHWxqcdbk+sLgoWYW
+         dV8vp+bZFmFyJ7fOdl/aEK3L5LBbC+vUhXpROewM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 36/36] net: seeq: Fix the function used to release some memory in an error handling path
-Date:   Wed,  4 Sep 2019 12:01:22 -0400
-Message-Id: <20190904160122.4179-36-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Suman Anna <s-anna@ti.com>,
+        Keerthy <j-keerthy@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/27] ARM: OMAP2+: Fix missing SYSC_HAS_RESET_STATUS for dra7 epwmss
+Date:   Wed,  4 Sep 2019 12:01:54 -0400
+Message-Id: <20190904160220.4545-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190904160122.4179-1-sashal@kernel.org>
-References: <20190904160122.4179-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,53 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit e1e54ec7fb55501c33b117c111cb0a045b8eded2 ]
+[ Upstream commit afd58b162e48076e3fe66d08a69eefbd6fe71643 ]
 
-In commit 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv"),
-a call to 'get_zeroed_page()' has been turned into a call to
-'dma_alloc_coherent()'. Only the remove function has been updated to turn
-the corresponding 'free_page()' into 'dma_free_attrs()'.
-The error hndling path of the probe function has not been updated.
+TRM says PWMSS_SYSCONFIG bit for SOFTRESET changes to zero when
+reset is completed. Let's configure it as otherwise we get warnings
+on boot when we check the data against dts provided data. Eventually
+the legacy platform data will be just dropped, but let's fix the
+warning first.
 
-Fix it now.
-
-Rename the corresponding label to something more in line.
-
-Fixes: 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Suman Anna <s-anna@ti.com>
+Tested-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/seeq/sgiseeq.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod_7xx_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/seeq/sgiseeq.c b/drivers/net/ethernet/seeq/sgiseeq.c
-index 84a42ed97601d..49a18439bea2b 100644
---- a/drivers/net/ethernet/seeq/sgiseeq.c
-+++ b/drivers/net/ethernet/seeq/sgiseeq.c
-@@ -792,15 +792,16 @@ static int sgiseeq_probe(struct platform_device *pdev)
- 		printk(KERN_ERR "Sgiseeq: Cannot register net device, "
- 		       "aborting.\n");
- 		err = -ENODEV;
--		goto err_out_free_page;
-+		goto err_out_free_attrs;
- 	}
- 
- 	printk(KERN_INFO "%s: %s %pM\n", dev->name, sgiseeqstr, dev->dev_addr);
- 
- 	return 0;
- 
--err_out_free_page:
--	free_page((unsigned long) sp->srings);
-+err_out_free_attrs:
-+	dma_free_attrs(&pdev->dev, sizeof(*sp->srings), sp->srings,
-+		       sp->srings_dma, DMA_ATTR_NON_CONSISTENT);
- err_out_free_dev:
- 	free_netdev(dev);
- 
+diff --git a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
+index 1ab7096af8e23..f850fc3a91e82 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
+@@ -387,7 +387,8 @@ static struct omap_hwmod dra7xx_dcan2_hwmod = {
+ static struct omap_hwmod_class_sysconfig dra7xx_epwmss_sysc = {
+ 	.rev_offs	= 0x0,
+ 	.sysc_offs	= 0x4,
+-	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET,
++	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
++			  SYSC_HAS_RESET_STATUS,
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields	= &omap_hwmod_sysc_type2,
+ };
 -- 
 2.20.1
 
