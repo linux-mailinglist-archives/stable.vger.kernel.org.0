@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E247A9039
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1D7A8F53
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388526AbfIDSIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51234 "EHLO mail.kernel.org"
+        id S2388272AbfIDSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389179AbfIDSIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:22 -0400
+        id S2388284AbfIDSDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:03:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97B9120870;
-        Wed,  4 Sep 2019 18:08:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD26523697;
+        Wed,  4 Sep 2019 18:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620502;
-        bh=ZpgqCahdWLjUGrJzsstly2a0tcnXBJqNHV38YJRzlYg=;
+        s=default; t=1567620182;
+        bh=H+dch+YFeYG4YZLYOpmbLkkC1J9RsxRQVN+Y3N93/zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9PRUl3fpvc05OdW1z6veWcS6iV7BU/Y4FITxPtYegpYD7L4mn/PZmig/5JbLcZe+
-         77S1RhBoq1bUPxczwR9D+KO+JWjrdia8N0sKUwWj1nm/QvgijYOe3f17kBLdxyNYjm
-         YN64LuPfF8oLUzj3awg5+xK2z3+IuElaXVjDOqnQ=
+        b=NmSzNQyDtqVGvNqZYW5PBcJAZWI7fp+WFSZ805mhM5R2/X0WJHQbrW/xiMluwgqpm
+         xVKZVygGYATmDHbKCNA55xV+t6aB5hLGeJH7sDhSsGs1wDSa7cla0xcltZ1F4x4coW
+         aB2SDaY4KeHpGxtGRFXt5WncGNvC1GGD3lYETpJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 45/93] ALSA: usb-audio: Add implicit fb quirk for Behringer UFX1604
-Date:   Wed,  4 Sep 2019 19:53:47 +0200
-Message-Id: <20190904175307.085988364@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jason Baron <jbaron@akamai.com>,
+        Vladimir Rutsky <rutsky@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 20/57] tcp: make sure EPOLLOUT wont be missed
+Date:   Wed,  4 Sep 2019 19:53:48 +0200
+Message-Id: <20190904175303.918854334@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1a15718b41df026cffd0e42cfdc38a1384ce19f9 upstream.
+[ Upstream commit ef8d8ccdc216f797e66cb4a1372f5c4c285ce1e4 ]
 
-Behringer UFX1604 requires the similar quirk to apply implicit fb like
-another Behringer model UFX1204 in order to fix the noisy playback.
+As Jason Baron explained in commit 790ba4566c1a ("tcp: set SOCK_NOSPACE
+under memory pressure"), it is crucial we properly set SOCK_NOSPACE
+when needed.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204631
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+However, Jason patch had a bug, because the 'nonblocking' status
+as far as sk_stream_wait_memory() is concerned is governed
+by MSG_DONTWAIT flag passed at sendmsg() time :
+
+    long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+
+So it is very possible that tcp sendmsg() calls sk_stream_wait_memory(),
+and that sk_stream_wait_memory() returns -EAGAIN with SOCK_NOSPACE
+cleared, if sk->sk_sndtimeo has been set to a small (but not zero)
+value.
+
+This patch removes the 'noblock' variable since we must always
+set SOCK_NOSPACE if -EAGAIN is returned.
+
+It also renames the do_nonblock label since we might reach this
+code path even if we were in blocking mode.
+
+Fixes: 790ba4566c1a ("tcp: set SOCK_NOSPACE under memory pressure")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jason Baron <jbaron@akamai.com>
+Reported-by: Vladimir Rutsky  <rutsky@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Jason Baron <jbaron@akamai.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/usb/pcm.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/stream.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -350,6 +350,7 @@ static int set_sync_ep_implicit_fb_quirk
- 		ep = 0x81;
- 		ifnum = 2;
- 		goto add_sync_ep_from_ifnum;
-+	case USB_ID(0x1397, 0x0001): /* Behringer UFX1604 */
- 	case USB_ID(0x1397, 0x0002): /* Behringer UFX1204 */
- 		ep = 0x81;
- 		ifnum = 1;
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -120,7 +120,6 @@ int sk_stream_wait_memory(struct sock *s
+ 	int err = 0;
+ 	long vm_wait = 0;
+ 	long current_timeo = *timeo_p;
+-	bool noblock = (*timeo_p ? false : true);
+ 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 
+ 	if (sk_stream_memory_free(sk))
+@@ -133,11 +132,8 @@ int sk_stream_wait_memory(struct sock *s
+ 
+ 		if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
+ 			goto do_error;
+-		if (!*timeo_p) {
+-			if (noblock)
+-				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+-			goto do_nonblock;
+-		}
++		if (!*timeo_p)
++			goto do_eagain;
+ 		if (signal_pending(current))
+ 			goto do_interrupted;
+ 		sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+@@ -169,7 +165,13 @@ out:
+ do_error:
+ 	err = -EPIPE;
+ 	goto out;
+-do_nonblock:
++do_eagain:
++	/* Make sure that whenever EAGAIN is returned, EPOLLOUT event can
++	 * be generated later.
++	 * When TCP receives ACK packets that make room, tcp_check_space()
++	 * only calls tcp_new_space() if SOCK_NOSPACE is set.
++	 */
++	set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 	err = -EAGAIN;
+ 	goto out;
+ do_interrupted:
 
 
