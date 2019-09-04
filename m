@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6650CA8ED2
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA169A8FD9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387770AbfIDSAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39382 "EHLO mail.kernel.org"
+        id S2388656AbfIDSGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388358AbfIDSAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:13 -0400
+        id S2389393AbfIDSGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:06:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2240022CF7;
-        Wed,  4 Sep 2019 18:00:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0C89206B8;
+        Wed,  4 Sep 2019 18:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620012;
-        bh=POVv77FAGLE3oY4C5hekS+tznimgFvbt1kJ+1AMw6nM=;
+        s=default; t=1567620369;
+        bh=1z0/PnKnzdrtHvrkdbZNhkIDZuCv6e19BiAJJKBBu8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmua2HsMQkTO4IcusoO7bXuyjnxgZYujgPoQP4YtPG/oKRcsxTpX4a5fnyRjqwceF
-         g6zelQqGYrS6EgZW17wHx71+bjnR6TRb04uZcmvUQhhbLmg/2f4k7/tMYJUzToF3vH
-         qnCpDiSLUYFmKT4LwdYD0AfXvkGj85CQzvGdCHG0=
+        b=jhMAna5C9uqno85G47V1vkKYXTl1Vw1U3WGLp+mgcAUeNOsGs8SzULCjq6VXeSytW
+         8+I3EYsof4D5+KloRSlL/ZtlMaqS2Dc62b39001zIoEnj4e+BhrTbvTLHHyOYmeV12
+         BrEYLLcWZ21hWFYXk1nFxL+Yp4J6r6fLl/AefAsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Michal Hocko <mhocko@kernel.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 41/83] mm, page_owner: handle THP splits correctly
+        stable@vger.kernel.org, Vakul Garg <vakul.garg@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 31/93] net/tls: Fixed return value when tls_complete_pending_work() fails
 Date:   Wed,  4 Sep 2019 19:53:33 +0200
-Message-Id: <20190904175307.434935113@linuxfoundation.org>
+Message-Id: <20190904175305.973059058@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Vakul Garg <vakul.garg@nxp.com>
 
-commit f7da677bc6e72033f0981b9d58b5c5d409fa641e upstream.
+[ Upstream commit 150085791afb8054e11d2e080d4b9cd755dd7f69 ]
 
-THP splitting path is missing the split_page_owner() call that
-split_page() has.
+In tls_sw_sendmsg() and tls_sw_sendpage(), the variable 'ret' has
+been set to return value of tls_complete_pending_work(). This allows
+return of proper error code if tls_complete_pending_work() fails.
 
-As a result, split THP pages are wrongly reported in the page_owner file
-as order-9 pages.  Furthermore when the former head page is freed, the
-remaining former tail pages are not listed in the page_owner file at
-all.  This patch fixes that by adding the split_page_owner() call into
-__split_huge_page().
-
-Link: http://lkml.kernel.org/r/20190820131828.22684-2-vbabka@suse.cz
-Fixes: a9627bc5e34e ("mm/page_owner: introduce split_page_owner and replace manual handling")
-Reported-by: Kirill A. Shutemov <kirill@shutemov.name>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3c4d7559159b ("tls: kernel TLS support")
+Signed-off-by: Vakul Garg <vakul.garg@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/huge_memory.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/tls/tls_sw.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -30,6 +30,7 @@
- #include <linux/userfaultfd_k.h>
- #include <linux/page_idle.h>
- #include <linux/shmem_fs.h>
-+#include <linux/page_owner.h>
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -354,7 +354,7 @@ int tls_sw_sendmsg(struct sock *sk, stru
+ {
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_sw_context_tx *ctx = tls_sw_ctx_tx(tls_ctx);
+-	int ret = 0;
++	int ret;
+ 	int required_size;
+ 	long timeo = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
+ 	bool eor = !(msg->msg_flags & MSG_MORE);
+@@ -370,7 +370,8 @@ int tls_sw_sendmsg(struct sock *sk, stru
  
- #include <asm/tlb.h>
- #include <asm/pgalloc.h>
-@@ -1950,6 +1951,9 @@ static void __split_huge_page(struct pag
- 	}
+ 	lock_sock(sk);
  
- 	ClearPageCompound(head);
-+
-+	split_page_owner(head, HPAGE_PMD_ORDER);
-+
- 	/* See comment in __split_huge_page_tail() */
- 	if (PageAnon(head)) {
- 		page_ref_inc(head);
+-	if (tls_complete_pending_work(sk, tls_ctx, msg->msg_flags, &timeo))
++	ret = tls_complete_pending_work(sk, tls_ctx, msg->msg_flags, &timeo);
++	if (ret)
+ 		goto send_end;
+ 
+ 	if (unlikely(msg->msg_controllen)) {
+@@ -505,7 +506,7 @@ int tls_sw_sendpage(struct sock *sk, str
+ {
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_sw_context_tx *ctx = tls_sw_ctx_tx(tls_ctx);
+-	int ret = 0;
++	int ret;
+ 	long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+ 	bool eor;
+ 	size_t orig_size = size;
+@@ -525,7 +526,8 @@ int tls_sw_sendpage(struct sock *sk, str
+ 
+ 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+ 
+-	if (tls_complete_pending_work(sk, tls_ctx, flags, &timeo))
++	ret = tls_complete_pending_work(sk, tls_ctx, flags, &timeo);
++	if (ret)
+ 		goto sendpage_end;
+ 
+ 	/* Call the sk_stream functions to manage the sndbuf mem. */
 
 
