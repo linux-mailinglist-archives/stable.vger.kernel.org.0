@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A2BA90BA
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE74EA8E1F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389909AbfIDSLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55368 "EHLO mail.kernel.org"
+        id S1732513AbfIDR4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389877AbfIDSLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:11:22 -0400
+        id S1733211AbfIDR4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 891D12087E;
-        Wed,  4 Sep 2019 18:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D830323400;
+        Wed,  4 Sep 2019 17:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620681;
-        bh=nx4BE7QFsN29rEp7SS5/OfNznALXnOvEC33bd5bZ4r0=;
+        s=default; t=1567619772;
+        bh=YaezAtlfkEaTi5ezWg9Y7/KVHwZlyo5nraWPbkLVsaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOIS4SXgdWhzU5tg47qQkIyAClxmzcTYtj6JtgFQ7gRqDOSFY/+/rnPgcuRt2JsVe
-         PGYnPsjePEocJl1d+RATrTslvkrmCS3h3mQ8ygAmELDfcBt+ECxFtIrFT74lWtKssR
-         2Ydb5O9IpUVWMk/NJFrb8jZD04d5uKVWN8mLoADo=
+        b=SOVZu1/0h9DHMqQ88NdbSeXSVmjB44VgoH7l+uOdqcqd9aZOi78k/hTEWf7IbC6Sp
+         3may/LmMhDBHZOfM0Uo9C/6H88xpOcKNuQil/jS0eZSLAoNL3cQkCSCen1YHWGcVpj
+         QbWbe5YEYw++Ps29au9QRXNtXv8qApHYAM11y3gU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 053/143] net/smc: make sure EPOLLOUT is raised
+        stable@vger.kernel.org, Neil MacLeod <neil@nmacleod.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH 4.4 29/77] x86/boot: Fix boot regression caused by bootparam sanitizing
 Date:   Wed,  4 Sep 2019 19:53:16 +0200
-Message-Id: <20190904175316.142954365@linuxfoundation.org>
+Message-Id: <20190904175306.362034308@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Baron <jbaron@akamai.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit 4651d1802f7063e4d8c0bcad957f46ece0c04024 ]
+commit 7846f58fba964af7cb8cf77d4d13c33254725211 upstream.
 
-Currently, we are only explicitly setting SOCK_NOSPACE on a write timeout
-for non-blocking sockets. Epoll() edge-trigger mode relies on SOCK_NOSPACE
-being set when -EAGAIN is returned to ensure that EPOLLOUT is raised.
-Expand the setting of SOCK_NOSPACE to non-blocking sockets as well that can
-use SO_SNDTIMEO to adjust their write timeout. This mirrors the behavior
-that Eric Dumazet introduced for tcp sockets.
+commit a90118c445cc ("x86/boot: Save fields explicitly, zero out everything
+else") had two errors:
 
-Signed-off-by: Jason Baron <jbaron@akamai.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Ursula Braun <ubraun@linux.ibm.com>
-Cc: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    * It preserved boot_params.acpi_rsdp_addr, and
+    * It failed to preserve boot_params.hdr
+
+Therefore, zero out acpi_rsdp_addr, and preserve hdr.
+
+Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
+Reported-by: Neil MacLeod <neil@nmacleod.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Neil MacLeod <neil@nmacleod.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190821192513.20126-1-jhubbard@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/smc/smc_tx.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -76,13 +76,11 @@ static int smc_tx_wait(struct smc_sock *
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct smc_connection *conn = &smc->conn;
- 	struct sock *sk = &smc->sk;
--	bool noblock;
- 	long timeo;
- 	int rc = 0;
+---
+ arch/x86/include/asm/bootparam_utils.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/x86/include/asm/bootparam_utils.h
++++ b/arch/x86/include/asm/bootparam_utils.h
+@@ -70,6 +70,7 @@ static void sanitize_boot_params(struct
+ 			BOOT_PARAM_PRESERVE(eddbuf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
++			BOOT_PARAM_PRESERVE(hdr),
+ 			BOOT_PARAM_PRESERVE(eddbuf),
+ 		};
  
- 	/* similar to sk_stream_wait_memory */
- 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
--	noblock = timeo ? false : true;
- 	add_wait_queue(sk_sleep(sk), &wait);
- 	while (1) {
- 		sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-@@ -97,8 +95,8 @@ static int smc_tx_wait(struct smc_sock *
- 			break;
- 		}
- 		if (!timeo) {
--			if (noblock)
--				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-+			/* ensure EPOLLOUT is subsequently generated */
-+			set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
- 			rc = -EAGAIN;
- 			break;
- 		}
 
 
