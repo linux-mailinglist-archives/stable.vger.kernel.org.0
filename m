@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77870A8BA2
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78F9A8B9E
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732033AbfIDQEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40054 "EHLO mail.kernel.org"
+        id S1732220AbfIDQDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387674AbfIDQD2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:03:28 -0400
+        id S1732823AbfIDQDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:03:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F181923431;
-        Wed,  4 Sep 2019 16:03:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DFAA2087E;
+        Wed,  4 Sep 2019 16:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567613007;
-        bh=d9E8e5Yl/LVurahZOx39SNiiMA2U+50O6/6d+nmjWBs=;
+        s=default; t=1567613009;
+        bh=fiKGESYRd6UnogUEPjWbYQThK5Vjrm0ffLD3laRnlHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G96vgdEls5rlYp7lpw1cRbe5SkGCBdcbwLg/um03ZXkQqveoULUf8+zjv9mmBbXma
-         wRoYYBbHAtGb0VrCF0cMdCS3vG77eJtTjfa068R7OicepgoMefbTXGP1NEIfQAf9Sg
-         CvTCbfNcGnFgCtHQAdgi9VwpevPtte/fBWPovmBQ=
+        b=bU0GvfHZ674cAZC+/lreOYadfXhqY1eQTy3aREqD/ipe12nLek32YQnx5hRKFt+aS
+         27QVwAdUS+hiVAJyqhvdPwBIMjsmU3Bp/bSOuZUYM1ZmcBewrVWwmIDXf36Mori1yg
+         0iDofCwJ9cSuWzVhovhXyFERf0u0UkQMFc38Qdio=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, SteveM <swm@swm1.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 16/20] sky2: Disable MSI on yet another ASUS boards (P6Xxxx)
-Date:   Wed,  4 Sep 2019 12:02:59 -0400
-Message-Id: <20190904160303.5062-16-sashal@kernel.org>
+Cc:     Josh Hunt <johunt@akamai.com>,
+        Peter Zijlstra <peterz@infradead.org>, acme@kernel.org,
+        bpuranda@akamai.com, mingo@redhat.com, jolsa@redhat.com,
+        tglx@linutronix.de, namhyung@kernel.org,
+        alexander.shishkin@linux.intel.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 17/20] perf/x86/intel: Restrict period on Nehalem
+Date:   Wed,  4 Sep 2019 12:03:00 -0400
+Message-Id: <20190904160303.5062-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160303.5062-1-sashal@kernel.org>
 References: <20190904160303.5062-1-sashal@kernel.org>
@@ -43,40 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Josh Hunt <johunt@akamai.com>
 
-[ Upstream commit 189308d5823a089b56e2299cd96589507dac7319 ]
+[ Upstream commit 44d3bbb6f5e501b873218142fe08cdf62a4ac1f3 ]
 
-A similar workaround for the suspend/resume problem is needed for yet
-another ASUS machines, P6X models.  Like the previous fix, the BIOS
-doesn't provide the standard DMI_SYS_* entry, so again DMI_BOARD_*
-entries are used instead.
+We see our Nehalem machines reporting 'perfevents: irq loop stuck!' in
+some cases when using perf:
 
-Reported-and-tested-by: SteveM <swm@swm1.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+perfevents: irq loop stuck!
+WARNING: CPU: 0 PID: 3485 at arch/x86/events/intel/core.c:2282 intel_pmu_handle_irq+0x37b/0x530
+...
+RIP: 0010:intel_pmu_handle_irq+0x37b/0x530
+...
+Call Trace:
+<NMI>
+? perf_event_nmi_handler+0x2e/0x50
+? intel_pmu_save_and_restart+0x50/0x50
+perf_event_nmi_handler+0x2e/0x50
+nmi_handle+0x6e/0x120
+default_do_nmi+0x3e/0x100
+do_nmi+0x102/0x160
+end_repeat_nmi+0x16/0x50
+...
+? native_write_msr+0x6/0x20
+? native_write_msr+0x6/0x20
+</NMI>
+intel_pmu_enable_event+0x1ce/0x1f0
+x86_pmu_start+0x78/0xa0
+x86_pmu_enable+0x252/0x310
+__perf_event_task_sched_in+0x181/0x190
+? __switch_to_asm+0x41/0x70
+? __switch_to_asm+0x35/0x70
+? __switch_to_asm+0x41/0x70
+? __switch_to_asm+0x35/0x70
+finish_task_switch+0x158/0x260
+__schedule+0x2f6/0x840
+? hrtimer_start_range_ns+0x153/0x210
+schedule+0x32/0x80
+schedule_hrtimeout_range_clock+0x8a/0x100
+? hrtimer_init+0x120/0x120
+ep_poll+0x2f7/0x3a0
+? wake_up_q+0x60/0x60
+do_epoll_wait+0xa9/0xc0
+__x64_sys_epoll_wait+0x1a/0x20
+do_syscall_64+0x4e/0x110
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fdeb1e96c03
+...
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: acme@kernel.org
+Cc: Josh Hunt <johunt@akamai.com>
+Cc: bpuranda@akamai.com
+Cc: mingo@redhat.com
+Cc: jolsa@redhat.com
+Cc: tglx@linutronix.de
+Cc: namhyung@kernel.org
+Cc: alexander.shishkin@linux.intel.com
+Link: https://lkml.kernel.org/r/1566256411-18820-1-git-send-email-johunt@akamai.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/sky2.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kernel/cpu/perf_event_intel.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
-index dcd72b2a37150..8ba9eadc20791 100644
---- a/drivers/net/ethernet/marvell/sky2.c
-+++ b/drivers/net/ethernet/marvell/sky2.c
-@@ -4946,6 +4946,13 @@ static const struct dmi_system_id msi_blacklist[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "P6T"),
- 		},
- 	},
-+	{
-+		.ident = "ASUS P6X",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
-+			DMI_MATCH(DMI_BOARD_NAME, "P6X"),
-+		},
-+	},
- 	{}
- };
+diff --git a/arch/x86/kernel/cpu/perf_event_intel.c b/arch/x86/kernel/cpu/perf_event_intel.c
+index 3572434a73cb7..c26c3e3357834 100644
+--- a/arch/x86/kernel/cpu/perf_event_intel.c
++++ b/arch/x86/kernel/cpu/perf_event_intel.c
+@@ -2721,6 +2721,11 @@ static unsigned bdw_limit_period(struct perf_event *event, unsigned left)
+ 	return left;
+ }
+ 
++static u64 nhm_limit_period(struct perf_event *event, u64 left)
++{
++	return max(left, 32ULL);
++}
++
+ PMU_FORMAT_ATTR(event,	"config:0-7"	);
+ PMU_FORMAT_ATTR(umask,	"config:8-15"	);
+ PMU_FORMAT_ATTR(edge,	"config:18"	);
+@@ -3326,6 +3331,7 @@ __init int intel_pmu_init(void)
+ 		x86_pmu.pebs_constraints = intel_nehalem_pebs_event_constraints;
+ 		x86_pmu.enable_all = intel_pmu_nhm_enable_all;
+ 		x86_pmu.extra_regs = intel_nehalem_extra_regs;
++		x86_pmu.limit_period = nhm_limit_period;
+ 
+ 		x86_pmu.cpu_events = nhm_events_attrs;
  
 -- 
 2.20.1
