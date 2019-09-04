@@ -2,174 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 994D6A8DEC
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 792B7A90D2
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726495AbfIDRxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:53:35 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:49464 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731633AbfIDRxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 13:53:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=iYIeUpDrEBWiGCuNs3OXSzfuqXKPHDOYVNqEcIq84zI=; b=PHwYHOjtzvRy
-        nZxGXvdyTWw9rFtgYhq9c6Marg5F+Dxm4hwBNyc8vHMZviaHlawtuaXPDoALLdeL8HE+jyJKBbM/H
-        sfXh8EKYFdglj8vu2cJoXtu6oOfL36qvQojyRjbgcoCzM/lxki40QLi+7OIfTBVo9LHDUpd7ibuIj
-        GeZj0=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1i5ZTH-0006hY-MZ; Wed, 04 Sep 2019 17:53:31 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 3ADAE2742B45; Wed,  4 Sep 2019 18:53:31 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Applied "regulator: Defer init completion for a while after late_initcall" to the regulator tree
-In-Reply-To: <20190904124250.25844-1-broonie@kernel.org>
-X-Patchwork-Hint: ignore
-Message-Id: <20190904175331.3ADAE2742B45@ypsilon.sirena.org.uk>
-Date:   Wed,  4 Sep 2019 18:53:31 +0100 (BST)
+        id S2389206AbfIDSL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56136 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390419AbfIDSL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:11:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EAFA22CEA;
+        Wed,  4 Sep 2019 18:11:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567620715;
+        bh=VFKkMxlmDxUAAOBEKSCj/Ht+0a40E6lIGzO0uhI0/ls=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=in6co2p0WxjSCOHn8XIUeEd56jaLzkTJDmBvVWKV412luUxjQWCgAtDXlLFA3JN2e
+         g77R66fNBisBOkAAiGIbsADFM+HQI+VuXEVpDao++Bl4a7OiPYQgp7WE/uKBzNYXWw
+         sA8XZSn7JhXeqScfZyBvtCLtxvWWQq7023zqU0CE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Subject: [PATCH 5.2 069/143] KVM: x86: Dont update RIP or do single-step on faulting emulation
+Date:   Wed,  4 Sep 2019 19:53:32 +0200
+Message-Id: <20190904175316.762609715@linuxfoundation.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-   regulator: Defer init completion for a while after late_initcall
+commit 75ee23b30dc712d80d2421a9a547e7ab6e379b44 upstream.
 
-has been applied to the regulator tree at
+Don't advance RIP or inject a single-step #DB if emulation signals a
+fault.  This logic applies to all state updates that are conditional on
+clean retirement of the emulation instruction, e.g. updating RFLAGS was
+previously handled by commit 38827dbd3fb85 ("KVM: x86: Do not update
+EFLAGS on faulting emulation").
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-5.4
+Not advancing RIP is likely a nop, i.e. ctxt->eip isn't updated with
+ctxt->_eip until emulation "retires" anyways.  Skipping #DB injection
+fixes a bug reported by Andy Lutomirski where a #UD on SYSCALL due to
+invalid state with EFLAGS.TF=1 would loop indefinitely due to emulation
+overwriting the #UD with #DB and thus restarting the bad SYSCALL over
+and over.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
-From 55576cf1853798e86f620766e23b604c9224c19c Mon Sep 17 00:00:00 2001
-From: Mark Brown <broonie@kernel.org>
-Date: Wed, 4 Sep 2019 13:42:50 +0100
-Subject: [PATCH] regulator: Defer init completion for a while after
- late_initcall
-
-The kernel has no way of knowing when we have finished instantiating
-drivers, between deferred probe and systems that build key drivers as
-modules we might be doing this long after userspace has booted. This has
-always been a bit of an issue with regulator_init_complete since it can
-power off hardware that's not had it's driver loaded which can result in
-user visible effects, the main case is powering off displays. Practically
-speaking it's not been an issue in real systems since most systems that
-use the regulator API are embedded and build in key drivers anyway but
-with Arm laptops coming on the market it's becoming more of an issue so
-let's do something about it.
-
-In the absence of any better idea just defer the powering off for 30s
-after late_initcall(), this is obviously a hack but it should mask the
-issue for now and it's no more arbitrary than late_initcall() itself.
-Ideally we'd have some heuristics to detect if we're on an affected
-system and tune or skip the delay appropriately, and there may be some
-need for a command line option to be added.
-
-Link: https://lore.kernel.org/r/20190904124250.25844-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Lee Jones <lee.jones@linaro.org>
+Cc: Nadav Amit <nadav.amit@gmail.com>
 Cc: stable@vger.kernel.org
----
- drivers/regulator/core.c | 42 +++++++++++++++++++++++++++++-----------
- 1 file changed, 31 insertions(+), 11 deletions(-)
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Fixes: 663f4c61b803 ("KVM: x86: handle singlestep during emulation")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 4a27a46ec6e7..340db986b67f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5644,7 +5644,7 @@ static int __init regulator_init(void)
- /* init early to allow our consumers to complete system booting */
- core_initcall(regulator_init);
+---
+ arch/x86/kvm/x86.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6547,12 +6547,13 @@ restart:
+ 		unsigned long rflags = kvm_x86_ops->get_rflags(vcpu);
+ 		toggle_interruptibility(vcpu, ctxt->interruptibility);
+ 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
+-		kvm_rip_write(vcpu, ctxt->eip);
+-		if (r == EMULATE_DONE && ctxt->tf)
+-			kvm_vcpu_do_singlestep(vcpu, &r);
+ 		if (!ctxt->have_exception ||
+-		    exception_type(ctxt->exception.vector) == EXCPT_TRAP)
++		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
++			kvm_rip_write(vcpu, ctxt->eip);
++			if (r == EMULATE_DONE && ctxt->tf)
++				kvm_vcpu_do_singlestep(vcpu, &r);
+ 			__kvm_set_rflags(vcpu, ctxt->eflags);
++		}
  
--static int __init regulator_late_cleanup(struct device *dev, void *data)
-+static int regulator_late_cleanup(struct device *dev, void *data)
- {
- 	struct regulator_dev *rdev = dev_to_rdev(dev);
- 	const struct regulator_ops *ops = rdev->desc->ops;
-@@ -5693,17 +5693,8 @@ static int __init regulator_late_cleanup(struct device *dev, void *data)
- 	return 0;
- }
- 
--static int __init regulator_init_complete(void)
-+static void regulator_init_complete_work_function(struct work_struct *work)
- {
--	/*
--	 * Since DT doesn't provide an idiomatic mechanism for
--	 * enabling full constraints and since it's much more natural
--	 * with DT to provide them just assume that a DT enabled
--	 * system has full constraints.
--	 */
--	if (of_have_populated_dt())
--		has_full_constraints = true;
--
- 	/*
- 	 * Regulators may had failed to resolve their input supplies
- 	 * when were registered, either because the input supply was
-@@ -5721,6 +5712,35 @@ static int __init regulator_init_complete(void)
- 	 */
- 	class_for_each_device(&regulator_class, NULL, NULL,
- 			      regulator_late_cleanup);
-+}
-+
-+static DECLARE_DELAYED_WORK(regulator_init_complete_work,
-+			    regulator_init_complete_work_function);
-+
-+static int __init regulator_init_complete(void)
-+{
-+	/*
-+	 * Since DT doesn't provide an idiomatic mechanism for
-+	 * enabling full constraints and since it's much more natural
-+	 * with DT to provide them just assume that a DT enabled
-+	 * system has full constraints.
-+	 */
-+	if (of_have_populated_dt())
-+		has_full_constraints = true;
-+
-+	/*
-+	 * We punt completion for an arbitrary amount of time since
-+	 * systems like distros will load many drivers from userspace
-+	 * so consumers might not always be ready yet, this is
-+	 * particularly an issue with laptops where this might bounce
-+	 * the display off then on.  Ideally we'd get a notification
-+	 * from userspace when this happens but we don't so just wait
-+	 * a bit and hope we waited long enough.  It'd be better if
-+	 * we'd only do this on systems that need it, and a kernel
-+	 * command line option might be useful.
-+	 */
-+	schedule_delayed_work(&regulator_init_complete_work,
-+			      msecs_to_jiffies(30000));
- 
- 	return 0;
- }
--- 
-2.20.1
+ 		/*
+ 		 * For STI, interrupts are shadowed; so KVM_REQ_EVENT will
+
 
