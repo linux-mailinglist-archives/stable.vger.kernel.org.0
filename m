@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8200A90F6
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD28A8E2B
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389620AbfIDSMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
+        id S2387488AbfIDR4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733228AbfIDSMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:12:41 -0400
+        id S2387477AbfIDR43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B778206BA;
-        Wed,  4 Sep 2019 18:12:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC6BC22CF7;
+        Wed,  4 Sep 2019 17:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620760;
-        bh=9j13SR6PFoGHS9DU6kXVZT3HtgNT+HZ/YvMRajqX1co=;
+        s=default; t=1567619788;
+        bh=Qr7LEXzDG8/H/wTonemu3EaLdSl94xNVpcak20MFaLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/aFSJHOxyK+rNYtQX7lDG4CCSKzHaaynUVJW/elX4v25VM5r5aiLHZBMx1Yu6hC6
-         /1nY9zSOf771JrVl4YO2jt4efcVGnhqEMVfF5jNf4uKNs9Wvm/OBMM2GZt+sVqesv2
-         wchixQAJNL1p/C4dfw/omwcI8W1ZkbTy3VRN/s6M=
+        b=ObG7IIjmJH5m+fa8xd/Hco9qefLx6Q0Iqr4U+6n4SzfV+42Hm//Fd7vRTEiMdf2DK
+         15f50WyFljIOQYu2Ymj/0WmvRzGbev3darjeVslNtWzaC5kbYiK+DmowGGt7k2sXc5
+         QCCLiUmyUDkmPiCnxDt9NIC5MS2u2utF7KA/GE4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 058/143] xfrm/xfrm_policy: fix dst dev null pointer dereference in collect_md mode
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 34/77] GFS2: dont set rgrp gl_object until its inserted into rgrp tree
 Date:   Wed,  4 Sep 2019 19:53:21 +0200
-Message-Id: <20190904175316.343523033@linuxfoundation.org>
+Message-Id: <20190904175306.735598786@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+commit 36e4ad0316c017d5b271378ed9a1c9a4b77fab5f upstream.
 
-[ Upstream commit c3b4c3a47e05d5fecf7354d75824a9d1b37f3e84 ]
+Before this patch, function read_rindex_entry would set a rgrp
+glock's gl_object pointer to itself before inserting the rgrp into
+the rgrp rbtree. The problem is: if another process was also reading
+the rgrp in, and had already inserted its newly created rgrp, then
+the second call to read_rindex_entry would overwrite that value,
+then return a bad return code to the caller. Later, other functions
+would reference the now-freed rgrp memory by way of gl_object.
+In some cases, that could result in gfs2_rgrp_brelse being called
+twice for the same rgrp: once for the failed attempt and once for
+the "real" rgrp release. Eventually the kernel would panic.
+There are also a number of other things that could go wrong when
+a kernel module is accessing freed storage. For example, this could
+result in rgrp corruption because the fake rgrp would point to a
+fake bitmap in memory too, causing gfs2_inplace_reserve to search
+some random memory for free blocks, and find some, since we were
+never setting rgd->rd_bits to NULL before freeing it.
 
-In decode_session{4,6} there is a possibility that the skb dst dev is NULL,
-e,g, with tunnel collect_md mode, which will cause kernel crash.
-Here is what the code path looks like, for GRE:
+This patch fixes the problem by not setting gl_object until we
+have successfully inserted the rgrp into the rbtree. Also, it sets
+rd_bits to NULL as it frees them, which will ensure any accidental
+access to the wrong rgrp will result in a kernel panic rather than
+file system corruption, which is preferred.
 
-- ip6gre_tunnel_xmit
-  - ip6gre_xmit_ipv6
-    - __gre6_xmit
-      - ip6_tnl_xmit
-        - if skb->len - t->tun_hlen - eth_hlen > mtu; return -EMSGSIZE
-    - icmpv6_send
-      - icmpv6_route_lookup
-        - xfrm_decode_session_reverse
-          - decode_session4
-            - oif = skb_dst(skb)->dev->ifindex; <-- here
-          - decode_session6
-            - oif = skb_dst(skb)->dev->ifindex; <-- here
-
-The reason is __metadata_dst_init() init dst->dev to NULL by default.
-We could not fix it in __metadata_dst_init() as there is no dev supplied.
-On the other hand, the skb_dst(skb)->dev is actually not needed as we
-called decode_session{4,6} via xfrm_decode_session_reverse(), so oif is not
-used by: fl4->flowi4_oif = reverse ? skb->skb_iif : oif;
-
-So make a dst dev check here should be clean and safe.
-
-v4: No changes.
-
-v3: No changes.
-
-v2: fix the issue in decode_session{4,6} instead of updating shared dst dev
-in {ip_md, ip6}_tunnel_xmit.
-
-Fixes: 8d79266bc48c ("ip6_tunnel: add collect_md mode to IPv6 tunnels")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Tested-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+[bwh: Backported to 4.4: adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_policy.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/gfs2/rgrp.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -3272,7 +3272,7 @@ decode_session4(struct sk_buff *skb, str
- 	struct flowi4 *fl4 = &fl->u.ip4;
- 	int oif = 0;
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index ef24894edecc1..9c159e6ad1164 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -739,6 +739,7 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
  
--	if (skb_dst(skb))
-+	if (skb_dst(skb) && skb_dst(skb)->dev)
- 		oif = skb_dst(skb)->dev->ifindex;
+ 		gfs2_free_clones(rgd);
+ 		kfree(rgd->rd_bits);
++		rgd->rd_bits = NULL;
+ 		return_all_reservations(rgd);
+ 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
+ 	}
+@@ -933,10 +934,6 @@ static int read_rindex_entry(struct gfs2_inode *ip)
+ 	if (error)
+ 		goto fail;
  
- 	memset(fl4, 0, sizeof(struct flowi4));
-@@ -3390,7 +3390,7 @@ decode_session6(struct sk_buff *skb, str
+-	rgd->rd_gl->gl_object = rgd;
+-	rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_CACHE_MASK;
+-	rgd->rd_gl->gl_vm.end = PAGE_CACHE_ALIGN((rgd->rd_addr +
+-						  rgd->rd_length) * bsize) - 1;
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -944,14 +941,20 @@ static int read_rindex_entry(struct gfs2_inode *ip)
+ 	spin_lock(&sdp->sd_rindex_spin);
+ 	error = rgd_insert(rgd);
+ 	spin_unlock(&sdp->sd_rindex_spin);
+-	if (!error)
++	if (!error) {
++		rgd->rd_gl->gl_object = rgd;
++		rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_MASK;
++		rgd->rd_gl->gl_vm.end = PAGE_ALIGN((rgd->rd_addr +
++						    rgd->rd_length) * bsize) - 1;
+ 		return 0;
++	}
  
- 	nexthdr = nh[nhoff];
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
+ 	gfs2_glock_put(rgd->rd_gl);
  
--	if (skb_dst(skb))
-+	if (skb_dst(skb) && skb_dst(skb)->dev)
- 		oif = skb_dst(skb)->dev->ifindex;
- 
- 	memset(fl6, 0, sizeof(struct flowi6));
+ fail:
+ 	kfree(rgd->rd_bits);
++	rgd->rd_bits = NULL;
+ 	kmem_cache_free(gfs2_rgrpd_cachep, rgd);
+ 	return error;
+ }
+-- 
+2.20.1
+
 
 
