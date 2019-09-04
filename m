@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEB1A8EF9
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE898A90FD
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388202AbfIDSBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S1732374AbfIDSMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387794AbfIDSBE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:01:04 -0400
+        id S2390574AbfIDSMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A148B21883;
-        Wed,  4 Sep 2019 18:01:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 049AB208E4;
+        Wed,  4 Sep 2019 18:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620063;
-        bh=7LvryOPVQ85u9ljKGUfOFG5GY5a76heXj07kDXgMsf8=;
+        s=default; t=1567620771;
+        bh=WG6u3c/wJsZm7IRUx+2/MEegebeZguAiiPGP3fzt7h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVVtJDVV2CTN7A8tNqGs9Qq5POJ6PWAlFO7dchN/pDID8LSbGrsf73UjDh330KmKp
-         SmgblSsuCVFGBn8zpFXFACbCQMNjm+pws93HZuVydC9Mhdxs3QuLjLMvw84Ao24Tuk
-         rl4Q7gzRXhWbdATX7W2DpkoiUZhmIx0YGSbbtqas=
+        b=PjBgFaHzT14VfFMHxRgPG5arkdIhV8pgyE0b0LAi/8mv3rk5CEKRI47Ok1YopzY3r
+         VhAvA4o8YJbHZtxSouy1FAcnTGZKSBool0ePaPR/WSRC15v7d6et5OvP3ELjIEIy1e
+         3KIo3DtJ1nkmxWgFsT+BsArHpl00drmS3n2iGx64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jason Baron <jbaron@akamai.com>,
-        Vladimir Rutsky <rutsky@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 58/83] tcp: make sure EPOLLOUT wont be missed
-Date:   Wed,  4 Sep 2019 19:53:50 +0200
-Message-Id: <20190904175308.674735011@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Paul Mackerras <paulus@ozlabs.org>
+Subject: [PATCH 5.2 088/143] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation error handling
+Date:   Wed,  4 Sep 2019 19:53:51 +0200
+Message-Id: <20190904175317.528542156@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit ef8d8ccdc216f797e66cb4a1372f5c4c285ce1e4 ]
+commit ddfd151f3def9258397fcde7a372205a2d661903 upstream.
 
-As Jason Baron explained in commit 790ba4566c1a ("tcp: set SOCK_NOSPACE
-under memory pressure"), it is crucial we properly set SOCK_NOSPACE
-when needed.
+H_PUT_TCE_INDIRECT handlers receive a page with up to 512 TCEs from
+a guest. Although we verify correctness of TCEs before we do anything
+with the existing tables, there is a small window when a check in
+kvmppc_tce_validate might pass and right after that the guest alters
+the page of TCEs, causing an early exit from the handler and leaving
+srcu_read_lock(&vcpu->kvm->srcu) (virtual mode) or lock_rmap(rmap)
+(real mode) locked.
 
-However, Jason patch had a bug, because the 'nonblocking' status
-as far as sk_stream_wait_memory() is concerned is governed
-by MSG_DONTWAIT flag passed at sendmsg() time :
+This fixes the bug by jumping to the common exit code with an appropriate
+unlock.
 
-    long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
-
-So it is very possible that tcp sendmsg() calls sk_stream_wait_memory(),
-and that sk_stream_wait_memory() returns -EAGAIN with SOCK_NOSPACE
-cleared, if sk->sk_sndtimeo has been set to a small (but not zero)
-value.
-
-This patch removes the 'noblock' variable since we must always
-set SOCK_NOSPACE if -EAGAIN is returned.
-
-It also renames the do_nonblock label since we might reach this
-code path even if we were in blocking mode.
-
-Fixes: 790ba4566c1a ("tcp: set SOCK_NOSPACE under memory pressure")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Reported-by: Vladimir Rutsky  <rutsky@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Jason Baron <jbaron@akamai.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org # v4.11+
+Fixes: 121f80ba68f1 ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/stream.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -118,7 +118,6 @@ int sk_stream_wait_memory(struct sock *s
- 	int err = 0;
- 	long vm_wait = 0;
- 	long current_timeo = *timeo_p;
--	bool noblock = (*timeo_p ? false : true);
- 	DEFINE_WAIT(wait);
+---
+ arch/powerpc/kvm/book3s_64_vio.c    |    6 ++++--
+ arch/powerpc/kvm/book3s_64_vio_hv.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+--- a/arch/powerpc/kvm/book3s_64_vio.c
++++ b/arch/powerpc/kvm/book3s_64_vio.c
+@@ -696,8 +696,10 @@ long kvmppc_h_put_tce_indirect(struct kv
+ 		}
+ 		tce = be64_to_cpu(tce);
  
- 	if (sk_stream_memory_free(sk))
-@@ -131,11 +130,8 @@ int sk_stream_wait_memory(struct sock *s
+-		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua))
+-			return H_PARAMETER;
++		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
  
- 		if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
- 			goto do_error;
--		if (!*timeo_p) {
--			if (noblock)
--				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
--			goto do_nonblock;
--		}
-+		if (!*timeo_p)
-+			goto do_eagain;
- 		if (signal_pending(current))
- 			goto do_interrupted;
- 		sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-@@ -167,7 +163,13 @@ out:
- do_error:
- 	err = -EPIPE;
- 	goto out;
--do_nonblock:
-+do_eagain:
-+	/* Make sure that whenever EAGAIN is returned, EPOLLOUT event can
-+	 * be generated later.
-+	 * When TCP receives ACK packets that make room, tcp_check_space()
-+	 * only calls tcp_new_space() if SOCK_NOSPACE is set.
-+	 */
-+	set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
- 	err = -EAGAIN;
- 	goto out;
- do_interrupted:
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt,
+--- a/arch/powerpc/kvm/book3s_64_vio_hv.c
++++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
+@@ -556,8 +556,10 @@ long kvmppc_rm_h_put_tce_indirect(struct
+ 		unsigned long tce = be64_to_cpu(((u64 *)tces)[i]);
+ 
+ 		ua = 0;
+-		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL))
+-			return H_PARAMETER;
++		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL)) {
++			ret = H_PARAMETER;
++			goto unlock_exit;
++		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+ 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
 
 
