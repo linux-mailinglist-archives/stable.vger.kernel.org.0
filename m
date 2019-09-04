@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A88FA8E7B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F0CA900C
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388016AbfIDR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36630 "EHLO mail.kernel.org"
+        id S2389161AbfIDSHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:07:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387991AbfIDR6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:58:16 -0400
+        id S2389610AbfIDSHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:07:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 825E121883;
-        Wed,  4 Sep 2019 17:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B198208E4;
+        Wed,  4 Sep 2019 18:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619895;
-        bh=O2DaIM61WuU5UURiWEQKiCvOcdVGZBk5R1VuhGJGPI8=;
+        s=default; t=1567620440;
+        bh=z5zPOJAwtuXws16D0TTZ/2gP1HvIBD2bOGos/nDRij0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxBBnjllDH/WlsL/QyBAMUzRtSoTw8dqMX8T2o1zdNqhn5epakEx6UtJ9OKJHo8Q3
-         mt+h31VdW2KmmveLJCMi7zkpd1XiRxV6Tb5dl3iqyYCGsvtIVOwM/swPLc3Q4TCY/k
-         YqH4K/lrwMUiavsBXFEiOyblPgfXF8l5MwRxg6OM=
+        b=jWegguNQYY4Gwoh1Zw/Z8scgOm2r+oEgIg5xhkR4hVR8jjGG6bSE2NLqNOxb46xrm
+         cCdxKZMEayymqeeYwAzHdXS2ekp+clH5yA1drsgwaUkN1gfglbBT3EzzLvTsHP4BVq
+         UGqUQiEL0hsQidqYyV0jfuo/TTQMIGEFDRtzknL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <robert.hodaszi@digi.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 75/77] Revert "cfg80211: fix processing world regdomain when non modular"
+        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 4.19 60/93] USB: storage: ums-realtek: Update module parameter description for auto_delink_en
 Date:   Wed,  4 Sep 2019 19:54:02 +0200
-Message-Id: <20190904175310.343791950@linuxfoundation.org>
+Message-Id: <20190904175308.229250586@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hodaszi, Robert <Robert.Hodaszi@digi.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 0d31d4dbf38412f5b8b11b4511d07b840eebe8cb upstream.
+commit f6445b6b2f2bb1745080af4a0926049e8bca2617 upstream.
 
-This reverts commit 96cce12ff6e0 ("cfg80211: fix processing world
-regdomain when non modular").
+The option named "auto_delink_en" is a bit misleading, as setting it to
+false doesn't really disable auto-delink but let auto-delink be firmware
+controlled.
 
-Re-triggering a reg_process_hint with the last request on all events,
-can make the regulatory domain fail in case of multiple WiFi modules. On
-slower boards (espacially with mdev), enumeration of the WiFi modules
-can end up in an intersected regulatory domain, and user cannot set it
-with 'iw reg set' anymore.
+Update the description to reflect the real usage of this parameter.
 
-This is happening, because:
-- 1st module enumerates, queues up a regulatory request
-- request gets processed by __reg_process_hint_driver():
-  - checks if previous was set by CORE -> yes
-    - checks if regulator domain changed -> yes, from '00' to e.g. 'US'
-      -> sends request to the 'crda'
-- 2nd module enumerates, queues up a regulator request (which triggers
-  the reg_todo() work)
-- reg_todo() -> reg_process_pending_hints() sees, that the last request
-  is not processed yet, so it tries to process it again.
-  __reg_process_hint driver() will run again, and:
-  - checks if the last request's initiator was the core -> no, it was
-    the driver (1st WiFi module)
-  - checks, if the previous initiator was the driver -> yes
-    - checks if the regulator domain changed -> yes, it was '00' (set by
-      core, and crda call did not return yet), and should be changed to 'US'
-
-------> __reg_process_hint_driver calls an intersect
-
-Besides, the reg_process_hint call with the last request is meaningless
-since the crda call has a timeout work. If that timeout expires, the
-first module's request will lost.
-
-Cc: stable@vger.kernel.org
-Fixes: 96cce12ff6e0 ("cfg80211: fix processing world regdomain when non modular")
-Signed-off-by: Robert Hodaszi <robert.hodaszi@digi.com>
-Link: https://lore.kernel.org/r/20190614131600.GA13897@a1-hr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190827173450.13572-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/reg.c |    2 +-
+ drivers/usb/storage/realtek_cr.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2234,7 +2234,7 @@ static void reg_process_pending_hints(vo
+--- a/drivers/usb/storage/realtek_cr.c
++++ b/drivers/usb/storage/realtek_cr.c
+@@ -38,7 +38,7 @@ MODULE_LICENSE("GPL");
  
- 	/* When last_request->processed becomes true this will be rescheduled */
- 	if (lr && !lr->processed) {
--		reg_process_hint(lr);
-+		pr_debug("Pending regulatory request, waiting for it to be processed...\n");
- 		return;
- 	}
+ static int auto_delink_en = 1;
+ module_param(auto_delink_en, int, S_IRUGO | S_IWUSR);
+-MODULE_PARM_DESC(auto_delink_en, "enable auto delink");
++MODULE_PARM_DESC(auto_delink_en, "auto delink mode (0=firmware, 1=software [default])");
  
+ #ifdef CONFIG_REALTEK_AUTOPM
+ static int ss_en = 1;
 
 
