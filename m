@@ -2,59 +2,329 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C38EBA7AB8
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 07:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E30BA7ABD
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 07:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbfIDF0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 01:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S1725966AbfIDFbw convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 4 Sep 2019 01:31:52 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47580 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725938AbfIDF0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 01:26:49 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725877AbfIDFbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 01:31:52 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5165A2339D;
-        Wed,  4 Sep 2019 05:26:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567574808;
-        bh=nX3gPPkIL8TJSohXVa0JIKl7grVeIePK6DugPul+PCY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aTPIZY9Ks7pjN6/hnenvP8Fmjc2R4DUv0jY9iqeTlgBNd8M290Q/SuKYxGBXpk2p8
-         NzBadxaIbbMVw8Yt2qWy3Y/xfkiZy6T2VXDwvP6rxPwMJju8SrWWYvXgJudz1rpQcp
-         U2QrPgfvAknuTbP6Sc94W1W9QJC75NFNIUjhBKJY=
-Date:   Wed, 4 Sep 2019 07:26:46 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     aik@ozlabs.ru, paulus@ozlabs.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: PPC: Book3S: Fix incorrect
- guest-to-user-translation" failed to apply to 4.19-stable tree
-Message-ID: <20190904052646.GC17236@kroah.com>
-References: <156753601315657@kroah.com>
- <20190903202113.GK5281@sasha-vm>
+        by mx1.redhat.com (Postfix) with ESMTPS id 6F3023082E20
+        for <stable@vger.kernel.org>; Wed,  4 Sep 2019 05:31:51 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D1F1319C4F;
+        Wed,  4 Sep 2019 05:31:48 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190903202113.GK5281@sasha-vm>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
+Message-ID: <cki.A4851D4971.1REP8UKX04@redhat.com>
+X-Gitlab-Pipeline-ID: 142252
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/142252
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Wed, 04 Sep 2019 05:31:51 +0000 (UTC)
+Date:   Wed, 4 Sep 2019 01:31:52 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 04:21:13PM -0400, Sasha Levin wrote:
-> On Tue, Sep 03, 2019 at 08:40:13PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> I've fixed it up for 4.19 and 4.14. The issue was mostly due to missing
-> 2001825efcea7 ("KVM: PPC: Book3S HV: Avoid lockdep debugging in TCE
-> realmode handlers").
 
-Thanks for fixing up all of these FAILED: reports and adding them to
-the queues.
+Hello,
 
-greg k-h
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c3915fe1bf12 - Linux 5.2.11
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/142252
+
+
+
+One or more kernel tests failed:
+
+  aarch64:
+    ❌ Boot test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c3915fe1bf12 - Linux 5.2.11
+
+
+We grabbed the d911cedb6528 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  dmaengine-ste_dma40-fix-unneeded-variable-warning.patch
+  nvme-multipath-revalidate-nvme_ns_head-gendisk-in-nv.patch
+  afs-fix-the-cb.probeuuid-service-handler-to-reply-co.patch
+  afs-fix-loop-index-mixup-in-afs_deliver_vl_get_entry.patch
+  fs-afs-fix-a-possible-null-pointer-dereference-in-af.patch
+  afs-fix-off-by-one-in-afs_rename-expected-data-versi.patch
+  afs-only-update-d_fsdata-if-different-in-afs_d_reval.patch
+  afs-fix-missing-dentry-data-version-updating.patch
+  nvmet-fix-use-after-free-bug-when-a-port-is-removed.patch
+  nvmet-loop-flush-nvme_delete_wq-when-removing-the-po.patch
+  nvmet-file-fix-nvmet_file_flush-always-returning-an-.patch
+  nvme-core-fix-extra-device_put-call-on-error-path.patch
+  nvme-fix-a-possible-deadlock-when-passthru-commands-.patch
+  nvme-rdma-fix-possible-use-after-free-in-connect-err.patch
+  nvme-fix-controller-removal-race-with-scan-work.patch
+  nvme-pci-fix-async-probe-remove-race.patch
+  soundwire-cadence_master-fix-register-definition-for.patch
+  soundwire-cadence_master-fix-definitions-for-intstat.patch
+  auxdisplay-panel-need-to-delete-scan_timer-when-misc.patch
+  btrfs-trim-check-the-range-passed-into-to-prevent-ov.patch
+  ib-mlx5-fix-implicit-mr-release-flow.patch
+  dmaengine-stm32-mdma-fix-a-possible-null-pointer-der.patch
+  omap-dma-omap_vout_vrfb-fix-off-by-one-fi-value.patch
+  iommu-dma-handle-sg-length-overflow-better.patch
+  dma-direct-don-t-truncate-dma_required_mask-to-bus-a.patch
+  usb-gadget-composite-clear-suspended-on-reset-discon.patch
+  usb-gadget-mass_storage-fix-races-between-fsg_disabl.patch
+  habanalabs-fix-dram-usage-accounting-on-context-tear.patch
+  habanalabs-fix-endianness-handling-for-packets-from-.patch
+  habanalabs-fix-completion-queue-handling-when-host-i.patch
+  habanalabs-fix-endianness-handling-for-internal-qman.patch
+  habanalabs-fix-device-irq-unmasking-for-be-host.patch
+  xen-blkback-fix-memory-leaks.patch
+  arm64-cpufeature-don-t-treat-granule-sizes-as-strict.patch
+  riscv-fix-flush_tlb_range-end-address-for-flush_tlb_.patch
+  i2c-rcar-avoid-race-when-unregistering-slave-client.patch
+  i2c-emev2-avoid-race-when-unregistering-slave-client.patch
+  drm-scheduler-use-job-count-instead-of-peek.patch
+  drm-ast-fixed-reboot-test-may-cause-system-hanged.patch
+  usb-host-fotg2-restart-hcd-after-port-reset.patch
+  tools-hv-fixed-python-pep8-flake8-warnings-for-lsvmb.patch
+  tools-hv-fix-kvp-and-vss-daemons-exit-code.patch
+  locking-rwsem-add-missing-acquire-to-read_slowpath-e.patch
+  lcoking-rwsem-add-missing-acquire-to-read_slowpath-s.patch
+  watchdog-bcm2835_wdt-fix-module-autoload.patch
+  selftests-bpf-install-files-test_xdp_vlan.sh.patch
+  drm-bridge-tfp410-fix-memleak-in-get_modes.patch
+  mt76-usb-fix-rx-a-msdu-support.patch
+  ipv6-addrconf-allow-adding-multicast-addr-if-ifa_f_mcautojoin-is-set.patch
+  ipv6-fix-return-value-of-ipv6_mc_may_pull-for-malformed-packets.patch
+  net-cpsw-fix-null-pointer-exception-in-the-probe-error-path.patch
+  net-fix-__ip_mc_inc_group-usage.patch
+  net-smc-make-sure-epollout-is-raised.patch
+  tcp-make-sure-epollout-wont-be-missed.patch
+  ipv4-mpls-fix-mpls_xmit-for-iptunnel.patch
+  openvswitch-fix-conntrack-cache-with-timeout.patch
+  ipv4-icmp-fix-rt-dst-dev-null-pointer-dereference.patch
+  xfrm-xfrm_policy-fix-dst-dev-null-pointer-dereference-in-collect_md-mode.patch
+  mm-zsmalloc.c-fix-build-when-config_compaction-n.patch
+  alsa-usb-audio-check-mixer-unit-bitmap-yet-more-strictly.patch
+  alsa-hda-ca0132-add-new-sbz-quirk.patch
+  alsa-line6-fix-memory-leak-at-line6_init_pcm-error-path.patch
+  alsa-hda-fixes-inverted-conexant-gpio-mic-mute-led.patch
+  alsa-seq-fix-potential-concurrent-access-to-the-deleted-pool.patch
+  alsa-usb-audio-fix-invalid-null-check-in-snd_emuusb_set_samplerate.patch
+  alsa-usb-audio-add-implicit-fb-quirk-for-behringer-ufx1604.patch
+  kvm-x86-skip-populating-logical-dest-map-if-apic-is-not-sw-enabled.patch
+  kvm-x86-hyper-v-don-t-crash-on-kvm_get_supported_hv_cpuid-when-kvm_intel.nested-is-disabled.patch
+  kvm-x86-don-t-update-rip-or-do-single-step-on-faulting-emulation.patch
+  uprobes-x86-fix-detection-of-32-bit-user-mode.patch
+  x86-mm-cpa-prevent-large-page-split-when-ftrace-flips-rw-on-kernel-text.patch
+  x86-apic-do-not-initialize-ldr-and-dfr-for-bigsmp.patch
+  x86-apic-include-the-ldr-when-clearing-out-apic-registers.patch
+  hid-logitech-hidpp-remove-support-for-the-g700-over-.patch
+  ftrace-fix-null-pointer-dereference-in-t_probe_next.patch
+  ftrace-check-for-successful-allocation-of-hash.patch
+  ftrace-check-for-empty-hash-and-comment-the-race-with-registering-probes.patch
+  usbtmc-more-sanity-checking-for-packet-size.patch
+  usb-storage-add-new-jms567-revision-to-unusual_devs.patch
+  usb-cdc-wdm-fix-race-between-write-and-disconnect-due-to-flag-abuse.patch
+  usb-hcd-use-managed-device-resources.patch
+  usb-chipidea-udc-don-t-do-hardware-access-if-gadget-has-stopped.patch
+  usb-host-ohci-fix-a-race-condition-between-shutdown-and-irq.patch
+  usb-host-xhci-rcar-fix-typo-in-compatible-string-matching.patch
+  usb-storage-ums-realtek-update-module-parameter-description-for-auto_delink_en.patch
+  usb-storage-ums-realtek-whitelist-auto-delink-support.patch
+  tools-power-turbostat-fix-caller-parameter-of-get_tdp_amd.patch
+  kvm-ppc-book3s-fix-incorrect-guest-to-user-translation-error-handling.patch
+  kvm-arm-arm64-vgic-fix-potential-deadlock-when-ap_list-is-long.patch
+  kvm-arm-arm64-vgic-v2-handle-sgi-bits-in-gicd_i-s-c-pendr0-as-wi.patch
+  mei-me-add-tiger-lake-point-lp-device-id.patch
+  revert-mmc-sdhci-tegra-drop-get_ro-implementation.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ AMTU (Abstract Machine Test Utility) [4]
+         ✅ LTP: openposix test suite [5]
+         ✅ Ethernet drivers sanity [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ Networking: igmp conformance test [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         ✅ stress: stress-ng [14]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ Memory function: kaslr [16]
+         🚧 ✅ Networking ipsec: basic netns transport [17]
+         🚧 ✅ Networking ipsec: basic netns tunnel [17]
+         🚧 ✅ trace: ftrace/tracer [18]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [19]
+         🚧 ⚡⚡⚡ Storage blktests [20]
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ AMTU (Abstract Machine Test Utility) [4]
+         ✅ LTP: openposix test suite [5]
+         ✅ Ethernet drivers sanity [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ Memory function: kaslr [16]
+         🚧 ✅ Networking ipsec: basic netns tunnel [17]
+         🚧 ✅ trace: ftrace/tracer [18]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [19]
+         🚧 ✅ Storage blktests [20]
+
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [19]
+         🚧 ✅ Storage blktests [20]
+         🚧 ✅ IOMMU boot test [21]
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ⚡⚡⚡ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [1]
+         ⚡⚡⚡ Podman system integration test (as user) [1]
+         ⚡⚡⚡ Loopdev Sanity [2]
+         ⚡⚡⚡ jvm test suite [3]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [4]
+         ⚡⚡⚡ LTP: openposix test suite [5]
+         ⚡⚡⚡ Ethernet drivers sanity [6]
+         ⚡⚡⚡ Networking socket: fuzz [7]
+         ⚡⚡⚡ Networking: igmp conformance test [8]
+         ⚡⚡⚡ audit: audit testsuite test [9]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [10]
+         ⚡⚡⚡ iotop: sanity [11]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [12]
+         ⚡⚡⚡ pciutils: sanity smoke test [22]
+         ⚡⚡⚡ Usex - version 1.9-29 [13]
+         ⚡⚡⚡ stress: stress-ng [14]
+         🚧 ⚡⚡⚡ LTP lite [15]
+         🚧 ⚡⚡⚡ Memory function: kaslr [16]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport [17]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [17]
+         🚧 ⚡⚡⚡ trace: ftrace/tracer [18]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
