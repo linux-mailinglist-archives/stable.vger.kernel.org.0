@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD37CA8E12
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2D2A9099
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733021AbfIDRz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32994 "EHLO mail.kernel.org"
+        id S2389390AbfIDSKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733000AbfIDRz4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:55:56 -0400
+        id S2390134AbfIDSKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:10:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CABD522CED;
-        Wed,  4 Sep 2019 17:55:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 402D6206BA;
+        Wed,  4 Sep 2019 18:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619756;
-        bh=/zz8r7EZO+1IMMn/392TYhPu1fvB5TNuOucyXPt4Zrc=;
+        s=default; t=1567620638;
+        bh=+kpJyF91rRJsDXidBspwhd2qYoEQQF+vrN2XtsvIEk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FsphpiBbzwGW5HsFwkgQOK4u/jWDOGESBakwC18lTeTYv78SXOPzQxc0reEl7WeAH
-         NA9BKtsaKb7dslCKYX0d9Z0oyiKYAHrtPgfNV7jEYp+NRw788J8zfaZLFvBeJuiNxR
-         rdNqmG1KhhGiycuIgsZOTPL1EPeIBVPpZ/LGEufk=
+        b=wxIfSVAfBm46vZyjhL/PybS5JCoSvu0MDZ6QJyvOvDgHb2NybagurZutz7NKtIMZh
+         3EEikQ0+rI5CGlQsZA0+/ffIeHSM92gC/qN4NpPvfrI7uojT1782SERkcmP2yk8iFw
+         wYs9Hs5YkOwiQwG7RAcpy6w9/9c38UprSfIiZJu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, "Y.C. Chen" <yc_chen@aspeedtech.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Dave Airlie <airlied@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/77] can: peak_usb: force the string buffer NULL-terminated
+Subject: [PATCH 5.2 039/143] drm/ast: Fixed reboot test may cause system hanged
 Date:   Wed,  4 Sep 2019 19:53:02 +0200
-Message-Id: <20190904175305.089206368@linuxfoundation.org>
+Message-Id: <20190904175315.582408856@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e787f19373b8a5fa24087800ed78314fd17b984a ]
+[ Upstream commit 05b439711f6ff8700e8660f97a1179650778b9cb ]
 
-strncpy() does not ensure NULL-termination when the input string size
-equals to the destination buffer size IFNAMSIZ. The output string is
-passed to dev_info() which relies on the NULL-termination.
+There is another thread still access standard VGA I/O while loading drm driver.
+Disable standard VGA I/O decode to avoid this issue.
 
-Use strlcpy() instead.
-
-This issue is identified by a Coccinelle script.
-
-Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Y.C. Chen <yc_chen@aspeedtech.com>
+Reviewed-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1523410059-18415-1-git-send-email-yc_chen@aspeedtech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ast/ast_main.c | 5 ++++-
+ drivers/gpu/drm/ast/ast_mode.c | 2 +-
+ drivers/gpu/drm/ast/ast_post.c | 2 +-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index e13bc27b42911..b1d68f49b3989 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -881,7 +881,7 @@ static void peak_usb_disconnect(struct usb_interface *intf)
+diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
+index 2854399856ba0..4aebe21e6ad9f 100644
+--- a/drivers/gpu/drm/ast/ast_main.c
++++ b/drivers/gpu/drm/ast/ast_main.c
+@@ -131,8 +131,8 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
  
- 		dev_prev_siblings = dev->prev_siblings;
- 		dev->state &= ~PCAN_USB_STATE_CONNECTED;
--		strncpy(name, netdev->name, IFNAMSIZ);
-+		strlcpy(name, netdev->name, IFNAMSIZ);
  
- 		unregister_netdev(netdev);
+ 	/* Enable extended register access */
+-	ast_enable_mmio(dev);
+ 	ast_open_key(ast);
++	ast_enable_mmio(dev);
+ 
+ 	/* Find out whether P2A works or whether to use device-tree */
+ 	ast_detect_config_mode(dev, &scu_rev);
+@@ -576,6 +576,9 @@ void ast_driver_unload(struct drm_device *dev)
+ {
+ 	struct ast_private *ast = dev->dev_private;
+ 
++	/* enable standard VGA decode */
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x04);
++
+ 	ast_release_firmware(dev);
+ 	kfree(ast->dp501_fw_addr);
+ 	ast_mode_fini(dev);
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 97fed0627d1c8..74da15a3341a8 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -601,7 +601,7 @@ static int ast_crtc_mode_set(struct drm_crtc *crtc,
+ 		return -EINVAL;
+ 	ast_open_key(ast);
+ 
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xa1, 0xff, 0x04);
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x06);
+ 
+ 	ast_set_std_reg(crtc, adjusted_mode, &vbios_mode);
+ 	ast_set_crtc_reg(crtc, adjusted_mode, &vbios_mode);
+diff --git a/drivers/gpu/drm/ast/ast_post.c b/drivers/gpu/drm/ast/ast_post.c
+index f7d421359d564..c1d1ac51d1c20 100644
+--- a/drivers/gpu/drm/ast/ast_post.c
++++ b/drivers/gpu/drm/ast/ast_post.c
+@@ -46,7 +46,7 @@ void ast_enable_mmio(struct drm_device *dev)
+ {
+ 	struct ast_private *ast = dev->dev_private;
+ 
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xa1, 0xff, 0x04);
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x06);
+ }
+ 
  
 -- 
 2.20.1
