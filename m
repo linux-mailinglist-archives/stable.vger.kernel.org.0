@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D72A9107
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 631C0A8F67
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390622AbfIDSNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57782 "EHLO mail.kernel.org"
+        id S2388444AbfIDSD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:03:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389432AbfIDSNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:08 -0400
+        id S2388934AbfIDSD1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:03:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2064B208E4;
-        Wed,  4 Sep 2019 18:13:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED20523400;
+        Wed,  4 Sep 2019 18:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620787;
-        bh=QfaEHryzVEL2hXwWkCzJ3WcurmZFn+JfnVJi9dnQP8Q=;
+        s=default; t=1567620206;
+        bh=KyYFRC2YPlV7RJJS1Qd06yJJTT56vE789LqQGqj3ijE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=losMKIiGeaIrMhlVfgZgve3+KoQZde7uAtUrG1a6N9Xs+L3LkFFvBgasvtl2hqO0l
-         wwt9wXKBE0DyhBfK6Y2UqSwNc3uuz/j/WXNTWQ5QENHoYGlNe1SRH1F2kWZ22CYmWO
-         2NrCnM7E4ygh9MGLqCphHyvN7i28Y53lxaoMw4XU=
+        b=l77NWAKcb7ImgOMPnuywIqQcPi+k6wJHBlemkOUgnJWGeMCbf05CRApqDdq60SXqf
+         bKLo/Uugn1fe9wseSOgDqtBTHrNqEE5lGD26/mxLaK4Yhu+q9GJgWT56cpncFftsmh
+         xXPtiSKeP+Gntn15QGb3dqsHwA4jilf8P1aoAIas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.2 094/143] mmc: sdhci-cadence: enable v4_mode to fix ADMA 64-bit addressing
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 29/57] ftrace: Check for successful allocation of hash
 Date:   Wed,  4 Sep 2019 19:53:57 +0200
-Message-Id: <20190904175317.813874728@linuxfoundation.org>
+Message-Id: <20190904175304.759175558@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit e73a3896eaca95ea5fc895720502a3f040eb4b39 upstream.
+commit 5b0022dd32b7c2e15edf1827ba80aa1407edf9ff upstream.
 
-The IP datasheet says this controller is compatible with SD Host
-Specification Version v4.00.
+In register_ftrace_function_probe(), we are not checking the return
+value of alloc_and_copy_ftrace_hash(). The subsequent call to
+ftrace_match_records() may end up dereferencing the same. Add a check to
+ensure this doesn't happen.
 
-As it turned out, the ADMA of this IP does not work with 64-bit mode
-when it is in the Version 3.00 compatible mode; it understands the
-old 64-bit descriptor table (as defined in SDHCI v2), but the ADMA
-System Address Register (SDHCI_ADMA_ADDRESS) cannot point to the
-64-bit address.
+Link: http://lkml.kernel.org/r/26e92574f25ad23e7cafa3cf5f7a819de1832cbe.1562249521.git.naveen.n.rao@linux.vnet.ibm.com
 
-I noticed this issue only after commit bd2e75633c80 ("dma-contiguous:
-use fallback alloc_pages for single pages"). Prior to that commit,
-dma_set_mask_and_coherent() returned the dma address that fits in
-32-bit range, at least for the default arm64 configuration
-(arch/arm64/configs/defconfig). Now the host->adma_addr exceeds the
-32-bit limit, causing the real problem for the Socionext SoCs.
-(As a side-note, I was also able to reproduce the issue for older
-kernels by turning off CONFIG_DMA_CMA.)
-
-Call sdhci_enable_v4_mode() to fix this.
-
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: 1ec3a81a0cf42 ("ftrace: Have each function probe use its own ftrace_ops")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-cadence.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/ftrace.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/mmc/host/sdhci-cadence.c
-+++ b/drivers/mmc/host/sdhci-cadence.c
-@@ -369,6 +369,7 @@ static int sdhci_cdns_probe(struct platf
- 	host->mmc_host_ops.execute_tuning = sdhci_cdns_execute_tuning;
- 	host->mmc_host_ops.hs400_enhanced_strobe =
- 				sdhci_cdns_hs400_enhanced_strobe;
-+	sdhci_enable_v4_mode(host);
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -4390,6 +4390,11 @@ register_ftrace_function_probe(char *glo
+ 	old_hash = *orig_hash;
+ 	hash = alloc_and_copy_ftrace_hash(FTRACE_HASH_DEFAULT_BITS, old_hash);
  
- 	sdhci_get_of_property(pdev);
++	if (!hash) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
+ 	ret = ftrace_match_records(hash, glob, strlen(glob));
  
+ 	/* Nothing found? */
 
 
