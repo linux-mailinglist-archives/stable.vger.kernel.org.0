@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD86A8C28
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF60A8C23
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732090AbfIDQKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36084 "EHLO mail.kernel.org"
+        id S1731666AbfIDQKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732267AbfIDQBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:01:00 -0400
+        id S1732868AbfIDQBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:01:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8316F22CF7;
-        Wed,  4 Sep 2019 16:00:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3E072341C;
+        Wed,  4 Sep 2019 16:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612859;
-        bh=d/hVih3hULDbHZ5rGWhVY9LL8fwt2SWTxV6oJ2ouMKI=;
+        s=default; t=1567612860;
+        bh=F5CQ1+YvvSFo1TXnBiXKLipZLDPWDY9aNPbQDEsQ2n0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RY1fz6n8tgi79/ZxNqcXoBXZ6T+HNkNIuD/KwfY4ZsD0ajiVpSu1Pasoi0Pwrleu8
-         lcemus1bPw9syqX0Z+ohBWecWGskMQxKIr3M9Ky2U9nG8jfrKru9Tm+s10Ea2qOqky
-         Xez79ADKTKwBwGDgH/ABYlRcDUG+evko7zVlkYeY=
+        b=rGO/8ah+la9taMk6jwiEMxs3YA2GFORtg44hxnMU6+BEm2l1EdEYm6Yq6YwIfhvQ5
+         7TX0OTSVbb19hANC1oruMN4Q88kXSUOmNbut5OP7bkhaKxY+zwzuNXqCclintXDuUe
+         ShG33QjZDMnGmh40rbPNJ/cPsvBXgV54HMNx1X70=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 38/52] x86/build: Add -Wnoaddress-of-packed-member to REALMODE_CFLAGS, to silence GCC9 build warning
-Date:   Wed,  4 Sep 2019 11:59:50 -0400
-Message-Id: <20190904160004.3671-38-sashal@kernel.org>
+Cc:     Nagarjuna Kristam <nkristam@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 39/52] usb: host: xhci-tegra: Set DMA mask correctly
+Date:   Wed,  4 Sep 2019 11:59:51 -0400
+Message-Id: <20190904160004.3671-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,51 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Nagarjuna Kristam <nkristam@nvidia.com>
 
-[ Upstream commit 42e0e95474fc6076b5cd68cab8fa0340a1797a72 ]
+[ Upstream commit 993cc8753453fccfe060a535bbe21fcf1001b626 ]
 
-One of the very few warnings I have in the current build comes from
-arch/x86/boot/edd.c, where I get the following with a gcc9 build:
+The Falcon microcontroller that runs the XUSB firmware and which is
+responsible for exposing the XHCI interface can address only 40 bits of
+memory. Typically that's not a problem because Tegra devices don't have
+enough system memory to exceed those 40 bits.
 
-   arch/x86/boot/edd.c: In function ‘query_edd’:
-   arch/x86/boot/edd.c:148:11: warning: taking address of packed member of ‘struct boot_params’ may result in an unaligned pointer value [-Waddress-of-packed-member]
-     148 |  mbrptr = boot_params.edd_mbr_sig_buffer;
-         |           ^~~~~~~~~~~
+However, if the ARM SMMU is enable on Tegra186 and later, the addresses
+passed to the XUSB controller can be anywhere in the 48-bit IOV address
+space of the ARM SMMU. Since the DMA/IOMMU API starts allocating from
+the top of the IOVA space, the Falcon microcontroller is not able to
+load the firmware successfully.
 
-This warning triggers because we throw away all the CFLAGS and then make
-a new set for REALMODE_CFLAGS, so the -Wno-address-of-packed-member we
-added in the following commit is not present:
+Fix this by setting the DMA mask to 40 bits, which will force the DMA
+API to map the buffer for the firmware to an IOVA that is addressable by
+the Falcon.
 
-  6f303d60534c ("gcc-9: silence 'address-of-packed-member' warning")
-
-The simplest solution for now is to adjust the warning for this version
-of CFLAGS as well, but it would definitely make sense to examine whether
-REALMODE_CFLAGS could be derived from CFLAGS, so that it picks up changes
-in the compiler flags environment automatically.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Acked-by: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Nagarjuna Kristam <nkristam@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/1566989697-13049-1-git-send-email-nkristam@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-tegra.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index ce0d0424a53d6..4833dd7e2cc03 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -38,6 +38,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -DDISABLE_BRANCH_PROFILING \
+diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
+index b1cce989bd123..fe37dacc695fc 100644
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -1148,6 +1148,16 @@ static int tegra_xusb_probe(struct platform_device *pdev)
  
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
-+REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
- export REALMODE_CFLAGS
+ 	tegra_xusb_ipfs_config(tegra, regs);
  
++	/*
++	 * The XUSB Falcon microcontroller can only address 40 bits, so set
++	 * the DMA mask accordingly.
++	 */
++	err = dma_set_mask_and_coherent(tegra->dev, DMA_BIT_MASK(40));
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed to set DMA mask: %d\n", err);
++		goto put_rpm;
++	}
++
+ 	err = tegra_xusb_load_firmware(tegra);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed to load firmware: %d\n", err);
 -- 
 2.20.1
 
