@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06263A9178
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 970B9A9174
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390308AbfIDSPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33008 "EHLO mail.kernel.org"
+        id S2390105AbfIDSPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:15:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390711AbfIDSPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:15:38 -0400
+        id S2390990AbfIDSPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:15:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90908206BA;
-        Wed,  4 Sep 2019 18:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E560B206BA;
+        Wed,  4 Sep 2019 18:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620937;
-        bh=V68ghxgPbcpEOGClCA0wcDlKAQFvCKg+w88GiRbr/Po=;
+        s=default; t=1567620934;
+        bh=GVhog9IIZmIBP587bxenKiB18fEW1PN/f7l5RLrKjIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRnzKGNsxJ7iGYKlNjeVZV1dw42ECt99+EaldDwYwJkf5905erWMcHX6au+kFiBU5
-         PXFZnHykzxMpaucnEFi6P+lzOpGqx2S+fN+f+3IxCaWQR56HKKN8EDA4rJlLZJG5a7
-         A7kZF2MovnDzWJK/6X1AuXEVyfMMs0IQb2IdhfDQ=
+        b=BaLi7Aq8B0QfOaS41vV7GigNX4QA/qm/goYF/dX8q7v0M2HLlggdHm4P0wIPVBCdE
+         8wYnLrYi0TNS0atduzhY1/D2jCPrn3eAAGH+Tqs53ka/ryP92cHcgV+ln/OBflGOd5
+         gsozUun8HymYBXC0BU9SmXmbu13gGN9yD9CpMl7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+bd3bba6ff3fcea7a6ec6@syzkaller.appspotmail.com,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.2 142/143] bpf: fix use after free in prog symbol exposure
-Date:   Wed,  4 Sep 2019 19:54:45 +0200
-Message-Id: <20190904175320.034099075@linuxfoundation.org>
+        syzbot+c6167ec3de7def23d1e8@syzkaller.appspotmail.com,
+        Arvid Brodin <arvid.brodin@alten.se>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 143/143] hsr: implement dellink to clean up resources
+Date:   Wed,  4 Sep 2019 19:54:46 +0200
+Message-Id: <20190904175320.090038891@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
 References: <20190904175314.206239922@linuxfoundation.org>
@@ -45,127 +46,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit c751798aa224fadc5124b49eeb38fb468c0fa039 upstream.
+commit b9a1e627405d68d475a3c1f35e685ccfb5bbe668 upstream.
 
-syzkaller managed to trigger the warning in bpf_jit_free() which checks via
-bpf_prog_kallsyms_verify_off() for potentially unlinked JITed BPF progs
-in kallsyms, and subsequently trips over GPF when walking kallsyms entries:
+hsr_link_ops implements ->newlink() but not ->dellink(),
+which leads that resources not released after removing the device,
+particularly the entries in self_node_db and node_db.
 
-  [...]
-  8021q: adding VLAN 0 to HW filter on device batadv0
-  8021q: adding VLAN 0 to HW filter on device batadv0
-  WARNING: CPU: 0 PID: 9869 at kernel/bpf/core.c:810 bpf_jit_free+0x1e8/0x2a0
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Workqueue: events bpf_prog_free_deferred
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x113/0x167 lib/dump_stack.c:113
-   panic+0x212/0x40b kernel/panic.c:214
-   __warn.cold.8+0x1b/0x38 kernel/panic.c:571
-   report_bug+0x1a4/0x200 lib/bug.c:186
-   fixup_bug arch/x86/kernel/traps.c:178 [inline]
-   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
-   do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
-   invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:973
-  RIP: 0010:bpf_jit_free+0x1e8/0x2a0
-  Code: 02 4c 89 e2 83 e2 07 38 d0 7f 08 84 c0 0f 85 86 00 00 00 48 ba 00 02 00 00 00 00 ad de 0f b6 43 02 49 39 d6 0f 84 5f fe ff ff <0f> 0b e9 58 fe ff ff 48 b8 00 00 00 00 00 fc ff df 4c 89 e2 48 c1
-  RSP: 0018:ffff888092f67cd8 EFLAGS: 00010202
-  RAX: 0000000000000007 RBX: ffffc90001947000 RCX: ffffffff816e9d88
-  RDX: dead000000000200 RSI: 0000000000000008 RDI: ffff88808769f7f0
-  RBP: ffff888092f67d00 R08: fffffbfff1394059 R09: fffffbfff1394058
-  R10: fffffbfff1394058 R11: ffffffff89ca02c7 R12: ffffc90001947002
-  R13: ffffc90001947020 R14: ffffffff881eca80 R15: ffff88808769f7e8
-  BUG: unable to handle kernel paging request at fffffbfff400d000
-  #PF error: [normal kernel read fault]
-  PGD 21ffee067 P4D 21ffee067 PUD 21ffed067 PMD 9f942067 PTE 0
-  Oops: 0000 [#1] PREEMPT SMP KASAN
-  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Workqueue: events bpf_prog_free_deferred
-  RIP: 0010:bpf_get_prog_addr_region kernel/bpf/core.c:495 [inline]
-  RIP: 0010:bpf_tree_comp kernel/bpf/core.c:558 [inline]
-  RIP: 0010:__lt_find include/linux/rbtree_latch.h:115 [inline]
-  RIP: 0010:latch_tree_find include/linux/rbtree_latch.h:208 [inline]
-  RIP: 0010:bpf_prog_kallsyms_find+0x107/0x2e0 kernel/bpf/core.c:632
-  Code: 00 f0 ff ff 44 38 c8 7f 08 84 c0 0f 85 fa 00 00 00 41 f6 45 02 01 75 02 0f 0b 48 39 da 0f 82 92 00 00 00 48 89 d8 48 c1 e8 03 <42> 0f b6 04 30 84 c0 74 08 3c 03 0f 8e 45 01 00 00 8b 03 48 c1 e0
-  [...]
+So add ->dellink() implementation to replace the priv_destructor.
+This also makes the code slightly easier to understand.
 
-Upon further debugging, it turns out that whenever we trigger this
-issue, the kallsyms removal in bpf_prog_ksym_node_del() was /skipped/
-but yet bpf_jit_free() reported that the entry is /in use/.
-
-Problem is that symbol exposure via bpf_prog_kallsyms_add() but also
-perf_event_bpf_event() were done /after/ bpf_prog_new_fd(). Once the
-fd is exposed to the public, a parallel close request came in right
-before we attempted to do the bpf_prog_kallsyms_add().
-
-Given at this time the prog reference count is one, we start to rip
-everything underneath us via bpf_prog_release() -> bpf_prog_put().
-The memory is eventually released via deferred free, so we're seeing
-that bpf_jit_free() has a kallsym entry because we added it from
-bpf_prog_load() but /after/ bpf_prog_put() from the remote CPU.
-
-Therefore, move both notifications /before/ we install the fd. The
-issue was never seen between bpf_prog_alloc_id() and bpf_prog_new_fd()
-because upon bpf_prog_get_fd_by_id() we'll take another reference to
-the BPF prog, so we're still holding the original reference from the
-bpf_prog_load().
-
-Fixes: 6ee52e2a3fe4 ("perf, bpf: Introduce PERF_RECORD_BPF_EVENT")
-Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
-Reported-by: syzbot+bd3bba6ff3fcea7a6ec6@syzkaller.appspotmail.com
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Song Liu <songliubraving@fb.com>
+Reported-by: syzbot+c6167ec3de7def23d1e8@syzkaller.appspotmail.com
+Cc: Arvid Brodin <arvid.brodin@alten.se>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/syscall.c |   30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ net/hsr/hsr_device.c   |   13 +++++--------
+ net/hsr/hsr_device.h   |    1 +
+ net/hsr/hsr_framereg.c |   11 ++++++++++-
+ net/hsr/hsr_framereg.h |    3 ++-
+ net/hsr/hsr_netlink.c  |    7 +++++++
+ 5 files changed, 25 insertions(+), 10 deletions(-)
 
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -1686,20 +1686,26 @@ static int bpf_prog_load(union bpf_attr
- 	if (err)
- 		goto free_used_maps;
+--- a/net/hsr/hsr_device.c
++++ b/net/hsr/hsr_device.c
+@@ -344,10 +344,7 @@ static void hsr_announce(struct timer_li
+ 	rcu_read_unlock();
+ }
  
--	err = bpf_prog_new_fd(prog);
--	if (err < 0) {
--		/* failed to allocate fd.
--		 * bpf_prog_put() is needed because the above
--		 * bpf_prog_alloc_id() has published the prog
--		 * to the userspace and the userspace may
--		 * have refcnt-ed it through BPF_PROG_GET_FD_BY_ID.
--		 */
--		bpf_prog_put(prog);
--		return err;
--	}
--
-+	/* Upon success of bpf_prog_alloc_id(), the BPF prog is
-+	 * effectively publicly exposed. However, retrieving via
-+	 * bpf_prog_get_fd_by_id() will take another reference,
-+	 * therefore it cannot be gone underneath us.
-+	 *
-+	 * Only for the time /after/ successful bpf_prog_new_fd()
-+	 * and before returning to userspace, we might just hold
-+	 * one reference and any parallel close on that fd could
-+	 * rip everything out. Hence, below notifications must
-+	 * happen before bpf_prog_new_fd().
-+	 *
-+	 * Also, any failure handling from this point onwards must
-+	 * be using bpf_prog_put() given the program is exposed.
-+	 */
- 	bpf_prog_kallsyms_add(prog);
- 	perf_event_bpf_event(prog, PERF_BPF_EVENT_PROG_LOAD, 0);
+-/* According to comments in the declaration of struct net_device, this function
+- * is "Called from unregister, can be used to call free_netdev". Ok then...
+- */
+-static void hsr_dev_destroy(struct net_device *hsr_dev)
++void hsr_dev_destroy(struct net_device *hsr_dev)
+ {
+ 	struct hsr_priv *hsr;
+ 	struct hsr_port *port;
+@@ -356,15 +353,16 @@ static void hsr_dev_destroy(struct net_d
+ 
+ 	hsr_debugfs_term(hsr);
+ 
+-	rtnl_lock();
+ 	hsr_for_each_port(hsr, port)
+ 		hsr_del_port(port);
+-	rtnl_unlock();
+ 
+ 	del_timer_sync(&hsr->prune_timer);
+ 	del_timer_sync(&hsr->announce_timer);
+ 
+ 	synchronize_rcu();
 +
-+	err = bpf_prog_new_fd(prog);
-+	if (err < 0)
-+		bpf_prog_put(prog);
- 	return err;
++	hsr_del_self_node(&hsr->self_node_db);
++	hsr_del_nodes(&hsr->node_db);
+ }
  
- free_used_maps:
+ static const struct net_device_ops hsr_device_ops = {
+@@ -391,7 +389,6 @@ void hsr_dev_setup(struct net_device *de
+ 	dev->priv_flags |= IFF_NO_QUEUE;
+ 
+ 	dev->needs_free_netdev = true;
+-	dev->priv_destructor = hsr_dev_destroy;
+ 
+ 	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
+ 			   NETIF_F_GSO_MASK | NETIF_F_HW_CSUM |
+@@ -495,7 +492,7 @@ fail:
+ 	hsr_for_each_port(hsr, port)
+ 		hsr_del_port(port);
+ err_add_port:
+-	hsr_del_node(&hsr->self_node_db);
++	hsr_del_self_node(&hsr->self_node_db);
+ 
+ 	return res;
+ }
+--- a/net/hsr/hsr_device.h
++++ b/net/hsr/hsr_device.h
+@@ -14,6 +14,7 @@
+ void hsr_dev_setup(struct net_device *dev);
+ int hsr_dev_finalize(struct net_device *hsr_dev, struct net_device *slave[2],
+ 		     unsigned char multicast_spec, u8 protocol_version);
++void hsr_dev_destroy(struct net_device *hsr_dev);
+ void hsr_check_carrier_and_operstate(struct hsr_priv *hsr);
+ bool is_hsr_master(struct net_device *dev);
+ int hsr_get_max_mtu(struct hsr_priv *hsr);
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -104,7 +104,7 @@ int hsr_create_self_node(struct list_hea
+ 	return 0;
+ }
+ 
+-void hsr_del_node(struct list_head *self_node_db)
++void hsr_del_self_node(struct list_head *self_node_db)
+ {
+ 	struct hsr_node *node;
+ 
+@@ -117,6 +117,15 @@ void hsr_del_node(struct list_head *self
+ 	}
+ }
+ 
++void hsr_del_nodes(struct list_head *node_db)
++{
++	struct hsr_node *node;
++	struct hsr_node *tmp;
++
++	list_for_each_entry_safe(node, tmp, node_db, mac_list)
++		kfree(node);
++}
++
+ /* Allocate an hsr_node and add it to node_db. 'addr' is the node's address_A;
+  * seq_out is used to initialize filtering of outgoing duplicate frames
+  * originating from the newly added node.
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -12,7 +12,8 @@
+ 
+ struct hsr_node;
+ 
+-void hsr_del_node(struct list_head *self_node_db);
++void hsr_del_self_node(struct list_head *self_node_db);
++void hsr_del_nodes(struct list_head *node_db);
+ struct hsr_node *hsr_add_node(struct list_head *node_db, unsigned char addr[],
+ 			      u16 seq_out);
+ struct hsr_node *hsr_get_node(struct hsr_port *port, struct sk_buff *skb,
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -69,6 +69,12 @@ static int hsr_newlink(struct net *src_n
+ 	return hsr_dev_finalize(dev, link, multicast_spec, hsr_version);
+ }
+ 
++static void hsr_dellink(struct net_device *hsr_dev, struct list_head *head)
++{
++	hsr_dev_destroy(hsr_dev);
++	unregister_netdevice_queue(hsr_dev, head);
++}
++
+ static int hsr_fill_info(struct sk_buff *skb, const struct net_device *dev)
+ {
+ 	struct hsr_priv *hsr;
+@@ -113,6 +119,7 @@ static struct rtnl_link_ops hsr_link_ops
+ 	.priv_size	= sizeof(struct hsr_priv),
+ 	.setup		= hsr_dev_setup,
+ 	.newlink	= hsr_newlink,
++	.dellink	= hsr_dellink,
+ 	.fill_info	= hsr_fill_info,
+ };
+ 
 
 
