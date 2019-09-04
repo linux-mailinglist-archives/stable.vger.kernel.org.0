@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D03B0A9031
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73B6A9033
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389128AbfIDSIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50952 "EHLO mail.kernel.org"
+        id S2389747AbfIDSIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389734AbfIDSIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:12 -0400
+        id S2389738AbfIDSIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E89942087E;
-        Wed,  4 Sep 2019 18:08:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98DF522CF7;
+        Wed,  4 Sep 2019 18:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620491;
-        bh=FCQ49UyAnellf/2lRQYhfrCi+V/oPwiaJ/v5oINvU/8=;
+        s=default; t=1567620494;
+        bh=yOuuWbnzDzrVFrx19MYF+nHUQbpLTEStOdeaKYBpv9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmXz9VW6FatDNjkrZPMIJUq5/X6yMrsAAL7bKeCmxR/pVAsb2yr/sCOetwkV/fJdS
-         E6VqBH4gvA6g8yyObg+MoCZ7jbLmjXrrNY6Yj8x+UMKZeL9rZ8CxTpBN7r7g2NKPOd
-         riYXkU3sV+ZGVa3jLZ+k+8YQl8TMIaMK+uwSCJek=
+        b=h02Ij7fSvwrQ7rKE+Yqv71L2AbErKJHKYR84atldlzwYo5DP3Mqev2vfVC7tzzyne
+         Mplcj/UX9vmxVNsS74+9tdByPGC7NV9QUp1WDcnImhPM47pMghVNPJwZLbB43LJHvD
+         9TTe2NSEfQdk3OGW4FsfqsBW+Gt1y7nzQ1JOBxd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>
-Subject: [PATCH 4.19 77/93] bus: hisi_lpc: Add .remove method to avoid driver unbind crash
-Date:   Wed,  4 Sep 2019 19:54:19 +0200
-Message-Id: <20190904175309.744840990@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Francois Rigault <rigault.francois@gmail.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Vishnu DASA <vdasa@vmware.com>, Nadav Amit <namit@vmware.com>
+Subject: [PATCH 4.19 78/93] VMCI: Release resource if the work is already queued
+Date:   Wed,  4 Sep 2019 19:54:20 +0200
+Message-Id: <20190904175309.832604859@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
 References: <20190904175302.845828956@linuxfoundation.org>
@@ -43,171 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 10e62b47973b0b0ceda076255bcb147b83e20517 upstream.
+commit ba03a9bbd17b149c373c0ea44017f35fc2cd0f28 upstream.
 
-The original driver author seemed to be under the impression that a driver
-cannot be removed if it does not have a .remove method. Or maybe if it is
-a built-in platform driver.
+Francois reported that VMware balloon gets stuck after a balloon reset,
+when the VMCI doorbell is removed. A similar error can occur when the
+balloon driver is removed with the following splat:
 
-This is not true. This crash can be created:
+[ 1088.622000] INFO: task modprobe:3565 blocked for more than 120 seconds.
+[ 1088.622035]       Tainted: G        W         5.2.0 #4
+[ 1088.622087] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 1088.622205] modprobe        D    0  3565   1450 0x00000000
+[ 1088.622210] Call Trace:
+[ 1088.622246]  __schedule+0x2a8/0x690
+[ 1088.622248]  schedule+0x2d/0x90
+[ 1088.622250]  schedule_timeout+0x1d3/0x2f0
+[ 1088.622252]  wait_for_completion+0xba/0x140
+[ 1088.622320]  ? wake_up_q+0x80/0x80
+[ 1088.622370]  vmci_resource_remove+0xb9/0xc0 [vmw_vmci]
+[ 1088.622373]  vmci_doorbell_destroy+0x9e/0xd0 [vmw_vmci]
+[ 1088.622379]  vmballoon_vmci_cleanup+0x6e/0xf0 [vmw_balloon]
+[ 1088.622381]  vmballoon_exit+0x18/0xcc8 [vmw_balloon]
+[ 1088.622394]  __x64_sys_delete_module+0x146/0x280
+[ 1088.622408]  do_syscall_64+0x5a/0x130
+[ 1088.622410]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 1088.622415] RIP: 0033:0x7f54f62791b7
+[ 1088.622421] Code: Bad RIP value.
+[ 1088.622421] RSP: 002b:00007fff2a949008 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+[ 1088.622426] RAX: ffffffffffffffda RBX: 000055dff8b55d00 RCX: 00007f54f62791b7
+[ 1088.622426] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055dff8b55d68
+[ 1088.622427] RBP: 000055dff8b55d00 R08: 00007fff2a947fb1 R09: 0000000000000000
+[ 1088.622427] R10: 00007f54f62f5cc0 R11: 0000000000000206 R12: 000055dff8b55d68
+[ 1088.622428] R13: 0000000000000001 R14: 000055dff8b55d68 R15: 00007fff2a94a3f0
 
-root@ubuntu:/sys/bus/platform/drivers/hisi-lpc# echo HISI0191\:00 > unbind
-root@ubuntu:/sys/bus/platform/drivers/hisi-lpc# ipmitool raw 6 1
- Unable to handle kernel paging request at virtual address ffff000010035010
- Mem abort info:
-   ESR = 0x96000047
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000047
-   CM = 0, WnR = 1
- swapper pgtable: 4k pages, 48-bit VAs, pgdp=000000000118b000
- [ffff000010035010] pgd=0000041ffbfff003, pud=0000041ffbffe003, pmd=0000041ffbffd003, pte=0000000000000000
- Internal error: Oops: 96000047 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 17 PID: 1473 Comm: ipmitool Not tainted 5.2.0-rc5-00003-gf68c53b414a3-dirty #198
- Hardware name: Huawei Taishan 2280 /D05, BIOS Hisilicon D05 IT21 Nemo 2.0 RC0 04/18/2018
- pstate: 20000085 (nzCv daIf -PAN -UAO)
- pc : hisi_lpc_target_in+0x7c/0x120
- lr : hisi_lpc_target_in+0x70/0x120
- sp : ffff00001efe3930
- x29: ffff00001efe3930 x28: ffff841f9f599200
- x27: 0000000000000002 x26: 0000000000000000
- x25: 0000000000000080 x24: 00000000000000e4
- x23: 0000000000000000 x22: 0000000000000064
- x21: ffff801fb667d280 x20: 0000000000000001
- x19: ffff00001efe39ac x18: 0000000000000000
- x17: 0000000000000000 x16: 0000000000000000
- x15: 0000000000000000 x14: 0000000000000000
- x13: 0000000000000000 x12: 0000000000000000
- x11: 0000000000000000 x10: 0000000000000000
- x9 : 0000000000000000 x8 : ffff841febe60340
- x7 : ffff801fb55c52e8 x6 : 0000000000000000
- x5 : 0000000000ffc0e3 x4 : 0000000000000001
- x3 : ffff801fb667d280 x2 : 0000000000000001
- x1 : ffff000010035010 x0 : ffff000010035000
- Call trace:
-  hisi_lpc_target_in+0x7c/0x120
-  hisi_lpc_comm_in+0x88/0x98
-  logic_inb+0x5c/0xb8
-  port_inb+0x18/0x20
-  bt_event+0x38/0x808
-  smi_event_handler+0x4c/0x5a0
-  check_start_timer_thread.part.4+0x40/0x58
-  sender+0x78/0x88
-  smi_send.isra.6+0x94/0x108
-  i_ipmi_request+0x2c4/0x8f8
-  ipmi_request_settime+0x124/0x160
-  handle_send_req+0x19c/0x208
-  ipmi_ioctl+0x2c0/0x990
-  do_vfs_ioctl+0xb8/0x8f8
-  ksys_ioctl+0x80/0xb8
-  __arm64_sys_ioctl+0x1c/0x28
-  el0_svc_common.constprop.0+0x64/0x160
-  el0_svc_handler+0x28/0x78
-  el0_svc+0x8/0xc
- Code: 941d1511 aa0003f9 f94006a0 91004001 (b9000034)
- ---[ end trace aa842b86af7069e4 ]---
+The cause for the bug is that when the "delayed" doorbell is invoked, it
+takes a reference on the doorbell entry and schedules work that is
+supposed to run the appropriate code and drop the doorbell entry
+reference. The code ignores the fact that if the work is already queued,
+it will not be scheduled to run one more time. As a result one of the
+references would not be dropped. When the code waits for the reference
+to get to zero, during balloon reset or module removal, it gets stuck.
 
-The problem here is that the host goes away but the associated logical PIO
-region remains registered, as do the children devices.
+Fix it. Drop the reference if schedule_work() indicates that the work is
+already queued.
 
-Fix by adding a .remove method to tidy-up by removing the child devices
-and unregistering the logical PIO region.
+Note that this bug got more apparent (or apparent at all) due to
+commit ce664331b248 ("vmw_balloon: VMCI_DOORBELL_SET does not check status").
 
+Fixes: 83e2ec765be03 ("VMCI: doorbell implementation.")
+Reported-by: Francois Rigault <rigault.francois@gmail.com>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Adit Ranadive <aditr@vmware.com>
+Cc: Alexios Zavras <alexios.zavras@intel.com>
+Cc: Vishnu DASA <vdasa@vmware.com>
 Cc: stable@vger.kernel.org
-Fixes: adf38bb0b595 ("HISI LPC: Support the LPC host on Hip06/Hip07 with DT bindings")
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Link: https://lore.kernel.org/r/20190820202638.49003-1-namit@vmware.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bus/hisi_lpc.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ drivers/misc/vmw_vmci/vmci_doorbell.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/bus/hisi_lpc.c
-+++ b/drivers/bus/hisi_lpc.c
-@@ -456,6 +456,17 @@ struct hisi_lpc_acpi_cell {
- 	size_t pdata_size;
- };
+--- a/drivers/misc/vmw_vmci/vmci_doorbell.c
++++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
+@@ -318,7 +318,8 @@ int vmci_dbell_host_context_notify(u32 s
  
-+static void hisi_lpc_acpi_remove(struct device *hostdev)
-+{
-+	struct acpi_device *adev = ACPI_COMPANION(hostdev);
-+	struct acpi_device *child;
-+
-+	device_for_each_child(hostdev, NULL, hisi_lpc_acpi_remove_subdev);
-+
-+	list_for_each_entry(child, &adev->children, node)
-+		acpi_device_clear_enumerated(child);
-+}
-+
- /*
-  * hisi_lpc_acpi_probe - probe children for ACPI FW
-  * @hostdev: LPC host device pointer
-@@ -556,8 +567,7 @@ static int hisi_lpc_acpi_probe(struct de
- 	return 0;
- 
- fail:
--	device_for_each_child(hostdev, NULL,
--			      hisi_lpc_acpi_remove_subdev);
-+	hisi_lpc_acpi_remove(hostdev);
- 	return ret;
- }
- 
-@@ -570,6 +580,10 @@ static int hisi_lpc_acpi_probe(struct de
- {
- 	return -ENODEV;
- }
-+
-+static void hisi_lpc_acpi_remove(struct device *hostdev)
-+{
-+}
- #endif // CONFIG_ACPI
- 
- /*
-@@ -627,6 +641,8 @@ static int hisi_lpc_probe(struct platfor
- 		return ret;
- 	}
- 
-+	dev_set_drvdata(dev, lpcdev);
-+
- 	io_end = lpcdev->io_host->io_start + lpcdev->io_host->size;
- 	dev_info(dev, "registered range [%pa - %pa]\n",
- 		 &lpcdev->io_host->io_start, &io_end);
-@@ -634,6 +650,23 @@ static int hisi_lpc_probe(struct platfor
- 	return ret;
- }
- 
-+static int hisi_lpc_remove(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct acpi_device *acpi_device = ACPI_COMPANION(dev);
-+	struct hisi_lpc_dev *lpcdev = dev_get_drvdata(dev);
-+	struct logic_pio_hwaddr *range = lpcdev->io_host;
-+
-+	if (acpi_device)
-+		hisi_lpc_acpi_remove(dev);
-+	else
-+		of_platform_depopulate(dev);
-+
-+	logic_pio_unregister_range(range);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id hisi_lpc_of_match[] = {
- 	{ .compatible = "hisilicon,hip06-lpc", },
- 	{ .compatible = "hisilicon,hip07-lpc", },
-@@ -647,5 +680,6 @@ static struct platform_driver hisi_lpc_d
- 		.acpi_match_table = ACPI_PTR(hisi_lpc_acpi_match),
- 	},
- 	.probe = hisi_lpc_probe,
-+	.remove = hisi_lpc_remove,
- };
- builtin_platform_driver(hisi_lpc_driver);
+ 	entry = container_of(resource, struct dbell_entry, resource);
+ 	if (entry->run_delayed) {
+-		schedule_work(&entry->work);
++		if (!schedule_work(&entry->work))
++			vmci_resource_put(resource);
+ 	} else {
+ 		entry->notify_cb(entry->client_data);
+ 		vmci_resource_put(resource);
+@@ -366,7 +367,8 @@ static void dbell_fire_entries(u32 notif
+ 		    atomic_read(&dbell->active) == 1) {
+ 			if (dbell->run_delayed) {
+ 				vmci_resource_get(&dbell->resource);
+-				schedule_work(&dbell->work);
++				if (!schedule_work(&dbell->work))
++					vmci_resource_put(&dbell->resource);
+ 			} else {
+ 				dbell->notify_cb(dbell->client_data);
+ 			}
 
 
