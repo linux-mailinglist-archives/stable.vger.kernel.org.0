@@ -2,342 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29CE6A9553
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 23:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A4EA95CF
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 00:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730262AbfIDVlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 17:41:01 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33118 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726495AbfIDVlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 17:41:01 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7285D190C03B
-        for <stable@vger.kernel.org>; Wed,  4 Sep 2019 21:41:00 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-120-59.rdu2.redhat.com [10.10.120.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 25E6D5D6D0;
-        Wed,  4 Sep 2019 21:40:57 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e2?=
-To:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-References: <cki.A4851D4971.1REP8UKX04@redhat.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <132738d7-41c3-b58b-f22b-1cd33612a221@redhat.com>
-Date:   Wed, 4 Sep 2019 17:40:56 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1730119AbfIDWNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 18:13:05 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:38971 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726495AbfIDWNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 18:13:05 -0400
+Received: by mail-wr1-f67.google.com with SMTP id t16so403794wra.6
+        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 15:13:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TZPdAUlA7qNN6+jQmsqssp5ULo7w+saDdp63nLUEMIE=;
+        b=ysWKWkfHqQ7X3DaVIOcFXz89SawlE5pcsYTW4g+0nJSkuCstuHVj4eqvFFaO8sNr3z
+         GSvS3swGYpqA22nsPCwZP+2aa7UGWC76Wmb9A8N3JQ27CmsQCbI5jNrshX07TYvlq+os
+         K9cg36tWhb6qbazQ1S50UMofAM4ojs4Bt7LV9DX4mUNtwKxKeQhZbb6Aa2jRt/gbzZkf
+         HZAa17iO2veDbEXgWqwQBwdvBCeMKdbeogl5qMg2m5tmZxhjiAEEp/vJkABf99WGpyqb
+         axANjCpNUV3VRCVWLQATiQ4K6YO6QQ1T6T0WekN1VFLI48G7hq57G0svCyl+Ay8fMgVS
+         DLXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TZPdAUlA7qNN6+jQmsqssp5ULo7w+saDdp63nLUEMIE=;
+        b=AkADVaVxe02XwUA3jVx5v67Qr/8NcygkUe0enqY8nhhegOidETVesR+aWp52i1mURG
+         vX488MaqG7ONcDWgnIQM53WW6UPuKlaxEYhW6+9Qtj6mqwdl/J8f55rdiACfo1CGasFg
+         E65G9o8j61onqnkKzLvZIdA6GcN6eAr+XkGp0MZttTrthPPk6D/t7z7QTaCXKPmYTy1H
+         uXbLB6L6FxrsYyH1nE5kszHq1yg0aFA+i0OIm181PfOpZcG3KzhsHzbECHqxFwqtuEoV
+         DhCWMcOA20jpBacH3S0S0t951rKi1y4w+Z2IREGfbwCWaqt/LtuCGRaadZDBRcZo0ZEk
+         +1Nw==
+X-Gm-Message-State: APjAAAUW7Lrm4z4oHJgUGqEOhyxKzWi3muJA8n5s4e8WAm94VLTsm+0B
+        XGRZt3q6st0+MtFu8flxbFOf/NSsPWIQ7w==
+X-Google-Smtp-Source: APXvYqzRAg70wjeAm6r91yACUE9AhW3qRxaULtfEpy3Uadw3/pvargQpbr422pYJ2TZcTzkC1Ajqdw==
+X-Received: by 2002:a5d:49c2:: with SMTP id t2mr4399688wrs.351.1567635183823;
+        Wed, 04 Sep 2019 15:13:03 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s26sm157444wrs.63.2019.09.04.15.12.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 04 Sep 2019 15:12:59 -0700 (PDT)
+Message-ID: <5d7036eb.1c69fb81.3ce60.0c3b@mx.google.com>
+Date:   Wed, 04 Sep 2019 15:12:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <cki.A4851D4971.1REP8UKX04@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Wed, 04 Sep 2019 21:41:00 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.69-94-gb755ab504136
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 149 boots: 5 failed,
+ 133 passed with 9 offline, 2 untried/unknown (v4.19.69-94-gb755ab504136)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Looks like we hit the same boot failure as last time, it seems to affect 
-the Gigabyte ARM systems,
-they are failing to boot with disk errors, we have filed a bugzilla and 
-blacklisted these systems
-while we investigate.
+stable-rc/linux-4.19.y boot: 149 boots: 5 failed, 133 passed with 9 offline=
+, 2 untried/unknown (v4.19.69-94-gb755ab504136)
 
--Rachel
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.69-94-gb755ab504136/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.69-94-gb755ab504136/
 
-On 9/4/19 1:31 AM, CKI Project wrote:
-> Hello,
->
-> We ran automated tests on a patchset that was proposed for merging into this
-> kernel tree. The patches were applied to:
->
->         Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->              Commit: c3915fe1bf12 - Linux 5.2.11
->
-> The results of these automated tests are provided below.
->
->      Overall result: FAILED (see details below)
->               Merge: OK
->             Compile: OK
->               Tests: FAILED
->
-> All kernel binaries, config files, and logs are available for download here:
->
->    https://artifacts.cki-project.org/pipelines/142252
->
->
->
-> One or more kernel tests failed:
->
->    aarch64:
->      ❌ Boot test
->
-> We hope that these logs can help you find the problem quickly. For the full
-> detail on our testing procedures, please scroll to the bottom of this message.
->
-> Please reply to this email if you have any questions about the tests that we
-> ran or if you have any suggestions on how to make future tests more effective.
->
->          ,-.   ,-.
->         ( C ) ( K )  Continuous
->          `-',-.`-'   Kernel
->            ( I )     Integration
->             `-'
-> ______________________________________________________________________________
->
-> Merge testing
-> -------------
->
-> We cloned this repository and checked out the following commit:
->
->    Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->    Commit: c3915fe1bf12 - Linux 5.2.11
->
->
-> We grabbed the d911cedb6528 commit of the stable queue repository.
->
-> We then merged the patchset with `git am`:
->
->    dmaengine-ste_dma40-fix-unneeded-variable-warning.patch
->    nvme-multipath-revalidate-nvme_ns_head-gendisk-in-nv.patch
->    afs-fix-the-cb.probeuuid-service-handler-to-reply-co.patch
->    afs-fix-loop-index-mixup-in-afs_deliver_vl_get_entry.patch
->    fs-afs-fix-a-possible-null-pointer-dereference-in-af.patch
->    afs-fix-off-by-one-in-afs_rename-expected-data-versi.patch
->    afs-only-update-d_fsdata-if-different-in-afs_d_reval.patch
->    afs-fix-missing-dentry-data-version-updating.patch
->    nvmet-fix-use-after-free-bug-when-a-port-is-removed.patch
->    nvmet-loop-flush-nvme_delete_wq-when-removing-the-po.patch
->    nvmet-file-fix-nvmet_file_flush-always-returning-an-.patch
->    nvme-core-fix-extra-device_put-call-on-error-path.patch
->    nvme-fix-a-possible-deadlock-when-passthru-commands-.patch
->    nvme-rdma-fix-possible-use-after-free-in-connect-err.patch
->    nvme-fix-controller-removal-race-with-scan-work.patch
->    nvme-pci-fix-async-probe-remove-race.patch
->    soundwire-cadence_master-fix-register-definition-for.patch
->    soundwire-cadence_master-fix-definitions-for-intstat.patch
->    auxdisplay-panel-need-to-delete-scan_timer-when-misc.patch
->    btrfs-trim-check-the-range-passed-into-to-prevent-ov.patch
->    ib-mlx5-fix-implicit-mr-release-flow.patch
->    dmaengine-stm32-mdma-fix-a-possible-null-pointer-der.patch
->    omap-dma-omap_vout_vrfb-fix-off-by-one-fi-value.patch
->    iommu-dma-handle-sg-length-overflow-better.patch
->    dma-direct-don-t-truncate-dma_required_mask-to-bus-a.patch
->    usb-gadget-composite-clear-suspended-on-reset-discon.patch
->    usb-gadget-mass_storage-fix-races-between-fsg_disabl.patch
->    habanalabs-fix-dram-usage-accounting-on-context-tear.patch
->    habanalabs-fix-endianness-handling-for-packets-from-.patch
->    habanalabs-fix-completion-queue-handling-when-host-i.patch
->    habanalabs-fix-endianness-handling-for-internal-qman.patch
->    habanalabs-fix-device-irq-unmasking-for-be-host.patch
->    xen-blkback-fix-memory-leaks.patch
->    arm64-cpufeature-don-t-treat-granule-sizes-as-strict.patch
->    riscv-fix-flush_tlb_range-end-address-for-flush_tlb_.patch
->    i2c-rcar-avoid-race-when-unregistering-slave-client.patch
->    i2c-emev2-avoid-race-when-unregistering-slave-client.patch
->    drm-scheduler-use-job-count-instead-of-peek.patch
->    drm-ast-fixed-reboot-test-may-cause-system-hanged.patch
->    usb-host-fotg2-restart-hcd-after-port-reset.patch
->    tools-hv-fixed-python-pep8-flake8-warnings-for-lsvmb.patch
->    tools-hv-fix-kvp-and-vss-daemons-exit-code.patch
->    locking-rwsem-add-missing-acquire-to-read_slowpath-e.patch
->    lcoking-rwsem-add-missing-acquire-to-read_slowpath-s.patch
->    watchdog-bcm2835_wdt-fix-module-autoload.patch
->    selftests-bpf-install-files-test_xdp_vlan.sh.patch
->    drm-bridge-tfp410-fix-memleak-in-get_modes.patch
->    mt76-usb-fix-rx-a-msdu-support.patch
->    ipv6-addrconf-allow-adding-multicast-addr-if-ifa_f_mcautojoin-is-set.patch
->    ipv6-fix-return-value-of-ipv6_mc_may_pull-for-malformed-packets.patch
->    net-cpsw-fix-null-pointer-exception-in-the-probe-error-path.patch
->    net-fix-__ip_mc_inc_group-usage.patch
->    net-smc-make-sure-epollout-is-raised.patch
->    tcp-make-sure-epollout-wont-be-missed.patch
->    ipv4-mpls-fix-mpls_xmit-for-iptunnel.patch
->    openvswitch-fix-conntrack-cache-with-timeout.patch
->    ipv4-icmp-fix-rt-dst-dev-null-pointer-dereference.patch
->    xfrm-xfrm_policy-fix-dst-dev-null-pointer-dereference-in-collect_md-mode.patch
->    mm-zsmalloc.c-fix-build-when-config_compaction-n.patch
->    alsa-usb-audio-check-mixer-unit-bitmap-yet-more-strictly.patch
->    alsa-hda-ca0132-add-new-sbz-quirk.patch
->    alsa-line6-fix-memory-leak-at-line6_init_pcm-error-path.patch
->    alsa-hda-fixes-inverted-conexant-gpio-mic-mute-led.patch
->    alsa-seq-fix-potential-concurrent-access-to-the-deleted-pool.patch
->    alsa-usb-audio-fix-invalid-null-check-in-snd_emuusb_set_samplerate.patch
->    alsa-usb-audio-add-implicit-fb-quirk-for-behringer-ufx1604.patch
->    kvm-x86-skip-populating-logical-dest-map-if-apic-is-not-sw-enabled.patch
->    kvm-x86-hyper-v-don-t-crash-on-kvm_get_supported_hv_cpuid-when-kvm_intel.nested-is-disabled.patch
->    kvm-x86-don-t-update-rip-or-do-single-step-on-faulting-emulation.patch
->    uprobes-x86-fix-detection-of-32-bit-user-mode.patch
->    x86-mm-cpa-prevent-large-page-split-when-ftrace-flips-rw-on-kernel-text.patch
->    x86-apic-do-not-initialize-ldr-and-dfr-for-bigsmp.patch
->    x86-apic-include-the-ldr-when-clearing-out-apic-registers.patch
->    hid-logitech-hidpp-remove-support-for-the-g700-over-.patch
->    ftrace-fix-null-pointer-dereference-in-t_probe_next.patch
->    ftrace-check-for-successful-allocation-of-hash.patch
->    ftrace-check-for-empty-hash-and-comment-the-race-with-registering-probes.patch
->    usbtmc-more-sanity-checking-for-packet-size.patch
->    usb-storage-add-new-jms567-revision-to-unusual_devs.patch
->    usb-cdc-wdm-fix-race-between-write-and-disconnect-due-to-flag-abuse.patch
->    usb-hcd-use-managed-device-resources.patch
->    usb-chipidea-udc-don-t-do-hardware-access-if-gadget-has-stopped.patch
->    usb-host-ohci-fix-a-race-condition-between-shutdown-and-irq.patch
->    usb-host-xhci-rcar-fix-typo-in-compatible-string-matching.patch
->    usb-storage-ums-realtek-update-module-parameter-description-for-auto_delink_en.patch
->    usb-storage-ums-realtek-whitelist-auto-delink-support.patch
->    tools-power-turbostat-fix-caller-parameter-of-get_tdp_amd.patch
->    kvm-ppc-book3s-fix-incorrect-guest-to-user-translation-error-handling.patch
->    kvm-arm-arm64-vgic-fix-potential-deadlock-when-ap_list-is-long.patch
->    kvm-arm-arm64-vgic-v2-handle-sgi-bits-in-gicd_i-s-c-pendr0-as-wi.patch
->    mei-me-add-tiger-lake-point-lp-device-id.patch
->    revert-mmc-sdhci-tegra-drop-get_ro-implementation.patch
->
-> Compile testing
-> ---------------
->
-> We compiled the kernel for 3 architectures:
->
->      aarch64:
->        make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
->
->      ppc64le:
->        make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
->
->      x86_64:
->        make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
->
->
-> Hardware testing
-> ----------------
-> We booted each kernel and ran the following tests:
->
->    aarch64:
->        Host 1:
->           ✅ Boot test [0]
->           ✅ Podman system integration test (as root) [1]
->           ✅ Podman system integration test (as user) [1]
->           ✅ Loopdev Sanity [2]
->           ✅ jvm test suite [3]
->           ✅ AMTU (Abstract Machine Test Utility) [4]
->           ✅ LTP: openposix test suite [5]
->           ✅ Ethernet drivers sanity [6]
->           ✅ Networking socket: fuzz [7]
->           ✅ Networking: igmp conformance test [8]
->           ✅ audit: audit testsuite test [9]
->           ✅ httpd: mod_ssl smoke sanity [10]
->           ✅ iotop: sanity [11]
->           ✅ tuned: tune-processes-through-perf [12]
->           ✅ Usex - version 1.9-29 [13]
->           ✅ stress: stress-ng [14]
->           🚧 ✅ LTP lite [15]
->           🚧 ✅ Memory function: kaslr [16]
->           🚧 ✅ Networking ipsec: basic netns transport [17]
->           🚧 ✅ Networking ipsec: basic netns tunnel [17]
->           🚧 ✅ trace: ftrace/tracer [18]
->
->        Host 2:
->           ❌ Boot test [0]
->           ⚡⚡⚡ selinux-policy: serge-testsuite [19]
->           🚧 ⚡⚡⚡ Storage blktests [20]
->
->
->    ppc64le:
->        Host 1:
->           ✅ Boot test [0]
->           ✅ Podman system integration test (as root) [1]
->           ✅ Podman system integration test (as user) [1]
->           ✅ Loopdev Sanity [2]
->           ✅ jvm test suite [3]
->           ✅ AMTU (Abstract Machine Test Utility) [4]
->           ✅ LTP: openposix test suite [5]
->           ✅ Ethernet drivers sanity [6]
->           ✅ Networking socket: fuzz [7]
->           ✅ audit: audit testsuite test [9]
->           ✅ httpd: mod_ssl smoke sanity [10]
->           ✅ iotop: sanity [11]
->           ✅ tuned: tune-processes-through-perf [12]
->           ✅ Usex - version 1.9-29 [13]
->           🚧 ✅ LTP lite [15]
->           🚧 ✅ Memory function: kaslr [16]
->           🚧 ✅ Networking ipsec: basic netns tunnel [17]
->           🚧 ✅ trace: ftrace/tracer [18]
->
->        Host 2:
->           ✅ Boot test [0]
->           ✅ selinux-policy: serge-testsuite [19]
->           🚧 ✅ Storage blktests [20]
->
->
->    x86_64:
->        Host 1:
->           ✅ Boot test [0]
->           ✅ selinux-policy: serge-testsuite [19]
->           🚧 ✅ Storage blktests [20]
->           🚧 ✅ IOMMU boot test [21]
->
->        Host 2:
->
->           ⚡ Internal infrastructure issues prevented one or more tests (marked
->           with ⚡⚡⚡) from running on this architecture.
->           This is not the fault of the kernel that was tested.
->
->           ⚡⚡⚡ Boot test [0]
->           ⚡⚡⚡ Podman system integration test (as root) [1]
->           ⚡⚡⚡ Podman system integration test (as user) [1]
->           ⚡⚡⚡ Loopdev Sanity [2]
->           ⚡⚡⚡ jvm test suite [3]
->           ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [4]
->           ⚡⚡⚡ LTP: openposix test suite [5]
->           ⚡⚡⚡ Ethernet drivers sanity [6]
->           ⚡⚡⚡ Networking socket: fuzz [7]
->           ⚡⚡⚡ Networking: igmp conformance test [8]
->           ⚡⚡⚡ audit: audit testsuite test [9]
->           ⚡⚡⚡ httpd: mod_ssl smoke sanity [10]
->           ⚡⚡⚡ iotop: sanity [11]
->           ⚡⚡⚡ tuned: tune-processes-through-perf [12]
->           ⚡⚡⚡ pciutils: sanity smoke test [22]
->           ⚡⚡⚡ Usex - version 1.9-29 [13]
->           ⚡⚡⚡ stress: stress-ng [14]
->           🚧 ⚡⚡⚡ LTP lite [15]
->           🚧 ⚡⚡⚡ Memory function: kaslr [16]
->           🚧 ⚡⚡⚡ Networking ipsec: basic netns transport [17]
->           🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [17]
->           🚧 ⚡⚡⚡ trace: ftrace/tracer [18]
->
->
->    Test source:
->      💚 Pull requests are welcome for new tests or improvements to existing tests!
->      [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
->      [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
->      [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
->      [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
->      [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
->      [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
->      [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
->      [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
->      [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
->      [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
->      [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
->      [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
->      [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
->      [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
->      [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
->      [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
->      [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
->      [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
->      [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
->      [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
->      [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
->      [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
->      [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
->
-> Waived tests
-> ------------
-> If the test run included waived tests, they are marked with 🚧. Such tests are
-> executed but their results are not taken into account. Tests are waived when
-> their results are not reliable enough, e.g. when they're just introduced or are
-> being fixed.
->
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.69-94-gb755ab504136
+Git Commit: b755ab5041366b954c39bd97caa982539e0d1223
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 77 unique boards, 25 SoC families, 16 builds out of 206
 
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            hip07-d05: 1 failed lab
+
+arm:
+    vexpress_defconfig:
+        gcc-8:
+            qemu_arm-virt-gicv3: 4 failed labs
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
