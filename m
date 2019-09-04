@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84024A8ADD
+	by mail.lfdr.de (Postfix) with ESMTP id F19AEA8ADE
 	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732195AbfIDQAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35796 "EHLO mail.kernel.org"
+        id S1732835AbfIDQAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732124AbfIDQAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:00:50 -0400
+        id S1732830AbfIDQAv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:00:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8435122DBF;
-        Wed,  4 Sep 2019 16:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812E520820;
+        Wed,  4 Sep 2019 16:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612849;
-        bh=h3bcOGtPLUCBSlVlXbcseSnPv5QaAVKpkn0I2pFFNnw=;
+        s=default; t=1567612850;
+        bh=K93ZfifvKFmK/rsmxc+R5+nB6ROmf3mlE/wOO2Vb1Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6HAwmRjGjQZ7bjcRmyxLJKx+sBSFFxBXS3b9jZfEQrIfib35GSEy9XMJZaAbY5sa
-         RKBqzVa1mwVL95wUbyHAcsQCYBbqyXE3zJoj3TmjKViqc/q+JJuEqFWaLi3F7jLJf/
-         rkSzArb3mEZkcmzfPA/xasKFQbqTVwEJBU3LnU84=
+        b=GTGAc9AyYP3Dp6Onwf3nm+V7Ci1Wo44yY44OaK5SE/rd1/t3j2W/z3mJCtWkKK7XE
+         4d09OJsQGLZiNK2R7UwoHNRiie0nm8dLxPL+RECC/CPuQalDPTeF0nfYQ7lky0MF2o
+         HQsJriK+F8CbH8woi2v/Iusl9ZgjguO5F2ttM6sY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>, alan@linux.intel.com,
-        bp@alien8.de, cheol.yong.kim@intel.com, qi-ming.wu@intel.com,
-        rahul.tanwar@intel.com, rppt@linux.ibm.com, tony.luck@intel.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 30/52] x86/apic: Fix arch_dynirq_lower_bound() bug for DT enabled machines
-Date:   Wed,  4 Sep 2019 11:59:42 -0400
-Message-Id: <20190904160004.3671-30-sashal@kernel.org>
+Cc:     Todd Seidelmann <tseidelmann@linode.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 31/52] netfilter: xt_physdev: Fix spurious error message in physdev_mt_check
+Date:   Wed,  4 Sep 2019 11:59:43 -0400
+Message-Id: <20190904160004.3671-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
@@ -49,69 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Todd Seidelmann <tseidelmann@linode.com>
 
-[ Upstream commit 3e5bedc2c258341702ddffbd7688c5e6eb01eafa ]
+[ Upstream commit 3cf2f450fff304be9cf4868bf0df17f253bc5b1c ]
 
-Rahul Tanwar reported the following bug on DT systems:
+Simplify the check in physdev_mt_check() to emit an error message
+only when passed an invalid chain (ie, NF_INET_LOCAL_OUT).
+This avoids cluttering up the log with errors against valid rules.
 
-> 'ioapic_dynirq_base' contains the virtual IRQ base number. Presently, it is
-> updated to the end of hardware IRQ numbers but this is done only when IOAPIC
-> configuration type is IOAPIC_DOMAIN_LEGACY or IOAPIC_DOMAIN_STRICT. There is
-> a third type IOAPIC_DOMAIN_DYNAMIC which applies when IOAPIC configuration
-> comes from devicetree.
->
-> See dtb_add_ioapic() in arch/x86/kernel/devicetree.c
->
-> In case of IOAPIC_DOMAIN_DYNAMIC (DT/OF based system), 'ioapic_dynirq_base'
-> remains to zero initialized value. This means that for OF based systems,
-> virtual IRQ base will get set to zero.
+For large/heavily modified rulesets, current behavior can quickly
+overwhelm the ring buffer, because this function gets called on
+every change, regardless of the rule that was changed.
 
-Such systems will very likely not even boot.
-
-For DT enabled machines ioapic_dynirq_base is irrelevant and not
-updated, so simply map the IRQ base 1:1 instead.
-
-Reported-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: alan@linux.intel.com
-Cc: bp@alien8.de
-Cc: cheol.yong.kim@intel.com
-Cc: qi-ming.wu@intel.com
-Cc: rahul.tanwar@intel.com
-Cc: rppt@linux.ibm.com
-Cc: tony.luck@intel.com
-Link: http://lkml.kernel.org/r/20190821081330.1187-1-rahul.tanwar@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Todd Seidelmann <tseidelmann@linode.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/netfilter/xt_physdev.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index 4077e309e5c4c..ab22eded61d25 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2432,7 +2432,13 @@ unsigned int arch_dynirq_lower_bound(unsigned int from)
- 	 * dmar_alloc_hwirq() may be called before setup_IO_APIC(), so use
- 	 * gsi_top if ioapic_dynirq_base hasn't been initialized yet.
- 	 */
--	return ioapic_initialized ? ioapic_dynirq_base : gsi_top;
-+	if (!ioapic_initialized)
-+		return gsi_top;
-+	/*
-+	 * For DT enabled machines ioapic_dynirq_base is irrelevant and not
-+	 * updated. So simply return @from if ioapic_dynirq_base == 0.
-+	 */
-+	return ioapic_dynirq_base ? : from;
- }
+diff --git a/net/netfilter/xt_physdev.c b/net/netfilter/xt_physdev.c
+index 05f00fb20b047..cd15ea79e3e2a 100644
+--- a/net/netfilter/xt_physdev.c
++++ b/net/netfilter/xt_physdev.c
+@@ -104,11 +104,9 @@ static int physdev_mt_check(const struct xt_mtchk_param *par)
+ 	if (info->bitmask & (XT_PHYSDEV_OP_OUT | XT_PHYSDEV_OP_ISOUT) &&
+ 	    (!(info->bitmask & XT_PHYSDEV_OP_BRIDGED) ||
+ 	     info->invert & XT_PHYSDEV_OP_BRIDGED) &&
+-	    par->hook_mask & ((1 << NF_INET_LOCAL_OUT) |
+-	    (1 << NF_INET_FORWARD) | (1 << NF_INET_POST_ROUTING))) {
++	    par->hook_mask & (1 << NF_INET_LOCAL_OUT)) {
+ 		pr_info_ratelimited("--physdev-out and --physdev-is-out only supported in the FORWARD and POSTROUTING chains with bridged traffic\n");
+-		if (par->hook_mask & (1 << NF_INET_LOCAL_OUT))
+-			return -EINVAL;
++		return -EINVAL;
+ 	}
  
- #ifdef CONFIG_X86_32
+ 	if (!brnf_probed) {
 -- 
 2.20.1
 
