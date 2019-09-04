@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8DDA90D9
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65AEBA91B1
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390035AbfIDSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:12:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56348 "EHLO mail.kernel.org"
+        id S1732179AbfIDSWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390442AbfIDSME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:12:04 -0400
+        id S2388346AbfIDSEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03F7D206BA;
-        Wed,  4 Sep 2019 18:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C581E208E4;
+        Wed,  4 Sep 2019 18:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620723;
-        bh=pfHA4ghX1sdzBre+QSIFvxbGOXnT+CmSpcZh5msUerA=;
+        s=default; t=1567620249;
+        bh=bDqaOAqZaQ/yWjCQx8MNS98le6D4MfuFmZmP7M9nAeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JX42eqny7++XwhZ/KMIafdmlmEOEZ7cMOF10H+rphqjUtOujAKXrHrm8RN19TUoLI
-         Tj31jt6vHIPIqNZG8abqGYuOdfPrugNwTmiAhlbtVTv9wUhbQngamb5RIzDnfF2cMb
-         3LT/5Dc2AK3QAgzuE59+kbTZCCkd1AMQ10XAyZ5I=
+        b=TjyhN9xZs3JAu+cJ7EA1oNbck3zEd28jp1+YUgNjEBvbtKjecV0Y7LvzT+BKtR9sO
+         LeMkiqqhNpxUbv6n/q+aCv9Me7/NJ3Y/ypkgyLwhvd9xQTL3jPcIKE3+whaBZMxDK1
+         +5OwIe2pf2ejJtURlr9mgMn/0J9+xqLwx6vtSJeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Bandan Das <bsd@redhat.com>
-Subject: [PATCH 5.2 072/143] x86/apic: Do not initialize LDR and DFR for bigsmp
+        stable@vger.kernel.org,
+        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/57] i2c: rcar: avoid race when unregistering slave client
 Date:   Wed,  4 Sep 2019 19:53:35 +0200
-Message-Id: <20190904175316.874622073@linuxfoundation.org>
+Message-Id: <20190904175302.625496869@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bandan Das <bsd@redhat.com>
+[ Upstream commit 7b814d852af6944657c2961039f404c4490771c0 ]
 
-commit bae3a8d3308ee69a7dbdf145911b18dfda8ade0d upstream.
+After we disabled interrupts, there might still be an active one
+running. Sync before clearing the pointer to the slave device.
 
-Legacy apic init uses bigsmp for smp systems with 8 and more CPUs. The
-bigsmp APIC implementation uses physical destination mode, but it
-nevertheless initializes LDR and DFR. The LDR even ends up incorrectly with
-multiple bit being set.
-
-This does not cause a functional problem because LDR and DFR are ignored
-when physical destination mode is active, but it triggered a problem on a
-32-bit KVM guest which jumps into a kdump kernel.
-
-The multiple bits set unearthed a bug in the KVM APIC implementation. The
-code which creates the logical destination map for VCPUs ignores the
-disabled state of the APIC and ends up overwriting an existing valid entry
-and as a result, APIC calibration hangs in the guest during kdump
-initialization.
-
-Remove the bogus LDR/DFR initialization.
-
-This is not intended to work around the KVM APIC bug. The LDR/DFR
-ininitalization is wrong on its own.
-
-The issue goes back into the pre git history. The fixes tag is the commit
-in the bitkeeper import which introduced bigsmp support in 2003.
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-
-Fixes: db7b9e9f26b8 ("[PATCH] Clustered APIC setup for >8 CPU systems")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Bandan Das <bsd@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190826101513.5080-2-bsd@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/bigsmp_32.c |   24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/apic/bigsmp_32.c
-+++ b/arch/x86/kernel/apic/bigsmp_32.c
-@@ -38,32 +38,12 @@ static int bigsmp_early_logical_apicid(i
- 	return early_per_cpu(x86_cpu_to_apicid, cpu);
- }
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 3415733a93645..132c4a405bf83 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -144,6 +144,7 @@ struct rcar_i2c_priv {
+ 	enum dma_data_direction dma_direction;
  
--static inline unsigned long calculate_ldr(int cpu)
--{
--	unsigned long val, id;
--
--	val = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
--	id = per_cpu(x86_bios_cpu_apicid, cpu);
--	val |= SET_APIC_LOGICAL_ID(id);
--
--	return val;
--}
--
- /*
-- * Set up the logical destination ID.
-- *
-- * Intel recommends to set DFR, LDR and TPR before enabling
-- * an APIC.  See e.g. "AP-388 82489DX User's Manual" (Intel
-- * document number 292116).  So here it goes...
-+ * bigsmp enables physical destination mode
-+ * and doesn't use LDR and DFR
-  */
- static void bigsmp_init_apic_ldr(void)
- {
--	unsigned long val;
--	int cpu = smp_processor_id();
--
--	apic_write(APIC_DFR, APIC_DFR_FLAT);
--	val = calculate_ldr(cpu);
--	apic_write(APIC_LDR, val);
- }
+ 	struct reset_control *rstc;
++	int irq;
+ };
  
- static void bigsmp_setup_apic_routing(void)
+ #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
+@@ -813,9 +814,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+ 
+ 	WARN_ON(!priv->slave);
+ 
++	/* disable irqs and ensure none is running before clearing ptr */
+ 	rcar_i2c_write(priv, ICSIER, 0);
+ 	rcar_i2c_write(priv, ICSCR, 0);
+ 
++	synchronize_irq(priv->irq);
+ 	priv->slave = NULL;
+ 
+ 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
+@@ -866,7 +869,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct device *dev = &pdev->dev;
+ 	struct i2c_timings i2c_t;
+-	int irq, ret;
++	int ret;
+ 
+ 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -927,10 +930,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 		pm_runtime_put(dev);
+ 
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
++	priv->irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
+ 	if (ret < 0) {
+-		dev_err(dev, "cannot get irq %d\n", irq);
++		dev_err(dev, "cannot get irq %d\n", priv->irq);
+ 		goto out_pm_disable;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
