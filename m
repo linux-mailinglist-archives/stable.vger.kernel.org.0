@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D83A8F38
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C57A9124
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388760AbfIDSCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
+        id S2390321AbfIDSNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:13:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387513AbfIDSC0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:26 -0400
+        id S2389966AbfIDSNp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:13:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFED623402;
-        Wed,  4 Sep 2019 18:02:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9977422DBF;
+        Wed,  4 Sep 2019 18:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620145;
-        bh=LSl5EebwU9GZ8EwUwdPQ4Pp10EScuAYKifAdEFMv2Ps=;
+        s=default; t=1567620825;
+        bh=nefSgKmFjrtBS2H72INKiScNpP9mkzem5cnzjAHtAcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eoRfj+Nm1EFBwa4xJ7WK55r9NRhIkHErdk/LsF7fZn6ELcdu5PvNN7g2MRhQG6m0v
-         aqE/1pJE9u99PD7ogvxpuiyyBPWAVVNw2XDvAlz82UwsYmd8HCx4Kp5vHLF34RdhO4
-         jV2jQS76RgAyfvQXdktlZ7k5lBaqD0UWnsfh7kCA=
+        b=sIASuRwNDGvzc2Pu2nFqlg4vYfsrS4Yw7/KtGcOF0hN0wcPCGZZNNMNLcF3vNkcgV
+         tPDr7p1Xpumv/aNu+2eJ+8ZCNV7WTTzdEB+SFVaVniqODp+tAlFgLxAA0ZbDh2RSH4
+         ROQW3ybCHMrifbdyJ4hXCzBKSfhcTp6BOb06vb9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 81/83] KVM: arm/arm64: vgic-v2: Handle SGI bits in GICD_I{S,C}PENDR0 as WI
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.2 110/143] drm/amdgpu: Add APTX quirk for Dell Latitude 5495
 Date:   Wed,  4 Sep 2019 19:54:13 +0200
-Message-Id: <20190904175310.767573981@linuxfoundation.org>
+Message-Id: <20190904175318.704180540@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,103 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 82e40f558de566fdee214bec68096bbd5e64a6a4 ]
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-A guest is not allowed to inject a SGI (or clear its pending state)
-by writing to GICD_ISPENDR0 (resp. GICD_ICPENDR0), as these bits are
-defined as WI (as per ARM IHI 0048B 4.3.7 and 4.3.8).
+commit 317a3aaef94d73ba6be88aea11b41bb631b2d581 upstream.
 
-Make sure we correctly emulate the architecture.
+Needs ATPX rather than _PR3 to really turn off the dGPU. This can save
+~5W when dGPU is runtime-suspended.
 
-Fixes: 96b298000db4 ("KVM: arm/arm64: vgic-new: Add PENDING registers handlers")
-Cc: stable@vger.kernel.org # 4.7+
-Reported-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- virt/kvm/arm/vgic/vgic-mmio.c | 18 ++++++++++++++++++
- virt/kvm/arm/vgic/vgic-v2.c   |  5 ++++-
- virt/kvm/arm/vgic/vgic-v3.c   |  5 ++++-
- 3 files changed, 26 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/virt/kvm/arm/vgic/vgic-mmio.c b/virt/kvm/arm/vgic/vgic-mmio.c
-index 85814d1bad11e..87742c9803a75 100644
---- a/virt/kvm/arm/vgic/vgic-mmio.c
-+++ b/virt/kvm/arm/vgic/vgic-mmio.c
-@@ -120,6 +120,12 @@ unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
- 	return value;
- }
- 
-+static bool is_vgic_v2_sgi(struct kvm_vcpu *vcpu, struct vgic_irq *irq)
-+{
-+	return (vgic_irq_is_sgi(irq->intid) &&
-+		vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V2);
-+}
-+
- void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
- 			      gpa_t addr, unsigned int len,
- 			      unsigned long val)
-@@ -130,6 +136,12 @@ void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
- 	for_each_set_bit(i, &val, len * 8) {
- 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
- 
-+		/* GICD_ISPENDR0 SGI bits are WI */
-+		if (is_vgic_v2_sgi(vcpu, irq)) {
-+			vgic_put_irq(vcpu->kvm, irq);
-+			continue;
-+		}
-+
- 		spin_lock(&irq->irq_lock);
- 		irq->pending = true;
- 		if (irq->config == VGIC_CONFIG_LEVEL)
-@@ -150,6 +162,12 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
- 	for_each_set_bit(i, &val, len * 8) {
- 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
- 
-+		/* GICD_ICPENDR0 SGI bits are WI */
-+		if (is_vgic_v2_sgi(vcpu, irq)) {
-+			vgic_put_irq(vcpu->kvm, irq);
-+			continue;
-+		}
-+
- 		spin_lock(&irq->irq_lock);
- 
- 		if (irq->config == VGIC_CONFIG_LEVEL) {
-diff --git a/virt/kvm/arm/vgic/vgic-v2.c b/virt/kvm/arm/vgic/vgic-v2.c
-index 1ab58f7b5d749..4c2919cc13ca6 100644
---- a/virt/kvm/arm/vgic/vgic-v2.c
-+++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -154,7 +154,10 @@ void vgic_v2_populate_lr(struct kvm_vcpu *vcpu, struct vgic_irq *irq, int lr)
- 		if (vgic_irq_is_sgi(irq->intid)) {
- 			u32 src = ffs(irq->source);
- 
--			BUG_ON(!src);
-+			if (WARN_RATELIMIT(!src, "No SGI source for INTID %d\n",
-+					   irq->intid))
-+				return;
-+
- 			val |= (src - 1) << GICH_LR_PHYSID_CPUID_SHIFT;
- 			irq->source &= ~(1 << (src - 1));
- 			if (irq->source)
-diff --git a/virt/kvm/arm/vgic/vgic-v3.c b/virt/kvm/arm/vgic/vgic-v3.c
-index c7924718990e5..267b1cf88a7fe 100644
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -137,7 +137,10 @@ void vgic_v3_populate_lr(struct kvm_vcpu *vcpu, struct vgic_irq *irq, int lr)
- 		    model == KVM_DEV_TYPE_ARM_VGIC_V2) {
- 			u32 src = ffs(irq->source);
- 
--			BUG_ON(!src);
-+			if (WARN_RATELIMIT(!src, "No SGI source for INTID %d\n",
-+					   irq->intid))
-+				return;
-+
- 			val |= (src - 1) << GICH_LR_PHYSID_CPUID_SHIFT;
- 			irq->source &= ~(1 << (src - 1));
- 			if (irq->source)
--- 
-2.20.1
-
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c
+@@ -574,6 +574,7 @@ static const struct amdgpu_px_quirk amdg
+ 	{ 0x1002, 0x6900, 0x1002, 0x0124, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1028, 0x0812, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1028, 0x0813, AMDGPU_PX_QUIRK_FORCE_ATPX },
++	{ 0x1002, 0x699f, 0x1028, 0x0814, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1025, 0x125A, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x17AA, 0x3806, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0, 0, 0, 0, 0 },
 
 
