@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C5EA8FE4
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C6AA8F3F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388882AbfIDSG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:06:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48464 "EHLO mail.kernel.org"
+        id S2387828AbfIDSCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388874AbfIDSG2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:06:28 -0400
+        id S1732363AbfIDSCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46BC723400;
-        Wed,  4 Sep 2019 18:06:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10AFB2339D;
+        Wed,  4 Sep 2019 18:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620387;
-        bh=Q9c7BQ7RGkcTXElK5aKWVVoxFQJZ9lZOK80sIY6jcRw=;
+        s=default; t=1567620158;
+        bh=o/h0K/QgLQLBTCQBwpwh39O6WHVqKMUR9tz1VOI8b2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAlGVgVSwXQ7UgCyKx0thBfmuqeN3MzdPunjXrYi0fNp5nnOhf2uHIy4s8waDKlo7
-         ZvxXSc+R7r5QfkYMRFlNGLRxNOTz5MVC9clVEasuyte1dtek5NA1S9vRyoiYW5VFrF
-         gsXYon1MaBmykPK/D4rcLPMbu7IkNuiSCCpMjOe4=
+        b=Imw4u4/MAuCycV2xsxA8nZ3wlHryFVO/k3hNvLG1y6xgAgZbj/Mi8EdZSDwhvKK47
+         KOkSjtI0mc8djK21hG8hKJvNc/Hy055uqQzSoSdyoS0EOPjkeudU4DI+ERrC1DB/oQ
+         O9NpwIr/JKFYuv27RwYoo6xbaP33Ap408gOQplXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 38/93] ipv4/icmp: fix rt dst dev null pointer dereference
+        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/57] watchdog: bcm2835_wdt: Fix module autoload
 Date:   Wed,  4 Sep 2019 19:53:40 +0200
-Message-Id: <20190904175306.522557233@linuxfoundation.org>
+Message-Id: <20190904175303.162724718@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+[ Upstream commit 215e06f0d18d5d653d6ea269e4dfc684854d48bf ]
 
-[ Upstream commit e2c693934194fd3b4e795635934883354c06ebc9 ]
+The commit 5e6acc3e678e ("bcm2835-pm: Move bcm2835-watchdog's DT probe
+to an MFD.") broke module autoloading on Raspberry Pi. So add a
+module alias this fix this.
 
-In __icmp_send() there is a possibility that the rt->dst.dev is NULL,
-e,g, with tunnel collect_md mode, which will cause kernel crash.
-Here is what the code path looks like, for GRE:
-
-- ip6gre_tunnel_xmit
-  - ip6gre_xmit_ipv4
-    - __gre6_xmit
-      - ip6_tnl_xmit
-        - if skb->len - t->tun_hlen - eth_hlen > mtu; return -EMSGSIZE
-    - icmp_send
-      - net = dev_net(rt->dst.dev); <-- here
-
-The reason is __metadata_dst_init() init dst->dev to NULL by default.
-We could not fix it in __metadata_dst_init() as there is no dev supplied.
-On the other hand, the reason we need rt->dst.dev is to get the net.
-So we can just try get it from skb->dev when rt->dst.dev is NULL.
-
-v4: Julian Anastasov remind skb->dev also could be NULL. We'd better
-still use dst.dev and do a check to avoid crash.
-
-v3: No changes.
-
-v2: fix the issue in __icmp_send() instead of updating shared dst dev
-in {ip_md, ip6}_tunnel_xmit.
-
-Fixes: c8b34e680a09 ("ip_tunnel: Add tnl_update_pmtu in ip_md_tunnel_xmit")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Julian Anastasov <ja@ssi.bg>
-Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/icmp.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/watchdog/bcm2835_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -587,7 +587,13 @@ void __icmp_send(struct sk_buff *skb_in,
+diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+index b339e0e67b4c1..adb699145a071 100644
+--- a/drivers/watchdog/bcm2835_wdt.c
++++ b/drivers/watchdog/bcm2835_wdt.c
+@@ -252,6 +252,7 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- 	if (!rt)
- 		goto out;
--	net = dev_net(rt->dst.dev);
-+
-+	if (rt->dst.dev)
-+		net = dev_net(rt->dst.dev);
-+	else if (skb_in->dev)
-+		net = dev_net(skb_in->dev);
-+	else
-+		goto out;
- 
- 	/*
- 	 *	Find the original header. It is expected to be valid, of course.
++MODULE_ALIAS("platform:bcm2835-wdt");
+ MODULE_AUTHOR("Lubomir Rintel <lkundrak@v3.sk>");
+ MODULE_DESCRIPTION("Driver for Broadcom BCM2835 watchdog timer");
+ MODULE_LICENSE("GPL");
+-- 
+2.20.1
+
 
 
