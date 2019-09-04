@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6BAA8F7D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1D1A916A
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387901AbfIDSD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:03:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
+        id S2390279AbfIDSPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389032AbfIDSD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:03:56 -0400
+        id S2390949AbfIDSPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:15:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CC982339E;
-        Wed,  4 Sep 2019 18:03:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 003BE23400;
+        Wed,  4 Sep 2019 18:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620235;
-        bh=0COEYLHtS43U96dxMDgTc85nTybfmkoIw9mJaGzf/TU=;
+        s=default; t=1567620918;
+        bh=wzdzttJzLdxJMiPAyhMuDzxSVX/sJd8goyf39tXfyfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FEvlNlWOFB3yFmF9CYRyWLZ6By/VLVEdroEGSm6sILAmxliQz1lU6hr2H45LhhOCZ
-         ghor8OGa5ppySFcc62hyL0r17FEcXht8VQCXR7k1Z3LvgL6Yp+Q7BFY62NKHoGED5L
-         /G3SMpFJPy/jgM8jCv2OZ6kPDXNSAT4/bggF4Y64=
+        b=URawB6nVftJvV0tH/cEPmId8ePTdlgZi3aetUqOFk4Q76S10QIU0diTUJta/F56LA
+         ykPCy6uoLF9fEaEFiFm5m2GVPmqC6XjFKsuUYFVI0G1M7sqTFNBThJCmvg2xTMWrCb
+         zgKPrxfK3Z0Jv9fkOBq33s876BlLszFgZjhITTT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 39/57] mmc: sdhci-of-at91: add quirk for broken HS200
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.2 104/143] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()
 Date:   Wed,  4 Sep 2019 19:54:07 +0200
-Message-Id: <20190904175305.841607330@linuxfoundation.org>
+Message-Id: <20190904175318.378060883@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 7871aa60ae0086fe4626abdf5ed13eeddf306c61 upstream.
+commit f4340e9314dbfadc48758945f85fc3b16612d06f upstream.
 
-HS200 is not implemented in the driver, but the controller claims it
-through caps. Remove it via a quirk, to make sure the mmc core do not try
-to enable HS200, as it causes the eMMC initialization to fail.
+If the attempt to resend the pages fails, we need to ensure that we
+clean up those pages that were not transmitted.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: bb5f8ea4d514 ("mmc: sdhci-of-at91: introduce driver for the Atmel SDMMC")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: stable@vger.kernel.org # v4.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-at91.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/pagelist.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -364,6 +364,9 @@ static int sdhci_at91_probe(struct platf
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
- 	pm_runtime_use_autosuspend(&pdev->dev);
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -1253,20 +1253,22 @@ static void nfs_pageio_complete_mirror(s
+ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
+ 		      struct nfs_pgio_header *hdr)
+ {
+-	LIST_HEAD(failed);
++	LIST_HEAD(pages);
  
-+	/* HS200 is broken at this moment */
-+	host->quirks2 = SDHCI_QUIRK2_BROKEN_HS200;
-+
- 	ret = sdhci_add_host(host);
- 	if (ret)
- 		goto pm_runtime_disable;
+ 	desc->pg_io_completion = hdr->io_completion;
+ 	desc->pg_dreq = hdr->dreq;
+-	while (!list_empty(&hdr->pages)) {
+-		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
++	list_splice_init(&hdr->pages, &pages);
++	while (!list_empty(&pages)) {
++		struct nfs_page *req = nfs_list_entry(pages.next);
+ 
+ 		if (!nfs_pageio_add_request(desc, req))
+-			nfs_list_move_request(req, &failed);
++			break;
+ 	}
+ 	nfs_pageio_complete(desc);
+-	if (!list_empty(&failed)) {
+-		list_move(&failed, &hdr->pages);
+-		return desc->pg_error < 0 ? desc->pg_error : -EIO;
++	if (!list_empty(&pages)) {
++		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
++		hdr->completion_ops->error_cleanup(&pages, err);
++		return err;
+ 	}
+ 	return 0;
+ }
 
 
