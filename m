@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE967A8EBD
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FADA908F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387728AbfIDR7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:59:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38724 "EHLO mail.kernel.org"
+        id S2390078AbfIDSK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387899AbfIDR7r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:59:47 -0400
+        id S2390085AbfIDSK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:10:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C841208E4;
-        Wed,  4 Sep 2019 17:59:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6339208E4;
+        Wed,  4 Sep 2019 18:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619986;
-        bh=KgNdbC20ELXY7Ab0NaCZqHkgJjJCyw6zYHJpBtEw1Ec=;
+        s=default; t=1567620625;
+        bh=meFTcUmkxYfq3pNm9SZhxFxrV8BBcqZk9PMJBplnH0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERBwi7/hGiuAHZpL79hWm0nHy2QKVt0vwPTPmSxMtKcEHje9XB6WIdK4jKjRslRrV
-         loWE81TevbHHi2wHxvC/Hw0tJtulfxh29TwkYUo5QfrwiT0Z6ddAEoq9r6+pswGiDj
-         RU1GE9/aD7grNy5MxA80pbxLDpw+YnOq5ejBhoiU=
+        b=pPYOHJ5dn8U80SShYL6JysB545qsQ+uSi6vul8/frsDvtJ8qnlagpmwWMqAL6vcvv
+         x17u2NE1L7Cjm+SVr+EzbHXTDfw3kRY/8bhu0dE3bfqu5wh6gk8zPMvDIC+MyqcB6j
+         OkZOS/vvItbxAP+oNNvVSjl/hhKt/bKGQ8YBaxMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/83] bonding: Force slave speed check after link state recovery for 802.3ad
+Subject: [PATCH 5.2 034/143] arm64: cpufeature: Dont treat granule sizes as strict
 Date:   Wed,  4 Sep 2019 19:52:57 +0200
-Message-Id: <20190904175304.188632945@linuxfoundation.org>
+Message-Id: <20190904175315.385235253@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 12185dfe44360f814ac4ead9d22ad2af7511b2e9 ]
+[ Upstream commit 5717fe5ab38f9ccb32718bcb03bea68409c9cce4 ]
 
-The following scenario was encountered during testing of logical
-partition mobility on pseries partitions with bonded ibmvnic
-adapters in LACP mode.
+If a CPU doesn't support the page size for which the kernel is
+configured, then we will complain and refuse to bring it online. For
+secondary CPUs (and the boot CPU on a system booting with EFI), we will
+also print an error identifying the mismatch.
 
-1. Driver receives a signal that the device has been
-   swapped, and it needs to reset to initialize the new
-   device.
+Consequently, the only time that the cpufeature code can detect a
+granule size mismatch is for a granule other than the one that is
+currently being used. Although we would rather such systems didn't
+exist, we've unfortunately lost that battle and Kevin reports that
+on his amlogic S922X (odroid-n2 board) we end up warning and taining
+with defconfig because 16k pages are not supported by all of the CPUs.
 
-2. Driver reports loss of carrier and begins initialization.
+In such a situation, we don't actually care about the feature mismatch,
+particularly now that KVM only exposes the sanitised view of the CPU
+registers (commit 93390c0a1b20 - "arm64: KVM: Hide unsupported AArch64
+CPU features from guests"). Treat the granule fields as non-strict and
+let Kevin run without a tainted kernel.
 
-3. Bonding driver receives NETDEV_CHANGE notifier and checks
-   the slave's current speed and duplex settings. Because these
-   are unknown at the time, the bond sets its link state to
-   BOND_LINK_FAIL and handles the speed update, clearing
-   AD_PORT_LACP_ENABLE.
-
-4. Driver finishes recovery and reports that the carrier is on.
-
-5. Bond receives a new notification and checks the speed again.
-   The speeds are valid but miimon has not altered the link
-   state yet.  AD_PORT_LACP_ENABLE remains off.
-
-Because the slave's link state is still BOND_LINK_FAIL,
-no further port checks are made when it recovers. Though
-the slave devices are operational and have valid speed
-and duplex settings, the bond will not send LACPDU's. The
-simplest fix I can see is to force another speed check
-in bond_miimon_commit. This way the bond will update
-AD_PORT_LACP_ENABLE if needed when transitioning from
-BOND_LINK_FAIL to BOND_LINK_UP.
-
-CC: Jarod Wilson <jarod@redhat.com>
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Marc Zyngier <maz@kernel.org>
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[catalin.marinas@arm.com: changelog updated with KVM sanitised regs commit]
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm64/kernel/cpufeature.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index d338c319b30e2..8820fb1aec5b4 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2131,6 +2131,15 @@ static void bond_miimon_commit(struct bonding *bond)
- 	bond_for_each_slave(bond, slave, iter) {
- 		switch (slave->new_link) {
- 		case BOND_LINK_NOCHANGE:
-+			/* For 802.3ad mode, check current slave speed and
-+			 * duplex again in case its port was disabled after
-+			 * invalid speed/duplex reporting but recovered before
-+			 * link monitoring could make a decision on the actual
-+			 * link status
-+			 */
-+			if (BOND_MODE(bond) == BOND_MODE_8023AD &&
-+			    slave->link == BOND_LINK_UP)
-+				bond_3ad_adapter_speed_duplex_changed(slave);
- 			continue;
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index ae63eedea1c12..68faf535f40a3 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -184,9 +184,17 @@ static const struct arm64_ftr_bits ftr_id_aa64zfr0[] = {
+ };
  
- 		case BOND_LINK_UP:
+ static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++	/*
++	 * We already refuse to boot CPUs that don't support our configured
++	 * page size, so we can only detect mismatches for a page size other
++	 * than the one we're currently using. Unfortunately, SoCs like this
++	 * exist in the wild so, even though we don't like it, we'll have to go
++	 * along with it and treat them as non-strict.
++	 */
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
+ 	/* Linux shouldn't care about secure memory */
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
 -- 
 2.20.1
 
