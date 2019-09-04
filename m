@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A963A9046
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6363A8F55
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389428AbfIDSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51606 "EHLO mail.kernel.org"
+        id S2388487AbfIDSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388873AbfIDSIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:39 -0400
+        id S2388867AbfIDSDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:03:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 849A22087E;
-        Wed,  4 Sep 2019 18:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D26422CEA;
+        Wed,  4 Sep 2019 18:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620518;
-        bh=/Ikg1oTFgLbWc7CCvacmFabaNNVg+d+9Cq228W4ZDBQ=;
+        s=default; t=1567620185;
+        bh=DVRvISEsm/5eHLeRjn+0QUip1U0HRdbslpcdGGOeM2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qbg7sDbeAnp+jQDEZn3BufAWnkAlYKvoYWRoTID0g5y+HcNzBO+PDNTzOl1zWVxGx
-         f1812de9s3Ig9RiihtMzVb8V5kU/nN/WTiSaadFYrKjk7GHo9ss0G5QEHUfYbVf9bc
-         Qgbg1ftUyYLyKCLYYGlhSvl1prMLHyzxLgjmHUEg=
+        b=CnXVvqxXaUQJNeVqMsPgDtrZAwd7Fmifk4BL4INFsZrtvXmLhnDo9Yp41wEWGMV/8
+         eXOqkN0xZu4DKUKiKz2Q0WQLTxuOxj6siWei2GjV3t8y9PJIJE8gysuIw1ekoTLS+O
+         MeLxsaCWQ4WWdwOtkXcd2MKIsRdU+ORYq/wNIv48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Subject: [PATCH 4.19 47/93] KVM: x86: Dont update RIP or do single-step on faulting emulation
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 21/57] mm/zsmalloc.c: fix build when CONFIG_COMPACTION=n
 Date:   Wed,  4 Sep 2019 19:53:49 +0200
-Message-Id: <20190904175307.189284051@linuxfoundation.org>
+Message-Id: <20190904175303.961001766@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit 75ee23b30dc712d80d2421a9a547e7ab6e379b44 upstream.
+commit 441e254cd40dc03beec3c650ce6ce6074bc6517f upstream.
 
-Don't advance RIP or inject a single-step #DB if emulation signals a
-fault.  This logic applies to all state updates that are conditional on
-clean retirement of the emulation instruction, e.g. updating RFLAGS was
-previously handled by commit 38827dbd3fb85 ("KVM: x86: Do not update
-EFLAGS on faulting emulation").
-
-Not advancing RIP is likely a nop, i.e. ctxt->eip isn't updated with
-ctxt->_eip until emulation "retires" anyways.  Skipping #DB injection
-fixes a bug reported by Andy Lutomirski where a #UD on SYSCALL due to
-invalid state with EFLAGS.TF=1 would loop indefinitely due to emulation
-overwriting the #UD with #DB and thus restarting the bad SYSCALL over
-and over.
-
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: stable@vger.kernel.org
-Reported-by: Andy Lutomirski <luto@kernel.org>
-Fixes: 663f4c61b803 ("KVM: x86: handle singlestep during emulation")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Fixes: 701d678599d0c1 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
+Link: http://lkml.kernel.org/r/201908251039.5oSbEEUT%25lkp@intel.com
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ mm/zsmalloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6308,12 +6308,13 @@ restart:
- 		unsigned long rflags = kvm_x86_ops->get_rflags(vcpu);
- 		toggle_interruptibility(vcpu, ctxt->interruptibility);
- 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
--		kvm_rip_write(vcpu, ctxt->eip);
--		if (r == EMULATE_DONE && ctxt->tf)
--			kvm_vcpu_do_singlestep(vcpu, &r);
- 		if (!ctxt->have_exception ||
--		    exception_type(ctxt->exception.vector) == EXCPT_TRAP)
-+		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
-+			kvm_rip_write(vcpu, ctxt->eip);
-+			if (r == EMULATE_DONE && ctxt->tf)
-+				kvm_vcpu_do_singlestep(vcpu, &r);
- 			__kvm_set_rflags(vcpu, ctxt->eflags);
-+		}
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2431,7 +2431,9 @@ struct zs_pool *zs_create_pool(const cha
+ 	if (!pool->name)
+ 		goto err;
  
- 		/*
- 		 * For STI, interrupts are shadowed; so KVM_REQ_EVENT will
++#ifdef CONFIG_COMPACTION
+ 	init_waitqueue_head(&pool->migration_wait);
++#endif
+ 
+ 	if (create_cache(pool))
+ 		goto err;
 
 
