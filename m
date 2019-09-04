@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 043B3A8B6E
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C64EBA8BBB
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387547AbfIDQC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:02:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39252 "EHLO mail.kernel.org"
+        id S1732240AbfIDQFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:05:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387514AbfIDQC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:02:58 -0400
+        id S2387546AbfIDQC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:02:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F27D2087E;
-        Wed,  4 Sep 2019 16:02:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E4752070C;
+        Wed,  4 Sep 2019 16:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612977;
-        bh=Z5yZRVoMnplf/9atXWN8kDvOi61gsFOJRect1a7BN9U=;
+        s=default; t=1567612978;
+        bh=fSg4w60wGc2fe1to3ZNBO/o5AAysdACtKnyKU+ecgZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2whNa+91Eyh+ud3cY/5iaFXiEPaoxvtd+UtRY6hfCQD2RfZfMqWrXebGrpM4d4rQ
-         hzVDOSo8mISPItAcKOLCeCH/hBF5j5cIAw7kWSaGLyPNLWoawRFRsjkGZxhIYsAWEi
-         N10dKs3Q7R//jQq8lgT3aDRmMZZGp+VoLWifKm/o=
+        b=doNt8EfQwaKGoTvrK+hXqQldit536WjpotMw1jDuxT4hiEcReewoZ/FBqHw9tlD11
+         wETcD2kAfN9MtS93bTjm32d9vkrLNY9D/i56bHBrfoADwAauT7G26JT7TInmznMikX
+         M4hQk65NDQQAa8JiJ7WaV3A5zitK33M+SM4rqgDY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen-Yu Tsai <wens@csie.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 25/27] net: stmmac: dwmac-rk: Don't fail if phy regulator is absent
-Date:   Wed,  4 Sep 2019 12:02:18 -0400
-Message-Id: <20190904160220.4545-25-sashal@kernel.org>
+Cc:     Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 26/27] tools/power turbostat: fix buffer overrun
+Date:   Wed,  4 Sep 2019 12:02:19 -0400
+Message-Id: <20190904160220.4545-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
 References: <20190904160220.4545-1-sashal@kernel.org>
@@ -43,43 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
 
-[ Upstream commit 3b25528e1e355c803e73aa326ce657b5606cda73 ]
+[ Upstream commit eeb71c950bc6eee460f2070643ce137e067b234c ]
 
-The devicetree binding lists the phy phy as optional. As such, the
-driver should not bail out if it can't find a regulator. Instead it
-should just skip the remaining regulator related code and continue
-on normally.
+turbostat could be terminated by general protection fault on some latest
+hardwares which (for example) support 9 levels of C-states and show 18
+"tADDED" lines. That bloats the total output and finally causes buffer
+overrun.  So let's extend the buffer to avoid this.
 
-Skip the remainder of phy_power_on() if a regulator supply isn't
-available. This also gets rid of the bogus return code.
-
-Fixes: 2e12f536635f ("net: stmmac: dwmac-rk: Use standard devicetree property for phy regulator")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-index 6e61bccc90b3c..15c063880f888 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-@@ -771,10 +771,8 @@ static int phy_power_on(struct rk_priv_data *bsp_priv, bool enable)
- 	int ret;
- 	struct device *dev = &bsp_priv->pdev->dev;
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index b4c5d96e54c12..7c2c8e74aa9a9 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -3593,7 +3593,7 @@ int initialize_counters(int cpu_id)
  
--	if (!ldo) {
--		dev_err(dev, "no regulator found\n");
--		return -1;
--	}
-+	if (!ldo)
-+		return 0;
- 
- 	if (enable) {
- 		ret = regulator_enable(ldo);
+ void allocate_output_buffer()
+ {
+-	output_buffer = calloc(1, (1 + topo.num_cpus) * 1024);
++	output_buffer = calloc(1, (1 + topo.num_cpus) * 2048);
+ 	outp = output_buffer;
+ 	if (outp == NULL)
+ 		err(-1, "calloc output buffer");
 -- 
 2.20.1
 
