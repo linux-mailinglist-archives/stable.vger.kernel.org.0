@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE35A9162
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA00CA917C
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390439AbfIDSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60578 "EHLO mail.kernel.org"
+        id S2388919AbfIDSP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:15:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390892AbfIDSPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:15:06 -0400
+        id S2390424AbfIDSPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:15:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BFC422CF7;
-        Wed,  4 Sep 2019 18:15:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E7422DBF;
+        Wed,  4 Sep 2019 18:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620905;
-        bh=RdX9wUbKnkA/RX6ZegT5rnnDEV9bppTCypYqRZCBy6w=;
+        s=default; t=1567620910;
+        bh=91bzfqjuA0AykFYNiVsjGg8ity7Xp6cKp0uQxd9sGB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=essynHdMoih4OHut+VQnyoOWjnZwuSrmsVkBRLIpfYTHZ/UCnTyGHBq/2tSfWaEEM
-         xLX2aOS1PO7AW7bLvTr8P2LB3+JywgGiTRE9Vs/k+RERGPIBD56mLQqkFv4zoN0x8D
-         P+H26oW1UrQR9dqMCnIfAZ+pdvaMpUCY2yW+SJD0=
+        b=N98X+QH5nILcbdJTqf6S2xEBc1maiKFdCV/d+YQQKI5Q2EsB9baZvrpOJ6WnsvbvP
+         ZiHDTEsZFiQEwgs9A3udWwjAlO9/1tGyZ7AuTYy3NyrsXCPu6y6Cj1+X+pfFS4Qlss
+         8nby828UVy4aUz5x+RHIA5K/ut4OazjVndL1hL2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        sunpeng.li@amd.com, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sean Paul <sean@poorly.run>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 138/143] iwlwifi: pcie: handle switching killer Qu B0 NICs to C0
-Date:   Wed,  4 Sep 2019 19:54:41 +0200
-Message-Id: <20190904175319.830102594@linuxfoundation.org>
+Subject: [PATCH 5.2 139/143] drm/i915: Do not create a new max_bpc prop for MST connectors
+Date:   Wed,  4 Sep 2019 19:54:42 +0200
+Message-Id: <20190904175319.881236425@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
 References: <20190904175314.206239922@linuxfoundation.org>
@@ -44,111 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b9500577d361522a3d9f14da8cf41dc1d824904e ]
+[ Upstream commit 1b9bd09630d4db4827cc04d358a41a16a6bc2cb0 ]
 
-We need to use a different firmware for C0 versions of killer Qu NICs.
-Add structures for them and handle them in the if block that detects
-C0 revisions.
+We're not allowed to create new properties after device registration
+so for MST connectors we need to either create the max_bpc property
+earlier, or we reuse one we already have. Let's do the latter apporach
+since the corresponding SST connector already has the prop and its
+min/max are correct also for the MST connector.
 
-Additionally, instead of having an inclusive check for QnJ devices,
-make the selection exclusive, so that switching to QnJ is the
-exception, not the default.  This prevents us from having to add all
-the non-QnJ cards to an exclusion list.  To do so, only go into the
-QnJ block if the device has an RF ID type HR and HW revision QnJ.
+The problem was highlighted by commit 4f5368b5541a ("drm/kms:
+Catch mode_object lifetime errors") which results in the following
+spew:
+[ 1330.878941] WARNING: CPU: 2 PID: 1554 at drivers/gpu/drm/drm_mode_object.c:45 __drm_mode_object_add+0xa0/0xb0 [drm]
+...
+[ 1330.879008] Call Trace:
+[ 1330.879023]  drm_property_create+0xba/0x180 [drm]
+[ 1330.879036]  drm_property_create_range+0x15/0x30 [drm]
+[ 1330.879048]  drm_connector_attach_max_bpc_property+0x62/0x80 [drm]
+[ 1330.879086]  intel_dp_add_mst_connector+0x11f/0x140 [i915]
+[ 1330.879094]  drm_dp_add_port.isra.20+0x20b/0x440 [drm_kms_helper]
+...
 
-Cc: stable@vger.kernel.org # 5.2
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/20190821171732.2266-1-luca@coelho.fi
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: sunpeng.li@amd.com
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <sean@poorly.run>
+Fixes: 5ca0ef8a56b8 ("drm/i915: Add max_bpc property for DP MST")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190820161657.9658-1-ville.syrjala@linux.intel.com
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/cfg/22000.c    | 24 +++++++++++++++++++
- .../net/wireless/intel/iwlwifi/iwl-config.h   |  2 ++
- drivers/net/wireless/intel/iwlwifi/pcie/drv.c |  4 ++++
- .../net/wireless/intel/iwlwifi/pcie/trans.c   |  7 +-----
- 4 files changed, 31 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/intel_dp_mst.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-index 1f500cddb3a75..55b713255b8ea 100644
---- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-+++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-@@ -556,6 +556,30 @@ const struct iwl_cfg killer1650i_2ax_cfg_qu_b0_hr_b0 = {
- 	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
- };
+diff --git a/drivers/gpu/drm/i915/intel_dp_mst.c b/drivers/gpu/drm/i915/intel_dp_mst.c
+index 8839eaea83715..d89120dcac67d 100644
+--- a/drivers/gpu/drm/i915/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/intel_dp_mst.c
+@@ -535,7 +535,15 @@ static struct drm_connector *intel_dp_add_mst_connector(struct drm_dp_mst_topolo
  
-+const struct iwl_cfg killer1650s_2ax_cfg_qu_c0_hr_b0 = {
-+	.name = "Killer(R) Wi-Fi 6 AX1650i 160MHz Wireless Network Adapter (201NGW)",
-+	.fw_name_pre = IWL_QU_C_HR_B_FW_PRE,
-+	IWL_DEVICE_22500,
-+	/*
-+	 * This device doesn't support receiving BlockAck with a large bitmap
-+	 * so we need to restrict the size of transmitted aggregation to the
-+	 * HT size; mac80211 would otherwise pick the HE max (256) by default.
-+	 */
-+	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
-+};
+ 	intel_attach_force_audio_property(connector);
+ 	intel_attach_broadcast_rgb_property(connector);
+-	drm_connector_attach_max_bpc_property(connector, 6, 12);
 +
-+const struct iwl_cfg killer1650i_2ax_cfg_qu_c0_hr_b0 = {
-+	.name = "Killer(R) Wi-Fi 6 AX1650s 160MHz Wireless Network Adapter (201D2W)",
-+	.fw_name_pre = IWL_QU_C_HR_B_FW_PRE,
-+	IWL_DEVICE_22500,
 +	/*
-+	 * This device doesn't support receiving BlockAck with a large bitmap
-+	 * so we need to restrict the size of transmitted aggregation to the
-+	 * HT size; mac80211 would otherwise pick the HE max (256) by default.
++	 * Reuse the prop from the SST connector because we're
++	 * not allowed to create new props after device registration.
 +	 */
-+	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
-+};
-+
- const struct iwl_cfg iwl22000_2ax_cfg_jf = {
- 	.name = "Intel(R) Dual Band Wireless AX 22000",
- 	.fw_name_pre = IWL_QU_B_JF_B_FW_PRE,
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-index 1c1bf1b281cd9..6c04f8223aff3 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -577,6 +577,8 @@ extern const struct iwl_cfg iwl_ax1650i_cfg_quz_hr;
- extern const struct iwl_cfg iwl_ax1650s_cfg_quz_hr;
- extern const struct iwl_cfg killer1650s_2ax_cfg_qu_b0_hr_b0;
- extern const struct iwl_cfg killer1650i_2ax_cfg_qu_b0_hr_b0;
-+extern const struct iwl_cfg killer1650s_2ax_cfg_qu_c0_hr_b0;
-+extern const struct iwl_cfg killer1650i_2ax_cfg_qu_c0_hr_b0;
- extern const struct iwl_cfg killer1650x_2ax_cfg;
- extern const struct iwl_cfg killer1650w_2ax_cfg;
- extern const struct iwl_cfg iwl9461_2ac_cfg_qu_b0_jf_b0;
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index ea2a03d4bf55c..54cb4950f32fd 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -1059,6 +1059,10 @@ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			iwl_trans->cfg = &iwl9560_2ac_cfg_qu_c0_jf_b0;
- 		else if (iwl_trans->cfg == &iwl9560_2ac_160_cfg_qu_b0_jf_b0)
- 			iwl_trans->cfg = &iwl9560_2ac_160_cfg_qu_c0_jf_b0;
-+		else if (iwl_trans->cfg == &killer1650s_2ax_cfg_qu_b0_hr_b0)
-+			iwl_trans->cfg = &killer1650s_2ax_cfg_qu_c0_hr_b0;
-+		else if (iwl_trans->cfg == &killer1650i_2ax_cfg_qu_b0_hr_b0)
-+			iwl_trans->cfg = &killer1650i_2ax_cfg_qu_c0_hr_b0;
- 	}
- #endif
++	connector->max_bpc_property =
++		intel_dp->attached_connector->base.max_bpc_property;
++	if (connector->max_bpc_property)
++		drm_connector_attach_max_bpc_property(connector, 6, 12);
  
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 5209e8c3643eb..dc95a5abc4d66 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -3600,12 +3600,7 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 		}
- 	} else if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
- 		   CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR) &&
--		   ((trans->cfg != &iwl_ax200_cfg_cc &&
--		     trans->cfg != &iwl_ax201_cfg_qu_hr &&
--		     trans->cfg != &killer1650x_2ax_cfg &&
--		     trans->cfg != &killer1650w_2ax_cfg &&
--		     trans->cfg != &iwl_ax201_cfg_quz_hr) ||
--		    trans->hw_rev == CSR_HW_REV_TYPE_QNJ_B0)) {
-+		   trans->hw_rev == CSR_HW_REV_TYPE_QNJ_B0) {
- 		u32 hw_status;
+ 	return connector;
  
- 		hw_status = iwl_read_prph(trans, UMAG_GEN_HW_STATUS);
 -- 
 2.20.1
 
