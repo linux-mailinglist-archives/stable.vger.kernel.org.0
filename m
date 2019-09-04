@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45104A8DFD
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C9EA8EC3
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732627AbfIDRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
+        id S2388307AbfIDR7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:59:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732620AbfIDRz1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:55:27 -0400
+        id S1732467AbfIDR7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:59:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CBCC208E4;
-        Wed,  4 Sep 2019 17:55:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A692A208E4;
+        Wed,  4 Sep 2019 17:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619727;
-        bh=uun2tIggxofMoBfrIBSPSFtfiMuhO/XgwscPuae6WE0=;
+        s=default; t=1567619994;
+        bh=V1T2FamzhMWmbIN+x5SXn0ar1Ks6oD9mnMmDqzKgv44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fVmOpUyCWnbgC4SepagDUISzB0VsDsMzrpnjsUjRH8ARWP9j4b1RQBt4lDxYrbFAP
-         cQ/JtCVAxdnh1eVdjxjGwGkCkBKePGXyMwd605ySqs97vNpKAMurBGEnmmK8vYYeOE
-         bwUFpQrBZtAgxH0m5qOsMdgGD7yI5J+qIJ7IS3NM=
+        b=wy0QXMzpxYzeEZYoqZTGWdi6vFyR4xjNOKRamVmOlgXlSvdo3az2soVvnSUOJ9qL5
+         86lPq2oz0z2xEBVzT7VBur0ceMdgtk+/4pEqsLtUi0ujLGuECQqorpLScuUsK9yLJ4
+         LLOy2w9R71tc8aKpJSZw5D3/BRnFagaRM0w+v8xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/77] isdn: hfcsusb: Fix mISDN driver crash caused by transfer buffer on the stack
-Date:   Wed,  4 Sep 2019 19:52:59 +0200
-Message-Id: <20190904175304.773817812@linuxfoundation.org>
+Subject: [PATCH 4.9 08/83] st21nfca_connectivity_event_received: null check the allocation
+Date:   Wed,  4 Sep 2019 19:53:00 +0200
+Message-Id: <20190904175304.477118124@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8a1de3d5bb881507602bc02e004904828f88711 ]
+[ Upstream commit 9891d06836e67324c9e9c4675ed90fc8b8110034 ]
 
-Since linux 4.9 it is not possible to use buffers on the stack for DMA transfers.
+devm_kzalloc may fail and return null. So the null check is needed.
 
-During usb probe the driver crashes with "transfer buffer is on stack" message.
-
-This fix k-allocates a buffer to be used on "read_reg_atomic", which is a macro
-that calls "usb_control_msg" under the hood.
-
-Kernel 4.19 backtrace:
-
-usb_hcd_submit_urb+0x3e5/0x900
-? sched_clock+0x9/0x10
-? log_store+0x203/0x270
-? get_random_u32+0x6f/0x90
-? cache_alloc_refill+0x784/0x8a0
-usb_submit_urb+0x3b4/0x550
-usb_start_wait_urb+0x4e/0xd0
-usb_control_msg+0xb8/0x120
-hfcsusb_probe+0x6bc/0xb40 [hfcsusb]
-usb_probe_interface+0xc2/0x260
-really_probe+0x176/0x280
-driver_probe_device+0x49/0x130
-__driver_attach+0xa9/0xb0
-? driver_probe_device+0x130/0x130
-bus_for_each_dev+0x5a/0x90
-driver_attach+0x14/0x20
-? driver_probe_device+0x130/0x130
-bus_add_driver+0x157/0x1e0
-driver_register+0x51/0xe0
-usb_register_driver+0x5d/0x120
-? 0xf81ed000
-hfcsusb_drv_init+0x17/0x1000 [hfcsusb]
-do_one_initcall+0x44/0x190
-? free_unref_page_commit+0x6a/0xd0
-do_init_module+0x46/0x1c0
-load_module+0x1dc1/0x2400
-sys_init_module+0xed/0x120
-do_fast_syscall_32+0x7a/0x200
-entry_SYSENTER_32+0x6b/0xbe
-
-Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/nfc/st21nfca/se.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
-index 6f19530ba2a93..726fba452f5f6 100644
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -1701,13 +1701,23 @@ hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel)
- static int
- setup_hfcsusb(struct hfcsusb *hw)
- {
-+	void *dmabuf = kmalloc(sizeof(u_char), GFP_KERNEL);
- 	u_char b;
-+	int ret;
+diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
+index 3a98563d4a121..eac608a457f03 100644
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -326,6 +326,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
  
- 	if (debug & DBG_HFC_CALL_TRACE)
- 		printk(KERN_DEBUG "%s: %s\n", hw->name, __func__);
+ 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
+ 						   skb->len - 2, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
  
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	ret = read_reg_atomic(hw, HFCUSB_CHIP_ID, dmabuf);
-+
-+	memcpy(&b, dmabuf, sizeof(u_char));
-+	kfree(dmabuf);
-+
- 	/* check the chip id */
--	if (read_reg_atomic(hw, HFCUSB_CHIP_ID, &b) != 1) {
-+	if (ret != 1) {
- 		printk(KERN_DEBUG "%s: %s: cannot read chip id\n",
- 		       hw->name, __func__);
- 		return 1;
+ 		transaction->aid_len = skb->data[1];
+ 		memcpy(transaction->aid, &skb->data[2],
 -- 
 2.20.1
 
