@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64856A8B85
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28791A8BB3
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732882AbfIDQDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:03:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39642 "EHLO mail.kernel.org"
+        id S1732904AbfIDQEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:04:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732901AbfIDQDO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:03:14 -0400
+        id S1731439AbfIDQDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:03:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6561022CF5;
-        Wed,  4 Sep 2019 16:03:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8FCF20820;
+        Wed,  4 Sep 2019 16:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612993;
-        bh=yLnWCBzURFYaphma3SALcWe00G9AD5Jynb2Nanj3EW4=;
+        s=default; t=1567612996;
+        bh=rng0vklXFVK0a4LP4agVcs4rvO5G2fgDSggZLO0gOwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIlRVpVnzyJklvGyQj1ZUI5TaOx7dDGd+6IscsR04rdk4AGs2Xe+8vFU773JPSV09
-         ZKpl/wxTze2IKrymsieIqlleyNEeS1FJV/qCCetnuLN/UQ0unk+aXLfIkp4ZiJfZI8
-         XxRGR1zBVRA1ouE7Y8JJ+rzyIbP0r2teqv5TErxc=
+        b=ZQ/u77R5fGloaBXA34GIrjLs1bXZFWx4Z3LFUhsVMSrXicgbc2HxbFXIBmWDUDpQy
+         YJIGROm0yxPmha5bYqL5o+xLBM+rmJQgfW2u4Q1j5pUDkMbaDQGE6xZXC0Wn/geAzg
+         K/rvQ5qbJrHoa141u+1JEUUMfdZEvEzOBhbR4HHY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>, Laura Abbott <labbott@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Peng Fan <peng.fan@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 07/20] ARM: 8874/1: mm: only adjust sections of valid mm structures
-Date:   Wed,  4 Sep 2019 12:02:50 -0400
-Message-Id: <20190904160303.5062-7-sashal@kernel.org>
+Cc:     Prashant Malani <pmalani@chromium.org>,
+        Hayes Wang <hayeswang@realtek.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 08/20] r8152: Set memory to all 0xFFs on failed reg reads
+Date:   Wed,  4 Sep 2019 12:02:51 -0400
+Message-Id: <20190904160303.5062-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160303.5062-1-sashal@kernel.org>
 References: <20190904160303.5062-1-sashal@kernel.org>
@@ -50,50 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit c51bc12d06b3a5494fbfcbd788a8e307932a06e9 ]
+[ Upstream commit f53a7ad189594a112167efaf17ea8d0242b5ac00 ]
 
-A timing hazard exists when an early fork/exec thread begins
-exiting and sets its mm pointer to NULL while a separate core
-tries to update the section information.
+get_registers() blindly copies the memory written to by the
+usb_control_msg() call even if the underlying urb failed.
 
-This commit ensures that the mm pointer is not NULL before
-setting its section parameters. The arguments provided by
-commit 11ce4b33aedc ("ARM: 8672/1: mm: remove tasklist locking
-from update_sections_early()") are equally valid for not
-requiring grabbing the task_lock around this check.
+This could lead to junk register values being read by the driver, since
+some indirect callers of get_registers() ignore the return values. One
+example is:
+  ocp_read_dword() ignores the return value of generic_ocp_read(), which
+  calls get_registers().
 
-Fixes: 08925c2f124f ("ARM: 8464/1: Update all mm structures with section adjustments")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Laura Abbott <labbott@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+So, emulate PCI "Master Abort" behavior by setting the buffer to all
+0xFFs when usb_control_msg() fails.
+
+This patch is copied from the r8152 driver (v2.12.0) published by
+Realtek (www.realtek.com).
+
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Acked-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index a9f6705aea238..731b7e64715b9 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -691,7 +691,8 @@ static void update_sections_early(struct section_perm perms[], int n)
- 		if (t->flags & PF_KTHREAD)
- 			continue;
- 		for_each_thread(t, s)
--			set_section_perms(perms, n, true, s->mm);
-+			if (s->mm)
-+				set_section_perms(perms, n, true, s->mm);
- 	}
- 	read_unlock(&tasklist_lock);
- 	set_section_perms(perms, n, true, current->active_mm);
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 2d83689374bbb..10dd307593e89 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -671,8 +671,11 @@ int get_registers(struct r8152 *tp, u16 value, u16 index, u16 size, void *data)
+ 	ret = usb_control_msg(tp->udev, usb_rcvctrlpipe(tp->udev, 0),
+ 			      RTL8152_REQ_GET_REGS, RTL8152_REQT_READ,
+ 			      value, index, tmp, size, 500);
++	if (ret < 0)
++		memset(data, 0xff, size);
++	else
++		memcpy(data, tmp, size);
+ 
+-	memcpy(data, tmp, size);
+ 	kfree(tmp);
+ 
+ 	return ret;
 -- 
 2.20.1
 
