@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8040A9043
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0090DA8EF3
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389426AbfIDSIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51518 "EHLO mail.kernel.org"
+        id S2387891AbfIDSA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389813AbfIDSIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:36 -0400
+        id S2388473AbfIDSA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF0EB20870;
-        Wed,  4 Sep 2019 18:08:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82D8122CF5;
+        Wed,  4 Sep 2019 18:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620515;
-        bh=NTKwB7aa/kwgpL34pU5dtXVMXwwMvnt49GjVF3BIX10=;
+        s=default; t=1567620055;
+        bh=XqceKEptIwGk8H5m03WkbUCfHdSr+UUp3TD51WBICh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8ipi257dvvbprkiJQeMsAfkyZuOjNKgtfEyne2JakIJjTbserRWU2hPBWeQA1fwQ
-         Nj6t/A5/+I7l3d6JhEWvw5nF3UJzZT4jgIb78YfOHwm6sNh51uhOjNQ+AicYz3L7GO
-         /inaIUG1B1dvSeS7JV1AsBaKGW1+PP/GyAfbn6mc=
+        b=K3LQsmX7bp/D+Hnrny87fuCYUhhU3dzkWO4opT7HY0mWOzR0CzjLyAQzkKaRZBgOx
+         E0/F6aqZe13ofLwHehJ0BgOFtYHTX2YDmluE8a1Fivhu+g6e1kCjLLGR933/nwFotA
+         mPiVgZqkCoAApz8t2Zfv+Jq97+rcN2Mmy0CS0BrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radim Krcmar <rkrcmar@redhat.com>,
-        Bandan Das <bsd@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 46/93] kvm: x86: skip populating logical dest map if apic is not sw enabled
+        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 56/83] ALSA: usb-audio: Fix a stack buffer overflow bug in check_input_term
 Date:   Wed,  4 Sep 2019 19:53:48 +0200
-Message-Id: <20190904175307.138573832@linuxfoundation.org>
+Message-Id: <20190904175308.494095805@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radim Krcmar <rkrcmar@redhat.com>
+From: Hui Peng <benquike@gmail.com>
 
-commit b14c876b994f208b6b95c222056e1deb0a45de0e upstream.
+commit 19bce474c45be69a284ecee660aa12d8f1e88f18 upstream.
 
-recalculate_apic_map does not santize ldr and it's possible that
-multiple bits are set. In that case, a previous valid entry
-can potentially be overwritten by an invalid one.
+`check_input_term` recursively calls itself with input from
+device side (e.g., uac_input_terminal_descriptor.bCSourceID)
+as argument (id). In `check_input_term`, if `check_input_term`
+is called with the same `id` argument as the caller, it triggers
+endless recursive call, resulting kernel space stack overflow.
 
-This condition is hit when booting a 32 bit, >8 CPU, RHEL6 guest and then
-triggering a crash to boot a kdump kernel. This is the sequence of
-events:
-1. Linux boots in bigsmp mode and enables PhysFlat, however, it still
-writes to the LDR which probably will never be used.
-2. However, when booting into kdump, the stale LDR values remain as
-they are not cleared by the guest and there isn't a apic reset.
-3. kdump boots with 1 cpu, and uses Logical Destination Mode but the
-logical map has been overwritten and points to an inactive vcpu.
+This patch fixes the bug by adding a bitmap to `struct mixer_build`
+to keep track of the checked ids and stop the execution if some id
+has been checked (similar to how parse_audio_unit handles unitid
+argument).
 
-Signed-off-by: Radim Krcmar <rkrcmar@redhat.com>
-Signed-off-by: Bandan Das <bsd@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Signed-off-by: Hui Peng <benquike@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/x86/kvm/lapic.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -209,6 +209,9 @@ static void recalculate_apic_map(struct
- 		if (!apic_x2apic_mode(apic) && !new->phys_map[xapic_id])
- 			new->phys_map[xapic_id] = apic;
+---
+ sound/usb/mixer.c |   29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
+
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -82,6 +82,7 @@ struct mixer_build {
+ 	unsigned char *buffer;
+ 	unsigned int buflen;
+ 	DECLARE_BITMAP(unitbitmap, MAX_ID_ELEMS);
++	DECLARE_BITMAP(termbitmap, MAX_ID_ELEMS);
+ 	struct usb_audio_term oterm;
+ 	const struct usbmix_name_map *map;
+ 	const struct usbmix_selector_map *selector_map;
+@@ -710,15 +711,24 @@ static int get_term_name(struct mixer_bu
+  * parse the source unit recursively until it reaches to a terminal
+  * or a branched unit.
+  */
+-static int check_input_term(struct mixer_build *state, int id,
++static int __check_input_term(struct mixer_build *state, int id,
+ 			    struct usb_audio_term *term)
+ {
+ 	int err;
+ 	void *p1;
++	unsigned char *hdr;
  
-+		if (!kvm_apic_sw_enabled(apic))
-+			continue;
+ 	memset(term, 0, sizeof(*term));
+-	while ((p1 = find_audio_control_unit(state, id)) != NULL) {
+-		unsigned char *hdr = p1;
++	for (;;) {
++		/* a loop in the terminal chain? */
++		if (test_and_set_bit(id, state->termbitmap))
++			return -EINVAL;
 +
- 		ldr = kvm_lapic_get_reg(apic, APIC_LDR);
++		p1 = find_audio_control_unit(state, id);
++		if (!p1)
++			break;
++
++		hdr = p1;
+ 		term->id = id;
+ 		switch (hdr[2]) {
+ 		case UAC_INPUT_TERMINAL:
+@@ -733,7 +743,7 @@ static int check_input_term(struct mixer
  
- 		if (apic_x2apic_mode(apic)) {
-@@ -252,6 +255,8 @@ static inline void apic_set_spiv(struct
- 			recalculate_apic_map(apic->vcpu->kvm);
- 		} else
- 			static_key_slow_inc(&apic_sw_disabled.key);
-+
-+		recalculate_apic_map(apic->vcpu->kvm);
- 	}
+ 				/* call recursively to verify that the
+ 				 * referenced clock entity is valid */
+-				err = check_input_term(state, d->bCSourceID, term);
++				err = __check_input_term(state, d->bCSourceID, term);
+ 				if (err < 0)
+ 					return err;
+ 
+@@ -765,7 +775,7 @@ static int check_input_term(struct mixer
+ 		case UAC2_CLOCK_SELECTOR: {
+ 			struct uac_selector_unit_descriptor *d = p1;
+ 			/* call recursively to retrieve the channel info */
+-			err = check_input_term(state, d->baSourceID[0], term);
++			err = __check_input_term(state, d->baSourceID[0], term);
+ 			if (err < 0)
+ 				return err;
+ 			term->type = d->bDescriptorSubtype << 16; /* virtual type */
+@@ -812,6 +822,15 @@ static int check_input_term(struct mixer
+ 	return -ENODEV;
  }
  
++
++static int check_input_term(struct mixer_build *state, int id,
++			    struct usb_audio_term *term)
++{
++	memset(term, 0, sizeof(*term));
++	memset(state->termbitmap, 0, sizeof(state->termbitmap));
++	return __check_input_term(state, id, term);
++}
++
+ /*
+  * Feature Unit
+  */
 
 
