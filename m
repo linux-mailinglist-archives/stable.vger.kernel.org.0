@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06ADBA8E43
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B1DA8FD7
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387766AbfIDR5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34684 "EHLO mail.kernel.org"
+        id S2389042AbfIDSGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbfIDR5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:01 -0400
+        id S2389007AbfIDSGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:06:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 162EB208E4;
-        Wed,  4 Sep 2019 17:56:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B243206B8;
+        Wed,  4 Sep 2019 18:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619820;
-        bh=9snc1abcr4ff8xWvYTmXaRPybQL090lxZQHnQ3344Eo=;
+        s=default; t=1567620366;
+        bh=/7KlZoP8hNzFiMv4BzL0iY/0QUqS+oK8r4POagI9Ndo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbzpaE9aA/GEORVwTh3zAcPvkZJjqmSNlliRl3o7QBSjUI1GTNf9xoxgAM5wfxsel
-         uxdHyKsS5Q5OCJ7WUn4e8aquXeZY8Lnj8OsKiE1Y+0ms7WeM4vO+ti+y9+wRP4vAKw
-         FTW5fi0Er4mB0tkts5BFEaU6mlE5VH6loPVOOqZM=
+        b=aDDQxr/tAD5tV+lK4212m5SOtVpGnxdK9Z6ZByyC1624sVy6UjS+kY6PO/8DlEi01
+         T7v7z9+gn1Jbjx3pEq2d4TIihmXa8w3mAZc4Wwa2hjsQMVPZQt2jmejbGQZ956ORdM
+         p3SuvcVP3MEE894HnMOyu/k2YZpq/8YsBdhszTls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 45/77] netfilter: ctnetlink: dont use conntrack/expect object addresses as id
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Jyri Sarha <jsarha@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/93] drm/tilcdc: Register cpufreq notifier after we have initialized crtc
 Date:   Wed,  4 Sep 2019 19:53:32 +0200
-Message-Id: <20190904175307.786690255@linuxfoundation.org>
+Message-Id: <20190904175305.912604297@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,176 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 3c79107631db1f7fd32cf3f7368e4672004a3010 upstream.
+[ Upstream commit 432973fd3a20102840d5f7e61af9f1a03c217a4c ]
 
-else, we leak the addresses to userspace via ctnetlink events
-and dumps.
+Register cpufreq notifier after we have initialized the crtc and
+unregister it before we remove the ctrc. Receiving a cpufreq notify
+without crtc causes a crash.
 
-Compute an ID on demand based on the immutable parts of nf_conn struct.
-
-Another advantage compared to using an address is that there is no
-immediate re-use of the same ID in case the conntrack entry is freed and
-reallocated again immediately.
-
-Fixes: 3583240249ef ("[NETFILTER]: nf_conntrack_expect: kill unique ID")
-Fixes: 7f85f914721f ("[NETFILTER]: nf_conntrack: kill unique ID")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_conntrack.h |  2 ++
- net/netfilter/nf_conntrack_core.c    | 35 ++++++++++++++++++++++++++++
- net/netfilter/nf_conntrack_netlink.c | 34 +++++++++++++++++++++++----
- 3 files changed, 66 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 34 ++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
-index fde4068eec0b2..636e9e11bd5f6 100644
---- a/include/net/netfilter/nf_conntrack.h
-+++ b/include/net/netfilter/nf_conntrack.h
-@@ -297,6 +297,8 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
- 				 gfp_t flags);
- void nf_ct_tmpl_free(struct nf_conn *tmpl);
- 
-+u32 nf_ct_get_id(const struct nf_conn *ct);
-+
- #define NF_CT_STAT_INC(net, count)	  __this_cpu_inc((net)->ct.stat->count)
- #define NF_CT_STAT_INC_ATOMIC(net, count) this_cpu_inc((net)->ct.stat->count)
- 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 5f747089024fa..fd301fb137194 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -23,6 +23,7 @@
- #include <linux/slab.h>
- #include <linux/random.h>
- #include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <linux/err.h>
- #include <linux/percpu.h>
- #include <linux/moduleparam.h>
-@@ -234,6 +235,40 @@ nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
- }
- EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
- 
-+/* Generate a almost-unique pseudo-id for a given conntrack.
-+ *
-+ * intentionally doesn't re-use any of the seeds used for hash
-+ * table location, we assume id gets exposed to userspace.
-+ *
-+ * Following nf_conn items do not change throughout lifetime
-+ * of the nf_conn after it has been committed to main hash table:
-+ *
-+ * 1. nf_conn address
-+ * 2. nf_conn->ext address
-+ * 3. nf_conn->master address (normally NULL)
-+ * 4. tuple
-+ * 5. the associated net namespace
-+ */
-+u32 nf_ct_get_id(const struct nf_conn *ct)
-+{
-+	static __read_mostly siphash_key_t ct_id_seed;
-+	unsigned long a, b, c, d;
-+
-+	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
-+
-+	a = (unsigned long)ct;
-+	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
-+	c = (unsigned long)ct->ext;
-+	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
-+				   &ct_id_seed);
-+#ifdef CONFIG_64BIT
-+	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
-+#else
-+	return siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &ct_id_seed);
-+#endif
-+}
-+EXPORT_SYMBOL_GPL(nf_ct_get_id);
-+
- static void
- clean_from_lists(struct nf_conn *ct)
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index 0fb300d41a09c..e1868776da252 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -184,6 +184,12 @@ static void tilcdc_fini(struct drm_device *dev)
  {
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index c68e020427ab9..3a24c01cb9090 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -29,6 +29,7 @@
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/slab.h>
-+#include <linux/siphash.h>
+ 	struct tilcdc_drm_private *priv = dev->dev_private;
  
- #include <linux/netfilter.h>
- #include <net/netlink.h>
-@@ -451,7 +452,9 @@ ctnetlink_dump_ct_seq_adj(struct sk_buff *skb, const struct nf_conn *ct)
- static inline int
- ctnetlink_dump_id(struct sk_buff *skb, const struct nf_conn *ct)
- {
--	if (nla_put_be32(skb, CTA_ID, htonl((unsigned long)ct)))
-+	__be32 id = (__force __be32)nf_ct_get_id(ct);
-+
-+	if (nla_put_be32(skb, CTA_ID, id))
- 		goto nla_put_failure;
- 	return 0;
- 
-@@ -1159,8 +1162,9 @@ ctnetlink_del_conntrack(struct sock *ctnl, struct sk_buff *skb,
- 	ct = nf_ct_tuplehash_to_ctrack(h);
- 
- 	if (cda[CTA_ID]) {
--		u_int32_t id = ntohl(nla_get_be32(cda[CTA_ID]));
--		if (id != (u32)(unsigned long)ct) {
-+		__be32 id = nla_get_be32(cda[CTA_ID]);
-+
-+		if (id != (__force __be32)nf_ct_get_id(ct)) {
- 			nf_ct_put(ct);
- 			return -ENOENT;
- 		}
-@@ -2480,6 +2484,25 @@ nla_put_failure:
- 
- static const union nf_inet_addr any_addr;
- 
-+static __be32 nf_expect_get_id(const struct nf_conntrack_expect *exp)
-+{
-+	static __read_mostly siphash_key_t exp_id_seed;
-+	unsigned long a, b, c, d;
-+
-+	net_get_random_once(&exp_id_seed, sizeof(exp_id_seed));
-+
-+	a = (unsigned long)exp;
-+	b = (unsigned long)exp->helper;
-+	c = (unsigned long)exp->master;
-+	d = (unsigned long)siphash(&exp->tuple, sizeof(exp->tuple), &exp_id_seed);
-+
-+#ifdef CONFIG_64BIT
-+	return (__force __be32)siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &exp_id_seed);
-+#else
-+	return (__force __be32)siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &exp_id_seed);
++#ifdef CONFIG_CPU_FREQ
++	if (priv->freq_transition.notifier_call)
++		cpufreq_unregister_notifier(&priv->freq_transition,
++					    CPUFREQ_TRANSITION_NOTIFIER);
 +#endif
-+}
 +
- static int
- ctnetlink_exp_dump_expect(struct sk_buff *skb,
- 			  const struct nf_conntrack_expect *exp)
-@@ -2527,7 +2550,7 @@ ctnetlink_exp_dump_expect(struct sk_buff *skb,
+ 	if (priv->crtc)
+ 		tilcdc_crtc_shutdown(priv->crtc);
+ 
+@@ -198,12 +204,6 @@ static void tilcdc_fini(struct drm_device *dev)
+ 	drm_mode_config_cleanup(dev);
+ 	tilcdc_remove_external_device(dev);
+ 
+-#ifdef CONFIG_CPU_FREQ
+-	if (priv->freq_transition.notifier_call)
+-		cpufreq_unregister_notifier(&priv->freq_transition,
+-					    CPUFREQ_TRANSITION_NOTIFIER);
+-#endif
+-
+ 	if (priv->clk)
+ 		clk_put(priv->clk);
+ 
+@@ -274,17 +274,6 @@ static int tilcdc_init(struct drm_driver *ddrv, struct device *dev)
+ 		goto init_failed;
  	}
- #endif
- 	if (nla_put_be32(skb, CTA_EXPECT_TIMEOUT, htonl(timeout)) ||
--	    nla_put_be32(skb, CTA_EXPECT_ID, htonl((unsigned long)exp)) ||
-+	    nla_put_be32(skb, CTA_EXPECT_ID, nf_expect_get_id(exp)) ||
- 	    nla_put_be32(skb, CTA_EXPECT_FLAGS, htonl(exp->flags)) ||
- 	    nla_put_be32(skb, CTA_EXPECT_CLASS, htonl(exp->class)))
- 		goto nla_put_failure;
-@@ -2824,7 +2847,8 @@ ctnetlink_get_expect(struct sock *ctnl, struct sk_buff *skb,
  
- 	if (cda[CTA_EXPECT_ID]) {
- 		__be32 id = nla_get_be32(cda[CTA_EXPECT_ID]);
--		if (ntohl(id) != (u32)(unsigned long)exp) {
+-#ifdef CONFIG_CPU_FREQ
+-	priv->freq_transition.notifier_call = cpufreq_transition;
+-	ret = cpufreq_register_notifier(&priv->freq_transition,
+-			CPUFREQ_TRANSITION_NOTIFIER);
+-	if (ret) {
+-		dev_err(dev, "failed to register cpufreq notifier\n");
+-		priv->freq_transition.notifier_call = NULL;
+-		goto init_failed;
+-	}
+-#endif
+-
+ 	if (of_property_read_u32(node, "max-bandwidth", &priv->max_bandwidth))
+ 		priv->max_bandwidth = TILCDC_DEFAULT_MAX_BANDWIDTH;
+ 
+@@ -361,6 +350,17 @@ static int tilcdc_init(struct drm_driver *ddrv, struct device *dev)
+ 	}
+ 	modeset_init(ddev);
+ 
++#ifdef CONFIG_CPU_FREQ
++	priv->freq_transition.notifier_call = cpufreq_transition;
++	ret = cpufreq_register_notifier(&priv->freq_transition,
++			CPUFREQ_TRANSITION_NOTIFIER);
++	if (ret) {
++		dev_err(dev, "failed to register cpufreq notifier\n");
++		priv->freq_transition.notifier_call = NULL;
++		goto init_failed;
++	}
++#endif
 +
-+		if (id != nf_expect_get_id(exp)) {
- 			nf_ct_expect_put(exp);
- 			return -ENOENT;
- 		}
+ 	if (priv->is_componentized) {
+ 		ret = component_bind_all(dev, ddev);
+ 		if (ret < 0)
 -- 
 2.20.1
 
