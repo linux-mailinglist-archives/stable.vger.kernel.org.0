@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D06F2A9045
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3411A8E89
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389173AbfIDSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51670 "EHLO mail.kernel.org"
+        id S2387621AbfIDR6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389536AbfIDSIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:41 -0400
+        id S2388074AbfIDR6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25FC82339E;
-        Wed,  4 Sep 2019 18:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38E3821883;
+        Wed,  4 Sep 2019 17:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620520;
-        bh=BUpWZua4Q0BuGJqmrzcOimefWihH3zULKUdnDNsQTDU=;
+        s=default; t=1567619913;
+        bh=pTbEKI2NeT8O2v0+l8eAcK9osEbWPeItOXW2CZb+5E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5wO4ay9simPVTash6j548gB0Fhzj4q14jwWastot8h3XNVjrhEbgxMpjBDDYUBc4
-         sLZ6Jc1nbI02i+wWN3FxbEJ30I1QLK2pvVmlzWGpbssHx0LCLGdayvsQHnhTF+vmDs
-         QvsSNtX86SNf8T5euaSynwQH2PLwd2mOb/6wQc8Y=
+        b=x8+9/UV+ZZYN6psxsr7YsWKbkEiQWRdc4FMHCv49332h0o1FX6DGZdQ3X5PBWYFSf
+         NL1HACthJ2+A22rAmEtDZZmdJQsOvBZD5p8g+IH/AMveviafuZbNN7aMyVQ+0M+M+i
+         Mmqpc0Z4X58PLnbhuNXaQynASt7AnmDUNaijDcmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Mayr <me@sam.st>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Dmitry Safonov <dsafonov@virtuozzo.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Subject: [PATCH 4.19 48/93] uprobes/x86: Fix detection of 32-bit user mode
+        stable@vger.kernel.org, Bandan Das <bsd@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.4 63/77] x86/apic: Include the LDR when clearing out APIC registers
 Date:   Wed,  4 Sep 2019 19:53:50 +0200
-Message-Id: <20190904175307.231956862@linuxfoundation.org>
+Message-Id: <20190904175309.263911224@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,128 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Mayr <me@sam.st>
+From: Bandan Das <bsd@redhat.com>
 
-commit 9212ec7d8357ea630031e89d0d399c761421c83b upstream.
+commit 558682b5291937a70748d36fd9ba757fb25b99ae upstream.
 
-32-bit processes running on a 64-bit kernel are not always detected
-correctly, causing the process to crash when uretprobes are installed.
+Although APIC initialization will typically clear out the LDR before
+setting it, the APIC cleanup code should reset the LDR.
 
-The reason for the crash is that in_ia32_syscall() is used to determine the
-process's mode, which only works correctly when called from a syscall.
+This was discovered with a 32-bit KVM guest jumping into a kdump
+kernel. The stale bits in the LDR triggered a bug in the KVM APIC
+implementation which caused the destination mapping for VCPUs to be
+corrupted.
 
-In the case of uretprobes, however, the function is called from a exception
-and always returns 'false' on a 64-bit kernel. In consequence this leads to
-corruption of the process's return address.
+Note that this isn't intended to paper over the KVM APIC bug. The kernel
+has to clear the LDR when resetting the APIC registers except when X2APIC
+is enabled.
 
-Fix this by using user_64bit_mode() instead of in_ia32_syscall(), which
-is correct in any situation.
+This lacks a Fixes tag because missing to clear LDR goes way back into pre
+git history.
 
-[ tglx: Add a comment and the following historical info ]
+[ tglx: Made x2apic_enabled a function call as required ]
 
-This should have been detected by the rename which happened in commit
-
-  abfb9498ee13 ("x86/entry: Rename is_{ia32,x32}_task() to in_{ia32,x32}_syscall()")
-
-which states in the changelog:
-
-    The is_ia32_task()/is_x32_task() function names are a big misnomer: they
-    suggests that the compat-ness of a system call is a task property, which
-    is not true, the compatness of a system call purely depends on how it
-    was invoked through the system call layer.
-    .....
-
-and then it went and blindly renamed every call site.
-
-Sadly enough this was already mentioned here:
-
-   8faaed1b9f50 ("uprobes/x86: Introduce sizeof_long(), cleanup adjust_ret_addr() and
-arch_uretprobe_hijack_return_addr()")
-
-where the changelog says:
-
-    TODO: is_ia32_task() is not what we actually want, TS_COMPAT does
-    not necessarily mean 32bit. Fortunately syscall-like insns can't be
-    probed so it actually works, but it would be better to rename and
-    use is_ia32_frame().
-
-and goes all the way back to:
-
-    0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
-
-Oh well. 7+ years until someone actually tried a uretprobe on a 32bit
-process on a 64bit kernel....
-
-Fixes: 0326f5a94dde ("uprobes/core: Handle breakpoint and singlestep exceptions")
-Signed-off-by: Sebastian Mayr <me@sam.st>
+Signed-off-by: Bandan Das <bsd@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Dmitry Safonov <dsafonov@virtuozzo.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190728152617.7308-1-me@sam.st
+Link: https://lkml.kernel.org/r/20190826101513.5080-3-bsd@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/uprobes.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ arch/x86/kernel/apic/apic.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -521,9 +521,12 @@ struct uprobe_xol_ops {
- 	void	(*abort)(struct arch_uprobe *, struct pt_regs *);
- };
- 
--static inline int sizeof_long(void)
-+static inline int sizeof_long(struct pt_regs *regs)
- {
--	return in_ia32_syscall() ? 4 : 8;
-+	/*
-+	 * Check registers for mode as in_xxx_syscall() does not apply here.
-+	 */
-+	return user_64bit_mode(regs) ? 8 : 4;
- }
- 
- static int default_pre_xol_op(struct arch_uprobe *auprobe, struct pt_regs *regs)
-@@ -534,9 +537,9 @@ static int default_pre_xol_op(struct arc
- 
- static int emulate_push_stack(struct pt_regs *regs, unsigned long val)
- {
--	unsigned long new_sp = regs->sp - sizeof_long();
-+	unsigned long new_sp = regs->sp - sizeof_long(regs);
- 
--	if (copy_to_user((void __user *)new_sp, &val, sizeof_long()))
-+	if (copy_to_user((void __user *)new_sp, &val, sizeof_long(regs)))
- 		return -EFAULT;
- 
- 	regs->sp = new_sp;
-@@ -569,7 +572,7 @@ static int default_post_xol_op(struct ar
- 		long correction = utask->vaddr - utask->xol_vaddr;
- 		regs->ip += correction;
- 	} else if (auprobe->defparam.fixups & UPROBE_FIX_CALL) {
--		regs->sp += sizeof_long(); /* Pop incorrect return address */
-+		regs->sp += sizeof_long(regs); /* Pop incorrect return address */
- 		if (emulate_push_stack(regs, utask->vaddr + auprobe->defparam.ilen))
- 			return -ERESTART;
- 	}
-@@ -688,7 +691,7 @@ static int branch_post_xol_op(struct arc
- 	 * "call" insn was executed out-of-line. Just restore ->sp and restart.
- 	 * We could also restore ->ip and try to call branch_emulate_op() again.
- 	 */
--	regs->sp += sizeof_long();
-+	regs->sp += sizeof_long(regs);
- 	return -ERESTART;
- }
- 
-@@ -1068,7 +1071,7 @@ bool arch_uprobe_skip_sstep(struct arch_
- unsigned long
- arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs *regs)
- {
--	int rasize = sizeof_long(), nleft;
-+	int rasize = sizeof_long(regs), nleft;
- 	unsigned long orig_ret_vaddr = 0; /* clear high bits for 32-bit apps */
- 
- 	if (copy_from_user(&orig_ret_vaddr, (void __user *)regs->sp, rasize))
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1031,6 +1031,10 @@ void clear_local_APIC(void)
+ 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
+ 	v = apic_read(APIC_LVT1);
+ 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
++	if (!x2apic_enabled()) {
++		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
++		apic_write(APIC_LDR, v);
++	}
+ 	if (maxlvt >= 4) {
+ 		v = apic_read(APIC_LVTPC);
+ 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
 
 
