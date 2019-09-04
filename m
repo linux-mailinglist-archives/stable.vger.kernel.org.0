@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C66B9A8FAF
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6800FA8EAE
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388663AbfIDSFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46572 "EHLO mail.kernel.org"
+        id S2387821AbfIDR70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:59:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389184AbfIDSFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:05:14 -0400
+        id S2388222AbfIDR7Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:59:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9317A206BA;
-        Wed,  4 Sep 2019 18:05:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224A822CF5;
+        Wed,  4 Sep 2019 17:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620313;
-        bh=LcdcNnE9n2PIlKVNNgykQorugHH6svCUBvse4OwtHms=;
+        s=default; t=1567619964;
+        bh=4CGwL65UgxIRMMK6UVwPMfQtr+e2vhZS/rZCIUyccu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fT9nUc9hChnsKJZXxcP7TJGctlaOgkZVHx36Si7yC2Bu3i6vkH5ijG2If2iPOnMyY
-         XkW8XIhadi8e3+CpKyBe2mLL8uBUgdH5od1MSLJMQrrm+1KaTr5Yk75S7xwAwvFlo6
-         W8FYnuJW2p836wx4Uvy4RITFzaZ5Dxg6ndSNLASU=
+        b=a2MHRQhu0ez/QsBB0Ywfe1ay7GtPGNN1n9PwDfclTeJx8PVm63QxyUlDvrP0/LSjr
+         L5BwNb+u8sLziW3rodsaSM8VDUEk+biLjgS9kcgfzcRQt6mDX1JJmycBBpqpfi/+cs
+         IKpIOEeRmyXorsojQJgXlFlcwCzYgVsmAa4vtmto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        zhengbin <zhengbin13@huawei.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/93] auxdisplay: panel: need to delete scan_timer when misc_register fails in panel_attach
+Subject: [PATCH 4.9 22/83] net: hisilicon: Fix dma_map_single failed on arm64
 Date:   Wed,  4 Sep 2019 19:53:14 +0200
-Message-Id: <20190904175304.238518350@linuxfoundation.org>
+Message-Id: <20190904175305.828647694@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b33d567560c1aadf3033290d74d4fd67af47aa61 ]
+[ Upstream commit 96a50c0d907ac8f5c3d6b051031a19eb8a2b53e3 ]
 
-In panel_attach, if misc_register fails, we need to delete scan_timer,
-which was setup in keypad_init->init_scan_timer.
+On the arm64 platform, executing "ifconfig eth0 up" will fail,
+returning "ifconfig: SIOCSIFFLAGS: Input/output error."
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+ndev->dev is not initialized, dma_map_single->get_dma_ops->
+dummy_dma_ops->__dummy_map_page will return DMA_ERROR_CODE
+directly, so when we use dma_map_single, the first parameter
+is to use the device of platform_device.
+
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/panel.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/auxdisplay/panel.c b/drivers/auxdisplay/panel.c
-index 3b25a643058c9..0b8e2a7d6e934 100644
---- a/drivers/auxdisplay/panel.c
-+++ b/drivers/auxdisplay/panel.c
-@@ -1618,6 +1618,8 @@ static void panel_attach(struct parport *port)
- 	return;
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index c7e0b246cfdca..f7882c1fde16d 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -157,6 +157,7 @@ struct hip04_priv {
+ 	unsigned int reg_inten;
  
- err_lcd_unreg:
-+	if (scan_timer.function)
-+		del_timer_sync(&scan_timer);
- 	if (lcd.enabled)
- 		charlcd_unregister(lcd.charlcd);
- err_unreg_device:
+ 	struct napi_struct napi;
++	struct device *dev;
+ 	struct net_device *ndev;
+ 
+ 	struct tx_desc *tx_desc;
+@@ -387,7 +388,7 @@ static int hip04_tx_reclaim(struct net_device *ndev, bool force)
+ 		}
+ 
+ 		if (priv->tx_phys[tx_tail]) {
+-			dma_unmap_single(&ndev->dev, priv->tx_phys[tx_tail],
++			dma_unmap_single(priv->dev, priv->tx_phys[tx_tail],
+ 					 priv->tx_skb[tx_tail]->len,
+ 					 DMA_TO_DEVICE);
+ 			priv->tx_phys[tx_tail] = 0;
+@@ -437,8 +438,8 @@ static int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 		return NETDEV_TX_BUSY;
+ 	}
+ 
+-	phys = dma_map_single(&ndev->dev, skb->data, skb->len, DMA_TO_DEVICE);
+-	if (dma_mapping_error(&ndev->dev, phys)) {
++	phys = dma_map_single(priv->dev, skb->data, skb->len, DMA_TO_DEVICE);
++	if (dma_mapping_error(priv->dev, phys)) {
+ 		dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
+ 	}
+@@ -508,7 +509,7 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 			goto refill;
+ 		}
+ 
+-		dma_unmap_single(&ndev->dev, priv->rx_phys[priv->rx_head],
++		dma_unmap_single(priv->dev, priv->rx_phys[priv->rx_head],
+ 				 RX_BUF_SIZE, DMA_FROM_DEVICE);
+ 		priv->rx_phys[priv->rx_head] = 0;
+ 
+@@ -537,9 +538,9 @@ refill:
+ 		buf = netdev_alloc_frag(priv->rx_buf_size);
+ 		if (!buf)
+ 			goto done;
+-		phys = dma_map_single(&ndev->dev, buf,
++		phys = dma_map_single(priv->dev, buf,
+ 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
+-		if (dma_mapping_error(&ndev->dev, phys))
++		if (dma_mapping_error(priv->dev, phys))
+ 			goto done;
+ 		priv->rx_buf[priv->rx_head] = buf;
+ 		priv->rx_phys[priv->rx_head] = phys;
+@@ -642,9 +643,9 @@ static int hip04_mac_open(struct net_device *ndev)
+ 	for (i = 0; i < RX_DESC_NUM; i++) {
+ 		dma_addr_t phys;
+ 
+-		phys = dma_map_single(&ndev->dev, priv->rx_buf[i],
++		phys = dma_map_single(priv->dev, priv->rx_buf[i],
+ 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
+-		if (dma_mapping_error(&ndev->dev, phys))
++		if (dma_mapping_error(priv->dev, phys))
+ 			return -EIO;
+ 
+ 		priv->rx_phys[i] = phys;
+@@ -678,7 +679,7 @@ static int hip04_mac_stop(struct net_device *ndev)
+ 
+ 	for (i = 0; i < RX_DESC_NUM; i++) {
+ 		if (priv->rx_phys[i]) {
+-			dma_unmap_single(&ndev->dev, priv->rx_phys[i],
++			dma_unmap_single(priv->dev, priv->rx_phys[i],
+ 					 RX_BUF_SIZE, DMA_FROM_DEVICE);
+ 			priv->rx_phys[i] = 0;
+ 		}
+@@ -829,6 +830,7 @@ static int hip04_mac_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	priv = netdev_priv(ndev);
++	priv->dev = d;
+ 	priv->ndev = ndev;
+ 	platform_set_drvdata(pdev, ndev);
+ 
 -- 
 2.20.1
 
