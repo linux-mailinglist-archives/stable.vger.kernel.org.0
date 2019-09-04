@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD5DA9012
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A8CA8E81
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388671AbfIDSH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:07:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
+        id S2387561AbfIDR6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388138AbfIDSH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:07:29 -0400
+        id S1732748AbfIDR6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C688206B8;
-        Wed,  4 Sep 2019 18:07:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2DB022CF5;
+        Wed,  4 Sep 2019 17:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620448;
-        bh=zueV2V7bjkIQL2erAfQQQlqmcwe1Cf2R9izzABTAD14=;
+        s=default; t=1567619903;
+        bh=fLPibfJ42aAIHABvPctEZANEfg5uArP9JzQqEn9pGTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2EAa1fxpsin4d6Y0m+W0wi+7hEs+/qqF/nAuZg3CInJLTybriiSekTuYVHtJdwmp
-         Tf4BJ9SJpcG570iztBOIaPJAj/9Qe1MrjyZ+Xe917DvVpu5dY1lAMZaEvKChNzxzva
-         /PNSaO6XRcwohByrPPEId9s9ZWhO0wMOtzkEPAqM=
+        b=u+ysG/ukT8Ta8DPV3eHmyROB4u65FPRO+uUFzi75W7+Cmp6rXx4EUbLQ8fpiM4TUI
+         CvdnfsEyItmyd7h6E9bXrHKn0zSNVQxy6UN4aCz9/1NbhKT0lCI9NaS1oZzg25rnKU
+         Uc/j1ZOF6/xv9Oboo50AvM9tPpO1bhLkbFBeOMqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.19 62/93] mei: me: add Tiger Lake point LP device ID
+        stable@vger.kernel.org, Brad Spengler <spender@grsecurity.net>,
+        Dianzhang Chen <dianzhangchen0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        hpa@zytor.com
+Subject: [PATCH 4.4 77/77] x86/ptrace: fix up botched merge of spectrev1 fix
 Date:   Wed,  4 Sep 2019 19:54:04 +0200
-Message-Id: <20190904175308.354572384@linuxfoundation.org>
+Message-Id: <20190904175310.513008739@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Winkler <tomas.winkler@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 587f17407741a5be07f8a2d1809ec946c8120962 upstream.
+I incorrectly merged commit 31a2fbb390fe ("x86/ptrace: Fix possible
+spectre-v1 in ptrace_get_debugreg()") when backporting it, as was
+graciously pointed out at
+https://grsecurity.net/teardown_of_a_failed_linux_lts_spectre_fix.php
 
-Add Tiger Lake Point device ID for TGP LP.
+Resolve the upstream difference with the stable kernel merge to properly
+protect things.
 
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190819103210.32748-1-tomas.winkler@intel.com
+Reported-by: Brad Spengler <spender@grsecurity.net>
+Cc: Dianzhang Chen <dianzhangchen0@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <bp@alien8.de>
+Cc: <hpa@zytor.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/misc/mei/hw-me-regs.h |    2 ++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 4 insertions(+)
+ arch/x86/kernel/ptrace.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -141,6 +141,8 @@
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -698,11 +698,10 @@ static unsigned long ptrace_get_debugreg
+ {
+ 	struct thread_struct *thread = &tsk->thread;
+ 	unsigned long val = 0;
+-	int index = n;
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 	if (n < HBP_NUM) {
++		int index = array_index_nospec(n, HBP_NUM);
+ 		struct perf_event *bp = thread->ptrace_bps[index];
+-		index = array_index_nospec(index, HBP_NUM);
  
-+#define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
-+
- #define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
- #define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
- 
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -107,6 +107,8 @@ static const struct pci_device_id mei_me
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH12_CFG)},
-+
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
- 
+ 		if (bp)
+ 			val = bp->hw.info.address;
 
 
