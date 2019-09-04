@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D66DA9109
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA7AA8FC3
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389992AbfIDSNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
+        id S2389282AbfIDSFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389432AbfIDSNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:11 -0400
+        id S2389297AbfIDSFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF979206BA;
-        Wed,  4 Sep 2019 18:13:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 421E723404;
+        Wed,  4 Sep 2019 18:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620790;
-        bh=EXJFMCe0j7c1JE5xw+Ox8ar2HYLuO+hkBy9PQix63Jw=;
+        s=default; t=1567620339;
+        bh=nWGqu5LvfO5GpMioG9+wuNyHYM4Bt3PWimoGc8ZaEzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=weZzINd3KkCzHMRoR8spRBfrdGbtwL5GGFd3WPXTTu7n16ZxFK3tuUjvpJCWpxhnw
-         Yfm+r9xGIOrLaWDxTHgs0DIzUgC5OB84blk832cgZPjtxnBv5b6m1nypx3CULh0FRw
-         kKrWc2oKiy1e6ddnIvPzY6CEpLpsdvZ+oujHIAOg=
+        b=EVyLrUNaogrtJVa5TiSUfiuNh78a/oIbih4lRHanVwuhEBsSe8dSthp9+Lq4Ks5+W
+         15RxuZdzXZleVkkhwbIAX02ymZaqOZENDvMzHdAAT1zQt3OV7B7ZO2UMrtJSbnGpXR
+         k8Jhqa3TlrzzeJuCqghinZu4fk7uW2rf+LMC3P9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 059/143] mm/zsmalloc.c: fix build when CONFIG_COMPACTION=n
-Date:   Wed,  4 Sep 2019 19:53:22 +0200
-Message-Id: <20190904175316.381917669@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 21/93] i2c: emev2: avoid race when unregistering slave client
+Date:   Wed,  4 Sep 2019 19:53:23 +0200
+Message-Id: <20190904175305.131987137@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+[ Upstream commit d7437fc0d8291181debe032671a289b6bd93f46f ]
 
-commit 441e254cd40dc03beec3c650ce6ce6074bc6517f upstream.
+After we disabled interrupts, there might still be an active one
+running. Sync before clearing the pointer to the slave device.
 
-Fixes: 701d678599d0c1 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
-Link: http://lkml.kernel.org/r/201908251039.5oSbEEUT%25lkp@intel.com
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c31d0a00021d ("i2c: emev2: add slave support")
+Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/zsmalloc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-emev2.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -2432,7 +2432,9 @@ struct zs_pool *zs_create_pool(const cha
- 	if (!pool->name)
- 		goto err;
+diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+index 35b302d983e0d..959d4912ec0d5 100644
+--- a/drivers/i2c/busses/i2c-emev2.c
++++ b/drivers/i2c/busses/i2c-emev2.c
+@@ -69,6 +69,7 @@ struct em_i2c_device {
+ 	struct completion msg_done;
+ 	struct clk *sclk;
+ 	struct i2c_client *slave;
++	int irq;
+ };
  
-+#ifdef CONFIG_COMPACTION
- 	init_waitqueue_head(&pool->migration_wait);
-+#endif
+ static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear, u8 set, u8 reg)
+@@ -339,6 +340,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
  
- 	if (create_cache(pool))
- 		goto err;
+ 	writeb(0, priv->base + I2C_OFS_SVA0);
+ 
++	/*
++	 * Wait for interrupt to finish. New slave irqs cannot happen because we
++	 * cleared the slave address and, thus, only extension codes will be
++	 * detected which do not use the slave ptr.
++	 */
++	synchronize_irq(priv->irq);
+ 	priv->slave = NULL;
+ 
+ 	return 0;
+@@ -355,7 +362,7 @@ static int em_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct em_i2c_device *priv;
+ 	struct resource *r;
+-	int irq, ret;
++	int ret;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -390,8 +397,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 
+ 	em_i2c_reset(&priv->adap);
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, em_i2c_irq_handler, 0,
++	priv->irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
+ 				"em_i2c", priv);
+ 	if (ret)
+ 		goto err_clk;
+@@ -401,7 +408,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_clk;
+ 
+-	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr, irq);
++	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr,
++		 priv->irq);
+ 
+ 	return 0;
+ 
+-- 
+2.20.1
+
 
 
