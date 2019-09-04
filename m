@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48078A8AA3
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C724CA8C4F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732609AbfIDQAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35000 "EHLO mail.kernel.org"
+        id S1732160AbfIDQMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:12:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731942AbfIDQAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:00:14 -0400
+        id S1732598AbfIDQAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:00:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF83222CED;
-        Wed,  4 Sep 2019 16:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 403E52087E;
+        Wed,  4 Sep 2019 16:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612813;
-        bh=vRRFaWWGUOYTPrur3oc3/d02XUTCjrwdPwVR3rAWPoo=;
+        s=default; t=1567612814;
+        bh=qmsEjHrRZCpwx/XrFU4kSpvkC/FoRbT7gOt7GZYWx0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRQvw6hGWVIGQktfftGbYZhmDka6inDIaNox6gBXX79lMPcq/FO6GQEjTOYrFAIpY
-         WHb7Cy+p/o2GCWMlIEaMFszpLEmlwI2sDY1xRDUWa8kCcZjQ98yDPM4kHgGHQmXAfN
-         m1iAfQzHANXsH5bbLDOo94DfBNBx7d/uPtV9Esdw=
+        b=P4SQLB89Ymt5uVGjZohcPr0zvPO1MrlrnsYKYkxmd/OpuU3IYLlSXNH3abYEQawsX
+         ijMHYurAIrrLdcHoptWrxP9gHBP4QK82UP9fdXMcIJNMMji7lOl0Ap1e1AHcx7bSK8
+         D8iih6vy2VvurDqaXwu7fZU0X26Z0W9ozsTK5oVs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/52] s390/bpf: fix lcgr instruction encoding
-Date:   Wed,  4 Sep 2019 11:59:18 -0400
-Message-Id: <20190904160004.3671-6-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/52] ARM: OMAP2+: Fix omap4 errata warning on other SoCs
+Date:   Wed,  4 Sep 2019 11:59:19 -0400
+Message-Id: <20190904160004.3671-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
@@ -45,41 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
+[ Upstream commit 45da5e09dd32fa98c32eaafe2513db6bd75e2f4f ]
 
-"masking, test in bounds 3" fails on s390, because
-BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
-BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
-The associated comment indicates that the code was intended to
-emit lcgr in the first place, it's just that the wrong opcode
-was used.
+We have errata i688 workaround produce warnings on SoCs other than
+omap4 and omap5:
 
-Fix by using the correct opcode.
+omap4_sram_init:Unable to allocate sram needed to handle errata I688
+omap4_sram_init:Unable to get sram pool needed to handle errata I688
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+This is happening because there is no ti,omap4-mpu node, or no SRAM
+to configure for the other SoCs, so let's remove the warning based
+on the SoC revision checks.
+
+As nobody has complained it seems that the other SoC variants do not
+need this workaround.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap2/omap4-common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index d7052cbe984f8..a3ce1fdc3d802 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -841,7 +841,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		break;
- 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
- 		/* lcgr %dst,%dst */
--		EMIT4(0xb9130000, dst_reg, dst_reg);
-+		EMIT4(0xb9030000, dst_reg, dst_reg);
- 		break;
- 	/*
- 	 * BPF_FROM_BE/LE
+diff --git a/arch/arm/mach-omap2/omap4-common.c b/arch/arm/mach-omap2/omap4-common.c
+index b226c8aaf8b1c..7074cfd1ff413 100644
+--- a/arch/arm/mach-omap2/omap4-common.c
++++ b/arch/arm/mach-omap2/omap4-common.c
+@@ -131,6 +131,9 @@ static int __init omap4_sram_init(void)
+ 	struct device_node *np;
+ 	struct gen_pool *sram_pool;
+ 
++	if (!soc_is_omap44xx() && !soc_is_omap54xx())
++		return 0;
++
+ 	np = of_find_compatible_node(NULL, NULL, "ti,omap4-mpu");
+ 	if (!np)
+ 		pr_warn("%s:Unable to allocate sram needed to handle errata I688\n",
 -- 
 2.20.1
 
