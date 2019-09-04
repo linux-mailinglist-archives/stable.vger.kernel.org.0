@@ -2,190 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9E7A7C09
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 08:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1242A7D32
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 09:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728802AbfIDGwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 02:52:51 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:50038 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725966AbfIDGwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 02:52:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=8+Tz9OEyS9QHNKEZCjFkVYuXIZ9nDtNfSpQQaZMpkYw=; b=jh3AJU6yeiKy5JwDvUyHb5gN+
-        23Rtt4b2yENW0uhMKj5SPKIhTMrCPEP/UdrgS3Q/+pqxHq3DafH6/zSDmhXFw5ms/n8Q1cm72uSOd
-        lfkd5wCQTSWfjORJjacJYCDqQ9cfXOcjhneXZy0hOHCVVmvwEliClHHx+p8nHrx3I6dM3vzeWkIA5
-        Ust/WBsXrXQ2bFdSFJTimi7QOVadTsSIfcbPEjt7Y+tx6iwDqFj4s7t2Rl0wcskrI1cPETSqY8Oc8
-        fw2WX8I7aGpmXQStqqivWcDSsnY5GS2qCA9x4a1cVGR+AjoTMraN0Wp+jU2dMwn1OCAqt6Poc7oSn
-        b3/GnFL5g==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1i5P9q-0006RZ-CX; Wed, 04 Sep 2019 06:52:46 +0000
-Date:   Tue, 3 Sep 2019 23:52:46 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Mike Travis <mike.travis@hpe.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 8/8] x86/platform/uv: Account for UV Hubless in
- is_uvX_hub Ops
-Message-ID: <20190904065246.GB18003@infradead.org>
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903001816.705097213@stormcage.eag.rdlabs.hpecorp.net>
- <20190903161917.GA23281@infradead.org>
- <98e34464-f9b7-6e78-6528-96b83f094282@hpe.com>
+        id S1728717AbfIDH5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 03:57:02 -0400
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:40577 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728526AbfIDH5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 03:57:01 -0400
+Received: by mail-qk1-f196.google.com with SMTP id f10so18775426qkg.7
+        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 00:57:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=SRcPMsL5fJa7DDuG636/m794t115twSsQekEvSMnulk=;
+        b=SPf6uaqfkAml4lX0vvmnj8d5P8qc5SdrqtBrXxdZgZzA9iTPZzpVtKqSBjIsoMjmRu
+         x0nhqQFcMMS3/1xlzIUYl20JKHaFZcxU/KKWzHZBSug3p/EoQq8yqKBZu9Iq5WTYbbqr
+         6HLyBQ5sMKExsIayeeIEj2iNTuVG3yprFnzOyQrojDX4E0kAVI0/bNbwSiXzuTDdT7CL
+         SX8vKTl3c9fDgl34NP1+3nT46ewruf3XuAKKP9OAY7DdsQSBH2ueCjj1epyWDuri1OwP
+         ZJIeMcIHzm2rRv47cQJKoyEjk51AmRVOSJaF2ltwO4iqZK77mwZpKKTI6isS1woWIy/P
+         K6rg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=SRcPMsL5fJa7DDuG636/m794t115twSsQekEvSMnulk=;
+        b=NxBfFAGnSeFwygfLJIvtWnBql+n1szMwURN/ileqyuZvlsTi4nbU7TY/uXyjj/+3/J
+         QXRecr2X2X7+dCygN8XoFGmXm8tNuaRf3OWu622oRQn+LgqCPnI3as8tVSG9JomcZk/d
+         O1HHSrVrhtWse9Xzjd5FELt7fCp1HKEKqCWC1d0CRPxKTvGjfvagCuvvRJDgF/4fbBzh
+         35JIrKWCnp4K4CmM2aMK4ChpBlLep7ByrLiGe/XCUP0/fEngA+zJwTEfDV+9D7M2vxCv
+         TwPCS9sliU8P0El1r61FGCyHCS8Rt/kGf4JzZg+84gb8BAliISfrnHsPB6GiX+d1w5Qp
+         Bx+Q==
+X-Gm-Message-State: APjAAAWF2DoS8yCO6Ao7eyxxn6RZVUI+v9RmeDhhOn6VAVqwu46rTAjC
+        m7AYTqB1cB7DwLWGM1LGPIrTEgCuL8K98GDmK+A=
+X-Google-Smtp-Source: APXvYqwt6vyeCeHn9pG0yI6iGGwgDr8xjtGiWjwF3uBCYT+X0HmvaZQJR4G4NH+1na/6N4chK/3xHrYttf3CJWa99pM=
+X-Received: by 2002:ae9:f011:: with SMTP id l17mr20237312qkg.137.1567583820893;
+ Wed, 04 Sep 2019 00:57:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98e34464-f9b7-6e78-6528-96b83f094282@hpe.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Received: by 2002:ac8:3322:0:0:0:0:0 with HTTP; Wed, 4 Sep 2019 00:57:00 -0700 (PDT)
+Reply-To: dr.dunawattara@gmail.com
+From:   Mr Duna Wattara <drhajiuga003@gmail.com>
+Date:   Wed, 4 Sep 2019 00:57:00 -0700
+Message-ID: <CALpYtwCYjchKTfkOLJ-fLYyhj8G0HbZ1YL5zU6Pq-PcZOwKYjw@mail.gmail.com>
+Subject: with due respect
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 11:58:49AM -0700, Mike Travis wrote:
-> Those ifdefs are not dead code and are being actively used.  Plus UV1
-> support is dead and I think the last running system died about a year ago
-> and no support or parts are available.  So undef'ing these macros will
-> simplify and reduce the size of the object code.
+Dear Friend,
 
-I'm not complaining about removing some ifdefs, that is always good.
-I complain about keeping the others that are dead.  And if Hub 1 is
-dead please drop all the checks and support code for it.
+I know that this mail will come to you as a surprise as we have never
+met before, but need not to worry as I am contacting you independently
+of my investigation and no one is informed of this communication.
 
-A patch against current mainline to show what I mean is below.
+I need your urgent assistance in transferring the sum of $11.3million
+immediately to your private account.The money has been here in our
+Bank lying dormant for years now without anybody coming for the claim of it.
 
----
-From e84506399fa9436d47b33491d3e38e9dc3c718c7 Mon Sep 17 00:00:00 2001
-From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 3 Sep 2019 18:05:37 +0200
-Subject: x86/uv: Remove the dead UV?_HUB_IS_SUPPORTED defines
+I want to release the money to you as the relative to our deceased
+customer (the account owner) who died a long with his supposed NEXT OF
+KIN since 16th October 2005. The Banking laws here does not allow such
+money to stay more than 14 years, because the money will be recalled
+to the Bank treasury account as unclaimed fund.
 
-These are always set, so remove them and the dead code for the case
-where they are not defined.
+By indicating your interest I will send you the full details on how
+the business will be executed.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/x86/include/asm/uv/uv_hub.h  | 38 -------------------------------
- arch/x86/include/asm/uv/uv_mmrs.h |  7 ------
- 2 files changed, 45 deletions(-)
+Please respond urgently and delete if you are not interested.
 
-diff --git a/arch/x86/include/asm/uv/uv_hub.h b/arch/x86/include/asm/uv/uv_hub.h
-index 6eed0b379412..f71eb659f0de 100644
---- a/arch/x86/include/asm/uv/uv_hub.h
-+++ b/arch/x86/include/asm/uv/uv_hub.h
-@@ -229,68 +229,33 @@ static inline struct uv_hub_info_s *uv_cpu_hub_info(int cpu)
- #define UV4_HUB_REVISION_BASE		7
- #define UV4A_HUB_REVISION_BASE		8	/* UV4 (fixed) rev 2 */
- 
--#ifdef	UV1_HUB_IS_SUPPORTED
- static inline int is_uv1_hub(void)
- {
- 	return uv_hub_info->hub_revision < UV2_HUB_REVISION_BASE;
- }
--#else
--static inline int is_uv1_hub(void)
--{
--	return 0;
--}
--#endif
- 
--#ifdef	UV2_HUB_IS_SUPPORTED
- static inline int is_uv2_hub(void)
- {
- 	return ((uv_hub_info->hub_revision >= UV2_HUB_REVISION_BASE) &&
- 		(uv_hub_info->hub_revision < UV3_HUB_REVISION_BASE));
- }
--#else
--static inline int is_uv2_hub(void)
--{
--	return 0;
--}
--#endif
- 
--#ifdef	UV3_HUB_IS_SUPPORTED
- static inline int is_uv3_hub(void)
- {
- 	return ((uv_hub_info->hub_revision >= UV3_HUB_REVISION_BASE) &&
- 		(uv_hub_info->hub_revision < UV4_HUB_REVISION_BASE));
- }
--#else
--static inline int is_uv3_hub(void)
--{
--	return 0;
--}
--#endif
- 
- /* First test "is UV4A", then "is UV4" */
--#ifdef	UV4A_HUB_IS_SUPPORTED
- static inline int is_uv4a_hub(void)
- {
- 	return (uv_hub_info->hub_revision >= UV4A_HUB_REVISION_BASE);
- }
--#else
--static inline int is_uv4a_hub(void)
--{
--	return 0;
--}
--#endif
- 
--#ifdef	UV4_HUB_IS_SUPPORTED
- static inline int is_uv4_hub(void)
- {
- 	return uv_hub_info->hub_revision >= UV4_HUB_REVISION_BASE;
- }
--#else
--static inline int is_uv4_hub(void)
--{
--	return 0;
--}
--#endif
- 
- static inline int is_uvx_hub(void)
- {
-@@ -302,10 +267,7 @@ static inline int is_uvx_hub(void)
- 
- static inline int is_uv_hub(void)
- {
--#ifdef	UV1_HUB_IS_SUPPORTED
- 	return uv_hub_info->hub_revision;
--#endif
--	return is_uvx_hub();
- }
- 
- union uvh_apicid {
-diff --git a/arch/x86/include/asm/uv/uv_mmrs.h b/arch/x86/include/asm/uv/uv_mmrs.h
-index 62c79e26a59a..9ee5ed6e8b34 100644
---- a/arch/x86/include/asm/uv/uv_mmrs.h
-+++ b/arch/x86/include/asm/uv/uv_mmrs.h
-@@ -99,13 +99,6 @@
- #define UV3_HUB_PART_NUMBER_X	0x4321
- #define UV4_HUB_PART_NUMBER	0x99a1
- 
--/* Compat: Indicate which UV Hubs are supported. */
--#define UV1_HUB_IS_SUPPORTED	1
--#define UV2_HUB_IS_SUPPORTED	1
--#define UV3_HUB_IS_SUPPORTED	1
--#define UV4_HUB_IS_SUPPORTED	1
--#define UV4A_HUB_IS_SUPPORTED	1
--
- /* Error function to catch undefined references */
- extern unsigned long uv_undefined(char *str);
- 
--- 
-2.20.1
-
+Best Regards,
+Mr. Duna Wattara.
