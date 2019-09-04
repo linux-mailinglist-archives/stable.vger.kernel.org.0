@@ -2,93 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB875A88CD
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332AFA893A
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730869AbfIDO3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 10:29:15 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:33484 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730856AbfIDO3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 10:29:15 -0400
-Received: by mail-io1-f66.google.com with SMTP id m11so12649601ioo.0
-        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 07:29:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=86LLseH/t09g4NPnOuPe4jSXsf4yEGfetaMdrOp9+RM=;
-        b=Tjv0OcYMRCSImG27PgxeYJD0ZBCaXOwtnomOLj1jdVZtBarve9VCP2d7er8DqKlAMh
-         Ndh+ZhoJwGwJeGREJ22Uqdbc85mnVioVYqrp17wu1AluZWZuNcFY3+Hoa1TQIVLGjIgG
-         CcBg1IsCi8FMqljIdXjfdQZkbcUoB6YQEYbAU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=86LLseH/t09g4NPnOuPe4jSXsf4yEGfetaMdrOp9+RM=;
-        b=lWwael/yiOCPHpedRN6JXyrFUAGnW8zLXy2ChgfbJbfZMtsf07GF0BQdJKHpNrLriJ
-         41eXWxlFu6mwykBb1BJEsllVpALuxOtNi9qVLUuJftoVtmlo8aKyCFyXldayK8GnPOm2
-         21H/lXy65o+wre1DUdW5Etnz+e72agU4tFJhzyCX1LdZCsWJ1ay70uFuQX/sH7v7GsMa
-         MSvRP8hTFsIO27b4spFcm9i2Ybddfy70GRvtKt6mueqNIAyeWUiCos9rtQ52QkvIb7rL
-         JSHBRsR2vHMzuL8SiPS+gz7mK76/Py6VK/lPdRKDnYfaBoKQKj+YPBbQIz0/pZ+cDtKd
-         fA9A==
-X-Gm-Message-State: APjAAAULK8JbNo5cQ8zil5twkXbgJtvOeXrr0dS/kEG8sEbeoLRslFpb
-        khYDX6h74q6aK8lmQRg+fxnLfd6gCtfgM7UIzSJejA==
-X-Google-Smtp-Source: APXvYqx3Ha9D6n/Vktk91NeREgHLVCn3Ymh/BQUNUrX9uIYCqkuLIbgstgCc+hRqlMhKLJRazrmnOQl4UCf6G7kvL1Y=
-X-Received: by 2002:a05:6602:24ca:: with SMTP id h10mr18428791ioe.63.1567607354499;
- Wed, 04 Sep 2019 07:29:14 -0700 (PDT)
+        id S1730961AbfIDPFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 11:05:40 -0400
+Received: from mail.netline.ch ([148.251.143.178]:35751 "EHLO
+        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731266AbfIDPFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 11:05:36 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by netline-mail3.netline.ch (Postfix) with ESMTP id 09C172AA17A;
+        Wed,  4 Sep 2019 17:05:35 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
+Received: from netline-mail3.netline.ch ([127.0.0.1])
+        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id f8dHiiDIJIYz; Wed,  4 Sep 2019 17:05:34 +0200 (CEST)
+Received: from thor (116.245.63.188.dynamic.wline.res.cust.swisscom.ch [188.63.245.116])
+        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 842742AA0BD;
+        Wed,  4 Sep 2019 17:05:34 +0200 (CEST)
+Received: from [::1]
+        by thor with esmtp (Exim 4.92.1)
+        (envelope-from <michel@daenzer.net>)
+        id 1i5Wqj-0003kM-Mp; Wed, 04 Sep 2019 17:05:33 +0200
+Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch
+ alignment
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Yu Zhao <yuzhao@google.com>, Dave Airlie <airlied@linux.ie>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        stable <stable@vger.kernel.org>
+References: <20190903162519.7136-1-sashal@kernel.org>
+ <20190903162519.7136-44-sashal@kernel.org>
+ <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net>
+ <20190903170347.GA24357@kroah.com> <20190903200139.GJ5281@sasha-vm>
+ <CAKMK7uFpBnkF4xABdkDMZ8TYhL4jg6ZuGyHGyVeBxc9rkyUtXQ@mail.gmail.com>
+ <829c5912-cf80-81d0-7400-d01d286861fc@daenzer.net>
+ <20190904120823.GW5281@sasha-vm>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Openpgp: preference=signencrypt
+Autocrypt: addr=michel@daenzer.net; prefer-encrypt=mutual; keydata=
+ mQGiBDsehS8RBACbsIQEX31aYSIuEKxEnEX82ezMR8z3LG8ktv1KjyNErUX9Pt7AUC7W3W0b
+ LUhu8Le8S2va6hi7GfSAifl0ih3k6Bv1Itzgnd+7ZmSrvCN8yGJaHNQfAevAuEboIb+MaVHo
+ 9EMJj4ikOcRZCmQWw7evu/D9uQdtkCnRY9iJiAGxbwCguBHtpoGMxDOINCr5UU6qt+m4O+UD
+ /355ohBBzzyh49lTj0kTFKr0Ozd20G2FbcqHgfFL1dc1MPyigej2gLga2osu2QY0ObvAGkOu
+ WBi3LTY8Zs8uqFGDC4ZAwMPoFy3yzu3ne6T7d/68rJil0QcdQjzzHi6ekqHuhst4a+/+D23h
+ Za8MJBEcdOhRhsaDVGAJSFEQB1qLBACOs0xN+XblejO35gsDSVVk8s+FUUw3TSWJBfZa3Imp
+ V2U2tBO4qck+wqbHNfdnU/crrsHahjzBjvk8Up7VoY8oT+z03sal2vXEonS279xN2B92Tttr
+ AgwosujguFO/7tvzymWC76rDEwue8TsADE11ErjwaBTs8ZXfnN/uAANgPLQjTWljaGVsIERh
+ ZW56ZXIgPG1pY2hlbEBkYWVuemVyLm5ldD6IXgQTEQIAHgUCQFXxJgIbAwYLCQgHAwIDFQID
+ AxYCAQIeAQIXgAAKCRBaga+OatuyAIrPAJ9ykonXI3oQcX83N2qzCEStLNW47gCeLWm/QiPY
+ jqtGUnnSbyuTQfIySkK5AQ0EOx6FRRAEAJZkcvklPwJCgNiw37p0GShKmFGGqf/a3xZZEpjI
+ qNxzshFRFneZze4f5LhzbX1/vIm5+ZXsEWympJfZzyCmYPw86QcFxyZflkAxHx9LeD+89Elx
+ bw6wT0CcLvSv8ROfU1m8YhGbV6g2zWyLD0/naQGVb8e4FhVKGNY2EEbHgFBrAAMGA/0VktFO
+ CxFBdzLQ17RCTwCJ3xpyP4qsLJH0yCoA26rH2zE2RzByhrTFTYZzbFEid3ddGiHOBEL+bO+2
+ GNtfiYKmbTkj1tMZJ8L6huKONaVrASFzLvZa2dlc2zja9ZSksKmge5BOTKWgbyepEc5qxSju
+ YsYrX5xfLgTZC5abhhztpYhGBBgRAgAGBQI7HoVFAAoJEFqBr45q27IAlscAn2Ufk2d6/3p4
+ Cuyz/NX7KpL2dQ8WAJ9UD5JEakhfofed8PSqOM7jOO3LCA==
+Message-ID: <e8152226-63e1-3ff8-0079-b6dde93bfada@daenzer.net>
+Date:   Wed, 4 Sep 2019 17:05:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <0000000000008d8eac05906691ac@google.com> <20190822233529.4176-1-ebiggers@kernel.org>
- <CAJfpegvHgcZGFi-Ydyo2j89zQxqAtZ1Lh0+vC6vWeU-aEFZkYQ@mail.gmail.com> <20190903133910.GA5144@zzz.localdomain>
-In-Reply-To: <20190903133910.GA5144@zzz.localdomain>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Wed, 4 Sep 2019 16:29:03 +0200
-Message-ID: <CAJfpegtrkxAYq4_rXVNEhe=6SFCfXGgpNVtaiuyfSdh+kthazA@mail.gmail.com>
-Subject: Re: [PATCH] fuse: disable irqs for fuse_iqueue::waitq.lock
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-aio <linux-aio@kvack.org>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190904120823.GW5281@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-CA
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 3, 2019 at 3:39 PM Eric Biggers <ebiggers@kernel.org> wrote:
->
-> On Tue, Sep 03, 2019 at 09:31:29AM +0200, Miklos Szeredi wrote:
-> > On Fri, Aug 23, 2019 at 1:35 AM Eric Biggers <ebiggers@kernel.org> wrote:
-> > >
-> > > From: Eric Biggers <ebiggers@google.com>
-> > >
-> > > When IOCB_CMD_POLL is used on the FUSE device, aio_poll() disables IRQs
-> > > and takes kioctx::ctx_lock, then fuse_iqueue::waitq.lock.
-> >
-> > Not in -linus.
-> >
-> > Which tree was this reproduced with?
-> >
-> > Thanks,
-> > Miklos
->
-> Linus's tree.  Here's the full symbolized output on v5.3-rc7:
+On 2019-09-04 2:08 p.m., Sasha Levin wrote:
+> 
+> FWIW, I've added another test to my scripts to try and catch these cases
+> (Revert "%s"). It'll slow down the scripts a bit but it's better to get
+> it right rather than to be done quickly :)
 
-Okay.
+Indeed, thanks! And again sorry for the brouhaha, I just honestly didn't
+realize before how tricky this case was for the scripts.
 
-TBH, I find the fix disgusting. It's confusing to sprinke code that
-has absolutely nothing to do with interrupts with spin_lock_irq()
-calls.
 
-I think the lock/unlock calls should at least be done with a helper
-with a comment explaining why disabling interrupts is needed (though I
-have not managed to understand why aio needs to actually mess with the
-waitq lock...)
-
-Probably a better fix would be to just use a separate spinlock to
-avoid the need to disable interrupts in cases where it's not
-necessary.
-
-Thanks,
-Miklos
+-- 
+Earthling Michel Dänzer               |               https://redhat.com
+Libre software enthusiast             |             Mesa and X developer
