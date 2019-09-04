@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38CF6A8FBB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2080A8ECA
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388904AbfIDSFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46990 "EHLO mail.kernel.org"
+        id S2388329AbfIDSAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389262AbfIDSFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:05:30 -0400
+        id S1731612AbfIDSAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AD89206BA;
-        Wed,  4 Sep 2019 18:05:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F116208E4;
+        Wed,  4 Sep 2019 18:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620329;
-        bh=u5ck0fkX3qv3H5phSRhaxrje/C6WufWq1kccdS4lqLA=;
+        s=default; t=1567620002;
+        bh=eNH3i2y7roWiXsi/UjHR77xvjZRes21W6t2db1K5t/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMDAkN63xp1K+deE9i+fK/kbX9bbCDcuoBPPblHiAWMwiXwuJpn0Pu+wzX6OnXLng
-         DIpGPF/YXxTh8AalUcslJ26ZoMnH85k44WbINjDQK8yAfLnoKFGaK4OGtG5CHfvu1u
-         o7y9xt7K2/uyL/AJxp1Hv5Mbtt+TtGwz7ZyhjJhM=
+        b=gg/jKpf4ssVGUoUCOi64aHBS1WrwMNUzp7GVFVo5dNUZMjHiQJ+DTTPTcNBr91TVb
+         a+eQQ/w5JKEhbjb6v0n6EPDSCXvyOZwTG+tR48MgDgtA9zb0mu+s5Ww4Dnaeje1cvJ
+         eAleZvHwEC3josYetfr6TK4aWVP0EtLnEE6bJLlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Wenwen Wang <wenwen@cs.uga.edu>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/93] xen/blkback: fix memory leaks
-Date:   Wed,  4 Sep 2019 19:53:20 +0200
-Message-Id: <20190904175304.932938222@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 29/83] HID: wacom: Correct distance scale for 2nd-gen Intuos devices
+Date:   Wed,  4 Sep 2019 19:53:21 +0200
+Message-Id: <20190904175306.465260713@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ae78ca3cf3d9e9f914bfcd0bc5c389ff18b9c2e0 ]
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-In read_per_ring_refs(), after 'req' and related memory regions are
-allocated, xen_blkif_map() is invoked to map the shared frame, irq, and
-etc. However, if this mapping process fails, no cleanup is performed,
-leading to memory leaks. To fix this issue, invoke the cleanup before
-returning the error.
+commit b72fb1dcd2ea9d29417711cb302cef3006fa8d5a upstream.
 
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Distance values reported by 2nd-gen Intuos tablets are on an inverted
+scale (0 == far, 63 == near). We need to change them over to a normal
+scale before reporting to userspace or else userspace drivers and
+applications can get confused.
+
+Ref: https://github.com/linuxwacom/input-wacom/issues/98
+Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/block/xen-blkback/xenbus.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/wacom_wac.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
-index a4bc74e72c394..55869b362fdfb 100644
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -974,6 +974,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -949,6 +949,8 @@ static int wacom_intuos_general(struct w
+ 		y >>= 1;
+ 		distance >>= 1;
  	}
- 	blkif->nr_ring_pages = nr_grefs;
- 
-+	err = -ENOMEM;
- 	for (i = 0; i < nr_grefs * XEN_BLKIF_REQS_PER_PAGE; i++) {
- 		req = kzalloc(sizeof(*req), GFP_KERNEL);
- 		if (!req)
-@@ -996,7 +997,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
- 	err = xen_blkif_map(ring, ring_ref, nr_grefs, evtchn);
- 	if (err) {
- 		xenbus_dev_fatal(dev, err, "mapping ring-ref port %u", evtchn);
--		return err;
-+		goto fail;
- 	}
- 
- 	return 0;
-@@ -1016,8 +1017,7 @@ fail:
- 		}
- 		kfree(req);
- 	}
--	return -ENOMEM;
--
-+	return err;
- }
- 
- static int connect_ring(struct backend_info *be)
--- 
-2.20.1
-
++	if (features->type == INTUOSHT2)
++		distance = features->distance_max - distance;
+ 	input_report_abs(input, ABS_X, x);
+ 	input_report_abs(input, ABS_Y, y);
+ 	input_report_abs(input, ABS_DISTANCE, distance);
 
 
