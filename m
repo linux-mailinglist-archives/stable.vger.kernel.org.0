@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B54A8FBD
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D4C3A8EDF
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388940AbfIDSFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
+        id S2387690AbfIDSAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387532AbfIDSFd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:05:33 -0400
+        id S2388405AbfIDSAb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 401DE2339E;
-        Wed,  4 Sep 2019 18:05:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4D702339E;
+        Wed,  4 Sep 2019 18:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620331;
-        bh=0Fw/6tbnF5dPuAkSNbGV3kjnBEsH029C3qwRVjq48pA=;
+        s=default; t=1567620031;
+        bh=MBL6o8AQn13xHy3RKVUNkSPUrr0fYctGP4ivvm3vXoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+4k6kKFgdgu2izGj1QiJaXdLvClq4WFDvQqzo2Pi8vfc4HP49g2Ayj4c4ObNLy8a
-         SaJrhGD9LBWdhI5+GuXtwAwjtA+g34pQlRVv7aNNf2NV4sxtB+fkClDpzQ6guVFaTd
-         86yyl3KMLzesy1s6F+wiZ6E9ZwDRQd5cO2NgOY+o=
+        b=SkKl3fMjyZO54k3ifouZbQoEZ07etgdiI6s9QDThAUpzExxRUHIdGorp3e/V/v7x3
+         447cQXQo6UbSM1Te0Suc6IG2Nww4wX3yFqENx8Hp/YUU3krPlyvtcc2sCuBdQF/Fb9
+         UOndB3P4mfMaOpTpLu+Guv1gRMEgEkSKnUHLmIgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/93] arm64: cpufeature: Dont treat granule sizes as strict
-Date:   Wed,  4 Sep 2019 19:53:21 +0200
-Message-Id: <20190904175305.025246804@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 30/83] Revert "dm bufio: fix deadlock with loop device"
+Date:   Wed,  4 Sep 2019 19:53:22 +0200
+Message-Id: <20190904175306.544969044@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5717fe5ab38f9ccb32718bcb03bea68409c9cce4 ]
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-If a CPU doesn't support the page size for which the kernel is
-configured, then we will complain and refuse to bring it online. For
-secondary CPUs (and the boot CPU on a system booting with EFI), we will
-also print an error identifying the mismatch.
+commit cf3591ef832915892f2499b7e54b51d4c578b28c upstream.
 
-Consequently, the only time that the cpufeature code can detect a
-granule size mismatch is for a granule other than the one that is
-currently being used. Although we would rather such systems didn't
-exist, we've unfortunately lost that battle and Kevin reports that
-on his amlogic S922X (odroid-n2 board) we end up warning and taining
-with defconfig because 16k pages are not supported by all of the CPUs.
+Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
+fix has been made available with commit d0a255e795ab ("loop: set
+PF_MEMALLOC_NOIO for the worker thread").
 
-In such a situation, we don't actually care about the feature mismatch,
-particularly now that KVM only exposes the sanitised view of the CPU
-registers (commit 93390c0a1b20 - "arm64: KVM: Hide unsupported AArch64
-CPU features from guests"). Treat the granule fields as non-strict and
-let Kevin run without a tainted kernel.
+Note that the fix offered by commit bd293d071ffe doesn't really prevent
+the deadlock from occuring - if we look at the stacktrace reported by
+Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
+i.e. it has already successfully taken the mutex. Changing the mutex
+from mutex_lock to mutex_trylock won't help with deadlocks that happen
+afterwards.
 
-Cc: Marc Zyngier <maz@kernel.org>
-Reported-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-[catalin.marinas@arm.com: changelog updated with KVM sanitised regs commit]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
+   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
+   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
+   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
+   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
+   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
+   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
+   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
+   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
+   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
+   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
+  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
+  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
+  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
+  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
+  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
+Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/kernel/cpufeature.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/md/dm-bufio.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index bce06083685dc..94babc3d0ec2c 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -165,9 +165,17 @@ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
- };
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1585,7 +1585,9 @@ dm_bufio_shrink_scan(struct shrinker *sh
+ 	unsigned long freed;
  
- static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
-+	/*
-+	 * We already refuse to boot CPUs that don't support our configured
-+	 * page size, so we can only detect mismatches for a page size other
-+	 * than the one we're currently using. Unfortunately, SoCs like this
-+	 * exist in the wild so, even though we don't like it, we'll have to go
-+	 * along with it and treat them as non-strict.
-+	 */
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
-+
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
- 	/* Linux shouldn't care about secure memory */
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
--- 
-2.20.1
-
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (!dm_bufio_trylock(c))
++	if (sc->gfp_mask & __GFP_FS)
++		dm_bufio_lock(c);
++	else if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
+ 
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 
 
