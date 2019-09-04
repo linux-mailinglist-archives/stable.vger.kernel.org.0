@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6B35A912B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDE8A902D
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390367AbfIDSNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58838 "EHLO mail.kernel.org"
+        id S2389345AbfIDSIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390146AbfIDSNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:54 -0400
+        id S2389717AbfIDSIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A72C8206BA;
-        Wed,  4 Sep 2019 18:13:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FF312087E;
+        Wed,  4 Sep 2019 18:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620833;
-        bh=lrCFZBgs7taAitb//K8nDjMil3QsaNgZqYnMNkSRP94=;
+        s=default; t=1567620486;
+        bh=UzcHAmeVGD68ESeG2+GzPUb01ujJEsRYWeCT0/a0gUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgtmedK53JzJLQgmypoDy+AFI6MTim1xoIxhDrSxhB1mBzyQGJ+0jutqApXfaidAn
-         cSnpQJll97QlbZ5/NMV62kMYs3m8UIxI5Qo+zvkNw3Bw9aiaqNxVtqDMTROPYqbVHf
-         HSSZ547pqzC21PXufYVPuEqGuWbYezfPmkh3hdXY=
+        b=NBYabfAs3nSsLuaKoghOuJkBREcobNssa5K+cT1QWfFN23Yy1wrcPNdpEJdvssn/6
+         udBkAKg2tcr1Q7rrR3fsHIxn8vPwZh/OMpOLJ0YpteucTajowOSGnmU7T3/Wt0bkcJ
+         JCOdxXUEcmJaeIlwa8VldE56r9KMgxsKs88jSIgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.2 113/143] drm/i915: Call dma_set_max_seg_size() in i915_driver_hw_probe()
-Date:   Wed,  4 Sep 2019 19:54:16 +0200
-Message-Id: <20190904175318.818342280@linuxfoundation.org>
+Subject: [PATCH 4.19 75/93] drm/i915: Call dma_set_max_seg_size() in i915_driver_hw_probe()
+Date:   Wed,  4 Sep 2019 19:54:17 +0200
+Message-Id: <20190904175309.560645681@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -111,7 +111,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/i915/i915_drv.c
 +++ b/drivers/gpu/drm/i915/i915_drv.c
-@@ -1569,6 +1569,12 @@ static int i915_driver_init_hw(struct dr
+@@ -1120,6 +1120,12 @@ static int i915_driver_init_hw(struct dr
  
  	pci_set_master(pdev);
  
@@ -122,7 +122,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	dma_set_max_seg_size(&pdev->dev, UINT_MAX);
 +
  	/* overlay on gen2 is broken and can't address above 1G */
- 	if (IS_GEN(dev_priv, 2)) {
+ 	if (IS_GEN2(dev_priv)) {
  		ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(30));
 
 
