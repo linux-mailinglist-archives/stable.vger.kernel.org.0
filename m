@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EE8A8F41
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D9C9A8FE5
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388414AbfIDSCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42756 "EHLO mail.kernel.org"
+        id S2388530AbfIDSGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388800AbfIDSCl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:41 -0400
+        id S2388704AbfIDSGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:06:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE45D208E4;
-        Wed,  4 Sep 2019 18:02:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC82222CF7;
+        Wed,  4 Sep 2019 18:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620161;
-        bh=1RYvOBwHtQajG5Il0JH6xNqFr/+oHkRE2seaRdexZtc=;
+        s=default; t=1567620390;
+        bh=EXJFMCe0j7c1JE5xw+Ox8ar2HYLuO+hkBy9PQix63Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw3cRvcBS7fbY1UuTaRlHtcca3zUpVJ4hzao3azUVNpak1Dn/N3x/sM9Ik6qjB4fy
-         fEp5TZsLXPZTLCivrviqeBTed3jknVyHZUhhsbgn7gSX9/bGGZejrIWi4yGwnIxxlI
-         LPaXPXzZ/mT6GHNFQK7oM5zy5P6ofdtsOipCLSkA=
+        b=pDZBwTh3KhbQgIe92iJKdoIOcEIm8pLnb9tuj0fniIVU8bnOMNwrieunxxPH6FfFp
+         p3HIIlkpcw9jk7t0J8pQ/UtTEpeIGWqVBGa+lNMt5HdnlUW8m5hVAvvfuVAHobY3Uy
+         F5ilOOSjB9Y612tXRAW91dL/nxLe4Tiiz4BHX8ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/57] drm/bridge: tfp410: fix memleak in get_modes()
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 39/93] mm/zsmalloc.c: fix build when CONFIG_COMPACTION=n
 Date:   Wed,  4 Sep 2019 19:53:41 +0200
-Message-Id: <20190904175303.217813422@linuxfoundation.org>
+Message-Id: <20190904175306.592082075@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c08f99c39083ab55a9c93b3e93cef48711294dad ]
+From: Andrew Morton <akpm@linux-foundation.org>
 
-We don't free the edid blob allocated by the call to drm_get_edid(),
-causing a memleak. Fix this by calling kfree(edid) at the end of the
-get_modes().
+commit 441e254cd40dc03beec3c650ce6ce6074bc6517f upstream.
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190610135739.6077-1-tomi.valkeinen@ti.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 701d678599d0c1 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
+Link: http://lkml.kernel.org/r/201908251039.5oSbEEUT%25lkp@intel.com
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/bridge/ti-tfp410.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ mm/zsmalloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/ti-tfp410.c b/drivers/gpu/drm/bridge/ti-tfp410.c
-index acb857030951a..1bb01905be8e3 100644
---- a/drivers/gpu/drm/bridge/ti-tfp410.c
-+++ b/drivers/gpu/drm/bridge/ti-tfp410.c
-@@ -64,7 +64,12 @@ static int tfp410_get_modes(struct drm_connector *connector)
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2432,7 +2432,9 @@ struct zs_pool *zs_create_pool(const cha
+ 	if (!pool->name)
+ 		goto err;
  
- 	drm_mode_connector_update_edid_property(connector, edid);
++#ifdef CONFIG_COMPACTION
+ 	init_waitqueue_head(&pool->migration_wait);
++#endif
  
--	return drm_add_edid_modes(connector, edid);
-+	ret = drm_add_edid_modes(connector, edid);
-+
-+	kfree(edid);
-+
-+	return ret;
-+
- fallback:
- 	/* No EDID, fallback on the XGA standard modes */
- 	ret = drm_add_modes_noedid(connector, 1920, 1200);
--- 
-2.20.1
-
+ 	if (create_cache(pool))
+ 		goto err;
 
 
