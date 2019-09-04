@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C64EBA8BBB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E76A8B73
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732240AbfIDQFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39268 "EHLO mail.kernel.org"
+        id S2387514AbfIDQDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:03:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387546AbfIDQC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:02:59 -0400
+        id S2387564AbfIDQDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:03:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4752070C;
-        Wed,  4 Sep 2019 16:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50C9C2087E;
+        Wed,  4 Sep 2019 16:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612978;
-        bh=fSg4w60wGc2fe1to3ZNBO/o5AAysdACtKnyKU+ecgZ0=;
+        s=default; t=1567612982;
+        bh=fMTYKkn1JVWInp865hwLQU2k2oWe/XIG6yRkXnaZlh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doNt8EfQwaKGoTvrK+hXqQldit536WjpotMw1jDuxT4hiEcReewoZ/FBqHw9tlD11
-         wETcD2kAfN9MtS93bTjm32d9vkrLNY9D/i56bHBrfoADwAauT7G26JT7TInmznMikX
-         M4hQk65NDQQAa8JiJ7WaV3A5zitK33M+SM4rqgDY=
+        b=TKxpNuoBsTRyzquBE/H5tB5pkLwPtOBXt9blrfSL3Pw5F3Fulbz7JPxZQVRc5hjwy
+         Hrofy0Eg/CnA9doBNdogpxOXLdbgB3EXvZhXVs9ZOPOcdupuLrtPMp+ZMCNvYDkRVm
+         OIwKFjefeOoQYUGx+jEYpEBVoHoZJQLRS6hCZv/0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 26/27] tools/power turbostat: fix buffer overrun
-Date:   Wed,  4 Sep 2019 12:02:19 -0400
-Message-Id: <20190904160220.4545-26-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 27/27] net: seeq: Fix the function used to release some memory in an error handling path
+Date:   Wed,  4 Sep 2019 12:02:20 -0400
+Message-Id: <20190904160220.4545-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
 References: <20190904160220.4545-1-sashal@kernel.org>
@@ -43,35 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit eeb71c950bc6eee460f2070643ce137e067b234c ]
+[ Upstream commit e1e54ec7fb55501c33b117c111cb0a045b8eded2 ]
 
-turbostat could be terminated by general protection fault on some latest
-hardwares which (for example) support 9 levels of C-states and show 18
-"tADDED" lines. That bloats the total output and finally causes buffer
-overrun.  So let's extend the buffer to avoid this.
+In commit 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv"),
+a call to 'get_zeroed_page()' has been turned into a call to
+'dma_alloc_coherent()'. Only the remove function has been updated to turn
+the corresponding 'free_page()' into 'dma_free_attrs()'.
+The error hndling path of the probe function has not been updated.
 
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
+Fix it now.
+
+Rename the corresponding label to something more in line.
+
+Fixes: 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/seeq/sgiseeq.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index b4c5d96e54c12..7c2c8e74aa9a9 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -3593,7 +3593,7 @@ int initialize_counters(int cpu_id)
+diff --git a/drivers/net/ethernet/seeq/sgiseeq.c b/drivers/net/ethernet/seeq/sgiseeq.c
+index c2bd5378ffdaf..3527962f0bdad 100644
+--- a/drivers/net/ethernet/seeq/sgiseeq.c
++++ b/drivers/net/ethernet/seeq/sgiseeq.c
+@@ -792,15 +792,16 @@ static int sgiseeq_probe(struct platform_device *pdev)
+ 		printk(KERN_ERR "Sgiseeq: Cannot register net device, "
+ 		       "aborting.\n");
+ 		err = -ENODEV;
+-		goto err_out_free_page;
++		goto err_out_free_attrs;
+ 	}
  
- void allocate_output_buffer()
- {
--	output_buffer = calloc(1, (1 + topo.num_cpus) * 1024);
-+	output_buffer = calloc(1, (1 + topo.num_cpus) * 2048);
- 	outp = output_buffer;
- 	if (outp == NULL)
- 		err(-1, "calloc output buffer");
+ 	printk(KERN_INFO "%s: %s %pM\n", dev->name, sgiseeqstr, dev->dev_addr);
+ 
+ 	return 0;
+ 
+-err_out_free_page:
+-	free_page((unsigned long) sp->srings);
++err_out_free_attrs:
++	dma_free_attrs(&pdev->dev, sizeof(*sp->srings), sp->srings,
++		       sp->srings_dma, DMA_ATTR_NON_CONSISTENT);
+ err_out_free_dev:
+ 	free_netdev(dev);
+ 
 -- 
 2.20.1
 
