@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5FAA8EF5
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29261A90F9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388473AbfIDSA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
+        id S2389954AbfIDSMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387777AbfIDSA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:58 -0400
+        id S2390566AbfIDSMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D99721883;
-        Wed,  4 Sep 2019 18:00:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD798206BA;
+        Wed,  4 Sep 2019 18:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620057;
-        bh=BfhlLiLUo+otcdw2PhxmxNxKrM1EJHiwJIqAWc5ijxc=;
+        s=default; t=1567620766;
+        bh=0yclGDOg7Dy3vf9xGWlNF8+UryRlkRqDD76l1GgU0bU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQVvVxE+uQqK0KUMvJ/3qNr2D81LH9x35XoD2bsg1us8ys52AZfGHx53Sk8x7nCd6
-         r2ShakgSAbd/KsB2zNn3a+zEFfBR0wWSWWFRxIG2KD1i+c5eW3e9sJEv2rVFF4UBxv
-         7s00dNKAJm4AjwbfOadXEBHfeZI/N2QXKvGRl46c=
+        b=Q8mCAsRLxDdLQ8csIIyKKyR4M4azpP38m7Nr0JZO4c9PQjdkr/7p9B17XkLyX4ErF
+         jW5akFGtRGA6tvJ+LLjy3UEhWWBjhlhRs/UcPkHgKqZUGO3Yf4/KiEdjIfoFvDcbkx
+         7sIDvFx9whM/1XU6QgXZdk6gb6idaZmVX8Z59xmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 57/83] ALSA: usb-audio: Fix an OOB bug in parse_audio_mixer_unit
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.2 086/143] USB: storage: ums-realtek: Whitelist auto-delink support
 Date:   Wed,  4 Sep 2019 19:53:49 +0200
-Message-Id: <20190904175308.585489773@linuxfoundation.org>
+Message-Id: <20190904175317.437575744@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
+commit 1902a01e2bcc3abd7c9a18dc05e78c7ab4a53c54 upstream.
 
-The `uac_mixer_unit_descriptor` shown as below is read from the
-device side. In `parse_audio_mixer_unit`, `baSourceID` field is
-accessed from index 0 to `bNrInPins` - 1, the current implementation
-assumes that descriptor is always valid (the length  of descriptor
-is no shorter than 5 + `bNrInPins`). If a descriptor read from
-the device side is invalid, it may trigger out-of-bound memory
-access.
+Auto-delink requires writing special registers to ums-realtek devices.
+Unconditionally enable auto-delink may break newer devices.
 
-```
-struct uac_mixer_unit_descriptor {
-	__u8 bLength;
-	__u8 bDescriptorType;
-	__u8 bDescriptorSubtype;
-	__u8 bUnitID;
-	__u8 bNrInPins;
-	__u8 baSourceID[];
-}
-```
+So only enable auto-delink by default for the original three IDs,
+0x0138, 0x0158 and 0x0159.
 
-This patch fixes the bug by add a sanity check on the length of
-the descriptor.
+Realtek is working on a patch to properly support auto-delink for other
+IDs.
 
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+BugLink: https://bugs.launchpad.net/bugs/1838886
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190827173450.13572-2-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/storage/realtek_cr.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1713,6 +1713,7 @@ static int parse_audio_mixer_unit(struct
- 	int pin, ich, err;
+--- a/drivers/usb/storage/realtek_cr.c
++++ b/drivers/usb/storage/realtek_cr.c
+@@ -996,12 +996,15 @@ static int init_realtek_cr(struct us_dat
+ 			goto INIT_FAIL;
+ 	}
  
- 	if (desc->bLength < 11 || !(input_pins = desc->bNrInPins) ||
-+	    desc->bLength < sizeof(*desc) + desc->bNrInPins ||
- 	    !(num_outs = uac_mixer_unit_bNrChannels(desc))) {
- 		usb_audio_err(state->chip,
- 			      "invalid MIXER UNIT descriptor %d\n",
+-	if (CHECK_FW_VER(chip, 0x5888) || CHECK_FW_VER(chip, 0x5889) ||
+-	    CHECK_FW_VER(chip, 0x5901))
+-		SET_AUTO_DELINK(chip);
+-	if (STATUS_LEN(chip) == 16) {
+-		if (SUPPORT_AUTO_DELINK(chip))
++	if (CHECK_PID(chip, 0x0138) || CHECK_PID(chip, 0x0158) ||
++	    CHECK_PID(chip, 0x0159)) {
++		if (CHECK_FW_VER(chip, 0x5888) || CHECK_FW_VER(chip, 0x5889) ||
++				CHECK_FW_VER(chip, 0x5901))
+ 			SET_AUTO_DELINK(chip);
++		if (STATUS_LEN(chip) == 16) {
++			if (SUPPORT_AUTO_DELINK(chip))
++				SET_AUTO_DELINK(chip);
++		}
+ 	}
+ #ifdef CONFIG_REALTEK_AUTOPM
+ 	if (ss_en)
 
 
