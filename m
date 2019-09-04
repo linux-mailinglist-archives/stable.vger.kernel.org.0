@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA296A91C6
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66B9A8FAF
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387969AbfIDSZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38222 "EHLO mail.kernel.org"
+        id S2388663AbfIDSFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733309AbfIDR7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:59:22 -0400
+        id S2389184AbfIDSFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6339922CEA;
-        Wed,  4 Sep 2019 17:59:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9317A206BA;
+        Wed,  4 Sep 2019 18:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619961;
-        bh=HnfORa65omEf3PVNuM+1N1Dl3qOV6wAD00tUc5HBvgA=;
+        s=default; t=1567620313;
+        bh=LcdcNnE9n2PIlKVNNgykQorugHH6svCUBvse4OwtHms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=as9PE2u5Cdbpb7uQcj+6xy5amBUe7I85cJI7lNC8U0ZmyEMuMCTtLaVE35CaFcT47
-         efZE39g/M0SAnMdkC8j+vKijsFtvGV6VTykKobFmAUEuK/1KS+Y5P/vrePKGZy4FDZ
-         4seRvrX/jmb8VOHWBGfjWk5Q4XWhTJvml/w+TAlY=
+        b=fT9nUc9hChnsKJZXxcP7TJGctlaOgkZVHx36Si7yC2Bu3i6vkH5ijG2If2iPOnMyY
+         XkW8XIhadi8e3+CpKyBe2mLL8uBUgdH5od1MSLJMQrrm+1KaTr5Yk75S7xwAwvFlo6
+         W8FYnuJW2p836wx4Uvy4RITFzaZ5Dxg6ndSNLASU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        zhengbin <zhengbin13@huawei.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/83] net: hisilicon: fix hip04-xmit never return TX_BUSY
-Date:   Wed,  4 Sep 2019 19:53:13 +0200
-Message-Id: <20190904175305.739945720@linuxfoundation.org>
+Subject: [PATCH 4.19 12/93] auxdisplay: panel: need to delete scan_timer when misc_register fails in panel_attach
+Date:   Wed,  4 Sep 2019 19:53:14 +0200
+Message-Id: <20190904175304.238518350@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f2243b82785942be519016067ee6c55a063bbfe2 ]
+[ Upstream commit b33d567560c1aadf3033290d74d4fd67af47aa61 ]
 
-TX_DESC_NUM is 256, in tx_count, the maximum value of
-mod(TX_DESC_NUM - 1) is 254, the variable "count" in
-the hip04_mac_start_xmit function is never equal to
-(TX_DESC_NUM - 1), so hip04_mac_start_xmit never
-return NETDEV_TX_BUSY.
+In panel_attach, if misc_register fails, we need to delete scan_timer,
+which was setup in keypad_init->init_scan_timer.
 
-tx_count is modified to mod(TX_DESC_NUM) so that
-the maximum value of tx_count can reach
-(TX_DESC_NUM - 1), then hip04_mac_start_xmit can reurn
-NETDEV_TX_BUSY.
-
-Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/auxdisplay/panel.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index 1fabbbd4544e7..c7e0b246cfdca 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -185,7 +185,7 @@ struct hip04_priv {
+diff --git a/drivers/auxdisplay/panel.c b/drivers/auxdisplay/panel.c
+index 3b25a643058c9..0b8e2a7d6e934 100644
+--- a/drivers/auxdisplay/panel.c
++++ b/drivers/auxdisplay/panel.c
+@@ -1618,6 +1618,8 @@ static void panel_attach(struct parport *port)
+ 	return;
  
- static inline unsigned int tx_count(unsigned int head, unsigned int tail)
- {
--	return (head - tail) % (TX_DESC_NUM - 1);
-+	return (head - tail) % TX_DESC_NUM;
- }
- 
- static void hip04_config_port(struct net_device *ndev, u32 speed, u32 duplex)
+ err_lcd_unreg:
++	if (scan_timer.function)
++		del_timer_sync(&scan_timer);
+ 	if (lcd.enabled)
+ 		charlcd_unregister(lcd.charlcd);
+ err_unreg_device:
 -- 
 2.20.1
 
