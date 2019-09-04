@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1D1A916A
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E41CA91A1
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390279AbfIDSPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
+        id S2389219AbfIDSUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:20:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390949AbfIDSPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:15:19 -0400
+        id S2389500AbfIDSHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:07:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 003BE23400;
-        Wed,  4 Sep 2019 18:15:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 386F92087E;
+        Wed,  4 Sep 2019 18:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620918;
-        bh=wzdzttJzLdxJMiPAyhMuDzxSVX/sJd8goyf39tXfyfY=;
+        s=default; t=1567620456;
+        bh=umZgLcx4LyDobcUqiPkXfOxFI+Pw5k7wzlTFOTD1aLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URawB6nVftJvV0tH/cEPmId8ePTdlgZi3aetUqOFk4Q76S10QIU0diTUJta/F56LA
-         ykPCy6uoLF9fEaEFiFm5m2GVPmqC6XjFKsuUYFVI0G1M7sqTFNBThJCmvg2xTMWrCb
-         zgKPrxfK3Z0Jv9fkOBq33s876BlLszFgZjhITTT8=
+        b=Xv0QWF4EeKej/3gIDEyteIMtV52DrS6vuci6nSqHuvTYDmnPAGNSuo3cj7hpWAMZh
+         zIyzEN8fzG5P6B8MvqTD8ZqgNVHIxf7qx/z6UMDNTxrIifPAH0bpZ9tjFV2xzDyWNJ
+         UJm43juAwRS29SDG7MnPk8bbTM545R+Gv9zGrF80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 104/143] NFSv4/pnfs: Fix a page lock leak in nfs_pageio_resend()
+        Ding Xiang <dingxiang@cmss.chinamobile.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.19 65/93] stm class: Fix a double free of stm_source_device
 Date:   Wed,  4 Sep 2019 19:54:07 +0200
-Message-Id: <20190904175318.378060883@linuxfoundation.org>
+Message-Id: <20190904175308.602533755@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ding Xiang <dingxiang@cmss.chinamobile.com>
 
-commit f4340e9314dbfadc48758945f85fc3b16612d06f upstream.
+commit 961b6ffe0e2c403b09a8efe4a2e986b3c415391a upstream.
 
-If the attempt to resend the pages fails, we need to ensure that we
-clean up those pages that were not transmitted.
+In the error path of stm_source_register_device(), the kfree is
+unnecessary, as the put_device() before it ends up calling
+stm_source_device_release() to free stm_source_device, leading to
+a double free at the outer kfree() call. Remove it.
 
-Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.5+
+Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: 7bd1d4093c2fa ("stm class: Introduce an abstraction for System Trace Module devices")
+Link: https://lore.kernel.org/linux-arm-kernel/1563354988-23826-1-git-send-email-dingxiang@cmss.chinamobile.com/
+Cc: stable@vger.kernel.org # v4.4+
+Link: https://lore.kernel.org/r/20190821074955.3925-2-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pagelist.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/hwtracing/stm/core.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1253,20 +1253,22 @@ static void nfs_pageio_complete_mirror(s
- int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
- 		      struct nfs_pgio_header *hdr)
- {
--	LIST_HEAD(failed);
-+	LIST_HEAD(pages);
+--- a/drivers/hwtracing/stm/core.c
++++ b/drivers/hwtracing/stm/core.c
+@@ -1098,7 +1098,6 @@ int stm_source_register_device(struct de
  
- 	desc->pg_io_completion = hdr->io_completion;
- 	desc->pg_dreq = hdr->dreq;
--	while (!list_empty(&hdr->pages)) {
--		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
-+	list_splice_init(&hdr->pages, &pages);
-+	while (!list_empty(&pages)) {
-+		struct nfs_page *req = nfs_list_entry(pages.next);
+ err:
+ 	put_device(&src->dev);
+-	kfree(src);
  
- 		if (!nfs_pageio_add_request(desc, req))
--			nfs_list_move_request(req, &failed);
-+			break;
- 	}
- 	nfs_pageio_complete(desc);
--	if (!list_empty(&failed)) {
--		list_move(&failed, &hdr->pages);
--		return desc->pg_error < 0 ? desc->pg_error : -EIO;
-+	if (!list_empty(&pages)) {
-+		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
-+		hdr->completion_ops->error_cleanup(&pages, err);
-+		return err;
- 	}
- 	return 0;
+ 	return err;
  }
 
 
