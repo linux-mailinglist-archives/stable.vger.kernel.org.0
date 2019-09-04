@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9347CA8EFB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C32A8E8D
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387934AbfIDSBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40606 "EHLO mail.kernel.org"
+        id S2387687AbfIDR6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387794AbfIDSBJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:01:09 -0400
+        id S2388088AbfIDR6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE04E21883;
-        Wed,  4 Sep 2019 18:01:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A179B208E4;
+        Wed,  4 Sep 2019 17:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620068;
-        bh=MUTO3g991shrs0aNYP3y/Q8wgM/a8IkSaMH382n+5G0=;
+        s=default; t=1567619919;
+        bh=lYKGDhZHrSAdetGgKg2/X9fiFpLIw2ZUBO+sUBzkB1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHj02a3FP4t7bR9BeKyAVcJVlGYLjdgWegQJaaGn7cst0e8TqZJ3Ck2s6nqDgnk5R
-         VAUgjLHH5dt4P/0d0ZY0eeb0khwMrXD+OCN8DpITPSrCGgCO2+tYBTooN8Uch+8gDv
-         Ld/TMeXkiefPMTfxo0V/dz2NQSB7B/4JfH6YpEcU=
+        b=fp/Ua+p362TngDOu+Rzj1Udt4jzgo81A7bKd6TYjM7xmncxkDZ/8EqOm6EHtcWS4e
+         lerF+pG3+DiztG5P6toxucqGqKgMhwYEYUzYtD2Cuw3Ycz4/o3z4n/0tNrYq0V31bQ
+         yC388S8kZbDmgPfvsjSHIgHObSy0XeORWGbFYBrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+4a75454b9ca2777f35c7@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 60/83] ALSA: seq: Fix potential concurrent access to the deleted pool
+        syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.4 65/77] USB: cdc-wdm: fix race between write and disconnect due to flag abuse
 Date:   Wed,  4 Sep 2019 19:53:52 +0200
-Message-Id: <20190904175308.879196769@linuxfoundation.org>
+Message-Id: <20190904175309.458046474@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 75545304eba6a3d282f923b96a466dc25a81e359 upstream.
+commit 1426bd2c9f7e3126e2678e7469dca9fd9fc6dd3e upstream.
 
-The input pool of a client might be deleted via the resize ioctl, the
-the access to it should be covered by the proper locks.  Currently the
-only missing place is the call in snd_seq_ioctl_get_client_pool(), and
-this patch papers over it.
+In case of a disconnect an ongoing flush() has to be made fail.
+Nevertheless we cannot be sure that any pending URB has already
+finished, so although they will never succeed, they still must
+not be touched.
+The clean solution for this is to check for WDM_IN_USE
+and WDM_DISCONNECTED in flush(). There is no point in ever
+clearing WDM_IN_USE, as no further writes make sense.
 
-Reported-by: syzbot+4a75454b9ca2777f35c7@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The issue is as old as the driver.
+
+Fixes: afba937e540c9 ("USB: CDC WDM driver")
+Reported-by: syzbot+d232cca6ec42c2edb3fc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190827103436.21143-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_clientmgr.c |    3 +--
- sound/core/seq/seq_fifo.c      |   17 +++++++++++++++++
- sound/core/seq/seq_fifo.h      |    2 ++
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-wdm.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -1822,8 +1822,7 @@ static int snd_seq_ioctl_get_client_pool
- 	if (cptr->type == USER_CLIENT) {
- 		info->input_pool = cptr->data.user.fifo_pool_size;
- 		info->input_free = info->input_pool;
--		if (cptr->data.user.fifo)
--			info->input_free = snd_seq_unused_cells(cptr->data.user.fifo->pool);
-+		info->input_free = snd_seq_fifo_unused_cells(cptr->data.user.fifo);
- 	} else {
- 		info->input_pool = 0;
- 		info->input_free = 0;
---- a/sound/core/seq/seq_fifo.c
-+++ b/sound/core/seq/seq_fifo.c
-@@ -278,3 +278,20 @@ int snd_seq_fifo_resize(struct snd_seq_f
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -577,10 +577,20 @@ static int wdm_flush(struct file *file,
+ {
+ 	struct wdm_device *desc = file->private_data;
  
- 	return 0;
- }
-+
-+/* get the number of unused cells safely */
-+int snd_seq_fifo_unused_cells(struct snd_seq_fifo *f)
-+{
-+	unsigned long flags;
-+	int cells;
-+
-+	if (!f)
-+		return 0;
-+
-+	snd_use_lock_use(&f->use_lock);
-+	spin_lock_irqsave(&f->lock, flags);
-+	cells = snd_seq_unused_cells(f->pool);
-+	spin_unlock_irqrestore(&f->lock, flags);
-+	snd_use_lock_free(&f->use_lock);
-+	return cells;
-+}
---- a/sound/core/seq/seq_fifo.h
-+++ b/sound/core/seq/seq_fifo.h
-@@ -68,5 +68,7 @@ int snd_seq_fifo_poll_wait(struct snd_se
- /* resize pool in fifo */
- int snd_seq_fifo_resize(struct snd_seq_fifo *f, int poolsize);
+-	wait_event(desc->wait, !test_bit(WDM_IN_USE, &desc->flags));
++	wait_event(desc->wait,
++			/*
++			 * needs both flags. We cannot do with one
++			 * because resetting it would cause a race
++			 * with write() yet we need to signal
++			 * a disconnect
++			 */
++			!test_bit(WDM_IN_USE, &desc->flags) ||
++			test_bit(WDM_DISCONNECTING, &desc->flags));
  
-+/* get the number of unused cells safely */
-+int snd_seq_fifo_unused_cells(struct snd_seq_fifo *f);
+ 	/* cannot dereference desc->intf if WDM_DISCONNECTING */
+-	if (desc->werr < 0 && !test_bit(WDM_DISCONNECTING, &desc->flags))
++	if (test_bit(WDM_DISCONNECTING, &desc->flags))
++		return -ENODEV;
++	if (desc->werr < 0)
+ 		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
+ 			desc->werr);
  
- #endif
+@@ -968,8 +978,6 @@ static void wdm_disconnect(struct usb_in
+ 	spin_lock_irqsave(&desc->iuspin, flags);
+ 	set_bit(WDM_DISCONNECTING, &desc->flags);
+ 	set_bit(WDM_READ, &desc->flags);
+-	/* to terminate pending flushes */
+-	clear_bit(WDM_IN_USE, &desc->flags);
+ 	spin_unlock_irqrestore(&desc->iuspin, flags);
+ 	wake_up_all(&desc->wait);
+ 	mutex_lock(&desc->rlock);
 
 
