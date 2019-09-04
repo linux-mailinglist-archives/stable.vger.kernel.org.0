@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1D7A8F53
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8040A9043
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388272AbfIDSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:03:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43332 "EHLO mail.kernel.org"
+        id S2389426AbfIDSIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388284AbfIDSDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:03:03 -0400
+        id S2389813AbfIDSIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD26523697;
-        Wed,  4 Sep 2019 18:03:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF0EB20870;
+        Wed,  4 Sep 2019 18:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620182;
-        bh=H+dch+YFeYG4YZLYOpmbLkkC1J9RsxRQVN+Y3N93/zE=;
+        s=default; t=1567620515;
+        bh=NTKwB7aa/kwgpL34pU5dtXVMXwwMvnt49GjVF3BIX10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmSzNQyDtqVGvNqZYW5PBcJAZWI7fp+WFSZ805mhM5R2/X0WJHQbrW/xiMluwgqpm
-         xVKZVygGYATmDHbKCNA55xV+t6aB5hLGeJH7sDhSsGs1wDSa7cla0xcltZ1F4x4coW
-         aB2SDaY4KeHpGxtGRFXt5WncGNvC1GGD3lYETpJw=
+        b=u8ipi257dvvbprkiJQeMsAfkyZuOjNKgtfEyne2JakIJjTbserRWU2hPBWeQA1fwQ
+         Nj6t/A5/+I7l3d6JhEWvw5nF3UJzZT4jgIb78YfOHwm6sNh51uhOjNQ+AicYz3L7GO
+         /inaIUG1B1dvSeS7JV1AsBaKGW1+PP/GyAfbn6mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jason Baron <jbaron@akamai.com>,
-        Vladimir Rutsky <rutsky@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 20/57] tcp: make sure EPOLLOUT wont be missed
+        stable@vger.kernel.org, Radim Krcmar <rkrcmar@redhat.com>,
+        Bandan Das <bsd@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 46/93] kvm: x86: skip populating logical dest map if apic is not sw enabled
 Date:   Wed,  4 Sep 2019 19:53:48 +0200
-Message-Id: <20190904175303.918854334@linuxfoundation.org>
+Message-Id: <20190904175307.138573832@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Radim Krcmar <rkrcmar@redhat.com>
 
-[ Upstream commit ef8d8ccdc216f797e66cb4a1372f5c4c285ce1e4 ]
+commit b14c876b994f208b6b95c222056e1deb0a45de0e upstream.
 
-As Jason Baron explained in commit 790ba4566c1a ("tcp: set SOCK_NOSPACE
-under memory pressure"), it is crucial we properly set SOCK_NOSPACE
-when needed.
+recalculate_apic_map does not santize ldr and it's possible that
+multiple bits are set. In that case, a previous valid entry
+can potentially be overwritten by an invalid one.
 
-However, Jason patch had a bug, because the 'nonblocking' status
-as far as sk_stream_wait_memory() is concerned is governed
-by MSG_DONTWAIT flag passed at sendmsg() time :
+This condition is hit when booting a 32 bit, >8 CPU, RHEL6 guest and then
+triggering a crash to boot a kdump kernel. This is the sequence of
+events:
+1. Linux boots in bigsmp mode and enables PhysFlat, however, it still
+writes to the LDR which probably will never be used.
+2. However, when booting into kdump, the stale LDR values remain as
+they are not cleared by the guest and there isn't a apic reset.
+3. kdump boots with 1 cpu, and uses Logical Destination Mode but the
+logical map has been overwritten and points to an inactive vcpu.
 
-    long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
-
-So it is very possible that tcp sendmsg() calls sk_stream_wait_memory(),
-and that sk_stream_wait_memory() returns -EAGAIN with SOCK_NOSPACE
-cleared, if sk->sk_sndtimeo has been set to a small (but not zero)
-value.
-
-This patch removes the 'noblock' variable since we must always
-set SOCK_NOSPACE if -EAGAIN is returned.
-
-It also renames the do_nonblock label since we might reach this
-code path even if we were in blocking mode.
-
-Fixes: 790ba4566c1a ("tcp: set SOCK_NOSPACE under memory pressure")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Reported-by: Vladimir Rutsky  <rutsky@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Jason Baron <jbaron@akamai.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Radim Krcmar <rkrcmar@redhat.com>
+Signed-off-by: Bandan Das <bsd@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/stream.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -120,7 +120,6 @@ int sk_stream_wait_memory(struct sock *s
- 	int err = 0;
- 	long vm_wait = 0;
- 	long current_timeo = *timeo_p;
--	bool noblock = (*timeo_p ? false : true);
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+---
+ arch/x86/kvm/lapic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -209,6 +209,9 @@ static void recalculate_apic_map(struct
+ 		if (!apic_x2apic_mode(apic) && !new->phys_map[xapic_id])
+ 			new->phys_map[xapic_id] = apic;
  
- 	if (sk_stream_memory_free(sk))
-@@ -133,11 +132,8 @@ int sk_stream_wait_memory(struct sock *s
++		if (!kvm_apic_sw_enabled(apic))
++			continue;
++
+ 		ldr = kvm_lapic_get_reg(apic, APIC_LDR);
  
- 		if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
- 			goto do_error;
--		if (!*timeo_p) {
--			if (noblock)
--				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
--			goto do_nonblock;
--		}
-+		if (!*timeo_p)
-+			goto do_eagain;
- 		if (signal_pending(current))
- 			goto do_interrupted;
- 		sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-@@ -169,7 +165,13 @@ out:
- do_error:
- 	err = -EPIPE;
- 	goto out;
--do_nonblock:
-+do_eagain:
-+	/* Make sure that whenever EAGAIN is returned, EPOLLOUT event can
-+	 * be generated later.
-+	 * When TCP receives ACK packets that make room, tcp_check_space()
-+	 * only calls tcp_new_space() if SOCK_NOSPACE is set.
-+	 */
-+	set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
- 	err = -EAGAIN;
- 	goto out;
- do_interrupted:
+ 		if (apic_x2apic_mode(apic)) {
+@@ -252,6 +255,8 @@ static inline void apic_set_spiv(struct
+ 			recalculate_apic_map(apic->vcpu->kvm);
+ 		} else
+ 			static_key_slow_inc(&apic_sw_disabled.key);
++
++		recalculate_apic_map(apic->vcpu->kvm);
+ 	}
+ }
+ 
 
 
