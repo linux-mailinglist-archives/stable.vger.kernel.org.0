@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B956A9133
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FB0A8F8F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390680AbfIDSOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:14:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59106 "EHLO mail.kernel.org"
+        id S2388219AbfIDSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390723AbfIDSOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:14:04 -0400
+        id S2388665AbfIDSE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 695F32377D;
-        Wed,  4 Sep 2019 18:14:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC8E523401;
+        Wed,  4 Sep 2019 18:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620843;
-        bh=q/Q98mTmjJE0fgH0yLTvh1vWm8492fvE23onap9JWA0=;
+        s=default; t=1567620265;
+        bh=FIMhe5wqKZ7wKr08bAItySFaV2dIz+9zENYWQkjtVdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjF5v434YHaZss1GbfE2uizst1S6r6KIZunql9XP0reFF+WtDkxYZy1+cxerVGBQo
-         9IMYLyWII6Bl+X8iiavFiK06qGtZVPx5WD6VLCZdEA7rn0v3Ok4cx8OXMIK0RclzlR
-         gh3osh27KigMjS1KKFNewq8ANiPqnhXmafcNI7MQ=
+        b=fjcejCe54Tml8Dh/OBaleLUN2onYirjL4w0r4oF/PkVOQQz4wKFcdrGTbi+FmaJKd
+         96ntmm71nnG90X0yVB+ga7e39U/yMc7w6HlcvP9T0H7ij0p2s21qF2fgHNZOYMllzf
+         X+lgU7CXUaPaQEV4EENld2kPfY5AKDlNMgi4ce/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Francois Rigault <rigault.francois@gmail.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Vishnu DASA <vdasa@vmware.com>, Nadav Amit <namit@vmware.com>
-Subject: [PATCH 5.2 117/143] VMCI: Release resource if the work is already queued
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 52/57] NFS: Clean up list moves of struct nfs_page
 Date:   Wed,  4 Sep 2019 19:54:20 +0200
-Message-Id: <20190904175318.977217542@linuxfoundation.org>
+Message-Id: <20190904175306.975236128@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+[ Upstream commit 078b5fd92c4913dd367361db6c28568386077c89 ]
 
-commit ba03a9bbd17b149c373c0ea44017f35fc2cd0f28 upstream.
+In several places we're just moving the struct nfs_page from one list to
+another by first removing from the existing list, then adding to the new
+one.
 
-Francois reported that VMware balloon gets stuck after a balloon reset,
-when the VMCI doorbell is removed. A similar error can occur when the
-balloon driver is removed with the following splat:
-
-[ 1088.622000] INFO: task modprobe:3565 blocked for more than 120 seconds.
-[ 1088.622035]       Tainted: G        W         5.2.0 #4
-[ 1088.622087] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[ 1088.622205] modprobe        D    0  3565   1450 0x00000000
-[ 1088.622210] Call Trace:
-[ 1088.622246]  __schedule+0x2a8/0x690
-[ 1088.622248]  schedule+0x2d/0x90
-[ 1088.622250]  schedule_timeout+0x1d3/0x2f0
-[ 1088.622252]  wait_for_completion+0xba/0x140
-[ 1088.622320]  ? wake_up_q+0x80/0x80
-[ 1088.622370]  vmci_resource_remove+0xb9/0xc0 [vmw_vmci]
-[ 1088.622373]  vmci_doorbell_destroy+0x9e/0xd0 [vmw_vmci]
-[ 1088.622379]  vmballoon_vmci_cleanup+0x6e/0xf0 [vmw_balloon]
-[ 1088.622381]  vmballoon_exit+0x18/0xcc8 [vmw_balloon]
-[ 1088.622394]  __x64_sys_delete_module+0x146/0x280
-[ 1088.622408]  do_syscall_64+0x5a/0x130
-[ 1088.622410]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1088.622415] RIP: 0033:0x7f54f62791b7
-[ 1088.622421] Code: Bad RIP value.
-[ 1088.622421] RSP: 002b:00007fff2a949008 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-[ 1088.622426] RAX: ffffffffffffffda RBX: 000055dff8b55d00 RCX: 00007f54f62791b7
-[ 1088.622426] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055dff8b55d68
-[ 1088.622427] RBP: 000055dff8b55d00 R08: 00007fff2a947fb1 R09: 0000000000000000
-[ 1088.622427] R10: 00007f54f62f5cc0 R11: 0000000000000206 R12: 000055dff8b55d68
-[ 1088.622428] R13: 0000000000000001 R14: 000055dff8b55d68 R15: 00007fff2a94a3f0
-
-The cause for the bug is that when the "delayed" doorbell is invoked, it
-takes a reference on the doorbell entry and schedules work that is
-supposed to run the appropriate code and drop the doorbell entry
-reference. The code ignores the fact that if the work is already queued,
-it will not be scheduled to run one more time. As a result one of the
-references would not be dropped. When the code waits for the reference
-to get to zero, during balloon reset or module removal, it gets stuck.
-
-Fix it. Drop the reference if schedule_work() indicates that the work is
-already queued.
-
-Note that this bug got more apparent (or apparent at all) due to
-commit ce664331b248 ("vmw_balloon: VMCI_DOORBELL_SET does not check status").
-
-Fixes: 83e2ec765be03 ("VMCI: doorbell implementation.")
-Reported-by: Francois Rigault <rigault.francois@gmail.com>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Adit Ranadive <aditr@vmware.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Vishnu DASA <vdasa@vmware.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Link: https://lore.kernel.org/r/20190820202638.49003-1-namit@vmware.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_doorbell.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfs/direct.c          |  3 +--
+ fs/nfs/pagelist.c        | 12 ++++--------
+ include/linux/nfs_page.h | 10 ++++++++++
+ 3 files changed, 15 insertions(+), 10 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_doorbell.c
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -310,7 +310,8 @@ int vmci_dbell_host_context_notify(u32 s
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 89c03a507dd9d..0c5e56702b19e 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -664,8 +664,7 @@ static void nfs_direct_write_reschedule(struct nfs_direct_req *dreq)
  
- 	entry = container_of(resource, struct dbell_entry, resource);
- 	if (entry->run_delayed) {
--		schedule_work(&entry->work);
-+		if (!schedule_work(&entry->work))
-+			vmci_resource_put(resource);
- 	} else {
- 		entry->notify_cb(entry->client_data);
- 		vmci_resource_put(resource);
-@@ -361,7 +362,8 @@ static void dbell_fire_entries(u32 notif
- 		    atomic_read(&dbell->active) == 1) {
- 			if (dbell->run_delayed) {
- 				vmci_resource_get(&dbell->resource);
--				schedule_work(&dbell->work);
-+				if (!schedule_work(&dbell->work))
-+					vmci_resource_put(&dbell->resource);
- 			} else {
- 				dbell->notify_cb(dbell->client_data);
- 			}
+ 	list_for_each_entry_safe(req, tmp, &reqs, wb_list) {
+ 		if (!nfs_pageio_add_request(&desc, req)) {
+-			nfs_list_remove_request(req);
+-			nfs_list_add_request(req, &failed);
++			nfs_list_move_request(req, &failed);
+ 			spin_lock(&cinfo.inode->i_lock);
+ 			dreq->flags = 0;
+ 			if (desc.pg_error < 0)
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index 28b013d1d44ae..a7aa028a5b0bb 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -768,8 +768,7 @@ int nfs_generic_pgio(struct nfs_pageio_descriptor *desc,
+ 	pageused = 0;
+ 	while (!list_empty(head)) {
+ 		req = nfs_list_entry(head->next);
+-		nfs_list_remove_request(req);
+-		nfs_list_add_request(req, &hdr->pages);
++		nfs_list_move_request(req, &hdr->pages);
+ 
+ 		if (!last_page || last_page != req->wb_page) {
+ 			pageused++;
+@@ -961,8 +960,7 @@ static int nfs_pageio_do_add_request(struct nfs_pageio_descriptor *desc,
+ 	}
+ 	if (!nfs_can_coalesce_requests(prev, req, desc))
+ 		return 0;
+-	nfs_list_remove_request(req);
+-	nfs_list_add_request(req, &mirror->pg_list);
++	nfs_list_move_request(req, &mirror->pg_list);
+ 	mirror->pg_count += req->wb_bytes;
+ 	return 1;
+ }
+@@ -994,8 +992,7 @@ nfs_pageio_cleanup_request(struct nfs_pageio_descriptor *desc,
+ {
+ 	LIST_HEAD(head);
+ 
+-	nfs_list_remove_request(req);
+-	nfs_list_add_request(req, &head);
++	nfs_list_move_request(req, &head);
+ 	desc->pg_completion_ops->error_cleanup(&head);
+ }
+ 
+@@ -1241,9 +1238,8 @@ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
+ 	while (!list_empty(&hdr->pages)) {
+ 		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
+ 
+-		nfs_list_remove_request(req);
+ 		if (!nfs_pageio_add_request(desc, req))
+-			nfs_list_add_request(req, &failed);
++			nfs_list_move_request(req, &failed);
+ 	}
+ 	nfs_pageio_complete(desc);
+ 	if (!list_empty(&failed)) {
+diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
+index e27572d30d977..ad69430fd0eb5 100644
+--- a/include/linux/nfs_page.h
++++ b/include/linux/nfs_page.h
+@@ -164,6 +164,16 @@ nfs_list_add_request(struct nfs_page *req, struct list_head *head)
+ 	list_add_tail(&req->wb_list, head);
+ }
+ 
++/**
++ * nfs_list_move_request - Move a request to a new list
++ * @req: request
++ * @head: head of list into which to insert the request.
++ */
++static inline void
++nfs_list_move_request(struct nfs_page *req, struct list_head *head)
++{
++	list_move_tail(&req->wb_list, head);
++}
+ 
+ /**
+  * nfs_list_remove_request - Remove a request from its wb_list
+-- 
+2.20.1
+
 
 
