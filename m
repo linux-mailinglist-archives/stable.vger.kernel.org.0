@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A41D8A9155
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8517A905B
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390577AbfIDSOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
+        id S2389902AbfIDSJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:09:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390871AbfIDSOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:14:49 -0400
+        id S2389137AbfIDSJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:09:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A71022CF7;
-        Wed,  4 Sep 2019 18:14:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FD78206BA;
+        Wed,  4 Sep 2019 18:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620889;
-        bh=EoRj7FgkCiBnrJUTicKp82ERBoh1J142yQx1ayeVtRU=;
+        s=default; t=1567620550;
+        bh=DnrHmSJpqDeIhtpXZ1Tbd3urK6dLmwpYYGMRDUeovSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k43o+pM7Js2yGfKhMiCN3copa7sSnrv9Bl4k4b/zz/FT/hb1EQms1/ONw4V44R/aL
-         6bjw8gCVmCePC7jFcwpAxBKjAVrp8K9/WbKCXz2REEVtsypNscvX9dF3sBF5jxU0Oo
-         vtY4QOiOFvWhKTTvyM9zMj1goKTOXH9Fpie+52z4=
+        b=sHlelJjefZcCjMyMBtcUMHonVc7jlRFZkpZ4uuA9u70luNQF8L/aLWpwQdUYexh4H
+         wlI386ZuogawDeYJ6JwkmhQvUXsdPF73usnIkRp7x2dO6WY3ADZqpMgyGioS4Vzl2d
+         sXFLt43cxUPl1GGWNWxtbeWDs31/YTQFdRjCkl+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ihab Zhaika <ihab.zhaika@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Stanislaw Gruszka <sgruszka@redhat.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 132/143] iwlwifi: add new cards for 22000 and fix struct name
+Subject: [PATCH 4.19 93/93] mt76: mt76x0u: do not reset radio on resume
 Date:   Wed,  4 Sep 2019 19:54:35 +0200
-Message-Id: <20190904175319.569202834@linuxfoundation.org>
+Message-Id: <20190904175311.152213295@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,188 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d151b0a2efa128cb4f643b11baf54b1e4de2c528 ]
+commit 8f2d163cb26da87e7d8e1677368b8ba1ba4d30b3 upstream.
 
-add few PCI ID'S for 22000 and fix the wrong name for one
-of the structs
+On some machines mt76x0u firmware can hung during resume,
+what result on messages like below:
 
-Signed-off-by: Ihab Zhaika <ihab.zhaika@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+[  475.480062] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  475.990066] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
+[  475.990075] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  476.500003] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
+[  476.500012] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  477.010046] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
+[  477.010055] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  477.529997] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
+[  477.530006] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  477.824907] mt76x0 1-8:1.0: Error: send MCU cmd failed:-71
+[  477.824916] mt76x0 1-8:1.0: Error: MCU response pre-completed!
+[  477.825029] usb 1-8: USB disconnect, device number 6
+
+and possible whole system freeze.
+
+This can be avoided, if we do not perform mt76x0_chip_onoff() reset.
+
+Cc: stable@vger.kernel.org
+Fixes: 134b2d0d1fcf ("mt76x0: init files")
+Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/cfg/22000.c    | 20 ++++++++++++----
- .../net/wireless/intel/iwlwifi/iwl-config.h   |  5 ++--
- drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 23 +++++++++++++------
- .../net/wireless/intel/iwlwifi/pcie/trans.c   |  4 ++--
- 4 files changed, 37 insertions(+), 15 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76x0/init.c   | 4 ++--
+ drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt76x0/usb.c    | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-index a9c846c59289e..650ca46efc48f 100644
---- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-+++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-@@ -241,6 +241,18 @@ const struct iwl_cfg iwl_ax101_cfg_qu_hr = {
- 	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
- };
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/init.c b/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
+index 0a3e046d78db3..da2ba51dec352 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
+@@ -369,7 +369,7 @@ static void mt76x0_stop_hardware(struct mt76x0_dev *dev)
+ 	mt76x0_chip_onoff(dev, false, false);
+ }
  
-+const struct iwl_cfg iwl_ax201_cfg_qu_hr = {
-+	.name = "Intel(R) Wi-Fi 6 AX201 160MHz",
-+	.fw_name_pre = IWL_22000_QU_B_HR_B_FW_PRE,
-+	IWL_DEVICE_22500,
-+	/*
-+	 * This device doesn't support receiving BlockAck with a large bitmap
-+	 * so we need to restrict the size of transmitted aggregation to the
-+	 * HT size; mac80211 would otherwise pick the HE max (256) by default.
-+	 */
-+	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
-+};
-+
- const struct iwl_cfg iwl_ax101_cfg_quz_hr = {
- 	.name = "Intel(R) Wi-Fi 6 AX101",
- 	.fw_name_pre = IWL_QUZ_A_HR_B_FW_PRE,
-@@ -424,12 +436,12 @@ const struct iwl_cfg iwlax210_2ax_cfg_so_jf_a0 = {
- };
+-int mt76x0_init_hardware(struct mt76x0_dev *dev)
++int mt76x0_init_hardware(struct mt76x0_dev *dev, bool reset)
+ {
+ 	static const u16 beacon_offsets[16] = {
+ 		/* 512 byte per beacon */
+@@ -382,7 +382,7 @@ int mt76x0_init_hardware(struct mt76x0_dev *dev)
  
- const struct iwl_cfg iwlax210_2ax_cfg_so_hr_a0 = {
--	.name = "Intel(R) Wi-Fi 6 AX201 160MHz",
-+	.name = "Intel(R) Wi-Fi 7 AX210 160MHz",
- 	.fw_name_pre = IWL_22000_SO_A_HR_B_FW_PRE,
- 	IWL_DEVICE_AX210,
- };
+ 	dev->beacon_offsets = beacon_offsets;
  
--const struct iwl_cfg iwlax210_2ax_cfg_so_gf_a0 = {
-+const struct iwl_cfg iwlax211_2ax_cfg_so_gf_a0 = {
- 	.name = "Intel(R) Wi-Fi 7 AX211 160MHz",
- 	.fw_name_pre = IWL_22000_SO_A_GF_A_FW_PRE,
- 	.uhb_supported = true,
-@@ -443,8 +455,8 @@ const struct iwl_cfg iwlax210_2ax_cfg_ty_gf_a0 = {
- 	IWL_DEVICE_AX210,
- };
+-	mt76x0_chip_onoff(dev, true, true);
++	mt76x0_chip_onoff(dev, true, reset);
  
--const struct iwl_cfg iwlax210_2ax_cfg_so_gf4_a0 = {
--	.name = "Intel(R) Wi-Fi 7 AX210 160MHz",
-+const struct iwl_cfg iwlax411_2ax_cfg_so_gf4_a0 = {
-+	.name = "Intel(R) Wi-Fi 7 AX411 160MHz",
- 	.fw_name_pre = IWL_22000_SO_A_GF4_A_FW_PRE,
- 	IWL_DEVICE_AX210,
- };
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-index f3e69edf89071..29aaf649c13c3 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -562,6 +562,7 @@ extern const struct iwl_cfg iwl_ax101_cfg_qu_hr;
- extern const struct iwl_cfg iwl_ax101_cfg_quz_hr;
- extern const struct iwl_cfg iwl22000_2ax_cfg_hr;
- extern const struct iwl_cfg iwl_ax200_cfg_cc;
-+extern const struct iwl_cfg iwl_ax201_cfg_qu_hr;
- extern const struct iwl_cfg killer1650s_2ax_cfg_qu_b0_hr_b0;
- extern const struct iwl_cfg killer1650i_2ax_cfg_qu_b0_hr_b0;
- extern const struct iwl_cfg killer1650x_2ax_cfg;
-@@ -580,9 +581,9 @@ extern const struct iwl_cfg iwl9560_2ac_cfg_qnj_jf_b0;
- extern const struct iwl_cfg iwl22000_2ax_cfg_qnj_hr_a0;
- extern const struct iwl_cfg iwlax210_2ax_cfg_so_jf_a0;
- extern const struct iwl_cfg iwlax210_2ax_cfg_so_hr_a0;
--extern const struct iwl_cfg iwlax210_2ax_cfg_so_gf_a0;
-+extern const struct iwl_cfg iwlax211_2ax_cfg_so_gf_a0;
- extern const struct iwl_cfg iwlax210_2ax_cfg_ty_gf_a0;
--extern const struct iwl_cfg iwlax210_2ax_cfg_so_gf4_a0;
-+extern const struct iwl_cfg iwlax411_2ax_cfg_so_gf4_a0;
- #endif /* CPTCFG_IWLMVM || CPTCFG_IWLFMAC */
+ 	ret = mt76x0_wait_asic_ready(dev);
+ 	if (ret)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h b/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
+index fc9857f61771c..f9dfe5097b099 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
+@@ -279,7 +279,7 @@ void mt76x0_addr_wr(struct mt76x0_dev *dev, const u32 offset, const u8 *addr);
  
- #endif /* __IWL_CONFIG_H__ */
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index cd035061cdd55..2f3ee5769fdd3 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -897,6 +897,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x02F0, 0x0310, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x02F0, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0x02F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0x02F0, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x02F0, 0x4070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x06F0, 0x0070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x06F0, 0x0074, iwl_ax101_cfg_qu_hr)},
-@@ -905,6 +906,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x06F0, 0x0310, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x06F0, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0x06F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0x06F0, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x06F0, 0x4070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x2720, 0x0000, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x2720, 0x0040, iwl_ax101_cfg_qu_hr)},
-@@ -918,6 +920,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x2720, 0x1080, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x2720, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0x2720, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0x2720, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x2720, 0x4070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x34F0, 0x0040, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x34F0, 0x0070, iwl_ax101_cfg_qu_hr)},
-@@ -927,6 +930,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x34F0, 0x0310, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x34F0, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0x34F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0x34F0, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x34F0, 0x4070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x43F0, 0x0040, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x43F0, 0x0070, iwl_ax101_cfg_qu_hr)},
-@@ -935,6 +939,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x43F0, 0x007C, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x43F0, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0x43F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0x43F0, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0x43F0, 0x4070, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0xA0F0, 0x0000, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0xA0F0, 0x0040, iwl_ax101_cfg_qu_hr)},
-@@ -946,6 +951,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0xA0F0, 0x0A10, iwl_ax101_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0xA0F0, 0x1651, killer1650s_2ax_cfg_qu_b0_hr_b0)},
- 	{IWL_PCI_DEVICE(0xA0F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0)},
-+	{IWL_PCI_DEVICE(0xA0F0, 0x2074, iwl_ax201_cfg_qu_hr)},
- 	{IWL_PCI_DEVICE(0xA0F0, 0x4070, iwl_ax101_cfg_qu_hr)},
+ /* Init */
+ struct mt76x0_dev *mt76x0_alloc_device(struct device *dev);
+-int mt76x0_init_hardware(struct mt76x0_dev *dev);
++int mt76x0_init_hardware(struct mt76x0_dev *dev, bool reset);
+ int mt76x0_register_device(struct mt76x0_dev *dev);
+ void mt76x0_cleanup(struct mt76x0_dev *dev);
+ void mt76x0_chip_onoff(struct mt76x0_dev *dev, bool enable, bool reset);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
+index 54ae1f113be23..5aacb1f6a841d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
+@@ -300,7 +300,7 @@ static int mt76x0_probe(struct usb_interface *usb_intf,
+ 	if (!(mt76_rr(dev, MT_EFUSE_CTRL) & MT_EFUSE_CTRL_SEL))
+ 		dev_warn(dev->mt76.dev, "Warning: eFUSE not present\n");
  
- 	{IWL_PCI_DEVICE(0x2723, 0x0080, iwl_ax200_cfg_cc)},
-@@ -958,13 +964,16 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x2723, 0x4080, iwl_ax200_cfg_cc)},
- 	{IWL_PCI_DEVICE(0x2723, 0x4088, iwl_ax200_cfg_cc)},
+-	ret = mt76x0_init_hardware(dev);
++	ret = mt76x0_init_hardware(dev, true);
+ 	if (ret)
+ 		goto err;
  
--	{IWL_PCI_DEVICE(0x2725, 0x0090, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x7A70, 0x0090, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x7A70, 0x0310, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x2725, 0x0020, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x2725, 0x0310, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x2725, 0x0A10, iwlax210_2ax_cfg_so_hr_a0)},
--	{IWL_PCI_DEVICE(0x2725, 0x00B0, iwlax210_2ax_cfg_so_hr_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x0090, iwlax211_2ax_cfg_so_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x0020, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x0310, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x0510, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x0A10, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x00B0, iwlax411_2ax_cfg_so_gf4_a0)},
-+	{IWL_PCI_DEVICE(0x7A70, 0x0090, iwlax211_2ax_cfg_so_gf_a0)},
-+	{IWL_PCI_DEVICE(0x7A70, 0x0310, iwlax211_2ax_cfg_so_gf_a0)},
-+	{IWL_PCI_DEVICE(0x7A70, 0x0510, iwlax211_2ax_cfg_so_gf_a0)},
-+	{IWL_PCI_DEVICE(0x7A70, 0x0A10, iwlax211_2ax_cfg_so_gf_a0)},
+@@ -354,7 +354,7 @@ static int mt76x0_resume(struct usb_interface *usb_intf)
+ 	struct mt76x0_dev *dev = usb_get_intfdata(usb_intf);
+ 	int ret;
  
- #endif /* CONFIG_IWLMVM */
+-	ret = mt76x0_init_hardware(dev);
++	ret = mt76x0_init_hardware(dev, false);
+ 	if (ret)
+ 		return ret;
  
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 199eddea82a9a..51a3f77474e66 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -3569,10 +3569,10 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 			trans->cfg = &iwlax210_2ax_cfg_so_jf_a0;
- 		} else if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
- 			   CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_GF)) {
--			trans->cfg = &iwlax210_2ax_cfg_so_gf_a0;
-+			trans->cfg = &iwlax211_2ax_cfg_so_gf_a0;
- 		} else if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
- 			   CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_GF4)) {
--			trans->cfg = &iwlax210_2ax_cfg_so_gf4_a0;
-+			trans->cfg = &iwlax411_2ax_cfg_so_gf4_a0;
- 		}
- 	} else if (cfg == &iwl_ax101_cfg_qu_hr) {
- 		if ((CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
 -- 
 2.20.1
 
