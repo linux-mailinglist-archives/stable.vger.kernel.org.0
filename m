@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A1CA8CBB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 109C1A8CA9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732288AbfIDQQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34010 "EHLO mail.kernel.org"
+        id S1731969AbfIDQPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:15:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732391AbfIDP72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 11:59:28 -0400
+        id S1732439AbfIDP7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 11:59:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B13E52339E;
-        Wed,  4 Sep 2019 15:59:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DBC72087E;
+        Wed,  4 Sep 2019 15:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612768;
-        bh=RBiB+nszUOZlllJwJQPDLHwFxoOujyJoImu0eDIhmHY=;
+        s=default; t=1567612777;
+        bh=fyQekP0mArh+zpjTNqJQ4onGKRm1HDxeaza/MX5kIQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gYOeI0vrwwSgkYBapMSx4bRndp3K+cws0YKnH0NEX7szUAuLtpNos6Evy1OA1MMl9
-         y8b0yW5MC2+9NltFzPMcQltm9n4QgJhRxsrkc1275wjMEt05PwMZWGr8psU2wmutwx
-         kDhoNga0xr5TihIW9EOyWKvaaZEjjy1H9ob782cQ=
+        b=hbCN6Y2CDtrJ/XM1s3mORozk8Nm4yiiNv6erWEAAW/rWHu8pFUf0SqUqVQjXF2dW+
+         BB8SjU/1zFkQ3W5JCTZN/F+dykJkOFUIv/a+q1RhmAi6Bk3treYQZz0se7LAObwUIl
+         ZiAtDjlJx+iN58RaH5bYNMz1YaJsGVj4amiI6m/M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 70/94] i2c: designware: Synchronize IRQs when unregistering slave client
-Date:   Wed,  4 Sep 2019 11:57:15 -0400
-Message-Id: <20190904155739.2816-70-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 75/94] amd-xgbe: Fix error path in xgbe_mod_init()
+Date:   Wed,  4 Sep 2019 11:57:20 -0400
+Message-Id: <20190904155739.2816-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 References: <20190904155739.2816-1-sashal@kernel.org>
@@ -44,37 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit c486dcd2f1bbdd524a1e0149734b79e4ae329650 ]
+[ Upstream commit b6b4dc4c1fa7f1c99398e7dc85758049645e9588 ]
 
-Make sure interrupt handler i2c_dw_irq_handler_slave() has finished
-before clearing the the dev->slave pointer in i2c_dw_unreg_slave().
+In xgbe_mod_init(), we should do cleanup if some error occurs
 
-There is possibility for a race if i2c_dw_irq_handler_slave() is running
-on another CPU while clearing the dev->slave pointer.
-
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Reported-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: efbaa828330a ("amd-xgbe: Add support to handle device renaming")
+Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-designware-slave.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-main.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index e7f9305b2dd9f..f5f001738df5e 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -94,6 +94,7 @@ static int i2c_dw_unreg_slave(struct i2c_client *slave)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-main.c b/drivers/net/ethernet/amd/xgbe/xgbe-main.c
+index b41f23679a087..7ce9c69e9c44f 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-main.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-main.c
+@@ -469,13 +469,19 @@ static int __init xgbe_mod_init(void)
  
- 	dev->disable_int(dev);
- 	dev->disable(dev);
-+	synchronize_irq(dev->irq);
- 	dev->slave = NULL;
- 	pm_runtime_put(dev->dev);
+ 	ret = xgbe_platform_init();
+ 	if (ret)
+-		return ret;
++		goto err_platform_init;
  
+ 	ret = xgbe_pci_init();
+ 	if (ret)
+-		return ret;
++		goto err_pci_init;
+ 
+ 	return 0;
++
++err_pci_init:
++	xgbe_platform_exit();
++err_platform_init:
++	unregister_netdevice_notifier(&xgbe_netdev_notifier);
++	return ret;
+ }
+ 
+ static void __exit xgbe_mod_exit(void)
 -- 
 2.20.1
 
