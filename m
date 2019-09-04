@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B570CA8B15
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E1FA8BF0
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733088AbfIDQBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
+        id S1729563AbfIDQIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:08:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732012AbfIDQBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:01:42 -0400
+        id S1732041AbfIDQBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:01:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E64252070C;
-        Wed,  4 Sep 2019 16:01:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9611F22DBF;
+        Wed,  4 Sep 2019 16:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612901;
-        bh=HM89y0GM3yQ9uGNFebzaFnpLm1dfQiI9Y1XTs/Ja0fo=;
+        s=default; t=1567612902;
+        bh=RyzVyb+HNFmSAWdPhzQLJ9XT7+dnehaK6Y49l04LutM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmCb+rPaB4rOLOoe+Tlh9cpXKhAZW+Xcxi3EthbAGZp4NQC28v/dGrKNEPixigmFK
-         jfyK9JJIxbo5kVB93yucnW5dHPWy7KKD3vTuKo7GHmbZ65eZAWJx4h7XtVfShTgSKs
-         nJp3u0muIb4A67yivWZEBeIjuEkGOlrgcPjgdYkE=
+        b=qwRT73kyoFG8SytbYFY2lFIpJ5bCgYYebowXEJMQDJDkATYeLLRs+2cyesnxxrNUg
+         gIvFHZPDw/DovRXD349vTb1k6cewLWT8Z3PoPEmWtPly+ueLrImsfi/sTfCgBbKzIz
+         trp+64FjmLuVGsZeVoLu8nLrKt8yDOq3GMnGqRpY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>, Laura Abbott <labbott@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Peng Fan <peng.fan@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/36] ARM: 8874/1: mm: only adjust sections of valid mm structures
-Date:   Wed,  4 Sep 2019 12:01:00 -0400
-Message-Id: <20190904160122.4179-14-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com,
+        Antonio Quartulli <a@unstable.cc>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/36] batman-adv: Only read OGM tvlv_len after buffer len check
+Date:   Wed,  4 Sep 2019 12:01:01 -0400
+Message-Id: <20190904160122.4179-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160122.4179-1-sashal@kernel.org>
 References: <20190904160122.4179-1-sashal@kernel.org>
@@ -50,50 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit c51bc12d06b3a5494fbfcbd788a8e307932a06e9 ]
+[ Upstream commit a15d56a60760aa9dbe26343b9a0ac5228f35d445 ]
 
-A timing hazard exists when an early fork/exec thread begins
-exiting and sets its mm pointer to NULL while a separate core
-tries to update the section information.
+Multiple batadv_ogm_packet can be stored in an skbuff. The functions
+batadv_iv_ogm_send_to_if()/batadv_iv_ogm_receive() use
+batadv_iv_ogm_aggr_packet() to check if there is another additional
+batadv_ogm_packet in the skb or not before they continue processing the
+packet.
 
-This commit ensures that the mm pointer is not NULL before
-setting its section parameters. The arguments provided by
-commit 11ce4b33aedc ("ARM: 8672/1: mm: remove tasklist locking
-from update_sections_early()") are equally valid for not
-requiring grabbing the task_lock around this check.
+The length for such an OGM is BATADV_OGM_HLEN +
+batadv_ogm_packet->tvlv_len. The check must first check that at least
+BATADV_OGM_HLEN bytes are available before it accesses tvlv_len (which is
+part of the header. Otherwise it might try read outside of the currently
+available skbuff to get the content of tvlv_len.
 
-Fixes: 08925c2f124f ("ARM: 8464/1: Update all mm structures with section adjustments")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Laura Abbott <labbott@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: ef26157747d4 ("batman-adv: tvlv - basic infrastructure")
+Reported-by: syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/batman-adv/bat_iv_ogm.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index defb7fc264280..4fa12fcf1f5d8 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -722,7 +722,8 @@ static void update_sections_early(struct section_perm perms[], int n)
- 		if (t->flags & PF_KTHREAD)
- 			continue;
- 		for_each_thread(t, s)
--			set_section_perms(perms, n, true, s->mm);
-+			if (s->mm)
-+				set_section_perms(perms, n, true, s->mm);
- 	}
- 	set_section_perms(perms, n, true, current->active_mm);
- 	set_section_perms(perms, n, true, &init_mm);
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index 5bd9b389f8c98..8b3f9441b3a01 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -450,17 +450,23 @@ static u8 batadv_hop_penalty(u8 tq, const struct batadv_priv *bat_priv)
+  * batadv_iv_ogm_aggr_packet - checks if there is another OGM attached
+  * @buff_pos: current position in the skb
+  * @packet_len: total length of the skb
+- * @tvlv_len: tvlv length of the previously considered OGM
++ * @ogm_packet: potential OGM in buffer
+  *
+  * Return: true if there is enough space for another OGM, false otherwise.
+  */
+-static bool batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
+-				      __be16 tvlv_len)
++static bool
++batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
++			  const struct batadv_ogm_packet *ogm_packet)
+ {
+ 	int next_buff_pos = 0;
+ 
+-	next_buff_pos += buff_pos + BATADV_OGM_HLEN;
+-	next_buff_pos += ntohs(tvlv_len);
++	/* check if there is enough space for the header */
++	next_buff_pos += buff_pos + sizeof(*ogm_packet);
++	if (next_buff_pos > packet_len)
++		return false;
++
++	/* check if there is enough space for the optional TVLV */
++	next_buff_pos += ntohs(ogm_packet->tvlv_len);
+ 
+ 	return (next_buff_pos <= packet_len) &&
+ 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
+@@ -488,7 +494,7 @@ static void batadv_iv_ogm_send_to_if(struct batadv_forw_packet *forw_packet,
+ 
+ 	/* adjust all flags and log packets */
+ 	while (batadv_iv_ogm_aggr_packet(buff_pos, forw_packet->packet_len,
+-					 batadv_ogm_packet->tvlv_len)) {
++					 batadv_ogm_packet)) {
+ 		/* we might have aggregated direct link packets with an
+ 		 * ordinary base packet
+ 		 */
+@@ -1838,7 +1844,7 @@ static int batadv_iv_ogm_receive(struct sk_buff *skb,
+ 
+ 	/* unpack the aggregated packets and process them one by one */
+ 	while (batadv_iv_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
+-					 ogm_packet->tvlv_len)) {
++					 ogm_packet)) {
+ 		batadv_iv_ogm_process(skb, ogm_offset, if_incoming);
+ 
+ 		ogm_offset += BATADV_OGM_HLEN;
 -- 
 2.20.1
 
