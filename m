@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 063DCA90B0
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80846A8EAC
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389786AbfIDSLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55040 "EHLO mail.kernel.org"
+        id S2388224AbfIDR7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:59:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390218AbfIDSLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:11:08 -0400
+        id S2387821AbfIDR7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:59:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4849922CEA;
-        Wed,  4 Sep 2019 18:11:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0E212339E;
+        Wed,  4 Sep 2019 17:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620667;
-        bh=56xJezm7lAXrT8d3Ze0+Y4GyCi8LcSm62OVfEg/l9BY=;
+        s=default; t=1567619959;
+        bh=jBZPe5j4z1EqrI5SgRBRqBmJPo6bOwbkHE/6gxE2rX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J51wImASU42SVUzhdu4lCVUEQ7lKhr3ttJE4cLklKHJtNgJx+KDaBXn6jBZQhm+QJ
-         +ZgUbKLKJ854LG8PL1QnStLUea3lRYAkDT/aqxXsHjKjF7nEezcuGGI8TCQTd7cadv
-         mrvHOiQD3J+560rkon535VS1AO7UDxXMCvaF+mWo=
+        b=sXB3hdkfk6Yofzl4sB6I2GHXrq2z2zvpd6qxcFDgsveC7XOInln3kOyP3nRpEYrlF
+         BCB/nRaTEhIQYqNcuLcEwUZzEs8SxIKIi6bWV2MdB5TfDeW/5fLN95MemTG0stJyJN
+         UNkIzhcKHEbplNC2IY6pITR2D03kxQVwv7jBbyQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 049/143] ipv6/addrconf: allow adding multicast addr if IFA_F_MCAUTOJOIN is set
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 20/83] net: hisilicon: make hip04_tx_reclaim non-reentrant
 Date:   Wed,  4 Sep 2019 19:53:12 +0200
-Message-Id: <20190904175315.989326532@linuxfoundation.org>
+Message-Id: <20190904175305.687835347@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+[ Upstream commit 1a2c070ae805910a853b4a14818481ed2e17c727 ]
 
-[ Upstream commit f17f7648a49aa6728649ddf79bdbcac4f1970ce4 ]
+If hip04_tx_reclaim is interrupted while it is running
+and then __napi_schedule continues to execute
+hip04_rx_poll->hip04_tx_reclaim, reentrancy occurs
+and oops is generated. So you need to mask the interrupt
+during the hip04_tx_reclaim run.
 
-In commit 93a714d6b53d ("multicast: Extend ip address command to enable
-multicast group join/leave on") we added a new flag IFA_F_MCAUTOJOIN
-to make user able to add multicast address on ethernet interface.
+The kernel oops exception stack is as follows:
 
-This works for IPv4, but not for IPv6. See the inet6_addr_add code.
+Unable to handle kernel NULL pointer dereference
+at virtual address 00000050
+pgd = c0003000
+[00000050] *pgd=80000000a04003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+Modules linked in: hip04_eth mtdblock mtd_blkdevs mtd
+ohci_platform ehci_platform ohci_hcd ehci_hcd
+vfat fat sd_mod usb_storage scsi_mod usbcore usb_common
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O    4.4.185 #1
+Hardware name: Hisilicon A15
+task: c0a250e0 task.stack: c0a00000
+PC is at hip04_tx_reclaim+0xe0/0x17c [hip04_eth]
+LR is at hip04_tx_reclaim+0x30/0x17c [hip04_eth]
+pc : [<bf30c3a4>]    lr : [<bf30c2f4>]    psr: 600e0313
+sp : c0a01d88  ip : 00000000  fp : c0601f9c
+r10: 00000000  r9 : c3482380  r8 : 00000001
+r7 : 00000000  r6 : 000000e1  r5 : c3482000  r4 : 0000000c
+r3 : f2209800  r2 : 00000000  r1 : 00000000  r0 : 00000000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 32c5387d  Table: 03d28c80  DAC: 55555555
+Process swapper/0 (pid: 0, stack limit = 0xc0a00190)
+Stack: (0xc0a01d88 to 0xc0a02000)
+[<bf30c3a4>] (hip04_tx_reclaim [hip04_eth]) from [<bf30d2e0>]
+                                                (hip04_rx_poll+0x88/0x368 [hip04_eth])
+[<bf30d2e0>] (hip04_rx_poll [hip04_eth]) from [<c04c2d9c>] (net_rx_action+0x114/0x34c)
+[<c04c2d9c>] (net_rx_action) from [<c021eed8>] (__do_softirq+0x218/0x318)
+[<c021eed8>] (__do_softirq) from [<c021f284>] (irq_exit+0x88/0xac)
+[<c021f284>] (irq_exit) from [<c0240090>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240090>] (msa_irq_exit) from [<c02677e0>] (__handle_domain_irq+0x110/0x148)
+[<c02677e0>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0551700>] (__irq_svc+0x40/0x58)
+Exception stack(0xc0a01f30 to 0xc0a01f78)
+1f20:                                     c0ae8b40 00000000 00000000 00000000
+1f40: 00000002 ffffe000 c0601f9c 00000000 ffffffff c0a2257c c0a22440 c0831a38
+1f60: c0a01ec4 c0a01f80 c0203714 c0203718 600e0213 ffffffff
+[<c0551700>] (__irq_svc) from [<c0203718>] (arch_cpu_idle+0x20/0x3c)
+[<c0203718>] (arch_cpu_idle) from [<c025bfd8>] (cpu_startup_entry+0x244/0x29c)
+[<c025bfd8>] (cpu_startup_entry) from [<c054b0d8>] (rest_init+0xc8/0x10c)
+[<c054b0d8>] (rest_init) from [<c0800c58>] (start_kernel+0x468/0x514)
+Code: a40599e5 016086e2 018088e2 7660efe6 (503090e5)
+---[ end trace 1db21d6d09c49d74 ]---
+Kernel panic - not syncing: Fatal exception in interrupt
+CPU3: stopping
+CPU: 3 PID: 0 Comm: swapper/3 Tainted: G      D    O    4.4.185 #1
 
-static int inet6_addr_add()
-{
-	...
-	if (cfg->ifa_flags & IFA_F_MCAUTOJOIN) {
-		ipv6_mc_config(net->ipv6.mc_autojoin_sk, true...)
-	}
-
-	ifp = ipv6_add_addr(idev, cfg, true, extack); <- always fail with maddr
-	if (!IS_ERR(ifp)) {
-		...
-	} else if (cfg->ifa_flags & IFA_F_MCAUTOJOIN) {
-		ipv6_mc_config(net->ipv6.mc_autojoin_sk, false...)
-	}
-}
-
-But in ipv6_add_addr() it will check the address type and reject multicast
-address directly. So this feature is never worked for IPv6.
-
-We should not remove the multicast address check totally in ipv6_add_addr(),
-but could accept multicast address only when IFA_F_MCAUTOJOIN flag supplied.
-
-v2: update commit description
-
-Fixes: 93a714d6b53d ("multicast: Extend ip address command to enable multicast group join/leave on")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -1045,7 +1045,8 @@ ipv6_add_addr(struct inet6_dev *idev, st
- 	int err = 0;
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index b5d18d95d7b99..1fabbbd4544e7 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -497,6 +497,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 	u16 len;
+ 	u32 err;
  
- 	if (addr_type == IPV6_ADDR_ANY ||
--	    addr_type & IPV6_ADDR_MULTICAST ||
-+	    (addr_type & IPV6_ADDR_MULTICAST &&
-+	     !(cfg->ifa_flags & IFA_F_MCAUTOJOIN)) ||
- 	    (!(idev->dev->flags & IFF_LOOPBACK) &&
- 	     !netif_is_l3_master(idev->dev) &&
- 	     addr_type & IPV6_ADDR_LOOPBACK))
++	/* clean up tx descriptors */
++	tx_remaining = hip04_tx_reclaim(ndev, false);
++
+ 	while (cnt && !last) {
+ 		buf = priv->rx_buf[priv->rx_head];
+ 		skb = build_skb(buf, priv->rx_buf_size);
+@@ -557,8 +560,7 @@ refill:
+ 	}
+ 	napi_complete(napi);
+ done:
+-	/* clean up tx descriptors and start a new timer if necessary */
+-	tx_remaining = hip04_tx_reclaim(ndev, false);
++	/* start a new timer if necessary */
+ 	if (rx < budget && tx_remaining)
+ 		hip04_start_tx_timer(priv);
+ 
+-- 
+2.20.1
+
 
 
