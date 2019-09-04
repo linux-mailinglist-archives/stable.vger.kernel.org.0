@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0090DA8EF3
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4986A8E85
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387891AbfIDSA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S2387616AbfIDR63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388473AbfIDSA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:56 -0400
+        id S2387463AbfIDR63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D8122CF5;
-        Wed,  4 Sep 2019 18:00:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB8CD21883;
+        Wed,  4 Sep 2019 17:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620055;
-        bh=XqceKEptIwGk8H5m03WkbUCfHdSr+UUp3TD51WBICh0=;
+        s=default; t=1567619908;
+        bh=bMUvELWfyORTJn0BnG0czOALyqsyGqF2SS4iI0gMyzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3LQsmX7bp/D+Hnrny87fuCYUhhU3dzkWO4opT7HY0mWOzR0CzjLyAQzkKaRZBgOx
-         E0/F6aqZe13ofLwHehJ0BgOFtYHTX2YDmluE8a1Fivhu+g6e1kCjLLGR933/nwFotA
-         mPiVgZqkCoAApz8t2Zfv+Jq97+rcN2Mmy0CS0BrM=
+        b=xOxTSjvaMfeNdzuoinYFGCOe9T6iIST2lZN8FPu7saJPZhbGxHZSKlpGeSQA5OW3l
+         +0MvHjUCTTSSI1FZ0YK+E0s8S7iPzgnPC4O6k48220nLmbdNhJ7JwVN8vgOOlH/1CW
+         OfIktg3H5oFofBRnyLcczroKRLY4fQqn8+A1sSuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 56/83] ALSA: usb-audio: Fix a stack buffer overflow bug in check_input_term
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Subject: [PATCH 4.4 61/77] KVM: x86: Dont update RIP or do single-step on faulting emulation
 Date:   Wed,  4 Sep 2019 19:53:48 +0200
-Message-Id: <20190904175308.494095805@linuxfoundation.org>
+Message-Id: <20190904175309.065946179@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 19bce474c45be69a284ecee660aa12d8f1e88f18 upstream.
+commit 75ee23b30dc712d80d2421a9a547e7ab6e379b44 upstream.
 
-`check_input_term` recursively calls itself with input from
-device side (e.g., uac_input_terminal_descriptor.bCSourceID)
-as argument (id). In `check_input_term`, if `check_input_term`
-is called with the same `id` argument as the caller, it triggers
-endless recursive call, resulting kernel space stack overflow.
+Don't advance RIP or inject a single-step #DB if emulation signals a
+fault.  This logic applies to all state updates that are conditional on
+clean retirement of the emulation instruction, e.g. updating RFLAGS was
+previously handled by commit 38827dbd3fb85 ("KVM: x86: Do not update
+EFLAGS on faulting emulation").
 
-This patch fixes the bug by adding a bitmap to `struct mixer_build`
-to keep track of the checked ids and stop the execution if some id
-has been checked (similar to how parse_audio_unit handles unitid
-argument).
+Not advancing RIP is likely a nop, i.e. ctxt->eip isn't updated with
+ctxt->_eip until emulation "retires" anyways.  Skipping #DB injection
+fixes a bug reported by Andy Lutomirski where a #UD on SYSCALL due to
+invalid state with EFLAGS.TF=1 would loop indefinitely due to emulation
+overwriting the #UD with #DB and thus restarting the bad SYSCALL over
+and over.
 
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: stable@vger.kernel.org
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Fixes: 663f4c61b803 ("KVM: x86: handle singlestep during emulation")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- sound/usb/mixer.c |   29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ arch/x86/kvm/x86.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -82,6 +82,7 @@ struct mixer_build {
- 	unsigned char *buffer;
- 	unsigned int buflen;
- 	DECLARE_BITMAP(unitbitmap, MAX_ID_ELEMS);
-+	DECLARE_BITMAP(termbitmap, MAX_ID_ELEMS);
- 	struct usb_audio_term oterm;
- 	const struct usbmix_name_map *map;
- 	const struct usbmix_selector_map *selector_map;
-@@ -710,15 +711,24 @@ static int get_term_name(struct mixer_bu
-  * parse the source unit recursively until it reaches to a terminal
-  * or a branched unit.
-  */
--static int check_input_term(struct mixer_build *state, int id,
-+static int __check_input_term(struct mixer_build *state, int id,
- 			    struct usb_audio_term *term)
- {
- 	int err;
- 	void *p1;
-+	unsigned char *hdr;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5545,12 +5545,13 @@ restart:
+ 		unsigned long rflags = kvm_x86_ops->get_rflags(vcpu);
+ 		toggle_interruptibility(vcpu, ctxt->interruptibility);
+ 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
+-		kvm_rip_write(vcpu, ctxt->eip);
+-		if (r == EMULATE_DONE && ctxt->tf)
+-			kvm_vcpu_do_singlestep(vcpu, &r);
+ 		if (!ctxt->have_exception ||
+-		    exception_type(ctxt->exception.vector) == EXCPT_TRAP)
++		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
++			kvm_rip_write(vcpu, ctxt->eip);
++			if (r == EMULATE_DONE && ctxt->tf)
++				kvm_vcpu_do_singlestep(vcpu, &r);
+ 			__kvm_set_rflags(vcpu, ctxt->eflags);
++		}
  
- 	memset(term, 0, sizeof(*term));
--	while ((p1 = find_audio_control_unit(state, id)) != NULL) {
--		unsigned char *hdr = p1;
-+	for (;;) {
-+		/* a loop in the terminal chain? */
-+		if (test_and_set_bit(id, state->termbitmap))
-+			return -EINVAL;
-+
-+		p1 = find_audio_control_unit(state, id);
-+		if (!p1)
-+			break;
-+
-+		hdr = p1;
- 		term->id = id;
- 		switch (hdr[2]) {
- 		case UAC_INPUT_TERMINAL:
-@@ -733,7 +743,7 @@ static int check_input_term(struct mixer
- 
- 				/* call recursively to verify that the
- 				 * referenced clock entity is valid */
--				err = check_input_term(state, d->bCSourceID, term);
-+				err = __check_input_term(state, d->bCSourceID, term);
- 				if (err < 0)
- 					return err;
- 
-@@ -765,7 +775,7 @@ static int check_input_term(struct mixer
- 		case UAC2_CLOCK_SELECTOR: {
- 			struct uac_selector_unit_descriptor *d = p1;
- 			/* call recursively to retrieve the channel info */
--			err = check_input_term(state, d->baSourceID[0], term);
-+			err = __check_input_term(state, d->baSourceID[0], term);
- 			if (err < 0)
- 				return err;
- 			term->type = d->bDescriptorSubtype << 16; /* virtual type */
-@@ -812,6 +822,15 @@ static int check_input_term(struct mixer
- 	return -ENODEV;
- }
- 
-+
-+static int check_input_term(struct mixer_build *state, int id,
-+			    struct usb_audio_term *term)
-+{
-+	memset(term, 0, sizeof(*term));
-+	memset(state->termbitmap, 0, sizeof(state->termbitmap));
-+	return __check_input_term(state, id, term);
-+}
-+
- /*
-  * Feature Unit
-  */
+ 		/*
+ 		 * For STI, interrupts are shadowed; so KVM_REQ_EVENT will
 
 
