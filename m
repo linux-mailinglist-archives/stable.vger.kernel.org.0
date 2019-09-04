@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6230AA8A13
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8015A8A16
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731877AbfIDP6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 11:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60226 "EHLO mail.kernel.org"
+        id S1731864AbfIDP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 11:58:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731864AbfIDP6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 11:58:16 -0400
+        id S1731893AbfIDP6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 11:58:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31EC2339D;
-        Wed,  4 Sep 2019 15:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40C3B2342D;
+        Wed,  4 Sep 2019 15:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612695;
-        bh=cDQdUbuMn1b5AsgpIoufO5CSV0ThiaKeL+JwRAY08IQ=;
+        s=default; t=1567612697;
+        bh=7gN4oGxskhNmUiNRGD1LOaJ12Rz2xRgqnnMm885HDkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+uhGunFxhcqtIZjMckA/am23AFISbF0UlNxQlV+yc+h8ISmZpUVdrUbbB6+mHxO+
-         HSZJj7dNC/x7y1+L9TJ7L+ItiBvb6oy10IK5BIwYUNmJ1cIqHYJ2SjKC6C/DGROSZd
-         fg96fhgTYhsq/uMNMPRgTZD70MchtIElbUyKEV28=
+        b=oBRfGjuz0NELG9IYDkeZOLDmt/3138DPrxlsbkisxkX2MdSGOGYCaeSGkOaw4owNM
+         fXvR3sVxPUnLHmfbkW97IaMeiUCo3TcIczyl1ukwy53gy2hw/HmVKdcEoqW58gzDgy
+         iA4yuLtK/8xJqmML0hvm0FLTexLFd6HP+tU7+IDg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 23/94] netfilter: nft_flow_offload: missing netlink attribute policy
-Date:   Wed,  4 Sep 2019 11:56:28 -0400
-Message-Id: <20190904155739.2816-23-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 25/94] NFSv4: Fix return values for nfs4_file_open()
+Date:   Wed,  4 Sep 2019 11:56:30 -0400
+Message-Id: <20190904155739.2816-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 References: <20190904155739.2816-1-sashal@kernel.org>
@@ -44,43 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 14c415862c0630e01712a4eeaf6159a2b1b6d2a4 ]
+[ Upstream commit 90cf500e338ab3f3c0f126ba37e36fb6a9058441 ]
 
-The netlink attribute policy for NFTA_FLOW_TABLE_NAME is missing.
+Currently, we are translating RPC level errors such as timeouts,
+as well as interrupts etc into EOPENSTALE, which forces a single
+replay of the open attempt. What we actually want to do is
+force the replay only in the cases where the returned error
+indicates that the file may have changed on the server.
 
-Fixes: a3c90f7a2323 ("netfilter: nf_tables: flow offload expression")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+So the fix is to spell out the exact set of errors where we want
+to return EOPENSTALE.
+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_flow_offload.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nfs/nfs4file.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index aa5f571d43619..f14de444c31a4 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -146,6 +146,11 @@ static int nft_flow_offload_validate(const struct nft_ctx *ctx,
- 	return nft_chain_validate_hooks(ctx->chain, hook_mask);
- }
- 
-+static const struct nla_policy nft_flow_offload_policy[NFTA_FLOW_MAX + 1] = {
-+	[NFTA_FLOW_TABLE_NAME]	= { .type = NLA_STRING,
-+				    .len = NFT_NAME_MAXLEN - 1 },
-+};
-+
- static int nft_flow_offload_init(const struct nft_ctx *ctx,
- 				 const struct nft_expr *expr,
- 				 const struct nlattr * const tb[])
-@@ -204,6 +209,7 @@ static const struct nft_expr_ops nft_flow_offload_ops = {
- static struct nft_expr_type nft_flow_offload_type __read_mostly = {
- 	.name		= "flow_offload",
- 	.ops		= &nft_flow_offload_ops,
-+	.policy		= nft_flow_offload_policy,
- 	.maxattr	= NFTA_FLOW_MAX,
- 	.owner		= THIS_MODULE,
- };
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 3a507c42c1cae..113be154a1ec6 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -73,13 +73,13 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+ 		switch (err) {
+-		case -EPERM:
+-		case -EACCES:
+-		case -EDQUOT:
+-		case -ENOSPC:
+-		case -EROFS:
+-			goto out_put_ctx;
+ 		default:
++			goto out_put_ctx;
++		case -ENOENT:
++		case -ESTALE:
++		case -EISDIR:
++		case -ENOTDIR:
++		case -ELOOP:
+ 			goto out_drop;
+ 		}
+ 	}
 -- 
 2.20.1
 
