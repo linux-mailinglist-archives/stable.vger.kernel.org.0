@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B9CDA8C2C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4934A8C27
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732275AbfIDQKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:10:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35984 "EHLO mail.kernel.org"
+        id S1732993AbfIDQKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:10:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732798AbfIDQA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:00:57 -0400
+        id S1732855AbfIDQA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:00:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23E5820820;
-        Wed,  4 Sep 2019 16:00:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7139023431;
+        Wed,  4 Sep 2019 16:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612856;
-        bh=/cJb+htfQAkNd+2fIa/5w62fEqY+y7eBmbzaphFs5TM=;
+        s=default; t=1567612857;
+        bh=aIqb/ccVgpL0SgjA7bseadHGY2YNbqvN7lKVsPwFE/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XnD6Blle5/S7LWDAwNIiF8FLOlgIEI/V+CAt68DouLMRUA4SCakmZyncPaEwOmY+A
-         3dO27ogg8ZL3I/Kqs39hiOR3sSCgOUKJ22uaDhWcv9jlqAkUcrFap9BO8LhgNk/Bq4
-         f2BM2qkHgF1hvOmkfbQliBKI2HJyUA5hTQpGnkaU=
+        b=Ph1SZFK49h90iFZxPzbEnBWBkcWbom1/HShmfNbkQeLV5w0pN5EWarFJCSEnSl/hd
+         lKXAeZ0DFcuiHvH1iTtrrju9qfCvnUYa3GIrMyIY8Npa0RF+jY9JCDTLOjkM+2TepX
+         fs2N2meWOMnF08D7SjOGbKorFep9324uGEho7tpo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 35/52] kallsyms: Don't let kallsyms_lookup_size_offset() fail on retrieving the first symbol
-Date:   Wed,  4 Sep 2019 11:59:47 -0400
-Message-Id: <20190904160004.3671-35-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 36/52] cifs: set domainName when a domain-key is used in multiuser
+Date:   Wed,  4 Sep 2019 11:59:48 -0400
+Message-Id: <20190904160004.3671-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
@@ -47,83 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 2a1a3fa0f29270583f0e6e3100d609e09697add1 ]
+[ Upstream commit f2aee329a68f5a907bcff11a109dfe17c0b41aeb ]
 
-An arm64 kernel configured with
+RHBZ: 1710429
 
-  CONFIG_KPROBES=y
-  CONFIG_KALLSYMS=y
-  # CONFIG_KALLSYMS_ALL is not set
-  CONFIG_KALLSYMS_BASE_RELATIVE=y
+When we use a domain-key to authenticate using multiuser we must also set
+the domainnmame for the new volume as it will be used and passed to the server
+in the NTLMSSP Domain-name.
 
-reports the following kprobe failure:
-
-  [    0.032677] kprobes: failed to populate blacklist: -22
-  [    0.033376] Please take care of using kprobes.
-
-It appears that kprobe fails to retrieve the symbol at address
-0xffff000010081000, despite this symbol being in System.map:
-
-  ffff000010081000 T __exception_text_start
-
-This symbol is part of the first group of aliases in the
-kallsyms_offsets array (symbol names generated using ugly hacks in
-scripts/kallsyms.c):
-
-  kallsyms_offsets:
-          .long   0x1000 // do_undefinstr
-          .long   0x1000 // efi_header_end
-          .long   0x1000 // _stext
-          .long   0x1000 // __exception_text_start
-          .long   0x12b0 // do_cp15instr
-
-Looking at the implementation of get_symbol_pos(), it returns the
-lowest index for aliasing symbols. In this case, it return 0.
-
-But kallsyms_lookup_size_offset() considers 0 as a failure, which
-is obviously wrong (there is definitely a valid symbol living there).
-In turn, the kprobe blacklisting stops abruptly, hence the original
-error.
-
-A CONFIG_KALLSYMS_ALL kernel wouldn't fail as there is always
-some random symbols at the beginning of this array, which are never
-looked up via kallsyms_lookup_size_offset.
-
-Fix it by considering that get_symbol_pos() is always successful
-(which is consistent with the other uses of this function).
-
-Fixes: ffc5089196446 ("[PATCH] Create kallsyms_lookup_size_offset()")
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kallsyms.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/cifs/connect.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
-index 02a0b01380d8e..ed87dac8378cc 100644
---- a/kernel/kallsyms.c
-+++ b/kernel/kallsyms.c
-@@ -262,8 +262,10 @@ int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index c53a2e86ed544..6e004eb1b2bb8 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2756,6 +2756,7 @@ static int
+ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
  {
- 	char namebuf[KSYM_NAME_LEN];
+ 	int rc = 0;
++	int is_domain = 0;
+ 	const char *delim, *payload;
+ 	char *desc;
+ 	ssize_t len;
+@@ -2803,6 +2804,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
+ 			rc = PTR_ERR(key);
+ 			goto out_err;
+ 		}
++		is_domain = 1;
+ 	}
  
--	if (is_ksym_addr(addr))
--		return !!get_symbol_pos(addr, symbolsize, offset);
-+	if (is_ksym_addr(addr)) {
-+		get_symbol_pos(addr, symbolsize, offset);
-+		return 1;
+ 	down_read(&key->sem);
+@@ -2860,6 +2862,26 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
+ 		goto out_key_put;
+ 	}
+ 
++	/*
++	 * If we have a domain key then we must set the domainName in the
++	 * for the request.
++	 */
++	if (is_domain && ses->domainName) {
++		vol->domainname = kstrndup(ses->domainName,
++					   strlen(ses->domainName),
++					   GFP_KERNEL);
++		if (!vol->domainname) {
++			cifs_dbg(FYI, "Unable to allocate %zd bytes for "
++				 "domain\n", len);
++			rc = -ENOMEM;
++			kfree(vol->username);
++			vol->username = NULL;
++			kfree(vol->password);
++			vol->password = NULL;
++			goto out_key_put;
++		}
 +	}
- 	return !!module_address_lookup(addr, symbolsize, offset, NULL, namebuf) ||
- 	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
- }
++
+ out_key_put:
+ 	up_read(&key->sem);
+ 	key_put(key);
 -- 
 2.20.1
 
