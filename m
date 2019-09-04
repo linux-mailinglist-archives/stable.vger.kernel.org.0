@@ -2,110 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0583A7A8C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 07:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C38EBA7AB8
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 07:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728547AbfIDFEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 01:04:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59872 "EHLO mail.kernel.org"
+        id S1727994AbfIDF0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 01:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725877AbfIDFEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 01:04:47 -0400
+        id S1725938AbfIDF0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 01:26:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15DC72339E;
-        Wed,  4 Sep 2019 05:04:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5165A2339D;
+        Wed,  4 Sep 2019 05:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567573486;
-        bh=AzONJh3agZ7U5LiuXcD6cG97MHnD/wARmZk+Faomavw=;
-        h=Subject:To:From:Date:From;
-        b=I95/3phBmJwpYdIDEwHrp5ci9WBe9h7B4jyxaL6QG2VSPwLFkxRb+TfgOPYfiy+s6
-         sOdIRnYAIpvJlI5Lnjpi3QI/bxJ9SLivOQO4VHD/j6CVgGXGRaJ3YsieP4rzTOUYw1
-         gR66kA1VtdzuZmW76BZ4y/ax08lwMSkKVEA9QDgA=
-Subject: patch "phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current" added to char-misc-next
-To:     yoshihiro.shimoda.uh@renesas.com, kishon@ti.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Sep 2019 07:03:10 +0200
-Message-ID: <1567573390233185@kroah.com>
+        s=default; t=1567574808;
+        bh=nX3gPPkIL8TJSohXVa0JIKl7grVeIePK6DugPul+PCY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aTPIZY9Ks7pjN6/hnenvP8Fmjc2R4DUv0jY9iqeTlgBNd8M290Q/SuKYxGBXpk2p8
+         NzBadxaIbbMVw8Yt2qWy3Y/xfkiZy6T2VXDwvP6rxPwMJju8SrWWYvXgJudz1rpQcp
+         U2QrPgfvAknuTbP6Sc94W1W9QJC75NFNIUjhBKJY=
+Date:   Wed, 4 Sep 2019 07:26:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     aik@ozlabs.ru, paulus@ozlabs.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: PPC: Book3S: Fix incorrect
+ guest-to-user-translation" failed to apply to 4.19-stable tree
+Message-ID: <20190904052646.GC17236@kroah.com>
+References: <156753601315657@kroah.com>
+ <20190903202113.GK5281@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190903202113.GK5281@sasha-vm>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Sep 03, 2019 at 04:21:13PM -0400, Sasha Levin wrote:
+> On Tue, Sep 03, 2019 at 08:40:13PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> I've fixed it up for 4.19 and 4.14. The issue was mostly due to missing
+> 2001825efcea7 ("KVM: PPC: Book3S HV: Avoid lockdep debugging in TCE
+> realmode handlers").
 
-This is a note to let you know that I've just added the patch titled
+Thanks for fixing up all of these FAILED: reports and adding them to
+the queues.
 
-    phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From e6839c31a608e79f2057fab987dd814f5d3477e6 Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Tue, 6 Aug 2019 17:51:19 +0900
-Subject: phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
-
-The hardware manual should be revised, but the initial value of
-VBCTRL.OCCLREN is set to 1 actually. If the bit is set, the hardware
-clears VBCTRL.VBOUT and ADPCTRL.DRVVBUS registers automatically
-when the hardware detects over-current signal from a USB power switch.
-However, since the hardware doesn't have any registers which
-indicates over-current, the driver cannot handle it at all. So, if
-"is_otg_channel" hardware detects over-current, since ADPCTRL.DRVVBUS
-register is cleared automatically, the channel cannot be used after
-that.
-
-To resolve this behavior, this patch sets the VBCTRL.OCCLREN to 0
-to keep ADPCTRL.DRVVBUS even if the "is_otg_channel" hardware
-detects over-current. (We assume a USB power switch itself protects
-over-current and turns the VBUS off.)
-
-This patch is inspired by a BSP patch from Kazuya Mizuguchi.
-
-Fixes: 1114e2d31731 ("phy: rcar-gen3-usb2: change the mode to OTG on the combined channel")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
----
- drivers/phy/renesas/phy-rcar-gen3-usb2.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-index 8ffba67568ec..b7f6b1324395 100644
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -61,6 +61,7 @@
- 					 USB2_OBINT_IDDIGCHG)
- 
- /* VBCTRL */
-+#define USB2_VBCTRL_OCCLREN		BIT(16)
- #define USB2_VBCTRL_DRVVBUSSEL		BIT(8)
- 
- /* LINECTRL1 */
-@@ -374,6 +375,7 @@ static void rcar_gen3_init_otg(struct rcar_gen3_chan *ch)
- 	writel(val, usb2_base + USB2_LINECTRL1);
- 
- 	val = readl(usb2_base + USB2_VBCTRL);
-+	val &= ~USB2_VBCTRL_OCCLREN;
- 	writel(val | USB2_VBCTRL_DRVVBUSSEL, usb2_base + USB2_VBCTRL);
- 	val = readl(usb2_base + USB2_ADPCTRL);
- 	writel(val | USB2_ADPCTRL_IDPULLUP, usb2_base + USB2_ADPCTRL);
--- 
-2.23.0
-
-
+greg k-h
