@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF866A9129
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90A4A8F28
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390346AbfIDSNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
+        id S2388676AbfIDSCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:02:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390355AbfIDSNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:51 -0400
+        id S2388158AbfIDSCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE5F2208E4;
-        Wed,  4 Sep 2019 18:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B857822CEA;
+        Wed,  4 Sep 2019 18:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620830;
-        bh=q1h3wBIpEygtj0TyIhZNZ2gIK5Dvwof6yKn0nAdg9ss=;
+        s=default; t=1567620124;
+        bh=Axjq89hiNix4ExOqrgQ/7i6PpccM7JLmexMXOo6n7vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EA84o6ZdPfC87zT9cTF97C//W6Ic4VtRQaxAwB5xgsWk/BHV49fp1hoVNnBAkkjWE
-         1NK4fQkAhbWdWVXIHQHEetHc7hDIjOXx8zDthJ0MQMh5JoRP92YMCAAIo9Z5r1MUuz
-         I4nP1O6XnRQ2Te5PBBrG4sQ5LE5mx2VdRPfnWhzM=
+        b=HCbGGEr7rPer+8xRXz29Cw0+DxjKwyHFno1eEfjgYdUzYc4NqQtaRB9QV/G79ZSE8
+         LCX8p0iL+rWqo28TklPBqJnUampJAQFMos40xBow57qWrLNzuOmJhhFgIT7FHMTA3f
+         WqtpdQ2MrokfD4RN9m+pJbeARcv5GbrknrYNiFnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiong Zhang <xiong.y.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.2 112/143] drm/i915: Dont deballoon unused ggtt drm_mm_node in linux guest
+        stable@vger.kernel.org, Brad Spengler <spender@grsecurity.net>,
+        Dianzhang Chen <dianzhangchen0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        hpa@zytor.com
+Subject: [PATCH 4.9 83/83] x86/ptrace: fix up botched merge of spectrev1 fix
 Date:   Wed,  4 Sep 2019 19:54:15 +0200
-Message-Id: <20190904175318.780438544@linuxfoundation.org>
+Message-Id: <20190904175310.951734823@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiong Zhang <xiong.y.zhang@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 0a3dfbb5cd9033752639ef33e319c2f2863c713a upstream.
+I incorrectly merged commit 31a2fbb390fe ("x86/ptrace: Fix possible
+spectre-v1 in ptrace_get_debugreg()") when backporting it, as was
+graciously pointed out at
+https://grsecurity.net/teardown_of_a_failed_linux_lts_spectre_fix.php
 
-The following call trace may exist in linux guest dmesg when guest i915
-driver is unloaded.
-[   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: range [0x0 - 0x0] 0 KiB.
-[   90.776621] BUG: unable to handle kernel NULL pointer dereference at 00000000000000c0
-[   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
-[   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PMD 0
-[   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
-[   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
-[   90.777573] Call Trace:
-[   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
-[   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
-[   90.777792]  i915_driver_unload+0x145/0x180 [i915]
-[   90.777856]  i915_pci_remove+0x15/0x20 [i915]
-[   90.777890]  pci_device_remove+0x3b/0xc0
-[   90.777916]  device_release_driver_internal+0x157/0x220
-[   90.777945]  driver_detach+0x39/0x70
-[   90.777967]  bus_remove_driver+0x51/0xd0
-[   90.777990]  pci_unregister_driver+0x23/0x90
-[   90.778019]  SyS_delete_module+0x1da/0x240
-[   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
-[   90.778072] RIP: 0033:0x7f34312af067
-[   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
-[   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe3dc0
-[   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
+Resolve the upstream difference with the stable kernel merge to properly
+protect things.
 
-Four drm_mm_node are used to reserve guest ggtt space, but some of them
-may be skipped and not initialised due to space constraints in
-intel_vgt_balloon(). If drm_mm_remove_node() is called with
-uninitialized drm_mm_node, the above call trace occurs.
-
-This patch check drm_mm_node's validity before calling
-drm_mm_remove_node().
-
-Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size under gvt environment")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
-Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com
-(cherry picked from commit 4776f3529d6b1e47f02904ad1d264d25ea22b27b)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reported-by: Brad Spengler <spender@grsecurity.net>
+Cc: Dianzhang Chen <dianzhangchen0@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <bp@alien8.de>
+Cc: <hpa@zytor.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/i915/i915_vgpu.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/ptrace.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_vgpu.c
-+++ b/drivers/gpu/drm/i915/i915_vgpu.c
-@@ -101,6 +101,9 @@ static struct _balloon_info_ bl_info;
- static void vgt_deballoon_space(struct i915_ggtt *ggtt,
- 				struct drm_mm_node *node)
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -651,11 +651,10 @@ static unsigned long ptrace_get_debugreg
  {
-+	if (!drm_mm_node_allocated(node))
-+		return;
-+
- 	DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
- 			 node->start,
- 			 node->start + node->size,
+ 	struct thread_struct *thread = &tsk->thread;
+ 	unsigned long val = 0;
+-	int index = n;
+ 
+ 	if (n < HBP_NUM) {
++		int index = array_index_nospec(n, HBP_NUM);
+ 		struct perf_event *bp = thread->ptrace_bps[index];
+-		index = array_index_nospec(index, HBP_NUM);
+ 
+ 		if (bp)
+ 			val = bp->hw.info.address;
 
 
