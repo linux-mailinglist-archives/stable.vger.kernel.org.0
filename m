@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 519C1A9114
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72C95A8E31
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390066AbfIDSNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58254 "EHLO mail.kernel.org"
+        id S2387604AbfIDR4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390669AbfIDSNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:24 -0400
+        id S1732038AbfIDR4f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E40E22CEA;
-        Wed,  4 Sep 2019 18:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8BC22CF5;
+        Wed,  4 Sep 2019 17:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620803;
-        bh=T6X5eR2XhJprV6XznDa1AjWyiWhDWpBUUCRPWS0OZuc=;
+        s=default; t=1567619793;
+        bh=x0vzwigvrpZU/bacqRukLVsYw4+ONMKih6MKqoZosmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4e2PVWZVujLx4kOzCzz7FpEcJpX2JWoUsE2S/E/DRZyGmkYffRmU5eyQ+u1V4eyv
-         1b8OKXFAYeZudyR37vcJN9CtJW5U3V/PwhKaMVyW915bVztwP83xLmzxg0nxUM/d24
-         metUte/chnmJy3GWqoR2k5Jikk+RArsC6yjXRRmg=
+        b=EDewrEm2XxiPHhfu9xYbwFHQZGDVI8VFbqZnZkCp1w06JxeAZFNYKMp6Mw179CggH
+         0NOWqV9NCyHBokxmeMA3JEb1sUGfpZdVTQn37DxPU9WwnCPxtivmIUgmNnl7ADzK+r
+         0t32NGYr77/JCDzjgnCtiBqS0ABGwYNARpjkiugk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 060/143] ALSA: usb-audio: Check mixer unit bitmap yet more strictly
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Haibin Zhang <haibinzhang@tencent.com>,
+        Yunfang Tai <yunfangtai@tencent.com>,
+        Lidong Chen <lidongchen@tencent.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 36/77] vhost-net: set packet weight of tx polling to 2 * vq size
 Date:   Wed,  4 Sep 2019 19:53:23 +0200
-Message-Id: <20190904175316.421126487@linuxfoundation.org>
+Message-Id: <20190904175306.977087695@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +48,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+commit a2ac99905f1ea8b15997a6ec39af69aa28a3653b upstream.
 
-commit f9f0e9ed350e15d51ad07364b4cf910de50c472a upstream.
+handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
+polling udp packets with small length(e.g. 1byte udp payload), because setting
+VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
 
-The bmControls (for UAC1) or bmMixerControls (for UAC2/3) bitmap has a
-variable size depending on both input and output pins.  Its size is to
-fit with input * output bits.  The problem is that the input size
-can't be determined simply from the unit descriptor itself but it
-needs to parse the whole connected sources.  Although the
-uac_mixer_unit_get_channels() tries to check some possible overflow of
-this bitmap, it's incomplete due to the lack of the  evaluation of
-input pins.
+Ping-Latencies shown below were tested between two Virtual Machines using
+netperf (UDP_STREAM, len=1), and then another machine pinged the client:
 
-For covering possible overflows, this patch adds the bitmap overflow
-check in the loop of input pins in parse_audio_mixer_unit().
+vq size=256
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           3.319   18.489    57.303
+64               1.643    2.021     2.552
+128              1.825    2.600     3.224
+256              1.997    2.710     4.295
+512              1.860    3.171     4.631
+1024             2.002    4.173     9.056
+2048             2.257    5.650     9.688
+4096             2.093    8.508    15.943
 
-Fixes: 0bfe5e434e66 ("ALSA: usb-audio: Check mixer unit descriptors more strictly")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+vq size=512
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           6.537   29.177    66.245
+64               2.798    3.614     4.403
+128              2.861    3.820     4.775
+256              3.008    4.018     4.807
+512              3.254    4.523     5.824
+1024             3.079    5.335     7.747
+2048             3.944    8.201    12.762
+4096             4.158   11.057    19.985
 
+Seems pretty consistent, a small dip at 2 VQ sizes.
+Ring size is a hint from device about a burst size it can tolerate. Based on
+benchmarks, set the weight to 2 * vq size.
+
+To evaluate this change, another tests were done using netperf(RR, TX) between
+two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
+tweaked through qemu. Results shown below does not show obvious changes.
+
+vq size=256 TCP_RR                vq size=512 TCP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
+   1/       4/  +1%/         0%      1/       4/  +1%/         0%
+   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
+  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
+  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
+  64/       8/   0%/         0%     64/       8/  -1%/        -2%
+ 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
+ 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
+ 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
+
+vq size=256 UDP_RR                vq size=512 UDP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
+   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
+   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
+  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
+  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
+  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
+ 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
+ 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
+ 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
+
+vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+  64/       1/   0%/        -3%     64/       1/   0%/         0%
+  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
+  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
+ 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
+ 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
+ 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
+ 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
+ 512/       4/  +1%/        -1%    512/       4/   0%/         0%
+ 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
+1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
+1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
+1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
+2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
+2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
+2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
+4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
+4096/       4/  +2%/         0%   4096/       4/   0%/         0%
+4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
+Signed-off-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c |   36 ++++++++++++++++++++++++++++--------
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -739,7 +739,6 @@ static int uac_mixer_unit_get_channels(s
- 				       struct uac_mixer_unit_descriptor *desc)
- {
- 	int mu_channels;
--	void *c;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f463171352245..b8496f713bc62 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -39,6 +39,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_NET_WEIGHT 0x80000
  
- 	if (desc->bLength < sizeof(*desc))
- 		return -EINVAL;
-@@ -762,13 +761,6 @@ static int uac_mixer_unit_get_channels(s
- 		break;
- 	}
- 
--	if (!mu_channels)
--		return 0;
--
--	c = uac_mixer_unit_bmControls(desc, state->mixer->protocol);
--	if (c - (void *)desc + (mu_channels - 1) / 8 >= desc->bLength)
--		return 0; /* no bmControls -> skip */
--
- 	return mu_channels;
- }
- 
-@@ -2009,6 +2001,31 @@ static int parse_audio_feature_unit(stru
-  * Mixer Unit
-  */
- 
-+/* check whether the given in/out overflows bmMixerControls matrix */
-+static bool mixer_bitmap_overflow(struct uac_mixer_unit_descriptor *desc,
-+				  int protocol, int num_ins, int num_outs)
-+{
-+	u8 *hdr = (u8 *)desc;
-+	u8 *c = uac_mixer_unit_bmControls(desc, protocol);
-+	size_t rest; /* remaining bytes after bmMixerControls */
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving rx. */
++#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
 +
-+	switch (protocol) {
-+	case UAC_VERSION_1:
-+	default:
-+		rest = 1; /* iMixer */
-+		break;
-+	case UAC_VERSION_2:
-+		rest = 2; /* bmControls + iMixer */
-+		break;
-+	case UAC_VERSION_3:
-+		rest = 6; /* bmControls + wMixerDescrStr */
-+		break;
-+	}
-+
-+	/* overflow? */
-+	return c + (num_ins * num_outs + 7) / 8 + rest > hdr + hdr[0];
-+}
-+
- /*
-  * build a mixer unit control
-  *
-@@ -2137,6 +2154,9 @@ static int parse_audio_mixer_unit(struct
- 		if (err < 0)
- 			return err;
- 		num_ins += iterm.channels;
-+		if (mixer_bitmap_overflow(desc, state->mixer->protocol,
-+					  num_ins, num_outs))
-+			break;
- 		for (; ich < num_ins; ich++) {
- 			int och, ich_has_controls = 0;
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+ #define VHOST_GOODCOPY_LEN 256
+@@ -308,6 +312,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int sent_pkts = 0;
  
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -408,7 +413,8 @@ static void handle_tx(struct vhost_net *net)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
+-- 
+2.20.1
+
 
 
