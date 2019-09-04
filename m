@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1E5A9086
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 408A2A8E93
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390055AbfIDSKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:10:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S2388122AbfIDR6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389303AbfIDSKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:10:13 -0400
+        id S2388114AbfIDR6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EE7B208E4;
-        Wed,  4 Sep 2019 18:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C70C322DBF;
+        Wed,  4 Sep 2019 17:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620612;
-        bh=dQ1SFDjgCSInOxteCI1SVB9kLKMUxh7ABJ8IJAwqUNA=;
+        s=default; t=1567619927;
+        bh=uSIP8u8DY++aF/wMqdAfQwS0BjIVacNJen3OVr0tJrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJ/FR/23SKSSFbrn/bI4MbZ8nEVE0hyLjO5D2vlvupIqOfzrSNiq/PjvrhwQvBNA0
-         4gmFvsHvSlx9PdIF2aVCddh+16CxXEQzqaNEQaxDsrWfRRBLIBv6m6AalXjrq8MDrE
-         yCnloL50R/t14yeg6xR3qCzBmFFz+eb5dIJqAo5o=
+        b=2rGV/YHko2WB07+CdBQXafcXoR7u7T3AHv56VsOQkAdLdHbIOMYcfyqyOGt5s9m3k
+         GWQ27XhpF5/JG7SBKJjsdgx5UH2XGV5Nc9l/fjGosBvL40oWt6QPhujR1ugxk02e+i
+         zO8mXVI4nC6V6q4wr4UH8wQiQ8eLJSphOVu4INBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Segal <bpsegal20@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 030/143] habanalabs: fix completion queue handling when host is BE
+        stable@vger.kernel.org, Ilya Trukhanov <lahvuun@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 01/83] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
 Date:   Wed,  4 Sep 2019 19:52:53 +0200
-Message-Id: <20190904175315.236361927@linuxfoundation.org>
+Message-Id: <20190904175303.712854731@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,93 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4e87334a0ef43663019dbaf3638ad10fd8c3320c ]
+[ Upstream commit 65f11c72780fa9d598df88def045ccb6a885cf80 ]
 
-This patch fix the CQ irq handler to work in hosts with BE architecture.
-It adds the correct endian-swapping macros around the relevant memory
-accesses.
+Enable force feedback for the Thrustmaster Dual Trigger 2 in 1 Rumble Force
+gamepad. Compared to other Thrustmaster devices, left and right rumble
+motors here are swapped.
 
-Signed-off-by: Ben Segal <bpsegal20@gmail.com>
-Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Ilya Trukhanov <lahvuun@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/irq.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/hid/hid-tmff.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/irq.c b/drivers/misc/habanalabs/irq.c
-index ea9f72ff456cf..199791b57caf2 100644
---- a/drivers/misc/habanalabs/irq.c
-+++ b/drivers/misc/habanalabs/irq.c
-@@ -80,8 +80,7 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
- 	struct hl_cs_job *job;
- 	bool shadow_index_valid;
- 	u16 shadow_index;
--	u32 *cq_entry;
--	u32 *cq_base;
-+	struct hl_cq_entry *cq_entry, *cq_base;
+diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
+index b83376077d722..cfa0cb22c9b3c 100644
+--- a/drivers/hid/hid-tmff.c
++++ b/drivers/hid/hid-tmff.c
+@@ -34,6 +34,8 @@
  
- 	if (hdev->disabled) {
- 		dev_dbg(hdev->dev,
-@@ -90,29 +89,29 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
- 		return IRQ_HANDLED;
- 	}
+ #include "hid-ids.h"
  
--	cq_base = (u32 *) (uintptr_t) cq->kernel_address;
-+	cq_base = (struct hl_cq_entry *) (uintptr_t) cq->kernel_address;
++#define THRUSTMASTER_DEVICE_ID_2_IN_1_DT	0xb320
++
+ static const signed short ff_rumble[] = {
+ 	FF_RUMBLE,
+ 	-1
+@@ -88,6 +90,7 @@ static int tmff_play(struct input_dev *dev, void *data,
+ 	struct hid_field *ff_field = tmff->ff_field;
+ 	int x, y;
+ 	int left, right;	/* Rumbling */
++	int motor_swap;
  
- 	while (1) {
--		bool entry_ready = ((cq_base[cq->ci] & CQ_ENTRY_READY_MASK)
-+		bool entry_ready = ((le32_to_cpu(cq_base[cq->ci].data) &
-+					CQ_ENTRY_READY_MASK)
- 						>> CQ_ENTRY_READY_SHIFT);
+ 	switch (effect->type) {
+ 	case FF_CONSTANT:
+@@ -112,6 +115,13 @@ static int tmff_play(struct input_dev *dev, void *data,
+ 					ff_field->logical_minimum,
+ 					ff_field->logical_maximum);
  
- 		if (!entry_ready)
- 			break;
- 
--		cq_entry = (u32 *) &cq_base[cq->ci];
-+		cq_entry = (struct hl_cq_entry *) &cq_base[cq->ci];
- 
--		/*
--		 * Make sure we read CQ entry contents after we've
-+		/* Make sure we read CQ entry contents after we've
- 		 * checked the ownership bit.
- 		 */
- 		dma_rmb();
- 
--		shadow_index_valid =
--			((*cq_entry & CQ_ENTRY_SHADOW_INDEX_VALID_MASK)
-+		shadow_index_valid = ((le32_to_cpu(cq_entry->data) &
-+					CQ_ENTRY_SHADOW_INDEX_VALID_MASK)
- 					>> CQ_ENTRY_SHADOW_INDEX_VALID_SHIFT);
- 
--		shadow_index = (u16)
--			((*cq_entry & CQ_ENTRY_SHADOW_INDEX_MASK)
-+		shadow_index = (u16) ((le32_to_cpu(cq_entry->data) &
-+					CQ_ENTRY_SHADOW_INDEX_MASK)
- 					>> CQ_ENTRY_SHADOW_INDEX_SHIFT);
- 
- 		queue = &hdev->kernel_queues[cq->hw_queue_id];
-@@ -122,8 +121,7 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
- 			queue_work(hdev->cq_wq, &job->finish_work);
- 		}
- 
--		/*
--		 * Update ci of the context's queue. There is no
-+		/* Update ci of the context's queue. There is no
- 		 * need to protect it with spinlock because this update is
- 		 * done only inside IRQ and there is a different IRQ per
- 		 * queue
-@@ -131,7 +129,8 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
- 		queue->ci = hl_queue_inc_ptr(queue->ci);
- 
- 		/* Clear CQ entry ready bit */
--		cq_base[cq->ci] &= ~CQ_ENTRY_READY_MASK;
-+		cq_entry->data = cpu_to_le32(le32_to_cpu(cq_entry->data) &
-+						~CQ_ENTRY_READY_MASK);
- 
- 		cq->ci = hl_cq_inc_ptr(cq->ci);
- 
++		/* 2-in-1 strong motor is left */
++		if (hid->product == THRUSTMASTER_DEVICE_ID_2_IN_1_DT) {
++			motor_swap = left;
++			left = right;
++			right = motor_swap;
++		}
++
+ 		dbg_hid("(left,right)=(%08x, %08x)\n", left, right);
+ 		ff_field->value[0] = left;
+ 		ff_field->value[1] = right;
+@@ -238,6 +248,8 @@ static const struct hid_device_id tm_devices[] = {
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
+ 		.driver_data = (unsigned long)ff_rumble },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
++		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
 -- 
 2.20.1
 
