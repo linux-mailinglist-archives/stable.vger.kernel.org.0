@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8820DA8E1C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FD5A8FB1
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733207AbfIDR4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33370 "EHLO mail.kernel.org"
+        id S2388454AbfIDSFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732094AbfIDR4K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:56:10 -0400
+        id S2389229AbfIDSFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20DB022CF7;
-        Wed,  4 Sep 2019 17:56:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46D0A2339E;
+        Wed,  4 Sep 2019 18:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619769;
-        bh=OB04hPq4goy2WxzaUI+Dt3CGXgwKpr20c1CJuDud7zY=;
+        s=default; t=1567620315;
+        bh=uQ7bGFvchbc9uVNyqhK0ba5uN7WzGjOtITWIVobccd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qC/Yg56fMLfbslPR/gr+xnHr9HYcVqthesRsxgi+H8BgNXzXUZ94sIrmA49y050Nu
-         bXu2Oe7u8ukqfh9miRmdvhNfgWdXCwNJ+FnXFbIhU/KQP/vezKb6DF6AMbkTxGCASa
-         MnpA0zYAU3SG2F6yvEYTn/PSEljYInE7SlvVFtVw=
+        b=q2zV+4epRxb2X8e9hgmjDp5Zx8vcaeAfswmasLcXbktW6JF4LtMo+m3HtmGTAujSK
+         zf2QkMEUz3gAbCB0Cs8cehGmFF86JoJmyqXdkxJn2jGhxJXcUgo84OQKrV9GXCfiEK
+         DlOAN/MVuNbC8M9M4BhCD/yZz1aOeQbdPBUZ6Qh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 4.4 28/77] x86/boot: Save fields explicitly, zero out everything else
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/93] dmaengine: stm32-mdma: Fix a possible null-pointer dereference in stm32_mdma_irq_handler()
 Date:   Wed,  4 Sep 2019 19:53:15 +0200
-Message-Id: <20190904175306.277352889@linuxfoundation.org>
+Message-Id: <20190904175304.282960418@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+[ Upstream commit 39c71a5b8212f4b502d9a630c6706ac723abd422 ]
 
-commit a90118c445cc7f07781de26a9684d4ec58bfcfd1 upstream.
+In stm32_mdma_irq_handler(), chan is checked on line 1368.
+When chan is NULL, it is still used on line 1369:
+    dev_err(chan2dev(chan), "MDMA channel not initialized\n");
 
-Recent gcc compilers (gcc 9.1) generate warnings about an out of bounds
-memset, if the memset goes accross several fields of a struct. This
-generated a couple of warnings on x86_64 builds in sanitize_boot_params().
+Thus, a possible null-pointer dereference may occur.
 
-Fix this by explicitly saving the fields in struct boot_params
-that are intended to be preserved, and zeroing all the rest.
+To fix this bug, "dev_dbg(mdma2dev(dmadev), ...)" is used instead.
 
-[ tglx: Tagged for stable as it breaks the warning free build there as well ]
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Suggested-by: H. Peter Anvin <hpa@zytor.com>
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190731054627.5627-2-jhubbard@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
+Link: https://lore.kernel.org/r/20190729020849.17971-1-baijiaju1990@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/bootparam_utils.h |   59 +++++++++++++++++++++++++--------
- 1 file changed, 46 insertions(+), 13 deletions(-)
+ drivers/dma/stm32-mdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/bootparam_utils.h
-+++ b/arch/x86/include/asm/bootparam_utils.h
-@@ -17,6 +17,20 @@
-  * Note: efi_info is commonly left uninitialized, but that field has a
-  * private magic, so it is better to leave it unchanged.
-  */
-+
-+#define sizeof_mbr(type, member) ({ sizeof(((type *)0)->member); })
-+
-+#define BOOT_PARAM_PRESERVE(struct_member)				\
-+	{								\
-+		.start = offsetof(struct boot_params, struct_member),	\
-+		.len   = sizeof_mbr(struct boot_params, struct_member),	\
-+	}
-+
-+struct boot_params_to_save {
-+	unsigned int start;
-+	unsigned int len;
-+};
-+
- static void sanitize_boot_params(struct boot_params *boot_params)
- {
- 	/* 
-@@ -35,19 +49,38 @@ static void sanitize_boot_params(struct
- 	 */
- 	if (boot_params->sentinel) {
- 		/* fields in boot_params are left uninitialized, clear them */
--		memset(&boot_params->ext_ramdisk_image, 0,
--		       (char *)&boot_params->efi_info -
--			(char *)&boot_params->ext_ramdisk_image);
--		memset(&boot_params->kbd_status, 0,
--		       (char *)&boot_params->hdr -
--		       (char *)&boot_params->kbd_status);
--		memset(&boot_params->_pad7[0], 0,
--		       (char *)&boot_params->edd_mbr_sig_buffer[0] -
--			(char *)&boot_params->_pad7[0]);
--		memset(&boot_params->_pad8[0], 0,
--		       (char *)&boot_params->eddbuf[0] -
--			(char *)&boot_params->_pad8[0]);
--		memset(&boot_params->_pad9[0], 0, sizeof(boot_params->_pad9));
-+		static struct boot_params scratch;
-+		char *bp_base = (char *)boot_params;
-+		char *save_base = (char *)&scratch;
-+		int i;
-+
-+		const struct boot_params_to_save to_save[] = {
-+			BOOT_PARAM_PRESERVE(screen_info),
-+			BOOT_PARAM_PRESERVE(apm_bios_info),
-+			BOOT_PARAM_PRESERVE(tboot_addr),
-+			BOOT_PARAM_PRESERVE(ist_info),
-+			BOOT_PARAM_PRESERVE(hd0_info),
-+			BOOT_PARAM_PRESERVE(hd1_info),
-+			BOOT_PARAM_PRESERVE(sys_desc_table),
-+			BOOT_PARAM_PRESERVE(olpc_ofw_header),
-+			BOOT_PARAM_PRESERVE(efi_info),
-+			BOOT_PARAM_PRESERVE(alt_mem_k),
-+			BOOT_PARAM_PRESERVE(scratch),
-+			BOOT_PARAM_PRESERVE(e820_entries),
-+			BOOT_PARAM_PRESERVE(eddbuf_entries),
-+			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
-+			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
-+			BOOT_PARAM_PRESERVE(eddbuf),
-+		};
-+
-+		memset(&scratch, 0, sizeof(scratch));
-+
-+		for (i = 0; i < ARRAY_SIZE(to_save); i++) {
-+			memcpy(save_base + to_save[i].start,
-+			       bp_base + to_save[i].start, to_save[i].len);
-+		}
-+
-+		memcpy(boot_params, save_base, sizeof(*boot_params));
- 	}
- }
+diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
+index 06dd1725375e5..8c3c3e5b812a8 100644
+--- a/drivers/dma/stm32-mdma.c
++++ b/drivers/dma/stm32-mdma.c
+@@ -1376,7 +1376,7 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
  
+ 	chan = &dmadev->chan[id];
+ 	if (!chan) {
+-		dev_err(chan2dev(chan), "MDMA channel not initialized\n");
++		dev_dbg(mdma2dev(dmadev), "MDMA channel not initialized\n");
+ 		goto exit;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
