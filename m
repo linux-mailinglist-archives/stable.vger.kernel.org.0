@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D4C3A8EDF
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F40A8FC0
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387690AbfIDSAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
+        id S2389287AbfIDSFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388405AbfIDSAb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:31 -0400
+        id S2389282AbfIDSFh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4D702339E;
-        Wed,  4 Sep 2019 18:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 926862339E;
+        Wed,  4 Sep 2019 18:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620031;
-        bh=MBL6o8AQn13xHy3RKVUNkSPUrr0fYctGP4ivvm3vXoE=;
+        s=default; t=1567620337;
+        bh=xpTxZ5R8eAcpX66aYu+28hbqAixej81lEhoB0dUZzuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkKl3fMjyZO54k3ifouZbQoEZ07etgdiI6s9QDThAUpzExxRUHIdGorp3e/V/v7x3
-         447cQXQo6UbSM1Te0Suc6IG2Nww4wX3yFqENx8Hp/YUU3krPlyvtcc2sCuBdQF/Fb9
-         UOndB3P4mfMaOpTpLu+Guv1gRMEgEkSKnUHLmIgM=
+        b=SBxburqJv2LYJ91kCKtHSSppR96afD/fNZStWWaBjaC8Vj59qqZGhPrMiS5zGtLMY
+         6UhdP8aFtjp0eJ2AKPq+4dm4uBm8T3u1r+ANfxkmjJRheDOXUydh+cApUtWqrrzCez
+         aof2oEpyM+UTLRPL+2WYbBuaEnNOCTLWZpY1+fmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 30/83] Revert "dm bufio: fix deadlock with loop device"
+        stable@vger.kernel.org,
+        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/93] i2c: rcar: avoid race when unregistering slave client
 Date:   Wed,  4 Sep 2019 19:53:22 +0200
-Message-Id: <20190904175306.544969044@linuxfoundation.org>
+Message-Id: <20190904175305.072864866@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+[ Upstream commit 7b814d852af6944657c2961039f404c4490771c0 ]
 
-commit cf3591ef832915892f2499b7e54b51d4c578b28c upstream.
+After we disabled interrupts, there might still be an active one
+running. Sync before clearing the pointer to the slave device.
 
-Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
-fix has been made available with commit d0a255e795ab ("loop: set
-PF_MEMALLOC_NOIO for the worker thread").
-
-Note that the fix offered by commit bd293d071ffe doesn't really prevent
-the deadlock from occuring - if we look at the stacktrace reported by
-Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
-i.e. it has already successfully taken the mutex. Changing the mutex
-from mutex_lock to mutex_trylock won't help with deadlocks that happen
-afterwards.
-
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
-Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
+Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1585,7 +1585,9 @@ dm_bufio_shrink_scan(struct shrinker *sh
- 	unsigned long freed;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 254e6219e5389..2c29f901d3090 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -139,6 +139,7 @@ struct rcar_i2c_priv {
+ 	enum dma_data_direction dma_direction;
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (!dm_bufio_trylock(c))
-+	if (sc->gfp_mask & __GFP_FS)
-+		dm_bufio_lock(c);
-+	else if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+ 	struct reset_control *rstc;
++	int irq;
+ };
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+ #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
+@@ -859,9 +860,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+ 
+ 	WARN_ON(!priv->slave);
+ 
++	/* disable irqs and ensure none is running before clearing ptr */
+ 	rcar_i2c_write(priv, ICSIER, 0);
+ 	rcar_i2c_write(priv, ICSCR, 0);
+ 
++	synchronize_irq(priv->irq);
+ 	priv->slave = NULL;
+ 
+ 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
+@@ -916,7 +919,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct device *dev = &pdev->dev;
+ 	struct i2c_timings i2c_t;
+-	int irq, ret;
++	int ret;
+ 
+ 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -979,10 +982,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 		pm_runtime_put(dev);
+ 
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
++	priv->irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
+ 	if (ret < 0) {
+-		dev_err(dev, "cannot get irq %d\n", irq);
++		dev_err(dev, "cannot get irq %d\n", priv->irq);
+ 		goto out_pm_disable;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
