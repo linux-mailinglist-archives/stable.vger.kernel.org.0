@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39169A9116
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1669A8E32
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390687AbfIDSN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58300 "EHLO mail.kernel.org"
+        id S1732038AbfIDR4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390684AbfIDSN0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:26 -0400
+        id S2387619AbfIDR4h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3866208E4;
-        Wed,  4 Sep 2019 18:13:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D197122CF7;
+        Wed,  4 Sep 2019 17:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620806;
-        bh=3srGCbj7ekQs7/Q2VMppiRyfVO4nSNJpbhCJvTAUeOo=;
+        s=default; t=1567619796;
+        bh=Wf0yReSvmLtQN3TZjus7kyYzHe+ulnlqZnDfcwXGxiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQ6jIuHHkjof0UuCuGhFbbLEdw6i7CcxMligFjFLwZieznYsa54iezwC/QKoDBEJj
-         ZuNpmX2VSOmdE4wOqgS7eX3KpJ9FX0Cc7hxQEd0LC5P91cJYLYVlguZS7iOZyDwNQU
-         Qf+F8BNMg30BcmNoFhdeLsaZWEsg272DiUcO0+LU=
+        b=U7WV3lS0KQ0oOeHE+tqz3p3XBlLfdXdEcaCrH9Gcv+PGhIKi+la1K1Oj1Df0j6tKX
+         IzKRj5rvEoaCh2a1wOxxN6THlYITIwHecIyDsIupKdh34bVwQP+auYWvqQ8XF+8T6K
+         9TUOl4Vr32EBwhA0kAUYt6U9zE71AHKMJV7PTqgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Rekowski?= <p.rekowski@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 061/143] ALSA: hda/ca0132 - Add new SBZ quirk
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 37/77] vhost_net: use packet weight for rx handler, too
 Date:   Wed,  4 Sep 2019 19:53:24 +0200
-Message-Id: <20190904175316.460609767@linuxfoundation.org>
+Message-Id: <20190904175307.104169907@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Rekowski <p.rekowski@gmail.com>
+commit db688c24eada63b1efe6d0d7d835e5c3bdd71fd3 upstream.
 
-commit 2ca371d847511f97ef991ef612a2ce805489840e upstream.
+Similar to commit a2ac99905f1e ("vhost-net: set packet weight of
+tx polling to 2 * vq size"), we need a packet-based limit for
+handler_rx, too - elsewhere, under rx flood with small packets,
+tx can be delayed for a very long time, even without busypolling.
 
-This patch adds a new PCI subsys ID for the SBZ, as found and tested by
-me and some reddit users.
+The pkt limit applied to handle_rx must be the same applied by
+handle_tx, or we will get unfair scheduling between rx and tx.
+Tying such limit to the queue length makes it less effective for
+large queue length values and can introduce large process
+scheduler latencies, so a constant valued is used - likewise
+the existing bytes limit.
 
-Link: https://lore.kernel.org/lkml/20190819204008.14426-1-p.rekowski@gmail.com
-Signed-off-by: Paweł Rekowski <p.rekowski@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The selected limit has been validated with PVP[1] performance
+test with different queue sizes:
 
+queue size		256	512	1024
+
+baseline		366	354	362
+weight 128		715	723	670
+weight 256		740	745	733
+weight 512		600	460	583
+weight 1024		423	427	418
+
+A packet weight of 256 gives peek performances in under all the
+tested scenarios.
+
+No measurable regression in unidirectional performance tests has
+been detected.
+
+[1] https://developers.redhat.com/blog/2017/06/05/measuring-and-comparing-open-vswitch-performance/
+
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/vhost/net.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1175,6 +1175,7 @@ static const struct snd_pci_quirk ca0132
- 	SND_PCI_QUIRK(0x1028, 0x0708, "Alienware 15 R2 2016", QUIRK_ALIENWARE),
- 	SND_PCI_QUIRK(0x1102, 0x0010, "Sound Blaster Z", QUIRK_SBZ),
- 	SND_PCI_QUIRK(0x1102, 0x0023, "Sound Blaster Z", QUIRK_SBZ),
-+	SND_PCI_QUIRK(0x1102, 0x0027, "Sound Blaster Z", QUIRK_SBZ),
- 	SND_PCI_QUIRK(0x1102, 0x0033, "Sound Blaster ZxR", QUIRK_SBZ),
- 	SND_PCI_QUIRK(0x1458, 0xA016, "Recon3Di", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index b8496f713bc62..c1b5bccab293f 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -40,8 +40,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ #define VHOST_NET_WEIGHT 0x80000
+ 
+ /* Max number of packets transferred before requeueing the job.
+- * Using this limit prevents one virtqueue from starving rx. */
+-#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
++ * Using this limit prevents one virtqueue from starving others with small
++ * pkts.
++ */
++#define VHOST_NET_PKT_WEIGHT 256
+ 
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+@@ -414,7 +416,7 @@ static void handle_tx(struct vhost_net *net)
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+ 		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
+-		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
+@@ -545,6 +547,7 @@ static void handle_rx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct iov_iter fixup;
+ 	__virtio16 num_buffers;
++	int recv_pkts = 0;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -637,7 +640,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, vhost_len);
+ 		total_len += vhost_len;
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++recv_pkts >= VHOST_NET_PKT_WEIGHT)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
+-- 
+2.20.1
+
 
 
