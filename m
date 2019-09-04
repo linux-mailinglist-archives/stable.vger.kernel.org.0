@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 022B1A8E1D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC122A90B8
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733200AbfIDR4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33292 "EHLO mail.kernel.org"
+        id S2389338AbfIDSLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733178AbfIDR4I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:56:08 -0400
+        id S2390255AbfIDSLT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:11:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E9B322DBF;
-        Wed,  4 Sep 2019 17:56:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E364B208E4;
+        Wed,  4 Sep 2019 18:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619767;
-        bh=d/PkP+1oljDM2sHuvFgWg/3DRuNkpg5gqrs9YIlNhl8=;
+        s=default; t=1567620678;
+        bh=akaLcIMGPl7jRk2vLyKokSdiNDoH6/m1Fi2RRn2Oagk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgLjRyIjjiUa2tnPcYxtrV+JeLhYjy0qFYYAfOYsUibSJxxSPvySwqo3EvDf4yWrP
-         JnNmeXNVrfyrrxLsX0UsdLnNQi9PkuMmaAWkbwEWWxtyVyu02gkb4OAJ6Wox+PsYxh
-         o5SqRYhPo9hN7xupCcsR2iPCBNSMqBdV7Toh+dfU=
+        b=kZ/PP0rKt5BaBLDAmv2BZtUBDllkYVnrMiPEYa+b+YL5yMZCCBKtdOrlrthts/RT7
+         XSVc2ILn0oLfSNXLVxCo/Ta7zKiBOfkGr5wKbKemdvaTsXUV3O+y3JwtBSlo7t/h36
+         rVv7JuaFrTo5uXXyEMrMmvFDZnYNQK/DThhVPFkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.4 27/77] x86/apic: Handle missing global clockevent gracefully
-Date:   Wed,  4 Sep 2019 19:53:14 +0200
-Message-Id: <20190904175306.098238386@linuxfoundation.org>
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Zhang Yu <zhangyu31@baidu.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 052/143] net: fix __ip_mc_inc_group usage
+Date:   Wed,  4 Sep 2019 19:53:15 +0200
+Message-Id: <20190904175316.104436971@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,154 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Li RongQing <lirongqing@baidu.com>
 
-commit f897e60a12f0b9146357780d317879bce2a877dc upstream.
+[ Upstream commit a1c4cd67840ef80f6ca5f73326fa9a6719303a95 ]
 
-Some newer machines do not advertise legacy timers. The kernel can handle
-that situation if the TSC and the CPU frequency are enumerated by CPUID or
-MSRs and the CPU supports TSC deadline timer. If the CPU does not support
-TSC deadline timer the local APIC timer frequency has to be known as well.
+in ip_mc_inc_group, memory allocation flag, not mcast mode, is expected
+by __ip_mc_inc_group
 
-Some Ryzens machines do not advertize legacy timers, but there is no
-reliable way to determine the bus frequency which feeds the local APIC
-timer when the machine allows overclocking of that frequency.
+similar issue in __ip_mc_join_group, both mcase mode and gfp_t are needed
+here, so use ____ip_mc_inc_group(...)
 
-As there is no legacy timer the local APIC timer calibration crashes due to
-a NULL pointer dereference when accessing the not installed global clock
-event device.
-
-Switch the calibration loop to a non interrupt based one, which polls
-either TSC (if frequency is known) or jiffies. The latter requires a global
-clockevent. As the machines which do not have a global clockevent installed
-have a known TSC frequency this is a non issue. For older machines where
-TSC frequency is not known, there is no known case where the legacy timers
-do not exist as that would have been reported long ago.
-
-Reported-by: Daniel Drake <drake@endlessm.com>
-Reported-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Daniel Drake <drake@endlessm.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908091443030.21433@nanos.tec.linutronix.de
-Link: http://bugzilla.opensuse.org/show_bug.cgi?id=1142926#c12
+Fixes: 9fb20801dab4 ("net: Fix ip_mc_{dec,inc}_group allocation context")
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/apic/apic.c |   68 ++++++++++++++++++++++++++++++++++----------
- 1 file changed, 53 insertions(+), 15 deletions(-)
+ net/ipv4/igmp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -593,7 +593,7 @@ static __initdata unsigned long lapic_ca
- static __initdata unsigned long lapic_cal_j1, lapic_cal_j2;
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -1474,7 +1474,7 @@ EXPORT_SYMBOL(__ip_mc_inc_group);
  
- /*
-- * Temporary interrupt handler.
-+ * Temporary interrupt handler and polled calibration function.
-  */
- static void __init lapic_cal_handler(struct clock_event_device *dev)
+ void ip_mc_inc_group(struct in_device *in_dev, __be32 addr)
  {
-@@ -677,7 +677,8 @@ calibrate_by_pmtimer(long deltapm, long
- static int __init calibrate_APIC_clock(void)
- {
- 	struct clock_event_device *levt = this_cpu_ptr(&lapic_events);
--	void (*real_handler)(struct clock_event_device *dev);
-+	u64 tsc_perj = 0, tsc_start = 0;
-+	unsigned long jif_start;
- 	unsigned long deltaj;
- 	long delta, deltatsc;
- 	int pm_referenced = 0;
-@@ -706,29 +707,65 @@ static int __init calibrate_APIC_clock(v
- 	apic_printk(APIC_VERBOSE, "Using local APIC timer interrupts.\n"
- 		    "calibrating APIC timer ...\n");
+-	__ip_mc_inc_group(in_dev, addr, MCAST_EXCLUDE);
++	__ip_mc_inc_group(in_dev, addr, GFP_KERNEL);
+ }
+ EXPORT_SYMBOL(ip_mc_inc_group);
  
-+	/*
-+	 * There are platforms w/o global clockevent devices. Instead of
-+	 * making the calibration conditional on that, use a polling based
-+	 * approach everywhere.
-+	 */
- 	local_irq_disable();
- 
--	/* Replace the global interrupt handler */
--	real_handler = global_clock_event->event_handler;
--	global_clock_event->event_handler = lapic_cal_handler;
--
- 	/*
- 	 * Setup the APIC counter to maximum. There is no way the lapic
- 	 * can underflow in the 100ms detection time frame
- 	 */
- 	__setup_APIC_LVTT(0xffffffff, 0, 0);
- 
--	/* Let the interrupts run */
-+	/*
-+	 * Methods to terminate the calibration loop:
-+	 *  1) Global clockevent if available (jiffies)
-+	 *  2) TSC if available and frequency is known
-+	 */
-+	jif_start = READ_ONCE(jiffies);
-+
-+	if (tsc_khz) {
-+		tsc_start = rdtsc();
-+		tsc_perj = div_u64((u64)tsc_khz * 1000, HZ);
-+	}
-+
-+	/*
-+	 * Enable interrupts so the tick can fire, if a global
-+	 * clockevent device is available
-+	 */
- 	local_irq_enable();
- 
--	while (lapic_cal_loops <= LAPIC_CAL_LOOPS)
--		cpu_relax();
-+	while (lapic_cal_loops <= LAPIC_CAL_LOOPS) {
-+		/* Wait for a tick to elapse */
-+		while (1) {
-+			if (tsc_khz) {
-+				u64 tsc_now = rdtsc();
-+				if ((tsc_now - tsc_start) >= tsc_perj) {
-+					tsc_start += tsc_perj;
-+					break;
-+				}
-+			} else {
-+				unsigned long jif_now = READ_ONCE(jiffies);
-+
-+				if (time_after(jif_now, jif_start)) {
-+					jif_start = jif_now;
-+					break;
-+				}
-+			}
-+			cpu_relax();
-+		}
-+
-+		/* Invoke the calibration routine */
-+		local_irq_disable();
-+		lapic_cal_handler(NULL);
-+		local_irq_enable();
-+	}
- 
- 	local_irq_disable();
- 
--	/* Restore the real event handler */
--	global_clock_event->event_handler = real_handler;
--
- 	/* Build delta t1-t2 as apic timer counts down */
- 	delta = lapic_cal_t1 - lapic_cal_t2;
- 	apic_printk(APIC_VERBOSE, "... lapic delta = %ld\n", delta);
-@@ -778,10 +815,11 @@ static int __init calibrate_APIC_clock(v
- 	levt->features &= ~CLOCK_EVT_FEAT_DUMMY;
- 
- 	/*
--	 * PM timer calibration failed or not turned on
--	 * so lets try APIC timer based calibration
-+	 * PM timer calibration failed or not turned on so lets try APIC
-+	 * timer based calibration, if a global clockevent device is
-+	 * available.
- 	 */
--	if (!pm_referenced) {
-+	if (!pm_referenced && global_clock_event) {
- 		apic_printk(APIC_VERBOSE, "... verify APIC timer\n");
- 
- 		/*
+@@ -2196,7 +2196,7 @@ static int __ip_mc_join_group(struct soc
+ 	iml->sflist = NULL;
+ 	iml->sfmode = mode;
+ 	rcu_assign_pointer(inet->mc_list, iml);
+-	__ip_mc_inc_group(in_dev, addr, mode);
++	____ip_mc_inc_group(in_dev, addr, mode, GFP_KERNEL);
+ 	err = 0;
+ done:
+ 	return err;
 
 
