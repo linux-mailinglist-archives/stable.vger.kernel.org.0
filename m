@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 153DDA8FE7
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA38EA8E9D
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388704AbfIDSGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48564 "EHLO mail.kernel.org"
+        id S2388170AbfIDR7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:59:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbfIDSGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:06:33 -0400
+        id S1732997AbfIDR7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:59:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C757233FF;
-        Wed,  4 Sep 2019 18:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07CA722CF7;
+        Wed,  4 Sep 2019 17:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620393;
-        bh=0O4n15exUaNewwAAnbQAviNpDYEccMYQtdw6g4eJd70=;
+        s=default; t=1567619940;
+        bh=gFvXK3IG4GFAXcEV6XgFaWxf1Ol+tUwYHXpCyQve8Ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y817GkgjakYLCqB+KmPzFM1A5ZTJzYodE5QMWRPBxL09y+QIe9bF5nv2jVhWYdhzh
-         x8GwlgQ/zGQqjdo6+iidfI5zb7KLocTy23hPuN/tRGuYk2mNMFDN6pn5eRziTnUUlY
-         x/HpsQAXNRYxW2qjk7FuVyco0uaWNLI5yWD147kU=
+        b=1cVb7hy7XO/uqZXoQNd+4v/AxHC8kz/NqYPSDAjD/ow5PsqbzwTEbS9s8mO3kH4BZ
+         NQOvqT05AItBC7I2dP9ryujgcETFagF8VW1c1hxSB8LIbgcA7b9sJW/9RAeMJ2YKI5
+         6aPeP5Tq85lDsFhNBl+2VJn4mLUYPsear8jNG7w8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Jeffrey Altman <jaltman@auristor.com>,
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/93] afs: Fix loop index mixup in afs_deliver_vl_get_entry_by_name_u()
+Subject: [PATCH 4.9 14/83] perf bench numa: Fix cpu0 binding
 Date:   Wed,  4 Sep 2019 19:53:06 +0200
-Message-Id: <20190904175303.270365119@linuxfoundation.org>
+Message-Id: <20190904175305.134362678@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4a46fdba449a5cd890271df5a9e23927d519ed00 ]
+[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
 
-afs_deliver_vl_get_entry_by_name_u() scans through the vl entry
-received from the volume location server and builds a return list
-containing the sites that are currently valid.  When assigning
-values for the return list, the index into the vl entry (i) is used
-rather than the one for the new list (entry->nr_server).  If all
-sites are usable, this works out fine as the indices will match.
-If some sites are not valid, for example if AFS_VLSF_DONTUSE is
-set, fs_mask and the uuid will be set for the wrong return site.
+Michael reported an issue with perf bench numa failing with binding to
+cpu0 with '-0' option.
 
-Fix this by using entry->nr_server as the index into the arrays
-being filled in rather than i.
+  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
+  # Running 'numa/mem' benchmark:
 
-This can lead to EDESTADDRREQ errors if none of the returned sites
-have a valid fs_mask.
+   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
+  binding to node 0, mask: 0000000000000001 => -1
+  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
+  Aborted (core dumped)
 
-Fixes: d2ddc776a458 ("afs: Overhaul volume and server record caching and fileserver rotation")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+This happens when the cpu0 is not part of node0, which is the benchmark
+assumption and we can see that's not the case for some powerpc servers.
+
+Using correct node for cpu0 binding.
+
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/vlclient.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ tools/perf/bench/numa.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/vlclient.c b/fs/afs/vlclient.c
-index c3b740813fc71..c7dd47eaff29d 100644
---- a/fs/afs/vlclient.c
-+++ b/fs/afs/vlclient.c
-@@ -60,23 +60,24 @@ static int afs_deliver_vl_get_entry_by_name_u(struct afs_call *call)
- 		struct afs_uuid__xdr *xdr;
- 		struct afs_uuid *uuid;
- 		int j;
-+		int n = entry->nr_servers;
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index e58be7eeced83..7b364f2926d4f 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -373,8 +373,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
  
- 		tmp = ntohl(uvldb->serverFlags[i]);
- 		if (tmp & AFS_VLSF_DONTUSE ||
- 		    (new_only && !(tmp & AFS_VLSF_NEWREPSITE)))
- 			continue;
- 		if (tmp & AFS_VLSF_RWVOL) {
--			entry->fs_mask[i] |= AFS_VOL_VTM_RW;
-+			entry->fs_mask[n] |= AFS_VOL_VTM_RW;
- 			if (vlflags & AFS_VLF_BACKEXISTS)
--				entry->fs_mask[i] |= AFS_VOL_VTM_BAK;
-+				entry->fs_mask[n] |= AFS_VOL_VTM_BAK;
- 		}
- 		if (tmp & AFS_VLSF_ROVOL)
--			entry->fs_mask[i] |= AFS_VOL_VTM_RO;
--		if (!entry->fs_mask[i])
-+			entry->fs_mask[n] |= AFS_VOL_VTM_RO;
-+		if (!entry->fs_mask[n])
- 			continue;
+ 	/* Allocate and initialize all memory on CPU#0: */
+ 	if (init_cpu0) {
+-		orig_mask = bind_to_node(0);
+-		bind_to_memnode(0);
++		int node = numa_node_of_cpu(0);
++
++		orig_mask = bind_to_node(node);
++		bind_to_memnode(node);
+ 	}
  
- 		xdr = &uvldb->serverNumber[i];
--		uuid = (struct afs_uuid *)&entry->fs_server[i];
-+		uuid = (struct afs_uuid *)&entry->fs_server[n];
- 		uuid->time_low			= xdr->time_low;
- 		uuid->time_mid			= htons(ntohl(xdr->time_mid));
- 		uuid->time_hi_and_version	= htons(ntohl(xdr->time_hi_and_version));
+ 	bytes = bytes0 + HPSIZE;
 -- 
 2.20.1
 
