@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E4EBA91C9
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE0BA90A5
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730408AbfIDS0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:26:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35594 "EHLO mail.kernel.org"
+        id S2389008AbfIDSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732934AbfIDR5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:35 -0400
+        id S2390170AbfIDSKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5360C22CF5;
-        Wed,  4 Sep 2019 17:57:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C2FC23400;
+        Wed,  4 Sep 2019 18:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619854;
-        bh=rHytPNhQkF8ov8Qv+LZTByPCoP/QEAlGbsW/DS6uliA=;
+        s=default; t=1567620654;
+        bh=reqK3qDzV0OY1qcf3LHJVujmnjBe/yW+o7i+jB6muVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gADxGfuuJN71FJ6NhGTEBaTjr308dn6feKcdbzc5QdvHHLWl3AjwuYhvQNkbfIT7/
-         QI2NQAnQ7pnI9kx8q1lWrw4GDxoggApCibuLam+codMN67GLfekuVjQemP/VlybgXa
-         3zUmj0Sef0mTQx/wjfivI/O+zLSHT5/ZpSdAfqrk=
+        b=ZGdHn8mdjIWAQY63T0A6/chrIbjfPnQ1yx0kqUFIJoXDD3vdr2EhFBdm85nTsNjbS
+         FW/Ou9mTKslh2Mor0DIIH04N7pYHMpSNQiwGazHqN5Pt0rnagrO3Zv34fOLpHM1jND
+         6sSTAuW3AEimFrukyvia/i9w+XikFjdRtL6YgouI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jan Stancek <jstancek@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/77] net: hisilicon: fix hip04-xmit never return TX_BUSY
-Date:   Wed,  4 Sep 2019 19:53:06 +0200
-Message-Id: <20190904175305.429511694@linuxfoundation.org>
+Subject: [PATCH 5.2 044/143] lcoking/rwsem: Add missing ACQUIRE to read_slowpath sleep loop
+Date:   Wed,  4 Sep 2019 19:53:07 +0200
+Message-Id: <20190904175315.793575310@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f2243b82785942be519016067ee6c55a063bbfe2 ]
+[ Upstream commit 99143f82a255e7f054bead8443462fae76dd829e ]
 
-TX_DESC_NUM is 256, in tx_count, the maximum value of
-mod(TX_DESC_NUM - 1) is 254, the variable "count" in
-the hip04_mac_start_xmit function is never equal to
-(TX_DESC_NUM - 1), so hip04_mac_start_xmit never
-return NETDEV_TX_BUSY.
+While reviewing another read_slowpath patch, both Will and I noticed
+another missing ACQUIRE, namely:
 
-tx_count is modified to mod(TX_DESC_NUM) so that
-the maximum value of tx_count can reach
-(TX_DESC_NUM - 1), then hip04_mac_start_xmit can reurn
-NETDEV_TX_BUSY.
+  X = 0;
 
-Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  CPU0			CPU1
+
+  rwsem_down_read()
+    for (;;) {
+      set_current_state(TASK_UNINTERRUPTIBLE);
+
+                        X = 1;
+                        rwsem_up_write();
+                          rwsem_mark_wake()
+                            atomic_long_add(adjustment, &sem->count);
+                            smp_store_release(&waiter->task, NULL);
+
+      if (!waiter.task)
+        break;
+
+      ...
+    }
+
+  r = X;
+
+Allows 'r == 0'.
+
+Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: Will Deacon <will@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Jan Stancek <jstancek@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/locking/rwsem-xadd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index fdf8a477bec9c..a88d233df4e82 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -185,7 +185,7 @@ struct hip04_priv {
- 
- static inline unsigned int tx_count(unsigned int head, unsigned int tail)
- {
--	return (head - tail) % (TX_DESC_NUM - 1);
-+	return (head - tail) % TX_DESC_NUM;
- }
- 
- static void hip04_config_port(struct net_device *ndev, u32 speed, u32 duplex)
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 397dedc58432d..385ebcfc31a6d 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -485,8 +485,10 @@ __rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
+ 	/* wait to be given the lock */
+ 	while (true) {
+ 		set_current_state(state);
+-		if (!waiter.task)
++		if (!smp_load_acquire(&waiter.task)) {
++			/* Orders against rwsem_mark_wake()'s smp_store_release() */
+ 			break;
++		}
+ 		if (signal_pending_state(state, current)) {
+ 			raw_spin_lock_irq(&sem->wait_lock);
+ 			if (waiter.task)
 -- 
 2.20.1
 
