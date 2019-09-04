@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55737A9027
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93C05A8F25
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389699AbfIDSH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
+        id S2388683AbfIDSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:02:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389694AbfIDSH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:07:59 -0400
+        id S2388676AbfIDSCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B1452087E;
-        Wed,  4 Sep 2019 18:07:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40BE722CF7;
+        Wed,  4 Sep 2019 18:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620478;
-        bh=izBRRnXiw9mOfutHNB06OnVP5gsPFMTfZ8E+HUYKFVE=;
+        s=default; t=1567620121;
+        bh=/wv3AgA7zMwW73GFBi8l04EhSvdtctzZwKdDe8/Y3uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onyeQLt+fcsrXO2eMudSM0VClOOuMd+funeV1xiWmqkoHo7HXuARrrq5uJ4sw1xE9
-         L+utJs/LpHBnaXg8/PHf3auyR1naQJ2oJY774tMHwvHFNuHCFHkH3e2PskFQpAWSEY
-         m/ZousKqRhV0c3VzlY0NeYJTzajaSH+AWHhZzLvE=
+        b=W0xGmcCpu8ln/nHkF2vhwUXJ7cPHMtTN/GNaLT6+MB8qmVPb6zKmrTgji7+ama82e
+         edzXrq0LZAswgiTBFOeJ1JJNrkuhsTcjGwM37U/Bv+/quqcwPxOQTnNtchyhgqfYLP
+         TeZ/NMPCEkJPxLOMAVRNhUWAbnVhY5iiBMtDm7yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>
-Subject: [PATCH 4.19 72/93] lib: logic_pio: Add logic_pio_unregister_range()
+        stable@vger.kernel.org, Andrew Cooks <andrew.cooks@opengear.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 82/83] i2c: piix4: Fix port selection for AMD Family 16h Model 30h
 Date:   Wed,  4 Sep 2019 19:54:14 +0200
-Message-Id: <20190904175309.300889191@linuxfoundation.org>
+Message-Id: <20190904175310.865012524@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+[ Upstream commit c7c06a1532f3fe106687ac82a13492c6a619ff1c ]
 
-commit b884e2de2afc68ce30f7093747378ef972dde253 upstream.
+Family 16h Model 30h SMBus controller needs the same port selection fix
+as described and fixed in commit 0fe16195f891 ("i2c: piix4: Fix SMBus port
+selection for AMD Family 17h chips")
 
-Add a function to unregister a logical PIO range.
+commit 6befa3fde65f ("i2c: piix4: Support alternative port selection
+register") also fixed the port selection for Hudson2, but unfortunately
+this is not the exact same device and the AMD naming and PCI Device IDs
+aren't particularly helpful here.
 
-Logical PIO space can still be leaked when unregistering certain
-LOGIC_PIO_CPU_MMIO regions, but this acceptable for now since there are no
-callers to unregister LOGIC_PIO_CPU_MMIO regions, and the logical PIO
-region allocation scheme would need significant work to improve this.
+The SMBus port selection register is common to the following Families
+and models, as documented in AMD's publicly available BIOS and Kernel
+Developer Guides:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ 50742 - Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 55072 - Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 52740 - Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
 
+The Hudson2 PCI Device ID (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) is shared
+between Bolton FCH and Family 16h Model 30h, but the location of the
+SmBus0Sel port selection bits are different:
+
+ 51192 - Bolton Register Reference Guide
+
+We distinguish between Bolton and Family 16h Model 30h using the PCI
+Revision ID:
+
+  Bolton is device 0x780b, revision 0x15
+  Family 16h Model 30h is device 0x780b, revision 0x1F
+  Family 15h Model 60h and 70h are both device 0x790b, revision 0x4A.
+
+The following additional public AMD BKDG documents were checked and do
+not share the same port selection register:
+
+ 42301 - Family 15h Model 00h-0Fh doesn't mention any
+ 42300 - Family 15h Model 10h-1Fh doesn't mention any
+ 49125 - Family 15h Model 30h-3Fh doesn't mention any
+
+ 48751 - Family 16h Model 00h-0Fh uses the previously supported
+         index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
+
+Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org [v4.6+]
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/logic_pio.h |    1 +
- lib/logic_pio.c           |   14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/i2c/busses/i2c-piix4.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/include/linux/logic_pio.h
-+++ b/include/linux/logic_pio.h
-@@ -117,6 +117,7 @@ struct logic_pio_hwaddr *find_io_range_b
- unsigned long logic_pio_trans_hwaddr(struct fwnode_handle *fwnode,
- 			resource_size_t hw_addr, resource_size_t size);
- int logic_pio_register_range(struct logic_pio_hwaddr *newrange);
-+void logic_pio_unregister_range(struct logic_pio_hwaddr *range);
- resource_size_t logic_pio_to_hwaddr(unsigned long pio);
- unsigned long logic_pio_trans_cpuaddr(resource_size_t hw_addr);
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 8f1c5f24c1df5..62785aa76b3fb 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -96,7 +96,7 @@
+ #define SB800_PIIX4_PORT_IDX_MASK	0x06
+ #define SB800_PIIX4_PORT_IDX_SHIFT	1
  
---- a/lib/logic_pio.c
-+++ b/lib/logic_pio.c
-@@ -99,6 +99,20 @@ end_register:
- }
+-/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
++/* On kerncz and Hudson2, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
+ #define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
+ #define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
+ #define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+@@ -355,18 +355,16 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
  
- /**
-+ * logic_pio_unregister_range - unregister a logical PIO range for a host
-+ * @range: pointer to the IO range which has been already registered.
-+ *
-+ * Unregister a previously-registered IO range node.
-+ */
-+void logic_pio_unregister_range(struct logic_pio_hwaddr *range)
-+{
-+	mutex_lock(&io_range_mutex);
-+	list_del_rcu(&range->list);
-+	mutex_unlock(&io_range_mutex);
-+	synchronize_rcu();
-+}
-+
-+/**
-  * find_io_range_by_fwnode - find logical PIO range for given FW node
-  * @fwnode: FW node handle associated with logical PIO range
-  *
+ 	/* Find which register is used for port selection */
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+-		switch (PIIX4_dev->device) {
+-		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
++		if (PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS ||
++		    (PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
++		     PIIX4_dev->revision >= 0x1F)) {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+-			break;
+-		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+-		default:
++		} else {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-			break;
+ 		}
+ 	} else {
+ 		mutex_lock(&piix4_mutex_sb800);
+-- 
+2.20.1
+
 
 
