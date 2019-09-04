@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93C05A8F25
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C89A9127
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388683AbfIDSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41796 "EHLO mail.kernel.org"
+        id S2390351AbfIDSNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:13:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388676AbfIDSCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:02 -0400
+        id S2390346AbfIDSNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:13:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40BE722CF7;
-        Wed,  4 Sep 2019 18:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D05A208E4;
+        Wed,  4 Sep 2019 18:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620121;
-        bh=/wv3AgA7zMwW73GFBi8l04EhSvdtctzZwKdDe8/Y3uM=;
+        s=default; t=1567620827;
+        bh=CSRHk86gh5WIy5DIPkqYlXmBSEzXVknhxkEwMMZeuSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0xGmcCpu8ln/nHkF2vhwUXJ7cPHMtTN/GNaLT6+MB8qmVPb6zKmrTgji7+ama82e
-         edzXrq0LZAswgiTBFOeJ1JJNrkuhsTcjGwM37U/Bv+/quqcwPxOQTnNtchyhgqfYLP
-         TeZ/NMPCEkJPxLOMAVRNhUWAbnVhY5iiBMtDm7yM=
+        b=CSCetijhJDItUGbKzHbuImpXpkSc8oRb1Ko3yKRPifpzRlruhsb5OI11FrJodvbAm
+         u6ps7+9LkYaFHEpsmvXecia12qOomu65596Vy7Ppoc3z/RIoZWwOvfPhXGoVrM3yyj
+         +JWsnZet3PrhQk6QJJn1mPKN5wFwHfHm9yJjzNco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooks <andrew.cooks@opengear.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 82/83] i2c: piix4: Fix port selection for AMD Family 16h Model 30h
+        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>
+Subject: [PATCH 5.2 111/143] drm/amdgpu: fix GFXOFF on Picasso and Raven2
 Date:   Wed,  4 Sep 2019 19:54:14 +0200
-Message-Id: <20190904175310.865012524@linuxfoundation.org>
+Message-Id: <20190904175318.740365280@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c7c06a1532f3fe106687ac82a13492c6a619ff1c ]
+From: Aaron Liu <aaron.liu@amd.com>
 
-Family 16h Model 30h SMBus controller needs the same port selection fix
-as described and fixed in commit 0fe16195f891 ("i2c: piix4: Fix SMBus port
-selection for AMD Family 17h chips")
+commit 41940ff50f6c347f3541163702566cd526200d98 upstream.
 
-commit 6befa3fde65f ("i2c: piix4: Support alternative port selection
-register") also fixed the port selection for Hudson2, but unfortunately
-this is not the exact same device and the AMD naming and PCI Device IDs
-aren't particularly helpful here.
+For picasso(adev->pdev->device == 0x15d8)&raven2(adev->rev_id >= 0x8),
+firmware is sufficient to support gfxoff.
+In commit 98f58ada2d37e, for picasso&raven2,
+return directly and cause gfxoff disabled.
 
-The SMBus port selection register is common to the following Families
-and models, as documented in AMD's publicly available BIOS and Kernel
-Developer Guides:
+Fixes: 98f58ada2d37 ("drm/amdgpu/gfx9: update pg_flags after determining if gfx off is possible")
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
- 50742 - Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
- 55072 - Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
- 52740 - Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
-
-The Hudson2 PCI Device ID (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) is shared
-between Bolton FCH and Family 16h Model 30h, but the location of the
-SmBus0Sel port selection bits are different:
-
- 51192 - Bolton Register Reference Guide
-
-We distinguish between Bolton and Family 16h Model 30h using the PCI
-Revision ID:
-
-  Bolton is device 0x780b, revision 0x15
-  Family 16h Model 30h is device 0x780b, revision 0x1F
-  Family 15h Model 60h and 70h are both device 0x790b, revision 0x4A.
-
-The following additional public AMD BKDG documents were checked and do
-not share the same port selection register:
-
- 42301 - Family 15h Model 00h-0Fh doesn't mention any
- 42300 - Family 15h Model 10h-1Fh doesn't mention any
- 49125 - Family 15h Model 30h-3Fh doesn't mention any
-
- 48751 - Family 16h Model 00h-0Fh uses the previously supported
-         index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
-
-Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: stable@vger.kernel.org [v4.6+]
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-piix4.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 8f1c5f24c1df5..62785aa76b3fb 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -96,7 +96,7 @@
- #define SB800_PIIX4_PORT_IDX_MASK	0x06
- #define SB800_PIIX4_PORT_IDX_SHIFT	1
- 
--/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
-+/* On kerncz and Hudson2, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
- #define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
- #define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
- #define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
-@@ -355,18 +355,16 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 
- 	/* Find which register is used for port selection */
- 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
--		switch (PIIX4_dev->device) {
--		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
-+		if (PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS ||
-+		    (PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
-+		     PIIX4_dev->revision >= 0x1F)) {
- 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
- 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
- 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -588,14 +588,14 @@ static void gfx_v9_0_check_if_need_gfxof
+ 	case CHIP_VEGA20:
+ 		break;
+ 	case CHIP_RAVEN:
+-		if (adev->rev_id >= 0x8 || adev->pdev->device == 0x15d8)
 -			break;
--		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
--		default:
-+		} else {
- 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
- 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
- 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
--			break;
- 		}
- 	} else {
- 		mutex_lock(&piix4_mutex_sb800);
--- 
-2.20.1
-
+-		if ((adev->gfx.rlc_fw_version != 106 &&
+-		     adev->gfx.rlc_fw_version < 531) ||
+-		    (adev->gfx.rlc_fw_version == 53815) ||
+-		    (adev->gfx.rlc_feature_version < 1) ||
+-		    !adev->gfx.rlc.is_rlc_v2_1)
++		if (!(adev->rev_id >= 0x8 || adev->pdev->device == 0x15d8)
++			&&((adev->gfx.rlc_fw_version != 106 &&
++			     adev->gfx.rlc_fw_version < 531) ||
++			    (adev->gfx.rlc_fw_version == 53815) ||
++			    (adev->gfx.rlc_feature_version < 1) ||
++			    !adev->gfx.rlc.is_rlc_v2_1))
+ 			adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
++
+ 		if (adev->pm.pp_feature & PP_GFXOFF_MASK)
+ 			adev->pg_flags |= AMD_PG_SUPPORT_GFX_PG |
+ 				AMD_PG_SUPPORT_CP |
 
 
