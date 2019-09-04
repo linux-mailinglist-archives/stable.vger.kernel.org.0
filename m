@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E90A4A8F28
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EAF0A9029
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388676AbfIDSCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41852 "EHLO mail.kernel.org"
+        id S2389106AbfIDSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388158AbfIDSCF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:05 -0400
+        id S2389328AbfIDSIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B857822CEA;
-        Wed,  4 Sep 2019 18:02:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3190420870;
+        Wed,  4 Sep 2019 18:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620124;
-        bh=Axjq89hiNix4ExOqrgQ/7i6PpccM7JLmexMXOo6n7vQ=;
+        s=default; t=1567620480;
+        bh=LqHGz722tMXFb3EIRV2XeNeGEuCLb5xoiYR+2of4TN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCbGGEr7rPer+8xRXz29Cw0+DxjKwyHFno1eEfjgYdUzYc4NqQtaRB9QV/G79ZSE8
-         LCX8p0iL+rWqo28TklPBqJnUampJAQFMos40xBow57qWrLNzuOmJhhFgIT7FHMTA3f
-         WqtpdQ2MrokfD4RN9m+pJbeARcv5GbrknrYNiFnM=
+        b=qayQNFmgj5ruoazqXRsIvHMbie5qnT8roaTD8xssALfUXqxx6CR6f2u3eNQAyR4D2
+         1yfXUBxPtnvQAJjRQDiDUgvNaso28DR8LO+lAtvmTZgji0NyIB/EJPB30yQ0VljxPl
+         cQycA3V76YwnANmp2cmQKTyCSXHz7X6hWYfAL4N8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Spengler <spender@grsecurity.net>,
-        Dianzhang Chen <dianzhangchen0@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
-        hpa@zytor.com
-Subject: [PATCH 4.9 83/83] x86/ptrace: fix up botched merge of spectrev1 fix
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 73/93] drm/amdgpu: Add APTX quirk for Dell Latitude 5495
 Date:   Wed,  4 Sep 2019 19:54:15 +0200
-Message-Id: <20190904175310.951734823@linuxfoundation.org>
+Message-Id: <20190904175309.380056078@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-I incorrectly merged commit 31a2fbb390fe ("x86/ptrace: Fix possible
-spectre-v1 in ptrace_get_debugreg()") when backporting it, as was
-graciously pointed out at
-https://grsecurity.net/teardown_of_a_failed_linux_lts_spectre_fix.php
+commit 317a3aaef94d73ba6be88aea11b41bb631b2d581 upstream.
 
-Resolve the upstream difference with the stable kernel merge to properly
-protect things.
+Needs ATPX rather than _PR3 to really turn off the dGPU. This can save
+~5W when dGPU is runtime-suspended.
 
-Reported-by: Brad Spengler <spender@grsecurity.net>
-Cc: Dianzhang Chen <dianzhangchen0@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: <bp@alien8.de>
-Cc: <hpa@zytor.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/ptrace.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -651,11 +651,10 @@ static unsigned long ptrace_get_debugreg
- {
- 	struct thread_struct *thread = &tsk->thread;
- 	unsigned long val = 0;
--	int index = n;
- 
- 	if (n < HBP_NUM) {
-+		int index = array_index_nospec(n, HBP_NUM);
- 		struct perf_event *bp = thread->ptrace_bps[index];
--		index = array_index_nospec(index, HBP_NUM);
- 
- 		if (bp)
- 			val = bp->hw.info.address;
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atpx_handler.c
+@@ -575,6 +575,7 @@ static const struct amdgpu_px_quirk amdg
+ 	{ 0x1002, 0x6900, 0x1002, 0x0124, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1028, 0x0812, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1028, 0x0813, AMDGPU_PX_QUIRK_FORCE_ATPX },
++	{ 0x1002, 0x699f, 0x1028, 0x0814, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x1025, 0x125A, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0x1002, 0x6900, 0x17AA, 0x3806, AMDGPU_PX_QUIRK_FORCE_ATPX },
+ 	{ 0, 0, 0, 0, 0 },
 
 
