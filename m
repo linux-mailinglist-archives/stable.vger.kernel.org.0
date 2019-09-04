@@ -2,127 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 434A0A7D48
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 10:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBF8A7D73
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 10:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728504AbfIDIHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 04:07:12 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47122 "EHLO mx1.redhat.com"
+        id S1726004AbfIDIQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 04:16:34 -0400
+Received: from mga09.intel.com ([134.134.136.24]:18348 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727544AbfIDIHM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 04:07:12 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9395C875221
-        for <stable@vger.kernel.org>; Wed,  4 Sep 2019 08:07:11 +0000 (UTC)
-Received: from localhost (unknown [10.40.205.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3599A5D6C8
-        for <stable@vger.kernel.org>; Wed,  4 Sep 2019 08:07:11 +0000 (UTC)
-Date:   Wed, 4 Sep 2019 10:07:10 +0200
-From:   Stanislaw Gruszka <sgruszka@redhat.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 4.19] mt76: mt76x0u: do not reset radio on resume
-Message-ID: <20190904080704.GA2704@redhat.com>
+        id S1725966AbfIDIQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 04:16:34 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 01:16:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,465,1559545200"; 
+   d="scan'208";a="185039381"
+Received: from pgarraul-mobl.ger.corp.intel.com ([10.252.2.140])
+  by orsmga003.jf.intel.com with ESMTP; 04 Sep 2019 01:16:31 -0700
+Message-ID: <a87b70c5e8fdd7d4b9ef3d133dfb3e8cd86625a0.camel@intel.com>
+Subject: Re: FAILED: patch "[PATCH] iwlwifi: pcie: handle switching killer
+ Qu B0 NICs to C0" failed to apply to 5.2-stable tree
+From:   Luciano Coelho <luciano.coelho@intel.com>
+To:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
+Cc:     johannes.berg@intel.com, stable@vger.kernel.org
+Date:   Wed, 04 Sep 2019 11:16:30 +0300
+In-Reply-To: <20190903205321.GP5281@sasha-vm>
+References: <15675370949856@kroah.com> <20190903205321.GP5281@sasha-vm>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.11.3 (2019-02-01)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Wed, 04 Sep 2019 08:07:11 +0000 (UTC)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8f2d163cb26da87e7d8e1677368b8ba1ba4d30b3 upstream.
+On Tue, 2019-09-03 at 16:53 -0400, Sasha Levin wrote:
+> On Tue, Sep 03, 2019 at 08:58:14PM +0200, gregkh@linuxfoundation.org wrote:
+> > The patch below does not apply to the 5.2-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> There are quite a few dependencies here - it looks like a few other
+> stable tagged commits didn't make it to 5.2 and this one depends on
+> them. I've fixed it up by taking:
+> 
+> d151b0a2efa12 ("iwlwifi: add new cards for 22000 and fix struct name")
+> a976bfb44bdbc ("iwlwifi: add new cards for 22000 and change wrong structs")
+> ffcb60a54f245 ("iwlwifi: add new cards for 9000 and 20000 series")
+> 658521fc1bf14 ("iwlwifi: change 0x02F0 fw from qu to quz")
+> a7d544d631200 ("iwlwifi: pcie: add support for qu c-step devices")
+> 17e40e6979aaf ("iwlwifi: pcie: don't switch FW to qnj when ax201 is detected")
+> b9500577d3615 ("iwlwifi: pcie: handle switching killer Qu B0 NICs to C0")
 
-On some machines mt76x0u firmware can hung during resume,
-what result on messages like below:
+Thanks, Sasha!
 
-[  475.480062] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  475.990066] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
-[  475.990075] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  476.500003] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
-[  476.500012] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  477.010046] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
-[  477.010055] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  477.529997] mt76x0 1-8:1.0: Error: send MCU cmd failed:-110
-[  477.530006] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  477.824907] mt76x0 1-8:1.0: Error: send MCU cmd failed:-71
-[  477.824916] mt76x0 1-8:1.0: Error: MCU response pre-completed!
-[  477.825029] usb 1-8: USB disconnect, device number 6
+This list looks good.  There is one or two more patches that need to be
+taken to v5.2, but I'll wait till these ones make it into linux-5.2.y
+so I can rebase them on top of it.
 
-and possible whole system freeze.
+--
+Cheers,
+Luca.
 
-This can be avoided, if we do not perform mt76x0_chip_onoff() reset.
-
-Cc: stable@vger.kernel.org
-Fixes: 134b2d0d1fcf ("mt76x0: init files")
-Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
----
- drivers/net/wireless/mediatek/mt76/mt76x0/init.c   | 4 ++--
- drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h | 2 +-
- drivers/net/wireless/mediatek/mt76/mt76x0/usb.c    | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/init.c b/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
-index 0a3e046d78db..da2ba51dec35 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/init.c
-@@ -369,7 +369,7 @@ static void mt76x0_stop_hardware(struct mt76x0_dev *dev)
- 	mt76x0_chip_onoff(dev, false, false);
- }
- 
--int mt76x0_init_hardware(struct mt76x0_dev *dev)
-+int mt76x0_init_hardware(struct mt76x0_dev *dev, bool reset)
- {
- 	static const u16 beacon_offsets[16] = {
- 		/* 512 byte per beacon */
-@@ -382,7 +382,7 @@ int mt76x0_init_hardware(struct mt76x0_dev *dev)
- 
- 	dev->beacon_offsets = beacon_offsets;
- 
--	mt76x0_chip_onoff(dev, true, true);
-+	mt76x0_chip_onoff(dev, true, reset);
- 
- 	ret = mt76x0_wait_asic_ready(dev);
- 	if (ret)
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h b/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
-index fc9857f61771..f9dfe5097b09 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/mt76x0.h
-@@ -279,7 +279,7 @@ void mt76x0_addr_wr(struct mt76x0_dev *dev, const u32 offset, const u8 *addr);
- 
- /* Init */
- struct mt76x0_dev *mt76x0_alloc_device(struct device *dev);
--int mt76x0_init_hardware(struct mt76x0_dev *dev);
-+int mt76x0_init_hardware(struct mt76x0_dev *dev, bool reset);
- int mt76x0_register_device(struct mt76x0_dev *dev);
- void mt76x0_cleanup(struct mt76x0_dev *dev);
- void mt76x0_chip_onoff(struct mt76x0_dev *dev, bool enable, bool reset);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
-index 54ae1f113be2..5aacb1f6a841 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
-@@ -300,7 +300,7 @@ static int mt76x0_probe(struct usb_interface *usb_intf,
- 	if (!(mt76_rr(dev, MT_EFUSE_CTRL) & MT_EFUSE_CTRL_SEL))
- 		dev_warn(dev->mt76.dev, "Warning: eFUSE not present\n");
- 
--	ret = mt76x0_init_hardware(dev);
-+	ret = mt76x0_init_hardware(dev, true);
- 	if (ret)
- 		goto err;
- 
-@@ -354,7 +354,7 @@ static int mt76x0_resume(struct usb_interface *usb_intf)
- 	struct mt76x0_dev *dev = usb_get_intfdata(usb_intf);
- 	int ret;
- 
--	ret = mt76x0_init_hardware(dev);
-+	ret = mt76x0_init_hardware(dev, false);
- 	if (ret)
- 		return ret;
- 
--- 
-2.20.1
