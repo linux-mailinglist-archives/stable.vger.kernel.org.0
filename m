@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D155CA9190
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45104A8DFD
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732206AbfIDSSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:18:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
+        id S1732627AbfIDRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389398AbfIDSKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:10:31 -0400
+        id S1732620AbfIDRz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:55:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 315B123402;
-        Wed,  4 Sep 2019 18:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CBCC208E4;
+        Wed,  4 Sep 2019 17:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620630;
-        bh=QrPGqFjmN3VWaRhYMWu04bxZKL55/V7mCxBsqYP8BXM=;
+        s=default; t=1567619727;
+        bh=uun2tIggxofMoBfrIBSPSFtfiMuhO/XgwscPuae6WE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=off4VN96pARTsLpbj5ZG1CB6HBk+3IlckShiLkN+2IhgnS7Sf925ttmkTqA5/RskY
-         PCT5msAxQS81/Ds7oLtThFxvYOeZeDag624A2cFmn9XodNAdh5mKPsZbgEpE4A16WD
-         sFWepMCcu66x5vxkz5PK9dMIl4RSfJllwIDUlZK0=
+        b=fVmOpUyCWnbgC4SepagDUISzB0VsDsMzrpnjsUjRH8ARWP9j4b1RQBt4lDxYrbFAP
+         cQ/JtCVAxdnh1eVdjxjGwGkCkBKePGXyMwd605ySqs97vNpKAMurBGEnmmK8vYYeOE
+         bwUFpQrBZtAgxH0m5qOsMdgGD7yI5J+qIJ7IS3NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 036/143] i2c: rcar: avoid race when unregistering slave client
+Subject: [PATCH 4.4 12/77] isdn: hfcsusb: Fix mISDN driver crash caused by transfer buffer on the stack
 Date:   Wed,  4 Sep 2019 19:52:59 +0200
-Message-Id: <20190904175315.460634723@linuxfoundation.org>
+Message-Id: <20190904175304.773817812@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7b814d852af6944657c2961039f404c4490771c0 ]
+[ Upstream commit d8a1de3d5bb881507602bc02e004904828f88711 ]
 
-After we disabled interrupts, there might still be an active one
-running. Sync before clearing the pointer to the slave device.
+Since linux 4.9 it is not possible to use buffers on the stack for DMA transfers.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+During usb probe the driver crashes with "transfer buffer is on stack" message.
+
+This fix k-allocates a buffer to be used on "read_reg_atomic", which is a macro
+that calls "usb_control_msg" under the hood.
+
+Kernel 4.19 backtrace:
+
+usb_hcd_submit_urb+0x3e5/0x900
+? sched_clock+0x9/0x10
+? log_store+0x203/0x270
+? get_random_u32+0x6f/0x90
+? cache_alloc_refill+0x784/0x8a0
+usb_submit_urb+0x3b4/0x550
+usb_start_wait_urb+0x4e/0xd0
+usb_control_msg+0xb8/0x120
+hfcsusb_probe+0x6bc/0xb40 [hfcsusb]
+usb_probe_interface+0xc2/0x260
+really_probe+0x176/0x280
+driver_probe_device+0x49/0x130
+__driver_attach+0xa9/0xb0
+? driver_probe_device+0x130/0x130
+bus_for_each_dev+0x5a/0x90
+driver_attach+0x14/0x20
+? driver_probe_device+0x130/0x130
+bus_add_driver+0x157/0x1e0
+driver_register+0x51/0xe0
+usb_register_driver+0x5d/0x120
+? 0xf81ed000
+hfcsusb_drv_init+0x17/0x1000 [hfcsusb]
+do_one_initcall+0x44/0x190
+? free_unref_page_commit+0x6a/0xd0
+do_init_module+0x46/0x1c0
+load_module+0x1dc1/0x2400
+sys_init_module+0xed/0x120
+do_fast_syscall_32+0x7a/0x200
+entry_SYSENTER_32+0x6b/0xbe
+
+Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d39a4606f72d3..531c01100b560 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -139,6 +139,7 @@ struct rcar_i2c_priv {
- 	enum dma_data_direction dma_direction;
- 
- 	struct reset_control *rstc;
-+	int irq;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -861,9 +862,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 
- 	WARN_ON(!priv->slave);
- 
-+	/* disable irqs and ensure none is running before clearing ptr */
- 	rcar_i2c_write(priv, ICSIER, 0);
- 	rcar_i2c_write(priv, ICSCR, 0);
- 
-+	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
-@@ -918,7 +921,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct device *dev = &pdev->dev;
- 	struct i2c_timings i2c_t;
--	int irq, ret;
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 6f19530ba2a93..726fba452f5f6 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1701,13 +1701,23 @@ hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel)
+ static int
+ setup_hfcsusb(struct hfcsusb *hw)
+ {
++	void *dmabuf = kmalloc(sizeof(u_char), GFP_KERNEL);
+ 	u_char b;
 +	int ret;
  
- 	/* Otherwise logic will break because some bytes must always use PIO */
- 	BUILD_BUG_ON_MSG(RCAR_MIN_DMA_LEN < 3, "Invalid min DMA length");
-@@ -984,10 +987,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		pm_runtime_put(dev);
+ 	if (debug & DBG_HFC_CALL_TRACE)
+ 		printk(KERN_DEBUG "%s: %s\n", hw->name, __func__);
  
- 
--	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
-+	priv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
- 	if (ret < 0) {
--		dev_err(dev, "cannot get irq %d\n", irq);
-+		dev_err(dev, "cannot get irq %d\n", priv->irq);
- 		goto out_pm_disable;
- 	}
- 
++	if (!dmabuf)
++		return -ENOMEM;
++
++	ret = read_reg_atomic(hw, HFCUSB_CHIP_ID, dmabuf);
++
++	memcpy(&b, dmabuf, sizeof(u_char));
++	kfree(dmabuf);
++
+ 	/* check the chip id */
+-	if (read_reg_atomic(hw, HFCUSB_CHIP_ID, &b) != 1) {
++	if (ret != 1) {
+ 		printk(KERN_DEBUG "%s: %s: cannot read chip id\n",
+ 		       hw->name, __func__);
+ 		return 1;
 -- 
 2.20.1
 
