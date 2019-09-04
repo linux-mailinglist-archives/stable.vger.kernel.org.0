@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3849A91BB
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA57A8F5C
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbfIDSYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:24:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40548 "EHLO mail.kernel.org"
+        id S2388889AbfIDSDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388490AbfIDSBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:01:06 -0400
+        id S2387939AbfIDSDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:03:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B66022CF7;
-        Wed,  4 Sep 2019 18:01:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E0352339E;
+        Wed,  4 Sep 2019 18:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620065;
-        bh=fi+kolDLinVLp769w8IN7noDpuUcqcKOXvDbumYGMhA=;
+        s=default; t=1567620193;
+        bh=NTKwB7aa/kwgpL34pU5dtXVMXwwMvnt49GjVF3BIX10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUCSmvTjgGy7cUUOBs+uWG3Y569dwjncsW7NTd8PBWku11eB/VMZ38dNW8AUfoZfN
-         zZCXQ1e+vb3uIsnYvL8ZSSJBC95KEiZRV1HP+ina9OVG4gnKXA954Esxu7bx/0Rvzd
-         CmX19NbfMSEws6TccqbZHBYXdRovINtT3AhGS+Ag=
+        b=vR4Fqu9pgdusRTFBynJDfqJEqM+S5J69aJS3tOZHTWSckCgFI0h5FZdwJ42oeqKwG
+         bPC226HTnn+P54xCx2dPkU7hKbIcVxEYqEqWp9F41pchPXporx6LD1om1lYn3YajWA
+         Kuz7KOP8LuCsu3IXDh8M5Sqa+vG0Asbucx4nMGU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 59/83] ALSA: line6: Fix memory leak at line6_init_pcm() error path
-Date:   Wed,  4 Sep 2019 19:53:51 +0200
-Message-Id: <20190904175308.776163002@linuxfoundation.org>
+        stable@vger.kernel.org, Radim Krcmar <rkrcmar@redhat.com>,
+        Bandan Das <bsd@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 24/57] kvm: x86: skip populating logical dest map if apic is not sw enabled
+Date:   Wed,  4 Sep 2019 19:53:52 +0200
+Message-Id: <20190904175304.272394640@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Radim Krcmar <rkrcmar@redhat.com>
 
-commit 1bc8d18c75fef3b478dbdfef722aae09e2a9fde7 upstream.
+commit b14c876b994f208b6b95c222056e1deb0a45de0e upstream.
 
-I forgot to release the allocated object at the early error path in
-line6_init_pcm().  For addressing it, slightly shuffle the code so
-that the PCM destructor (pcm->private_free) is assigned properly
-before all error paths.
+recalculate_apic_map does not santize ldr and it's possible that
+multiple bits are set. In that case, a previous valid entry
+can potentially be overwritten by an invalid one.
 
-Fixes: 3450121997ce ("ALSA: line6: Fix write on zero-sized buffer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This condition is hit when booting a 32 bit, >8 CPU, RHEL6 guest and then
+triggering a crash to boot a kdump kernel. This is the sequence of
+events:
+1. Linux boots in bigsmp mode and enables PhysFlat, however, it still
+writes to the LDR which probably will never be used.
+2. However, when booting into kdump, the stale LDR values remain as
+they are not cleared by the guest and there isn't a apic reset.
+3. kdump boots with 1 cpu, and uses Logical Destination Mode but the
+logical map has been overwritten and points to an inactive vcpu.
+
+Signed-off-by: Radim Krcmar <rkrcmar@redhat.com>
+Signed-off-by: Bandan Das <bsd@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/pcm.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/kvm/lapic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/usb/line6/pcm.c
-+++ b/sound/usb/line6/pcm.c
-@@ -552,6 +552,15 @@ int line6_init_pcm(struct usb_line6 *lin
- 	line6pcm->volume_monitor = 255;
- 	line6pcm->line6 = line6;
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -209,6 +209,9 @@ static void recalculate_apic_map(struct
+ 		if (!apic_x2apic_mode(apic) && !new->phys_map[xapic_id])
+ 			new->phys_map[xapic_id] = apic;
  
-+	spin_lock_init(&line6pcm->out.lock);
-+	spin_lock_init(&line6pcm->in.lock);
-+	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
++		if (!kvm_apic_sw_enabled(apic))
++			continue;
 +
-+	line6->line6pcm = line6pcm;
+ 		ldr = kvm_lapic_get_reg(apic, APIC_LDR);
+ 
+ 		if (apic_x2apic_mode(apic)) {
+@@ -252,6 +255,8 @@ static inline void apic_set_spiv(struct
+ 			recalculate_apic_map(apic->vcpu->kvm);
+ 		} else
+ 			static_key_slow_inc(&apic_sw_disabled.key);
 +
-+	pcm->private_data = line6pcm;
-+	pcm->private_free = line6_cleanup_pcm;
-+
- 	line6pcm->max_packet_size_in =
- 		usb_maxpacket(line6->usbdev,
- 			usb_rcvisocpipe(line6->usbdev, ep_read), 0);
-@@ -564,15 +573,6 @@ int line6_init_pcm(struct usb_line6 *lin
- 		return -EINVAL;
++		recalculate_apic_map(apic->vcpu->kvm);
  	}
+ }
  
--	spin_lock_init(&line6pcm->out.lock);
--	spin_lock_init(&line6pcm->in.lock);
--	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
--
--	line6->line6pcm = line6pcm;
--
--	pcm->private_data = line6pcm;
--	pcm->private_free = line6_cleanup_pcm;
--
- 	err = line6_create_audio_out_urbs(line6pcm);
- 	if (err < 0)
- 		return err;
 
 
