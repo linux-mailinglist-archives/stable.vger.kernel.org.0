@@ -2,169 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C93A8D10
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7102CA8D41
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730032AbfIDQYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57426 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729963AbfIDQYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:24:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6200C21881;
-        Wed,  4 Sep 2019 16:24:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567614269;
-        bh=2G5NgfcFEjQJgQKbFcDE+bkQVuy/5L+JsuOxjeLD7Sg=;
-        h=Subject:To:From:Date:From;
-        b=dEouK6IxlPUQAIutzCo1vd5WqrQZ3Y5mp0BUyJOUtcGR2x2ga4GFRuv/w+lbtCEmy
-         ag1OX+HLdlYrn/1i33vjTaI8zdbRJENtrkDU7g+HfR4deX4S+PSIyheRpXOtsWwuO2
-         fQmAIc2TFtQzOJ6cHVCyhjCjKufvdGavbBPrW8hk=
-Subject: patch "USB: usbcore: Fix slab-out-of-bounds bug during device reset" added to usb-testing
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Sep 2019 18:24:27 +0200
-Message-ID: <1567614267183219@kroah.com>
+        id S1731731AbfIDQmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:42:14 -0400
+Received: from out03.mta.xmission.com ([166.70.13.233]:38117 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729471AbfIDQmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 12:42:14 -0400
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1i5YMG-0003Uf-5q; Wed, 04 Sep 2019 10:42:12 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1i5YMF-0000Z5-KX; Wed, 04 Sep 2019 10:42:12 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Vineet Gupta <vgupta@synopsys.com>,
+        linux-snps-arc@lists.infradead.org
+References: <20190903162519.7136-1-sashal@kernel.org>
+        <20190903162519.7136-111-sashal@kernel.org>
+        <87ef0xqq9f.fsf@x220.int.ebiederm.org>
+        <20190903194526.GH5281@sasha-vm>
+Date:   Wed, 04 Sep 2019 11:41:55 -0500
+In-Reply-To: <20190903194526.GH5281@sasha-vm> (Sasha Levin's message of "Tue,
+        3 Sep 2019 15:45:26 -0400")
+Message-ID: <87y2z4nhd8.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1i5YMF-0000Z5-KX;;;mid=<87y2z4nhd8.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX19zYZU/xsW7us0tfO+uH4u3qzYGa3Y2+bo=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa03.xmission.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.3 required=8.0 tests=ALL_TRUSTED,BAYES_40,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,
+        T_TooManySym_02,XMSubLong autolearn=disabled version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        * -0.0 BAYES_40 BODY: Bayes spam probability is 20 to 40%
+        *      [score: 0.3492]
+        *  0.7 XMSubLong Long Subject
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa03 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  0.0 T_TooManySym_02 5+ unique symbols in subject
+        *  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa03 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ;Sasha Levin <sashal@kernel.org>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 192 ms - load_scoreonly_sql: 0.03 (0.0%),
+        signal_user_changed: 6 (3.1%), b_tie_ro: 5 (2.6%), parse: 0.94 (0.5%),
+        extract_message_metadata: 11 (5.6%), get_uri_detail_list: 1.19 (0.6%),
+        tests_pri_-1000: 10 (5.4%), tests_pri_-950: 1.00 (0.5%),
+        tests_pri_-900: 0.85 (0.4%), tests_pri_-90: 20 (10.2%), check_bayes:
+        18 (9.5%), b_tokenize: 3.8 (2.0%), b_tok_get_all: 6 (3.1%),
+        b_comp_prob: 1.51 (0.8%), b_tok_touch_all: 2.5 (1.3%), b_finish: 0.64
+        (0.3%), tests_pri_0: 132 (69.1%), check_dkim_signature: 0.53 (0.3%),
+        check_dkim_adsp: 2.3 (1.2%), poll_dns_idle: 0.97 (0.5%), tests_pri_10:
+        1.70 (0.9%), tests_pri_500: 6 (2.9%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH AUTOSEL 4.19 111/167] signal/arc: Use force_sig_fault where appropriate
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Sasha Levin <sashal@kernel.org> writes:
 
-This is a note to let you know that I've just added the patch titled
+> On Tue, Sep 03, 2019 at 11:49:16AM -0500, Eric W. Biederman wrote:
+>>Sasha Levin <sashal@kernel.org> writes:
+>>
+>>> From: "Eric W. Biederman" <ebiederm@xmission.com>
+>>>
+>>> [ Upstream commit 15773ae938d8d93d982461990bebad6e1d7a1830 ]
+>>
+>>To the best of my knowledge this is just a clean up, no changes in
+>>behavior are present.
+>>
+>>The only reason I can see to backport this is so that later fixes could
+>>be applied cleanly.
+>>
+>>So while I have no objections to this patch being backported I don't see
+>>why you would want to either.
+>
+> This patch along with the next one came in as a dependency for
+> a8c715b4dd73c ("ARC: mm: SIGSEGV userspace trying to access kernel
+> virtual memory").
 
-    USB: usbcore: Fix slab-out-of-bounds bug during device reset
+Thanks for providing the rest of the context.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+That looks like a perfect reason for backporting this patch.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 3dd550a2d36596a1b0ee7955da3b611c031d3873 Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 4 Sep 2019 11:56:27 -0400
-Subject: USB: usbcore: Fix slab-out-of-bounds bug during device reset
-
-The syzbot fuzzer provoked a slab-out-of-bounds error in the USB core:
-
-BUG: KASAN: slab-out-of-bounds in memcmp+0xa6/0xb0 lib/string.c:904
-Read of size 1 at addr ffff8881d175bed6 by task kworker/0:3/2746
-
-CPU: 0 PID: 2746 Comm: kworker/0:3 Not tainted 5.3.0-rc5+ #28
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  memcmp+0xa6/0xb0 lib/string.c:904
-  memcmp include/linux/string.h:400 [inline]
-  descriptors_changed drivers/usb/core/hub.c:5579 [inline]
-  usb_reset_and_verify_device+0x564/0x1300 drivers/usb/core/hub.c:5729
-  usb_reset_device+0x4c1/0x920 drivers/usb/core/hub.c:5898
-  rt2x00usb_probe+0x53/0x7af
-drivers/net/wireless/ralink/rt2x00/rt2x00usb.c:806
-
-The error occurs when the descriptors_changed() routine (called during
-a device reset) attempts to compare the old and new BOS and capability
-descriptors.  The length it uses for the comparison is the
-wTotalLength value stored in BOS descriptor, but this value is not
-necessarily the same as the length actually allocated for the
-descriptors.  If it is larger the routine will call memcmp() with a
-length that is too big, thus reading beyond the end of the allocated
-region and leading to this fault.
-
-The kernel reads the BOS descriptor twice: first to get the total
-length of all the capability descriptors, and second to read it along
-with all those other descriptors.  A malicious (or very faulty) device
-may send different values for the BOS descriptor fields each time.
-The memory area will be allocated using the wTotalLength value read
-the first time, but stored within it will be the value read the second
-time.
-
-To prevent this possibility from causing any errors, this patch
-modifies the BOS descriptor after it has been read the second time:
-It sets the wTotalLength field to the actual length of the descriptors
-that were read in and validated.  Then the memcpy() call, or any other
-code using these descriptors, will be able to rely on wTotalLength
-being valid.
-
-Reported-and-tested-by: syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909041154260.1722-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/config.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-index 9d6cb709ca7b..151a74a54386 100644
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -921,7 +921,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 	struct usb_bos_descriptor *bos;
- 	struct usb_dev_cap_header *cap;
- 	struct usb_ssp_cap_descriptor *ssp_cap;
--	unsigned char *buffer;
-+	unsigned char *buffer, *buffer0;
- 	int length, total_len, num, i, ssac;
- 	__u8 cap_type;
- 	int ret;
-@@ -966,10 +966,12 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 			ret = -ENOMSG;
- 		goto err;
- 	}
-+
-+	buffer0 = buffer;
- 	total_len -= length;
-+	buffer += length;
- 
- 	for (i = 0; i < num; i++) {
--		buffer += length;
- 		cap = (struct usb_dev_cap_header *)buffer;
- 
- 		if (total_len < sizeof(*cap) || total_len < cap->bLength) {
-@@ -983,8 +985,6 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 			break;
- 		}
- 
--		total_len -= length;
--
- 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
- 			dev_warn(ddev, "descriptor type invalid, skip\n");
- 			continue;
-@@ -1019,7 +1019,11 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 		default:
- 			break;
- 		}
-+
-+		total_len -= length;
-+		buffer += length;
- 	}
-+	dev->bos->desc->wTotalLength = cpu_to_le16(buffer - buffer0);
- 
- 	return 0;
- 
--- 
-2.23.0
+Eric
 
 
