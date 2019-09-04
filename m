@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD28A8E2B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B54A8FBD
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387488AbfIDR4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:56:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
+        id S2388940AbfIDSFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387477AbfIDR43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:56:29 -0400
+        id S2387532AbfIDSFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC6BC22CF7;
-        Wed,  4 Sep 2019 17:56:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 401DE2339E;
+        Wed,  4 Sep 2019 18:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619788;
-        bh=Qr7LEXzDG8/H/wTonemu3EaLdSl94xNVpcak20MFaLE=;
+        s=default; t=1567620331;
+        bh=0Fw/6tbnF5dPuAkSNbGV3kjnBEsH029C3qwRVjq48pA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObG7IIjmJH5m+fa8xd/Hco9qefLx6Q0Iqr4U+6n4SzfV+42Hm//Fd7vRTEiMdf2DK
-         15f50WyFljIOQYu2Ymj/0WmvRzGbev3darjeVslNtWzaC5kbYiK+DmowGGt7k2sXc5
-         QCCLiUmyUDkmPiCnxDt9NIC5MS2u2utF7KA/GE4w=
+        b=c+4k6kKFgdgu2izGj1QiJaXdLvClq4WFDvQqzo2Pi8vfc4HP49g2Ayj4c4ObNLy8a
+         SaJrhGD9LBWdhI5+GuXtwAwjtA+g34pQlRVv7aNNf2NV4sxtB+fkClDpzQ6guVFaTd
+         86yyl3KMLzesy1s6F+wiZ6E9ZwDRQd5cO2NgOY+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 34/77] GFS2: dont set rgrp gl_object until its inserted into rgrp tree
+Subject: [PATCH 4.19 19/93] arm64: cpufeature: Dont treat granule sizes as strict
 Date:   Wed,  4 Sep 2019 19:53:21 +0200
-Message-Id: <20190904175306.735598786@linuxfoundation.org>
+Message-Id: <20190904175305.025246804@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 36e4ad0316c017d5b271378ed9a1c9a4b77fab5f upstream.
+[ Upstream commit 5717fe5ab38f9ccb32718bcb03bea68409c9cce4 ]
 
-Before this patch, function read_rindex_entry would set a rgrp
-glock's gl_object pointer to itself before inserting the rgrp into
-the rgrp rbtree. The problem is: if another process was also reading
-the rgrp in, and had already inserted its newly created rgrp, then
-the second call to read_rindex_entry would overwrite that value,
-then return a bad return code to the caller. Later, other functions
-would reference the now-freed rgrp memory by way of gl_object.
-In some cases, that could result in gfs2_rgrp_brelse being called
-twice for the same rgrp: once for the failed attempt and once for
-the "real" rgrp release. Eventually the kernel would panic.
-There are also a number of other things that could go wrong when
-a kernel module is accessing freed storage. For example, this could
-result in rgrp corruption because the fake rgrp would point to a
-fake bitmap in memory too, causing gfs2_inplace_reserve to search
-some random memory for free blocks, and find some, since we were
-never setting rgd->rd_bits to NULL before freeing it.
+If a CPU doesn't support the page size for which the kernel is
+configured, then we will complain and refuse to bring it online. For
+secondary CPUs (and the boot CPU on a system booting with EFI), we will
+also print an error identifying the mismatch.
 
-This patch fixes the problem by not setting gl_object until we
-have successfully inserted the rgrp into the rbtree. Also, it sets
-rd_bits to NULL as it frees them, which will ensure any accidental
-access to the wrong rgrp will result in a kernel panic rather than
-file system corruption, which is preferred.
+Consequently, the only time that the cpufeature code can detect a
+granule size mismatch is for a granule other than the one that is
+currently being used. Although we would rather such systems didn't
+exist, we've unfortunately lost that battle and Kevin reports that
+on his amlogic S922X (odroid-n2 board) we end up warning and taining
+with defconfig because 16k pages are not supported by all of the CPUs.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+In such a situation, we don't actually care about the feature mismatch,
+particularly now that KVM only exposes the sanitised view of the CPU
+registers (commit 93390c0a1b20 - "arm64: KVM: Hide unsupported AArch64
+CPU features from guests"). Treat the granule fields as non-strict and
+let Kevin run without a tainted kernel.
+
+Cc: Marc Zyngier <maz@kernel.org>
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[catalin.marinas@arm.com: changelog updated with KVM sanitised regs commit]
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index ef24894edecc1..9c159e6ad1164 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -739,6 +739,7 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index bce06083685dc..94babc3d0ec2c 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -165,9 +165,17 @@ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+ };
  
- 		gfs2_free_clones(rgd);
- 		kfree(rgd->rd_bits);
-+		rgd->rd_bits = NULL;
- 		return_all_reservations(rgd);
- 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
- 	}
-@@ -933,10 +934,6 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	if (error)
- 		goto fail;
- 
--	rgd->rd_gl->gl_object = rgd;
--	rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_CACHE_MASK;
--	rgd->rd_gl->gl_vm.end = PAGE_CACHE_ALIGN((rgd->rd_addr +
--						  rgd->rd_length) * bsize) - 1;
- 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
- 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
- 	if (rgd->rd_data > sdp->sd_max_rg_data)
-@@ -944,14 +941,20 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	spin_lock(&sdp->sd_rindex_spin);
- 	error = rgd_insert(rgd);
- 	spin_unlock(&sdp->sd_rindex_spin);
--	if (!error)
-+	if (!error) {
-+		rgd->rd_gl->gl_object = rgd;
-+		rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_MASK;
-+		rgd->rd_gl->gl_vm.end = PAGE_ALIGN((rgd->rd_addr +
-+						    rgd->rd_length) * bsize) - 1;
- 		return 0;
-+	}
- 
- 	error = 0; /* someone else read in the rgrp; free it and ignore it */
- 	gfs2_glock_put(rgd->rd_gl);
- 
- fail:
- 	kfree(rgd->rd_bits);
-+	rgd->rd_bits = NULL;
- 	kmem_cache_free(gfs2_rgrpd_cachep, rgd);
- 	return error;
- }
+ static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++	/*
++	 * We already refuse to boot CPUs that don't support our configured
++	 * page size, so we can only detect mismatches for a page size other
++	 * than the one we're currently using. Unfortunately, SoCs like this
++	 * exist in the wild so, even though we don't like it, we'll have to go
++	 * along with it and treat them as non-strict.
++	 */
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
+ 	/* Linux shouldn't care about secure memory */
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
 -- 
 2.20.1
 
