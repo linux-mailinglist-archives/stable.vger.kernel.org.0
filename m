@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF97AA8F9D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E793A9025
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389140AbfIDSEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:04:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45932 "EHLO mail.kernel.org"
+        id S2389119AbfIDSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388614AbfIDSEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:04:47 -0400
+        id S2389302AbfIDSH4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:07:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A74E2339E;
-        Wed,  4 Sep 2019 18:04:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8BA520870;
+        Wed,  4 Sep 2019 18:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620286;
-        bh=yOuuWbnzDzrVFrx19MYF+nHUQbpLTEStOdeaKYBpv9I=;
+        s=default; t=1567620475;
+        bh=UbwxphCkJgqkkmqkEGI327ZtsTfNouQD7+qWRvtcpI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdvPico4lmr8oh4uBoXEgYnIVrucA5GmiZc9knbLAx22p9kuUnFYIADr8m7uLxHOg
-         /YSSTBg9+F1xGYbJ2KZ4mSfiGDrZl/d3fiqQn4WLJcoVkfrymg/fxT3WycNUiPnrW0
-         JEfoLwybcqweT3m276ql+FO43GPDzjVnilPBkke4=
+        b=stARnLWN+RtRq81hHYa2OulY7q8ZKiMxoo3ABQxJRfDDRAdTgFduGi5WKCs4D0yY0
+         wBdiW/2W7hTfpofjgBFhmZbensHnq+aGr7q+iws+c5ByfNiaK5WeIf4ebfTlMLHbi+
+         ftnEcKLDIAZ9vw+LpycL16+7cciiPGrzalWOtC0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Francois Rigault <rigault.francois@gmail.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Vishnu DASA <vdasa@vmware.com>, Nadav Amit <namit@vmware.com>
-Subject: [PATCH 4.14 45/57] VMCI: Release resource if the work is already queued
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Wei Xu <xuwei5@hisilicon.com>
+Subject: [PATCH 4.19 71/93] lib: logic_pio: Avoid possible overlap for unregistering regions
 Date:   Wed,  4 Sep 2019 19:54:13 +0200
-Message-Id: <20190904175306.439462021@linuxfoundation.org>
+Message-Id: <20190904175309.207549490@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: John Garry <john.garry@huawei.com>
 
-commit ba03a9bbd17b149c373c0ea44017f35fc2cd0f28 upstream.
+commit 0a27142bd1ee259e24a0be2b0133e5ca5df8da91 upstream.
 
-Francois reported that VMware balloon gets stuck after a balloon reset,
-when the VMCI doorbell is removed. A similar error can occur when the
-balloon driver is removed with the following splat:
+The code was originally written to not support unregistering logical PIO
+regions.
 
-[ 1088.622000] INFO: task modprobe:3565 blocked for more than 120 seconds.
-[ 1088.622035]       Tainted: G        W         5.2.0 #4
-[ 1088.622087] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[ 1088.622205] modprobe        D    0  3565   1450 0x00000000
-[ 1088.622210] Call Trace:
-[ 1088.622246]  __schedule+0x2a8/0x690
-[ 1088.622248]  schedule+0x2d/0x90
-[ 1088.622250]  schedule_timeout+0x1d3/0x2f0
-[ 1088.622252]  wait_for_completion+0xba/0x140
-[ 1088.622320]  ? wake_up_q+0x80/0x80
-[ 1088.622370]  vmci_resource_remove+0xb9/0xc0 [vmw_vmci]
-[ 1088.622373]  vmci_doorbell_destroy+0x9e/0xd0 [vmw_vmci]
-[ 1088.622379]  vmballoon_vmci_cleanup+0x6e/0xf0 [vmw_balloon]
-[ 1088.622381]  vmballoon_exit+0x18/0xcc8 [vmw_balloon]
-[ 1088.622394]  __x64_sys_delete_module+0x146/0x280
-[ 1088.622408]  do_syscall_64+0x5a/0x130
-[ 1088.622410]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1088.622415] RIP: 0033:0x7f54f62791b7
-[ 1088.622421] Code: Bad RIP value.
-[ 1088.622421] RSP: 002b:00007fff2a949008 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-[ 1088.622426] RAX: ffffffffffffffda RBX: 000055dff8b55d00 RCX: 00007f54f62791b7
-[ 1088.622426] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055dff8b55d68
-[ 1088.622427] RBP: 000055dff8b55d00 R08: 00007fff2a947fb1 R09: 0000000000000000
-[ 1088.622427] R10: 00007f54f62f5cc0 R11: 0000000000000206 R12: 000055dff8b55d68
-[ 1088.622428] R13: 0000000000000001 R14: 000055dff8b55d68 R15: 00007fff2a94a3f0
+To accommodate supporting unregistering logical PIO regions, subtly modify
+LOGIC_PIO_CPU_MMIO region registration code, such that the "end" of the
+registered regions is the "end" of the last region, and not the sum of
+the sizes of all the registered regions.
 
-The cause for the bug is that when the "delayed" doorbell is invoked, it
-takes a reference on the doorbell entry and schedules work that is
-supposed to run the appropriate code and drop the doorbell entry
-reference. The code ignores the fact that if the work is already queued,
-it will not be scheduled to run one more time. As a result one of the
-references would not be dropped. When the code waits for the reference
-to get to zero, during balloon reset or module removal, it gets stuck.
-
-Fix it. Drop the reference if schedule_work() indicates that the work is
-already queued.
-
-Note that this bug got more apparent (or apparent at all) due to
-commit ce664331b248 ("vmw_balloon: VMCI_DOORBELL_SET does not check status").
-
-Fixes: 83e2ec765be03 ("VMCI: doorbell implementation.")
-Reported-by: Francois Rigault <rigault.francois@gmail.com>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Adit Ranadive <aditr@vmware.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Vishnu DASA <vdasa@vmware.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Link: https://lore.kernel.org/r/20190820202638.49003-1-namit@vmware.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/vmw_vmci/vmci_doorbell.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ lib/logic_pio.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_doorbell.c
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -318,7 +318,8 @@ int vmci_dbell_host_context_notify(u32 s
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -35,7 +35,7 @@ int logic_pio_register_range(struct logi
+ 	struct logic_pio_hwaddr *range;
+ 	resource_size_t start;
+ 	resource_size_t end;
+-	resource_size_t mmio_sz = 0;
++	resource_size_t mmio_end = 0;
+ 	resource_size_t iio_sz = MMIO_UPPER_LIMIT;
+ 	int ret = 0;
  
- 	entry = container_of(resource, struct dbell_entry, resource);
- 	if (entry->run_delayed) {
--		schedule_work(&entry->work);
-+		if (!schedule_work(&entry->work))
-+			vmci_resource_put(resource);
- 	} else {
- 		entry->notify_cb(entry->client_data);
- 		vmci_resource_put(resource);
-@@ -366,7 +367,8 @@ static void dbell_fire_entries(u32 notif
- 		    atomic_read(&dbell->active) == 1) {
- 			if (dbell->run_delayed) {
- 				vmci_resource_get(&dbell->resource);
--				schedule_work(&dbell->work);
-+				if (!schedule_work(&dbell->work))
-+					vmci_resource_put(&dbell->resource);
+@@ -56,7 +56,7 @@ int logic_pio_register_range(struct logi
+ 			/* for MMIO ranges we need to check for overlap */
+ 			if (start >= range->hw_start + range->size ||
+ 			    end < range->hw_start) {
+-				mmio_sz += range->size;
++				mmio_end = range->io_start + range->size;
  			} else {
- 				dbell->notify_cb(dbell->client_data);
+ 				ret = -EFAULT;
+ 				goto end_register;
+@@ -69,16 +69,16 @@ int logic_pio_register_range(struct logi
+ 
+ 	/* range not registered yet, check for available space */
+ 	if (new_range->flags == LOGIC_PIO_CPU_MMIO) {
+-		if (mmio_sz + new_range->size - 1 > MMIO_UPPER_LIMIT) {
++		if (mmio_end + new_range->size - 1 > MMIO_UPPER_LIMIT) {
+ 			/* if it's too big check if 64K space can be reserved */
+-			if (mmio_sz + SZ_64K - 1 > MMIO_UPPER_LIMIT) {
++			if (mmio_end + SZ_64K - 1 > MMIO_UPPER_LIMIT) {
+ 				ret = -E2BIG;
+ 				goto end_register;
  			}
+ 			new_range->size = SZ_64K;
+ 			pr_warn("Requested IO range too big, new size set to 64K\n");
+ 		}
+-		new_range->io_start = mmio_sz;
++		new_range->io_start = mmio_end;
+ 	} else if (new_range->flags == LOGIC_PIO_INDIRECT) {
+ 		if (iio_sz + new_range->size - 1 > IO_SPACE_LIMIT) {
+ 			ret = -E2BIG;
 
 
