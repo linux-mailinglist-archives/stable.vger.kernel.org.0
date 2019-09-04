@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2AAA8E61
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A61FA8EA1
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732926AbfIDR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35722 "EHLO mail.kernel.org"
+        id S2388184AbfIDR7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387898AbfIDR5k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:40 -0400
+        id S1732997AbfIDR7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:59:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7B2621883;
-        Wed,  4 Sep 2019 17:57:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6470F22CF7;
+        Wed,  4 Sep 2019 17:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619860;
-        bh=54VtRoqU8kvRGwbrBOQmMbSEAWo9D7ld9pRs7Lg+DvM=;
+        s=default; t=1567619945;
+        bh=3rgjDk5vulimSkP+gtzRQqnIK4lLuSZpUi1F7b08E/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3Wv9BUfyZcTp6e6CCaE+msozJ+63A1a+LlErdHMg8nBEZ2PEKYiKByuEattDHiID
-         Ta9Yfhv7y3RYjOe3cekXCaW/zhq3umDb8Quwya+pBwXfktuxLnvfY4P9PEhDNtg4lI
-         4FnP4uY8YzsgalzerVbPiSaRrr8boCczbQ5jJfMc=
+        b=BsBzE1zAuPdVcctjUbAbCuc+Sbv558Fn1Uka3rrnKiP8Q9dNE/UEcNN9Qq+qj71kb
+         6VHwzUAVMMMbV7Ax6eN9HMVuA73dqBMEZo6ut5HrBSe9Nok+PP5vqm4HonkGT05Ufc
+         Q8VzN/9zOt1Dk6Ajr8Y9yxei9v+2qkXE5ljtzdDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 21/77] libata: add SG safety checks in SFF pio transfers
+        stable@vger.kernel.org, Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 16/83] can: peak_usb: force the string buffer NULL-terminated
 Date:   Wed,  4 Sep 2019 19:53:08 +0200
-Message-Id: <20190904175305.616064032@linuxfoundation.org>
+Message-Id: <20190904175305.292307670@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 752ead44491e8c91e14d7079625c5916b30921c5 ]
+[ Upstream commit e787f19373b8a5fa24087800ed78314fd17b984a ]
 
-Abort processing of a command if we run out of mapped data in the
-SG list. This should never happen, but a previous bug caused it to
-be possible. Play it safe and attempt to abort nicely if we don't
-have more SG segments left.
+strncpy() does not ensure NULL-termination when the input string size
+equals to the destination buffer size IFNAMSIZ. The output string is
+passed to dev_info() which relies on the NULL-termination.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Use strlcpy() instead.
+
+This issue is identified by a Coccinelle script.
+
+Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-sff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
-index 18de4c4570682..1d8901fc0bfa9 100644
---- a/drivers/ata/libata-sff.c
-+++ b/drivers/ata/libata-sff.c
-@@ -703,6 +703,10 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 	unsigned int offset;
- 	unsigned char *buf;
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index 54c2354053ace..ce0a352a5eaab 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -879,7 +879,7 @@ static void peak_usb_disconnect(struct usb_interface *intf)
  
-+	if (!qc->cursg) {
-+		qc->curbytes = qc->nbytes;
-+		return;
-+	}
- 	if (qc->curbytes == qc->nbytes - qc->sect_size)
- 		ap->hsm_task_state = HSM_ST_LAST;
+ 		dev_prev_siblings = dev->prev_siblings;
+ 		dev->state &= ~PCAN_USB_STATE_CONNECTED;
+-		strncpy(name, netdev->name, IFNAMSIZ);
++		strlcpy(name, netdev->name, IFNAMSIZ);
  
-@@ -742,6 +746,8 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
+ 		unregister_netdev(netdev);
  
- 	if (qc->cursg_ofs == qc->cursg->length) {
- 		qc->cursg = sg_next(qc->cursg);
-+		if (!qc->cursg)
-+			ap->hsm_task_state = HSM_ST_LAST;
- 		qc->cursg_ofs = 0;
- 	}
- }
 -- 
 2.20.1
 
