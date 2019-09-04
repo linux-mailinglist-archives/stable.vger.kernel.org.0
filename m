@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F82A8E8F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D6FA8F5F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388088AbfIDR6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37208 "EHLO mail.kernel.org"
+        id S2388545AbfIDSDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388096AbfIDR6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:58:42 -0400
+        id S2388534AbfIDSDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:03:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55D1022CF5;
-        Wed,  4 Sep 2019 17:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4134F22CEA;
+        Wed,  4 Sep 2019 18:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619921;
-        bh=/UKcuszKg0IpCh6dT9+/MkBZc+iAxQJoe9Nonn58R30=;
+        s=default; t=1567620195;
+        bh=HQhjPHYUPk6eNmJ7SpCrvcFik+rs4bvnYNXZP/mbyy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rr5MPHZjK4ChE1vGs9e4YI8gmz/7fjcySX7wd1sxbzcpKMz+5s+sngZRfAqvZbv1r
-         Can8js7NJmTmD3/iV8y95DijoGuhGpE1LghQLnBboo9fGQNSmF9/eI5z6Yu3vyC+AI
-         998U7eRIB/EAE7LS2uUvfNTgQrcf6/lcd96/tiZ4=
+        b=Gm07aXBjZrFARFrij9eT2Ppt9dLlVNIfDAX/WnKimDoR7q33arswlLBsSBnyKo0Fr
+         4AdxubfojCfzxwprW7UWBanE23bPCmqhy7Kr/eyV8TNWso9DpRCas3sZLtsdk+CIOY
+         pO8DTnlEV2i3qQl2MSlrirXd8MlI8EWrYEh1P4eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.4 66/77] usb: host: ohci: fix a race condition between shutdown and irq
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Subject: [PATCH 4.14 25/57] KVM: x86: Dont update RIP or do single-step on faulting emulation
 Date:   Wed,  4 Sep 2019 19:53:53 +0200
-Message-Id: <20190904175309.545969916@linuxfoundation.org>
+Message-Id: <20190904175304.370110671@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,134 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit a349b95d7ca0cea71be4a7dac29830703de7eb62 upstream.
+commit 75ee23b30dc712d80d2421a9a547e7ab6e379b44 upstream.
 
-This patch fixes an issue that the following error is
-possible to happen when ohci hardware causes an interruption
-and the system is shutting down at the same time.
+Don't advance RIP or inject a single-step #DB if emulation signals a
+fault.  This logic applies to all state updates that are conditional on
+clean retirement of the emulation instruction, e.g. updating RFLAGS was
+previously handled by commit 38827dbd3fb85 ("KVM: x86: Do not update
+EFLAGS on faulting emulation").
 
-[   34.851754] usb 2-1: USB disconnect, device number 2
-[   35.166658] irq 156: nobody cared (try booting with the "irqpoll" option)
-[   35.173445] CPU: 0 PID: 22 Comm: kworker/0:1 Not tainted 5.3.0-rc5 #85
-[   35.179964] Hardware name: Renesas Salvator-X 2nd version board based on r8a77965 (DT)
-[   35.187886] Workqueue: usb_hub_wq hub_event
-[   35.192063] Call trace:
-[   35.194509]  dump_backtrace+0x0/0x150
-[   35.198165]  show_stack+0x14/0x20
-[   35.201475]  dump_stack+0xa0/0xc4
-[   35.204785]  __report_bad_irq+0x34/0xe8
-[   35.208614]  note_interrupt+0x2cc/0x318
-[   35.212446]  handle_irq_event_percpu+0x5c/0x88
-[   35.216883]  handle_irq_event+0x48/0x78
-[   35.220712]  handle_fasteoi_irq+0xb4/0x188
-[   35.224802]  generic_handle_irq+0x24/0x38
-[   35.228804]  __handle_domain_irq+0x5c/0xb0
-[   35.232893]  gic_handle_irq+0x58/0xa8
-[   35.236548]  el1_irq+0xb8/0x180
-[   35.239681]  __do_softirq+0x94/0x23c
-[   35.243253]  irq_exit+0xd0/0xd8
-[   35.246387]  __handle_domain_irq+0x60/0xb0
-[   35.250475]  gic_handle_irq+0x58/0xa8
-[   35.254130]  el1_irq+0xb8/0x180
-[   35.257268]  kernfs_find_ns+0x5c/0x120
-[   35.261010]  kernfs_find_and_get_ns+0x3c/0x60
-[   35.265361]  sysfs_unmerge_group+0x20/0x68
-[   35.269454]  dpm_sysfs_remove+0x2c/0x68
-[   35.273284]  device_del+0x80/0x370
-[   35.276683]  hid_destroy_device+0x28/0x60
-[   35.280686]  usbhid_disconnect+0x4c/0x80
-[   35.284602]  usb_unbind_interface+0x6c/0x268
-[   35.288867]  device_release_driver_internal+0xe4/0x1b0
-[   35.293998]  device_release_driver+0x14/0x20
-[   35.298261]  bus_remove_device+0x110/0x128
-[   35.302350]  device_del+0x148/0x370
-[   35.305832]  usb_disable_device+0x8c/0x1d0
-[   35.309921]  usb_disconnect+0xc8/0x2d0
-[   35.313663]  hub_event+0x6e0/0x1128
-[   35.317146]  process_one_work+0x1e0/0x320
-[   35.321148]  worker_thread+0x40/0x450
-[   35.324805]  kthread+0x124/0x128
-[   35.328027]  ret_from_fork+0x10/0x18
-[   35.331594] handlers:
-[   35.333862] [<0000000079300c1d>] usb_hcd_irq
-[   35.338126] [<0000000079300c1d>] usb_hcd_irq
-[   35.342389] Disabling IRQ #156
+Not advancing RIP is likely a nop, i.e. ctxt->eip isn't updated with
+ctxt->_eip until emulation "retires" anyways.  Skipping #DB injection
+fixes a bug reported by Andy Lutomirski where a #UD on SYSCALL due to
+invalid state with EFLAGS.TF=1 would loop indefinitely due to emulation
+overwriting the #UD with #DB and thus restarting the bad SYSCALL over
+and over.
 
-ohci_shutdown() disables all the interrupt and rh_state is set to
-OHCI_RH_HALTED. In other hand, ohci_irq() is possible to enable
-OHCI_INTR_SF and OHCI_INTR_MIE on ohci_irq(). Note that OHCI_INTR_SF
-is possible to be set by start_ed_unlink() which is called:
- ohci_irq()
-  -> process_done_list()
-   -> takeback_td()
-    -> start_ed_unlink()
-
-So, ohci_irq() has the following condition, the issue happens by
-&ohci->regs->intrenable = OHCI_INTR_MIE | OHCI_INTR_SF and
-ohci->rh_state = OHCI_RH_HALTED:
-
-	/* interrupt for some other device? */
-	if (ints == 0 || unlikely(ohci->rh_state == OHCI_RH_HALTED))
-		return IRQ_NOTMINE;
-
-To fix the issue, ohci_shutdown() holds the spin lock while disabling
-the interruption and changing the rh_state flag to prevent reenable
-the OHCI_INTR_MIE unexpectedly. Note that io_watchdog_func() also
-calls the ohci_shutdown() and it already held the spin lock, so that
-the patch makes a new function as _ohci_shutdown().
-
-This patch is inspired by a Renesas R-Car Gen3 BSP patch
-from Tho Vu.
-
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1566877910-6020-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: stable@vger.kernel.org
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Fixes: 663f4c61b803 ("KVM: x86: handle singlestep during emulation")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/ohci-hcd.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/ohci-hcd.c
-+++ b/drivers/usb/host/ohci-hcd.c
-@@ -415,8 +415,7 @@ static void ohci_usb_reset (struct ohci_
-  * other cases where the next software may expect clean state from the
-  * "firmware".  this is bus-neutral, unlike shutdown() methods.
-  */
--static void
--ohci_shutdown (struct usb_hcd *hcd)
-+static void _ohci_shutdown(struct usb_hcd *hcd)
- {
- 	struct ohci_hcd *ohci;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5954,12 +5954,13 @@ restart:
+ 		unsigned long rflags = kvm_x86_ops->get_rflags(vcpu);
+ 		toggle_interruptibility(vcpu, ctxt->interruptibility);
+ 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
+-		kvm_rip_write(vcpu, ctxt->eip);
+-		if (r == EMULATE_DONE && ctxt->tf)
+-			kvm_vcpu_do_singlestep(vcpu, &r);
+ 		if (!ctxt->have_exception ||
+-		    exception_type(ctxt->exception.vector) == EXCPT_TRAP)
++		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
++			kvm_rip_write(vcpu, ctxt->eip);
++			if (r == EMULATE_DONE && ctxt->tf)
++				kvm_vcpu_do_singlestep(vcpu, &r);
+ 			__kvm_set_rflags(vcpu, ctxt->eflags);
++		}
  
-@@ -432,6 +431,16 @@ ohci_shutdown (struct usb_hcd *hcd)
- 	ohci->rh_state = OHCI_RH_HALTED;
- }
- 
-+static void ohci_shutdown(struct usb_hcd *hcd)
-+{
-+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ohci->lock, flags);
-+	_ohci_shutdown(hcd);
-+	spin_unlock_irqrestore(&ohci->lock, flags);
-+}
-+
- /*-------------------------------------------------------------------------*
-  * HC functions
-  *-------------------------------------------------------------------------*/
-@@ -750,7 +759,7 @@ static void io_watchdog_func(unsigned lo
-  died:
- 			usb_hc_died(ohci_to_hcd(ohci));
- 			ohci_dump(ohci);
--			ohci_shutdown(ohci_to_hcd(ohci));
-+			_ohci_shutdown(ohci_to_hcd(ohci));
- 			goto done;
- 		} else {
- 			/* No write back because the done queue was empty */
+ 		/*
+ 		 * For STI, interrupts are shadowed; so KVM_REQ_EVENT will
 
 
