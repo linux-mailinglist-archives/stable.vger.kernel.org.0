@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEC4A8A67
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264D6A8A69
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732303AbfIDP7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 11:59:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
+        id S1732295AbfIDP7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 11:59:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732295AbfIDP7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 11:59:13 -0400
+        id S1732316AbfIDP7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 11:59:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B62E20820;
-        Wed,  4 Sep 2019 15:59:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 746832342D;
+        Wed,  4 Sep 2019 15:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612752;
-        bh=BwMnitDcDnhJKya16RLdKbbWRgE9L65diLVyxaRj83g=;
+        s=default; t=1567612754;
+        bh=pusz++BkZaH5s5cwokz0PPsiEDmhyvks8HAypCrb+mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCdi/6GxWYVFjbhIBFwVq3AiBqfbWyR81ZAkNKXMwbwMcLS13JdunQCW2SoiWK256
-         CjBqKIyA5LyeR7CBZkCH9/iwltPZbA9q26oFVyI0MXZoTChWu8JTPi8RZXpKSf4nyT
-         Yve7X6W6P5Slu4HyIqitrm33IvOmcadzi0qcEBGM=
+        b=JbGLERe6Hv9kN+WGEwtoTwerng2JZoLAIexKbqnR4jrL9Xs9vsLONXmwfsAkcncx8
+         7kJ3pFRZ4vo89k81bGBCYnC3nNMa24Z0H/Qgok9InSisJ/fMb3z5p/vpImfKE+b177
+         eJC2GPL2u3CRFDZJWO7E0MGopELnxctaak//fSb8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Hartmann <marco.hartmann@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 61/94] Add genphy_c45_config_aneg() function to phy-c45.c
-Date:   Wed,  4 Sep 2019 11:57:06 -0400
-Message-Id: <20190904155739.2816-61-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 63/94] x86/build: Add -Wnoaddress-of-packed-member to REALMODE_CFLAGS, to silence GCC9 build warning
+Date:   Wed,  4 Sep 2019 11:57:08 -0400
+Message-Id: <20190904155739.2816-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 References: <20190904155739.2816-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,98 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Hartmann <marco.hartmann@nxp.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 94acaeb50ced653bfe2c4d8037c70b107af14124 ]
+[ Upstream commit 42e0e95474fc6076b5cd68cab8fa0340a1797a72 ]
 
-Commit 34786005eca3 ("net: phy: prevent PHYs w/o Clause 22 regs from calling
-genphy_config_aneg") introduced a check that aborts phy_config_aneg()
-if the phy is a C45 phy.
-This causes phy_state_machine() to call phy_error() so that the phy
-ends up in PHY_HALTED state.
+One of the very few warnings I have in the current build comes from
+arch/x86/boot/edd.c, where I get the following with a gcc9 build:
 
-Instead of returning -EOPNOTSUPP, call genphy_c45_config_aneg()
-(analogous to the C22 case) so that the state machine can run
-correctly.
+   arch/x86/boot/edd.c: In function ‘query_edd’:
+   arch/x86/boot/edd.c:148:11: warning: taking address of packed member of ‘struct boot_params’ may result in an unaligned pointer value [-Waddress-of-packed-member]
+     148 |  mbrptr = boot_params.edd_mbr_sig_buffer;
+         |           ^~~~~~~~~~~
 
-genphy_c45_config_aneg() closely resembles mv3310_config_aneg()
-in drivers/net/phy/marvell10g.c, excluding vendor specific
-configurations for 1000BaseT.
+This warning triggers because we throw away all the CFLAGS and then make
+a new set for REALMODE_CFLAGS, so the -Wno-address-of-packed-member we
+added in the following commit is not present:
 
-Fixes: 22b56e827093 ("net: phy: replace genphy_10g_driver with genphy_c45_driver")
+  6f303d60534c ("gcc-9: silence 'address-of-packed-member' warning")
 
-Signed-off-by: Marco Hartmann <marco.hartmann@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The simplest solution for now is to adjust the warning for this version
+of CFLAGS as well, but it would definitely make sense to examine whether
+REALMODE_CFLAGS could be derived from CFLAGS, so that it picks up changes
+in the compiler flags environment automatically.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Borislav Petkov <bp@alien8.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy-c45.c | 26 ++++++++++++++++++++++++++
- drivers/net/phy/phy.c     |  2 +-
- include/linux/phy.h       |  1 +
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ arch/x86/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/phy-c45.c b/drivers/net/phy/phy-c45.c
-index 58bb25e4af106..7935593debb11 100644
---- a/drivers/net/phy/phy-c45.c
-+++ b/drivers/net/phy/phy-c45.c
-@@ -523,6 +523,32 @@ int genphy_c45_read_status(struct phy_device *phydev)
- }
- EXPORT_SYMBOL_GPL(genphy_c45_read_status);
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 56e748a7679f4..94df0868804bc 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -38,6 +38,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -DDISABLE_BRANCH_PROFILING \
  
-+/**
-+ * genphy_c45_config_aneg - restart auto-negotiation or forced setup
-+ * @phydev: target phy_device struct
-+ *
-+ * Description: If auto-negotiation is enabled, we configure the
-+ *   advertising, and then restart auto-negotiation.  If it is not
-+ *   enabled, then we force a configuration.
-+ */
-+int genphy_c45_config_aneg(struct phy_device *phydev)
-+{
-+	bool changed = false;
-+	int ret;
-+
-+	if (phydev->autoneg == AUTONEG_DISABLE)
-+		return genphy_c45_pma_setup_forced(phydev);
-+
-+	ret = genphy_c45_an_config_aneg(phydev);
-+	if (ret < 0)
-+		return ret;
-+	if (ret > 0)
-+		changed = true;
-+
-+	return genphy_c45_check_and_restart_aneg(phydev, changed);
-+}
-+EXPORT_SYMBOL_GPL(genphy_c45_config_aneg);
-+
- /* The gen10g_* functions are the old Clause 45 stub */
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
++REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
+ export REALMODE_CFLAGS
  
- int gen10g_config_aneg(struct phy_device *phydev)
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index e8885429293ad..57b3376877821 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -499,7 +499,7 @@ static int phy_config_aneg(struct phy_device *phydev)
- 	 * allowed to call genphy_config_aneg()
- 	 */
- 	if (phydev->is_c45 && !(phydev->c45_ids.devices_in_package & BIT(0)))
--		return -EOPNOTSUPP;
-+		return genphy_c45_config_aneg(phydev);
- 
- 	return genphy_config_aneg(phydev);
- }
-diff --git a/include/linux/phy.h b/include/linux/phy.h
-index 6424586fe2d65..7c5a9fb9c9f49 100644
---- a/include/linux/phy.h
-+++ b/include/linux/phy.h
-@@ -1108,6 +1108,7 @@ int genphy_c45_an_disable_aneg(struct phy_device *phydev);
- int genphy_c45_read_mdix(struct phy_device *phydev);
- int genphy_c45_pma_read_abilities(struct phy_device *phydev);
- int genphy_c45_read_status(struct phy_device *phydev);
-+int genphy_c45_config_aneg(struct phy_device *phydev);
- 
- /* The gen10g_* functions are the old Clause 45 stub */
- int gen10g_config_aneg(struct phy_device *phydev);
 -- 
 2.20.1
 
