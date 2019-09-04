@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 379BCA8E6B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62459A8EFF
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387940AbfIDR5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36104 "EHLO mail.kernel.org"
+        id S2388529AbfIDSBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:01:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733061AbfIDR5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:54 -0400
+        id S1733156AbfIDSBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:01:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C3D1208E4;
-        Wed,  4 Sep 2019 17:57:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36BD421883;
+        Wed,  4 Sep 2019 18:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619873;
-        bh=OrImN/qivchi1pS5W/mb+sSlQy3W25ZkcjvKBEXVwWc=;
+        s=default; t=1567620073;
+        bh=KFODnPUszH4MM9Zm/k4q06s97DmxuuLgP9E4w7ZP23Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=etrRmR2PVCxIGobeWo4JztGfPG89RnTxWKch6YiQpHOis7hHsGoiKyJmKxzl43LiS
-         YhP1gBVn1CtuNNzhloa6tHB4w+yHQ4boSar2Lf/U4kP+AbzT0Hws87dBzf1TAptpFs
-         nRac+TR3vTasZYW/cXnJOZsfP1DWeVVQ5ywQp6AA=
+        b=LTedBING+TA5YrW62xK2WLonC2WdJZurSa6GugFkBCnHUyGOOecE1uy9b6NxxE0l9
+         q+o0cSjVeS8E5IzfrFjgslECWMEW4fbG8tLdfHUSZeTdgSKBDTRI3kwstN6QiGCLBk
+         tfvibPh+tkg9oOgsyt9BAGlqRppcNhP+ahpVBgWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.4 67/77] USB: storage: ums-realtek: Update module parameter description for auto_delink_en
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Bandan Das <bsd@redhat.com>
+Subject: [PATCH 4.9 62/83] x86/apic: Do not initialize LDR and DFR for bigsmp
 Date:   Wed,  4 Sep 2019 19:53:54 +0200
-Message-Id: <20190904175309.629953004@linuxfoundation.org>
+Message-Id: <20190904175309.055395108@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Bandan Das <bsd@redhat.com>
 
-commit f6445b6b2f2bb1745080af4a0926049e8bca2617 upstream.
+commit bae3a8d3308ee69a7dbdf145911b18dfda8ade0d upstream.
 
-The option named "auto_delink_en" is a bit misleading, as setting it to
-false doesn't really disable auto-delink but let auto-delink be firmware
-controlled.
+Legacy apic init uses bigsmp for smp systems with 8 and more CPUs. The
+bigsmp APIC implementation uses physical destination mode, but it
+nevertheless initializes LDR and DFR. The LDR even ends up incorrectly with
+multiple bit being set.
 
-Update the description to reflect the real usage of this parameter.
+This does not cause a functional problem because LDR and DFR are ignored
+when physical destination mode is active, but it triggered a problem on a
+32-bit KVM guest which jumps into a kdump kernel.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190827173450.13572-1-kai.heng.feng@canonical.com
+The multiple bits set unearthed a bug in the KVM APIC implementation. The
+code which creates the logical destination map for VCPUs ignores the
+disabled state of the APIC and ends up overwriting an existing valid entry
+and as a result, APIC calibration hangs in the guest during kdump
+initialization.
+
+Remove the bogus LDR/DFR initialization.
+
+This is not intended to work around the KVM APIC bug. The LDR/DFR
+ininitalization is wrong on its own.
+
+The issue goes back into the pre git history. The fixes tag is the commit
+in the bitkeeper import which introduced bigsmp support in 2003.
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Fixes: db7b9e9f26b8 ("[PATCH] Clustered APIC setup for >8 CPU systems")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Bandan Das <bsd@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190826101513.5080-2-bsd@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/realtek_cr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/apic/bigsmp_32.c |   24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
---- a/drivers/usb/storage/realtek_cr.c
-+++ b/drivers/usb/storage/realtek_cr.c
-@@ -50,7 +50,7 @@ MODULE_VERSION("1.03");
+--- a/arch/x86/kernel/apic/bigsmp_32.c
++++ b/arch/x86/kernel/apic/bigsmp_32.c
+@@ -37,32 +37,12 @@ static int bigsmp_early_logical_apicid(i
+ 	return early_per_cpu(x86_cpu_to_apicid, cpu);
+ }
  
- static int auto_delink_en = 1;
- module_param(auto_delink_en, int, S_IRUGO | S_IWUSR);
--MODULE_PARM_DESC(auto_delink_en, "enable auto delink");
-+MODULE_PARM_DESC(auto_delink_en, "auto delink mode (0=firmware, 1=software [default])");
+-static inline unsigned long calculate_ldr(int cpu)
+-{
+-	unsigned long val, id;
+-
+-	val = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
+-	id = per_cpu(x86_bios_cpu_apicid, cpu);
+-	val |= SET_APIC_LOGICAL_ID(id);
+-
+-	return val;
+-}
+-
+ /*
+- * Set up the logical destination ID.
+- *
+- * Intel recommends to set DFR, LDR and TPR before enabling
+- * an APIC.  See e.g. "AP-388 82489DX User's Manual" (Intel
+- * document number 292116).  So here it goes...
++ * bigsmp enables physical destination mode
++ * and doesn't use LDR and DFR
+  */
+ static void bigsmp_init_apic_ldr(void)
+ {
+-	unsigned long val;
+-	int cpu = smp_processor_id();
+-
+-	apic_write(APIC_DFR, APIC_DFR_FLAT);
+-	val = calculate_ldr(cpu);
+-	apic_write(APIC_LDR, val);
+ }
  
- #ifdef CONFIG_REALTEK_AUTOPM
- static int ss_en = 1;
+ static void bigsmp_setup_apic_routing(void)
 
 
