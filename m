@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E259A8F1A
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07DF8A911A
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732774AbfIDSBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41422 "EHLO mail.kernel.org"
+        id S2390292AbfIDSNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:13:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388633AbfIDSBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:01:46 -0400
+        id S2390700AbfIDSNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:13:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED53922CEA;
-        Wed,  4 Sep 2019 18:01:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16E9B2341B;
+        Wed,  4 Sep 2019 18:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620105;
-        bh=+53Q+EU2tryXha6WTapNQg8k7LYAIJZaIDagmdNGxg4=;
+        s=default; t=1567620811;
+        bh=I9c8+mI73wBB/l3wPqRLRS5mw5uBMutPW2XFFFwYECs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2fhBu3pkqFBdk29HgR5/tAgPesZ9O2MfY/mXOiGeWvlgN35kzrKYFRAbU7AtpYe5
-         JYD6dfSf5jptger8zmBZOH/uX7jADpUsdfNpAfqwwHIlaTdTKPwMXVW3eJxVBiO5AQ
-         JhfsrjkTgYJ9gNBSwQnz6P9FNG4Q7riTXGzZMtpE=
+        b=Ka28y/ar0RCnu8rXb4eHQjRG76ABXnT+sl6sRjZxVVVvZvBa8f9hHZ76Dk4yoojuz
+         m+Dhpl95JK//DR6IxMo1foWAsmb7DKKBF1Vd02iQjDIMbDJUILMm2WGnaXPnSiXFWD
+         5ipbCtoag7f9MtjUk1+i9AlTGiKXGD4+wAFu3Yzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 34/83] x86/apic: Handle missing global clockevent gracefully
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Jeronimo Borque <jeronimo@borque.com.ar>
+Subject: [PATCH 5.2 063/143] ALSA: hda - Fixes inverted Conexant GPIO mic mute led
 Date:   Wed,  4 Sep 2019 19:53:26 +0200
-Message-Id: <20190904175306.833293046@linuxfoundation.org>
+Message-Id: <20190904175316.537139719@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,154 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jeronimo Borque <jeronimo@borque.com.ar>
 
-commit f897e60a12f0b9146357780d317879bce2a877dc upstream.
+commit f9ef724d4896763479f3921afd1ee61552fc9836 upstream.
 
-Some newer machines do not advertise legacy timers. The kernel can handle
-that situation if the TSC and the CPU frequency are enumerated by CPUID or
-MSRs and the CPU supports TSC deadline timer. If the CPU does not support
-TSC deadline timer the local APIC timer frequency has to be known as well.
+"enabled" parameter historically referred to the device input or
+output, not to the led indicator. After the changes added with the led
+helper functions the mic mute led logic refers to the led and not to
+the mic input which caused led indicator to be negated.
+Fixing logic in cxt_update_gpio_led and updated
+cxt_fixup_gpio_mute_hook
+Also updated debug messages to ease further debugging if necessary.
 
-Some Ryzens machines do not advertize legacy timers, but there is no
-reliable way to determine the bus frequency which feeds the local APIC
-timer when the machine allows overclocking of that frequency.
-
-As there is no legacy timer the local APIC timer calibration crashes due to
-a NULL pointer dereference when accessing the not installed global clock
-event device.
-
-Switch the calibration loop to a non interrupt based one, which polls
-either TSC (if frequency is known) or jiffies. The latter requires a global
-clockevent. As the machines which do not have a global clockevent installed
-have a known TSC frequency this is a non issue. For older machines where
-TSC frequency is not known, there is no known case where the legacy timers
-do not exist as that would have been reported long ago.
-
-Reported-by: Daniel Drake <drake@endlessm.com>
-Reported-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Daniel Drake <drake@endlessm.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908091443030.21433@nanos.tec.linutronix.de
-Link: http://bugzilla.opensuse.org/show_bug.cgi?id=1142926#c12
+Fixes: 184e302b46c9 ("ALSA: hda/conexant - Use the mic-mute LED helper")
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jeronimo Borque <jeronimo@borque.com.ar>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/apic/apic.c |   68 ++++++++++++++++++++++++++++++++++----------
- 1 file changed, 53 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_conexant.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -629,7 +629,7 @@ static __initdata unsigned long lapic_ca
- static __initdata unsigned long lapic_cal_j1, lapic_cal_j2;
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -611,18 +611,20 @@ static void cxt_fixup_hp_gate_mic_jack(s
  
- /*
-- * Temporary interrupt handler.
-+ * Temporary interrupt handler and polled calibration function.
-  */
- static void __init lapic_cal_handler(struct clock_event_device *dev)
+ /* update LED status via GPIO */
+ static void cxt_update_gpio_led(struct hda_codec *codec, unsigned int mask,
+-				bool enabled)
++				bool led_on)
  {
-@@ -713,7 +713,8 @@ calibrate_by_pmtimer(long deltapm, long
- static int __init calibrate_APIC_clock(void)
+ 	struct conexant_spec *spec = codec->spec;
+ 	unsigned int oldval = spec->gpio_led;
+ 
+ 	if (spec->mute_led_polarity)
+-		enabled = !enabled;
++		led_on = !led_on;
+ 
+-	if (enabled)
+-		spec->gpio_led &= ~mask;
+-	else
++	if (led_on)
+ 		spec->gpio_led |= mask;
++	else
++		spec->gpio_led &= ~mask;
++	codec_dbg(codec, "mask:%d enabled:%d gpio_led:%d\n",
++			mask, led_on, spec->gpio_led);
+ 	if (spec->gpio_led != oldval)
+ 		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DATA,
+ 				    spec->gpio_led);
+@@ -633,8 +635,8 @@ static void cxt_fixup_gpio_mute_hook(voi
  {
- 	struct clock_event_device *levt = this_cpu_ptr(&lapic_events);
--	void (*real_handler)(struct clock_event_device *dev);
-+	u64 tsc_perj = 0, tsc_start = 0;
-+	unsigned long jif_start;
- 	unsigned long deltaj;
- 	long delta, deltatsc;
- 	int pm_referenced = 0;
-@@ -742,29 +743,65 @@ static int __init calibrate_APIC_clock(v
- 	apic_printk(APIC_VERBOSE, "Using local APIC timer interrupts.\n"
- 		    "calibrating APIC timer ...\n");
- 
-+	/*
-+	 * There are platforms w/o global clockevent devices. Instead of
-+	 * making the calibration conditional on that, use a polling based
-+	 * approach everywhere.
-+	 */
- 	local_irq_disable();
- 
--	/* Replace the global interrupt handler */
--	real_handler = global_clock_event->event_handler;
--	global_clock_event->event_handler = lapic_cal_handler;
+ 	struct hda_codec *codec = private_data;
+ 	struct conexant_spec *spec = codec->spec;
 -
- 	/*
- 	 * Setup the APIC counter to maximum. There is no way the lapic
- 	 * can underflow in the 100ms detection time frame
- 	 */
- 	__setup_APIC_LVTT(0xffffffff, 0, 0);
+-	cxt_update_gpio_led(codec, spec->gpio_mute_led_mask, enabled);
++	/* muted -> LED on */
++	cxt_update_gpio_led(codec, spec->gpio_mute_led_mask, !enabled);
+ }
  
--	/* Let the interrupts run */
-+	/*
-+	 * Methods to terminate the calibration loop:
-+	 *  1) Global clockevent if available (jiffies)
-+	 *  2) TSC if available and frequency is known
-+	 */
-+	jif_start = READ_ONCE(jiffies);
-+
-+	if (tsc_khz) {
-+		tsc_start = rdtsc();
-+		tsc_perj = div_u64((u64)tsc_khz * 1000, HZ);
-+	}
-+
-+	/*
-+	 * Enable interrupts so the tick can fire, if a global
-+	 * clockevent device is available
-+	 */
- 	local_irq_enable();
+ /* turn on/off mic-mute LED via GPIO per capture hook */
+@@ -656,7 +658,6 @@ static void cxt_fixup_mute_led_gpio(stru
+ 		{ 0x01, AC_VERB_SET_GPIO_DIRECTION, 0x03 },
+ 		{}
+ 	};
+-	codec_info(codec, "action: %d gpio_led: %d\n", action, spec->gpio_led);
  
--	while (lapic_cal_loops <= LAPIC_CAL_LOOPS)
--		cpu_relax();
-+	while (lapic_cal_loops <= LAPIC_CAL_LOOPS) {
-+		/* Wait for a tick to elapse */
-+		while (1) {
-+			if (tsc_khz) {
-+				u64 tsc_now = rdtsc();
-+				if ((tsc_now - tsc_start) >= tsc_perj) {
-+					tsc_start += tsc_perj;
-+					break;
-+				}
-+			} else {
-+				unsigned long jif_now = READ_ONCE(jiffies);
-+
-+				if (time_after(jif_now, jif_start)) {
-+					jif_start = jif_now;
-+					break;
-+				}
-+			}
-+			cpu_relax();
-+		}
-+
-+		/* Invoke the calibration routine */
-+		local_irq_disable();
-+		lapic_cal_handler(NULL);
-+		local_irq_enable();
-+	}
- 
- 	local_irq_disable();
- 
--	/* Restore the real event handler */
--	global_clock_event->event_handler = real_handler;
--
- 	/* Build delta t1-t2 as apic timer counts down */
- 	delta = lapic_cal_t1 - lapic_cal_t2;
- 	apic_printk(APIC_VERBOSE, "... lapic delta = %ld\n", delta);
-@@ -814,10 +851,11 @@ static int __init calibrate_APIC_clock(v
- 	levt->features &= ~CLOCK_EVT_FEAT_DUMMY;
- 
- 	/*
--	 * PM timer calibration failed or not turned on
--	 * so lets try APIC timer based calibration
-+	 * PM timer calibration failed or not turned on so lets try APIC
-+	 * timer based calibration, if a global clockevent device is
-+	 * available.
- 	 */
--	if (!pm_referenced) {
-+	if (!pm_referenced && global_clock_event) {
- 		apic_printk(APIC_VERBOSE, "... verify APIC timer\n");
- 
- 		/*
+ 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
+ 		spec->gen.vmaster_mute.hook = cxt_fixup_gpio_mute_hook;
 
 
