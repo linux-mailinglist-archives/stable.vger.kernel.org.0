@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C89A9127
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BF4A8F9F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390351AbfIDSNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        id S2389146AbfIDSEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390346AbfIDSNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:48 -0400
+        id S2389143AbfIDSEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D05A208E4;
-        Wed,  4 Sep 2019 18:13:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3664206BA;
+        Wed,  4 Sep 2019 18:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620827;
-        bh=CSRHk86gh5WIy5DIPkqYlXmBSEzXVknhxkEwMMZeuSM=;
+        s=default; t=1567620289;
+        bh=AijjDcw+bDNa2gdFvNVN9OG3Ed0uGHSfKxuUEJK5c9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSCetijhJDItUGbKzHbuImpXpkSc8oRb1Ko3yKRPifpzRlruhsb5OI11FrJodvbAm
-         u6ps7+9LkYaFHEpsmvXecia12qOomu65596Vy7Ppoc3z/RIoZWwOvfPhXGoVrM3yyj
-         +JWsnZet3PrhQk6QJJn1mPKN5wFwHfHm9yJjzNco=
+        b=0wVdqAerCiuBC+EbDWcklDaqpGzb9jOBICrTEjARWtTV3xpOPB1SeUpEsgRsDo21x
+         d4O/zj4ldgiyYTO8lw+c7MPTbgryIB17EPvekrRRqMFP+rL2z35Zl4cThKKuNJlMvr
+         yjwpl8ssQR+FYoq30bIr9EiIV1pYFnrK/Gu5FULg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Aaron Liu <aaron.liu@amd.com>
-Subject: [PATCH 5.2 111/143] drm/amdgpu: fix GFXOFF on Picasso and Raven2
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 46/57] crypto: ccp - Ignore unconfigured CCP device on suspend/resume
 Date:   Wed,  4 Sep 2019 19:54:14 +0200
-Message-Id: <20190904175318.740365280@linuxfoundation.org>
+Message-Id: <20190904175306.500033868@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Liu <aaron.liu@amd.com>
+From: Gary R Hook <gary.hook@amd.com>
 
-commit 41940ff50f6c347f3541163702566cd526200d98 upstream.
+commit 5871cd93692c8071fb9358daccb715b5081316ac upstream.
 
-For picasso(adev->pdev->device == 0x15d8)&raven2(adev->rev_id >= 0x8),
-firmware is sufficient to support gfxoff.
-In commit 98f58ada2d37e, for picasso&raven2,
-return directly and cause gfxoff disabled.
+If a CCP is unconfigured (e.g. there are no available queues) then
+there will be no data structures allocated for the device. Thus, we
+must check for validity of a pointer before trying to access structure
+members.
 
-Fixes: 98f58ada2d37 ("drm/amdgpu/gfx9: update pg_flags after determining if gfx off is possible")
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Aaron Liu <aaron.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 720419f01832f ("crypto: ccp - Introduce the AMD Secure Processor device")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/crypto/ccp/ccp-dev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -588,14 +588,14 @@ static void gfx_v9_0_check_if_need_gfxof
- 	case CHIP_VEGA20:
- 		break;
- 	case CHIP_RAVEN:
--		if (adev->rev_id >= 0x8 || adev->pdev->device == 0x15d8)
--			break;
--		if ((adev->gfx.rlc_fw_version != 106 &&
--		     adev->gfx.rlc_fw_version < 531) ||
--		    (adev->gfx.rlc_fw_version == 53815) ||
--		    (adev->gfx.rlc_feature_version < 1) ||
--		    !adev->gfx.rlc.is_rlc_v2_1)
-+		if (!(adev->rev_id >= 0x8 || adev->pdev->device == 0x15d8)
-+			&&((adev->gfx.rlc_fw_version != 106 &&
-+			     adev->gfx.rlc_fw_version < 531) ||
-+			    (adev->gfx.rlc_fw_version == 53815) ||
-+			    (adev->gfx.rlc_feature_version < 1) ||
-+			    !adev->gfx.rlc.is_rlc_v2_1))
- 			adev->pm.pp_feature &= ~PP_GFXOFF_MASK;
+--- a/drivers/crypto/ccp/ccp-dev.c
++++ b/drivers/crypto/ccp/ccp-dev.c
+@@ -540,6 +540,10 @@ int ccp_dev_suspend(struct sp_device *sp
+ 	unsigned long flags;
+ 	unsigned int i;
+ 
++	/* If there's no device there's nothing to do */
++	if (!ccp)
++		return 0;
 +
- 		if (adev->pm.pp_feature & PP_GFXOFF_MASK)
- 			adev->pg_flags |= AMD_PG_SUPPORT_GFX_PG |
- 				AMD_PG_SUPPORT_CP |
+ 	spin_lock_irqsave(&ccp->cmd_lock, flags);
+ 
+ 	ccp->suspending = 1;
+@@ -564,6 +568,10 @@ int ccp_dev_resume(struct sp_device *sp)
+ 	unsigned long flags;
+ 	unsigned int i;
+ 
++	/* If there's no device there's nothing to do */
++	if (!ccp)
++		return 0;
++
+ 	spin_lock_irqsave(&ccp->cmd_lock, flags);
+ 
+ 	ccp->suspending = 0;
 
 
