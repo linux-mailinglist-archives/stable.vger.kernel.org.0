@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA76A8E9C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C1FA8E56
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732633AbfIDR67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:58:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37592 "EHLO mail.kernel.org"
+        id S2387850AbfIDR50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732997AbfIDR66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:58:58 -0400
+        id S2387822AbfIDR5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:57:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6586022CF7;
-        Wed,  4 Sep 2019 17:58:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAFDE208E4;
+        Wed,  4 Sep 2019 17:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619937;
-        bh=uun2tIggxofMoBfrIBSPSFtfiMuhO/XgwscPuae6WE0=;
+        s=default; t=1567619844;
+        bh=JrtETm+0xl/10RbjcsYE4fg/WzMGzTm1IIheOI8DXog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5qgVTu28L96VcNxZsBINyYxPmqH0Z1eC+tEtyZcBKXyEatqQbh8KtcBbN2MFBiLO
-         mK8StjdHdzAg9qOKyu3z5tKv3cqo7mvLIF9NSiXZywcUZ1/pB8MJb26vSQlCDEGfZJ
-         IIdHENVxyKxR/fun28vVZSA5Mm4ruCFNNhPf+Boo=
+        b=vf3HjnzJskTA0IRK5Ne+OyMpxiVByHpimxiyghZ0Nez8x4wqw7Uzf8TRdaSE18tKX
+         dVfMpDucuiWaiPKBlveVb/k7abpk6Sa1AnpGed4XFKSUfcnnw/Gb6U9nGc0/yu/1sl
+         m4Rjc46+D2EeGYVr2HOFoJ6C6Upn/vd6qFBzRPhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/83] isdn: hfcsusb: Fix mISDN driver crash caused by transfer buffer on the stack
+Subject: [PATCH 4.4 18/77] net: hisilicon: make hip04_tx_reclaim non-reentrant
 Date:   Wed,  4 Sep 2019 19:53:05 +0200
-Message-Id: <20190904175305.058301660@linuxfoundation.org>
+Message-Id: <20190904175305.311657236@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8a1de3d5bb881507602bc02e004904828f88711 ]
+[ Upstream commit 1a2c070ae805910a853b4a14818481ed2e17c727 ]
 
-Since linux 4.9 it is not possible to use buffers on the stack for DMA transfers.
+If hip04_tx_reclaim is interrupted while it is running
+and then __napi_schedule continues to execute
+hip04_rx_poll->hip04_tx_reclaim, reentrancy occurs
+and oops is generated. So you need to mask the interrupt
+during the hip04_tx_reclaim run.
 
-During usb probe the driver crashes with "transfer buffer is on stack" message.
+The kernel oops exception stack is as follows:
 
-This fix k-allocates a buffer to be used on "read_reg_atomic", which is a macro
-that calls "usb_control_msg" under the hood.
+Unable to handle kernel NULL pointer dereference
+at virtual address 00000050
+pgd = c0003000
+[00000050] *pgd=80000000a04003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+Modules linked in: hip04_eth mtdblock mtd_blkdevs mtd
+ohci_platform ehci_platform ohci_hcd ehci_hcd
+vfat fat sd_mod usb_storage scsi_mod usbcore usb_common
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O    4.4.185 #1
+Hardware name: Hisilicon A15
+task: c0a250e0 task.stack: c0a00000
+PC is at hip04_tx_reclaim+0xe0/0x17c [hip04_eth]
+LR is at hip04_tx_reclaim+0x30/0x17c [hip04_eth]
+pc : [<bf30c3a4>]    lr : [<bf30c2f4>]    psr: 600e0313
+sp : c0a01d88  ip : 00000000  fp : c0601f9c
+r10: 00000000  r9 : c3482380  r8 : 00000001
+r7 : 00000000  r6 : 000000e1  r5 : c3482000  r4 : 0000000c
+r3 : f2209800  r2 : 00000000  r1 : 00000000  r0 : 00000000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 32c5387d  Table: 03d28c80  DAC: 55555555
+Process swapper/0 (pid: 0, stack limit = 0xc0a00190)
+Stack: (0xc0a01d88 to 0xc0a02000)
+[<bf30c3a4>] (hip04_tx_reclaim [hip04_eth]) from [<bf30d2e0>]
+                                                (hip04_rx_poll+0x88/0x368 [hip04_eth])
+[<bf30d2e0>] (hip04_rx_poll [hip04_eth]) from [<c04c2d9c>] (net_rx_action+0x114/0x34c)
+[<c04c2d9c>] (net_rx_action) from [<c021eed8>] (__do_softirq+0x218/0x318)
+[<c021eed8>] (__do_softirq) from [<c021f284>] (irq_exit+0x88/0xac)
+[<c021f284>] (irq_exit) from [<c0240090>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240090>] (msa_irq_exit) from [<c02677e0>] (__handle_domain_irq+0x110/0x148)
+[<c02677e0>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0551700>] (__irq_svc+0x40/0x58)
+Exception stack(0xc0a01f30 to 0xc0a01f78)
+1f20:                                     c0ae8b40 00000000 00000000 00000000
+1f40: 00000002 ffffe000 c0601f9c 00000000 ffffffff c0a2257c c0a22440 c0831a38
+1f60: c0a01ec4 c0a01f80 c0203714 c0203718 600e0213 ffffffff
+[<c0551700>] (__irq_svc) from [<c0203718>] (arch_cpu_idle+0x20/0x3c)
+[<c0203718>] (arch_cpu_idle) from [<c025bfd8>] (cpu_startup_entry+0x244/0x29c)
+[<c025bfd8>] (cpu_startup_entry) from [<c054b0d8>] (rest_init+0xc8/0x10c)
+[<c054b0d8>] (rest_init) from [<c0800c58>] (start_kernel+0x468/0x514)
+Code: a40599e5 016086e2 018088e2 7660efe6 (503090e5)
+---[ end trace 1db21d6d09c49d74 ]---
+Kernel panic - not syncing: Fatal exception in interrupt
+CPU3: stopping
+CPU: 3 PID: 0 Comm: swapper/3 Tainted: G      D    O    4.4.185 #1
 
-Kernel 4.19 backtrace:
-
-usb_hcd_submit_urb+0x3e5/0x900
-? sched_clock+0x9/0x10
-? log_store+0x203/0x270
-? get_random_u32+0x6f/0x90
-? cache_alloc_refill+0x784/0x8a0
-usb_submit_urb+0x3b4/0x550
-usb_start_wait_urb+0x4e/0xd0
-usb_control_msg+0xb8/0x120
-hfcsusb_probe+0x6bc/0xb40 [hfcsusb]
-usb_probe_interface+0xc2/0x260
-really_probe+0x176/0x280
-driver_probe_device+0x49/0x130
-__driver_attach+0xa9/0xb0
-? driver_probe_device+0x130/0x130
-bus_for_each_dev+0x5a/0x90
-driver_attach+0x14/0x20
-? driver_probe_device+0x130/0x130
-bus_add_driver+0x157/0x1e0
-driver_register+0x51/0xe0
-usb_register_driver+0x5d/0x120
-? 0xf81ed000
-hfcsusb_drv_init+0x17/0x1000 [hfcsusb]
-do_one_initcall+0x44/0x190
-? free_unref_page_commit+0x6a/0xd0
-do_init_module+0x46/0x1c0
-load_module+0x1dc1/0x2400
-sys_init_module+0xed/0x120
-do_fast_syscall_32+0x7a/0x200
-entry_SYSENTER_32+0x6b/0xbe
-
-Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
-index 6f19530ba2a93..726fba452f5f6 100644
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -1701,13 +1701,23 @@ hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel)
- static int
- setup_hfcsusb(struct hfcsusb *hw)
- {
-+	void *dmabuf = kmalloc(sizeof(u_char), GFP_KERNEL);
- 	u_char b;
-+	int ret;
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index 60c727b0b7ab2..fdf8a477bec9c 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -497,6 +497,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 	u16 len;
+ 	u32 err;
  
- 	if (debug & DBG_HFC_CALL_TRACE)
- 		printk(KERN_DEBUG "%s: %s\n", hw->name, __func__);
++	/* clean up tx descriptors */
++	tx_remaining = hip04_tx_reclaim(ndev, false);
++
+ 	while (cnt && !last) {
+ 		buf = priv->rx_buf[priv->rx_head];
+ 		skb = build_skb(buf, priv->rx_buf_size);
+@@ -554,8 +557,7 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
+ 	}
+ 	napi_complete(napi);
+ done:
+-	/* clean up tx descriptors and start a new timer if necessary */
+-	tx_remaining = hip04_tx_reclaim(ndev, false);
++	/* start a new timer if necessary */
+ 	if (rx < budget && tx_remaining)
+ 		hip04_start_tx_timer(priv);
  
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	ret = read_reg_atomic(hw, HFCUSB_CHIP_ID, dmabuf);
-+
-+	memcpy(&b, dmabuf, sizeof(u_char));
-+	kfree(dmabuf);
-+
- 	/* check the chip id */
--	if (read_reg_atomic(hw, HFCUSB_CHIP_ID, &b) != 1) {
-+	if (ret != 1) {
- 		printk(KERN_DEBUG "%s: %s: cannot read chip id\n",
- 		       hw->name, __func__);
- 		return 1;
 -- 
 2.20.1
 
