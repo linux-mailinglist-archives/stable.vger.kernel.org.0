@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FB0A8F8F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 339ECA9135
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388219AbfIDSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:04:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45478 "EHLO mail.kernel.org"
+        id S2390723AbfIDSOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:14:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388665AbfIDSE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:04:26 -0400
+        id S2390193AbfIDSOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:14:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC8E523401;
-        Wed,  4 Sep 2019 18:04:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C49E206BA;
+        Wed,  4 Sep 2019 18:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620265;
-        bh=FIMhe5wqKZ7wKr08bAItySFaV2dIz+9zENYWQkjtVdw=;
+        s=default; t=1567620846;
+        bh=AijjDcw+bDNa2gdFvNVN9OG3Ed0uGHSfKxuUEJK5c9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjcejCe54Tml8Dh/OBaleLUN2onYirjL4w0r4oF/PkVOQQz4wKFcdrGTbi+FmaJKd
-         96ntmm71nnG90X0yVB+ga7e39U/yMc7w6HlcvP9T0H7ij0p2s21qF2fgHNZOYMllzf
-         X+lgU7CXUaPaQEV4EENld2kPfY5AKDlNMgi4ce/U=
+        b=vZH+OapStm/CKo2eQrYaS56zs1nQU2fIrRVqsxNwuXuvk1tqorVuhTNT+7l4mVNFO
+         LCfVA7DPRVQxFfu2La8yuu/mbZUhkcr3oQ0gSwUn6f+6XywaxrZLCZQ46OOyHIszaj
+         YtoB0lpsoXwtdmz5AlEMPzKdL3+kYMr0mSzL9UGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 52/57] NFS: Clean up list moves of struct nfs_page
-Date:   Wed,  4 Sep 2019 19:54:20 +0200
-Message-Id: <20190904175306.975236128@linuxfoundation.org>
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.2 118/143] crypto: ccp - Ignore unconfigured CCP device on suspend/resume
+Date:   Wed,  4 Sep 2019 19:54:21 +0200
+Message-Id: <20190904175319.015719586@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 078b5fd92c4913dd367361db6c28568386077c89 ]
+From: Gary R Hook <gary.hook@amd.com>
 
-In several places we're just moving the struct nfs_page from one list to
-another by first removing from the existing list, then adding to the new
-one.
+commit 5871cd93692c8071fb9358daccb715b5081316ac upstream.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If a CCP is unconfigured (e.g. there are no available queues) then
+there will be no data structures allocated for the device. Thus, we
+must check for validity of a pointer before trying to access structure
+members.
+
+Fixes: 720419f01832f ("crypto: ccp - Introduce the AMD Secure Processor device")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/direct.c          |  3 +--
- fs/nfs/pagelist.c        | 12 ++++--------
- include/linux/nfs_page.h | 10 ++++++++++
- 3 files changed, 15 insertions(+), 10 deletions(-)
+ drivers/crypto/ccp/ccp-dev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 89c03a507dd9d..0c5e56702b19e 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -664,8 +664,7 @@ static void nfs_direct_write_reschedule(struct nfs_direct_req *dreq)
+--- a/drivers/crypto/ccp/ccp-dev.c
++++ b/drivers/crypto/ccp/ccp-dev.c
+@@ -540,6 +540,10 @@ int ccp_dev_suspend(struct sp_device *sp
+ 	unsigned long flags;
+ 	unsigned int i;
  
- 	list_for_each_entry_safe(req, tmp, &reqs, wb_list) {
- 		if (!nfs_pageio_add_request(&desc, req)) {
--			nfs_list_remove_request(req);
--			nfs_list_add_request(req, &failed);
-+			nfs_list_move_request(req, &failed);
- 			spin_lock(&cinfo.inode->i_lock);
- 			dreq->flags = 0;
- 			if (desc.pg_error < 0)
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 28b013d1d44ae..a7aa028a5b0bb 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -768,8 +768,7 @@ int nfs_generic_pgio(struct nfs_pageio_descriptor *desc,
- 	pageused = 0;
- 	while (!list_empty(head)) {
- 		req = nfs_list_entry(head->next);
--		nfs_list_remove_request(req);
--		nfs_list_add_request(req, &hdr->pages);
-+		nfs_list_move_request(req, &hdr->pages);
++	/* If there's no device there's nothing to do */
++	if (!ccp)
++		return 0;
++
+ 	spin_lock_irqsave(&ccp->cmd_lock, flags);
  
- 		if (!last_page || last_page != req->wb_page) {
- 			pageused++;
-@@ -961,8 +960,7 @@ static int nfs_pageio_do_add_request(struct nfs_pageio_descriptor *desc,
- 	}
- 	if (!nfs_can_coalesce_requests(prev, req, desc))
- 		return 0;
--	nfs_list_remove_request(req);
--	nfs_list_add_request(req, &mirror->pg_list);
-+	nfs_list_move_request(req, &mirror->pg_list);
- 	mirror->pg_count += req->wb_bytes;
- 	return 1;
- }
-@@ -994,8 +992,7 @@ nfs_pageio_cleanup_request(struct nfs_pageio_descriptor *desc,
- {
- 	LIST_HEAD(head);
+ 	ccp->suspending = 1;
+@@ -564,6 +568,10 @@ int ccp_dev_resume(struct sp_device *sp)
+ 	unsigned long flags;
+ 	unsigned int i;
  
--	nfs_list_remove_request(req);
--	nfs_list_add_request(req, &head);
-+	nfs_list_move_request(req, &head);
- 	desc->pg_completion_ops->error_cleanup(&head);
- }
++	/* If there's no device there's nothing to do */
++	if (!ccp)
++		return 0;
++
+ 	spin_lock_irqsave(&ccp->cmd_lock, flags);
  
-@@ -1241,9 +1238,8 @@ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
- 	while (!list_empty(&hdr->pages)) {
- 		struct nfs_page *req = nfs_list_entry(hdr->pages.next);
- 
--		nfs_list_remove_request(req);
- 		if (!nfs_pageio_add_request(desc, req))
--			nfs_list_add_request(req, &failed);
-+			nfs_list_move_request(req, &failed);
- 	}
- 	nfs_pageio_complete(desc);
- 	if (!list_empty(&failed)) {
-diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
-index e27572d30d977..ad69430fd0eb5 100644
---- a/include/linux/nfs_page.h
-+++ b/include/linux/nfs_page.h
-@@ -164,6 +164,16 @@ nfs_list_add_request(struct nfs_page *req, struct list_head *head)
- 	list_add_tail(&req->wb_list, head);
- }
- 
-+/**
-+ * nfs_list_move_request - Move a request to a new list
-+ * @req: request
-+ * @head: head of list into which to insert the request.
-+ */
-+static inline void
-+nfs_list_move_request(struct nfs_page *req, struct list_head *head)
-+{
-+	list_move_tail(&req->wb_list, head);
-+}
- 
- /**
-  * nfs_list_remove_request - Remove a request from its wb_list
--- 
-2.20.1
-
+ 	ccp->suspending = 0;
 
 
