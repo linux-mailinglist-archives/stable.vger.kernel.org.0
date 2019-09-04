@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F37CA8E97
+	by mail.lfdr.de (Postfix) with ESMTP id EAB83A8E99
 	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388144AbfIDR6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37462 "EHLO mail.kernel.org"
+        id S2388154AbfIDR64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387606AbfIDR6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:58:52 -0400
+        id S1732633AbfIDR64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFDD2233FF;
-        Wed,  4 Sep 2019 17:58:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A169622CF7;
+        Wed,  4 Sep 2019 17:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619932;
-        bh=dkHU3hRpMZ1VdQXl6nFX+RS2OUk0M+f1rczffQ+YAEM=;
+        s=default; t=1567619935;
+        bh=sCXRnZIpt207PlAEOn+zbeo+kxsHVsTNdhrxpRS55Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOEUXj9UoG/IpqyLozztEa/Il/IIt4h9F2SUx8ysyiKzn8M0u7bPtb3xrhgIxkjYc
-         Jo4upqXRztzA45PEmj1t5mSUIn/MV9zjPxecjkMGDqoCHIBQOrWHWdLtI04u1QvOJD
-         8mbzkmq+jrHP+fMuTjECsD58/GUNZMcnuShpRdx0=
+        b=PWs1s7+/13cY6zQmdx2z6/PjJLt6aEK9j0lNXPK5hJ9viEtohO7PN7VbWqZ2uv7Z/
+         izb3SGfSJ+FT2wIAMjSn921M08Xj3sMucriyO5ieDlfKEBZF8KE4LL3Mhr+vQjfW+L
+         f+3VROnes25prG1FDeZoLa//+LaSwDkGKig0t8B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Ham <bob.ham@puri.sm>,
-        "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/83] net: usb: qmi_wwan: Add the BroadMobi BM818 card
-Date:   Wed,  4 Sep 2019 19:53:03 +0200
-Message-Id: <20190904175304.780171453@linuxfoundation.org>
+Subject: [PATCH 4.9 12/83] isdn: mISDN: hfcsusb: Fix possible null-pointer dereferences in start_isoc_chain()
+Date:   Wed,  4 Sep 2019 19:53:04 +0200
+Message-Id: <20190904175304.893793683@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
 References: <20190904175303.488266791@linuxfoundation.org>
@@ -45,30 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a07406b00cdc6ec689dc142540739575c717f3c ]
+[ Upstream commit a0d57a552b836206ad7705a1060e6e1ce5a38203 ]
 
-The BroadMobi BM818 M.2 card uses the QMI protocol
+In start_isoc_chain(), usb_alloc_urb() on line 1392 may fail
+and return NULL. At this time, fifo->iso[i].urb is assigned to NULL.
 
-Signed-off-by: Bob Ham <bob.ham@puri.sm>
-Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Then, fifo->iso[i].urb is used at some places, such as:
+LINE 1405:    fill_isoc_urb(fifo->iso[i].urb, ...)
+                  urb->number_of_packets = num_packets;
+                  urb->transfer_flags = URB_ISO_ASAP;
+                  urb->actual_length = 0;
+                  urb->interval = interval;
+LINE 1416:    fifo->iso[i].urb->...
+LINE 1419:    fifo->iso[i].urb->...
+
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, "continue" is added to avoid using fifo->iso[i].urb
+when it is NULL.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index d51ad140f46d2..05953e14a064e 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -892,6 +892,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x2001, 0x7e35, 4)},	/* D-Link DWM-222 */
- 	{QMI_FIXED_INTF(0x2020, 0x2031, 4)},	/* Olicard 600 */
- 	{QMI_FIXED_INTF(0x2020, 0x2033, 4)},	/* BroadMobi BM806U */
-+	{QMI_FIXED_INTF(0x2020, 0x2060, 4)},	/* BroadMobi BM818 */
- 	{QMI_FIXED_INTF(0x0f3d, 0x68a2, 8)},    /* Sierra Wireless MC7700 */
- 	{QMI_FIXED_INTF(0x114f, 0x68a2, 8)},    /* Sierra Wireless MC7750 */
- 	{QMI_FIXED_INTF(0x1199, 0x68a2, 8)},	/* Sierra Wireless MC7710 in QMI mode */
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index c60c7998af173..6f19530ba2a93 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1402,6 +1402,7 @@ start_isoc_chain(struct usb_fifo *fifo, int num_packets_per_urb,
+ 				printk(KERN_DEBUG
+ 				       "%s: %s: alloc urb for fifo %i failed",
+ 				       hw->name, __func__, fifo->fifonum);
++				continue;
+ 			}
+ 			fifo->iso[i].owner_fifo = (struct usb_fifo *) fifo;
+ 			fifo->iso[i].indx = i;
 -- 
 2.20.1
 
