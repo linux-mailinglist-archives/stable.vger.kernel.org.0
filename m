@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C6AA8F3F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC72DA90E2
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387828AbfIDSCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
+        id S2390076AbfIDSMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732363AbfIDSCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:38 -0400
+        id S2390483AbfIDSMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10AFB2339D;
-        Wed,  4 Sep 2019 18:02:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E83BE2342D;
+        Wed,  4 Sep 2019 18:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620158;
-        bh=o/h0K/QgLQLBTCQBwpwh39O6WHVqKMUR9tz1VOI8b2A=;
+        s=default; t=1567620739;
+        bh=x/WeZNDH/QogmYMB8vO8JSZVG8MaOjBi/IHIHjPRTpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Imw4u4/MAuCycV2xsxA8nZ3wlHryFVO/k3hNvLG1y6xgAgZbj/Mi8EdZSDwhvKK47
-         KOkSjtI0mc8djK21hG8hKJvNc/Hy055uqQzSoSdyoS0EOPjkeudU4DI+ERrC1DB/oQ
-         O9NpwIr/JKFYuv27RwYoo6xbaP33Ap408gOQplXc=
+        b=XUpYoB7Oilm7BWeY6HxDkiaL6dXCtuPR+z9BAafYQUR2lQtrGR8gcabHGBNuySpIa
+         SGnX7fdc3xkuTupFTqaGCkcFxO3WGdIcdIV3R19rEM0u7+0u3w4myYuqE9VULws8IL
+         1S4DZSRBCySuUtgQ1GaqT5zdVyzTwYhXEnN+wjFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/57] watchdog: bcm2835_wdt: Fix module autoload
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.2 077/143] ftrace: Check for empty hash and comment the race with registering probes
 Date:   Wed,  4 Sep 2019 19:53:40 +0200
-Message-Id: <20190904175303.162724718@linuxfoundation.org>
+Message-Id: <20190904175317.069218013@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 215e06f0d18d5d653d6ea269e4dfc684854d48bf ]
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-The commit 5e6acc3e678e ("bcm2835-pm: Move bcm2835-watchdog's DT probe
-to an MFD.") broke module autoloading on Raspberry Pi. So add a
-module alias this fix this.
+commit 372e0d01da71c84dcecf7028598a33813b0d5256 upstream.
 
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The race between adding a function probe and reading the probes that exist
+is very subtle. It needs a comment. Also, the issue can also happen if the
+probe has has the EMPTY_HASH as its func_hash.
+
+Cc: stable@vger.kernel.org
+Fixes: 7b60f3d876156 ("ftrace: Dynamically create the probe ftrace_ops for the trace_array")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/watchdog/bcm2835_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/ftrace.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index b339e0e67b4c1..adb699145a071 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -252,6 +252,7 @@ module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3096,7 +3096,11 @@ t_probe_next(struct seq_file *m, loff_t
  
-+MODULE_ALIAS("platform:bcm2835-wdt");
- MODULE_AUTHOR("Lubomir Rintel <lkundrak@v3.sk>");
- MODULE_DESCRIPTION("Driver for Broadcom BCM2835 watchdog timer");
- MODULE_LICENSE("GPL");
--- 
-2.20.1
-
+ 	hash = iter->probe->ops.func_hash->filter_hash;
+ 
+-	if (!hash)
++	/*
++	 * A probe being registered may temporarily have an empty hash
++	 * and it's at the end of the func_probes list.
++	 */
++	if (!hash || hash == EMPTY_HASH)
+ 		return NULL;
+ 
+ 	size = 1 << hash->size_bits;
+@@ -4324,6 +4328,10 @@ register_ftrace_function_probe(char *glo
+ 
+ 	mutex_unlock(&ftrace_lock);
+ 
++	/*
++	 * Note, there's a small window here that the func_hash->filter_hash
++	 * may be NULL or empty. Need to be carefule when reading the loop.
++	 */
+ 	mutex_lock(&probe->ops.func_hash->regex_lock);
+ 
+ 	orig_hash = &probe->ops.func_hash->filter_hash;
 
 
