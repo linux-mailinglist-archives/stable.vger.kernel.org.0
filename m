@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5024A90EE
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF0CA8F4B
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389792AbfIDSMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57006 "EHLO mail.kernel.org"
+        id S2388252AbfIDSCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733228AbfIDSMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:12:33 -0400
+        id S2388834AbfIDSCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A3D022CEA;
-        Wed,  4 Sep 2019 18:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3569D208E4;
+        Wed,  4 Sep 2019 18:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620752;
-        bh=dtdFH06IsEHUIClj6Ic3CcPM+EVe3SGjsswJfSGmSVo=;
+        s=default; t=1567620171;
+        bh=xTGWqD+CPd4N1bD61EJqVR8BBD+YzMgcGg8fM/4Yz9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lw9x+g7IAdkBXOTm1KQNZdlgfXMmUS4g+pryr/ktl13wTKewc0WUF6nyrjXJSdY2N
-         BnBHQpHzs7TanxMd9XCP/jf5MNReX+LX7ITIcTaTqINs3LNRENZL9wTI3GXqSSbfTe
-         Qgo72nBVXSTaQmhhgcSbmUVDMO0fPXzimFbOBoqo=
+        b=xyW652LaPfnGaF/blQFZK73zjP5FkcqzIxCGhjFJrpccuEqwk3UqnIGIYVYBOcGrt
+         /nlWf65p1CCThXwJ+/Kd/HUg4P5tO4qBLE9hh3gqu2XdQ2AZp+HKNOAGsBX66AyZhy
+         FVK9AwOjiFK/4NPzJwnNRkfGG9SRdgP40F380ER4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.2 082/143] usb: chipidea: udc: dont do hardware access if gadget has stopped
+        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 17/57] ALSA: usb-audio: Fix a stack buffer overflow bug in check_input_term
 Date:   Wed,  4 Sep 2019 19:53:45 +0200
-Message-Id: <20190904175317.271965485@linuxfoundation.org>
+Message-Id: <20190904175303.653360419@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,118 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Hui Peng <benquike@gmail.com>
 
-commit cbe85c88ce80fb92956a0793518d415864dcead8 upstream.
+commit 19bce474c45be69a284ecee660aa12d8f1e88f18 upstream.
 
-After _gadget_stop_activity is executed, we can consider the hardware
-operation for gadget has finished, and the udc can be stopped and enter
-low power mode. So, any later hardware operations (from usb_ep_ops APIs
-or usb_gadget_ops APIs) should be considered invalid, any deinitializatons
-has been covered at _gadget_stop_activity.
+`check_input_term` recursively calls itself with input from
+device side (e.g., uac_input_terminal_descriptor.bCSourceID)
+as argument (id). In `check_input_term`, if `check_input_term`
+is called with the same `id` argument as the caller, it triggers
+endless recursive call, resulting kernel space stack overflow.
 
-I meet this problem when I plug out usb cable from PC using mass_storage
-gadget, my callstack like: vbus interrupt->.vbus_session->
-composite_disconnect ->pm_runtime_put_sync(&_gadget->dev),
-the composite_disconnect will call fsg_disable, but fsg_disable calls
-usb_ep_disable using async way, there are register accesses for
-usb_ep_disable. So sometimes, I get system hang due to visit register
-without clock, sometimes not.
+This patch fixes the bug by adding a bitmap to `struct mixer_build`
+to keep track of the checked ids and stop the execution if some id
+has been checked (similar to how parse_audio_unit handles unitid
+argument).
 
-The Linux Kernel USB maintainer Alan Stern suggests this kinds of solution.
-See: http://marc.info/?l=linux-usb&m=138541769810983&w=2.
-
-Cc: <stable@vger.kernel.org> #v4.9+
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20190820020503.27080-2-peter.chen@nxp.com
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Signed-off-by: Hui Peng <benquike@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/usb/chipidea/udc.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -709,12 +709,6 @@ static int _gadget_stop_activity(struct
- 	struct ci_hdrc    *ci = container_of(gadget, struct ci_hdrc, gadget);
- 	unsigned long flags;
+---
+ sound/usb/mixer.c |   29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
+
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -82,6 +82,7 @@ struct mixer_build {
+ 	unsigned char *buffer;
+ 	unsigned int buflen;
+ 	DECLARE_BITMAP(unitbitmap, MAX_ID_ELEMS);
++	DECLARE_BITMAP(termbitmap, MAX_ID_ELEMS);
+ 	struct usb_audio_term oterm;
+ 	const struct usbmix_name_map *map;
+ 	const struct usbmix_selector_map *selector_map;
+@@ -716,15 +717,24 @@ static int get_term_name(struct mixer_bu
+  * parse the source unit recursively until it reaches to a terminal
+  * or a branched unit.
+  */
+-static int check_input_term(struct mixer_build *state, int id,
++static int __check_input_term(struct mixer_build *state, int id,
+ 			    struct usb_audio_term *term)
+ {
+ 	int err;
+ 	void *p1;
++	unsigned char *hdr;
  
--	spin_lock_irqsave(&ci->lock, flags);
--	ci->gadget.speed = USB_SPEED_UNKNOWN;
--	ci->remote_wakeup = 0;
--	ci->suspended = 0;
--	spin_unlock_irqrestore(&ci->lock, flags);
--
- 	/* flush all endpoints */
- 	gadget_for_each_ep(ep, gadget) {
- 		usb_ep_fifo_flush(ep);
-@@ -732,6 +726,12 @@ static int _gadget_stop_activity(struct
- 		ci->status = NULL;
- 	}
- 
-+	spin_lock_irqsave(&ci->lock, flags);
-+	ci->gadget.speed = USB_SPEED_UNKNOWN;
-+	ci->remote_wakeup = 0;
-+	ci->suspended = 0;
-+	spin_unlock_irqrestore(&ci->lock, flags);
+ 	memset(term, 0, sizeof(*term));
+-	while ((p1 = find_audio_control_unit(state, id)) != NULL) {
+-		unsigned char *hdr = p1;
++	for (;;) {
++		/* a loop in the terminal chain? */
++		if (test_and_set_bit(id, state->termbitmap))
++			return -EINVAL;
 +
- 	return 0;
++		p1 = find_audio_control_unit(state, id);
++		if (!p1)
++			break;
++
++		hdr = p1;
+ 		term->id = id;
+ 		switch (hdr[2]) {
+ 		case UAC_INPUT_TERMINAL:
+@@ -739,7 +749,7 @@ static int check_input_term(struct mixer
+ 
+ 				/* call recursively to verify that the
+ 				 * referenced clock entity is valid */
+-				err = check_input_term(state, d->bCSourceID, term);
++				err = __check_input_term(state, d->bCSourceID, term);
+ 				if (err < 0)
+ 					return err;
+ 
+@@ -771,7 +781,7 @@ static int check_input_term(struct mixer
+ 		case UAC2_CLOCK_SELECTOR: {
+ 			struct uac_selector_unit_descriptor *d = p1;
+ 			/* call recursively to retrieve the channel info */
+-			err = check_input_term(state, d->baSourceID[0], term);
++			err = __check_input_term(state, d->baSourceID[0], term);
+ 			if (err < 0)
+ 				return err;
+ 			term->type = d->bDescriptorSubtype << 16; /* virtual type */
+@@ -818,6 +828,15 @@ static int check_input_term(struct mixer
+ 	return -ENODEV;
  }
  
-@@ -1303,6 +1303,10 @@ static int ep_disable(struct usb_ep *ep)
- 		return -EBUSY;
- 
- 	spin_lock_irqsave(hwep->lock, flags);
-+	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
-+		spin_unlock_irqrestore(hwep->lock, flags);
-+		return 0;
-+	}
- 
- 	/* only internal SW should disable ctrl endpts */
- 
-@@ -1392,6 +1396,10 @@ static int ep_queue(struct usb_ep *ep, s
- 		return -EINVAL;
- 
- 	spin_lock_irqsave(hwep->lock, flags);
-+	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
-+		spin_unlock_irqrestore(hwep->lock, flags);
-+		return 0;
-+	}
- 	retval = _ep_queue(ep, req, gfp_flags);
- 	spin_unlock_irqrestore(hwep->lock, flags);
- 	return retval;
-@@ -1415,8 +1423,8 @@ static int ep_dequeue(struct usb_ep *ep,
- 		return -EINVAL;
- 
- 	spin_lock_irqsave(hwep->lock, flags);
--
--	hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
-+	if (hwep->ci->gadget.speed != USB_SPEED_UNKNOWN)
-+		hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
- 
- 	list_for_each_entry_safe(node, tmpnode, &hwreq->tds, td) {
- 		dma_pool_free(hwep->td_pool, node->ptr, node->dma);
-@@ -1487,6 +1495,10 @@ static void ep_fifo_flush(struct usb_ep
- 	}
- 
- 	spin_lock_irqsave(hwep->lock, flags);
-+	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
-+		spin_unlock_irqrestore(hwep->lock, flags);
-+		return;
-+	}
- 
- 	hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
- 
-@@ -1559,6 +1571,10 @@ static int ci_udc_wakeup(struct usb_gadg
- 	int ret = 0;
- 
- 	spin_lock_irqsave(&ci->lock, flags);
-+	if (ci->gadget.speed == USB_SPEED_UNKNOWN) {
-+		spin_unlock_irqrestore(&ci->lock, flags);
-+		return 0;
-+	}
- 	if (!ci->remote_wakeup) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
++
++static int check_input_term(struct mixer_build *state, int id,
++			    struct usb_audio_term *term)
++{
++	memset(term, 0, sizeof(*term));
++	memset(state->termbitmap, 0, sizeof(state->termbitmap));
++	return __check_input_term(state, id, term);
++}
++
+ /*
+  * Feature Unit
+  */
 
 
