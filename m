@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F40A8FC0
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2A5A8E2F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389287AbfIDSFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:05:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47190 "EHLO mail.kernel.org"
+        id S2387577AbfIDR4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389282AbfIDSFh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:05:37 -0400
+        id S2387521AbfIDR4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:56:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 926862339E;
-        Wed,  4 Sep 2019 18:05:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9492422CEA;
+        Wed,  4 Sep 2019 17:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620337;
-        bh=xpTxZ5R8eAcpX66aYu+28hbqAixej81lEhoB0dUZzuM=;
+        s=default; t=1567619791;
+        bh=oU41QNTwO6LUFLfWLkYQyXNllDR9kHvlMxzd9NftRxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBxburqJv2LYJ91kCKtHSSppR96afD/fNZStWWaBjaC8Vj59qqZGhPrMiS5zGtLMY
-         6UhdP8aFtjp0eJ2AKPq+4dm4uBm8T3u1r+ANfxkmjJRheDOXUydh+cApUtWqrrzCez
-         aof2oEpyM+UTLRPL+2WYbBuaEnNOCTLWZpY1+fmo=
+        b=evDZhViLigJJBj66wExKSCpLnGnznY7f2ASX+eS1U+vxRmorAHQQFjgpYdQa1ARyJ
+         hMq139w/WwWuH0ba49Xcw7vBV/x5mmbYhnyaar4hlhAe6qjXEUGYQQTg/TL5XlzrZy
+         I1Cq9Pbk1pYjOxUruqFn8fqswPl9V+IFm5E84Okk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Alexander Kochetkov <al.kochet@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/93] i2c: rcar: avoid race when unregistering slave client
+Subject: [PATCH 4.4 35/77] net: arc_emac: fix koops caused by sk_buff free
 Date:   Wed,  4 Sep 2019 19:53:22 +0200
-Message-Id: <20190904175305.072864866@linuxfoundation.org>
+Message-Id: <20190904175306.827816765@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +45,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7b814d852af6944657c2961039f404c4490771c0 ]
+commit c278c253f3d992c6994d08aa0efb2b6806ca396f upstream.
 
-After we disabled interrupts, there might still be an active one
-running. Sync before clearing the pointer to the slave device.
+There is a race between arc_emac_tx() and arc_emac_tx_clean().
+sk_buff got freed by arc_emac_tx_clean() while arc_emac_tx()
+submitting sk_buff.
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+In order to free sk_buff arc_emac_tx_clean() checks:
+    if ((info & FOR_EMAC) || !txbd->data)
+        break;
+    ...
+    dev_kfree_skb_irq(skb);
+
+If condition false, arc_emac_tx_clean() free sk_buff.
+
+In order to submit txbd, arc_emac_tx() do:
+    priv->tx_buff[*txbd_curr].skb = skb;
+    ...
+    priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
+    ...
+    ...  <== arc_emac_tx_clean() check condition here
+    ...  <== (info & FOR_EMAC) is false
+    ...  <== !txbd->data is false
+    ...
+    *info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
+
+In order to reproduce the situation,
+run device:
+    # iperf -s
+run on host:
+    # iperf -t 600 -c <device-ip-addr>
+
+[   28.396284] ------------[ cut here ]------------
+[   28.400912] kernel BUG at .../net/core/skbuff.c:1355!
+[   28.414019] Internal error: Oops - BUG: 0 [#1] SMP ARM
+[   28.419150] Modules linked in:
+[   28.422219] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B           4.4.0+ #120
+[   28.429516] Hardware name: Rockchip (Device Tree)
+[   28.434216] task: c0665070 ti: c0660000 task.ti: c0660000
+[   28.439622] PC is at skb_put+0x10/0x54
+[   28.443381] LR is at arc_emac_poll+0x260/0x474
+[   28.447821] pc : [<c03af580>]    lr : [<c028fec4>]    psr: a0070113
+[   28.447821] sp : c0661e58  ip : eea68502  fp : ef377000
+[   28.459280] r10: 0000012c  r9 : f08b2000  r8 : eeb57100
+[   28.464498] r7 : 00000000  r6 : ef376594  r5 : 00000077  r4 : ef376000
+[   28.471015] r3 : 0030488b  r2 : ef13e880  r1 : 000005ee  r0 : eeb57100
+[   28.477534] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   28.484658] Control: 10c5387d  Table: 8eaf004a  DAC: 00000051
+[   28.490396] Process swapper/0 (pid: 0, stack limit = 0xc0660210)
+[   28.496393] Stack: (0xc0661e58 to 0xc0662000)
+[   28.500745] 1e40:                                                       00000002 00000000
+[   28.508913] 1e60: 00000000 ef376520 00000028 f08b23b8 00000000 ef376520 ef7b6900 c028fc64
+[   28.517082] 1e80: 2f158000 c0661ea8 c0661eb0 0000012c c065e900 c03bdeac ffff95e9 c0662100
+[   28.525250] 1ea0: c0663924 00000028 c0661ea8 c0661ea8 c0661eb0 c0661eb0 0000001e c0660000
+[   28.533417] 1ec0: 40000003 00000008 c0695a00 0000000a c066208c 00000100 c0661ee0 c0027410
+[   28.541584] 1ee0: ef0fb700 2f158000 00200000 ffff95e8 00000004 c0662100 c0662080 00000003
+[   28.549751] 1f00: 00000000 00000000 00000000 c065b45c 0000001e ef005000 c0647a30 00000000
+[   28.557919] 1f20: 00000000 c0027798 00000000 c005cf40 f0802100 c0662ffc c0661f60 f0803100
+[   28.566088] 1f40: c0661fb8 c00093bc c000ffb4 60070013 ffffffff c0661f94 c0661fb8 c00137d4
+[   28.574267] 1f60: 00000001 00000000 00000000 c001ffa0 00000000 c0660000 00000000 c065a364
+[   28.582441] 1f80: c0661fb8 c0647a30 00000000 00000000 00000000 c0661fb0 c000ffb0 c000ffb4
+[   28.590608] 1fa0: 60070013 ffffffff 00000051 00000000 00000000 c005496c c0662400 c061bc40
+[   28.598776] 1fc0: ffffffff ffffffff 00000000 c061b680 00000000 c0647a30 00000000 c0695294
+[   28.606943] 1fe0: c0662488 c0647a2c c066619c 6000406a 413fc090 6000807c 00000000 00000000
+[   28.615127] [<c03af580>] (skb_put) from [<ef376520>] (0xef376520)
+[   28.621218] Code: e5902054 e590c090 e3520000 0a000000 (e7f001f2)
+[   28.627307] ---[ end trace 4824734e2243fdb6 ]---
+
+[   34.377068] Internal error: Oops: 17 [#1] SMP ARM
+[   34.382854] Modules linked in:
+[   34.385947] CPU: 0 PID: 3 Comm: ksoftirqd/0 Not tainted 4.4.0+ #120
+[   34.392219] Hardware name: Rockchip (Device Tree)
+[   34.396937] task: ef02d040 ti: ef05c000 task.ti: ef05c000
+[   34.402376] PC is at __dev_kfree_skb_irq+0x4/0x80
+[   34.407121] LR is at arc_emac_poll+0x130/0x474
+[   34.411583] pc : [<c03bb640>]    lr : [<c028fd94>]    psr: 60030013
+[   34.411583] sp : ef05de68  ip : 0008e83c  fp : ef377000
+[   34.423062] r10: c001bec4  r9 : 00000000  r8 : f08b24c8
+[   34.428296] r7 : f08b2400  r6 : 00000075  r5 : 00000019  r4 : ef376000
+[   34.434827] r3 : 00060000  r2 : 00000042  r1 : 00000001  r0 : 00000000
+[   34.441365] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   34.448507] Control: 10c5387d  Table: 8f25c04a  DAC: 00000051
+[   34.454262] Process ksoftirqd/0 (pid: 3, stack limit = 0xef05c210)
+[   34.460449] Stack: (0xef05de68 to 0xef05e000)
+[   34.464827] de60:                   ef376000 c028fd94 00000000 c0669480 c0669480 ef376520
+[   34.473022] de80: 00000028 00000001 00002ae4 ef376520 ef7b6900 c028fc64 2f158000 ef05dec0
+[   34.481215] dea0: ef05dec8 0000012c c065e900 c03bdeac ffff983f c0662100 c0663924 00000028
+[   34.489409] dec0: ef05dec0 ef05dec0 ef05dec8 ef05dec8 ef7b6000 ef05c000 40000003 00000008
+[   34.497600] dee0: c0695a00 0000000a c066208c 00000100 ef05def8 c0027410 ef7b6000 40000000
+[   34.505795] df00: 04208040 ffff983e 00000004 c0662100 c0662080 00000003 ef05c000 ef027340
+[   34.513985] df20: ef05c000 c0666c2c 00000000 00000001 00000002 00000000 00000000 c0027568
+[   34.522176] df40: ef027340 c003ef48 ef027300 00000000 ef027340 c003edd4 00000000 00000000
+[   34.530367] df60: 00000000 c003c37c ffffff7f 00000001 00000000 ef027340 00000000 00030003
+[   34.538559] df80: ef05df80 ef05df80 00000000 00000000 ef05df90 ef05df90 ef05dfac ef027300
+[   34.546750] dfa0: c003c2a4 00000000 00000000 c000f578 00000000 00000000 00000000 00000000
+[   34.554939] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   34.563129] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000 ffffffff dfff7fff
+[   34.571360] [<c03bb640>] (__dev_kfree_skb_irq) from [<c028fd94>] (arc_emac_poll+0x130/0x474)
+[   34.579840] [<c028fd94>] (arc_emac_poll) from [<c03bdeac>] (net_rx_action+0xdc/0x28c)
+[   34.587712] [<c03bdeac>] (net_rx_action) from [<c0027410>] (__do_softirq+0xcc/0x1f8)
+[   34.595482] [<c0027410>] (__do_softirq) from [<c0027568>] (run_ksoftirqd+0x2c/0x50)
+[   34.603168] [<c0027568>] (run_ksoftirqd) from [<c003ef48>] (smpboot_thread_fn+0x174/0x18c)
+[   34.611466] [<c003ef48>] (smpboot_thread_fn) from [<c003c37c>] (kthread+0xd8/0xec)
+[   34.619075] [<c003c37c>] (kthread) from [<c000f578>] (ret_from_fork+0x14/0x3c)
+[   34.626317] Code: e8bd8010 e3a00000 e12fff1e e92d4010 (e59030a4)
+[   34.632572] ---[ end trace cca5a3d86a82249a ]---
+
+Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/arc/emac_main.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 254e6219e5389..2c29f901d3090 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -139,6 +139,7 @@ struct rcar_i2c_priv {
- 	enum dma_data_direction dma_direction;
+diff --git a/drivers/net/ethernet/arc/emac_main.c b/drivers/net/ethernet/arc/emac_main.c
+index 9cc5daed13edd..b0285ac203f09 100644
+--- a/drivers/net/ethernet/arc/emac_main.c
++++ b/drivers/net/ethernet/arc/emac_main.c
+@@ -163,7 +163,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
+ 		struct sk_buff *skb = tx_buff->skb;
+ 		unsigned int info = le32_to_cpu(txbd->info);
  
- 	struct reset_control *rstc;
-+	int irq;
- };
+-		if ((info & FOR_EMAC) || !txbd->data)
++		if ((info & FOR_EMAC) || !txbd->data || !skb)
+ 			break;
  
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -859,9 +860,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+ 		if (unlikely(info & (DROP | DEFR | LTCL | UFLO))) {
+@@ -191,6 +191,7 @@ static void arc_emac_tx_clean(struct net_device *ndev)
  
- 	WARN_ON(!priv->slave);
+ 		txbd->data = 0;
+ 		txbd->info = 0;
++		tx_buff->skb = NULL;
  
-+	/* disable irqs and ensure none is running before clearing ptr */
- 	rcar_i2c_write(priv, ICSIER, 0);
- 	rcar_i2c_write(priv, ICSCR, 0);
- 
-+	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
-@@ -916,7 +919,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct device *dev = &pdev->dev;
- 	struct i2c_timings i2c_t;
--	int irq, ret;
-+	int ret;
- 
- 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
- 	if (!priv)
-@@ -979,10 +982,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		pm_runtime_put(dev);
- 
- 
--	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
-+	priv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
- 	if (ret < 0) {
--		dev_err(dev, "cannot get irq %d\n", irq);
-+		dev_err(dev, "cannot get irq %d\n", priv->irq);
- 		goto out_pm_disable;
+ 		*txbd_dirty = (*txbd_dirty + 1) % TX_BD_NUM;
  	}
+@@ -619,7 +620,6 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
+ 	dma_unmap_addr_set(&priv->tx_buff[*txbd_curr], addr, addr);
+ 	dma_unmap_len_set(&priv->tx_buff[*txbd_curr], len, len);
+ 
+-	priv->tx_buff[*txbd_curr].skb = skb;
+ 	priv->txbd[*txbd_curr].data = cpu_to_le32(addr);
+ 
+ 	/* Make sure pointer to data buffer is set */
+@@ -629,6 +629,11 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
+ 
+ 	*info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
+ 
++	/* Make sure info word is set */
++	wmb();
++
++	priv->tx_buff[*txbd_curr].skb = skb;
++
+ 	/* Increment index to point to the next BD */
+ 	*txbd_curr = (*txbd_curr + 1) % TX_BD_NUM;
  
 -- 
 2.20.1
