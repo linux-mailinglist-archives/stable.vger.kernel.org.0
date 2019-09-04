@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34329A8F93
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D22A903B
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388748AbfIDSEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
+        id S2389053AbfIDSI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388779AbfIDSEe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:04:34 -0400
+        id S2389179AbfIDSIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:08:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D16672339E;
-        Wed,  4 Sep 2019 18:04:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F6BB20870;
+        Wed,  4 Sep 2019 18:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620273;
-        bh=tP8I2ZaoMloWQlVziD5FUF5Ro94e9196WHs3Dd3Fk6I=;
+        s=default; t=1567620504;
+        bh=cKh9PNFoHdWk83tn6Qbei9u/Hkn4unYXuL6IU++rW9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1oy6HCu/OWT6IK6kWxtATn1Vsc2YF7ZbUsH+knmZtYOBzdXkE4Jv3sZQs9tYX51L
-         GTMd2x9wHOwP5rY1A3hxQA/7xIRwBSHhkHnrdfS3grOOFPvk2vHY8wBq2GICnuD/mb
-         I5E+/eu+EWpot40wvsjlZ+sU6qkby4ZTWdiLeaR0=
+        b=gkXJnovZtcEgNqWeneF4WQvRWJvEzrZVTiZAh3FDeEtNazF5w8hZc8QdcC5P1oYLN
+         vQB/wqQSyymM+zU+UWyHsWUoZ4dVryxKb/VsoRFaBDWt6qrFqRThH7ZuZ4OBf2pcX4
+         ayh1z2dBQGTbIlcBURU4LUvawrvJYvvy7Ra9Dcqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 55/57] NFS: Ensure O_DIRECT reports an error if the bytes read/written is 0
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 81/93] mac80211: fix possible sta leak
 Date:   Wed,  4 Sep 2019 19:54:23 +0200
-Message-Id: <20190904175307.283207287@linuxfoundation.org>
+Message-Id: <20190904175310.093185949@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eb2c50da9e256dbbb3ff27694440e4c1900cfef8 ]
+From: Johannes Berg <johannes.berg@intel.com>
 
-If the attempt to resend the I/O results in no bytes being read/written,
-we must ensure that we report the error.
+commit 5fd2f91ad483baffdbe798f8a08f1b41442d1e24 upstream.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Fixes: 0a00b77b331a ("nfs: mirroring support for direct io")
-Cc: stable@vger.kernel.org # v3.20+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If TDLS station addition is rejected, the sta memory is leaked.
+Avoid this by moving the check before the allocation.
+
+Cc: stable@vger.kernel.org
+Fixes: 7ed5285396c2 ("mac80211: don't initiate TDLS connection if station is not associated to AP")
+Link: https://lore.kernel.org/r/20190801073033.7892-1-johannes@sipsolutions.net
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/direct.c   | 27 ++++++++++++++++++---------
- fs/nfs/pagelist.c |  1 +
- 2 files changed, 19 insertions(+), 9 deletions(-)
+ net/mac80211/cfg.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 2256ea4394d3a..614ce1f8b4ac5 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -400,15 +400,21 @@ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
- 	unsigned long bytes = 0;
- 	struct nfs_direct_req *dreq = hdr->dreq;
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1471,6 +1471,11 @@ static int ieee80211_add_station(struct
+ 	if (is_multicast_ether_addr(mac))
+ 		return -EINVAL;
  
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
++	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER) &&
++	    sdata->vif.type == NL80211_IFTYPE_STATION &&
++	    !sdata->u.mgd.associated)
++		return -EINVAL;
++
+ 	sta = sta_info_alloc(sdata, mac, GFP_KERNEL);
+ 	if (!sta)
+ 		return -ENOMEM;
+@@ -1478,10 +1483,6 @@ static int ieee80211_add_station(struct
+ 	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER))
+ 		sta->sta.tdls = true;
+ 
+-	if (sta->sta.tdls && sdata->vif.type == NL80211_IFTYPE_STATION &&
+-	    !sdata->u.mgd.associated)
+-		return -EINVAL;
 -
- 	spin_lock(&dreq->lock);
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags) && (hdr->good_bytes == 0))
-+	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	else
-+
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0)
- 		nfs_direct_good_bytes(dreq, hdr);
- 
-+	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
-+		dreq->error = 0;
-+
- 	spin_unlock(&dreq->lock);
- 
- 	while (!list_empty(&hdr->pages)) {
-@@ -774,16 +780,19 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- 	bool request_commit = false;
- 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
- 
--	if (test_bit(NFS_IOHDR_REDO, &hdr->flags))
--		goto out_put;
--
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
- 	spin_lock(&dreq->lock);
- 
- 	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
- 		dreq->error = hdr->error;
--	if (dreq->error == 0) {
-+
-+	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
-+		spin_unlock(&dreq->lock);
-+		goto out_put;
-+	}
-+
-+	if (hdr->good_bytes != 0) {
- 		nfs_direct_good_bytes(dreq, hdr);
- 		if (nfs_write_need_commit(hdr)) {
- 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 16d7f9068c7ae..132e568524dff 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1247,6 +1247,7 @@ int nfs_pageio_resend(struct nfs_pageio_descriptor *desc,
- 	if (!list_empty(&pages)) {
- 		int err = desc->pg_error < 0 ? desc->pg_error : -EIO;
- 		hdr->completion_ops->error_cleanup(&pages, err);
-+		nfs_set_pgio_error(hdr, err, hdr->io_start);
- 		return err;
- 	}
- 	return 0;
--- 
-2.20.1
-
+ 	err = sta_apply_parameters(local, sta, params);
+ 	if (err) {
+ 		sta_info_free(local, sta);
 
 
