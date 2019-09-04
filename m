@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07281A909B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C010A8FA9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390134AbfIDSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54430 "EHLO mail.kernel.org"
+        id S2389192AbfIDSFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390085AbfIDSKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:10:42 -0400
+        id S2389184AbfIDSFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2205206BA;
-        Wed,  4 Sep 2019 18:10:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98AB0206B8;
+        Wed,  4 Sep 2019 18:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620641;
-        bh=JzGyCxM9fLvwKrSelgPKI7s1H2cRcHSU8bJMaDuOMlE=;
+        s=default; t=1567620305;
+        bh=F7qSfZQ579l9fDyNnw2bKyUdKLIanbDcfEd1byuRp/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSDjbvf5HKYfnno44mkBSlbpX9w2lZE1xHSoh9uJpZq1QdqYPBvCYp/L3LZESr1Xe
-         ZrNqe99asaJXGtuR1V1B1Qkf1o88c+gbswf7AnYrtlue0IVuAr2cjkfHS9UWhF0O9J
-         Jw1dlkEa88ia6PBClw9vE9np3twgrkNwVhcjDAzc=
+        b=ey0+RXGPkfO16qcUqyEdrAYdejhd2Q8oLhCo1vn9xisrR/gIGR+1DQE760mdh2CoP
+         DdlfGi0Fut3Pevi+0ElLqSvSUwNFrPplOPjzozpKyCEGNxShAaUJgXV7lNoSa2NTlI
+         Zb9FQZevC+TWR4Dlpbn45xbUnRoZUG6amHXHT/aE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 040/143] usb: host: fotg2: restart hcd after port reset
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/93] dmaengine: ste_dma40: fix unneeded variable warning
 Date:   Wed,  4 Sep 2019 19:53:03 +0200
-Message-Id: <20190904175315.626484122@linuxfoundation.org>
+Message-Id: <20190904175302.977169348@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,35 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 777758888ffe59ef754cc39ab2f275dc277732f4 ]
+[ Upstream commit 5d6fb560729a5d5554e23db8d00eb57cd0021083 ]
 
-On the Gemini SoC the FOTG2 stalls after port reset
-so restart the HCD after each port reset.
+clang-9 points out that there are two variables that depending on the
+configuration may only be used in an ARRAY_SIZE() expression but not
+referenced:
 
-Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20190810150458.817-1-linus.walleij@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/dma/ste_dma40.c:145:12: error: variable 'd40_backup_regs' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+static u32 d40_backup_regs[] = {
+           ^
+drivers/dma/ste_dma40.c:214:12: error: variable 'd40_backup_regs_chan' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+static u32 d40_backup_regs_chan[] = {
+
+Mark these __maybe_unused to shut up the warning.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20190712091357.744515-1-arnd@arndb.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/ste_dma40.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 0da68df259c86..7bf621d40c5ae 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -1628,6 +1628,10 @@ static int fotg210_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			/* see what we found out */
- 			temp = check_reset_complete(fotg210, wIndex, status_reg,
- 					fotg210_readl(fotg210, status_reg));
-+
-+			/* restart schedule */
-+			fotg210->command |= CMD_RUN;
-+			fotg210_writel(fotg210, fotg210->command, &fotg210->regs->command);
- 		}
+diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
+index f4edfc56f34ef..3d55405c49cac 100644
+--- a/drivers/dma/ste_dma40.c
++++ b/drivers/dma/ste_dma40.c
+@@ -142,7 +142,7 @@ enum d40_events {
+  * when the DMA hw is powered off.
+  * TODO: Add save/restore of D40_DREG_GCC on dma40 v3 or later, if that works.
+  */
+-static u32 d40_backup_regs[] = {
++static __maybe_unused u32 d40_backup_regs[] = {
+ 	D40_DREG_LCPA,
+ 	D40_DREG_LCLA,
+ 	D40_DREG_PRMSE,
+@@ -211,7 +211,7 @@ static u32 d40_backup_regs_v4b[] = {
  
- 		if (!(temp & (PORT_RESUME|PORT_RESET))) {
+ #define BACKUP_REGS_SZ_V4B ARRAY_SIZE(d40_backup_regs_v4b)
+ 
+-static u32 d40_backup_regs_chan[] = {
++static __maybe_unused u32 d40_backup_regs_chan[] = {
+ 	D40_CHAN_REG_SSCFG,
+ 	D40_CHAN_REG_SSELT,
+ 	D40_CHAN_REG_SSPTR,
 -- 
 2.20.1
 
