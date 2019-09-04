@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA15FA8E5D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0C2A90EC
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732971AbfIDR5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35528 "EHLO mail.kernel.org"
+        id S2390517AbfIDSMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387849AbfIDR5d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:33 -0400
+        id S2390511AbfIDSMb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A649F2339D;
-        Wed,  4 Sep 2019 17:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A510B2341D;
+        Wed,  4 Sep 2019 18:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619852;
-        bh=VqKuNNWu2qkwBBAgyoHYdVpKUtUkgDLGNJcId+Tt0lE=;
+        s=default; t=1567620750;
+        bh=YhZYuhnmS9tdig3xXuI3dsas3LT8WuW+r+Q0IcMXP2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ4Ctl+SnHKsjN9gspkXeqiQGodkSA4ayG/KsaVazf3cbdM15wSBgpYaoX31MY7un
-         OyuDngrPHqGe00q1qsVAlGdDT28IivssMruwM4ccy1kB+G9gT5rWbdJSnyvmJymobE
-         sYItSXMb8jLAuMVJQY00cX1gYAKBdsftkhM9gXK4=
+        b=PRXsV58I6UZ63X59QLT0TwYXq5XrTRUJhKtYVdLVkKJMauXe/NmGqGxeKioJfJZlZ
+         F7FyzqBEbPEsF0sNYYopMRWZJ5GZeX83NvRo/v5043op4Fy0BPCI6psKJNWsFHMo/J
+         /hIjA2juLDbm+J5F5pvDCLZjPZv5NrA/4i8JErI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tim Froidcoeur <tim.froidcoeur@tessares.net>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Christoph Paasch <cpaasch@apple.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 56/77] tcp: fix tcp_rtx_queue_tail in case of empty retransmit queue
-Date:   Wed,  4 Sep 2019 19:53:43 +0200
-Message-Id: <20190904175308.550996087@linuxfoundation.org>
+        stable@vger.kernel.org, Carsten Schmid <carsten_schmid@mentor.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.2 081/143] usb: hcd: use managed device resources
+Date:   Wed,  4 Sep 2019 19:53:44 +0200
+Message-Id: <20190904175317.230745302@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 8c3088f895a0 ("tcp: be more careful in tcp_fragment()")
-triggers following stack trace:
+From: Schmid, Carsten <Carsten_Schmid@mentor.com>
 
-[25244.848046] kernel BUG at ./include/linux/skbuff.h:1406!
-[25244.859335] RIP: 0010:skb_queue_prev+0x9/0xc
-[25244.888167] Call Trace:
-[25244.889182]  <IRQ>
-[25244.890001]  tcp_fragment+0x9c/0x2cf
-[25244.891295]  tcp_write_xmit+0x68f/0x988
-[25244.892732]  __tcp_push_pending_frames+0x3b/0xa0
-[25244.894347]  tcp_data_snd_check+0x2a/0xc8
-[25244.895775]  tcp_rcv_established+0x2a8/0x30d
-[25244.897282]  tcp_v4_do_rcv+0xb2/0x158
-[25244.898666]  tcp_v4_rcv+0x692/0x956
-[25244.899959]  ip_local_deliver_finish+0xeb/0x169
-[25244.901547]  __netif_receive_skb_core+0x51c/0x582
-[25244.903193]  ? inet_gro_receive+0x239/0x247
-[25244.904756]  netif_receive_skb_internal+0xab/0xc6
-[25244.906395]  napi_gro_receive+0x8a/0xc0
-[25244.907760]  receive_buf+0x9a1/0x9cd
-[25244.909160]  ? load_balance+0x17a/0x7b7
-[25244.910536]  ? vring_unmap_one+0x18/0x61
-[25244.911932]  ? detach_buf+0x60/0xfa
-[25244.913234]  virtnet_poll+0x128/0x1e1
-[25244.914607]  net_rx_action+0x12a/0x2b1
-[25244.915953]  __do_softirq+0x11c/0x26b
-[25244.917269]  ? handle_irq_event+0x44/0x56
-[25244.918695]  irq_exit+0x61/0xa0
-[25244.919947]  do_IRQ+0x9d/0xbb
-[25244.921065]  common_interrupt+0x85/0x85
-[25244.922479]  </IRQ>
+commit 76da906ad727048a74bb8067031ee99fc070c7da upstream.
 
-tcp_rtx_queue_tail() (called by tcp_fragment()) can call
-tcp_write_queue_prev() on the first packet in the queue, which will trigger
-the BUG in tcp_write_queue_prev(), because there is no previous packet.
+Using managed device resources in usb_hcd_pci_probe() allows devm usage for
+resource subranges, such as the mmio resource for the platform device
+created to control host/device mode mux, which is a xhci extended
+capability, and sits inside the xhci mmio region.
 
-This happens when the retransmit queue is empty, for example in case of a
-zero window.
+If managed device resources are not used then "parent" resource
+is released before subrange at driver removal as .remove callback is
+called before the devres list of resources for this device is walked
+and released.
 
-Commit 8c3088f895a0 ("tcp: be more careful in tcp_fragment()") was not a
-simple cherry-pick of the original one from master (b617158dc096)
-because there is a specific TCP rtx queue only since v4.15. For more
-details, please see the commit message of b617158dc096 ("tcp: be more
-careful in tcp_fragment()").
+This has been observed with the xhci extended capability driver causing a
+use-after-free which is now fixed.
 
-The BUG() is hit due to the specific code added to versions older than
-v4.15. The comment in skb_queue_prev() (include/linux/skbuff.h:1406),
-just before the BUG_ON() somehow suggests to add a check before using
-it, what Tim did.
+An additional nice benefit is that error handling on driver initialisation
+is simplified much.
 
-In master, this code path causing the issue will not be taken because
-the implementation of tcp_rtx_queue_tail() is different:
+Signed-off-by: Carsten Schmid <carsten_schmid@mentor.com>
+Tested-by: Carsten Schmid <carsten_schmid@mentor.com>
+Reviewed-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: fa31b3cb2ae1 ("xhci: Add Intel extended cap / otg phy mux handling")
+Cc: <stable@vger.kernel.org> # v4.19+
+Link: https://lore.kernel.org/r/1566569488679.31808@mentor.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-    tcp_fragment() → tcp_rtx_queue_tail() → tcp_write_queue_prev() →
-skb_queue_prev() → BUG_ON()
-
-Fixes: 8c3088f895a0 ("tcp: be more careful in tcp_fragment()")
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Reviewed-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/hcd-pci.c |   30 ++++++++----------------------
+ 1 file changed, 8 insertions(+), 22 deletions(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 0410fd29d5695..4447195a0cd4f 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1540,6 +1540,10 @@ static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
- {
- 	struct sk_buff *skb = tcp_send_head(sk);
+--- a/drivers/usb/core/hcd-pci.c
++++ b/drivers/usb/core/hcd-pci.c
+@@ -216,17 +216,18 @@ int usb_hcd_pci_probe(struct pci_dev *de
+ 		/* EHCI, OHCI */
+ 		hcd->rsrc_start = pci_resource_start(dev, 0);
+ 		hcd->rsrc_len = pci_resource_len(dev, 0);
+-		if (!request_mem_region(hcd->rsrc_start, hcd->rsrc_len,
+-				driver->description)) {
++		if (!devm_request_mem_region(&dev->dev, hcd->rsrc_start,
++				hcd->rsrc_len, driver->description)) {
+ 			dev_dbg(&dev->dev, "controller already in use\n");
+ 			retval = -EBUSY;
+ 			goto put_hcd;
+ 		}
+-		hcd->regs = ioremap_nocache(hcd->rsrc_start, hcd->rsrc_len);
++		hcd->regs = devm_ioremap_nocache(&dev->dev, hcd->rsrc_start,
++				hcd->rsrc_len);
+ 		if (hcd->regs == NULL) {
+ 			dev_dbg(&dev->dev, "error mapping memory\n");
+ 			retval = -EFAULT;
+-			goto release_mem_region;
++			goto put_hcd;
+ 		}
  
-+	/* empty retransmit queue, for example due to zero window */
-+	if (skb == tcp_write_queue_head(sk))
-+		return NULL;
-+
- 	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
+ 	} else {
+@@ -240,8 +241,8 @@ int usb_hcd_pci_probe(struct pci_dev *de
+ 
+ 			hcd->rsrc_start = pci_resource_start(dev, region);
+ 			hcd->rsrc_len = pci_resource_len(dev, region);
+-			if (request_region(hcd->rsrc_start, hcd->rsrc_len,
+-					driver->description))
++			if (devm_request_region(&dev->dev, hcd->rsrc_start,
++					hcd->rsrc_len, driver->description))
+ 				break;
+ 		}
+ 		if (region == PCI_ROM_RESOURCE) {
+@@ -275,20 +276,13 @@ int usb_hcd_pci_probe(struct pci_dev *de
+ 	}
+ 
+ 	if (retval != 0)
+-		goto unmap_registers;
++		goto put_hcd;
+ 	device_wakeup_enable(hcd->self.controller);
+ 
+ 	if (pci_dev_run_wake(dev))
+ 		pm_runtime_put_noidle(&dev->dev);
+ 	return retval;
+ 
+-unmap_registers:
+-	if (driver->flags & HCD_MEMORY) {
+-		iounmap(hcd->regs);
+-release_mem_region:
+-		release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+-	} else
+-		release_region(hcd->rsrc_start, hcd->rsrc_len);
+ put_hcd:
+ 	usb_put_hcd(hcd);
+ disable_pci:
+@@ -347,14 +341,6 @@ void usb_hcd_pci_remove(struct pci_dev *
+ 		dev_set_drvdata(&dev->dev, NULL);
+ 		up_read(&companions_rwsem);
+ 	}
+-
+-	if (hcd->driver->flags & HCD_MEMORY) {
+-		iounmap(hcd->regs);
+-		release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+-	} else {
+-		release_region(hcd->rsrc_start, hcd->rsrc_len);
+-	}
+-
+ 	usb_put_hcd(hcd);
+ 	pci_disable_device(dev);
  }
- 
--- 
-2.20.1
-
 
 
