@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6363A8F55
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5FAA8EF5
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388487AbfIDSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43430 "EHLO mail.kernel.org"
+        id S2388473AbfIDSA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388867AbfIDSDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:03:06 -0400
+        id S2387777AbfIDSA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:00:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D26422CEA;
-        Wed,  4 Sep 2019 18:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D99721883;
+        Wed,  4 Sep 2019 18:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620185;
-        bh=DVRvISEsm/5eHLeRjn+0QUip1U0HRdbslpcdGGOeM2g=;
+        s=default; t=1567620057;
+        bh=BfhlLiLUo+otcdw2PhxmxNxKrM1EJHiwJIqAWc5ijxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnXVvqxXaUQJNeVqMsPgDtrZAwd7Fmifk4BL4INFsZrtvXmLhnDo9Yp41wEWGMV/8
-         eXOqkN0xZu4DKUKiKz2Q0WQLTxuOxj6siWei2GjV3t8y9PJIJE8gysuIw1ekoTLS+O
-         MeLxsaCWQ4WWdwOtkXcd2MKIsRdU+ORYq/wNIv48=
+        b=GQVvVxE+uQqK0KUMvJ/3qNr2D81LH9x35XoD2bsg1us8ys52AZfGHx53Sk8x7nCd6
+         r2ShakgSAbd/KsB2zNn3a+zEFfBR0wWSWWFRxIG2KD1i+c5eW3e9sJEv2rVFF4UBxv
+         7s00dNKAJm4AjwbfOadXEBHfeZI/N2QXKvGRl46c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 21/57] mm/zsmalloc.c: fix build when CONFIG_COMPACTION=n
+        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 57/83] ALSA: usb-audio: Fix an OOB bug in parse_audio_mixer_unit
 Date:   Wed,  4 Sep 2019 19:53:49 +0200
-Message-Id: <20190904175303.961001766@linuxfoundation.org>
+Message-Id: <20190904175308.585489773@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
+References: <20190904175303.488266791@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Hui Peng <benquike@gmail.com>
 
-commit 441e254cd40dc03beec3c650ce6ce6074bc6517f upstream.
+commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
 
-Fixes: 701d678599d0c1 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
-Link: http://lkml.kernel.org/r/201908251039.5oSbEEUT%25lkp@intel.com
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The `uac_mixer_unit_descriptor` shown as below is read from the
+device side. In `parse_audio_mixer_unit`, `baSourceID` field is
+accessed from index 0 to `bNrInPins` - 1, the current implementation
+assumes that descriptor is always valid (the length  of descriptor
+is no shorter than 5 + `bNrInPins`). If a descriptor read from
+the device side is invalid, it may trigger out-of-bound memory
+access.
+
+```
+struct uac_mixer_unit_descriptor {
+	__u8 bLength;
+	__u8 bDescriptorType;
+	__u8 bDescriptorSubtype;
+	__u8 bUnitID;
+	__u8 bNrInPins;
+	__u8 baSourceID[];
+}
+```
+
+This patch fixes the bug by add a sanity check on the length of
+the descriptor.
+
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Peng <benquike@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/zsmalloc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/mixer.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -2431,7 +2431,9 @@ struct zs_pool *zs_create_pool(const cha
- 	if (!pool->name)
- 		goto err;
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1713,6 +1713,7 @@ static int parse_audio_mixer_unit(struct
+ 	int pin, ich, err;
  
-+#ifdef CONFIG_COMPACTION
- 	init_waitqueue_head(&pool->migration_wait);
-+#endif
- 
- 	if (create_cache(pool))
- 		goto err;
+ 	if (desc->bLength < 11 || !(input_pins = desc->bNrInPins) ||
++	    desc->bLength < sizeof(*desc) + desc->bNrInPins ||
+ 	    !(num_outs = uac_mixer_unit_bNrChannels(desc))) {
+ 		usb_audio_err(state->chip,
+ 			      "invalid MIXER UNIT descriptor %d\n",
 
 
