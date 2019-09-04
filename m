@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 862F0A8F30
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2662A917A
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388723AbfIDSCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42178 "EHLO mail.kernel.org"
+        id S2389593AbfIDSPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388191AbfIDSCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:02:21 -0400
+        id S2390393AbfIDSP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:15:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D27F22CEA;
-        Wed,  4 Sep 2019 18:02:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E44F2087E;
+        Wed,  4 Sep 2019 18:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620140;
-        bh=N2zjJJmXwqJTTqT+gim91VQdFezwO3mO/WmeezHOyXE=;
+        s=default; t=1567620929;
+        bh=UbwxphCkJgqkkmqkEGI327ZtsTfNouQD7+qWRvtcpI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2cM0ovGb9SwG9lrNCBP0oWFVb4Fmll5y/ld9tEQjyAZzb0S42zwzZfQCU4Jw2tJj
-         LItXGPjiRX7yCy+Ki9tYs6eRtKmHJq8Ekcm+987TWRS0p4iq5PwI1aLIFvm9mtqJj5
-         vxxZpe0zMG/hGwxQWBfQzgApwXfpiF8zH12GnrY0=
+        b=LJATrdsI1qtyD4e0xUfQIx7wwktQ+SgtFjUUKeEQv+hGmdLcIyL7zmhzjIgHQ0oPv
+         XfLqRclFriEhK0NbzqydTIW92eADE5dhR1vlZa6fHXKNqYhkT6Er/3BgD3nwuNsk3f
+         QzY87z+Rl2R2j2MJdQDCCqAcxp9xTdhQJs9zf6cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 79/83] mac80211: fix possible sta leak
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Wei Xu <xuwei5@hisilicon.com>
+Subject: [PATCH 5.2 108/143] lib: logic_pio: Avoid possible overlap for unregistering regions
 Date:   Wed,  4 Sep 2019 19:54:11 +0200
-Message-Id: <20190904175310.587774491@linuxfoundation.org>
+Message-Id: <20190904175318.625979109@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: John Garry <john.garry@huawei.com>
 
-commit 5fd2f91ad483baffdbe798f8a08f1b41442d1e24 upstream.
+commit 0a27142bd1ee259e24a0be2b0133e5ca5df8da91 upstream.
 
-If TDLS station addition is rejected, the sta memory is leaked.
-Avoid this by moving the check before the allocation.
+The code was originally written to not support unregistering logical PIO
+regions.
+
+To accommodate supporting unregistering logical PIO regions, subtly modify
+LOGIC_PIO_CPU_MMIO region registration code, such that the "end" of the
+registered regions is the "end" of the last region, and not the sum of
+the sizes of all the registered regions.
 
 Cc: stable@vger.kernel.org
-Fixes: 7ed5285396c2 ("mac80211: don't initiate TDLS connection if station is not associated to AP")
-Link: https://lore.kernel.org/r/20190801073033.7892-1-johannes@sipsolutions.net
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/cfg.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ lib/logic_pio.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1418,6 +1418,11 @@ static int ieee80211_add_station(struct
- 	if (is_multicast_ether_addr(mac))
- 		return -EINVAL;
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -35,7 +35,7 @@ int logic_pio_register_range(struct logi
+ 	struct logic_pio_hwaddr *range;
+ 	resource_size_t start;
+ 	resource_size_t end;
+-	resource_size_t mmio_sz = 0;
++	resource_size_t mmio_end = 0;
+ 	resource_size_t iio_sz = MMIO_UPPER_LIMIT;
+ 	int ret = 0;
  
-+	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER) &&
-+	    sdata->vif.type == NL80211_IFTYPE_STATION &&
-+	    !sdata->u.mgd.associated)
-+		return -EINVAL;
-+
- 	sta = sta_info_alloc(sdata, mac, GFP_KERNEL);
- 	if (!sta)
- 		return -ENOMEM;
-@@ -1425,10 +1430,6 @@ static int ieee80211_add_station(struct
- 	if (params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER))
- 		sta->sta.tdls = true;
+@@ -56,7 +56,7 @@ int logic_pio_register_range(struct logi
+ 			/* for MMIO ranges we need to check for overlap */
+ 			if (start >= range->hw_start + range->size ||
+ 			    end < range->hw_start) {
+-				mmio_sz += range->size;
++				mmio_end = range->io_start + range->size;
+ 			} else {
+ 				ret = -EFAULT;
+ 				goto end_register;
+@@ -69,16 +69,16 @@ int logic_pio_register_range(struct logi
  
--	if (sta->sta.tdls && sdata->vif.type == NL80211_IFTYPE_STATION &&
--	    !sdata->u.mgd.associated)
--		return -EINVAL;
--
- 	err = sta_apply_parameters(local, sta, params);
- 	if (err) {
- 		sta_info_free(local, sta);
+ 	/* range not registered yet, check for available space */
+ 	if (new_range->flags == LOGIC_PIO_CPU_MMIO) {
+-		if (mmio_sz + new_range->size - 1 > MMIO_UPPER_LIMIT) {
++		if (mmio_end + new_range->size - 1 > MMIO_UPPER_LIMIT) {
+ 			/* if it's too big check if 64K space can be reserved */
+-			if (mmio_sz + SZ_64K - 1 > MMIO_UPPER_LIMIT) {
++			if (mmio_end + SZ_64K - 1 > MMIO_UPPER_LIMIT) {
+ 				ret = -E2BIG;
+ 				goto end_register;
+ 			}
+ 			new_range->size = SZ_64K;
+ 			pr_warn("Requested IO range too big, new size set to 64K\n");
+ 		}
+-		new_range->io_start = mmio_sz;
++		new_range->io_start = mmio_end;
+ 	} else if (new_range->flags == LOGIC_PIO_INDIRECT) {
+ 		if (iio_sz + new_range->size - 1 > IO_SPACE_LIMIT) {
+ 			ret = -E2BIG;
 
 
