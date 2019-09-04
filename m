@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E8EA8E16
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F414A91A9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733000AbfIDR4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
+        id S2387907AbfIDSWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733059AbfIDRz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:55:59 -0400
+        id S2389198AbfIDSFI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7601822CF5;
-        Wed,  4 Sep 2019 17:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F3CB206BA;
+        Wed,  4 Sep 2019 18:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619759;
-        bh=C+g5dJThEkiTnCwufBUzsevaiuznZHmKFpkm824y7JI=;
+        s=default; t=1567620307;
+        bh=JVMkUiNi1mC+2p6+ITIHy1TPRAyipRK4jUwnLWfxZTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+dATPTpUNbLbAAETdToKomv/2S5rqlul0sUQgr47KKIDXvxpNxbBwQIVoJbGz8HU
-         BUzQl8sXj8+MNxAtkBNJ0fPbBlhnPBBUKfsDF6XFq0myJaUYWeSbB+ym74zR9Otz29
-         3Lu5nV/x3uG02Ze3tF4yPZD5IFYtnY7jUARRDFdA=
+        b=XpfiAzIx88tHk2+p95Ielc5RM7BasT28+Tx78E8enXs6ogL478vdB44y6fYLa0VHn
+         1f0K6yB/XeCt0AUcsdkIi9JnVYyAKd8Vi8jZp6s945aTQPq3SSVi7Gt3bGDd4TcYCc
+         nRUEwqdpsgWkGmOpYNBTLC7R0L8uCpwVDoPPorKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.4 24/77] Revert "dm bufio: fix deadlock with loop device"
-Date:   Wed,  4 Sep 2019 19:53:11 +0200
-Message-Id: <20190904175305.820812068@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 10/93] soundwire: cadence_master: fix register definition for SLAVE_STATE
+Date:   Wed,  4 Sep 2019 19:53:12 +0200
+Message-Id: <20190904175304.057403828@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+[ Upstream commit b07dd9b400981f487940a4d84292d3a0e7cd9362 ]
 
-commit cf3591ef832915892f2499b7e54b51d4c578b28c upstream.
+wrong prefix and wrong macro.
 
-Revert the commit bd293d071ffe65e645b4d8104f9d8fe15ea13862. The proper
-fix has been made available with commit d0a255e795ab ("loop: set
-PF_MEMALLOC_NOIO for the worker thread").
-
-Note that the fix offered by commit bd293d071ffe doesn't really prevent
-the deadlock from occuring - if we look at the stacktrace reported by
-Junxiao Bi, we see that it hangs in bit_wait_io and not on the mutex -
-i.e. it has already successfully taken the mutex. Changing the mutex
-from mutex_lock to mutex_trylock won't help with deadlocks that happen
-afterwards.
-
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd293d071ffe ("dm bufio: fix deadlock with loop device")
-Depends-on: d0a255e795ab ("loop: set PF_MEMALLOC_NOIO for the worker thread")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190725234032.21152-14-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/soundwire/cadence_master.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1561,7 +1561,9 @@ dm_bufio_shrink_scan(struct shrinker *sh
- 	unsigned long freed;
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index cb6a331f448ab..d3d7de5a319c5 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -81,8 +81,8 @@
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (!dm_bufio_trylock(c))
-+	if (sc->gfp_mask & __GFP_FS)
-+		dm_bufio_lock(c);
-+	else if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+ #define CDNS_MCP_INTSET				0x4C
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+-#define CDNS_SDW_SLAVE_STAT			0x50
+-#define CDNS_MCP_SLAVE_STAT_MASK		BIT(1, 0)
++#define CDNS_MCP_SLAVE_STAT			0x50
++#define CDNS_MCP_SLAVE_STAT_MASK		GENMASK(1, 0)
+ 
+ #define CDNS_MCP_SLAVE_INTSTAT0			0x54
+ #define CDNS_MCP_SLAVE_INTSTAT1			0x58
+-- 
+2.20.1
+
 
 
