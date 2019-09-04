@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B6AA8B3C
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BD3A8B41
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733253AbfIDQCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38320 "EHLO mail.kernel.org"
+        id S1733272AbfIDQC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733244AbfIDQCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:02:23 -0400
+        id S1733258AbfIDQCZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:02:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D229822CF5;
-        Wed,  4 Sep 2019 16:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 145682070C;
+        Wed,  4 Sep 2019 16:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612942;
-        bh=soc01mXklDNkUZ7gXsZ0FDUQFGQ4y6UxA6Moa5SC2cs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ErFaZqRUvZHUp5Ll9g8MYILTjnEWvTJas+FI9p/5zad8dKoMJYO9gFr2h598jx2oH
-         qc3U4PBEIqhvkuX2ZOVgeP84z5egQlmTZT9Y+gN3pPibSfoIyLHWxqcdbk+sLgoWYW
-         dV8vp+bZFmFyJ7fOdl/aEK3L5LBbC+vUhXpROewM=
+        s=default; t=1567612944;
+        bh=2ibOJCskqyyIBOusPY1iCMu2HpaNxbbIeVYJZPmsBhE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Yks6/Nv+F1HZip3lKAasBHIkJrIffMDanhXmzhyTfmaB6bmevVJbsDlaq+Rjo1hvy
+         0asDP6xP2r0cOHZPP8vQRHFE9SZG7rCBWwWQyN+avbNueHXKbrDGjRxSM+aQbyi6DT
+         9V9J26YtBKKycp73g0e6+t1Q0QcKGmT/UR30kBok=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Suman Anna <s-anna@ti.com>,
-        Keerthy <j-keerthy@ti.com>, Sasha Levin <sashal@kernel.org>,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 01/27] ARM: OMAP2+: Fix missing SYSC_HAS_RESET_STATUS for dra7 epwmss
-Date:   Wed,  4 Sep 2019 12:01:54 -0400
-Message-Id: <20190904160220.4545-1-sashal@kernel.org>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 02/27] s390/bpf: fix lcgr instruction encoding
+Date:   Wed,  4 Sep 2019 12:01:55 -0400
+Message-Id: <20190904160220.4545-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
+References: <20190904160220.4545-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,38 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit afd58b162e48076e3fe66d08a69eefbd6fe71643 ]
+[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
 
-TRM says PWMSS_SYSCONFIG bit for SOFTRESET changes to zero when
-reset is completed. Let's configure it as otherwise we get warnings
-on boot when we check the data against dts provided data. Eventually
-the legacy platform data will be just dropped, but let's fix the
-warning first.
+"masking, test in bounds 3" fails on s390, because
+BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
+BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
+The associated comment indicates that the code was intended to
+emit lcgr in the first place, it's just that the wrong opcode
+was used.
 
-Reviewed-by: Suman Anna <s-anna@ti.com>
-Tested-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fix by using the correct opcode.
+
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod_7xx_data.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-index 1ab7096af8e23..f850fc3a91e82 100644
---- a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-@@ -387,7 +387,8 @@ static struct omap_hwmod dra7xx_dcan2_hwmod = {
- static struct omap_hwmod_class_sysconfig dra7xx_epwmss_sysc = {
- 	.rev_offs	= 0x0,
- 	.sysc_offs	= 0x4,
--	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET,
-+	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
-+			  SYSC_HAS_RESET_STATUS,
- 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
- 	.sysc_fields	= &omap_hwmod_sysc_type2,
- };
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 896344b6e0363..e4616090732a4 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -881,7 +881,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		break;
+ 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
+ 		/* lcgr %dst,%dst */
+-		EMIT4(0xb9130000, dst_reg, dst_reg);
++		EMIT4(0xb9030000, dst_reg, dst_reg);
+ 		break;
+ 	/*
+ 	 * BPF_FROM_BE/LE
 -- 
 2.20.1
 
