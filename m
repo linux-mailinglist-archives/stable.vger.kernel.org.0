@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15079A9123
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EFAA8F9A
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389653AbfIDSNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:13:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58644 "EHLO mail.kernel.org"
+        id S2389133AbfIDSEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389972AbfIDSNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:13:43 -0400
+        id S2389128AbfIDSEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC79D208E4;
-        Wed,  4 Sep 2019 18:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A4B322CEA;
+        Wed,  4 Sep 2019 18:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620822;
-        bh=izBRRnXiw9mOfutHNB06OnVP5gsPFMTfZ8E+HUYKFVE=;
+        s=default; t=1567620283;
+        bh=ovHGuXpziaMuM8GQ3V3dazv7Z54p5bDTPpOVQpyIElk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g53H2+YvJ7V0o1HGulFNEvw7tbfyLiR0ZHtfNKayhX74uZud4ELH1mJM5EtaEGhJN
-         xW1zRsn1BRi2nIOv2t1qYReK3SPFWtx9LcAKI8hATFnE4AKIMItTvvSLtnbbAsc0W9
-         uGni6C+5Jz4XFwhdpotxQhyn3ble3uxF4vSc8OHs=
+        b=ez0Qi4zLTABs2QldD4JqkdZc1RXzVCzqq1/CGceCWdkcKXsE/o0qFmMODO87TpqIz
+         y3bQS77Koyuktv/y5NAwDbluHQBLtmMxTp3+2fk7JeRVjZ3WlaptW7wj/DlncbCQq4
+         vgm9ewMwSfhFctXNZokOvhij6IYfIwdTB3WeXtpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>
-Subject: [PATCH 5.2 109/143] lib: logic_pio: Add logic_pio_unregister_range()
+        stable@vger.kernel.org, Xiong Zhang <xiong.y.zhang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.14 44/57] drm/i915: Dont deballoon unused ggtt drm_mm_node in linux guest
 Date:   Wed,  4 Sep 2019 19:54:12 +0200
-Message-Id: <20190904175318.668350121@linuxfoundation.org>
+Message-Id: <20190904175306.366483408@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Xiong Zhang <xiong.y.zhang@intel.com>
 
-commit b884e2de2afc68ce30f7093747378ef972dde253 upstream.
+commit 0a3dfbb5cd9033752639ef33e319c2f2863c713a upstream.
 
-Add a function to unregister a logical PIO range.
+The following call trace may exist in linux guest dmesg when guest i915
+driver is unloaded.
+[   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: range [0x0 - 0x0] 0 KiB.
+[   90.776621] BUG: unable to handle kernel NULL pointer dereference at 00000000000000c0
+[   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
+[   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PMD 0
+[   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
+[   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
+[   90.777573] Call Trace:
+[   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
+[   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
+[   90.777792]  i915_driver_unload+0x145/0x180 [i915]
+[   90.777856]  i915_pci_remove+0x15/0x20 [i915]
+[   90.777890]  pci_device_remove+0x3b/0xc0
+[   90.777916]  device_release_driver_internal+0x157/0x220
+[   90.777945]  driver_detach+0x39/0x70
+[   90.777967]  bus_remove_driver+0x51/0xd0
+[   90.777990]  pci_unregister_driver+0x23/0x90
+[   90.778019]  SyS_delete_module+0x1da/0x240
+[   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
+[   90.778072] RIP: 0033:0x7f34312af067
+[   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
+[   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe3dc0
+[   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
 
-Logical PIO space can still be leaked when unregistering certain
-LOGIC_PIO_CPU_MMIO regions, but this acceptable for now since there are no
-callers to unregister LOGIC_PIO_CPU_MMIO regions, and the logical PIO
-region allocation scheme would need significant work to improve this.
+Four drm_mm_node are used to reserve guest ggtt space, but some of them
+may be skipped and not initialised due to space constraints in
+intel_vgt_balloon(). If drm_mm_remove_node() is called with
+uninitialized drm_mm_node, the above call trace occurs.
 
+This patch check drm_mm_node's validity before calling
+drm_mm_remove_node().
+
+Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size under gvt environment")
 Cc: stable@vger.kernel.org
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
+Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com
+(cherry picked from commit 4776f3529d6b1e47f02904ad1d264d25ea22b27b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/logic_pio.h |    1 +
- lib/logic_pio.c           |   14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/gpu/drm/i915/i915_vgpu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/logic_pio.h
-+++ b/include/linux/logic_pio.h
-@@ -117,6 +117,7 @@ struct logic_pio_hwaddr *find_io_range_b
- unsigned long logic_pio_trans_hwaddr(struct fwnode_handle *fwnode,
- 			resource_size_t hw_addr, resource_size_t size);
- int logic_pio_register_range(struct logic_pio_hwaddr *newrange);
-+void logic_pio_unregister_range(struct logic_pio_hwaddr *range);
- resource_size_t logic_pio_to_hwaddr(unsigned long pio);
- unsigned long logic_pio_trans_cpuaddr(resource_size_t hw_addr);
- 
---- a/lib/logic_pio.c
-+++ b/lib/logic_pio.c
-@@ -99,6 +99,20 @@ end_register:
- }
- 
- /**
-+ * logic_pio_unregister_range - unregister a logical PIO range for a host
-+ * @range: pointer to the IO range which has been already registered.
-+ *
-+ * Unregister a previously-registered IO range node.
-+ */
-+void logic_pio_unregister_range(struct logic_pio_hwaddr *range)
-+{
-+	mutex_lock(&io_range_mutex);
-+	list_del_rcu(&range->list);
-+	mutex_unlock(&io_range_mutex);
-+	synchronize_rcu();
-+}
+--- a/drivers/gpu/drm/i915/i915_vgpu.c
++++ b/drivers/gpu/drm/i915/i915_vgpu.c
+@@ -100,6 +100,9 @@ static struct _balloon_info_ bl_info;
+ static void vgt_deballoon_space(struct i915_ggtt *ggtt,
+ 				struct drm_mm_node *node)
+ {
++	if (!drm_mm_node_allocated(node))
++		return;
 +
-+/**
-  * find_io_range_by_fwnode - find logical PIO range for given FW node
-  * @fwnode: FW node handle associated with logical PIO range
-  *
+ 	DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
+ 			 node->start,
+ 			 node->start + node->size,
 
 
