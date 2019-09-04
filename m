@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7ABA8EE4
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC83A8F47
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731659AbfIDSAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39958 "EHLO mail.kernel.org"
+        id S2388449AbfIDSCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387843AbfIDSAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:00:40 -0400
+        id S2388817AbfIDSCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:02:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C50A721883;
-        Wed,  4 Sep 2019 18:00:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F254A208E4;
+        Wed,  4 Sep 2019 18:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620039;
-        bh=rHsfZKh5hpl3Tpw9S1bcEiNI0pKboFXwI6tWd6Robn4=;
+        s=default; t=1567620166;
+        bh=uUtTDLmE6A7J+WslKrqJN/mBaUTuWh4DOMBFskrszMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZTEvrvy2YPUzg0ZI6pzObCbo1Zgw//PMTuO4IbX0KnYoCFr4W/UKE5sGRJdwpOGw
-         rbf0ZRPcHICWRPUcrglnYusFBJfGTWO6tSVMDGv3IqdPshSiIkxZiNPJUfTNI9qU+D
-         XUq9CiDHFoDJmk5GaKMEzbkxbhjNIV2rvw3LiXyI=
+        b=U8FoysfyFEH1yCd1+z51QPLHnekIf7yoR41vaA1qjEcA/KdF8vxIVuu6MBDPLQn/0
+         SV2HzZdJoB6mHVdoMKHln9jfMuiTBhkL1lPpWkLFnoH/WvpPdfEcc5ePV4rlM/Do61
+         A0EqR1nJUcrjgT7DA1cpchomg8aFRCUyUXX18HSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/83] i2c: emev2: avoid race when unregistering slave client
-Date:   Wed,  4 Sep 2019 19:53:42 +0200
-Message-Id: <20190904175308.178336374@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Jyri Sarha <jsarha@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/57] drm/tilcdc: Register cpufreq notifier after we have initialized crtc
+Date:   Wed,  4 Sep 2019 19:53:43 +0200
+Message-Id: <20190904175303.465167730@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d7437fc0d8291181debe032671a289b6bd93f46f ]
+[ Upstream commit 432973fd3a20102840d5f7e61af9f1a03c217a4c ]
 
-After we disabled interrupts, there might still be an active one
-running. Sync before clearing the pointer to the slave device.
+Register cpufreq notifier after we have initialized the crtc and
+unregister it before we remove the ctrc. Receiving a cpufreq notify
+without crtc causes a crash.
 
-Fixes: c31d0a00021d ("i2c: emev2: add slave support")
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-emev2.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 34 ++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 96bb4e7490128..0218ba6eb26ab 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -72,6 +72,7 @@ struct em_i2c_device {
- 	struct completion msg_done;
- 	struct clk *sclk;
- 	struct i2c_client *slave;
-+	int irq;
- };
- 
- static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear, u8 set, u8 reg)
-@@ -342,6 +343,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
- 
- 	writeb(0, priv->base + I2C_OFS_SVA0);
- 
-+	/*
-+	 * Wait for interrupt to finish. New slave irqs cannot happen because we
-+	 * cleared the slave address and, thus, only extension codes will be
-+	 * detected which do not use the slave ptr.
-+	 */
-+	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	return 0;
-@@ -358,7 +365,7 @@ static int em_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index b0d70f943cec5..56039897607c6 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -189,6 +189,12 @@ static void tilcdc_fini(struct drm_device *dev)
  {
- 	struct em_i2c_device *priv;
- 	struct resource *r;
--	int irq, ret;
-+	int ret;
+ 	struct tilcdc_drm_private *priv = dev->dev_private;
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -391,8 +398,8 @@ static int em_i2c_probe(struct platform_device *pdev)
++#ifdef CONFIG_CPU_FREQ
++	if (priv->freq_transition.notifier_call)
++		cpufreq_unregister_notifier(&priv->freq_transition,
++					    CPUFREQ_TRANSITION_NOTIFIER);
++#endif
++
+ 	if (priv->crtc)
+ 		tilcdc_crtc_shutdown(priv->crtc);
  
- 	em_i2c_reset(&priv->adap);
+@@ -204,12 +210,6 @@ static void tilcdc_fini(struct drm_device *dev)
+ 	drm_mode_config_cleanup(dev);
+ 	tilcdc_remove_external_device(dev);
  
--	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(&pdev->dev, irq, em_i2c_irq_handler, 0,
-+	priv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
- 				"em_i2c", priv);
- 	if (ret)
- 		goto err_clk;
-@@ -402,7 +409,8 @@ static int em_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_clk;
+-#ifdef CONFIG_CPU_FREQ
+-	if (priv->freq_transition.notifier_call)
+-		cpufreq_unregister_notifier(&priv->freq_transition,
+-					    CPUFREQ_TRANSITION_NOTIFIER);
+-#endif
+-
+ 	if (priv->clk)
+ 		clk_put(priv->clk);
  
--	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr, irq);
-+	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr,
-+		 priv->irq);
+@@ -282,17 +282,6 @@ static int tilcdc_init(struct drm_driver *ddrv, struct device *dev)
+ 		goto init_failed;
+ 	}
  
- 	return 0;
+-#ifdef CONFIG_CPU_FREQ
+-	priv->freq_transition.notifier_call = cpufreq_transition;
+-	ret = cpufreq_register_notifier(&priv->freq_transition,
+-			CPUFREQ_TRANSITION_NOTIFIER);
+-	if (ret) {
+-		dev_err(dev, "failed to register cpufreq notifier\n");
+-		priv->freq_transition.notifier_call = NULL;
+-		goto init_failed;
+-	}
+-#endif
+-
+ 	if (of_property_read_u32(node, "max-bandwidth", &priv->max_bandwidth))
+ 		priv->max_bandwidth = TILCDC_DEFAULT_MAX_BANDWIDTH;
  
+@@ -369,6 +358,17 @@ static int tilcdc_init(struct drm_driver *ddrv, struct device *dev)
+ 	}
+ 	modeset_init(ddev);
+ 
++#ifdef CONFIG_CPU_FREQ
++	priv->freq_transition.notifier_call = cpufreq_transition;
++	ret = cpufreq_register_notifier(&priv->freq_transition,
++			CPUFREQ_TRANSITION_NOTIFIER);
++	if (ret) {
++		dev_err(dev, "failed to register cpufreq notifier\n");
++		priv->freq_transition.notifier_call = NULL;
++		goto init_failed;
++	}
++#endif
++
+ 	if (priv->is_componentized) {
+ 		ret = component_bind_all(dev, ddev);
+ 		if (ret < 0)
 -- 
 2.20.1
 
