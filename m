@@ -2,56 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A7BA766D
-	for <lists+stable@lfdr.de>; Tue,  3 Sep 2019 23:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECDCA77DC
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 02:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726079AbfICVn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Sep 2019 17:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57932 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726009AbfICVn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Sep 2019 17:43:29 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4C4A22CF7;
-        Tue,  3 Sep 2019 21:43:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567547008;
-        bh=H4egSEv5FjxaUYXP6J54vNyFj12cJZ7NqtMrOXorqP8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PU/UmuVf/qscyisa8lZl+3YfDUkqcuifBWlschWWacbFGy3xJXqtS7W/oWxIcl7QH
-         mYla15yH3QUFAPxgUnipunnrUmQs4g6HVBFPIJj5J85BdtdBjXa/MgbFM+VDpIhGfq
-         FVc7KzUl2chMnf1fl5/2W82ApzLRVpYaG3VmO3oA=
-Date:   Tue, 3 Sep 2019 17:43:27 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     andrew.cooks@opengear.com, jdelvare@suse.de, wsa@the-dreams.de,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] i2c: piix4: Fix port selection for AMD
- Family 16h Model 30h" failed to apply to 4.19-stable tree
-Message-ID: <20190903214327.GU5281@sasha-vm>
-References: <15675374782510@kroah.com>
+        id S1726009AbfIDAYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Sep 2019 20:24:06 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:55854 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725882AbfIDAYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Sep 2019 20:24:06 -0400
+Received: by mail-wm1-f66.google.com with SMTP id g207so1287281wmg.5;
+        Tue, 03 Sep 2019 17:24:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=+kGji0iEqvX2PbYbdW45C9GxA697L85/6dAAQKl+YqI=;
+        b=s823D9jMikjUnE0COKWdQm/5U4/NnfIueifeneGq16e97vNfIELcg2uISDJC5H8Osu
+         mkf7end+YfLLnME+nIbdTcGf8L3mr/WrKyX/l1DiTowgansH74ndS7WLYnhy0hQO9F0K
+         N8xC0HX2mYKW+Mkv4YnyZkRNwM5jTY+He1FfAeVw6hAI+S1FcM/X1C3HuOz+V1yyGQu5
+         HaphnnucdoJtfT4Ljfx7+pXTfb8COZztaEZ5RJ2wOavoaxjWqCx2lIYg/QA7gpTWlBYL
+         s820/Lyd8uH5qB7MhN1eK/MGWtG3lExath8vlfPqIsMpi25nX3PJgc9sv/129uVc+1Ia
+         tdIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+kGji0iEqvX2PbYbdW45C9GxA697L85/6dAAQKl+YqI=;
+        b=lxEJxRP7EiGueMwdk/mEJKDEWC2acTx1j8ORgpL56ozGCWv0bWK/FRXUyWYrG2V2fh
+         NiL9ZKx6/yt195TiADTnz8RTcCK7iAacbPCT/qYxzXfEsPXP+gWS4E9TvQD3vC//tzud
+         yIoG2weILq8wonUfcCVnGbsgtx/CacrJBDPWlKVO6T0WR6bpzvvTGDJDBtCOvwJzB5rN
+         xZsSZuCzXqCXWl3XFdLDsSioiEGqpsLwDCXbGGfC2LBuW+HmSbgRHWmVlyVbpibk+ryH
+         aNlcxy5O1fzLw2FdI0qgDCDHSEtGqi3lE3oWI/UJkPMKbIS6/Jvul49IuOlQLWUoP/7N
+         iwWQ==
+X-Gm-Message-State: APjAAAUeTS7GccTHNu9zH5iM2p3nuU8kiijASsYh4wAebkwWkrJnxStX
+        48x0pFVl7TYoIekW9r+Sp1EdXe9u5g8WaA==
+X-Google-Smtp-Source: APXvYqyRT9H5yO3lBr9uzkfqAogtNcUrdzoodQwtPgDJnVgYlLavOlowlxIb5ZUBH6+0p1L8IqP6Sg==
+X-Received: by 2002:a1c:4c06:: with SMTP id z6mr1965649wmf.47.1567556643727;
+        Tue, 03 Sep 2019 17:24:03 -0700 (PDT)
+Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
+        by smtp.gmail.com with ESMTPSA id b26sm1242242wmj.14.2019.09.03.17.24.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Sep 2019 17:24:03 -0700 (PDT)
+Date:   Tue, 3 Sep 2019 17:24:01 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Segher Boessenkool <segher@kernel.crashing.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+Message-ID: <20190904002401.GA70635@archlinux-threadripper>
+References: <20190812023214.107817-1-natechancellor@gmail.com>
+ <878srdv206.fsf@mpe.ellerman.id.au>
+ <20190828175322.GA121833@archlinux-threadripper>
+ <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com>
+ <20190828184529.GC127646@archlinux-threadripper>
+ <6801a83ed6d54d95b87a41c57ef6e6b0@AcuMS.aculab.com>
+ <20190903055553.GC60296@archlinux-threadripper>
+ <20190903193128.GC9749@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15675374782510@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190903193128.GC9749@gate.crashing.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 09:04:38PM +0200, gregkh@linuxfoundation.org wrote:
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+On Tue, Sep 03, 2019 at 02:31:28PM -0500, Segher Boessenkool wrote:
+> On Mon, Sep 02, 2019 at 10:55:53PM -0700, Nathan Chancellor wrote:
+> > On Thu, Aug 29, 2019 at 09:59:48AM +0000, David Laight wrote:
+> > > From: Nathan Chancellor
+> > > > Sent: 28 August 2019 19:45
+> > > ...
+> > > > However, I think that -fno-builtin-* would be appropriate here because
+> > > > we are providing our own setjmp implementation, meaning clang should not
+> > > > be trying to do anything with the builtin implementation like building a
+> > > > declaration for it.
+> > > 
+> > > Isn't implementing setjmp impossible unless you tell the compiler that
+> > > you function is 'setjmp-like' ?
+> > 
+> > No idea, PowerPC is the only architecture that does such a thing.
+> 
+> Since setjmp can return more than once, yes, exciting things can happen
+> if you do not tell the compiler about this.
+> 
+> 
+> Segher
+> 
 
-I've fixed it up to work around missing 24beb83ad289c ("i2c-piix4: Add
-Hygon Dhyana SMBus support") and queued it for 4.19, 4.14, and 4.9. It's
-not needed on 4.4.
+Fair enough so I guess we are back to just outright disabling the
+warning.
 
---
-Thanks,
-Sasha
+Cheers,
+Nathan
