@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA38EA8E9D
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4EBA91C9
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388170AbfIDR7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:59:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
+        id S1730408AbfIDS0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:26:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732997AbfIDR7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:59:01 -0400
+        id S1732934AbfIDR5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:57:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07CA722CF7;
-        Wed,  4 Sep 2019 17:59:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5360C22CF5;
+        Wed,  4 Sep 2019 17:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619940;
-        bh=gFvXK3IG4GFAXcEV6XgFaWxf1Ol+tUwYHXpCyQve8Ko=;
+        s=default; t=1567619854;
+        bh=rHytPNhQkF8ov8Qv+LZTByPCoP/QEAlGbsW/DS6uliA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cVb7hy7XO/uqZXoQNd+4v/AxHC8kz/NqYPSDAjD/ow5PsqbzwTEbS9s8mO3kH4BZ
-         NQOvqT05AItBC7I2dP9ryujgcETFagF8VW1c1hxSB8LIbgcA7b9sJW/9RAeMJ2YKI5
-         6aPeP5Tq85lDsFhNBl+2VJn4mLUYPsear8jNG7w8=
+        b=gADxGfuuJN71FJ6NhGTEBaTjr308dn6feKcdbzc5QdvHHLWl3AjwuYhvQNkbfIT7/
+         QI2NQAnQ7pnI9kx8q1lWrw4GDxoggApCibuLam+codMN67GLfekuVjQemP/VlybgXa
+         3zUmj0Sef0mTQx/wjfivI/O+zLSHT5/ZpSdAfqrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/83] perf bench numa: Fix cpu0 binding
+Subject: [PATCH 4.4 19/77] net: hisilicon: fix hip04-xmit never return TX_BUSY
 Date:   Wed,  4 Sep 2019 19:53:06 +0200
-Message-Id: <20190904175305.134362678@linuxfoundation.org>
+Message-Id: <20190904175305.429511694@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,55 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
+[ Upstream commit f2243b82785942be519016067ee6c55a063bbfe2 ]
 
-Michael reported an issue with perf bench numa failing with binding to
-cpu0 with '-0' option.
+TX_DESC_NUM is 256, in tx_count, the maximum value of
+mod(TX_DESC_NUM - 1) is 254, the variable "count" in
+the hip04_mac_start_xmit function is never equal to
+(TX_DESC_NUM - 1), so hip04_mac_start_xmit never
+return NETDEV_TX_BUSY.
 
-  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
-  # Running 'numa/mem' benchmark:
+tx_count is modified to mod(TX_DESC_NUM) so that
+the maximum value of tx_count can reach
+(TX_DESC_NUM - 1), then hip04_mac_start_xmit can reurn
+NETDEV_TX_BUSY.
 
-   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
-  binding to node 0, mask: 0000000000000001 => -1
-  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
-  Aborted (core dumped)
-
-This happens when the cpu0 is not part of node0, which is the benchmark
-assumption and we can see that's not the case for some powerpc servers.
-
-Using correct node for cpu0 binding.
-
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index e58be7eeced83..7b364f2926d4f 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -373,8 +373,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index fdf8a477bec9c..a88d233df4e82 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -185,7 +185,7 @@ struct hip04_priv {
  
- 	/* Allocate and initialize all memory on CPU#0: */
- 	if (init_cpu0) {
--		orig_mask = bind_to_node(0);
--		bind_to_memnode(0);
-+		int node = numa_node_of_cpu(0);
-+
-+		orig_mask = bind_to_node(node);
-+		bind_to_memnode(node);
- 	}
+ static inline unsigned int tx_count(unsigned int head, unsigned int tail)
+ {
+-	return (head - tail) % (TX_DESC_NUM - 1);
++	return (head - tail) % TX_DESC_NUM;
+ }
  
- 	bytes = bytes0 + HPSIZE;
+ static void hip04_config_port(struct net_device *ndev, u32 speed, u32 duplex)
 -- 
 2.20.1
 
