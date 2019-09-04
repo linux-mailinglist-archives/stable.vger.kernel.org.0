@@ -2,133 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C5AA8211
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 14:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1403CA8310
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 14:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727544AbfIDMI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 08:08:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43952 "EHLO mail.kernel.org"
+        id S1729640AbfIDMfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 08:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726943AbfIDMI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 08:08:26 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1729727AbfIDMff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 08:35:35 -0400
+Received: from localhost (unknown [40.117.208.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E189922CED;
-        Wed,  4 Sep 2019 12:08:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED0DD23402;
+        Wed,  4 Sep 2019 12:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567598905;
-        bh=QbYO5xJQGT1Uu94hWScBCp6qWdp8GydhSptk7yOPeHE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HLOwcXn29+BdSWFL3qKDpEDbLdF51Ww2YAF6klsvOok5k1oQ1Lee8fRjgoP40Z3hD
-         XXrM2fR7PuHQwR72a2MJS+DqWYtl7VMLoDnalEiQgicy4dE8KYwGP7ehYl2uyJ/Dva
-         xKoaEHfjepJkgmsXpJhskZPwPDGL0hrKIhAaKrZY=
-Date:   Wed, 4 Sep 2019 08:08:23 -0400
+        s=default; t=1567600535;
+        bh=tPUbwpTSV2h9QUZkQKDoPP8mk4/cEB+ba4F4eQQvKIo=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=qbjUis1sW00d/fzu5weVbWWHby7E7MMDlUC6It0itDeaSMnB7gZl7rU1n+Ua1E0mv
+         VyC1iZKJjFBrygRNuqi3sk06i7XZvc3gnKcl14GfyfuqxMoMlhl2TEf+jwuvcrZswR
+         tbECvVd3otfhfKtVdXCklQnOj4L3GphPn8crRzB8=
+Date:   Wed, 04 Sep 2019 12:35:34 +0000
 From:   Sasha Levin <sashal@kernel.org>
-To:     Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@linux.ie>,
-        Yu Zhao <yuzhao@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch
- alignment
-Message-ID: <20190904120823.GW5281@sasha-vm>
-References: <20190903162519.7136-1-sashal@kernel.org>
- <20190903162519.7136-44-sashal@kernel.org>
- <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net>
- <20190903170347.GA24357@kroah.com>
- <20190903200139.GJ5281@sasha-vm>
- <CAKMK7uFpBnkF4xABdkDMZ8TYhL4jg6ZuGyHGyVeBxc9rkyUtXQ@mail.gmail.com>
- <829c5912-cf80-81d0-7400-d01d286861fc@daenzer.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <829c5912-cf80-81d0-7400-d01d286861fc@daenzer.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+To:     Sasha Levin <sashal@kernel.org>
+To:     Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de
+Cc:     stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda/realtek - Fix the problem of two front mics on a ThinkCentre
+In-Reply-To: <20190904055327.9883-1-hui.wang@canonical.com>
+References: <20190904055327.9883-1-hui.wang@canonical.com>
+Message-Id: <20190904123534.ED0DD23402@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 04, 2019 at 10:55:10AM +0200, Michel Dänzer wrote:
->On 2019-09-03 10:16 p.m., Daniel Vetter wrote:
->> On Tue, Sep 3, 2019 at 10:01 PM Sasha Levin <sashal@kernel.org> wrote:
->>> On Tue, Sep 03, 2019 at 07:03:47PM +0200, Greg KH wrote:
->>>> On Tue, Sep 03, 2019 at 06:40:43PM +0200, Michel Dänzer wrote:
->>>>> On 2019-09-03 6:23 p.m., Sasha Levin wrote:
->>>>>> From: Yu Zhao <yuzhao@google.com>
->>>>>>
->>>>>> [ Upstream commit 89f23b6efef554766177bf51aa754bce14c3e7da ]
->>>>>
->>>>> Hold your horses!
->>>>>
->>>>> This commit and c4a32b266da7bb702e60381ca0c35eaddbc89a6c had to be
->>>>> reverted, as they caused regressions. See commits
->>>>> 25ec429e86bb790e40387a550f0501d0ac55a47c &
->>>>> 92b0730eaf2d549fdfb10ecc8b71f34b9f472c12 .
->>>>>
->>>>>
->>>>> This isn't bolstering confidence in how these patches are selected...
->>>>
->>>> The patch _itself_ said to be backported to the stable trees from 4.2
->>>> and newer.  Why wouldn't we be confident in doing this?
->>>>
->>>> If the patch doesn't want to be backported, then do not add the cc:
->>>> stable line to it...
->>>
->>> This patch was picked because it has a stable tag, which you presumably
->>> saw as your Reviewed-by tag is in the patch. This is why it was
->>> backported; it doesn't take AI to backport patches tagged for stable...
->
->The patches did point to gaps in validation of ioctl parameters passed
->in by userspace. Unfortunately, they turned out to be too strict,
->causing valid parameters to spuriously fail. If that wasn't the case,
->and the patches didn't have stable tags, maybe we'd be having a
->discussion about why they didn't have the tags now...
+Hi,
 
-That's fair, and we're definitely not complaining that these patches had
-a stable tag, my comment was directed more towards the "This isn't
-bolstering confidence in how these patches are selected" comment you've
-made - we basically did what we were told to do and for some reason you
-got upset :)
+[This is an automated email]
 
->>> The revert of this patch, however:
->>>
->>>  1. Didn't have a stable tag.
->
->I guess it didn't occur to me that was necessary, as the patches got
->reverted within days.
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-Since the original stable tagged patch made it upstream, we're bound to
-try and select it for stable branches even if there are more changes or
-reverts later on. We'll try to detect further fixes and reverts, but
-we're limited by the metadata in the commit message.
+The bot has tested the following trees: v5.2.11, v4.19.69, v4.14.141, v4.9.190, v4.4.190.
 
->>>  2. Didn't have a "Fixes:" tag.
->>>  3. Didn't have the usual "the reverts commit ..." string added by git
->>>  when one does a revert.
->
->I suspect that's because there were no stable commit hashes to
->reference, see below.
->
->
->>> Which is why we still kick patches for review, even though they had a
->>> stable tag, just so people could take a look and confirm we're not
->>> missing anything - like we did here.
->>>
->>> I'm not sure what you expected me to do differently here.
->
->Yeah, sorry, I didn't realize it's tricky for scripts to recognize that
->the patches have been reverted in this case.
+v5.2.11: Build OK!
+v4.19.69: Build OK!
+v4.14.141: Build OK!
+v4.9.190: Failed to apply! Possible dependencies:
+    216d7aebbfbe ("ALSA: hda/realtek - Fix headset mic and speaker on Asus X441SA/X441UV")
+    5824ce8de7b1 ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
+    615966adc4b6 ("ALSA: hda/realtek - Fix headset mic on several Asus laptops with ALC255")
+    823ff161fe51 ("ALSA: hda - Fix click noises on Samsung Ativ Book 8")
+    8da5bbfc7cbb ("ALSA: hda - change the location for one mic on a Lenovo machine")
+    9eb5d0e635eb ("ALSA: hda/realtek - Add support headphone Mic for ALC221 of HP platform")
+    c1732ede5e80 ("ALSA: hda/realtek - Fix headset and mic on several Asus laptops with ALC256")
+    c6790c8e770c ("ALSA: hda/realtek - Add support for headset MIC for ALC622")
+    ca169cc2f9e1 ("ALSA: hda/realtek - Add Dual Codecs support for Lenovo P520/420")
+    f33f79f3d0e5 ("ALSA: hda/realtek - change the location for one of two front microphones")
 
-FWIW, I've added another test to my scripts to try and catch these cases
-(Revert "%s"). It'll slow down the scripts a bit but it's better to get
-it right rather than to be done quickly :)
+v4.4.190: Failed to apply! Possible dependencies:
+    1a3f099101b8 ("ALSA: hda - Fix surround output pins for ASRock B150M mobo")
+    216d7aebbfbe ("ALSA: hda/realtek - Fix headset mic and speaker on Asus X441SA/X441UV")
+    5824ce8de7b1 ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
+    615966adc4b6 ("ALSA: hda/realtek - Fix headset mic on several Asus laptops with ALC255")
+    78f4f7c2341f ("ALSA: hda/realtek - ALC891 headset mode for Dell")
+    823ff161fe51 ("ALSA: hda - Fix click noises on Samsung Ativ Book 8")
+    8da5bbfc7cbb ("ALSA: hda - change the location for one mic on a Lenovo machine")
+    9b51fe3efe4c ("ALSA: hda - On-board speaker fixup on ACER Veriton")
+    9eb5d0e635eb ("ALSA: hda/realtek - Add support headphone Mic for ALC221 of HP platform")
+    abaa2274811d ("ALSA: hda/realtek - fix headset mic detection for MSI MS-B120")
+    c1732ede5e80 ("ALSA: hda/realtek - Fix headset and mic on several Asus laptops with ALC256")
+    c6790c8e770c ("ALSA: hda/realtek - Add support for headset MIC for ALC622")
+    ca169cc2f9e1 ("ALSA: hda/realtek - Add Dual Codecs support for Lenovo P520/420")
+    f33f79f3d0e5 ("ALSA: hda/realtek - change the location for one of two front microphones")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
 
 --
 Thanks,
