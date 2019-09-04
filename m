@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E11A903F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EDDA9140
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389805AbfIDSId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
+        id S2390779AbfIDSOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:14:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388734AbfIDSId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:33 -0400
+        id S2390485AbfIDSOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:14:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43BAB2087E;
-        Wed,  4 Sep 2019 18:08:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4761B208E4;
+        Wed,  4 Sep 2019 18:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620512;
-        bh=02PczsOJSc4YfEWE2n6BF+65aGR455I13ZDkZ1cTWWg=;
+        s=default; t=1567620862;
+        bh=0yy/2OVnBI5Qh2eAcoybrixJRPrvvYdKrPeHjXlj130=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmR+vY0d4c8CrqCziuE4aiROWbYtvb3+nl8zpiNES6joYmfVoRjYmQI3btm3fgVkT
-         URveJqosvj4CMyIcfjDWb8OclRlKLucs+9SmqzXhgsBKwWM6qkzh6OxOmYJWmDQ010
-         lPpfFLHBGYhKHoLozXnX0dfwZUlYNlA6grpiZ9Fo=
+        b=c8y+nZr+t5o85FOg5ckSs+HQXag2rNIEASH+ZB2j+K5qB6steE8rBcoziV5QTVtPu
+         Zho0/McLaE8UUvZ/Pe/dnLVmhGcfXtvDU6MmwBQFBNpgwmFKEb/QLSchswPzMZzhS/
+         E7keb+MGUvCGMFAIhC4E6/DIlplVXiqKBJ3tA1tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 84/93] KVM: PPC: Book3S: Fix incorrect guest-to-user-translation error handling
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 123/143] mm: memcontrol: fix percpu vmstats and vmevents flush
 Date:   Wed,  4 Sep 2019 19:54:26 +0200
-Message-Id: <20190904175310.366751053@linuxfoundation.org>
+Message-Id: <20190904175319.213100525@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ddfd151f3def9258397fcde7a372205a2d661903 ]
+From: Shakeel Butt <shakeelb@google.com>
 
-H_PUT_TCE_INDIRECT handlers receive a page with up to 512 TCEs from
-a guest. Although we verify correctness of TCEs before we do anything
-with the existing tables, there is a small window when a check in
-kvmppc_tce_validate might pass and right after that the guest alters
-the page of TCEs, causing an early exit from the handler and leaving
-srcu_read_lock(&vcpu->kvm->srcu) (virtual mode) or lock_rmap(rmap)
-(real mode) locked.
+commit 6c1c280805ded72eceb2afc1a0d431b256608554 upstream.
 
-This fixes the bug by jumping to the common exit code with an appropriate
-unlock.
+Instead of using raw_cpu_read() use per_cpu() to read the actual data of
+the corresponding cpu otherwise we will be reading the data of the
+current cpu for the number of online CPUs.
 
-Cc: stable@vger.kernel.org # v4.11+
-Fixes: 121f80ba68f1 ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20190829203110.129263-1-shakeelb@google.com
+Fixes: bb65f89b7d3d ("mm: memcontrol: flush percpu vmevents before releasing memcg")
+Fixes: c350a99ea2b1 ("mm: memcontrol: flush percpu vmstats before releasing memcg")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/kvm/book3s_64_vio.c    | 6 ++++--
- arch/powerpc/kvm/book3s_64_vio_hv.c | 6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ mm/memcontrol.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
-index 9a3f2646ecc7e..07a8004c3c237 100644
---- a/arch/powerpc/kvm/book3s_64_vio.c
-+++ b/arch/powerpc/kvm/book3s_64_vio.c
-@@ -602,8 +602,10 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3159,7 +3159,7 @@ static void memcg_flush_percpu_vmstats(s
  
- 		if (kvmppc_gpa_to_ua(vcpu->kvm,
- 				tce & ~(TCE_PCI_READ | TCE_PCI_WRITE),
--				&ua, NULL))
--			return H_PARAMETER;
-+				&ua, NULL)) {
-+			ret = H_PARAMETER;
-+			goto unlock_exit;
-+		}
+ 	for_each_online_cpu(cpu)
+ 		for (i = 0; i < MEMCG_NR_STAT; i++)
+-			stat[i] += raw_cpu_read(memcg->vmstats_percpu->stat[i]);
++			stat[i] += per_cpu(memcg->vmstats_percpu->stat[i], cpu);
  
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
- 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt,
-diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
-index 6821ead4b4ebc..eb8b11515a7ff 100644
---- a/arch/powerpc/kvm/book3s_64_vio_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
-@@ -528,8 +528,10 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 		ua = 0;
- 		if (kvmppc_gpa_to_ua(vcpu->kvm,
- 				tce & ~(TCE_PCI_READ | TCE_PCI_WRITE),
--				&ua, NULL))
--			return H_PARAMETER;
-+				&ua, NULL)) {
-+			ret = H_PARAMETER;
-+			goto unlock_exit;
-+		}
+ 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
+ 		for (i = 0; i < MEMCG_NR_STAT; i++)
+@@ -3174,8 +3174,8 @@ static void memcg_flush_percpu_vmstats(s
  
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
- 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
--- 
-2.20.1
-
+ 		for_each_online_cpu(cpu)
+ 			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+-				stat[i] += raw_cpu_read(
+-					pn->lruvec_stat_cpu->count[i]);
++				stat[i] += per_cpu(
++					pn->lruvec_stat_cpu->count[i], cpu);
+ 
+ 		for (pi = pn; pi; pi = parent_nodeinfo(pi, node))
+ 			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+@@ -3194,8 +3194,8 @@ static void memcg_flush_percpu_vmevents(
+ 
+ 	for_each_online_cpu(cpu)
+ 		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
+-			events[i] += raw_cpu_read(
+-				memcg->vmstats_percpu->events[i]);
++			events[i] += per_cpu(memcg->vmstats_percpu->events[i],
++					     cpu);
+ 
+ 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
+ 		for (i = 0; i < NR_VM_EVENT_ITEMS; i++)
 
 
