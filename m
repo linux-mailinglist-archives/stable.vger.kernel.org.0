@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9216A8F7A
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7712A9014
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388063AbfIDSDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S2389459AbfIDSHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387901AbfIDSDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:03:51 -0400
+        id S2388138AbfIDSHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:07:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4758E22CF7;
-        Wed,  4 Sep 2019 18:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA90B206B8;
+        Wed,  4 Sep 2019 18:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620230;
-        bh=Q0AghjGYEW8gpI/1NW+PF1mfec5wXa2psBdGkgErjhY=;
+        s=default; t=1567620451;
+        bh=oefQlcXlXBGt5Pz+10mh105K6JtFKDQSmaifvQ6ZOZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJSiMN+5l4w/3YZPs86SSc6vTt7keHwrqYDEia5RT2EQ99wHIjEWdzsPhDTfinzCS
-         8CazQnZFILp6rGKJTtDUArp7l/I5ZtDpxeMgr8INL0qOmm68xBqFiKWptTF14D4A2G
-         u5nCd6qMHVAAYaW31FHzrKLbFyJMH2HQUxnZghaU=
+        b=mpY1aPAKLmUQro0LZqhrJBNIthaeXZvoZx6Rt/0TQtWbA0e5TtGBPkrnozcB8fhZT
+         XUjuPS43GwnTwJeJJ4GgkgQcC4TBE08lArOdOdtOUB+hwMDzQ+TTmOUm+ugXEq5n+O
+         YVIMnISoas2yEeVnU9NgwAS94ZEHC8tT9Uc+zwbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.14 37/57] USB: storage: ums-realtek: Whitelist auto-delink support
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 63/93] mmc: sdhci-of-at91: add quirk for broken HS200
 Date:   Wed,  4 Sep 2019 19:54:05 +0200
-Message-Id: <20190904175305.684917773@linuxfoundation.org>
+Message-Id: <20190904175308.420017894@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
-References: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit 1902a01e2bcc3abd7c9a18dc05e78c7ab4a53c54 upstream.
+commit 7871aa60ae0086fe4626abdf5ed13eeddf306c61 upstream.
 
-Auto-delink requires writing special registers to ums-realtek devices.
-Unconditionally enable auto-delink may break newer devices.
+HS200 is not implemented in the driver, but the controller claims it
+through caps. Remove it via a quirk, to make sure the mmc core do not try
+to enable HS200, as it causes the eMMC initialization to fail.
 
-So only enable auto-delink by default for the original three IDs,
-0x0138, 0x0158 and 0x0159.
-
-Realtek is working on a patch to properly support auto-delink for other
-IDs.
-
-BugLink: https://bugs.launchpad.net/bugs/1838886
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190827173450.13572-2-kai.heng.feng@canonical.com
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: bb5f8ea4d514 ("mmc: sdhci-of-at91: introduce driver for the Atmel SDMMC")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/realtek_cr.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/mmc/host/sdhci-of-at91.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/storage/realtek_cr.c
-+++ b/drivers/usb/storage/realtek_cr.c
-@@ -1009,12 +1009,15 @@ static int init_realtek_cr(struct us_dat
- 			goto INIT_FAIL;
- 	}
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -365,6 +365,9 @@ static int sdhci_at91_probe(struct platf
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
  
--	if (CHECK_FW_VER(chip, 0x5888) || CHECK_FW_VER(chip, 0x5889) ||
--	    CHECK_FW_VER(chip, 0x5901))
--		SET_AUTO_DELINK(chip);
--	if (STATUS_LEN(chip) == 16) {
--		if (SUPPORT_AUTO_DELINK(chip))
-+	if (CHECK_PID(chip, 0x0138) || CHECK_PID(chip, 0x0158) ||
-+	    CHECK_PID(chip, 0x0159)) {
-+		if (CHECK_FW_VER(chip, 0x5888) || CHECK_FW_VER(chip, 0x5889) ||
-+				CHECK_FW_VER(chip, 0x5901))
- 			SET_AUTO_DELINK(chip);
-+		if (STATUS_LEN(chip) == 16) {
-+			if (SUPPORT_AUTO_DELINK(chip))
-+				SET_AUTO_DELINK(chip);
-+		}
- 	}
- #ifdef CONFIG_REALTEK_AUTOPM
- 	if (ss_en)
++	/* HS200 is broken at this moment */
++	host->quirks2 = SDHCI_QUIRK2_BROKEN_HS200;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto pm_runtime_disable;
 
 
