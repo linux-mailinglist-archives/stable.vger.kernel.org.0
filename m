@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6F9A9019
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194DBA8F81
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388910AbfIDSHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50190 "EHLO mail.kernel.org"
+        id S2388458AbfIDSED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389470AbfIDSHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:07:39 -0400
+        id S2389049AbfIDSEC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9E14206B8;
-        Wed,  4 Sep 2019 18:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9478208E4;
+        Wed,  4 Sep 2019 18:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620459;
-        bh=NAGu2uXx3izH6nY+ZY+vsnuDgYMEGTjhht2lnU6uQfM=;
+        s=default; t=1567620241;
+        bh=71JlX85HloXRuFk35f6G10fhXpqx61Us6ZgYwqEoDeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWmdkToDKY5wVJG+aZSJ7M7zz3BP1qcdKn1jgSNQ5hSgzH/BbhhPV4q41thQNYamE
-         j77cb3DxT7zjjAinOICJGOqClGvMG3GsJGHVNYneUrsA+iYVAXsEi60jw5paxOfNRc
-         fT1f3o3tzOnN6ecUxtPhaLE2ZAa+klmvl+ttTZIU=
+        b=r6smVa+Tkeh86SZRrL7ZuOm3UL2ltXWHmJ71vJ4q/Q7P5UHKhWhV3T22f4zI7LePo
+         eucl0i/3Cwtsz7ZS14+aeCQh1+UlYg8JoSYdPURZU7AHu5p3O+7dmbtfYAGc1zqRTh
+         RALZ2s3pjHDo5x44jMq35rOjjmyhCdnI0RInawdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.19 66/93] intel_th: pci: Add support for another Lewisburg PCH
+        stable@vger.kernel.org, Philip Langdale <philipl@overt.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Manuel Presnitz <mail@mpy.de>
+Subject: [PATCH 4.14 40/57] mmc: core: Fix init of SD cards reporting an invalid VDD range
 Date:   Wed,  4 Sep 2019 19:54:08 +0200
-Message-Id: <20190904175308.704253201@linuxfoundation.org>
+Message-Id: <20190904175305.967021644@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 164eb56e3b64f3a816238d410c9efec7567a82ef upstream.
+commit 72741084d903e65e121c27bd29494d941729d4a1 upstream.
 
-Add support for the Trace Hub in another Lewisburg PCH.
+The OCR register defines the supported range of VDD voltages for SD cards.
+However, it has turned out that some SD cards reports an invalid voltage
+range, for example having bit7 set.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.14+
-Link: https://lore.kernel.org/r/20190821074955.3925-4-alexander.shishkin@linux.intel.com
+When a host supports MMC_CAP2_FULL_PWR_CYCLE and some of the voltages from
+the invalid VDD range, this triggers the core to run a power cycle of the
+card to try to initialize it at the lowest common supported voltage.
+Obviously this fails, since the card can't support it.
+
+Let's fix this problem, by clearing invalid bits from the read OCR register
+for SD cards, before proceeding with the VDD voltage negotiation.
+
+Cc: stable@vger.kernel.org
+Reported-by: Philip Langdale <philipl@overt.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Philip Langdale <philipl@overt.org>
+Tested-by: Philip Langdale <philipl@overt.org>
+Tested-by: Manuel Presnitz <mail@mpy.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/core/sd.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -141,6 +141,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)0,
- 	},
- 	{
-+		/* Lewisburg PCH */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa226),
-+		.driver_data = (kernel_ulong_t)0,
-+	},
-+	{
- 		/* Gemini Lake */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x318e),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -1232,6 +1232,12 @@ int mmc_attach_sd(struct mmc_host *host)
+ 			goto err;
+ 	}
+ 
++	/*
++	 * Some SD cards claims an out of spec VDD voltage range. Let's treat
++	 * these bits as being in-valid and especially also bit7.
++	 */
++	ocr &= ~0x7FFF;
++
+ 	rocr = mmc_select_voltage(host, ocr);
+ 
+ 	/*
 
 
