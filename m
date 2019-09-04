@@ -2,94 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 533F8A80C3
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 13:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA3BA810F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 13:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbfIDLAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 07:00:03 -0400
-Received: from mga09.intel.com ([134.134.136.24]:39036 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727768AbfIDLAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 07:00:03 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 04:00:02 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,465,1559545200"; 
-   d="scan'208";a="173542759"
-Received: from gaia.fi.intel.com ([10.237.72.192])
-  by orsmga007.jf.intel.com with ESMTP; 04 Sep 2019 04:00:00 -0700
-Received: by gaia.fi.intel.com (Postfix, from userid 1000)
-        id 9BAB85C1E29; Wed,  4 Sep 2019 13:59:52 +0300 (EEST)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Jason Ekstrand <jason@jlekstrand.net>,
-        denys.kostin@globallogic.com, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915: Restore relaxed padding (OCL_OOB_SUPPRES_ENABLE) for skl+
-In-Reply-To: <20190904100707.7377-1-chris@chris-wilson.co.uk>
-References: <20190904100707.7377-1-chris@chris-wilson.co.uk>
-Date:   Wed, 04 Sep 2019 13:59:52 +0300
-Message-ID: <87tv9stjh3.fsf@gaia.fi.intel.com>
+        id S1727787AbfIDL1t convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 4 Sep 2019 07:27:49 -0400
+Received: from mail2.eaton.com ([192.104.67.3]:10400 "EHLO
+        simtcimsva02.etn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727351AbfIDL1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 07:27:49 -0400
+X-Greylist: delayed 402 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Sep 2019 07:27:48 EDT
+Received: from simtcimsva02.etn.com (simtcimsva02.etn.com [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 746F311A1B2;
+        Wed,  4 Sep 2019 07:21:00 -0400 (EDT)
+Received: from simtcimsva02.etn.com (simtcimsva02.etn.com [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6634011A073;
+        Wed,  4 Sep 2019 07:21:00 -0400 (EDT)
+Received: from LOUTCSGWY02.napa.ad.etn.com (loutcsgwy02.napa.ad.etn.com [151.110.126.85])
+        by simtcimsva02.etn.com (Postfix) with ESMTPS;
+        Wed,  4 Sep 2019 07:21:00 -0400 (EDT)
+Received: from LOUTCSHUB01.napa.ad.etn.com (151.110.40.74) by
+ LOUTCSGWY02.napa.ad.etn.com (151.110.126.85) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Wed, 4 Sep 2019 07:20:26 -0400
+Received: from SIMTCSMB12.napa.ad.etn.com ([::1]) by
+ LOUTCSHUB01.napa.ad.etn.com ([::1]) with mapi id 14.03.0415.000; Wed, 4 Sep
+ 2019 07:20:25 -0400
+From:   "Sonawane, Aashish P" <AashishPSonawane@eaton.com>
+To:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@free-electrons.com" 
+        <alexandre.belloni@free-electrons.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Saitwal, Meghan" <MeghanSaitwal@Eaton.com>
+Subject: [PATCH] rtc : Restricting year setting between 2000 to 2099 in
+ rtc-s35390a driver
+Thread-Topic: [PATCH] rtc : Restricting year setting between 2000 to 2099 in
+ rtc-s35390a driver
+Thread-Index: AdVjEakndAUJ/G1PSCGp98YjfVTSGw==
+Date:   Wed, 4 Sep 2019 11:20:26 +0000
+Message-ID: <29075B3123F59F41878316669231A55F0A9ED945@SIMTCSMB12.napa.ad.etn.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [151.110.231.185]
+x-tm-snts-smtp: DE2A5C5FFEA5AF39B9B7573E39A4D8EF037758E2BDEA8EB9A7E08C81A00380D02002:8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: 96b59d02-bc1a-4a40-8c96-611cac62bce9
+X-TM-AS-GCONF: 00
+X-TM-AS-Product-Ver: IMSVA-9.1.0.1817-8.5.0.1020-24888.006
+X-TM-AS-Result: No--4.366-10.0-31-10
+X-imss-scan-details: No--4.366-10.0-31-10
+X-TMASE-Version: IMSVA-9.1.0.1817-8.5.1020-24888.006
+X-TMASE-Result: 10--4.366300-10.000000
+X-TMASE-MatchedRID: ISENigBxYLt/ypuWOFMTEIH8AMdkLp7wou859sScIYo9O5uWt1X9I7kI
+        QUnODKj7olMF7w4ybQB7QrEqZ4257HrSP9RtGZYoUeavKZUnS5Agdghl533NdWMunwKby/AXQBz
+        oPKhLasiPqQJ9fQR1zq0vWYxKe6/Xfp+cLMwbvJmeAiCmPx4NwNivpTdmVCR2xEHRux+uk8ifEz
+        J5hPndGctg3lGpBvECHLiJhZDfPBIHmiatbLFZ3Bcn1L3wcRQvPLQoQj+Xsh47eat77j5N5kZvo
+        0MC1aBazliwi7EhOmceLG/J8mvSqxWsXlpwkvGbJb0gFsgtzp3jqmC1xdPTdfJ3vDpc0p9BVlxr
+        1FJij9s=
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-12:0,22:0,33:0,34:0-0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-> This bit was fliped on for "syncing dependencies between camera and
-> graphics". BSpec has no recollection why, and it is causing
-> unrecoverable GPU hangs with Vulkan compute workloads.
->
-> From BSpec, setting bit5 to 0 enables relaxed padding requiremets for
-> buffers, 1D and 2D non-array, non-MSAA, non-mip-mapped linear surfaces;
-> and *must* be set to 0h on skl+ to ensure "Out of Bounds" case is
-> suppressed.
->
-> Reported-by: Jason Ekstrand <jason@jlekstrand.net>
-> Suggested-by: Jason Ekstrand <jason@jlekstrand.net>
-> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110998
-> Fixes: 8424171e135c ("drm/i915/gen9: h/w w/a: syncing dependencies between camera and graphics")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Tested-by: denys.kostin@globallogic.com
-> Cc: Jason Ekstrand <jason@jlekstrand.net>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v4.1+
+S-35390A RTC chip allows to set the lower two digit of the Western calendar year (00 to 99) and links together with the auto calendar from the year 2000 to the year 2099. If we try to set year earlier than 2000 then hardware clock get reset to "epoch". This patch check for year value between 2000 to 2099 otherwise returns "EINVAL" error. In conclusion this patch restricts system to set hardware clock to set year below and above the year 2000 and 2099 respectively.
 
-The bug and especially #110228 was like a good detective story.
-But one step left the reader curious: from the compute shader
-reproducer the territory to search for was shrunk to gpgpu
-workarounds. Was the rest brute force or how did you end up
-with this particular one?
-
-Great that it got nailed! Thanks everyone,
-
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-
-> ---
->  drivers/gpu/drm/i915/gt/intel_workarounds.c | 5 -----
->  1 file changed, 5 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> index 8639fcccdb42..243d3f77be13 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> @@ -297,11 +297,6 @@ static void gen9_ctx_workarounds_init(struct intel_engine_cs *engine,
->  			  FLOW_CONTROL_ENABLE |
->  			  PARTIAL_INSTRUCTION_SHOOTDOWN_DISABLE);
->  
-> -	/* Syncing dependencies between camera and graphics:skl,bxt,kbl */
-> -	if (!IS_COFFEELAKE(i915))
-> -		WA_SET_BIT_MASKED(HALF_SLICE_CHICKEN3,
-> -				  GEN9_DISABLE_OCL_OOB_SUPPRESS_LOGIC);
-> -
->  	/* WaEnableYV12BugFixInHalfSliceChicken7:skl,bxt,kbl,glk,cfl */
->  	/* WaEnableSamplerGPGPUPreemptionSupport:skl,bxt,kbl,cfl */
->  	WA_SET_BIT_MASKED(GEN9_HALF_SLICE_CHICKEN7,
-> -- 
-> 2.23.0
+Signed-off-by: Aashish P Sonawane mailto:AashishPSonawane@eaton.com
+Suggested-by: Meghan Saitwal mailto:MeghanSaitwal@eaton.com
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 84806ff763cf..aea52548571e 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -214,6 +214,9 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	int i, err;
+ 	char buf[7], status;
+ 
++	if (tm->tm_year < 100 || tm->tm_year > 199)
++		return EINVAL;
++
+ 	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d mday=%d, "
+ 		"mon=%d, year=%d, wday=%d\n", __func__, tm->tm_sec,
+ 		tm->tm_min, tm->tm_hour, tm->tm_mday, tm->tm_mon, tm->tm_year,
