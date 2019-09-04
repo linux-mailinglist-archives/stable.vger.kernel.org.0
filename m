@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBB4A8B0B
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90623A8BF2
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733049AbfIDQBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
+        id S1732041AbfIDQIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733034AbfIDQBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:01:36 -0400
+        id S1733048AbfIDQBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:01:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1B0522DBF;
-        Wed,  4 Sep 2019 16:01:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E535823402;
+        Wed,  4 Sep 2019 16:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612895;
-        bh=YCbJWmgXpHdId8qXx5vigkxw/6rPH3pPDrQo4IJ0zyw=;
+        s=default; t=1567612896;
+        bh=XFNuF7uzs1Qn5arkiQ4mGqElYb+I6FDtsCAORgQUYos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toFMBRVOPaJ3Ev3rXjoSVgUXqSVuSMGDiseOf87eh+UYGM0tzRdkbHAnLiPTt2enA
-         pq4EcEMRD3cH8sMlYZ06o5hJw9/pEq0MgqgaYptfdc6mqqnE+JfGuG026x9e7lVqIF
-         tnXk+btFlyAV1Oko8Cp7hKIbG35WUq5nd/vU94m0=
+        b=fDy1wvTygzZo6z9wqNY4waAwM4lmxBFxDlKu5MgK4VchnfFVyQrSO7Ot/LNIY+moB
+         B7SeRZKcpmT4PmMNYNDQtR93qZOD9nWN5QCF55pvYPBFI9N+9vYzCuIhoF/U535UN+
+         6Pym3y1tFpFyKC/9y6380KrK3KfwdRasGy4hzGSE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/36] NFS: Fix initialisation of I/O result struct in nfs_pgio_rpcsetup
-Date:   Wed,  4 Sep 2019 12:00:57 -0400
-Message-Id: <20190904160122.4179-11-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/36] Kconfig: Fix the reference to the IDT77105 Phy driver in the description of ATM_NICSTAR_USE_IDT77105
+Date:   Wed,  4 Sep 2019 12:00:58 -0400
+Message-Id: <20190904160122.4179-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160122.4179-1-sashal@kernel.org>
 References: <20190904160122.4179-1-sashal@kernel.org>
@@ -42,34 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 17d8c5d145000070c581f2a8aa01edc7998582ab ]
+[ Upstream commit cd9d4ff9b78fcd0fc4708900ba3e52e71e1a7690 ]
 
-Initialise the result count to 0 rather than initialising it to the
-argument count. The reason is that we want to ensure we record the
-I/O stats correctly in the case where an error is returned (for
-instance in the layoutstats).
+This should be IDT77105, not IDT77015.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c | 2 +-
+ drivers/atm/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 28b013d1d44ae..7367e9fa54d77 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -566,7 +566,7 @@ static void nfs_pgio_rpcsetup(struct nfs_pgio_header *hdr,
- 	}
+diff --git a/drivers/atm/Kconfig b/drivers/atm/Kconfig
+index 2e2efa577437e..8c37294f1d1ee 100644
+--- a/drivers/atm/Kconfig
++++ b/drivers/atm/Kconfig
+@@ -200,7 +200,7 @@ config ATM_NICSTAR_USE_SUNI
+ 	  make the card work).
  
- 	hdr->res.fattr   = &hdr->fattr;
--	hdr->res.count   = count;
-+	hdr->res.count   = 0;
- 	hdr->res.eof     = 0;
- 	hdr->res.verf    = &hdr->verf;
- 	nfs_fattr_init(&hdr->fattr);
+ config ATM_NICSTAR_USE_IDT77105
+-	bool "Use IDT77015 PHY driver (25Mbps)"
++	bool "Use IDT77105 PHY driver (25Mbps)"
+ 	depends on ATM_NICSTAR
+ 	help
+ 	  Support for the PHYsical layer chip in ForeRunner LE25 cards. In
 -- 
 2.20.1
 
