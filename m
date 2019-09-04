@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2137AA8107
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 13:25:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F99FA811F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 13:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728843AbfIDLZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 07:25:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46668 "EHLO mail.kernel.org"
+        id S1727900AbfIDLdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 07:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726010AbfIDLZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 07:25:45 -0400
+        id S1726240AbfIDLdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 07:33:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4841822CED;
-        Wed,  4 Sep 2019 11:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B69422CED;
+        Wed,  4 Sep 2019 11:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567596343;
-        bh=dolb8m3J3z2vHspJ/JndUIK/ne3QQI17GfuNvUr0CfY=;
+        s=default; t=1567596798;
+        bh=TWRlXgq3LQnDveo3qWx1/PbXtve/cpwiDj3A58NmRNY=;
         h=Subject:To:From:Date:From;
-        b=H9PG8cuHDkZ0ly0GLpwb8rj7G8z7UuSumWhlcM98H4kgfo2pMszPNU69DnEwVpLqR
-         0hPIj46tuePX5RyhVLotsDj4RPjzr7GmEkqLxhxV/oIWbUkx7V7AwaEiRmC5fSoJmh
-         6fmj4ze+D42AQUTXlv019LgsqxXJfCu0XuS9H7ys=
-Subject: patch "firmware: google: check if size is valid when decoding VPD data" added to char-misc-testing
-To:     hungte@chromium.org, gregkh@linuxfoundation.org,
-        linux@roeck-us.net, stable@vger.kernel.org, swboyd@chromium.org
+        b=ZMut0A5ubJPxSaLbICNq9Sa4TaStTzTSe0O2/Va5KYyRnnDd/l2+k/HfltDGepivE
+         XYji/tp3kG0lX8DYNqI/+tktC7GSWiGYFkR7e0c3U1rA3mX2zB7csFE9ufEB9zy/qb
+         r5Dn8TipCjkMSmqW/X6qiS5FDDCjtoKxTpPEa6Uo=
+Subject: patch "/dev/mem: Bail out upon SIGKILL." added to char-misc-testing
+To:     penguin-kernel@I-love.SAKURA.ne.jp, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org,
+        syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Sep 2019 13:25:41 +0200
-Message-ID: <15675963413133@kroah.com>
+Date:   Wed, 04 Sep 2019 13:32:55 +0200
+Message-ID: <15675967751153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    firmware: google: check if size is valid when decoding VPD data
+    /dev/mem: Bail out upon SIGKILL.
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,165 +56,114 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From d616b75cb793a0707345ccf4c6f239b6d16e1e5b Mon Sep 17 00:00:00 2001
-From: Hung-Te Lin <hungte@chromium.org>
-Date: Fri, 30 Aug 2019 10:23:58 +0800
-Subject: firmware: google: check if size is valid when decoding VPD data
+From 8619e5bdeee8b2c685d686281f2d2a6017c4bc15 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Mon, 26 Aug 2019 22:13:25 +0900
+Subject: /dev/mem: Bail out upon SIGKILL.
 
-The VPD implementation from Chromium Vital Product Data project used to
-parse data from untrusted input without checking if the meta data is
-invalid or corrupted. For example, the size from decoded content may
-be negative value, or larger than whole input buffer. Such invalid data
-may cause buffer overflow.
+syzbot found that a thread can stall for minutes inside read_mem() or
+write_mem() after that thread was killed by SIGKILL [1]. Reading from
+iomem areas of /dev/mem can be slow, depending on the hardware.
+While reading 2GB at one read() is legal, delaying termination of killed
+thread for minutes is bad. Thus, allow reading/writing /dev/mem and
+/dev/kmem to be preemptible and killable.
 
-To fix that, the size parameters passed to vpd_decode functions should
-be changed to unsigned integer (u32) type, and the parsing of entry
-header should be refactored so every size field is correctly verified
-before starting to decode.
+  [ 1335.912419][T20577] read_mem: sz=4096 count=2134565632
+  [ 1335.943194][T20577] read_mem: sz=4096 count=2134561536
+  [ 1335.978280][T20577] read_mem: sz=4096 count=2134557440
+  [ 1336.011147][T20577] read_mem: sz=4096 count=2134553344
+  [ 1336.041897][T20577] read_mem: sz=4096 count=2134549248
 
-Fixes: ad2ac9d5c5e0 ("firmware: Google VPD: import lib_vpd source files")
-Signed-off-by: Hung-Te Lin <hungte@chromium.org>
+Theoretically, reading/writing /dev/mem and /dev/kmem can become
+"interruptible". But this patch chose "killable". Future patch will make
+them "interruptible" so that we can revert to "killable" if some program
+regressed.
+
+[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20190830022402.214442-1-hungte@chromium.org
+Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
+Link: https://lore.kernel.org/r/1566825205-10703-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/google/vpd.c        |  4 +-
- drivers/firmware/google/vpd_decode.c | 55 ++++++++++++++++------------
- drivers/firmware/google/vpd_decode.h |  6 +--
- 3 files changed, 37 insertions(+), 28 deletions(-)
+ drivers/char/mem.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/firmware/google/vpd.c b/drivers/firmware/google/vpd.c
-index 0739f3b70347..db0812263d46 100644
---- a/drivers/firmware/google/vpd.c
-+++ b/drivers/firmware/google/vpd.c
-@@ -92,8 +92,8 @@ static int vpd_section_check_key_name(const u8 *key, s32 key_len)
- 	return VPD_OK;
+diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+index b08dc50f9f26..9eb564c002f6 100644
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -97,6 +97,13 @@ void __weak unxlate_dev_mem_ptr(phys_addr_t phys, void *addr)
  }
+ #endif
  
--static int vpd_section_attrib_add(const u8 *key, s32 key_len,
--				  const u8 *value, s32 value_len,
-+static int vpd_section_attrib_add(const u8 *key, u32 key_len,
-+				  const u8 *value, u32 value_len,
- 				  void *arg)
- {
- 	int ret;
-diff --git a/drivers/firmware/google/vpd_decode.c b/drivers/firmware/google/vpd_decode.c
-index 92e3258552fc..dda525c0f968 100644
---- a/drivers/firmware/google/vpd_decode.c
-+++ b/drivers/firmware/google/vpd_decode.c
-@@ -9,8 +9,8 @@
- 
- #include "vpd_decode.h"
- 
--static int vpd_decode_len(const s32 max_len, const u8 *in,
--			  s32 *length, s32 *decoded_len)
-+static int vpd_decode_len(const u32 max_len, const u8 *in,
-+			  u32 *length, u32 *decoded_len)
- {
- 	u8 more;
- 	int i = 0;
-@@ -30,18 +30,39 @@ static int vpd_decode_len(const s32 max_len, const u8 *in,
- 	} while (more);
- 
- 	*decoded_len = i;
-+	return VPD_OK;
++static inline bool should_stop_iteration(void)
++{
++	if (need_resched())
++		cond_resched();
++	return fatal_signal_pending(current);
 +}
 +
-+static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
-+			    u32 *_consumed, const u8 **entry, u32 *entry_len)
-+{
-+	u32 decoded_len;
-+	u32 consumed = *_consumed;
-+
-+	if (vpd_decode_len(max_len - consumed, &input_buf[consumed],
-+			   entry_len, &decoded_len) != VPD_OK)
-+		return VPD_FAIL;
-+	if (max_len - consumed < decoded_len)
-+		return VPD_FAIL;
-+
-+	consumed += decoded_len;
-+	*entry = input_buf + consumed;
-+
-+	/* entry_len is untrusted data and must be checked again. */
-+	if (max_len - consumed < *entry_len)
-+		return VPD_FAIL;
- 
-+	consumed += decoded_len;
-+	*_consumed = consumed;
- 	return VPD_OK;
- }
- 
--int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
-+int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
- 		      vpd_decode_callback callback, void *callback_arg)
- {
- 	int type;
--	int res;
--	s32 key_len;
--	s32 value_len;
--	s32 decoded_len;
-+	u32 key_len;
-+	u32 value_len;
- 	const u8 *key;
- 	const u8 *value;
- 
-@@ -56,26 +77,14 @@ int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
- 	case VPD_TYPE_STRING:
- 		(*consumed)++;
- 
--		/* key */
--		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
--				     &key_len, &decoded_len);
--		if (res != VPD_OK || *consumed + decoded_len >= max_len)
-+		if (vpd_decode_entry(max_len, input_buf, consumed, &key,
-+				     &key_len) != VPD_OK)
- 			return VPD_FAIL;
- 
--		*consumed += decoded_len;
--		key = &input_buf[*consumed];
--		*consumed += key_len;
--
--		/* value */
--		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
--				     &value_len, &decoded_len);
--		if (res != VPD_OK || *consumed + decoded_len > max_len)
-+		if (vpd_decode_entry(max_len, input_buf, consumed, &value,
-+				     &value_len) != VPD_OK)
- 			return VPD_FAIL;
- 
--		*consumed += decoded_len;
--		value = &input_buf[*consumed];
--		*consumed += value_len;
--
- 		if (type == VPD_TYPE_STRING)
- 			return callback(key, key_len, value, value_len,
- 					callback_arg);
-diff --git a/drivers/firmware/google/vpd_decode.h b/drivers/firmware/google/vpd_decode.h
-index cf8c2ace155a..8dbe41cac599 100644
---- a/drivers/firmware/google/vpd_decode.h
-+++ b/drivers/firmware/google/vpd_decode.h
-@@ -25,8 +25,8 @@ enum {
- };
- 
- /* Callback for vpd_decode_string to invoke. */
--typedef int vpd_decode_callback(const u8 *key, s32 key_len,
--				const u8 *value, s32 value_len,
-+typedef int vpd_decode_callback(const u8 *key, u32 key_len,
-+				const u8 *value, u32 value_len,
- 				void *arg);
- 
  /*
-@@ -44,7 +44,7 @@ typedef int vpd_decode_callback(const u8 *key, s32 key_len,
-  * If one entry is successfully decoded, sends it to callback and returns the
-  * result.
-  */
--int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
-+int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
- 		      vpd_decode_callback callback, void *callback_arg);
+  * This funcion reads the *physical* memory. The f_pos points directly to the
+  * memory location.
+@@ -175,6 +182,8 @@ static ssize_t read_mem(struct file *file, char __user *buf,
+ 		p += sz;
+ 		count -= sz;
+ 		read += sz;
++		if (should_stop_iteration())
++			break;
+ 	}
+ 	kfree(bounce);
  
- #endif  /* __VPD_DECODE_H */
+@@ -251,6 +260,8 @@ static ssize_t write_mem(struct file *file, const char __user *buf,
+ 		p += sz;
+ 		count -= sz;
+ 		written += sz;
++		if (should_stop_iteration())
++			break;
+ 	}
+ 
+ 	*ppos += written;
+@@ -468,6 +479,10 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
+ 			read += sz;
+ 			low_count -= sz;
+ 			count -= sz;
++			if (should_stop_iteration()) {
++				count = 0;
++				break;
++			}
+ 		}
+ 	}
+ 
+@@ -492,6 +507,8 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
+ 			buf += sz;
+ 			read += sz;
+ 			p += sz;
++			if (should_stop_iteration())
++				break;
+ 		}
+ 		free_page((unsigned long)kbuf);
+ 	}
+@@ -544,6 +561,8 @@ static ssize_t do_write_kmem(unsigned long p, const char __user *buf,
+ 		p += sz;
+ 		count -= sz;
+ 		written += sz;
++		if (should_stop_iteration())
++			break;
+ 	}
+ 
+ 	*ppos += written;
+@@ -595,6 +614,8 @@ static ssize_t write_kmem(struct file *file, const char __user *buf,
+ 			buf += sz;
+ 			virtr += sz;
+ 			p += sz;
++			if (should_stop_iteration())
++				break;
+ 		}
+ 		free_page((unsigned long)kbuf);
+ 	}
 -- 
 2.23.0
 
