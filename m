@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 924CBA9040
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E4BA8F98
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389316AbfIDSId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51416 "EHLO mail.kernel.org"
+        id S2388536AbfIDSEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389416AbfIDSIa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:30 -0400
+        id S2389117AbfIDSEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:04:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A47920870;
-        Wed,  4 Sep 2019 18:08:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E71D206BA;
+        Wed,  4 Sep 2019 18:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620510;
-        bh=v7RqTjc0cQjE26WkD6A1sDJZ16ukhMrvFgBbBG/0VHw=;
+        s=default; t=1567620278;
+        bh=AlYrLLd2/oNTqAUY81/sN6/lWfyg0HvsynexbqdfeLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oz22GHq9cfxOqBl3cTMiDuZVS4AOX6WLuIKgiSuj6LEfhsCstjg7A7rjnmJGo4pLg
-         pUiVdGtA+ciKq5BnegRz4NFHeUL2g1H/OmZ/nqbuRGUQODKZqAf29FmF7PU+CHmXmB
-         76dS+O5m8iy8DQPjIqm1NVri5n/rwvxVHUHi6TJI=
+        b=iE4Yfawh76dePGnlD7h8yAgdSu6diNTqgo6Psi4usPlrn1Um4KEFEFZXyTwgVjZxO
+         bM/eHhba7wQqR5y15lwO2CaEvwiPKMaUpAbfp3xa0tdkU5takLVjgw8mA3unJw3DnS
+         n/sYD4Iu7GThuelLmtOLa3z4z755vl5rWxP9RlEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 83/93] mac80211: Correctly set noencrypt for PAE frames
+        stable@vger.kernel.org, Brad Spengler <spender@grsecurity.net>,
+        Dianzhang Chen <dianzhangchen0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        hpa@zytor.com
+Subject: [PATCH 4.14 57/57] x86/ptrace: fix up botched merge of spectrev1 fix
 Date:   Wed,  4 Sep 2019 19:54:25 +0200
-Message-Id: <20190904175310.288286492@linuxfoundation.org>
+Message-Id: <20190904175307.682768555@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175301.777414715@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kenzior <denkenz@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit f8b43c5cf4b62a19f2210a0f5367b84e1eff1ab9 upstream.
+I incorrectly merged commit 31a2fbb390fe ("x86/ptrace: Fix possible
+spectre-v1 in ptrace_get_debugreg()") when backporting it, as was
+graciously pointed out at
+https://grsecurity.net/teardown_of_a_failed_linux_lts_spectre_fix.php
 
-The noencrypt flag was intended to be set if the "frame was received
-unencrypted" according to include/uapi/linux/nl80211.h.  However, the
-current behavior is opposite of this.
+Resolve the upstream difference with the stable kernel merge to properly
+protect things.
 
-Cc: stable@vger.kernel.org
-Fixes: 018f6fbf540d ("mac80211: Send control port frames over nl80211")
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Link: https://lore.kernel.org/r/20190827224120.14545-3-denkenz@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Brad Spengler <spender@grsecurity.net>
+Cc: Dianzhang Chen <dianzhangchen0@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <bp@alien8.de>
+Cc: <hpa@zytor.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/mac80211/rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/ptrace.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2372,7 +2372,7 @@ static void ieee80211_deliver_skb_to_loc
- 		      skb->protocol == cpu_to_be16(ETH_P_PREAUTH)) &&
- 		     sdata->control_port_over_nl80211)) {
- 		struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
--		bool noencrypt = status->flag & RX_FLAG_DECRYPTED;
-+		bool noencrypt = !(status->flag & RX_FLAG_DECRYPTED);
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -652,11 +652,10 @@ static unsigned long ptrace_get_debugreg
+ {
+ 	struct thread_struct *thread = &tsk->thread;
+ 	unsigned long val = 0;
+-	int index = n;
  
- 		cfg80211_rx_control_port(dev, skb, noencrypt);
- 		dev_kfree_skb(skb);
+ 	if (n < HBP_NUM) {
++		int index = array_index_nospec(n, HBP_NUM);
+ 		struct perf_event *bp = thread->ptrace_bps[index];
+-		index = array_index_nospec(index, HBP_NUM);
+ 
+ 		if (bp)
+ 			val = bp->hw.info.address;
 
 
