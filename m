@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B73B6A9033
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B956A9133
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389747AbfIDSIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:08:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
+        id S2390680AbfIDSOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:14:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389738AbfIDSIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:08:15 -0400
+        id S2390723AbfIDSOE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:14:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DF522CF7;
-        Wed,  4 Sep 2019 18:08:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 695F32377D;
+        Wed,  4 Sep 2019 18:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620494;
-        bh=yOuuWbnzDzrVFrx19MYF+nHUQbpLTEStOdeaKYBpv9I=;
+        s=default; t=1567620843;
+        bh=q/Q98mTmjJE0fgH0yLTvh1vWm8492fvE23onap9JWA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h02Ij7fSvwrQ7rKE+Yqv71L2AbErKJHKYR84atldlzwYo5DP3Mqev2vfVC7tzzyne
-         Mplcj/UX9vmxVNsS74+9tdByPGC7NV9QUp1WDcnImhPM47pMghVNPJwZLbB43LJHvD
-         9TTe2NSEfQdk3OGW4FsfqsBW+Gt1y7nzQ1JOBxd8=
+        b=bjF5v434YHaZss1GbfE2uizst1S6r6KIZunql9XP0reFF+WtDkxYZy1+cxerVGBQo
+         9IMYLyWII6Bl+X8iiavFiK06qGtZVPx5WD6VLCZdEA7rn0v3Ok4cx8OXMIK0RclzlR
+         gh3osh27KigMjS1KKFNewq8ANiPqnhXmafcNI7MQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Adit Ranadive <aditr@vmware.com>,
         Alexios Zavras <alexios.zavras@intel.com>,
         Vishnu DASA <vdasa@vmware.com>, Nadav Amit <namit@vmware.com>
-Subject: [PATCH 4.19 78/93] VMCI: Release resource if the work is already queued
+Subject: [PATCH 5.2 117/143] VMCI: Release resource if the work is already queued
 Date:   Wed,  4 Sep 2019 19:54:20 +0200
-Message-Id: <20190904175309.832604859@linuxfoundation.org>
+Message-Id: <20190904175318.977217542@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/misc/vmw_vmci/vmci_doorbell.c
 +++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -318,7 +318,8 @@ int vmci_dbell_host_context_notify(u32 s
+@@ -310,7 +310,8 @@ int vmci_dbell_host_context_notify(u32 s
  
  	entry = container_of(resource, struct dbell_entry, resource);
  	if (entry->run_delayed) {
@@ -123,7 +123,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	} else {
  		entry->notify_cb(entry->client_data);
  		vmci_resource_put(resource);
-@@ -366,7 +367,8 @@ static void dbell_fire_entries(u32 notif
+@@ -361,7 +362,8 @@ static void dbell_fire_entries(u32 notif
  		    atomic_read(&dbell->active) == 1) {
  			if (dbell->run_delayed) {
  				vmci_resource_get(&dbell->resource);
