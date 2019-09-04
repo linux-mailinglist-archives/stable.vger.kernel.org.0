@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E196BA8FE0
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FD7A90DA
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389418AbfIDSGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:06:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48282 "EHLO mail.kernel.org"
+        id S2390049AbfIDSMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389414AbfIDSGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:06:20 -0400
+        id S1731429AbfIDSMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FA6F233FF;
-        Wed,  4 Sep 2019 18:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C56C2087E;
+        Wed,  4 Sep 2019 18:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620379;
-        bh=JxnV7Tjf5ViCpK3hkF1FF4rvKTigY7AmnKFNREg/YRw=;
+        s=default; t=1567620728;
+        bh=koAIJkUdUSSuqVjfYC76UrPAJthYulamgGKUFle+VMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WptQtUWClj9vGf5NEqVFbucX0hEdnqi0LHdgFJ6stSYbkPc9tSZYsMzFzF/DJzdfe
-         b9L8W+IEDf84oQ3ZbHftAvqROGAFbRalKOBHLniw0wwD/uxxaCVO+34sC+pDlBaRrn
-         fVp7Pruu1yPYpzR8M8WtRQgMj+XS0nWpIqI1uVF8=
+        b=KbjHXUjWCGI4M3fHvd4A4kBSgYhUHFXpremCSCoN8wf5DkC6fG3Y1nihw/NyOhfM/
+         tctQdmto+k5ljMVn29XDIu1/ZUKsTdIiHfzCzuCvGYg/JFEk1msKKCFss8kP6qI/SC
+         z4WtkDyDsc1LFZFHWHvY5tHXlxzQ0mgqO6yVXfxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 35/93] ipv6: Default fib6_type to RTN_UNICAST when not set
+        stable@vger.kernel.org,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 074/143] HID: logitech-hidpp: remove support for the G700 over USB
 Date:   Wed,  4 Sep 2019 19:53:37 +0200
-Message-Id: <20190904175306.324861996@linuxfoundation.org>
+Message-Id: <20190904175316.949077684@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+[ Upstream commit a3384b8d9f63cc042711293bb97bdc92dca0391d ]
 
-[ Upstream commit c7036d97acd2527cef145b5ef9ad1a37ed21bbe6 ]
+The G700 suffers from the same issue than the G502:
+when plugging it in, the driver tries to contact it but it fails.
 
-A user reported that routes are getting installed with type 0 (RTN_UNSPEC)
-where before the routes were RTN_UNICAST. One example is from accel-ppp
-which apparently still uses the ioctl interface and does not set
-rtmsg_type. Another is the netlink interface where ipv6 does not require
-rtm_type to be set (v4 does). Prior to the commit in the Fixes tag the
-ipv6 stack converted type 0 to RTN_UNICAST, so restore that behavior.
+This timeout is problematic as it introduce a delay in the boot,
+and having only the mouse event node means that the hardware
+macros keys can not be relayed to the userspace.
 
-Fixes: e8478e80e5a7 ("net/ipv6: Save route type in rt6_info")
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/libratbag/libratbag/issues/797
+Fixes: 91cf9a98ae41 ("HID: logitech-hidpp: make .probe usbhid capable")
+Cc: stable@vger.kernel.org # v5.2
+Reviewed-by: Filipe Laíns <lains@archlinux.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-logitech-hidpp.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -3109,7 +3109,7 @@ static struct fib6_info *ip6_route_info_
- 	rt->fib6_metric = cfg->fc_metric;
- 	rt->fib6_nh.nh_weight = 1;
- 
--	rt->fib6_type = cfg->fc_type;
-+	rt->fib6_type = cfg->fc_type ? : RTN_UNICAST;
- 
- 	/* We cannot add true routes via loopback here,
- 	   they would result in kernel looping; promote them to reject routes
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 34e2b3f9d540d..4effce12607b0 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3769,8 +3769,6 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC332) },
+ 	{ /* Logitech G502 Hero Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08B) },
+-	{ /* Logitech G700 Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
+ 	{ /* Logitech G700s Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07C) },
+ 	{ /* Logitech G703 Gaming Mouse over USB */
+-- 
+2.20.1
+
 
 
