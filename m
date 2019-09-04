@@ -2,139 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC37FA845E
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 15:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB875A88CD
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729649AbfIDNTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 09:19:07 -0400
-Received: from mga05.intel.com ([192.55.52.43]:29334 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727900AbfIDNTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 09:19:07 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 06:19:06 -0700
-X-IronPort-AV: E=Sophos;i="5.64,467,1559545200"; 
-   d="scan'208";a="176940991"
-Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.161])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Sep 2019 06:19:02 -0700
-From:   Jani Nikula <jani.nikula@linux.intel.com>
-To:     Baolin Wang <baolin.wang@linaro.org>, stable@vger.kernel.org,
-        chris@chris-wilson.co.uk, airlied@linux.ie
-Cc:     vincent.guittot@linaro.org, arnd@arndb.de, baolin.wang@linaro.org,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, orsonzhai@gmail.com
-Subject: Re: [BACKPORT 4.14.y 1/8] drm/i915/fbdev: Actually configure untiled displays
-In-Reply-To: <5723d9006de706582fb46f9e1e3eb8ce168c2126.1567492316.git.baolin.wang@linaro.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <cover.1567492316.git.baolin.wang@linaro.org> <5723d9006de706582fb46f9e1e3eb8ce168c2126.1567492316.git.baolin.wang@linaro.org>
-Date:   Wed, 04 Sep 2019 16:18:59 +0300
-Message-ID: <878sr442t8.fsf@intel.com>
+        id S1730869AbfIDO3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 10:29:15 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:33484 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730856AbfIDO3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 10:29:15 -0400
+Received: by mail-io1-f66.google.com with SMTP id m11so12649601ioo.0
+        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 07:29:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=86LLseH/t09g4NPnOuPe4jSXsf4yEGfetaMdrOp9+RM=;
+        b=Tjv0OcYMRCSImG27PgxeYJD0ZBCaXOwtnomOLj1jdVZtBarve9VCP2d7er8DqKlAMh
+         Ndh+ZhoJwGwJeGREJ22Uqdbc85mnVioVYqrp17wu1AluZWZuNcFY3+Hoa1TQIVLGjIgG
+         CcBg1IsCi8FMqljIdXjfdQZkbcUoB6YQEYbAU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=86LLseH/t09g4NPnOuPe4jSXsf4yEGfetaMdrOp9+RM=;
+        b=lWwael/yiOCPHpedRN6JXyrFUAGnW8zLXy2ChgfbJbfZMtsf07GF0BQdJKHpNrLriJ
+         41eXWxlFu6mwykBb1BJEsllVpALuxOtNi9qVLUuJftoVtmlo8aKyCFyXldayK8GnPOm2
+         21H/lXy65o+wre1DUdW5Etnz+e72agU4tFJhzyCX1LdZCsWJ1ay70uFuQX/sH7v7GsMa
+         MSvRP8hTFsIO27b4spFcm9i2Ybddfy70GRvtKt6mueqNIAyeWUiCos9rtQ52QkvIb7rL
+         JSHBRsR2vHMzuL8SiPS+gz7mK76/Py6VK/lPdRKDnYfaBoKQKj+YPBbQIz0/pZ+cDtKd
+         fA9A==
+X-Gm-Message-State: APjAAAULK8JbNo5cQ8zil5twkXbgJtvOeXrr0dS/kEG8sEbeoLRslFpb
+        khYDX6h74q6aK8lmQRg+fxnLfd6gCtfgM7UIzSJejA==
+X-Google-Smtp-Source: APXvYqx3Ha9D6n/Vktk91NeREgHLVCn3Ymh/BQUNUrX9uIYCqkuLIbgstgCc+hRqlMhKLJRazrmnOQl4UCf6G7kvL1Y=
+X-Received: by 2002:a05:6602:24ca:: with SMTP id h10mr18428791ioe.63.1567607354499;
+ Wed, 04 Sep 2019 07:29:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <0000000000008d8eac05906691ac@google.com> <20190822233529.4176-1-ebiggers@kernel.org>
+ <CAJfpegvHgcZGFi-Ydyo2j89zQxqAtZ1Lh0+vC6vWeU-aEFZkYQ@mail.gmail.com> <20190903133910.GA5144@zzz.localdomain>
+In-Reply-To: <20190903133910.GA5144@zzz.localdomain>
+From:   Miklos Szeredi <miklos@szeredi.hu>
+Date:   Wed, 4 Sep 2019 16:29:03 +0200
+Message-ID: <CAJfpegtrkxAYq4_rXVNEhe=6SFCfXGgpNVtaiuyfSdh+kthazA@mail.gmail.com>
+Subject: Re: [PATCH] fuse: disable irqs for fuse_iqueue::waitq.lock
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org, linux-aio <linux-aio@kvack.org>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 03 Sep 2019, Baolin Wang <baolin.wang@linaro.org> wrote:
-> From: Chris Wilson <chris@chris-wilson.co.uk>
+On Tue, Sep 3, 2019 at 3:39 PM Eric Biggers <ebiggers@kernel.org> wrote:
 >
-> If we skipped all the connectors that were not part of a tile, we would
-> leave conn_seq=0 and conn_configured=0, convincing ourselves that we
-> had stagnated in our configuration attempts. Avoid this situation by
-> starting conn_seq=ALL_CONNECTORS, and repeating until we find no more
-> connectors to configure.
+> On Tue, Sep 03, 2019 at 09:31:29AM +0200, Miklos Szeredi wrote:
+> > On Fri, Aug 23, 2019 at 1:35 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> > >
+> > > From: Eric Biggers <ebiggers@google.com>
+> > >
+> > > When IOCB_CMD_POLL is used on the FUSE device, aio_poll() disables IRQs
+> > > and takes kioctx::ctx_lock, then fuse_iqueue::waitq.lock.
+> >
+> > Not in -linus.
+> >
+> > Which tree was this reproduced with?
+> >
+> > Thanks,
+> > Miklos
 >
-> Fixes: 754a76591b12 ("drm/i915/fbdev: Stop repeating tile configuration on stagnation")
-> Reported-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20190215123019.32283-1-chris@chris-wilson.co.uk
-> Cc: <stable@vger.kernel.org> # v3.19+
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> Linus's tree.  Here's the full symbolized output on v5.3-rc7:
 
-Please look into the scripts to avoid picking up stuff that has
-subsequently been reverted:
+Okay.
 
-commit 9fa246256e09dc30820524401cdbeeaadee94025
-Author: Dave Airlie <airlied@redhat.com>
-Date:   Wed Apr 24 10:47:56 2019 +1000
+TBH, I find the fix disgusting. It's confusing to sprinke code that
+has absolutely nothing to do with interrupts with spin_lock_irq()
+calls.
 
-    Revert "drm/i915/fbdev: Actually configure untiled displays"
-    
-    This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
-    
-    This commit is documented to break userspace X.org modesetting driver in certain configurations.
-    
-    The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
-    
-    This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
-    
-    Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
-    Signed-off-by: Dave Airlie <airlied@redhat.com>
-    Cc: <stable@vger.kernel.org> # v3.19+
+I think the lock/unlock calls should at least be done with a helper
+with a comment explaining why disabling interrupts is needed (though I
+have not managed to understand why aio needs to actually mess with the
+waitq lock...)
 
+Probably a better fix would be to just use a separate spinlock to
+avoid the need to disable interrupts in cases where it's not
+necessary.
 
-
-BR,
-Jani.
-
-
-> ---
->  drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/intel_fbdev.c b/drivers/gpu/drm/i915/intel_fbdev.c
-> index da2d309..14eb8a0 100644
-> --- a/drivers/gpu/drm/i915/intel_fbdev.c
-> +++ b/drivers/gpu/drm/i915/intel_fbdev.c
-> @@ -326,8 +326,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
->  				    bool *enabled, int width, int height)
->  {
->  	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
-> -	unsigned long conn_configured, conn_seq, mask;
->  	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
-> +	unsigned long conn_configured, conn_seq;
->  	int i, j;
->  	bool *save_enabled;
->  	bool fallback = true, ret = true;
-> @@ -345,10 +345,9 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
->  		drm_modeset_backoff(&ctx);
->  
->  	memcpy(save_enabled, enabled, count);
-> -	mask = GENMASK(count - 1, 0);
-> +	conn_seq = GENMASK(count - 1, 0);
->  	conn_configured = 0;
->  retry:
-> -	conn_seq = conn_configured;
->  	for (i = 0; i < count; i++) {
->  		struct drm_fb_helper_connector *fb_conn;
->  		struct drm_connector *connector;
-> @@ -361,7 +360,8 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
->  		if (conn_configured & BIT(i))
->  			continue;
->  
-> -		if (conn_seq == 0 && !connector->has_tile)
-> +		/* First pass, only consider tiled connectors */
-> +		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
->  			continue;
->  
->  		if (connector->status == connector_status_connected)
-> @@ -465,8 +465,10 @@ static bool intel_fb_initial_config(struct drm_fb_helper *fb_helper,
->  		conn_configured |= BIT(i);
->  	}
->  
-> -	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
-> +	if (conn_configured != conn_seq) { /* repeat until no more are found */
-> +		conn_seq = conn_configured;
->  		goto retry;
-> +	}
->  
->  	/*
->  	 * If the BIOS didn't enable everything it could, fall back to have the
-
--- 
-Jani Nikula, Intel Open Source Graphics Center
+Thanks,
+Miklos
