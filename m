@@ -2,38 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5979FA8FFF
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088BFA8E6F
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388613AbfIDSHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49416 "EHLO mail.kernel.org"
+        id S1733230AbfIDR6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389556AbfIDSHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:07:05 -0400
+        id S2387966AbfIDR6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F69D2339E;
-        Wed,  4 Sep 2019 18:07:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80495208E4;
+        Wed,  4 Sep 2019 17:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620424;
-        bh=9hgMXgkNJzThjRfpCW8b9QSGAvBoey94nmv0IyNl+pk=;
+        s=default; t=1567619879;
+        bh=zoRprk2V8Tx3nRetmgk8Ms+4yAZgUhFm9LnvQgur+3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xo9ivCfx65afGBhZhGIdnirXjRxdSkfbV4bEQtnFiAGDMhMULFFxse5xF2U4+c3E7
-         zuKyOBy4t/B/osypKC1ORXv90FeNJfawMTsNkUOhdxZB9WGmVQk32C/8CumQUyE9hP
-         naCatF+Bqgw6Jqu58mZ223ODBE0EQsSmx/xD9kmY=
+        b=lzPAYsW0WUWbtB7JMCgQSDho5ry1gm3q2K0MU4o6uweFsJfvFSRRs8rWvKOnYeyD+
+         rNA3BXMmKBW4KoXait0NsWTWwQZ6AR+Z2tyAgK/RXPPm6SOECutSZRL1vhaTW6ZHe4
+         UeyY8VuAJJeEyQg2uSHHOLPssx+onVaBIVsHj7Ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Henk van der Laan <opensource@henkvdlaan.com>
-Subject: [PATCH 4.19 54/93] usb-storage: Add new JMS567 revision to unusual_devs
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        ricardo.neri@intel.com, Adrian Hunter <adrian.hunter@intel.com>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Huang Rui <ray.huang@amd.com>,
+        Qiaowei Ren <qiaowei.ren@intel.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jonathan Corbet <corbet@lwn.net>, Jiri Slaby <jslaby@suse.cz>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Ravi V. Shankar" <ravi.v.shankar@intel.com>,
+        Chris Metcalf <cmetcalf@mellanox.com>,
+        Brian Gerst <brgerst@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Chen Yucong <slaoub@gmail.com>,
+        Adam Buchbinder <adam.buchbinder@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Thomas Garnier <thgarnie@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 69/77] ptrace,x86: Make user_64bit_mode() available to 32-bit builds
 Date:   Wed,  4 Sep 2019 19:53:56 +0200
-Message-Id: <20190904175307.742090146@linuxfoundation.org>
+Message-Id: <20190904175309.806860827@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
-References: <20190904175302.845828956@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +70,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henk van der Laan <opensource@henkvdlaan.com>
+[ Upstream commit e27c310af5c05cf876d9cad006928076c27f54d4 ]
 
-commit 08d676d1685c2a29e4d0e1b0242324e564d4589e upstream.
+In its current form, user_64bit_mode() can only be used when CONFIG_X86_64
+is selected. This implies that code built with CONFIG_X86_64=n cannot use
+it. If a piece of code needs to be built for both CONFIG_X86_64=y and
+CONFIG_X86_64=n and wants to use this function, it needs to wrap it in
+an #ifdef/#endif; potentially, in multiple places.
 
-Revision 0x0117 suffers from an identical issue to earlier revisions,
-therefore it should be added to the quirks list.
+This can be easily avoided with a single #ifdef/#endif pair within
+user_64bit_mode() itself.
 
-Signed-off-by: Henk van der Laan <opensource@henkvdlaan.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190816200847.21366-1-opensource@henkvdlaan.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Suggested-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: ricardo.neri@intel.com
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: Huang Rui <ray.huang@amd.com>
+Cc: Qiaowei Ren <qiaowei.ren@intel.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Jiri Slaby <jslaby@suse.cz>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: "Ravi V. Shankar" <ravi.v.shankar@intel.com>
+Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Chen Yucong <slaoub@gmail.com>
+Cc: Adam Buchbinder <adam.buchbinder@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Lorenzo Stoakes <lstoakes@gmail.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Garnier <thgarnie@google.com>
+Link: https://lkml.kernel.org/r/1509135945-13762-4-git-send-email-ricardo.neri-calderon@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/ptrace.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2100,7 +2100,7 @@ UNUSUAL_DEV(  0x14cd, 0x6600, 0x0201, 0x
- 		US_FL_IGNORE_RESIDUE ),
+diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
+index 6271281f947d8..0d8e0831b1a07 100644
+--- a/arch/x86/include/asm/ptrace.h
++++ b/arch/x86/include/asm/ptrace.h
+@@ -121,9 +121,9 @@ static inline int v8086_mode(struct pt_regs *regs)
+ #endif
+ }
  
- /* Reported by Michael Büsch <m@bues.ch> */
--UNUSUAL_DEV(  0x152d, 0x0567, 0x0114, 0x0116,
-+UNUSUAL_DEV(  0x152d, 0x0567, 0x0114, 0x0117,
- 		"JMicron",
- 		"USB to ATA/ATAPI Bridge",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-#ifdef CONFIG_X86_64
+ static inline bool user_64bit_mode(struct pt_regs *regs)
+ {
++#ifdef CONFIG_X86_64
+ #ifndef CONFIG_PARAVIRT
+ 	/*
+ 	 * On non-paravirt systems, this is the only long mode CPL 3
+@@ -134,8 +134,12 @@ static inline bool user_64bit_mode(struct pt_regs *regs)
+ 	/* Headers are too twisted for this to go in paravirt.h. */
+ 	return regs->cs == __USER_CS || regs->cs == pv_info.extra_user_64bit_cs;
+ #endif
++#else /* !CONFIG_X86_64 */
++	return false;
++#endif
+ }
+ 
++#ifdef CONFIG_X86_64
+ #define current_user_stack_pointer()	current_pt_regs()->sp
+ #define compat_user_stack_pointer()	current_pt_regs()->sp
+ #endif
+-- 
+2.20.1
+
 
 
