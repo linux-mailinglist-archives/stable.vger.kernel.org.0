@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C223A90F0
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80F2A8E80
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390532AbfIDSMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
+        id S1733030AbfIDR6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 13:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733228AbfIDSMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:12:36 -0400
+        id S2387561AbfIDR6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 13:58:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F051722DBF;
-        Wed,  4 Sep 2019 18:12:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBD2B21883;
+        Wed,  4 Sep 2019 17:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620755;
-        bh=14iQgldzViVRn8tE+7lG39RHRXcTQqgPe5j2kcl9Zc8=;
+        s=default; t=1567619900;
+        bh=n0SsBDXlORyaEMZjSPgG0D44ZcsiD7lTVDrl99iuj5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pT71rmaKUOS2mgdxBkDW36tlmcB9TeItOvtFPxksfEJvWP97IgfsrbAcCH6GPfnfH
-         tAN1vaDOXbbH9Z49lGi/Z5i3HABon9bspZUPSXAUx4AVTJPdgjtAQ66Z2MUCklLI/v
-         iVvtDzia6lH8c69xk7QBarC8tObkkMlKTzMjOxKA=
+        b=G+ZsSVSySrYTOZXbXfF5K/lfAoyHx9KaWC/PeD1P2clmm9cO0luuIBA5dR2rL4IDG
+         6MhV4z75vXKg63Z08bDIQWJ+7/Im9VFem31KD9sMx+m07Cjdfv8h7hXVzDR7ihfdMN
+         UcwpvLEmcN7N0tKhL5QOKG444W3Wv7qK+i67q+9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.2 083/143] usb: host: ohci: fix a race condition between shutdown and irq
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jason Baron <jbaron@akamai.com>,
+        Vladimir Rutsky <rutsky@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 59/77] tcp: make sure EPOLLOUT wont be missed
 Date:   Wed,  4 Sep 2019 19:53:46 +0200
-Message-Id: <20190904175317.315814633@linuxfoundation.org>
+Message-Id: <20190904175308.865825691@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+References: <20190904175303.317468926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,134 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a349b95d7ca0cea71be4a7dac29830703de7eb62 upstream.
+[ Upstream commit ef8d8ccdc216f797e66cb4a1372f5c4c285ce1e4 ]
 
-This patch fixes an issue that the following error is
-possible to happen when ohci hardware causes an interruption
-and the system is shutting down at the same time.
+As Jason Baron explained in commit 790ba4566c1a ("tcp: set SOCK_NOSPACE
+under memory pressure"), it is crucial we properly set SOCK_NOSPACE
+when needed.
 
-[   34.851754] usb 2-1: USB disconnect, device number 2
-[   35.166658] irq 156: nobody cared (try booting with the "irqpoll" option)
-[   35.173445] CPU: 0 PID: 22 Comm: kworker/0:1 Not tainted 5.3.0-rc5 #85
-[   35.179964] Hardware name: Renesas Salvator-X 2nd version board based on r8a77965 (DT)
-[   35.187886] Workqueue: usb_hub_wq hub_event
-[   35.192063] Call trace:
-[   35.194509]  dump_backtrace+0x0/0x150
-[   35.198165]  show_stack+0x14/0x20
-[   35.201475]  dump_stack+0xa0/0xc4
-[   35.204785]  __report_bad_irq+0x34/0xe8
-[   35.208614]  note_interrupt+0x2cc/0x318
-[   35.212446]  handle_irq_event_percpu+0x5c/0x88
-[   35.216883]  handle_irq_event+0x48/0x78
-[   35.220712]  handle_fasteoi_irq+0xb4/0x188
-[   35.224802]  generic_handle_irq+0x24/0x38
-[   35.228804]  __handle_domain_irq+0x5c/0xb0
-[   35.232893]  gic_handle_irq+0x58/0xa8
-[   35.236548]  el1_irq+0xb8/0x180
-[   35.239681]  __do_softirq+0x94/0x23c
-[   35.243253]  irq_exit+0xd0/0xd8
-[   35.246387]  __handle_domain_irq+0x60/0xb0
-[   35.250475]  gic_handle_irq+0x58/0xa8
-[   35.254130]  el1_irq+0xb8/0x180
-[   35.257268]  kernfs_find_ns+0x5c/0x120
-[   35.261010]  kernfs_find_and_get_ns+0x3c/0x60
-[   35.265361]  sysfs_unmerge_group+0x20/0x68
-[   35.269454]  dpm_sysfs_remove+0x2c/0x68
-[   35.273284]  device_del+0x80/0x370
-[   35.276683]  hid_destroy_device+0x28/0x60
-[   35.280686]  usbhid_disconnect+0x4c/0x80
-[   35.284602]  usb_unbind_interface+0x6c/0x268
-[   35.288867]  device_release_driver_internal+0xe4/0x1b0
-[   35.293998]  device_release_driver+0x14/0x20
-[   35.298261]  bus_remove_device+0x110/0x128
-[   35.302350]  device_del+0x148/0x370
-[   35.305832]  usb_disable_device+0x8c/0x1d0
-[   35.309921]  usb_disconnect+0xc8/0x2d0
-[   35.313663]  hub_event+0x6e0/0x1128
-[   35.317146]  process_one_work+0x1e0/0x320
-[   35.321148]  worker_thread+0x40/0x450
-[   35.324805]  kthread+0x124/0x128
-[   35.328027]  ret_from_fork+0x10/0x18
-[   35.331594] handlers:
-[   35.333862] [<0000000079300c1d>] usb_hcd_irq
-[   35.338126] [<0000000079300c1d>] usb_hcd_irq
-[   35.342389] Disabling IRQ #156
+However, Jason patch had a bug, because the 'nonblocking' status
+as far as sk_stream_wait_memory() is concerned is governed
+by MSG_DONTWAIT flag passed at sendmsg() time :
 
-ohci_shutdown() disables all the interrupt and rh_state is set to
-OHCI_RH_HALTED. In other hand, ohci_irq() is possible to enable
-OHCI_INTR_SF and OHCI_INTR_MIE on ohci_irq(). Note that OHCI_INTR_SF
-is possible to be set by start_ed_unlink() which is called:
- ohci_irq()
-  -> process_done_list()
-   -> takeback_td()
-    -> start_ed_unlink()
+    long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
 
-So, ohci_irq() has the following condition, the issue happens by
-&ohci->regs->intrenable = OHCI_INTR_MIE | OHCI_INTR_SF and
-ohci->rh_state = OHCI_RH_HALTED:
+So it is very possible that tcp sendmsg() calls sk_stream_wait_memory(),
+and that sk_stream_wait_memory() returns -EAGAIN with SOCK_NOSPACE
+cleared, if sk->sk_sndtimeo has been set to a small (but not zero)
+value.
 
-	/* interrupt for some other device? */
-	if (ints == 0 || unlikely(ohci->rh_state == OHCI_RH_HALTED))
-		return IRQ_NOTMINE;
+This patch removes the 'noblock' variable since we must always
+set SOCK_NOSPACE if -EAGAIN is returned.
 
-To fix the issue, ohci_shutdown() holds the spin lock while disabling
-the interruption and changing the rh_state flag to prevent reenable
-the OHCI_INTR_MIE unexpectedly. Note that io_watchdog_func() also
-calls the ohci_shutdown() and it already held the spin lock, so that
-the patch makes a new function as _ohci_shutdown().
+It also renames the do_nonblock label since we might reach this
+code path even if we were in blocking mode.
 
-This patch is inspired by a Renesas R-Car Gen3 BSP patch
-from Tho Vu.
-
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1566877910-6020-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Fixes: 790ba4566c1a ("tcp: set SOCK_NOSPACE under memory pressure")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jason Baron <jbaron@akamai.com>
+Reported-by: Vladimir Rutsky  <rutsky@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Jason Baron <jbaron@akamai.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/host/ohci-hcd.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ net/core/stream.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/host/ohci-hcd.c
-+++ b/drivers/usb/host/ohci-hcd.c
-@@ -418,8 +418,7 @@ static void ohci_usb_reset (struct ohci_
-  * other cases where the next software may expect clean state from the
-  * "firmware".  this is bus-neutral, unlike shutdown() methods.
-  */
--static void
--ohci_shutdown (struct usb_hcd *hcd)
-+static void _ohci_shutdown(struct usb_hcd *hcd)
- {
- 	struct ohci_hcd *ohci;
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -119,7 +119,6 @@ int sk_stream_wait_memory(struct sock *s
+ 	int err = 0;
+ 	long vm_wait = 0;
+ 	long current_timeo = *timeo_p;
+-	bool noblock = (*timeo_p ? false : true);
+ 	DEFINE_WAIT(wait);
  
-@@ -435,6 +434,16 @@ ohci_shutdown (struct usb_hcd *hcd)
- 	ohci->rh_state = OHCI_RH_HALTED;
- }
+ 	if (sk_stream_memory_free(sk))
+@@ -132,11 +131,8 @@ int sk_stream_wait_memory(struct sock *s
  
-+static void ohci_shutdown(struct usb_hcd *hcd)
-+{
-+	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ohci->lock, flags);
-+	_ohci_shutdown(hcd);
-+	spin_unlock_irqrestore(&ohci->lock, flags);
-+}
-+
- /*-------------------------------------------------------------------------*
-  * HC functions
-  *-------------------------------------------------------------------------*/
-@@ -752,7 +761,7 @@ static void io_watchdog_func(struct time
-  died:
- 			usb_hc_died(ohci_to_hcd(ohci));
- 			ohci_dump(ohci);
--			ohci_shutdown(ohci_to_hcd(ohci));
-+			_ohci_shutdown(ohci_to_hcd(ohci));
- 			goto done;
- 		} else {
- 			/* No write back because the done queue was empty */
+ 		if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
+ 			goto do_error;
+-		if (!*timeo_p) {
+-			if (noblock)
+-				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+-			goto do_nonblock;
+-		}
++		if (!*timeo_p)
++			goto do_eagain;
+ 		if (signal_pending(current))
+ 			goto do_interrupted;
+ 		sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+@@ -168,7 +164,13 @@ out:
+ do_error:
+ 	err = -EPIPE;
+ 	goto out;
+-do_nonblock:
++do_eagain:
++	/* Make sure that whenever EAGAIN is returned, EPOLLOUT event can
++	 * be generated later.
++	 * When TCP receives ACK packets that make room, tcp_check_space()
++	 * only calls tcp_new_space() if SOCK_NOSPACE is set.
++	 */
++	set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 	err = -EAGAIN;
+ 	goto out;
+ do_interrupted:
 
 
