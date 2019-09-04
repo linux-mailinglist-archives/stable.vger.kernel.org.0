@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B321A9188
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BB1A8FDE
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731429AbfIDSRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 14:17:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56394 "EHLO mail.kernel.org"
+        id S2389060AbfIDSGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389848AbfIDSMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 14:12:06 -0400
+        id S2389009AbfIDSGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:06:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 986142339E;
-        Wed,  4 Sep 2019 18:12:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A27DC2341B;
+        Wed,  4 Sep 2019 18:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567620726;
-        bh=LUeoebDSkEmkqPZKQIgyABnmVp4brEV6jnYkhq/O4BY=;
+        s=default; t=1567620377;
+        bh=10SmcO7SscMmpFFI6wyywl1ZMi6GyIKfshtpKjOFLMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KntBZLugfoTdxV59w8na1C7LmiuqJ/BZR91nhO8ZseKUELnQ0yoFyZ+2u5vCYmzEu
-         YNOHiqUjz8XTO33aWbRE8TVZXz19FQ9ugnoum7aYDxbcvyJC+DITkwJV918zOUqwS/
-         1Mg8CF51WaXvBS01+rOOiDqHKp6RyiX6VtnqRr7g=
+        b=Ty3uHvett3K5ykwVcs8gp3bMiAKx10y6XWGUbRZWfdklvHsq3hwwNl/mdU/h2hrOF
+         ajNYQlA5A7N2ae/rLTK70J+rlZh95DJzdNhUru05/ZTbI2Cwgr21x8CzcjkFry6Grf
+         ASbBp+Yw78Xy4Vy9FrgMP+JuiEViLlCJMj+SK88E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bandan Das <bsd@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.2 073/143] x86/apic: Include the LDR when clearing out APIC registers
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 34/93] ipv6/addrconf: allow adding multicast addr if IFA_F_MCAUTOJOIN is set
 Date:   Wed,  4 Sep 2019 19:53:36 +0200
-Message-Id: <20190904175316.912884373@linuxfoundation.org>
+Message-Id: <20190904175306.241995841@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
-References: <20190904175314.206239922@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bandan Das <bsd@redhat.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 558682b5291937a70748d36fd9ba757fb25b99ae upstream.
+[ Upstream commit f17f7648a49aa6728649ddf79bdbcac4f1970ce4 ]
 
-Although APIC initialization will typically clear out the LDR before
-setting it, the APIC cleanup code should reset the LDR.
+In commit 93a714d6b53d ("multicast: Extend ip address command to enable
+multicast group join/leave on") we added a new flag IFA_F_MCAUTOJOIN
+to make user able to add multicast address on ethernet interface.
 
-This was discovered with a 32-bit KVM guest jumping into a kdump
-kernel. The stale bits in the LDR triggered a bug in the KVM APIC
-implementation which caused the destination mapping for VCPUs to be
-corrupted.
+This works for IPv4, but not for IPv6. See the inet6_addr_add code.
 
-Note that this isn't intended to paper over the KVM APIC bug. The kernel
-has to clear the LDR when resetting the APIC registers except when X2APIC
-is enabled.
+static int inet6_addr_add()
+{
+	...
+	if (cfg->ifa_flags & IFA_F_MCAUTOJOIN) {
+		ipv6_mc_config(net->ipv6.mc_autojoin_sk, true...)
+	}
 
-This lacks a Fixes tag because missing to clear LDR goes way back into pre
-git history.
+	ifp = ipv6_add_addr(idev, cfg, true, extack); <- always fail with maddr
+	if (!IS_ERR(ifp)) {
+		...
+	} else if (cfg->ifa_flags & IFA_F_MCAUTOJOIN) {
+		ipv6_mc_config(net->ipv6.mc_autojoin_sk, false...)
+	}
+}
 
-[ tglx: Made x2apic_enabled a function call as required ]
+But in ipv6_add_addr() it will check the address type and reject multicast
+address directly. So this feature is never worked for IPv6.
 
-Signed-off-by: Bandan Das <bsd@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190826101513.5080-3-bsd@redhat.com
+We should not remove the multicast address check totally in ipv6_add_addr(),
+but could accept multicast address only when IFA_F_MCAUTOJOIN flag supplied.
+
+v2: update commit description
+
+Fixes: 93a714d6b53d ("multicast: Extend ip address command to enable multicast group join/leave on")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/apic/apic.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv6/addrconf.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1152,6 +1152,10 @@ void clear_local_APIC(void)
- 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
- 	v = apic_read(APIC_LVT1);
- 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
-+	if (!x2apic_enabled()) {
-+		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
-+		apic_write(APIC_LDR, v);
-+	}
- 	if (maxlvt >= 4) {
- 		v = apic_read(APIC_LVTPC);
- 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -995,7 +995,8 @@ ipv6_add_addr(struct inet6_dev *idev, st
+ 	int err = 0;
+ 
+ 	if (addr_type == IPV6_ADDR_ANY ||
+-	    addr_type & IPV6_ADDR_MULTICAST ||
++	    (addr_type & IPV6_ADDR_MULTICAST &&
++	     !(cfg->ifa_flags & IFA_F_MCAUTOJOIN)) ||
+ 	    (!(idev->dev->flags & IFF_LOOPBACK) &&
+ 	     addr_type & IPV6_ADDR_LOOPBACK))
+ 		return ERR_PTR(-EADDRNOTAVAIL);
 
 
