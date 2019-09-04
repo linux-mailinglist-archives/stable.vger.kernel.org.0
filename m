@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5057CA8E69
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5024A90EE
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387920AbfIDR5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:57:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
+        id S2389792AbfIDSMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:12:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733061AbfIDR5w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:57:52 -0400
+        id S1733228AbfIDSMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:12:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93D53208E4;
-        Wed,  4 Sep 2019 17:57:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A3D022CEA;
+        Wed,  4 Sep 2019 18:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619871;
-        bh=Lkez0H8g512vv4Kuq61c+tVEtrjq9LRaNj4FxuXnCEw=;
+        s=default; t=1567620752;
+        bh=dtdFH06IsEHUIClj6Ic3CcPM+EVe3SGjsswJfSGmSVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUXOyB+b9gi7roU8Oy3vzzAKswaBj8bSD/l1zjcw5vAQMqCw+hR/c0Zhlwo/6+i6X
-         XPTL7JAyk4z5SWrcO1eRcYdDc/PCT5qCHtI+QzdTJaVV1Lj0AtfqsE0LmN3ZsiLxBd
-         H36M0zfsgHhHZ0S+DQw+0BbEV8VFe8V9xH0Uu31k=
+        b=lw9x+g7IAdkBXOTm1KQNZdlgfXMmUS4g+pryr/ktl13wTKewc0WUF6nyrjXJSdY2N
+         BnBHQpHzs7TanxMd9XCP/jf5MNReX+LX7ITIcTaTqINs3LNRENZL9wTI3GXqSSbfTe
+         Qgo72nBVXSTaQmhhgcSbmUVDMO0fPXzimFbOBoqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 58/77] ALSA: usb-audio: Fix an OOB bug in parse_audio_mixer_unit
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 5.2 082/143] usb: chipidea: udc: dont do hardware access if gadget has stopped
 Date:   Wed,  4 Sep 2019 19:53:45 +0200
-Message-Id: <20190904175308.742764660@linuxfoundation.org>
+Message-Id: <20190904175317.271965485@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
+commit cbe85c88ce80fb92956a0793518d415864dcead8 upstream.
 
-The `uac_mixer_unit_descriptor` shown as below is read from the
-device side. In `parse_audio_mixer_unit`, `baSourceID` field is
-accessed from index 0 to `bNrInPins` - 1, the current implementation
-assumes that descriptor is always valid (the length  of descriptor
-is no shorter than 5 + `bNrInPins`). If a descriptor read from
-the device side is invalid, it may trigger out-of-bound memory
-access.
+After _gadget_stop_activity is executed, we can consider the hardware
+operation for gadget has finished, and the udc can be stopped and enter
+low power mode. So, any later hardware operations (from usb_ep_ops APIs
+or usb_gadget_ops APIs) should be considered invalid, any deinitializatons
+has been covered at _gadget_stop_activity.
 
-```
-struct uac_mixer_unit_descriptor {
-	__u8 bLength;
-	__u8 bDescriptorType;
-	__u8 bDescriptorSubtype;
-	__u8 bUnitID;
-	__u8 bNrInPins;
-	__u8 baSourceID[];
-}
-```
+I meet this problem when I plug out usb cable from PC using mass_storage
+gadget, my callstack like: vbus interrupt->.vbus_session->
+composite_disconnect ->pm_runtime_put_sync(&_gadget->dev),
+the composite_disconnect will call fsg_disable, but fsg_disable calls
+usb_ep_disable using async way, there are register accesses for
+usb_ep_disable. So sometimes, I get system hang due to visit register
+without clock, sometimes not.
 
-This patch fixes the bug by add a sanity check on the length of
-the descriptor.
+The Linux Kernel USB maintainer Alan Stern suggests this kinds of solution.
+See: http://marc.info/?l=linux-usb&m=138541769810983&w=2.
 
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: <stable@vger.kernel.org> #v4.9+
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20190820020503.27080-2-peter.chen@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/chipidea/udc.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1647,6 +1647,7 @@ static int parse_audio_mixer_unit(struct
- 	int pin, ich, err;
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -709,12 +709,6 @@ static int _gadget_stop_activity(struct
+ 	struct ci_hdrc    *ci = container_of(gadget, struct ci_hdrc, gadget);
+ 	unsigned long flags;
  
- 	if (desc->bLength < 11 || !(input_pins = desc->bNrInPins) ||
-+	    desc->bLength < sizeof(*desc) + desc->bNrInPins ||
- 	    !(num_outs = uac_mixer_unit_bNrChannels(desc))) {
- 		usb_audio_err(state->chip,
- 			      "invalid MIXER UNIT descriptor %d\n",
+-	spin_lock_irqsave(&ci->lock, flags);
+-	ci->gadget.speed = USB_SPEED_UNKNOWN;
+-	ci->remote_wakeup = 0;
+-	ci->suspended = 0;
+-	spin_unlock_irqrestore(&ci->lock, flags);
+-
+ 	/* flush all endpoints */
+ 	gadget_for_each_ep(ep, gadget) {
+ 		usb_ep_fifo_flush(ep);
+@@ -732,6 +726,12 @@ static int _gadget_stop_activity(struct
+ 		ci->status = NULL;
+ 	}
+ 
++	spin_lock_irqsave(&ci->lock, flags);
++	ci->gadget.speed = USB_SPEED_UNKNOWN;
++	ci->remote_wakeup = 0;
++	ci->suspended = 0;
++	spin_unlock_irqrestore(&ci->lock, flags);
++
+ 	return 0;
+ }
+ 
+@@ -1303,6 +1303,10 @@ static int ep_disable(struct usb_ep *ep)
+ 		return -EBUSY;
+ 
+ 	spin_lock_irqsave(hwep->lock, flags);
++	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
++		spin_unlock_irqrestore(hwep->lock, flags);
++		return 0;
++	}
+ 
+ 	/* only internal SW should disable ctrl endpts */
+ 
+@@ -1392,6 +1396,10 @@ static int ep_queue(struct usb_ep *ep, s
+ 		return -EINVAL;
+ 
+ 	spin_lock_irqsave(hwep->lock, flags);
++	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
++		spin_unlock_irqrestore(hwep->lock, flags);
++		return 0;
++	}
+ 	retval = _ep_queue(ep, req, gfp_flags);
+ 	spin_unlock_irqrestore(hwep->lock, flags);
+ 	return retval;
+@@ -1415,8 +1423,8 @@ static int ep_dequeue(struct usb_ep *ep,
+ 		return -EINVAL;
+ 
+ 	spin_lock_irqsave(hwep->lock, flags);
+-
+-	hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
++	if (hwep->ci->gadget.speed != USB_SPEED_UNKNOWN)
++		hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
+ 
+ 	list_for_each_entry_safe(node, tmpnode, &hwreq->tds, td) {
+ 		dma_pool_free(hwep->td_pool, node->ptr, node->dma);
+@@ -1487,6 +1495,10 @@ static void ep_fifo_flush(struct usb_ep
+ 	}
+ 
+ 	spin_lock_irqsave(hwep->lock, flags);
++	if (hwep->ci->gadget.speed == USB_SPEED_UNKNOWN) {
++		spin_unlock_irqrestore(hwep->lock, flags);
++		return;
++	}
+ 
+ 	hw_ep_flush(hwep->ci, hwep->num, hwep->dir);
+ 
+@@ -1559,6 +1571,10 @@ static int ci_udc_wakeup(struct usb_gadg
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&ci->lock, flags);
++	if (ci->gadget.speed == USB_SPEED_UNKNOWN) {
++		spin_unlock_irqrestore(&ci->lock, flags);
++		return 0;
++	}
+ 	if (!ci->remote_wakeup) {
+ 		ret = -EOPNOTSUPP;
+ 		goto out;
 
 
