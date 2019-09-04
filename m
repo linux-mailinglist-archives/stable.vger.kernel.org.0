@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93A31A8AFA
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185D6A8C10
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732976AbfIDQBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 12:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36556 "EHLO mail.kernel.org"
+        id S1728878AbfIDQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 12:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732952AbfIDQBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:01:18 -0400
+        id S1732963AbfIDQBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:01:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8119C2339D;
-        Wed,  4 Sep 2019 16:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 888812070C;
+        Wed,  4 Sep 2019 16:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567612877;
-        bh=cwgAFUwFMh2HCxi09ZDiFYIacY5CLnOxIn+IPjzlR80=;
+        s=default; t=1567612878;
+        bh=WDvQUbKcJHAN78tC7rWq9WCVMyV4U0AuITSfOrmD5UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zGir64tSbSRzw5UACBm4y2Vna9dUFaF48tnIvUVP1B22VJoi4KZnn82CIrGV2IcKR
-         ns78OtGnZyeh0qOJTxdI6EMrhEQGg+WnBSAg/h25XXcUd8c+Wz62mUJkUvsqwB5GMW
-         uGFtyFsWBSJAd6yKSRpMCpnPkD3DraNZ0tfnwV2E=
+        b=sZAQyUWagJQjEzyFOaTk5w096LV3AJF/eGPTm0wTQtvdCcBDgUuTJJpq9GS4num7Z
+         DPcUYQSFu/iisaQQeU7dE6pqIdQez761Stg587safbFodmz4u144ztxV7Gt2kehd9/
+         f1AGuMd+DuICZGCtDAWe/hzA+Fda5hh7MF/T3H+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 50/52] tools/power turbostat: fix buffer overrun
-Date:   Wed,  4 Sep 2019 12:00:02 -0400
-Message-Id: <20190904160004.3671-50-sashal@kernel.org>
+Cc:     Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
+        Igor Russkikh <igor.russkikh@aquantia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 51/52] net: aquantia: fix out of memory condition on rx side
+Date:   Wed,  4 Sep 2019 12:00:03 -0400
+Message-Id: <20190904160004.3671-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
 References: <20190904160004.3671-1-sashal@kernel.org>
@@ -43,35 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+From: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
 
-[ Upstream commit eeb71c950bc6eee460f2070643ce137e067b234c ]
+[ Upstream commit be6cef69ba570ebb327eba1ef6438f7af49aaf86 ]
 
-turbostat could be terminated by general protection fault on some latest
-hardwares which (for example) support 9 levels of C-states and show 18
-"tADDED" lines. That bloats the total output and finally causes buffer
-overrun.  So let's extend the buffer to avoid this.
+On embedded environments with hard memory limits it is a normal although
+rare case when skb can't be allocated on rx part under high traffic.
 
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
+In such OOM cases napi_complete_done() was not called.
+So the napi object became in an invalid state like it is "scheduled".
+Kernel do not re-schedules the poll of that napi object.
+
+Consequently, kernel can not remove that object the system hangs on
+`ifconfig down` waiting for a poll.
+
+We are fixing this by gracefully closing napi poll routine with correct
+invocation of napi_complete_done.
+
+This was reproduced with artificially failing the allocation of skb to
+simulate an "out of memory" error case and check that traffic does
+not get stuck.
+
+Fixes: 970a2e9864b0 ("net: ethernet: aquantia: Vector operations")
+Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
+Signed-off-by: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_vec.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index fbb53c952b739..71cf7e77291ad 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4953,7 +4953,7 @@ int initialize_counters(int cpu_id)
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
+index d335c334fa561..82582fa54d5d2 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
+@@ -89,6 +89,7 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
+ 			}
+ 		}
  
- void allocate_output_buffer()
- {
--	output_buffer = calloc(1, (1 + topo.num_cpus) * 1024);
-+	output_buffer = calloc(1, (1 + topo.num_cpus) * 2048);
- 	outp = output_buffer;
- 	if (outp == NULL)
- 		err(-1, "calloc output buffer");
++err_exit:
+ 		if (!was_tx_cleaned)
+ 			work_done = budget;
+ 
+@@ -98,7 +99,7 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
+ 					1U << self->aq_ring_param.vec_idx);
+ 		}
+ 	}
+-err_exit:
++
+ 	return work_done;
+ }
+ 
 -- 
 2.20.1
 
