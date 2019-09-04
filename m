@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A61FA8EA1
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E42A90A7
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388184AbfIDR7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37844 "EHLO mail.kernel.org"
+        id S2390170AbfIDSK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:10:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732997AbfIDR7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:59:06 -0400
+        id S2390198AbfIDSK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:10:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6470F22CF7;
-        Wed,  4 Sep 2019 17:59:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1DD12087E;
+        Wed,  4 Sep 2019 18:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619945;
-        bh=3rgjDk5vulimSkP+gtzRQqnIK4lLuSZpUi1F7b08E/I=;
+        s=default; t=1567620657;
+        bh=+CyUkE+H/8l3WaDV/04VyoPmGhpoJr8ns5AR1Hn6Qqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsBzE1zAuPdVcctjUbAbCuc+Sbv558Fn1Uka3rrnKiP8Q9dNE/UEcNN9Qq+qj71kb
-         6VHwzUAVMMMbV7Ax6eN9HMVuA73dqBMEZo6ut5HrBSe9Nok+PP5vqm4HonkGT05Ufc
-         Q8VzN/9zOt1Dk6Ajr8Y9yxei9v+2qkXE5ljtzdDo=
+        b=eyvajwcrUFz0dSBbCcPJPOzh2WUmYRmtQ+wfxdacy/+BZVYoxqrAlI829uDQPBAsH
+         Q8Z9Y2mzvF6A49BgW/Ql0JHiwebYIOXNmZeZMZntuEDYFIcH+C6vtYUHUorCaLx8Zy
+         7Niac9Gjcxn5LVlf6nU931e8ZITy0enN8hukekCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/83] can: peak_usb: force the string buffer NULL-terminated
+Subject: [PATCH 5.2 045/143] watchdog: bcm2835_wdt: Fix module autoload
 Date:   Wed,  4 Sep 2019 19:53:08 +0200
-Message-Id: <20190904175305.292307670@linuxfoundation.org>
+Message-Id: <20190904175315.832873991@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.488266791@linuxfoundation.org>
-References: <20190904175303.488266791@linuxfoundation.org>
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+References: <20190904175314.206239922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e787f19373b8a5fa24087800ed78314fd17b984a ]
+[ Upstream commit 215e06f0d18d5d653d6ea269e4dfc684854d48bf ]
 
-strncpy() does not ensure NULL-termination when the input string size
-equals to the destination buffer size IFNAMSIZ. The output string is
-passed to dev_info() which relies on the NULL-termination.
+The commit 5e6acc3e678e ("bcm2835-pm: Move bcm2835-watchdog's DT probe
+to an MFD.") broke module autoloading on Raspberry Pi. So add a
+module alias this fix this.
 
-Use strlcpy() instead.
-
-This issue is identified by a Coccinelle script.
-
-Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/bcm2835_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index 54c2354053ace..ce0a352a5eaab 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -879,7 +879,7 @@ static void peak_usb_disconnect(struct usb_interface *intf)
+diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+index 560c1c54c1779..f4937a91e5160 100644
+--- a/drivers/watchdog/bcm2835_wdt.c
++++ b/drivers/watchdog/bcm2835_wdt.c
+@@ -240,6 +240,7 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- 		dev_prev_siblings = dev->prev_siblings;
- 		dev->state &= ~PCAN_USB_STATE_CONNECTED;
--		strncpy(name, netdev->name, IFNAMSIZ);
-+		strlcpy(name, netdev->name, IFNAMSIZ);
- 
- 		unregister_netdev(netdev);
- 
++MODULE_ALIAS("platform:bcm2835-wdt");
+ MODULE_AUTHOR("Lubomir Rintel <lkundrak@v3.sk>");
+ MODULE_DESCRIPTION("Driver for Broadcom BCM2835 watchdog timer");
+ MODULE_LICENSE("GPL");
 -- 
 2.20.1
 
