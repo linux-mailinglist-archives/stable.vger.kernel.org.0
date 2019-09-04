@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37040A8E3F
-	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084B8A8FBF
+	for <lists+stable@lfdr.de>; Wed,  4 Sep 2019 21:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732557AbfIDR44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 13:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34514 "EHLO mail.kernel.org"
+        id S2388912AbfIDSFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 14:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387737AbfIDR44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Sep 2019 13:56:56 -0400
+        id S2389279AbfIDSFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Sep 2019 14:05:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61882339E;
-        Wed,  4 Sep 2019 17:56:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDCDE22CF7;
+        Wed,  4 Sep 2019 18:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567619815;
-        bh=hXNgBmLhSvA+800WNKverQyu+RTuxcBFAaJch3/JGUM=;
+        s=default; t=1567620334;
+        bh=tDnje/AQ49Dcl1xkc3Qyh8+brUjQweDME/mhPt5saRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w7oIcsRetKQwBYeejXNUn+WwPIl8Jh05PYQOVT/zg3KsSsvgeg9PD2VGLzN+mC4un
-         e2U1fqEq9NP0P1pBRDpisH5e8YSxgkOhtRFw+kAHDPJ33YWQoKB05gep0OV6WmcSOs
-         Mf6sASno7SB241lY9knLwwPCex2svcY3TBo0Phwo=
+        b=gEEcFvaMzhM4tQxiHvegSU7v5bYHDjKqqspLPjt4VpOAhAgLOosX+26ZSyqgRZdzl
+         Gi3nGjVlURtuw+7noOZx2VnAE9971UPUmfRdY9K7ammDEY/LY3lVL6j6qO62BDxHNP
+         XobthukN8kRLXsChDPBStRHkqGNIMSlNmLeS/gRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/77] net: cxgb3_main: Fix a resource leak in a error path in init_one()
+        stable@vger.kernel.org, Anthony Iliopoulos <ailiopoulos@suse.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/93] nvme-multipath: revalidate nvme_ns_head gendisk in nvme_validate_ns
 Date:   Wed,  4 Sep 2019 19:53:04 +0200
-Message-Id: <20190904175305.233882308@linuxfoundation.org>
+Message-Id: <20190904175303.033152467@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
-References: <20190904175303.317468926@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit debea2cd3193ac868289e8893c3a719c265b0612 ]
+[ Upstream commit fab7772bfbcfe8fb8e3e352a6a8fcaf044cded17 ]
 
-A call to 'kfree_skb()' is missing in the error handling path of
-'init_one()'.
-This is already present in 'remove_one()' but is missing here.
+When CONFIG_NVME_MULTIPATH is set, only the hidden gendisk associated
+with the per-controller ns is run through revalidate_disk when a
+rescan is triggered, while the visible blockdev never gets its size
+(bdev->bd_inode->i_size) updated to reflect any capacity changes that
+may have occurred.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This prevents online resizing of nvme block devices and in extension of
+any filesystems atop that will are unable to expand while mounted, as
+userspace relies on the blockdev size for obtaining the disk capacity
+(via BLKGETSIZE/64 ioctls).
+
+Fix this by explicitly revalidating the actual namespace gendisk in
+addition to the per-controller gendisk, when multipath is enabled.
+
+Signed-off-by: Anthony Iliopoulos <ailiopoulos@suse.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-index 3dd4c39640dc4..bee615cddbdd8 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-@@ -3260,7 +3260,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (!adapter->regs) {
- 		dev_err(&pdev->dev, "cannot map device registers\n");
- 		err = -ENOMEM;
--		goto out_free_adapter;
-+		goto out_free_adapter_nofail;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index e26d1191c5ad6..d838a300ae770 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1557,6 +1557,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 	if (ns->head->disk) {
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
++		revalidate_disk(ns->head->disk);
  	}
- 
- 	adapter->pdev = pdev;
-@@ -3378,6 +3378,9 @@ out_free_dev:
- 		if (adapter->port[i])
- 			free_netdev(adapter->port[i]);
- 
-+out_free_adapter_nofail:
-+	kfree_skb(adapter->nofail_skb);
-+
- out_free_adapter:
- 	kfree(adapter);
- 
+ #endif
+ }
 -- 
 2.20.1
 
