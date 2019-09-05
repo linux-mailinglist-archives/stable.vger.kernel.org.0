@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D70AA853
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4CBAA85C
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388642AbfIEQSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 12:18:21 -0400
-Received: from mail-pf1-f182.google.com ([209.85.210.182]:44887 "EHLO
-        mail-pf1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388504AbfIEQSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 12:18:17 -0400
-Received: by mail-pf1-f182.google.com with SMTP id q21so2054524pfn.11
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 09:18:17 -0700 (PDT)
+        id S2388596AbfIEQSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 12:18:52 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37716 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388595AbfIEQST (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 12:18:19 -0400
+Received: by mail-pg1-f194.google.com with SMTP id d1so1686795pgp.4
+        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 09:18:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Ny7YX6BxIHZBg/a0IXvofczDmYcoW0RMjpIj9iNxGYI=;
-        b=YlFW1oYkgedY1H7kdvtntMbQozGn3kOxCMqp2NIumUNGka9YZY56mm/5JnjNo8a6sg
-         BpG6Faq+3L6/s3liaVWlfJHdXuBMamArc6Tke+yxoc3WFo/JaJ3GGn7dtJ+2eGI/ZSPm
-         WmOtxGPCrHlhUdg0lKZxrCxzFFciRcVyZ4C2H/w5nX6/ePlCd5vC7MVmOunp7NW+n+KY
-         kwRBcBObjxbXwA0p2AO+21wka8/782dXgpI6hfmtYJ3uAgtu6VJVYXFKQIJ0U+B9Jx+a
-         cnY4OkG7/6sBLkpOWgOpybs5Q6WX+6CfltrwCTUB6XO+nb6zY7AjGP6RiFK/d+51XXVM
-         jSow==
+        bh=oVyIDYAYI+VGDpI/lL7N1eH8i3MwtZKf3xtD/r8Rq24=;
+        b=RxDSo4U5spH1guQJnwpIC/IDoB9wBeRnVHNJlU6ZkPdlDZGnci2vz8qQzeVqj6sHk8
+         OIEP3Aw69I/XCmA2b4iKpZz7pSTX9yIxzmguy6LxNFNRQtOD1hZHZx50CRC8PIff6+Jn
+         /PplH+b2d5ldVWpeCS9ka4uiFItzl73R1+KOe4NeD4/11/kYAn/1IySNj9Bit9gvqtaq
+         BVSsW9xsV/zkaN+MU/3pg6WNWNHQQdNWpTw8n5BgEs56iSr3vf+9eqggw+5lcrUcaiuI
+         sjZLImwlXI8C+gUp7XbIVlhEkMi75jmc05IAcQed1JPfpUYfVzvU+urgBPc0BaBeFAqr
+         CjyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=Ny7YX6BxIHZBg/a0IXvofczDmYcoW0RMjpIj9iNxGYI=;
-        b=f46bLWL7BJmk0O++ZSt65lHHh6QSODjQs6hqUUVtRsL+LCJE570CcAYFXE+81d6FCD
-         915gn+CqIBPAD664tVohRMS1g5gp+aG6KphQWiHTIvaOIg3uA48UW2jW4NY3B5WX4z9b
-         FpHuAC6dhunj2peDH/VyHpRd8PsMZ0UDlOIZ7Ub6v0iT8XtYoiI+oe68Ht9g/4OSWaGG
-         1pyqhO8YIlzXv0vdWx4V6O1vJM4aK20jh8yxuH7mhoOjrh7RdGC361mW7mwUWk4BbcsW
-         eFCMG99zX8QemyUnyxvXdKAw5JziXeB09KXjWrDfIsPSzY0pZ/UdoxphlCYf8rlPPGZM
-         HwAQ==
-X-Gm-Message-State: APjAAAXb2ZipL47FuPO1OmZYY7zeTXTkOpmbgsQKUUbEbjuGikKNZpZY
-        PWfEerlsyCPVzHr2TzhtXR5d7fcnRNE=
-X-Google-Smtp-Source: APXvYqwKA9IK1vUfcaYpjMN+OcoAuPYIhWjw5YDLjt28SgdQJQGNYVmg1+PKFIED4Sz9PCGNnWl8iw==
-X-Received: by 2002:aa7:920b:: with SMTP id 11mr4734304pfo.231.1567700296683;
-        Thu, 05 Sep 2019 09:18:16 -0700 (PDT)
+        bh=oVyIDYAYI+VGDpI/lL7N1eH8i3MwtZKf3xtD/r8Rq24=;
+        b=skhM1nsJADgSgVZCOta95VNf4Z3VCBBvtt8d1qB8slRCYGuqEBu5iEtWzFSqyRxDHb
+         dwbabSTr9XWF/VO1aVjiZg0PgUMNlemBvnwElpSXO+b2S6bJ6supPJR/ZmJb7e4Us1wJ
+         zMLrsJdnXyl9SW8JRMylYX14sQp9cPW/MVo4pwYZCdqwVClLBpoT8RuL+qLL8kVGD7uQ
+         EGUAugSs0jKOicWjkmqGj/yGDecGLRPCluy3j+X1Ggx5r/CoWk4aNgR/Gv/4nlaZZLzt
+         x1PDgbsggnWwWJDQJeAZxUPWJBLvvEbQIW5Nz5dhJMB1fjoxveN5r3sxHPu7/5soa8dF
+         Chgg==
+X-Gm-Message-State: APjAAAX0S5lA92J1LJ55UdEGQRxHWQPwg4d++AsmI5y6rhvJsTxaQIrR
+        FcbfdU3B7NCmYPTH5E9d/bn5QUn9Hok=
+X-Google-Smtp-Source: APXvYqzhTRlr7lMleWMm7PihRHJXTyTnHKtYgBmHBckAchkD+HJXwuNJjzGA3Uqro4QttUg4ocqrjA==
+X-Received: by 2002:a63:ea14:: with SMTP id c20mr3836155pgi.185.1567700298006;
+        Thu, 05 Sep 2019 09:18:18 -0700 (PDT)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id m129sm6324005pga.39.2019.09.05.09.18.15
+        by smtp.gmail.com with ESMTPSA id m129sm6324005pga.39.2019.09.05.09.18.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Sep 2019 09:18:16 -0700 (PDT)
+        Thu, 05 Sep 2019 09:18:17 -0700 (PDT)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: [BACKPORT 4.14.y 13/18] ASoC: tlv320dac31xx: mark expected switch fall-through
-Date:   Thu,  5 Sep 2019 10:17:54 -0600
-Message-Id: <20190905161759.28036-14-mathieu.poirier@linaro.org>
+Subject: [BACKPORT 4.14.y 14/18] ASoC: davinci-mcasp: Handle return value of devm_kasprintf
+Date:   Thu,  5 Sep 2019 10:17:55 -0600
+Message-Id: <20190905161759.28036-15-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190905161759.28036-1-mathieu.poirier@linaro.org>
 References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
@@ -60,34 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
-commit 09fc38c1af4cb888255e9ecf267bf9757c12885d upstream
+commit 0c8b794c4a10aaf7ac0d4a49be2b2638e2038adb upstream
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-where we are expecting to fall through.
+devm_kasprintf() can fail here and we must check its return value.
 
-Addresses-Coverity-ID: 1195220
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- sound/soc/codecs/tlv320aic31xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/davinci/davinci-mcasp.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/sound/soc/codecs/tlv320aic31xx.c b/sound/soc/codecs/tlv320aic31xx.c
-index d3bd0bf15ddb..cc95c15ceceb 100644
---- a/sound/soc/codecs/tlv320aic31xx.c
-+++ b/sound/soc/codecs/tlv320aic31xx.c
-@@ -941,7 +941,7 @@ static int aic31xx_set_dai_fmt(struct snd_soc_dai *codec_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		break;
- 	case SND_SOC_DAIFMT_DSP_A:
--		dsp_a_val = 0x1;
-+		dsp_a_val = 0x1; /* fall through */
- 	case SND_SOC_DAIFMT_DSP_B:
- 		/*
- 		 * NOTE: This CODEC samples on the falling edge of BCLK in
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 0480ec4c8035..af6cd8b874f5 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -1894,6 +1894,10 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
+ 	if (irq >= 0) {
+ 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_common",
+ 					  dev_name(&pdev->dev));
++		if (!irq_name) {
++			ret = -ENOMEM;
++			goto err;
++		}
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 						davinci_mcasp_common_irq_handler,
+ 						IRQF_ONESHOT | IRQF_SHARED,
+@@ -1911,6 +1915,10 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
+ 	if (irq >= 0) {
+ 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_rx",
+ 					  dev_name(&pdev->dev));
++		if (!irq_name) {
++			ret = -ENOMEM;
++			goto err;
++		}
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 						davinci_mcasp_rx_irq_handler,
+ 						IRQF_ONESHOT, irq_name, mcasp);
+@@ -1926,6 +1934,10 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
+ 	if (irq >= 0) {
+ 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_tx",
+ 					  dev_name(&pdev->dev));
++		if (!irq_name) {
++			ret = -ENOMEM;
++			goto err;
++		}
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 						davinci_mcasp_tx_irq_handler,
+ 						IRQF_ONESHOT, irq_name, mcasp);
 -- 
 2.17.1
 
