@@ -2,82 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BEBAA2DE
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 14:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D43AA32C
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 14:28:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389039AbfIEMS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 08:18:59 -0400
-Received: from first.geanix.com ([116.203.34.67]:54958 "EHLO first.geanix.com"
+        id S2389417AbfIEM2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 08:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbfIEMS7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Sep 2019 08:18:59 -0400
-Received: from [192.168.100.95] (unknown [95.138.208.137])
-        by first.geanix.com (Postfix) with ESMTPSA id B37474F790;
-        Thu,  5 Sep 2019 12:18:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1567685926; bh=8eUSUwjl9XMgEZnPggAi/NndYu7xlTpfRetCfnMbL74=;
-        h=From:To:Subject:Cc:Date;
-        b=gpduOhAszLalLLyxy+W9HX84FD4JEc4+kIaa4yW1PR1C8UDaSSnAVoIzKxm5ZsWF/
-         bu7XfecEzdJCiX7Nfv4adlPsOu8a1rCxWy49g0JbUi0vTlZgA5vTyfXKi5/a6PI+Pq
-         E/Ie/lnYVmFAueU5CFK67ofvjLA4NOaLY33tW80qkaipfsoH19wDgNEkpHNv1hdS/0
-         26RqbLfazcGA1rOPKmJQ74WHHKpmkc9h6+gZlBS0PAH/yaqylGQheEykBttT9dINqx
-         eheUgm+5lRO5sEXFFA+kHbMor9eMNx5dmC9pe6eNBWYM+DQSkJxZ6WBG9LCF+ekybO
-         /iE6FxkBBm9MQ==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     linux-stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: bcm2835aux: broken in (4.9), 4.14 and 4.19
-Cc:     "Rasmus Pedersen (RD SC)" <rap@serenergy.com>
-Message-ID: <5f6bd329-3848-98aa-bae9-e988de0d361a@geanix.com>
-Date:   Thu, 5 Sep 2019 14:18:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.0
+        id S1732410AbfIEM2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Sep 2019 08:28:02 -0400
+Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 054702080C;
+        Thu,  5 Sep 2019 12:28:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567686482;
+        bh=9S8tbDmcX+m0zl7AzUPbkOfWRsK1GjMnTM3Jp8xy6CE=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=zVB9O6BtryQTG7F070qsr9dZR4XmcpWEilYYWFKgrzrsJP9xuiU/AiVfWDFBxE3zq
+         XlEIcgh+gbIIe2YC3OotZds0To09TFY6nDA4Wfii1JhQjbv6sNcaBLGYmjMdntTOBj
+         kOIEsZXlsIIY044aETvJeenNeWsjGQKjVqofTdDc=
+Date:   Thu, 5 Sep 2019 14:27:45 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Roderick Colenbrander <roderick@gaikai.com>
+cc:     linux-input@vger.kernel.org, andreyknvl@google.com,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] HID: sony: Fix memory corruption issue on cleanup.
+In-Reply-To: <20190904212211.29832-1-roderick@gaikai.com>
+Message-ID: <nycvar.YFH.7.76.1909051427340.31470@cbobk.fhfr.pm>
+References: <20190904212211.29832-1-roderick@gaikai.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US-large
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
-        autolearn=disabled version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on 77834cc0481d
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, 4 Sep 2019, Roderick Colenbrander wrote:
 
-Please consider picking:
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> 
+> The sony driver is not properly cleaning up from potential failures in
+> sony_input_configured. Currently it calls hid_hw_stop, while hid_connect
+> is still running. This is not a good idea, instead hid_hw_stop should
+> be moved to sony_probe. Similar changes were recently made to Logitech
+> drivers, which were also doing improper cleanup.
+> 
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> CC: stable@vger.kernel.org
 
-commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec
-Author: Martin Sperl <kernel@martin.sperl.org>
-Date:   Sat Mar 30 09:30:58 2019 +0000
+Applied, thanks Roderick.
 
-     spi: bcm2835aux: unifying code between polling and interrupt driven 
-code
+-- 
+Jiri Kosina
+SUSE Labs
 
-commit c7de8500fd8ecbb544846dd5f11dca578c3777e1
-Author: Martin Sperl <kernel@martin.sperl.org>
-Date:   Sat Mar 30 09:30:59 2019 +0000
-
-     spi: bcm2835aux: remove dangerous uncontrolled read of fifo
-
-
-commit 73b114ee7db1750c0b535199fae383b109bd61d0
-Author: Martin Sperl <kernel@martin.sperl.org>
-Date:   Sat Mar 30 09:31:00 2019 +0000
-
-     spi: bcm2835aux: fix corruptions for longer spi transfers
-
-for stable kernel 4.14 and 4.19.
-
-If we want to fix this in 4.9 you should also pick:
-
-commit bc519d9574618e47a0c788000fb78da95e18d953
-Author: Rob Herring <robh@kernel.org>
-Date:   Thu May 3 13:09:44 2018 -0500
-
-     spi: bcm2835aux: ensure interrupts are enabled for shared handler
-
-Thanks,
-/Sean
