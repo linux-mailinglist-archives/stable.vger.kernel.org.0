@@ -2,84 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE585AABC6
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 21:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B42AABCD
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 21:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbfIETO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 15:14:29 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:44192 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbfIETO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 15:14:29 -0400
-Received: from p5de0b6c5.dip0.t-ipconnect.de ([93.224.182.197] helo=nanos)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1i5xCx-0007se-MN; Thu, 05 Sep 2019 21:14:15 +0200
-Date:   Thu, 5 Sep 2019 21:14:14 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Mike Travis <mike.travis@hpe.com>
-cc:     Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 0/8] x86/platform/UV: Update UV Hubless System Support
-In-Reply-To: <d90ffd5c-2e9f-ead2-b866-0af4ab261591@hpe.com>
-Message-ID: <alpine.DEB.2.21.1909052113130.1902@nanos.tec.linutronix.de>
-References: <20190905184741.256857552@stormcage.eag.rdlabs.hpecorp.net> <alpine.DEB.2.21.1909052056210.1902@nanos.tec.linutronix.de> <d90ffd5c-2e9f-ead2-b866-0af4ab261591@hpe.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1726940AbfIETPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 15:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726097AbfIETPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Sep 2019 15:15:44 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA4102070C;
+        Thu,  5 Sep 2019 19:15:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567710945;
+        bh=p/WXnL93kys4Xsusi5YfOkEr9fenxVutlgLMNmczUH8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OvvyPTYbbkyZREMPHAwyx0Fkj94ZYu0PnVNivdihPqNea+j/SxcznTdwzJkmE5g1Y
+         wrbF93QO15rgcSJvx2To/Rwgf3ERBAEXgK7oRHJblZiNLfAK1bhaZ89+FTmvcru1rj
+         PO9pMBdNAfxV4g2SyxcSeRZI2EV+rYqEsPT7OdgQ=
+Date:   Thu, 5 Sep 2019 21:15:42 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.2 000/143] 5.2.12-stable review
+Message-ID: <20190905191542.GA15748@kroah.com>
+References: <20190904175314.206239922@linuxfoundation.org>
+ <20190905165627.GF23158@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190905165627.GF23158@roeck-us.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 5 Sep 2019, Mike Travis wrote:
-> On 9/5/2019 12:02 PM, Thomas Gleixner wrote:
-> > Mike,
+On Thu, Sep 05, 2019 at 09:56:27AM -0700, Guenter Roeck wrote:
+> On Wed, Sep 04, 2019 at 07:52:23PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.2.12 release.
+> > There are 143 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > On Thu, 5 Sep 2019, Mike Travis wrote:
-> > 
-> > > These patches support upcoming UV systems that do not have a UV HUB.
-> > > 
-> > > 	* Save OEM_ID from ACPI MADT probe
-> > > 	* Return UV Hubless System Type
-> > > 	* Add return code to UV BIOS Init function
-> > > 	* Setup UV functions for Hubless UV Systems
-> > > 	* Add UV Hubbed/Hubless Proc FS Files
-> > > 	* Decode UVsystab Info
-> > > 	* Account for UV Hubless in is_uvX_hub Ops
-> > 
-> > Can you please in future mark the next version of a patch or patch series
-> > with [PATCH V2 n/M] so its clear that this is something different and also
-> > add a quick summary what changed vs. V1? Adding to each patch which changed
-> > a short change info _after_ the '---' discard line is also good practice
-> > and helps reviewers to figure out which part needs to be looked at.
-> > 
-> > Thanks
-> > 
-> > 	tglx
+> > Responses should be made by Fri 06 Sep 2019 05:50:23 PM UTC.
+> > Anything received after that time might be too late.
 > > 
 > 
-> Yeah, I noticed that the V2: tag for the removal that Greg requested was
-> missing in the copy sent to me.  Sorry I didn't catch that earlier.
-> 
-> The "[PATCH V2 n/M]" is something I hadn't been aware but I am now.
-> 
-> Should I resend the patches again with those updates?
+> Build results:
+> 	total: 159 pass: 159 fail: 0
+> Qemu test results:
+> 	total: 390 pass: 390 fail: 0
 
-No, please provide a summary of changes as a reply to the cover letter and
-point out which patches were actually changed vs. v1.
+Thanks for testing all of these and letting me know.
 
-Thanks,
-
-	tglx
+greg k-h
