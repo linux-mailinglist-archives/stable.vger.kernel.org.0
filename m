@@ -2,119 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DCCAA976
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A088AA978
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732466AbfIEQ41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 12:56:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728254AbfIEQ40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Sep 2019 12:56:26 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 058F820825;
-        Thu,  5 Sep 2019 16:56:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567702586;
-        bh=c/OMZv0zohuMV0wtRCRjkEXWrbEw4kJfGSXiyO8XusQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sYZtgxNNud5vMDdsJrzWJPcbo5Bz+xWXUJqWiEqOCXYRJuKH4X7mNx0ZouvcYdbFP
-         9ANOEfawZR8hLks4fenNV+9Uh46OiYJgeru3urz7nW6bGxUzYlMWYRv1amsfUrPH5q
-         ZgjMbOgWU6A6TOc3hVVfnmHq4sJHU0wZruV2JxHI=
-Date:   Thu, 5 Sep 2019 18:56:23 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mike Travis <mike.travis@hpe.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 6/8] x86/platform/uv: Decode UVsystab Info
-Message-ID: <20190905165623.GA2737@kroah.com>
-References: <20190905130252.590161292@stormcage.eag.rdlabs.hpecorp.net>
- <20190905130253.325911213@stormcage.eag.rdlabs.hpecorp.net>
- <20190905141634.GA25790@kroah.com>
- <ae007007-02cc-0081-22c0-34b2d67f2cd3@hpe.com>
+        id S2403774AbfIEQ4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 12:56:30 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:43344 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728254AbfIEQ43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 12:56:29 -0400
+Received: by mail-pl1-f196.google.com with SMTP id 4so1562512pld.10;
+        Thu, 05 Sep 2019 09:56:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Yau58hoUWJMoTLYD1k0Qt94CoNR7DdlXjaK1w5al7BY=;
+        b=kjYWByJJuGWaM+yh7EWk3KZavp0QosrSYhHevoEaS1WcGDkR9LOKWC+5JOqac03ykf
+         +Ow0117zZ6Aj0ewPTlB5cYG5HGTP7fA8K+yf3QBVDb0C4UqEZYaxAtnTEbuBaFBmS5kS
+         6mrI2PrmL8rN/XWOKeY+0NAa+ivKezGbFqblw13K4a+YidvmfcP6tYCpq0ZK2E/7/m+Q
+         8F8YRnDr2Qei1NdBgG0bDRF8b4yMB6ALIjI67JeeUqlkz+2HVfmujCrEBKYrWWFE5p7e
+         TJc8O4klT8ycnXiZW+NQNcg7G7xjfUuuVTh2kSkhuyek3cAwFWVoz1+l9hWa37gXShfA
+         0gbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Yau58hoUWJMoTLYD1k0Qt94CoNR7DdlXjaK1w5al7BY=;
+        b=OjkL6BMml7ZdHKRNIoHQtjW7XCs+4gXc8/5h6YYkqzX/LEWpl1XG/e5dU9bad+lB2p
+         Wx0BdJvNY6hWlviDH4ribQF/DfA0YU87IBnCo0UBVu2zAlLmiOQyUATpq1qek34jJMrg
+         2fp7sXtF5NcwuppgnXLHvF1lAZHYFqZRa8qk+PpmftycJztx07Su2lrX3O7u4WbWpHRL
+         G/+jF6b6WUnxaiLgvJs+vzxbq5yvC0JdSpLrdwV+SuXuY5jMMZRwCWcOxtvc4ovm3MtV
+         HZywsmjm5OsYc0WTsYjygom1zPkmE7iSqnK7b59+Savpz70sCY4MpiKl+4IoWPEGc1M7
+         sTEQ==
+X-Gm-Message-State: APjAAAXY4xFzlA1vYt01Jg6rCD7k/bhOygusViB/lAzXx/BSbzuC1xvN
+        QRGpeE9xzJioGJyhhWBZiwY=
+X-Google-Smtp-Source: APXvYqy8Erfv75qRQCpBSBieFjH2d3BzB4+vX6hU3s4dDVOgu1K9dvG2xX7aAHFVt4aB7EcZML9FIw==
+X-Received: by 2002:a17:902:7791:: with SMTP id o17mr4740150pll.10.1567702589186;
+        Thu, 05 Sep 2019 09:56:29 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 185sm3420394pfd.125.2019.09.05.09.56.28
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Sep 2019 09:56:28 -0700 (PDT)
+Date:   Thu, 5 Sep 2019 09:56:27 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.2 000/143] 5.2.12-stable review
+Message-ID: <20190905165627.GF23158@roeck-us.net>
+References: <20190904175314.206239922@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ae007007-02cc-0081-22c0-34b2d67f2cd3@hpe.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190904175314.206239922@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 07:47:34AM -0700, Mike Travis wrote:
+On Wed, Sep 04, 2019 at 07:52:23PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.12 release.
+> There are 143 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
+> Responses should be made by Fri 06 Sep 2019 05:50:23 PM UTC.
+> Anything received after that time might be too late.
 > 
-> On 9/5/2019 7:16 AM, Greg KH wrote:
-> > On Thu, Sep 05, 2019 at 08:02:58AM -0500, Mike Travis wrote:
-> > > Decode the hubless UVsystab passed from BIOS to the kernel saving
-> > > pertinent info in a similar manner that hubbed UVsystabs are decoded.
-> > > 
-> > > Signed-off-by: Mike Travis <mike.travis@hpe.com>
-> > > Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
-> > > Reviewed-by: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-> > > To: Thomas Gleixner <tglx@linutronix.de>
-> > > To: Ingo Molnar <mingo@redhat.com>
-> > > To: H. Peter Anvin <hpa@zytor.com>
-> > > To: Andrew Morton <akpm@linux-foundation.org>
-> > > To: Borislav Petkov <bp@alien8.de>
-> > > To: Christoph Hellwig <hch@infradead.org>
-> > > Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-> > > Cc: Russ Anderson <russ.anderson@hpe.com>
-> > > Cc: Hedi Berriche <hedi.berriche@hpe.com>
-> > > Cc: Steve Wahl <steve.wahl@hpe.com>
-> > > Cc: x86@kernel.org
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >   arch/x86/kernel/apic/x2apic_uv_x.c |   16 ++++++++++++++--
-> > >   1 file changed, 14 insertions(+), 2 deletions(-)
-> > 
-> > If you are trying to get one of my automated "WTF: patch XXXX was
-> > seriously submitted to be applied to the stable tree?" emails, you are
-> > on track for it...
-> > 
-> > Please go read the documentation link I sent you last time and figure
-> > out how you can justify any of this patch series for a stable kernel
-> > tree.
-> 
-> Is it because it has fixes for new hardware?  If so, then I'll quit
-> submitting them to stable (we've had requests from distros for all updates
-> be in the stable tree for acceptance).  Otherwise I thought it does comply
-> with:
-> 
->    " - To have the patch automatically included in the stable tree,
->    add the tag
->      Cc: stable@vger.kernel.org
->    in the sign-off area. Once the patch is merged it will be applied
->    to the stable tree without anything else needing to be done by the
->    author or subsystem maintainer."
-> 
-> Or is there some other reason that I'm not understanding?
 
-Yes, that's how you get a patch applied, but how in the world does all
-of the patches in this series actually meet the requirements of a patch
-that should be applied to the stable kernel tree?
+Build results:
+	total: 159 pass: 159 fail: 0
+Qemu test results:
+	total: 390 pass: 390 fail: 0
 
-I see no regression fixes, no new device ids, no bug fixes.  Only
-support for new hardware, i.e. a new feature to the kernel for something
-that never worked in the first place.
-
-And yes, distros do request bugfixes to get added to stable trees,
-that's great, but I fail to understand how any of these patches are "bug
-fixes".  Maybe you need to work on your changelog texts...
-
-good luck!
-
-greg k-h
+Guenter
