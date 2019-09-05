@@ -2,105 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 694DDA9904
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 05:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 143EDA9A16
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 07:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728072AbfIEDsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 23:48:11 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:38218 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727544AbfIEDsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 23:48:11 -0400
-Received: by mail-pl1-f194.google.com with SMTP id w11so614457plp.5;
-        Wed, 04 Sep 2019 20:48:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=pYD81YFETvqhhEH9qUnNjLJMdHyZTdj4QK4cZ/lMPek=;
-        b=cD9evuKSB0BVKnX+c/uRW7iufFoxlxduxxpDz+f9NBHVsiqDEJspt0hff3P45fewet
-         Mvv4AvSJu8jTEl17jBBGAthlsQiI+iEUi1XabZXilivfmP0iBRs5iAuDC5VAI3SxZhlz
-         SJ5NXFYQe8l3eOK/JHtvkkxE3f3dl9rf3HFzoJw8uxRAMV5hf0t8bwnnLSUVCpf2VAxy
-         b10LCaE+fa9TyhMCgHGccPNC85HWevmIZyidPiEkRR6chPQaYsSsbTddyApkCcKE916S
-         a9fBHSWiIG0BLAim13j65hlCKyeJq2n0NDpCoiBjGLgLMYmd2DeR56eXiJT8dZ3ENR/l
-         sfSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pYD81YFETvqhhEH9qUnNjLJMdHyZTdj4QK4cZ/lMPek=;
-        b=ob8RkVn4sybyjMd8NwbsvljrI0rqeZpiByuj/ZyRpFsVgUJ8YHi0rfiBFoR4W7k9Vk
-         1jzZPPmjmzT4PnaI6kiTff7L37zHHYV9jalIh8fv0jh2Emo2LHxKsk9uk4lLru8OXQk4
-         yogH2ub2KM/EuB0ZnnKU5ooU7QYIv9x6/TX9IsJ/QeQL/nFG8OoGl4sEdjCSm56x+qMi
-         0rVHko3BFJBjqRVqdfCKb2gIPuEIxpCC3kB/OVEbLtTxGLicMBsL75W3NwaaHXRVcacI
-         /ljX1YsTEoI02gkSk6sPM4OaGRO62xCUmBUde87U/XHQCdsgr+XX2z8JDiQ0uHPjfvd9
-         /JCg==
-X-Gm-Message-State: APjAAAW2BK6THR/krcOyPx84+xj5Z0FEEA+4WS6Ro4pbrTRh0+p9grGs
-        Z3KJvR6RXI9YyG46fpvsr63uhor/
-X-Google-Smtp-Source: APXvYqyMZZOXqSmlc1OTz0H0TSwBXgj90khqnhvRX5Qm0n1heW9gb0v8FZ6pCLzJK16qvpck85r6RQ==
-X-Received: by 2002:a17:902:7892:: with SMTP id q18mr1127950pll.206.1567655290351;
-        Wed, 04 Sep 2019 20:48:10 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z12sm442165pjp.11.2019.09.04.20.48.08
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Sep 2019 20:48:09 -0700 (PDT)
-Subject: Re: [PATCH 4.14 00/57] 4.14.142-stable review
-To:     Kevin Hilman <khilman@baylibre.com>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        id S1730914AbfIEFb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 01:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730867AbfIEFb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Sep 2019 01:31:57 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4EAC208E4;
+        Thu,  5 Sep 2019 05:31:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567661516;
+        bh=UM+ST/lch31SOwLIxDDNUr2BLBGn7LZYvgx8Vs+6IEc=;
+        h=Subject:To:From:Date:From;
+        b=1xMtVU+b55bybXZL9YZb2FO9FQ78+yhO+nAlScdEE3hEr9yx2rzVU3wRNrKFfoFQE
+         HOSbSrM3e9ghPfr9jfxUQGVF5fIKmXuBbrD7w2idkQZ7+di3ErUPrDVF2oqLTrbTXd
+         oHXGbKd8OIMnf8ZGJQuUD91pOw/eX55jkv6xcfRg=
+Subject: patch "USB: usbcore: Fix slab-out-of-bounds bug during device reset" added to usb-next
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-References: <20190904175301.777414715@linuxfoundation.org>
- <5d705444.1c69fb81.c4927.1cd1@mx.google.com> <7hlfv3shk0.fsf@baylibre.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <6b9adb14-47ec-cd94-d2a2-c79d22d43d76@roeck-us.net>
-Date:   Wed, 4 Sep 2019 20:48:07 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 05 Sep 2019 07:31:45 +0200
+Message-ID: <156766150524656@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <7hlfv3shk0.fsf@baylibre.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/4/19 5:38 PM, Kevin Hilman wrote:
-> "kernelci.org bot" <bot@kernelci.org> writes:
-> 
->> stable-rc/linux-4.14.y boot: 144 boots: 5 failed, 131 passed with 8 offline (v4.14.141-58-g39a17ab1edd4)
->>
->> Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux-4.14.y/kernel/v4.14.141-58-g39a17ab1edd4/
->> Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.y/kernel/v4.14.141-58-g39a17ab1edd4/
->>
->> Tree: stable-rc
->> Branch: linux-4.14.y
->> Git Describe: v4.14.141-58-g39a17ab1edd4
->> Git Commit: 39a17ab1edd4adb3fb732726a36cb54a21cc570d
->> Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->> Tested: 68 unique boards, 23 SoC families, 14 builds out of 201
->>
->> Boot Failures Detected:
->>
->> arm:
->>      vexpress_defconfig:
->>          gcc-8:
->>              qemu_arm-virt-gicv3: 5 failed labs
-> 
-> All 5 failures are for this same QEMU target in multiple labs
-> 
-> It is also failing in linux-next and on several other stable versions.
-> 
 
-linux-next is in bad shape due to some usb issues, but I am not sure otherwise.
-I ran a quick test on 4.14.y-queue, and all my (arm, arm64) qemu tests are fine.
+This is a note to let you know that I've just added the patch titled
 
-Is it possible that this is a new or modified test ?
+    USB: usbcore: Fix slab-out-of-bounds bug during device reset
 
-Guenter
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 3dd550a2d36596a1b0ee7955da3b611c031d3873 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Wed, 4 Sep 2019 11:56:27 -0400
+Subject: USB: usbcore: Fix slab-out-of-bounds bug during device reset
+
+The syzbot fuzzer provoked a slab-out-of-bounds error in the USB core:
+
+BUG: KASAN: slab-out-of-bounds in memcmp+0xa6/0xb0 lib/string.c:904
+Read of size 1 at addr ffff8881d175bed6 by task kworker/0:3/2746
+
+CPU: 0 PID: 2746 Comm: kworker/0:3 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  memcmp+0xa6/0xb0 lib/string.c:904
+  memcmp include/linux/string.h:400 [inline]
+  descriptors_changed drivers/usb/core/hub.c:5579 [inline]
+  usb_reset_and_verify_device+0x564/0x1300 drivers/usb/core/hub.c:5729
+  usb_reset_device+0x4c1/0x920 drivers/usb/core/hub.c:5898
+  rt2x00usb_probe+0x53/0x7af
+drivers/net/wireless/ralink/rt2x00/rt2x00usb.c:806
+
+The error occurs when the descriptors_changed() routine (called during
+a device reset) attempts to compare the old and new BOS and capability
+descriptors.  The length it uses for the comparison is the
+wTotalLength value stored in BOS descriptor, but this value is not
+necessarily the same as the length actually allocated for the
+descriptors.  If it is larger the routine will call memcmp() with a
+length that is too big, thus reading beyond the end of the allocated
+region and leading to this fault.
+
+The kernel reads the BOS descriptor twice: first to get the total
+length of all the capability descriptors, and second to read it along
+with all those other descriptors.  A malicious (or very faulty) device
+may send different values for the BOS descriptor fields each time.
+The memory area will be allocated using the wTotalLength value read
+the first time, but stored within it will be the value read the second
+time.
+
+To prevent this possibility from causing any errors, this patch
+modifies the BOS descriptor after it has been read the second time:
+It sets the wTotalLength field to the actual length of the descriptors
+that were read in and validated.  Then the memcpy() call, or any other
+code using these descriptors, will be able to rely on wTotalLength
+being valid.
+
+Reported-and-tested-by: syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909041154260.1722-100000@iolanthe.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/config.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
+index 9d6cb709ca7b..151a74a54386 100644
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -921,7 +921,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
+ 	struct usb_bos_descriptor *bos;
+ 	struct usb_dev_cap_header *cap;
+ 	struct usb_ssp_cap_descriptor *ssp_cap;
+-	unsigned char *buffer;
++	unsigned char *buffer, *buffer0;
+ 	int length, total_len, num, i, ssac;
+ 	__u8 cap_type;
+ 	int ret;
+@@ -966,10 +966,12 @@ int usb_get_bos_descriptor(struct usb_device *dev)
+ 			ret = -ENOMSG;
+ 		goto err;
+ 	}
++
++	buffer0 = buffer;
+ 	total_len -= length;
++	buffer += length;
+ 
+ 	for (i = 0; i < num; i++) {
+-		buffer += length;
+ 		cap = (struct usb_dev_cap_header *)buffer;
+ 
+ 		if (total_len < sizeof(*cap) || total_len < cap->bLength) {
+@@ -983,8 +985,6 @@ int usb_get_bos_descriptor(struct usb_device *dev)
+ 			break;
+ 		}
+ 
+-		total_len -= length;
+-
+ 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
+ 			dev_warn(ddev, "descriptor type invalid, skip\n");
+ 			continue;
+@@ -1019,7 +1019,11 @@ int usb_get_bos_descriptor(struct usb_device *dev)
+ 		default:
+ 			break;
+ 		}
++
++		total_len -= length;
++		buffer += length;
+ 	}
++	dev->bos->desc->wTotalLength = cpu_to_le16(buffer - buffer0);
+ 
+ 	return 0;
+ 
+-- 
+2.23.0
+
+
