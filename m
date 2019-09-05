@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFA9AA9FB
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 19:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2164AA9FD
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 19:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388702AbfIER1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 13:27:45 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:36895 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388869AbfIER1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 13:27:45 -0400
-Received: by mail-oi1-f194.google.com with SMTP id v7so2537901oib.4
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 10:27:44 -0700 (PDT)
+        id S2390971AbfIER2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 13:28:49 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:44813 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389744AbfIER2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 13:28:49 -0400
+Received: by mail-ot1-f68.google.com with SMTP id 21so2975475otj.11
+        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 10:28:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=WAmS7Uw9e8bB1PTN/jfmWoS315U1NsxPNMRijsnDbxQ=;
-        b=dkqsqXNKtTclKScxZkHGZibCTePLCiDheG7n82N6Z0YAhb9MhjwtpjI9iEh9mhoiDU
-         Ae48MU3pA6l7531xauvCN6OPOVMPihk3vmHbTCfvQuud1iGXxK3orhUbNvSwED/Z9s3b
-         ecCHlrhxja0B5WdKnMqViByl4fTwh6wqa1f1+rOiDl1Zqc/2y71h7mqjEGm2iLz3PTYL
-         Sa08p5tS7vDvwkUqcyjt4eTIegsJPLA2LFKJPt3Lp1436zd2UtBsC31FdiX7OibZIsx3
-         u+4tSqOrs4lGkwJytUMVIm4i4Uao+/cpbkPytXDZJJ0cWsumxQLyAA2bL+/elpwlU1cx
-         Z2kw==
+        bh=rvxhz/yZn3Q6gffoeTZfDbAQbCY2o417WdMfyCdYfwE=;
+        b=BysVrUrxN2Ic2U/5iDjXNWtThXsAm6YEkR2Jl85TAdYbz+BzkSonVuazaTqYhIrlEX
+         K8yseMGhiLWjxVZn6synTJjWQqjlJ8siPG8OnOtPp1H9Y16tDO8l7T+JyvvV5TFhTXET
+         p+uquYvdPHcI4+tIs9fiZ3AOwYiEDEy8Hee22YgjWdf4HYhXsMqZ1noANRVvfynYUmjN
+         l3hXIO2G9iMytdrvOsh0dFghpIT9Bk6WJYxD98P88ihP0ucKPEgzdlRiOo3U2L2/N00Z
+         4E46gGd5ZKHN0zqH+TvyWzWHvCKtL25vM5aGtmiGuSzG5OAn0Ge8KlkWZcRQJGez8rjQ
+         qd8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=WAmS7Uw9e8bB1PTN/jfmWoS315U1NsxPNMRijsnDbxQ=;
-        b=GzL7dUrTsXdBU3KRq8wcxbb1YvOOmCXXFER7Cmtkr2b1y9qYBohJOSCaaR/dpZUhAy
-         lsNYMPMG4Sce1bnJ45+ifri1muwDO5/z/1GCA+jehYXdJ08VR7vn5supPSOXUpN5QQ6W
-         DPKO6DosKmgjYQ/gkm1x7odXShZdRM/j+BC4Y0Vz17SMezZDcALRvr4LWbHjbzfY81xQ
-         d8x0gfrFbgq+kn6/bVz6kAZsLoTF/WnPX1zX/xGUB31TrsLlqzf2WltGcK04bi+cNqG9
-         IXRzgn7Z1CTX2F0IGtzIM0jJmpMT6JP8O/z2wXWC/H4DpcS409+28tQHaWwp1NiBLQWz
-         8O2A==
-X-Gm-Message-State: APjAAAXIaCcT3XTZszYb5Ok1HOuPV8KfW8eVlM1z2g/EKmUp/r8BgoHY
-        w58PGtErp62CuQTATeWG2OBGQXL679sErQ==
-X-Google-Smtp-Source: APXvYqzf61sR6IMOtL4FYHi37t+VAq6FMQiw2rdkpaDYnlAlDO20X/MzR54nMXzKFdu7sk4J21N5WQ==
-X-Received: by 2002:aca:416:: with SMTP id 22mr3365398oie.93.1567704463807;
-        Thu, 05 Sep 2019 10:27:43 -0700 (PDT)
+        bh=rvxhz/yZn3Q6gffoeTZfDbAQbCY2o417WdMfyCdYfwE=;
+        b=Hfl72gzkNja7QTwKSyuJPnmh6I3eh98O0IyqmdaNPgbyEjDmM56SL7KSLLfuHrZGEX
+         AmjVbyTXlCLUKE1i73BveSHxNzxICNW8OHs15QFqZFif+J9wr0eSLqZ/y6C/CNVdbyPY
+         p+zFA9OeHOqgL4moOgq4PsliXc0DnTfHyAWg9/nsvsFpRkZSZI6ygrfqvOZNjOYZ7fHD
+         Fx4COrL0v1h9ictlEf0ZJEm/+bb6OE76nmd/CEWuAPBmNZRxmIQGYaMZDXNwCXxVIgWr
+         A2L043ys2cCl1wZgH8V6LDUaI8aNADyhrN4DwTe/zqSqOTmkJYXq7NhyEZZJNFekrI88
+         muPg==
+X-Gm-Message-State: APjAAAVh/HpWtUzdVw+cTgqHyWbcdODEWdbs7K6p6m7cCFVFigGaK6EK
+        3izSIP8ZRO33K5r+XVaEgpxL7Yo7TkwlzA==
+X-Google-Smtp-Source: APXvYqz/91EHGft9Fe79Ic7vI/myhTxvO9F1v+a1xayigzLWg0brqIfhJDtZ1RtiCXcsw3NfkODt6A==
+X-Received: by 2002:a9d:2af:: with SMTP id 44mr3726300otl.130.1567704528092;
+        Thu, 05 Sep 2019 10:28:48 -0700 (PDT)
 Received: from [192.168.17.59] (CableLink-189-218-29-211.Hosts.InterCable.net. [189.218.29.211])
-        by smtp.gmail.com with ESMTPSA id z16sm628100oic.10.2019.09.05.10.27.42
+        by smtp.gmail.com with ESMTPSA id o1sm663677oic.50.2019.09.05.10.28.46
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 05 Sep 2019 10:27:43 -0700 (PDT)
-Subject: Re: [PATCH 4.14 00/57] 4.14.142-stable review
+        Thu, 05 Sep 2019 10:28:47 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/93] 4.19.70-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20190904175301.777414715@linuxfoundation.org>
+References: <20190904175302.845828956@linuxfoundation.org>
 From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <781333c7-645e-548d-28f8-cfd00779e5b6@linaro.org>
-Date:   Thu, 5 Sep 2019 12:27:41 -0500
+Message-ID: <d91fb6fc-df04-0dd5-4e15-a951eeee7fc5@linaro.org>
+Date:   Thu, 5 Sep 2019 12:28:46 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190904175301.777414715@linuxfoundation.org>
+In-Reply-To: <20190904175302.845828956@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -71,8 +71,8 @@ X-Mailing-List: stable@vger.kernel.org
 Hello!
 
 On 9/4/19 12:53 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.142 release.
-> There are 57 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.70 release.
+> There are 93 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -80,9 +80,9 @@ On 9/4/19 12:53 PM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.142-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.70-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -95,19 +95,19 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.14.142-rc1
+kernel: 4.19.70-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.14.y
-git commit: 39a17ab1edd4adb3fb732726a36cb54a21cc570d
-git describe: v4.14.141-58-g39a17ab1edd4
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.141-58-g39a17ab1edd4
+git branch: linux-4.19.y
+git commit: b755ab5041366b954c39bd97caa982539e0d1223
+git describe: v4.19.69-94-gb755ab504136
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.69-94-gb755ab504136
 
 
-No regressions (compared to build v4.14.141)
+No regressions (compared to build v4.19.69)
 
-No fixes (compared to build v4.14.141)
+No fixes (compared to build v4.19.69)
 
-Ran 23684 total tests in the following environments and test suites.
+Ran 25004 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -127,21 +127,23 @@ Test Suites
 * build
 * install-android-platform-tools-r2600
 * kselftest
+* libgpiod
 * libhugetlbfs
 * ltp-cap_bounds-tests
+* ltp-commands-tests
 * ltp-containers-tests
 * ltp-cpuhotplug-tests
 * ltp-cve-tests
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
-* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
+* ltp-math-tests
 * ltp-mm-tests
 * ltp-nptl-tests
 * ltp-pty-tests
@@ -149,12 +151,11 @@ Test Suites
 * ltp-securebits-tests
 * ltp-syscalls-tests
 * ltp-timers-tests
-* perf
 * spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-commands-tests
-* ltp-math-tests
+* ltp-fs-tests
 * network-basic-tests
+* perf
+* v4l2-compliance
 * ltp-open-posix-tests
 * kvm-unit-tests
 * ssuite
