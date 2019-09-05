@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B72AA894
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AE0AA883
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 18:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726490AbfIEQTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 12:19:34 -0400
-Received: from mail-pg1-f182.google.com ([209.85.215.182]:33380 "EHLO
-        mail-pg1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388061AbfIEQSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 12:18:10 -0400
-Received: by mail-pg1-f182.google.com with SMTP id n190so1698376pgn.0
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 09:18:10 -0700 (PDT)
+        id S2388180AbfIEQSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 12:18:12 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:37720 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388141AbfIEQSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 12:18:12 -0400
+Received: by mail-pf1-f194.google.com with SMTP id y9so2078657pfl.4
+        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 09:18:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=/ld8MsvJyHX4xiXhT/vACY8V+T9SsrvyxVWLxkWmOHw=;
-        b=XT3Az7zzBbgbLvMexBlhl28H1zweak4MTFSDW4Z2X3Ha/QND0Bs7fu1GlJQslffzeB
-         LWlUlyWIAmzVk/+mUyPdD+4nZwAO9nk1ji12txKMyNEST223rFfRlFB6AeFPMZvq7wy/
-         tXFpIGd7WBH3k/q538r3XaFEMh0s3bPPDl3wPolk9LypaKTfGB6UzVKsLLeAS07gj1rn
-         fdweJBOKtEZq8Zmfgu1NcESYEF48FPKrzvVBBc5+gyUyrbJ//dUWwgy6OH85myV+ToOC
-         HgL1kn+e4YWS/JFJ4yB6alQ12JjDhFV87for4spwtn7BdUdPfyqfJYpWsYs/lzpIIiIM
-         3BKQ==
+        bh=NoTtLr1lztWfrS92BUWnGWn3zk0jvQAYseg1lZWuSGs=;
+        b=GFbERyZ9NRV2dkkLT4vQsg2O43TovjaGYNn6dZQb4zlipk1hrBEI93ONy4uCdy17BN
+         qs6turZaX0cjL2hsvD0XQcPWWyT5eGXz7QIlN5q8rtchZ5viCWRBDwkHQ7obcrcC3Uar
+         1ortXnAwgQMvUwFZEFdfF67Zd3yS6nt3iV9SSsbRUiIhAZwUvGND/emO1CKYf2KWOr28
+         VxlM82pRtImf20eiipHbpwiiWXaq0nZI2+bBsKhiaerAHkOFKlpVyiIpgMWISCo/STX0
+         lWqLo+YlveCj4WJwPQ/Qdyw/LyipxCRHxudVAm/baaKD40BYKWBjg0PjlTT0keABvYme
+         Sx5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=/ld8MsvJyHX4xiXhT/vACY8V+T9SsrvyxVWLxkWmOHw=;
-        b=nwh2jt3W65t4oCIk/uH1/9qPAFIl8zvLyGgQmXQRcPTMoohZyge6qh85ufv0OikZJ/
-         L/zPZQf3gXXjqfOZP+Fa2I0xJGFKK2sy+Ncb4aDCIsW8JNMOJUfluYLGBF8HA06WnTTt
-         WCMPgSHiOTgbOcWuxZAq/9Ss9XiazD4oi9xDkW4lGBrFe+HOV/LVYDiV8xuna61VnCzB
-         rS4GkhVPFDKfnGYdHavqzn4056Q7+JHxf50CyG1b6IkKuwJ/WrSjcBqhX17ZwAiZey4R
-         CjFxx7Io1K21dH1rXRjG+4/7SVLPagnAMkJNCaQFNrZFCXyXYI/331cJNZ6tXGW1zH0M
-         /kLA==
-X-Gm-Message-State: APjAAAUFedOcU422ZQNMPD54G2k1RYQcZ1x0gmM3/tYMZ4utMDNoNUQ0
-        wRd8ti0siSFC0FmkvZGi4Ezdx0263k0=
-X-Google-Smtp-Source: APXvYqwbHY2l3Y3RI4VI6wb4Zy7sVNDjcmdxm+p9Gx0FC6W1QaFVP9fXezb7/YJ8ZduZPS1+K7YUJg==
-X-Received: by 2002:a63:2364:: with SMTP id u36mr3780682pgm.449.1567700289680;
-        Thu, 05 Sep 2019 09:18:09 -0700 (PDT)
+        bh=NoTtLr1lztWfrS92BUWnGWn3zk0jvQAYseg1lZWuSGs=;
+        b=h/04M5yIhXv3nNzqvZ2MeOdk257kYl8nPEG5txNGAka4Qg0nw6kLFbRCgorKL6Pfo4
+         R2ZFgieEl+5fDF+v2vTcNqI1Go7q6ybolQRcHquMie3Wf2GVUNF+K04UNxta6OudM7IN
+         b0BtHtAYQwCLA8tmLjawewYSA/Bk593OcBB6gbGCemb1DJEjPe3QBhopzOKCnlyALdvP
+         cZlT9fF8xxlrVoaIqXKZH1f6NXR7aDk3pMmYY4QUIg5txpOYyQFVwRQKjJGlsrPaC0dm
+         rsd2soC4WW/KLG8Gl8yVIYbW2AXTfJUj20tGFYHymJqZwy3IEeUIpUu+Gs8HWaF71qYf
+         xbIg==
+X-Gm-Message-State: APjAAAUknJKvzhPHTYSzzZQmTbVH13v6cjA7x9RzCHZpsnHWm/C2ni2M
+        sjPm3q8P6ark3aiD1GVOSBkSFSwQ7RQ=
+X-Google-Smtp-Source: APXvYqxTYivq/efmoU5WtwxZv5cSxczPS7YC9boEJTkxinNAbnn0GjS2kdu7p4Li6YOQRyRvVr3Cpw==
+X-Received: by 2002:a63:60a:: with SMTP id 10mr3873993pgg.381.1567700290813;
+        Thu, 05 Sep 2019 09:18:10 -0700 (PDT)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id m129sm6324005pga.39.2019.09.05.09.18.08
+        by smtp.gmail.com with ESMTPSA id m129sm6324005pga.39.2019.09.05.09.18.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Sep 2019 09:18:09 -0700 (PDT)
+        Thu, 05 Sep 2019 09:18:10 -0700 (PDT)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: [BACKPORT 4.14.y 07/18] mtd: spi-nor: enable 4B opcodes for mx66l51235l
-Date:   Thu,  5 Sep 2019 10:17:48 -0600
-Message-Id: <20190905161759.28036-8-mathieu.poirier@linaro.org>
+Subject: [BACKPORT 4.14.y 08/18] mtd: spi-nor: cadence-quadspi: add a delay in write sequence
+Date:   Thu,  5 Sep 2019 10:17:49 -0600
+Message-Id: <20190905161759.28036-9-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190905161759.28036-1-mathieu.poirier@linaro.org>
 References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
@@ -60,30 +60,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Yeryomin <leroi.lists@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
 
-commit d342b6a973af459f6104cad6effc8efc71a0558d upstream
+commit 61dc8493bae9ba82a1c72edbc6c6065f6a94456a upstream
 
-Signed-off-by: Roman Yeryomin <roman@advem.lv>
+As per 66AK2G02 TRM[1] SPRUHY8F section 11.15.5.3 Indirect Access
+Controller programming sequence, a delay equal to couple of QSPI master
+clock(~5ns) is required after setting CQSPI_REG_INDIRECTWR_START bit and
+writing data to the flash. Introduce a quirk flag CQSPI_NEEDS_WR_DELAY
+to handle this and set this flag for TI 66AK2G SoC.
+
+[1]http://www.ti.com/lit/ug/spruhy8f/spruhy8f.pdf
+
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Acked-by: Marek Vasut <marek.vasut@gmail.com>
 Signed-off-by: Cyrille Pitchen <cyrille.pitchen@wedev4u.fr>
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/mtd/spi-nor/spi-nor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/cadence-quadspi.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
-index 34ecc12ee3d9..6c013341ef09 100644
---- a/drivers/mtd/spi-nor/spi-nor.c
-+++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -1030,7 +1030,7 @@ static const struct flash_info spi_nor_ids[] = {
- 	{ "mx25l25635e", INFO(0xc22019, 0, 64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
- 	{ "mx25u25635f", INFO(0xc22539, 0, 64 * 1024, 512, SECT_4K | SPI_NOR_4B_OPCODES) },
- 	{ "mx25l25655e", INFO(0xc22619, 0, 64 * 1024, 512, 0) },
--	{ "mx66l51235l", INFO(0xc2201a, 0, 64 * 1024, 1024, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
-+	{ "mx66l51235l", INFO(0xc2201a, 0, 64 * 1024, 1024, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
- 	{ "mx66u51235f", INFO(0xc2253a, 0, 64 * 1024, 1024, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
- 	{ "mx66l1g45g",  INFO(0xc2201b, 0, 64 * 1024, 2048, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
- 	{ "mx66l1g55g",  INFO(0xc2261b, 0, 64 * 1024, 2048, SPI_NOR_QUAD_READ) },
+diff --git a/drivers/mtd/spi-nor/cadence-quadspi.c b/drivers/mtd/spi-nor/cadence-quadspi.c
+index f22dd34f4f83..ff4edf4bb23c 100644
+--- a/drivers/mtd/spi-nor/cadence-quadspi.c
++++ b/drivers/mtd/spi-nor/cadence-quadspi.c
+@@ -38,6 +38,9 @@
+ #define CQSPI_NAME			"cadence-qspi"
+ #define CQSPI_MAX_CHIPSELECT		16
+ 
++/* Quirks */
++#define CQSPI_NEEDS_WR_DELAY		BIT(0)
++
+ struct cqspi_st;
+ 
+ struct cqspi_flash_pdata {
+@@ -76,6 +79,7 @@ struct cqspi_st {
+ 	u32			fifo_depth;
+ 	u32			fifo_width;
+ 	u32			trigger_address;
++	u32			wr_delay;
+ 	struct cqspi_flash_pdata f_pdata[CQSPI_MAX_CHIPSELECT];
+ };
+ 
+@@ -623,6 +627,15 @@ static int cqspi_indirect_write_execute(struct spi_nor *nor,
+ 	reinit_completion(&cqspi->transfer_complete);
+ 	writel(CQSPI_REG_INDIRECTWR_START_MASK,
+ 	       reg_base + CQSPI_REG_INDIRECTWR);
++	/*
++	 * As per 66AK2G02 TRM SPRUHY8F section 11.15.5.3 Indirect Access
++	 * Controller programming sequence, couple of cycles of
++	 * QSPI_REF_CLK delay is required for the above bit to
++	 * be internally synchronized by the QSPI module. Provide 5
++	 * cycles of delay.
++	 */
++	if (cqspi->wr_delay)
++		ndelay(cqspi->wr_delay);
+ 
+ 	while (remaining > 0) {
+ 		size_t write_words, mod_bytes;
+@@ -1184,6 +1197,7 @@ static int cqspi_probe(struct platform_device *pdev)
+ 	struct cqspi_st *cqspi;
+ 	struct resource *res;
+ 	struct resource *res_ahb;
++	unsigned long data;
+ 	int ret;
+ 	int irq;
+ 
+@@ -1241,6 +1255,10 @@ static int cqspi_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	cqspi->master_ref_clk_hz = clk_get_rate(cqspi->clk);
++	data  = (unsigned long)of_device_get_match_data(dev);
++	if (data & CQSPI_NEEDS_WR_DELAY)
++		cqspi->wr_delay = 5 * DIV_ROUND_UP(NSEC_PER_SEC,
++						   cqspi->master_ref_clk_hz);
+ 
+ 	ret = devm_request_irq(dev, irq, cqspi_irq_handler, 0,
+ 			       pdev->name, cqspi);
+@@ -1312,7 +1330,14 @@ static const struct dev_pm_ops cqspi__dev_pm_ops = {
+ #endif
+ 
+ static const struct of_device_id cqspi_dt_ids[] = {
+-	{.compatible = "cdns,qspi-nor",},
++	{
++		.compatible = "cdns,qspi-nor",
++		.data = (void *)0,
++	},
++	{
++		.compatible = "ti,k2g-qspi",
++		.data = (void *)CQSPI_NEEDS_WR_DELAY,
++	},
+ 	{ /* end of table */ }
+ };
+ 
 -- 
 2.17.1
 
