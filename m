@@ -2,114 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71313A9CCF
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 10:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEC3A9D93
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 10:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732521AbfIEITT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 04:19:19 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:34612 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726175AbfIEITT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 04:19:19 -0400
-Received: by mail-wr1-f66.google.com with SMTP id s18so1623926wrn.1;
-        Thu, 05 Sep 2019 01:19:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=7vrD1vbAUmCFFfdIktyw4RQaBVS3ITim3VvuBMdETos=;
-        b=KrDqJT9pnaYjHlbMev2uN7ZQDpp4ATsX7iMQbyUVPvh7Zyex0SB+oyInc5ZZRKBALx
-         4YRvbckrzDpG1nT0XswKerNPGvzMEe96kQY98ITPkN1mU8xw6tQ+n+6G+Qkg/woR77cR
-         dpwgv3K4VnnE7KSKhZztW2gDMM/V1eLAOj//dDnEsk0KMmqU5SW+ozed1YDFze7sBquI
-         t/o38y4o/EoxKILmRM9AjLqvfG15+z8QFT594yanB9ivEOtf5VoPDpS83cFQvmYHLwUV
-         ZDsK0Y5NrSflQS+FbewoBw9/ke2FDkPsRlHPTWAmvY/hwLtW/GNXiBeMJTeHsk++Uoi9
-         4CMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7vrD1vbAUmCFFfdIktyw4RQaBVS3ITim3VvuBMdETos=;
-        b=NfT4JWcBDQs35Nd5WW4sZ2LhxrYUr+BfCmUcnBioaGXN3Up2C4Ccl6nPgLClX20UJg
-         /ijZaCmGP4ZBGRndVgMpLXSRjOr386ZTfpKIr9UbI3WHMjelqtU11JEvMOtgFcIHfUPO
-         uFnetJdv/jWEPcbjDa6OfvIgd8nJ4sTDZhdoIP0PiiWmeU80Tz3Ie7fSk97iIGCve1TP
-         BKfpiSRDsc4x1SRYAPkGeghKV66YHj2016pRyHINowPcvA0TDuz+gktsTimI00Qoa2gF
-         Z9giminJ+RdiVpt7Uj/H68dwaAgLMSYCoBRlBCiKvVYKm0YWZAGs551zH9q5gbyPgdvB
-         /ZkA==
-X-Gm-Message-State: APjAAAXrrF18CTn30BlcOI8BXylfw8UfK0FJ8wCHUMnsZSZE84IGmBRq
-        3h0sZ8bxtzYH2Tz+M4U/Q5s=
-X-Google-Smtp-Source: APXvYqypRpPI1L8/VzXxqLP6zlec8VR5j0yZcibllXCpQiOHKv1zx3kMkVX/NbRsKv7XAOtrZMasCw==
-X-Received: by 2002:adf:e392:: with SMTP id e18mr1587213wrm.87.1567671557098;
-        Thu, 05 Sep 2019 01:19:17 -0700 (PDT)
-Received: from gmail.com (2E8B0CD5.catv.pool.telekom.hu. [46.139.12.213])
-        by smtp.gmail.com with ESMTPSA id o22sm3223544wra.96.2019.09.05.01.19.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Sep 2019 01:19:16 -0700 (PDT)
-Date:   Thu, 5 Sep 2019 10:19:14 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Mike Travis <mike.travis@hpe.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 0/8] x86/platform/UV: Update UV Hubless System Support
-Message-ID: <20190905081914.GA28060@gmail.com>
-References: <20190903001815.504418099@stormcage.eag.rdlabs.hpecorp.net>
- <20190903074717.GA34890@gmail.com>
- <481b2921-760a-c0f3-489b-2b9c5f792883@hpe.com>
+        id S1731338AbfIEI4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 04:56:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53070 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726231AbfIEI4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Sep 2019 04:56:12 -0400
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC3D021743;
+        Thu,  5 Sep 2019 08:56:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567673771;
+        bh=nxynrq1ZfNXPmxOvki9jsnLzdsi03WB1FQJR4M9tk9E=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=ecyFj7MxRKASyJLrsL7kjE7VL6EGorP4cT5Z64pFYPksHfFHpZq++Vistm/eDhA/I
+         GlZ7DfdU8fVfLFoqLKajsUIIuXI1A3dnnvl9MPvfN4Iq0XowyLbXSdttXZoUpwNFgd
+         MyejiMAf0qs1wvlS8CdTggdiz2OzFkcNkbGHpyNk=
+Received: by mail-qt1-f172.google.com with SMTP id k10so1913803qth.2;
+        Thu, 05 Sep 2019 01:56:10 -0700 (PDT)
+X-Gm-Message-State: APjAAAWE2xkPS0TYBRsBzBSUhweYfl5sCATqBMOlcOiwgeE6Qskgiadf
+        6c+tkdx94zWz4SlqqY4aGB8pd6ZZQ9C9ksNikg==
+X-Google-Smtp-Source: APXvYqwe7WYxk3XElGIIkDrb0I2DrV8ccOBgRzEx1xzn6PSLs7xZ9sDEOQkVezo7W2c1bqph8/273A3ZNIydErCuYfc=
+X-Received: by 2002:ac8:6b05:: with SMTP id w5mr2408517qts.136.1567673770094;
+ Thu, 05 Sep 2019 01:56:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <481b2921-760a-c0f3-489b-2b9c5f792883@hpe.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190903162519.7136-1-sashal@kernel.org> <20190903162519.7136-147-sashal@kernel.org>
+In-Reply-To: <20190903162519.7136-147-sashal@kernel.org>
+From:   Rob Herring <robh@kernel.org>
+Date:   Thu, 5 Sep 2019 09:55:58 +0100
+X-Gmail-Original-Message-ID: <CAL_JsqJrwwsp1wjCBnNmx45ZiLTXVY_nCfN6OrJ5o9dLbc+_2w@mail.gmail.com>
+Message-ID: <CAL_JsqJrwwsp1wjCBnNmx45ZiLTXVY_nCfN6OrJ5o9dLbc+_2w@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 147/167] drm/panel: Add support for Armadeus
+ ST0700 Adapt
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?Q?S=C3=A9bastien_Szymanski?= 
+        <sebastien.szymanski@armadeus.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Sep 3, 2019 at 5:31 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: S=C3=A9bastien Szymanski <sebastien.szymanski@armadeus.com>
+>
+> [ Upstream commit c479450f61c7f1f248c9a54aedacd2a6ca521ff8 ]
+>
+> This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+> Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+> that it can be connected on the TFT header of Armadeus Dev boards.
+>
+> Cc: stable@vger.kernel.org # v4.19
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: S=C3=A9bastien Szymanski <sebastien.szymanski@armadeus.com=
+>
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190507152713.27494-=
+1-sebastien.szymanski@armadeus.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
+>  drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
+>  2 files changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/display/panel/armad=
+eus,st0700-adapt.txt
 
-* Mike Travis <mike.travis@hpe.com> wrote:
+Looks like a new feature, not stable material. Not sure why it got
+tagged for stable.
 
-> 
-> 
-> On 9/3/2019 12:47 AM, Ingo Molnar wrote:
-> > 
-> > * Mike Travis <mike.travis@hpe.com> wrote:
-> > 
-> > > 
-> > > These patches support upcoming UV systems that do not have a UV HUB.
-> > > 
-> > > 	* Save OEM_ID from ACPI MADT probe
-> > > 	* Return UV Hubless System Type
-> > > 	* Add return code to UV BIOS Init function
-> > > 	* Setup UV functions for Hubless UV Systems
-> > > 	* Add UV Hubbed/Hubless Proc FS Files
-> > > 	* Decode UVsystab Info
-> > > 	* Account for UV Hubless in is_uvX_hub Ops
-> > 
-> > Beyond addressing Christoph's feedback, please also make sure the series
-> > applies cleanly to tip:master, because right now it doesn't.
-> > 
-> > Thanks,
-> > 
-> > 	Ingo
-> > 
-> 
-> I will do this, and retest.  Currently we are using the latest upstream
-> version but obviously that thinking is flawed, since we are hoping to
-> get into the next merge period.
-
-You are really cutting it close timing-wise ... unless by 'next' you mean 
-not v5.4 but v5.5?
-
-> I also noticed that the MAINTAINERS list for UV is out of date, I will 
-> tend to that too.
-
-Thanks!
-
-	Ingo
+Rob
