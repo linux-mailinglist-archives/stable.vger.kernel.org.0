@@ -2,106 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AEDA9DB2
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 11:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93478A9DB6
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 11:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731760AbfIEJBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 05:01:40 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:33129 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726231AbfIEJBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 05:01:40 -0400
-Received: by mail-lf1-f67.google.com with SMTP id d10so1364276lfi.0;
-        Thu, 05 Sep 2019 02:01:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=fHVuqCr/OyW5JaHz1Q69QLOGPQ2rkaR3lF0yBK4M8Ag=;
-        b=hiP1gVSOjoIKsZgTTcB3iL9nI7syDMYFdbnzOdTh5Yr0bWkAgW1eQu7h4eksrVhSAj
-         IBZMAMFMjEiZhOWkFuK5Z3riVLpHTs4OJPPM8gYVkRFq9n/tZN8eZj0hyUoKJdT3N6Fu
-         i3ElVsPsEtDtsOudGRhBt8eA3b+0wk+rJ5aYm8Sl8kMgE7Zk+i7bC/6jkT9BARNPKlfG
-         fhDYbIM2umfL+TnJ0lNPuENBvNfgNvcuGVvaZJosx5kOUhyp6dsd6qoHelPKjueDLBS2
-         G+i3qTZHX7dRQBQg413cZ+afNdLoJDVczKJIcPvCXvz6CiDY/qaqPBS7jFkvP60lX/HR
-         oTJA==
-X-Gm-Message-State: APjAAAV3+K8Ghg3F+okHT88gU16AJGzsAwE++iHNVopuVqFWkoOIV6tc
-        Y1kd8tZWID2p9pbH+FnJIpw=
-X-Google-Smtp-Source: APXvYqwj7nV8uxnkZA0b7EF5NQVK+3un63x7J4qHgIRz6fvwJEQkUYzHXuJ9KaJvNOIBahy32bWMjg==
-X-Received: by 2002:ac2:41ca:: with SMTP id d10mr1521472lfi.11.1567674098011;
-        Thu, 05 Sep 2019 02:01:38 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id m10sm314041lfo.69.2019.09.05.02.01.37
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 05 Sep 2019 02:01:37 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92)
-        (envelope-from <johan@kernel.org>)
-        id 1i5ndz-0008L3-0O; Thu, 05 Sep 2019 11:01:31 +0200
-Date:   Thu, 5 Sep 2019 11:01:30 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Baolin Wang <baolin.wang@linaro.org>
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        lanqing.liu@unisoc.com, linux-serial@vger.kernel.org,
-        arnd@arndb.de, orsonzhai@gmail.com, vincent.guittot@linaro.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [BACKPORT 4.14.y v2 6/6] serial: sprd: Modify the baud rate
- calculation formula
-Message-ID: <20190905090130.GF1701@localhost>
-References: <cover.1567649728.git.baolin.wang@linaro.org>
- <4fe6ec82960301126b9f4be52dd6083c30e17420.1567649729.git.baolin.wang@linaro.org>
+        id S1726231AbfIEJDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 05:03:43 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:44917 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731660AbfIEJDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 05:03:43 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 817F068C;
+        Thu,  5 Sep 2019 05:03:39 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 05 Sep 2019 05:03:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=H
+        C9eg9snVfiloyfXDdAH6KobugN4wqDmlyk9BxglEuU=; b=Fi1NuvnZZT5YDlmi7
+        SqQOc6IxK3PoFZmKP0GgIeX1gmEyxFSxG9ODPsp/i4G6u9pPGihm40wrV7IZBZ/G
+        M3GfNmpOfrB5TBTuqQwpZXpYqhzpPtNuB5IXTPUxLx9kUWq71pL8xYrCbSjn0G+i
+        N2fXhvPuEYLiqPSo9xjoE+n3mHtMJys4xV3z0hFbRRpJTXk2Tsqjygr/jgr31FpS
+        eHncLLG2/APdyNII8FIc1FrO+MZTxamcTBGeMysrbBwUCuWMkUQ0/bCg9YsIY12Y
+        STVtV+tlf5UrlDpw8ILAPX+zmnbm7Vl/XZIyAKnNFmTIMPFvsI9pR4wUndMN7ACI
+        YAFUg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=HC9eg9snVfiloyfXDdAH6KobugN4wqDmlyk9BxglE
+        uU=; b=AjxgRNI59JEhqgVHho8N/+Sw94ZaRpBtVHFAoyaoniN3hn16EgqoSHEoh
+        hzCFUaj5gODsfp8Ay5FeZYAhwjymehVHs5Fjty7tBa0MOsg7jtyG1iz7i+RZgQHb
+        RZEMyWE61YHCdEuJ6yZffpPIWxQORsm55HPScUUfkNnrou626DJ7saZrX8zJUG0c
+        f1/zAgSZlx1l6vZgSUcjuJoJhgTils+cAPqUR4npolT9Xox9Wjz/0BkWqDw5tt4j
+        SzbzcQFHGnF3zXMlgOfROEg/618LKeScLMuGPYAAbYIdgaMkM7NoP/pRhI4P6pgT
+        8JdDjlwl54BW6d3edMuiIYCM7/KiQ==
+X-ME-Sender: <xms:as9wXdZVJ28oIMBKMmH6H42UWu5GB4HH5TjZtLzWvcXt7mn6BkTNVg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudejjedguddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtredunecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepfhhrvggvug
+    gvshhkthhophdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhep
+    mhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiii
+    gvpedt
+X-ME-Proxy: <xmx:as9wXU2Xknu5tcRdzFhoUE0LYM5oxQMFcjnmYzl2kgDR1PBKnPBrYg>
+    <xmx:as9wXVbdE2fg4jQvNrTs7RIYBMUPTv9wdBXgSi7cZ11rqNJX2KhRtQ>
+    <xmx:as9wXZnY0HHUkEh7GA7TVKtHVZo45BFzZUSAJzb47fpGXp_OwGUJfw>
+    <xmx:a89wXSHBolyaNyxOrhNO46JMbDvBDjaCQlPZk8encT_3K8Zw0XIGYA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5DF7FD6005A;
+        Thu,  5 Sep 2019 05:03:38 -0400 (EDT)
+Date:   Thu, 5 Sep 2019 11:03:36 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?iso-8859-1?Q?S=E9bastien?= Szymanski 
+        <sebastien.szymanski@armadeus.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 147/167] drm/panel: Add support for Armadeus
+ ST0700 Adapt
+Message-ID: <20190905090336.GA29020@kroah.com>
+References: <20190903162519.7136-1-sashal@kernel.org>
+ <20190903162519.7136-147-sashal@kernel.org>
+ <CAL_JsqJrwwsp1wjCBnNmx45ZiLTXVY_nCfN6OrJ5o9dLbc+_2w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <4fe6ec82960301126b9f4be52dd6083c30e17420.1567649729.git.baolin.wang@linaro.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAL_JsqJrwwsp1wjCBnNmx45ZiLTXVY_nCfN6OrJ5o9dLbc+_2w@mail.gmail.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 11:11:26AM +0800, Baolin Wang wrote:
-> From: Lanqing Liu <lanqing.liu@unisoc.com>
+On Thu, Sep 05, 2019 at 09:55:58AM +0100, Rob Herring wrote:
+> On Tue, Sep 3, 2019 at 5:31 PM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > From: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+> >
+> > [ Upstream commit c479450f61c7f1f248c9a54aedacd2a6ca521ff8 ]
+> >
+> > This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+> > Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+> > that it can be connected on the TFT header of Armadeus Dev boards.
+> >
+> > Cc: stable@vger.kernel.org # v4.19
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> > Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+> > Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> > Link: https://patchwork.freedesktop.org/patch/msgid/20190507152713.27494-1-sebastien.szymanski@armadeus.com
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
+> >  drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
+> >  2 files changed, 38 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
 > 
-> [Upstream commit 5b9cea15a3de5d65000d49f626b71b00d42a0577]
-> 
-> When the source clock is not divisible by the expected baud rate and
-> the remainder is not less than half of the expected baud rate, the old
-> formular will round up the frequency division coefficient. This will
-> make the actual baud rate less than the expected value and can not meet
-> the external transmission requirements.
-> 
-> Thus this patch modifies the baud rate calculation formula to support
-> the serial controller output the maximum baud rate.
-> 
-> Signed-off-by: Lanqing Liu <lanqing.liu@unisoc.com>
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
->  drivers/tty/serial/sprd_serial.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-> index e902494..72e96ab8 100644
-> --- a/drivers/tty/serial/sprd_serial.c
-> +++ b/drivers/tty/serial/sprd_serial.c
-> @@ -380,7 +380,7 @@ static void sprd_set_termios(struct uart_port *port,
->  	/* ask the core to calculate the divisor for us */
->  	baud = uart_get_baud_rate(port, termios, old, 0, SPRD_BAUD_IO_LIMIT);
->  
-> -	quot = (unsigned int)((port->uartclk + baud / 2) / baud);
-> +	quot = port->uartclk / baud;
+> Looks like a new feature, not stable material. Not sure why it got
+> tagged for stable.
 
-Are you sure the original patch is even correct?
+New device ids/tables are able to be added to stable kernels, since,
+well, forever :)
 
-By replacing the divisor rounding with truncation you are introducing
-larger errors for some baud rates, something which could possibly even
-break working systems.
+thanks,
 
-Perhaps the original patch should even be reverted, but in any case
-backporting this to stable looks questionable.
-
->  
->  	/* set data length */
->  	switch (termios->c_cflag & CSIZE) {
-
-Johan
+greg k-h
