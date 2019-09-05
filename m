@@ -2,74 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E13BAABCF
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 21:16:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D45AAC54
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 21:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388503AbfIETQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 15:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726097AbfIETQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Sep 2019 15:16:06 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C64032070C;
-        Thu,  5 Sep 2019 19:16:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567710967;
-        bh=1c56GflaBJYpW7I3V954ev68I6Ir7BAtdC3/zgNPSqI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E7LjTUVI7y9W4bUUFT0EKaEtlID3NjqyjFY7x8/xLimfn4sx6gjuIBcI6We6P6zs4
-         RqbB3LKdzAzOll1M+g2fQEtZOcn2LkdBOMHrNx+6C7xWwA7xEbaJU9+Fo4DJvTjn/r
-         fx17ENyj1rPGNUTbMwIa+jh6NwIvjlUg8/e6mAZw=
-Date:   Thu, 5 Sep 2019 21:16:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+        id S2403967AbfIETub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 15:50:31 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:39948 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391509AbfIETuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 15:50:20 -0400
+Received: by mail-io1-f68.google.com with SMTP id h144so7501392iof.7;
+        Thu, 05 Sep 2019 12:50:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=m0NtsRxeuK1+l8toJgXjCUzorXMC0p0PoCXPP7s64bE=;
+        b=aPkfZ/ro6nm5G8OA3TvPBAPJ3If/AwjZ31fFqZblCq0YviXO1Yd6xiH3lIaAjDGnXk
+         oRbiJeCQpczUTneO1hWN+iiKz4b1VU7ymFchKhHzxwHR7/zRRcLaPA3MuIWq+xnlLVsI
+         U3AITEvbg3YgxGkmvM44DKr7i8U1Q7FJxN8OVU3lWaD8HIyktVBrJ2j3AsTYLD9davZ9
+         cEspVGwDBZOGIQdeU4tdhaXkSGwzaj8lCwZPaSa14Ih7P093bkIdLawy3WnrcQBHUJap
+         +eGBeGJkLowAl2dMZY/MsqzDc7cH11ixLDswqSsTix3Nh05BFo/S++xOUkGBt+izLNC1
+         hNPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=m0NtsRxeuK1+l8toJgXjCUzorXMC0p0PoCXPP7s64bE=;
+        b=fRb/3kBaB1grJx3hbcZFTrr3weeKghCuDXXq/KbOEuYEjZ53PNEhIj8P5gTmFadFtr
+         P5Vf+e2Na+OQioKdfhZK7r+hnMQXlKxZnPzB3zOfm2XE05cpiKMLkOcWBbnRcqka7ylK
+         3T2x+pQEYNxkXX9obEqiHpjT29z2TI/ETpQh6Fzdj08X9zelB5+ZP46gbJ5hIYiCK0LT
+         tto6cMHOZdFRzcLgra2/JdoBHVSXZVqXXPkOoFREvLS4L3NSEBio/ym9M3QDYdR7YLMT
+         buMdrwsC6ZZVMK8Rv/o6l7njxS0jUMa1ZDBB84JbxMmeuu37VyqcDepBlBM9vrIWMznq
+         2h/Q==
+X-Gm-Message-State: APjAAAUc/JrqO8nHOK+pexImr9/Rr5RhN4ARhRVnSY9VDzP2QwyD/hZ9
+        E31TuVG74mbUjz3pxi49qZU=
+X-Google-Smtp-Source: APXvYqyyW3qMLfOYq8S97IamK8vrqK14u3FJjP0cM5OOKHN9MFM7rxiDvK7D2Lce5ekw6xXd2R79yw==
+X-Received: by 2002:a5d:9342:: with SMTP id i2mr5838470ioo.297.1567713020057;
+        Thu, 05 Sep 2019 12:50:20 -0700 (PDT)
+Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
+        by smtp.gmail.com with ESMTPSA id l21sm2092513iom.24.2019.09.05.12.50.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Sep 2019 12:50:19 -0700 (PDT)
+Date:   Thu, 5 Sep 2019 13:50:17 -0600
+From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.2 000/143] 5.2.12-stable review
-Message-ID: <20190905191604.GB15748@kroah.com>
-References: <20190904175314.206239922@linuxfoundation.org>
- <f1f7fd91-061b-9646-20e8-297dfa2262c4@linaro.org>
+Subject: Re: [PATCH 4.4 00/77] 4.4.191-stable review
+Message-ID: <20190905195017.GA3397@JATN>
+References: <20190904175303.317468926@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f1f7fd91-061b-9646-20e8-297dfa2262c4@linaro.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 12:29:57PM -0500, Daniel Díaz wrote:
-> Hello!
+On Wed, Sep 04, 2019 at 07:52:47PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.191 release.
+> There are 77 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On 9/4/19 12:52 PM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.2.12 release.
-> > There are 143 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri 06 Sep 2019 05:50:23 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.12-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+> Responses should be made by Fri 06 Sep 2019 05:50:23 PM UTC.
+> Anything received after that time might be too late.
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.191-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Thanks for testing all of these and letting me know.
+Compiled, booted, and no regressions on my system.
 
-greg k-h
+-Kelsey
