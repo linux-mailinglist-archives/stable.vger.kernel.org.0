@@ -2,133 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6743A9F03
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 11:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05AEA9F1E
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 12:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732655AbfIEJ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 05:58:19 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:42085 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732586AbfIEJ6T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 05:58:19 -0400
-Received: by mail-ot1-f68.google.com with SMTP id c10so1544586otd.9
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 02:58:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hnbGMV0ke6efL1y6IAGd1/5aAnuIrZOt2ZdaXM11mnY=;
-        b=Zb2EdgevwrOivl4Hpeog1dvZrPbCgAaPFDKZ1C3ZASNOtO2lBM0J3kYJVSSl85H+Hi
-         2j0MZZ9oPjruXgBhJ2YdPy4c1ZQEedLBNfOIWHibLTpWiTleNytKbk/lEYL+bIXCzaGK
-         hg1eJxfQ8pOKwflrGHxEW/+SJxCHXiuabJynduPkE2cFzvwL4UNCjHhWLI0A/2q9jq3I
-         zjeaYdf+zlKS2TmGcZq1miIb/UQQroStKlhR9UjuAf3SwFvld9Enx2BWqFz5poWUlSjT
-         ABHCTAJi+YAiRLHF+ZFwta119HWm/0QIkeEb7EMzOIICCuwCZKUPwF6nw8Musy5MUuBn
-         OtWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hnbGMV0ke6efL1y6IAGd1/5aAnuIrZOt2ZdaXM11mnY=;
-        b=oUFH9090tqY3qwlsAHV5T5/3+MQxEmmx+svz7+NNmKDP4RK3+p3y4m/3lhFKr0oNQN
-         5FKfbe8LSb2hzNFH4wwjRWHsyZskiH4gwHOHSPxn90WgPPw3eiNjkDQ+waLNrjBIlkoI
-         eNFC77+29lbCT9bhGgEnQvxdmfVIXHcqlG2aOIL+gn3GkasQh5VDPYb0T4J3liJen+8+
-         Ks/7w7AuXjDGXOSPSavJ99oYs60a3hjmtb7CrsWmFdRtWoMJmz9CXpLql7saO6teaH/6
-         DGzVePN+agnuHs/1z+ywfG9apdhr+TFxqGTldwymXJbYqfaYg7Vf/Ob54ZXOLuMeT4Kf
-         JqEw==
-X-Gm-Message-State: APjAAAU1ZaUtrGezw02gXLsZ0FM/SHEHOncf3xQgx6eCWSRiulK23hOx
-        8xMA3y09L2OATVbkBi5nnYZFL4Cs1ZyPYVlcodbB07/2gLgCmw==
-X-Google-Smtp-Source: APXvYqzCDH1YCCSMsIEkv4xJY+H+7KZ47ifg63IfI8eOQxPZyPeNDZYxzm7hF0g59E5d7DvOBE8Tw7cuqXc2nDu40Vc=
-X-Received: by 2002:a9d:6304:: with SMTP id q4mr1681677otk.269.1567677497646;
- Thu, 05 Sep 2019 02:58:17 -0700 (PDT)
-MIME-Version: 1.0
-References: <cover.1567649728.git.baolin.wang@linaro.org> <4fe6ec82960301126b9f4be52dd6083c30e17420.1567649729.git.baolin.wang@linaro.org>
- <20190905090130.GF1701@localhost>
-In-Reply-To: <20190905090130.GF1701@localhost>
-From:   Baolin Wang <baolin.wang@linaro.org>
-Date:   Thu, 5 Sep 2019 17:58:05 +0800
-Message-ID: <CAMz4kuJGmQxfy5mi1aZNL8SA8MQBSTTyDeWcHHEtG2aXsFZgug@mail.gmail.com>
-Subject: Re: [BACKPORT 4.14.y v2 6/6] serial: sprd: Modify the baud rate
- calculation formula
-To:     Johan Hovold <johan@kernel.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>, lanqing.liu@unisoc.com,
-        linux-serial@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S2387707AbfIEKAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 06:00:52 -0400
+Received: from dc8-smtprelay2.synopsys.com ([198.182.47.102]:44204 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387592AbfIEKAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 06:00:52 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 47DFFC0DD6;
+        Thu,  5 Sep 2019 10:00:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1567677651; bh=Ni9sjBFke5ST6exyzATqN84XzCCoj9ceZGLl4BFE4IY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:In-Reply-To:
+         References:From;
+        b=MIlLrbgSmKUQ05aYWhiOIFaTIOXKQm/drAB6X9hpRl+V3B4CPuBaGcv/fWmlMcdLi
+         iyZCfvdyfk6AVxSNZ1qlC8Dji5jM9rMbWu2YsceW0Q8DvHtlckMTPzGk9JuufZG3J0
+         oxGSUOZb4jtOnRulUBFS+MaqedwCqVfWFo+VRoltCTKUmI66dygQWGMfzZn9zy3uQB
+         CjBHm3Es5P2CFlZf5rMYcLQmWOMNCmpmX8/zQomBTWKA5iojltBZmo1kCYLmOnMzkM
+         rqr8aklEq+maiYWIipu/XoWHdNEayEA4ihb348I14qBzMZNdExjsgN/jrB28AqSA3n
+         fV5AZoZEybQ1g==
+Received: from de02.synopsys.com (de02.internal.synopsys.com [10.225.17.21])
+        by mailhost.synopsys.com (Postfix) with ESMTP id 7B74CA005E;
+        Thu,  5 Sep 2019 10:00:49 +0000 (UTC)
+Received: from de02dwia024.internal.synopsys.com (de02dwia024.internal.synopsys.com [10.225.19.81])
+        by de02.synopsys.com (Postfix) with ESMTP id 5E1AC3F3B5;
+        Thu,  5 Sep 2019 12:00:49 +0200 (CEST)
+From:   Vitor Soares <Vitor.Soares@synopsys.com>
+To:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-i3c@lists.infradead.org
+Cc:     bbrezillon@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        pgaj@cadence.com, Joao.Pinto@synopsys.com,
+        Vitor Soares <Vitor.Soares@synopsys.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 2/5] i3c: master: make sure ->boardinfo is initialized in add_i3c_dev_locked()
+Date:   Thu,  5 Sep 2019 12:00:35 +0200
+Message-Id: <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <cover.1567608245.git.vitor.soares@synopsys.com>
+References: <cover.1567608245.git.vitor.soares@synopsys.com>
+In-Reply-To: <cover.1567608245.git.vitor.soares@synopsys.com>
+References: <cover.1567608245.git.vitor.soares@synopsys.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Johan,
+The newdev->boardinfo assignment was missing in
+i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
+propagated to i3c_dev_desc.
 
-On Thu, 5 Sep 2019 at 17:01, Johan Hovold <johan@kernel.org> wrote:
->
-> On Thu, Sep 05, 2019 at 11:11:26AM +0800, Baolin Wang wrote:
-> > From: Lanqing Liu <lanqing.liu@unisoc.com>
-> >
-> > [Upstream commit 5b9cea15a3de5d65000d49f626b71b00d42a0577]
-> >
-> > When the source clock is not divisible by the expected baud rate and
-> > the remainder is not less than half of the expected baud rate, the old
-> > formular will round up the frequency division coefficient. This will
-> > make the actual baud rate less than the expected value and can not meet
-> > the external transmission requirements.
-> >
-> > Thus this patch modifies the baud rate calculation formula to support
-> > the serial controller output the maximum baud rate.
-> >
-> > Signed-off-by: Lanqing Liu <lanqing.liu@unisoc.com>
-> > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > ---
-> >  drivers/tty/serial/sprd_serial.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-> > index e902494..72e96ab8 100644
-> > --- a/drivers/tty/serial/sprd_serial.c
-> > +++ b/drivers/tty/serial/sprd_serial.c
-> > @@ -380,7 +380,7 @@ static void sprd_set_termios(struct uart_port *port,
-> >       /* ask the core to calculate the divisor for us */
-> >       baud = uart_get_baud_rate(port, termios, old, 0, SPRD_BAUD_IO_LIMIT);
-> >
-> > -     quot = (unsigned int)((port->uartclk + baud / 2) / baud);
-> > +     quot = port->uartclk / baud;
->
-> Are you sure the original patch is even correct?
->
-> By replacing the divisor rounding with truncation you are introducing
-> larger errors for some baud rates, something which could possibly even
-> break working systems.
+Fix this by trying to initialize device i3c_dev_boardinfo if available.
 
-Our UART clock source is 26M, and there is no difference for lower
-than 3M baud rate between dividing closest or dividing down. But we
-have one special use case is our BT/GPS want to set 3.25M baud rate,
-but we have to select 3M baud rate in baud_table since no 3.25M
-setting. So in this case if we use the old formula, we will only get
-about 2.8M baud rate, which can not meet our requirement. If we change
-the dividing down method, we can get 3.25M baud rate.
+Cc: <stable@vger.kernel.org>
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+---
+Change in v3:
+  - None
 
-I have to say this is a workaroud for our special case, and can solve
-our problem. If you have any good suggestion, we can change to a
-better solution. Thanks.
+Changes in v2:
+  - Change commit message
+  - Change i3c_master_search_i3c_boardinfo(newdev) to
+  i3c_master_init_i3c_dev_boardinfo(newdev)
+  - Add fixes, stable tags
 
->
-> Perhaps the original patch should even be reverted, but in any case
-> backporting this to stable looks questionable.
->
-> >
-> >       /* set data length */
-> >       switch (termios->c_cflag & CSIZE) {
->
-> Johan
+ drivers/i3c/master.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
-
-
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index 586e34f..9fb99bc 100644
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -1798,6 +1798,22 @@ i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
+ 	return NULL;
+ }
+ 
++static void i3c_master_init_i3c_dev_boardinfo(struct i3c_dev_desc *dev)
++{
++	struct i3c_master_controller *master = i3c_dev_get_master(dev);
++	struct i3c_dev_boardinfo *boardinfo;
++
++	if (dev->boardinfo)
++		return;
++
++	list_for_each_entry(boardinfo, &master->boardinfo.i3c, node) {
++		if (dev->info.pid == boardinfo->pid) {
++			dev->boardinfo = boardinfo;
++			return;
++		}
++	}
++}
++
+ /**
+  * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
+  * @master: master used to send frames on the bus
+@@ -1818,8 +1834,9 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 				  u8 addr)
+ {
+ 	struct i3c_device_info info = { .dyn_addr = addr };
+-	struct i3c_dev_desc *newdev, *olddev;
+ 	u8 old_dyn_addr = addr, expected_dyn_addr;
++	enum i3c_addr_slot_status addrstatus;
++	struct i3c_dev_desc *newdev, *olddev;
+ 	struct i3c_ibi_setup ibireq = { };
+ 	bool enable_ibi = false;
+ 	int ret;
+@@ -1878,6 +1895,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 	if (ret)
+ 		goto err_detach_dev;
+ 
++	i3c_master_init_i3c_dev_boardinfo(newdev);
++
+ 	/*
+ 	 * Depending on our previous state, the expected dynamic address might
+ 	 * differ:
+@@ -1895,7 +1914,11 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 	else
+ 		expected_dyn_addr = newdev->info.dyn_addr;
+ 
+-	if (newdev->info.dyn_addr != expected_dyn_addr) {
++	addrstatus = i3c_bus_get_addr_slot_status(&master->bus,
++						  expected_dyn_addr);
++
++	if (newdev->info.dyn_addr != expected_dyn_addr &&
++	    addrstatus == I3C_ADDR_SLOT_FREE) {
+ 		/*
+ 		 * Try to apply the expected dynamic address. If it fails, keep
+ 		 * the address assigned by the master.
 -- 
-Baolin Wang
-Best Regards
+2.7.4
+
