@@ -2,98 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1056CAA9E4
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 19:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28E8AA9F1
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 19:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388209AbfIERWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 13:22:50 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:37904 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387700AbfIERWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 13:22:50 -0400
-Received: by mail-io1-f66.google.com with SMTP id p12so6572282iog.5;
-        Thu, 05 Sep 2019 10:22:49 -0700 (PDT)
+        id S1731785AbfIERZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 13:25:04 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:35579 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731753AbfIERZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 13:25:03 -0400
+Received: by mail-oi1-f193.google.com with SMTP id a127so2542973oii.2
+        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 10:25:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=h6XoJHJRp5DArbWmdsadcBh6z83BVCBg1lEJgWUn+MU=;
-        b=qtt0GUuuzbT+VVZKgagf+GRHgGI0fW1B4GMj/VCLED/LaUQtC3Doa6lDQZmwnyIvkV
-         9psItuNC8ixEYfpe0kkcXATOMiVrDlbNR3wVgMnjNbZ56FIzek+nJpUq0PkvjVd2Piuk
-         3p9T409z7ubUuFeyV52eRAj4mu0pAcHM7GJ7KwHH6ZmBk7yTAHIlZt0zdaqhiml2jHTg
-         zd89V+AFtTv5neOc3WUAJIJ/sKDy7Evom/9L+XLF66QJdSrTWr5S8ZbEGuIfbY7X6HEv
-         m57Q/8YcJE2ZRvsH6OYv6HCXOHjRsVnVkwyWjDDp5+1kii6M9kxBNSirWw0CjEsJLlN0
-         VOvQ==
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=prRRMkWToJI2bk2y8u3lik5ZQgNLz/rRSFTfZW1+xRE=;
+        b=rVfiUwIg5ZCp5zoSDiVXFhpuFqUDpm/sqowOzruH/p8Tv5aO+YkQj1flrXqfzRRKO4
+         dWCs3dfP3n1Do0N5MqYn+8Bz5vK3R/IN9I5UEa7ryd5bxGccc4r68WQUBGoT885WCmjk
+         V2shp1PcCdRZmKoqas3qNE3XsgdF9aPI18waQiMTKQ8+GWjXKXz3GKYqP1J7jr86VNEg
+         wB1nMIW/4VBhbhEZarAdEHd9Vjx0gL7AQF1SCGZPtbyvDr2eqEH5C988trCNr+hjJHOV
+         TtuPZRKUFcRL0kNCGVjZ6oSP2qsFA8fjqS34Td5PV3IfHAKxKVfX5brCgHa15qQ9y0gt
+         mQag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=h6XoJHJRp5DArbWmdsadcBh6z83BVCBg1lEJgWUn+MU=;
-        b=Z53e4uNx0Ju+YgQ/ROJ3wNB8EiujsUVWaOGwKzNkDUcFUUQHJDyhONyWegWkKNS/0L
-         bfPuoRCuBz7OORuneanxaUAJ9DoFXgngE9A1WyCwoGoz1Ep8+wsiEEhJbrDn36IoVqEE
-         c/+lz4SrK97nClkM0+PSkF8Vb/xDoSmV6bNEUYRo2IjRbJCwMMEYLbkrwAQIzop4qm7t
-         czYxSzETwTFfNiGAsUpzZaOdjIeMUBxL6sDyPVnMGuHwcqn2LoZRgqstsyeJJkQyfrX9
-         LAgNpTNylkdYJcs/x3Z87oAUi3LXQk1U9D7G9/wxCLEm38fGND9CRW8T3q+nuIaNbYu2
-         P+LQ==
-X-Gm-Message-State: APjAAAVt54JaVM2UrhYudXImmcDiWSKFR5Tpr957jtD/trq5sRYMAI81
-        x1gZLz7qrCIdwWwjG2w2Ar5LxOUvG8YlsAVF7RU=
-X-Google-Smtp-Source: APXvYqwR6nUdIEnweUzSLPMmz8Y4JAgL2rhI2t+NPwcMEOMxKH7cQoHHYETKZPPYFXTwePI2PBrbWLvEK7QmYjbydaQ=
-X-Received: by 2002:a6b:cac2:: with SMTP id a185mr5529429iog.142.1567704168865;
- Thu, 05 Sep 2019 10:22:48 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=prRRMkWToJI2bk2y8u3lik5ZQgNLz/rRSFTfZW1+xRE=;
+        b=aPvVi3EZMCBu1iy1Ign8IAoQPWYxnpk7CAvUrRrk+NIMt6tl2I1Y7ht3mQoMIMcbUn
+         nI9tOyLON5Y6E5NKL/H7nIpN4FOX71I3lyLFBjPMQHunAu1oSQSsrSeGSfCi5+GwAcpO
+         DZDYNbrwAMvkMrVQe8V/13k3P3upDmRQaSK0lv7ojg9zzN/7wq80TsXLUUV93U+c2Xl7
+         QEyQ5rtIfI9U+d3dOwaBYHhz6SHhpmsNBzlqZ9bYc8C+jtNLlPKJvt9TBZzDFmQG9iH0
+         NgVqcpNj18n0pAieIybz30X4ZkNE/zoAmC2EPMbiH6apo+jc+sTXSUDjZnFjdJAWgKXL
+         CFPA==
+X-Gm-Message-State: APjAAAUqdxhRvcS/Vh7Dvp0UG3Un3lcxMZjrgsufY0eEk4MLbmOdxlGE
+        MC4IvqxzuxlCHLWeSx4ygYtB+TJrXFiyjA==
+X-Google-Smtp-Source: APXvYqyj4InvlG7DmO+ETwCSJE8YGyhVeNOTYqgactH87hCQvyev+cZWGnu9dMbZsYmmyWgsE7yZ0A==
+X-Received: by 2002:a54:468c:: with SMTP id k12mr3570100oic.63.1567704301518;
+        Thu, 05 Sep 2019 10:25:01 -0700 (PDT)
+Received: from [192.168.17.59] (CableLink-189-218-29-211.Hosts.InterCable.net. [189.218.29.211])
+        by smtp.gmail.com with ESMTPSA id e8sm323924oig.1.2019.09.05.10.24.59
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Sep 2019 10:25:00 -0700 (PDT)
+Subject: Re: [PATCH 4.4 00/77] 4.4.191-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20190904175303.317468926@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <ba63522e-ece8-5de5-4615-5e96f9c0c920@linaro.org>
+Date:   Thu, 5 Sep 2019 12:24:58 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20190905152155.1392871-1-arnd@arndb.de> <20190905152155.1392871-2-arnd@arndb.de>
-In-Reply-To: <20190905152155.1392871-2-arnd@arndb.de>
-From:   Matt Turner <mattst88@gmail.com>
-Date:   Thu, 5 Sep 2019 10:22:36 -0700
-Message-ID: <CAEdQ38G24-s0x+xKzUfg1GH8JAPtcAq5e5L37SnOZ3gQth1STQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] ipc: fix sparc64 ipc() wrapper
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Christian Brauner <christian@brauner.io>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        y2038 Mailman List <y2038@lists.linaro.org>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        stable@vger.kernel.org, sparclinux@vger.kernel.org,
-        Linux API <linux-api@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190904175303.317468926@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 5, 2019 at 8:23 AM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> Matt bisected a sparc64 specific issue with semctl, shmctl and msgctl
-> to a commit from my y2038 series in linux-5.1, as I missed the custom
-> sys_ipc() wrapper that sparc64 uses in place of the generic version that
-> I patched.
->
-> The problem is that the sys_{sem,shm,msg}ctl() functions in the kernel
-> now do not allow being called with the IPC_64 flag any more, resulting
-> in a -EINVAL error when they don't recognize the command.
->
-> Instead, the correct way to do this now is to call the internal
-> ksys_old_{sem,shm,msg}ctl() functions to select the API version.
->
-> As we generally move towards these functions anyway, change all of
-> sparc_ipc() to consistently use those in place of the sys_*() versions,
-> and move the required ksys_*() declarations into linux/syscalls.h
->
-> Reported-by: Matt Turner <mattst88@gmail.com>
-> Fixes: 275f22148e87 ("ipc: rename old-style shmctl/semctl/msgctl syscalls")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> Hi Matt,
->
-> Can you check that this solves your problem?
+Hello!
 
-Works great. Thank you Arnd!
+On 9/4/19 12:52 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.191 release.
+> There are 77 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 06 Sep 2019 05:50:23 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.191-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Tested-by: Matt Turner <mattst88@gmail.com>
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.191-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+git branch: linux-4.4.y
+git commit: fab7823b08aae873a7ab1918c9a0a5125dc89754
+git describe: v4.4.190-78-gfab7823b08aa
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/build/v4.4.190-78-gfab7823b08aa
+
+
+No regressions (compared to build v4.4.190)
+
+No fixes (compared to build v4.4.190)
+
+Ran 20009 total tests in the following environments and test suites.
+
+Environments
+--------------
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kvm-unit-tests
+* install-android-platform-tools-r2600
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* prep-tmp-disk
+* ssuite
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.191-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.191-rc1-hikey-20190904-546
+git commit: 0f182005f060ccc4fa2d14084c4a207aaa2207e4
+git describe: 4.4.191-rc1-hikey-20190904-546
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4-oe/build/4.4.191-rc1-hikey-20190904-546
+
+
+No regressions (compared to build 4.4.191-rc1-hikey-20190827-544)
+
+No fixes (compared to build 4.4.191-rc1-hikey-20190827-544)
+
+Ran 1533 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
