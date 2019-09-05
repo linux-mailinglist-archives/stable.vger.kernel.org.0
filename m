@@ -2,82 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD31A984A
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 04:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01BEA98B2
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 05:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730451AbfIECUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Sep 2019 22:20:32 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:39759 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730273AbfIECUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 22:20:32 -0400
-Received: by mail-wr1-f65.google.com with SMTP id t16so782889wra.6
-        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 19:20:30 -0700 (PDT)
+        id S1730232AbfIEDFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Sep 2019 23:05:50 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:39883 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729366AbfIEDFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Sep 2019 23:05:49 -0400
+Received: by mail-pl1-f196.google.com with SMTP id bd8so565567plb.6
+        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 20:05:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yUV0LFmuD4w2VK31lJUAxT6aOwDIfbXLOFt99Otv1TA=;
-        b=JMPa18B+1uZ3/eiiyylGl65S2BVMmVc+/U47ClAenwGSD+tpRe5SJgKzH9pU92V73q
-         V/18SOw8Z5/8d0Y9JcBR158PfPlaIh0KBEVYRynxzuHhSC1TMDiUtpnw12i2qt5pZ1Wb
-         zOrsjIwct16El4sU2BWqBPLIFkdzQOqEnt/TmYpQWV3QMUyOgy8Bd8mjHIwJh2WozTX9
-         9lTbwTLXGsgTdMJHIX9wKjUPIE0C5lP89OWx54YpEswEKi0g3XJ4iKyzgPDtfxK+TmYk
-         Aksfs+WJn6x58zqOfH9CvmQS/n3l988VCChKvTCbTJoNk3RToUMcN/jVDejM5jrt/YZ2
-         1MSQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=LeRnFkCkMBcGZ5PE2AX045vU+t/z+Mh9Iis8KFnVK34=;
+        b=YssohchZvGx19/YD9qDr9FKNorWv8ge7xcRcxMroT0Em375aRGQxpz1UApKthij/dQ
+         RR08hv1hMWzLHtx431Ru+YRmbw8uM3Wm8a8v2J5ZvsgJEq8jq0J8Vt0XKEmIQtmzwG2L
+         PqKS4SCLY/gNN3nG4YYnR4IQ5AQwQLQzX5JygGDUCBScptFQcE3uI1ZgVGuoUv6xcS/4
+         Nx418BiqkGEcdbYuMHEOg5HAXiJC1IU3Tm6UzULr9j8e/qJLkqJAg1AQkbeZmV9eqjS3
+         729wdCeXzFivEUv/ksYRE4zxVcQwLvbSeAj01Cr8Ye+f3h55o/f9ZHkxpX6tkqfOZW3w
+         Ck5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yUV0LFmuD4w2VK31lJUAxT6aOwDIfbXLOFt99Otv1TA=;
-        b=mpKBKPEiYIVLK3dsYQEVYFMzJyrAquXh8xy3uf9X300wz27vFjoJtYEo6ZCuEb9a/F
-         86aosoBnBWY+9OLE60wSq4CbePO3TJECiXkcNp5WCnQ7K3+8SxYS8wICNSGgn9YiaGS3
-         xvicLVY6QWDgvEKK99poQ8JWAfvx2Da7wvDYjl2Z2LPfAi+YYlrCK00NVQjl6kf6vui+
-         OOq1Mekl6pwhDPfPkh3nlyJH4sDhireXjxlP4+qS8exbcKkA4DBAAdfTmvdVAXJtqiDB
-         wgEc8tvxWCDiZQn6ZmmTtQQgLCKUJ1pfHfJgfhmOYR0+YUbnOVU7AH4vdem45T5A2e5P
-         qYdg==
-X-Gm-Message-State: APjAAAVvqeYYk7utpdrwsyPKat5jIH4B8/S5RCDGivLtHdYe4S60rcqO
-        IExsVO2T6gYh8J1SLTTkBXR0WU8tU1ozLKkZX8U=
-X-Google-Smtp-Source: APXvYqx6dQolbw8Rp/LcZrv/1k/mZG5cye9NRQhCdm7Ji8WlLBIHLw58x9t5q/LZQqF76ZkeHIjJQL+dlujcK2dNEYM=
-X-Received: by 2002:a5d:6302:: with SMTP id i2mr475900wru.249.1567650029920;
- Wed, 04 Sep 2019 19:20:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <1567536830154206@kroah.com> <20190903204427.GO5281@sasha-vm>
-In-Reply-To: <20190903204427.GO5281@sasha-vm>
-From:   Chunyan Zhang <zhang.lyra@gmail.com>
-Date:   Thu, 5 Sep 2019 10:19:53 +0800
-Message-ID: <CAAfSe-seN08PhaJ1o-X5PegsQqpYAnbZAwDXHNGcsT1pPT5wyA@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] mmc: sdhci-sprd: add get_ro hook function"
- failed to apply to 5.2-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=LeRnFkCkMBcGZ5PE2AX045vU+t/z+Mh9Iis8KFnVK34=;
+        b=uD713OTjWar/nZVA1F/bdVkqF/zfYMqmwIYPp0QkuYdZoAESmn7DBT+txrUN0ld3n9
+         DzdUtBTOVgrrPkZOaeFR6frK+kad9vaG6TjGvKH7r170726S8/8OXl8ep2YvMbnEvcVO
+         ofezLGTeKDOH525CXJaUhoeWASZq7KErsZdGX8WT/8DuF+UTnFBHJ8DUNe3TimE60eXs
+         SfLXsF7NEMQ5eldSdr/g2IA+JneNG3LJT4bIybQSRt3gCLnd7mEEljmvN+QFgoV4X2AW
+         NcL6uA67nkUgf9Y6E/+6RIhrTrwR5b734An+2OoPDLBrTKKSS0m6/dG4Tx9TF4Z7ljdm
+         NgWw==
+X-Gm-Message-State: APjAAAUtGIxUmwk/je7Nsz2AAHjMxUEuvd+xZxCA5Ywb0LPcfcgqd9Nq
+        ITwo8VIL3ZET8WLVd5uoiKguRcZt6s1azg==
+X-Google-Smtp-Source: APXvYqwF/B6Fv6rynYjc4aoz0HpuKRLUOBb10pA1gDu1IfehSXhqxMdvOgRtb8P8EEKiBOs0N729vg==
+X-Received: by 2002:a17:902:b604:: with SMTP id b4mr1035768pls.197.1567652747501;
+        Wed, 04 Sep 2019 20:05:47 -0700 (PDT)
+Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.82])
+        by smtp.gmail.com with ESMTPSA id z68sm403810pgz.88.2019.09.04.20.05.40
+        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 04 Sep 2019 20:05:46 -0700 (PDT)
+From:   Baolin Wang <baolin.wang@linaro.org>
+To:     stable@vger.kernel.org, davem@davemloft.net, kuznet@ms2.inr.ac.ru,
+        yoshfuji@linux-ipv6.org, peterz@infradead.org, mingo@redhat.com,
+        linus.walleij@linaro.org, natechancellor@gmail.com, sre@kernel.org,
+        paulus@samba.org, gregkh@linuxfoundation.org
+Cc:     edumazet@google.com, netdev@vger.kernel.org, longman@redhat.com,
+        linux-gpio@vger.kernel.org, david@lechnology.com,
+        linux-pm@vger.kernel.org, ebiggers@google.com,
+        linux-ppp@vger.kernel.org, lanqing.liu@unisoc.com,
+        linux-serial@vger.kernel.org, arnd@arndb.de,
+        baolin.wang@linaro.org, orsonzhai@gmail.com,
+        vincent.guittot@linaro.org, linux-kernel@vger.kernel.org
+Subject: [BACKPORT 4.14.y v2 0/6] Candidates from Spreadtrum 4.14 product kernel
+Date:   Thu,  5 Sep 2019 11:05:07 +0800
+Message-Id: <cover.1567649728.git.baolin.wang@linaro.org>
+X-Mailer: git-send-email 1.7.9.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 4 Sep 2019 at 04:44, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Tue, Sep 03, 2019 at 08:53:50PM +0200, gregkh@linuxfoundation.org wrote:
-> >
-> >The patch below does not apply to the 5.2-stable tree.
-> >If someone wants it applied there, or to any other stable or longterm
-> >tree, then please email the backport, including the original git commit
-> >id to <stable@vger.kernel.org>.
->
-> I've fixed it up for 5.2, it's not needed on older kernels. Contextual
-> conflict due to missing 7486831d7d6ae (mmc: sdhci-sprd: Implement the
-> get_max_timeout_count() interface), I just took 7486831d7d6ae as well.
+With Arnd's script [1] help, I found some bugfixes in Spreadtrum 4.14 product
+kernel, but missing in v4.14.141:
 
-Many thanks!
+25a09ce79639 ppp: mppe: Revert "ppp: mppe: Add softdep to arc4"
+47d3d7fdb10a ip6: fix skb leak in ip6frag_expire_frag_queue()
+5b9cea15a3de serial: sprd: Modify the baud rate calculation formula
+513e1073d52e locking/lockdep: Add debug_locks check in __lock_downgrade()
+957063c92473 pinctrl: sprd: Use define directive for sprd_pinconf_params values
+87a2b65fc855 power: supply: sysfs: ratelimit property read error message
 
-Chunyan
+[1] https://lore.kernel.org/lkml/20190322154425.3852517-19-arnd@arndb.de/T/
 
->
-> --
-> Thanks,
-> Sasha
+Changes from v1:
+ - Drop 2 unnecessary patches (patch 1 and patch 4) from v1 patch set.
+ - Add upstream commit id in change log for each stable patch.
+
+David Lechner (1):
+  power: supply: sysfs: ratelimit property read error message
+
+Eric Biggers (1):
+  ppp: mppe: Revert "ppp: mppe: Add softdep to arc4"
+
+Eric Dumazet (1):
+  ip6: fix skb leak in ip6frag_expire_frag_queue()
+
+Lanqing Liu (1):
+  serial: sprd: Modify the baud rate calculation formula
+
+Nathan Chancellor (1):
+  pinctrl: sprd: Use define directive for sprd_pinconf_params values
+
+Waiman Long (1):
+  locking/lockdep: Add debug_locks check in __lock_downgrade()
+
+ drivers/net/ppp/ppp_mppe.c                |    1 -
+ drivers/pinctrl/sprd/pinctrl-sprd.c       |    6 ++----
+ drivers/power/supply/power_supply_sysfs.c |    3 ++-
+ drivers/tty/serial/sprd_serial.c          |    2 +-
+ include/net/ipv6_frag.h                   |    1 -
+ kernel/locking/lockdep.c                  |    3 +++
+ 6 files changed, 8 insertions(+), 8 deletions(-)
+
+-- 
+1.7.9.5
+
