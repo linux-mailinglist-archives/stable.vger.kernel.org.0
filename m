@@ -2,169 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 143EDA9A16
-	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 07:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0A5A9A31
+	for <lists+stable@lfdr.de>; Thu,  5 Sep 2019 07:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730914AbfIEFb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Sep 2019 01:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730867AbfIEFb5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Sep 2019 01:31:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4EAC208E4;
-        Thu,  5 Sep 2019 05:31:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567661516;
-        bh=UM+ST/lch31SOwLIxDDNUr2BLBGn7LZYvgx8Vs+6IEc=;
-        h=Subject:To:From:Date:From;
-        b=1xMtVU+b55bybXZL9YZb2FO9FQ78+yhO+nAlScdEE3hEr9yx2rzVU3wRNrKFfoFQE
-         HOSbSrM3e9ghPfr9jfxUQGVF5fIKmXuBbrD7w2idkQZ7+di3ErUPrDVF2oqLTrbTXd
-         oHXGbKd8OIMnf8ZGJQuUD91pOw/eX55jkv6xcfRg=
-Subject: patch "USB: usbcore: Fix slab-out-of-bounds bug during device reset" added to usb-next
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Sep 2019 07:31:45 +0200
-Message-ID: <156766150524656@kroah.com>
+        id S1729366AbfIEFve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Sep 2019 01:51:34 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:43495 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726042AbfIEFve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Sep 2019 01:51:34 -0400
+Received: by mail-ot1-f68.google.com with SMTP id b2so926323otq.10
+        for <stable@vger.kernel.org>; Wed, 04 Sep 2019 22:51:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=oIyyL2k+Kx6gsc2VZuXgLDADDM5sLHRH4QY8N90RTy0=;
+        b=qECyNUrYJFZLLrnNf2G7aXpf0NQq7q2RhYrwBixOZFTZtjQ11gch8ZBpXNjKiurBTz
+         OTqCOU0p240QHmqrjtPsyRboBUw9AqRgs6oy16loQbGfCbrpsOmtJzDEis9ZGH4a7/Fb
+         cB+SuNXqLpjYKmRicOPpHIX9R6c1fhEI2YGydqEkj/CDWk4tIIK9ksvpHU4XEIsnR8/q
+         WKBAqAfXKKePUjADAoCaoTXAEWQo13yci8dol2VJOwf3O4rdN57rdn6OA9Cuk4Q09Bd8
+         zgNmvx7XL/JzdGzHnLpR1jeTkg2qOPuEOxgu5Egqa57D/lVKxAXBhk0hRJG+gbL//f1n
+         +uXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=oIyyL2k+Kx6gsc2VZuXgLDADDM5sLHRH4QY8N90RTy0=;
+        b=gO3ZCCSEdgn42TrPa6DVzL6fXphWSH2ZpWvAgmL0M0Qg8cHSXEZPOq8m0jzUtYL02k
+         9jYSsTz59vmLMcoRd7slC9+uSFqVgs5lSh3m5hBJ2sLnE6mKYDizrwXdeOYSOHgEsAF2
+         xss3tkUWiztxABKiQF+i2MGTpMb2CikF1Ey9eCU8aKnzu6jPdnJr9Qcg04TYh7r48JRs
+         OloaWIIvnuugKWNkN5yCqji82pSN1edk0N1TC23q2S/OhSeOh5mBsHBFE2z+nXoCWxCZ
+         ZR8rNdSAqOic2lZWZB5aUNx0pX7Y8A6Fts3G36oriYWXVY5m2iopJPtNRK3tYjZooQed
+         h79A==
+X-Gm-Message-State: APjAAAUVueUfC1UhZxOXadrv81uPx8ZD/DtA2pwozlatrXQlWk4lvBUY
+        yhAP0RbgZggMphp8BdxLUaz4oVwAY8OHZKMj8YU=
+X-Google-Smtp-Source: APXvYqzKDAoE80mMjytcsNpELPJlRH+PnGJCqbpj3EZ9kHLpW4XimZEeAEfCzf3Nu+dr2YWY4HudaBTALFOqVhZYrXw=
+X-Received: by 2002:a05:6830:1305:: with SMTP id p5mr1090808otq.32.1567662693684;
+ Wed, 04 Sep 2019 22:51:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a9d:170d:0:0:0:0:0 with HTTP; Wed, 4 Sep 2019 22:51:33 -0700 (PDT)
+Reply-To: joeakaba00@gmail.com
+From:   joe akaba <barrimurphy1965@gmail.com>
+Date:   Thu, 5 Sep 2019 07:51:33 +0200
+Message-ID: <CAGZA+7rd8oudcWjQxH=TTpQKr5KWHxJb9GFRLD7Op+pp+TFhhA@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hallo
 
-This is a note to let you know that I've just added the patch titled
+Mein Name ist Joe Akaba. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
+(8,5 Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
 
-    USB: usbcore: Fix slab-out-of-bounds bug during device reset
+Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
+bei einem Autounfall ums Leben gekommen ist
+und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
+nd 50%
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: joeakaba00@gmail.com
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 3dd550a2d36596a1b0ee7955da3b611c031d3873 Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 4 Sep 2019 11:56:27 -0400
-Subject: USB: usbcore: Fix slab-out-of-bounds bug during device reset
-
-The syzbot fuzzer provoked a slab-out-of-bounds error in the USB core:
-
-BUG: KASAN: slab-out-of-bounds in memcmp+0xa6/0xb0 lib/string.c:904
-Read of size 1 at addr ffff8881d175bed6 by task kworker/0:3/2746
-
-CPU: 0 PID: 2746 Comm: kworker/0:3 Not tainted 5.3.0-rc5+ #28
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  memcmp+0xa6/0xb0 lib/string.c:904
-  memcmp include/linux/string.h:400 [inline]
-  descriptors_changed drivers/usb/core/hub.c:5579 [inline]
-  usb_reset_and_verify_device+0x564/0x1300 drivers/usb/core/hub.c:5729
-  usb_reset_device+0x4c1/0x920 drivers/usb/core/hub.c:5898
-  rt2x00usb_probe+0x53/0x7af
-drivers/net/wireless/ralink/rt2x00/rt2x00usb.c:806
-
-The error occurs when the descriptors_changed() routine (called during
-a device reset) attempts to compare the old and new BOS and capability
-descriptors.  The length it uses for the comparison is the
-wTotalLength value stored in BOS descriptor, but this value is not
-necessarily the same as the length actually allocated for the
-descriptors.  If it is larger the routine will call memcmp() with a
-length that is too big, thus reading beyond the end of the allocated
-region and leading to this fault.
-
-The kernel reads the BOS descriptor twice: first to get the total
-length of all the capability descriptors, and second to read it along
-with all those other descriptors.  A malicious (or very faulty) device
-may send different values for the BOS descriptor fields each time.
-The memory area will be allocated using the wTotalLength value read
-the first time, but stored within it will be the value read the second
-time.
-
-To prevent this possibility from causing any errors, this patch
-modifies the BOS descriptor after it has been read the second time:
-It sets the wTotalLength field to the actual length of the descriptors
-that were read in and validated.  Then the memcpy() call, or any other
-code using these descriptors, will be able to rely on wTotalLength
-being valid.
-
-Reported-and-tested-by: syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909041154260.1722-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/config.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-index 9d6cb709ca7b..151a74a54386 100644
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -921,7 +921,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 	struct usb_bos_descriptor *bos;
- 	struct usb_dev_cap_header *cap;
- 	struct usb_ssp_cap_descriptor *ssp_cap;
--	unsigned char *buffer;
-+	unsigned char *buffer, *buffer0;
- 	int length, total_len, num, i, ssac;
- 	__u8 cap_type;
- 	int ret;
-@@ -966,10 +966,12 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 			ret = -ENOMSG;
- 		goto err;
- 	}
-+
-+	buffer0 = buffer;
- 	total_len -= length;
-+	buffer += length;
- 
- 	for (i = 0; i < num; i++) {
--		buffer += length;
- 		cap = (struct usb_dev_cap_header *)buffer;
- 
- 		if (total_len < sizeof(*cap) || total_len < cap->bLength) {
-@@ -983,8 +985,6 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 			break;
- 		}
- 
--		total_len -= length;
--
- 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
- 			dev_warn(ddev, "descriptor type invalid, skip\n");
- 			continue;
-@@ -1019,7 +1019,11 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 		default:
- 			break;
- 		}
-+
-+		total_len -= length;
-+		buffer += length;
- 	}
-+	dev->bos->desc->wTotalLength = cpu_to_le16(buffer - buffer0);
- 
- 	return 0;
- 
--- 
-2.23.0
+Vielen Dank im Voraus,
+Mr.Joe Akaba
 
 
+
+
+Hello
+
+My name is Joe Akaba I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($8.5 Million)
+dollars my client left in the bank before his death.
+
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:joeakaba00@gmail.com
+
+Many thanks in advance,
+Mr.Joe Akaba
