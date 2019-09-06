@@ -2,98 +2,290 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63505AB2AB
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 08:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7616AB2B3
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 08:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391707AbfIFG7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 02:59:03 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:41446 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391689AbfIFG7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 02:59:03 -0400
-Received: by mail-io1-f68.google.com with SMTP id r26so10416082ioh.8
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 23:59:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bfktZU2LgTx6D7En0Wx2Mu5plOyFie+VjtJALYkbimU=;
-        b=Yak3xoXIqMKV5zuJXeaGtnIkCfLjFJbvThhEFLgtKC68SrbvkGOBucZ//qS5ymKDDj
-         WyyaBeb2JminBNDU6uvZzWy147y3b2D3IhAm5ZpuETBYXdn9u1VGy1zpF9Mjcdmc1kes
-         ekmY4xylU70A8hX3eQygyGuAe7cIqMcFCZZck=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bfktZU2LgTx6D7En0Wx2Mu5plOyFie+VjtJALYkbimU=;
-        b=sWr4lmndyzvmJCQSSxsO9gW9dOM/NuEyy+5KBwgG3I3Od87hgnPvJIxw21c0Fw7LHT
-         R/uzpPG8XfJKu39M1p+cRylV5ib0Gh2D/A1xsBHsKjCHrHZqfMM1nfAv6lC80tu1Muug
-         8fsbT139Pr5OcAflf1rUStZ1qPGqc9FZdD+EctzSfZLqzuCphn+xHruF0xJnON/magnE
-         ZFGXz+VXZ+JqcU312oNn9NEwZzSwNEvQP0fOsQSI5OqCzHrHys0QAMi+Fd7LRQTZp2ky
-         ONsmFO4KfZNmEd0uag0zBAYTWfB4WpU6Tt+5w2VB/T2D53Lv13z0t1h3am85ZSlIGalg
-         ouHA==
-X-Gm-Message-State: APjAAAVikz0xVQU/25+Uu2HLQVMpQloTtK0QNq3fpzkKQMS4z5QJCafT
-        1pKmXfNDcYroMDDCWMOvVyLh2y7Y69UxnFsSP4b8GA==
-X-Google-Smtp-Source: APXvYqz6GOf3eZ8CIMGHYsCOx3oBkV38YAzTnCm5dhz4Vkacx+VwGnwOL5JYOLIRyClGsyYOX7qR7TsW4MsEHWJess4=
-X-Received: by 2002:a02:c94b:: with SMTP id u11mr5163432jao.35.1567753142656;
- Thu, 05 Sep 2019 23:59:02 -0700 (PDT)
+        id S2404047AbfIFG7i convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 6 Sep 2019 02:59:38 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:45333 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403877AbfIFG7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Sep 2019 02:59:38 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 69FC918C8939
+        for <stable@vger.kernel.org>; Fri,  6 Sep 2019 06:59:38 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A55475C1D4;
+        Fri,  6 Sep 2019 06:59:35 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <0000000000008d8eac05906691ac@google.com> <20190822233529.4176-1-ebiggers@kernel.org>
- <CAJfpegvHgcZGFi-Ydyo2j89zQxqAtZ1Lh0+vC6vWeU-aEFZkYQ@mail.gmail.com>
- <20190903133910.GA5144@zzz.localdomain> <CAJfpegtrkxAYq4_rXVNEhe=6SFCfXGgpNVtaiuyfSdh+kthazA@mail.gmail.com>
- <20190906044324.GE803@sol.localdomain>
-In-Reply-To: <20190906044324.GE803@sol.localdomain>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Fri, 6 Sep 2019 08:58:51 +0200
-Message-ID: <CAJfpegvdh53VSQ9okuUTS3jQFjkbcwPdJFmUorE0nseeFRPaoA@mail.gmail.com>
-Subject: Re: [PATCH] fuse: disable irqs for fuse_iqueue::waitq.lock
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-aio <linux-aio@kvack.org>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.2.12-rc1-c548fea.cki
+ (stable)
+Message-ID: <cki.0D933CE92C.B04QU8PSJ9@redhat.com>
+X-Gitlab-Pipeline-ID: 146627
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/146627
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Fri, 06 Sep 2019 06:59:38 +0000 (UTC)
+Date:   Fri, 6 Sep 2019 02:59:38 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 6, 2019 at 6:43 AM Eric Biggers <ebiggers@kernel.org> wrote:
->
-> On Wed, Sep 04, 2019 at 04:29:03PM +0200, Miklos Szeredi wrote:
 
-> > TBH, I find the fix disgusting. It's confusing to sprinke code that
-> > has absolutely nothing to do with interrupts with spin_lock_irq()
-> > calls.
-> >
-> > I think the lock/unlock calls should at least be done with a helper
-> > with a comment explaining why disabling interrupts is needed (though I
-> > have not managed to understand why aio needs to actually mess with the
-> > waitq lock...)
->
-> The aio code is doing a poll(), so it needs to use the wait queue.
+Hello,
 
-Doesn't explain why the irq disabled nested locking is needed in
-aio_poll().  poll/select manage to do that without messing with waitq
-internals.   How is aio poll different?
+We ran automated tests on a recent commit from this kernel tree:
 
-> >
-> > Probably a better fix would be to just use a separate spinlock to
-> > avoid the need to disable interrupts in cases where it's not
-> > necessary.
->
-> Well, the below is what a separate lock would look like.  Note that it actually
-> still disables IRQs in some places; it's just hidden away in the nested
-> spin_lock_irqsave() in wake_up().  Likewise, adding something to the fuse_iqueue
-> then requires taking 2 spin locks -- one explicit, and one hidden in wake_up().
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: c548feab76ab - Linux 5.2.12-rc1
 
-Right, that's exactly why the waitq lock was used.
+The results of these automated tests are provided below.
 
-> Is this the solution you'd prefer?
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-I'd actually prefer if aio was fixed.   But I guess that's not
-realistic, so yes, the below patch looks okay.  If fiq->lock is in the
-same cacheline as fiq->waitq then it shouldn't make a difference.
+All kernel binaries, config files, and logs are available for download here:
 
-Thanks,
-Miklos
+  https://artifacts.cki-project.org/pipelines/146627
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ Memory function: memfd_create [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Ethernet drivers sanity [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ Networking sctp-auth: sockopts test [9]
+         ✅ Networking: igmp conformance test [10]
+         ✅ Networking TCP: keepalive test [11]
+         ✅ Networking UDP: socket [12]
+         ✅ Networking tunnel: gre basic [13]
+         ✅ Networking tunnel: vxlan basic [14]
+         ✅ audit: audit testsuite test [15]
+         ✅ httpd: mod_ssl smoke sanity [16]
+         ✅ iotop: sanity [17]
+         ✅ tuned: tune-processes-through-perf [18]
+         ✅ Usex - version 1.9-29 [19]
+         ✅ storage: SCSI VPD [20]
+         ✅ stress: stress-ng [21]
+         🚧 ✅ LTP lite [22]
+         🚧 ✅ CIFS Connectathon [23]
+         🚧 ✅ Memory function: kaslr [24]
+         🚧 ✅ Networking bridge: sanity [25]
+         🚧 ✅ Networking MACsec: sanity [26]
+         🚧 ✅ Networking route: pmtu [27]
+         🚧 ✅ Networking route_func: local [28]
+         🚧 ✅ Networking route_func: forward [28]
+         🚧 ✅ Networking tunnel: geneve basic test [29]
+         🚧 ✅ Networking ipsec: basic netns transport [30]
+         🚧 ✅ Networking ipsec: basic netns tunnel [30]
+         🚧 ✅ Networking vnic: ipvlan/basic [31]
+         🚧 ✅ trace: ftrace/tracer [32]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ xfstests: ext4 [33]
+         ✅ xfstests: xfs [33]
+         ✅ selinux-policy: serge-testsuite [34]
+         ✅ lvm thinp sanity [35]
+         ✅ storage: software RAID testing [36]
+         🚧 ✅ Storage blktests [37]
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ Memory function: memfd_create [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Ethernet drivers sanity [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ Networking sctp-auth: sockopts test [9]
+         ✅ Networking TCP: keepalive test [11]
+         ✅ Networking UDP: socket [12]
+         ✅ Networking tunnel: gre basic [13]
+         ✅ Networking tunnel: vxlan basic [14]
+         ✅ audit: audit testsuite test [15]
+         ✅ httpd: mod_ssl smoke sanity [16]
+         ✅ iotop: sanity [17]
+         ✅ tuned: tune-processes-through-perf [18]
+         ✅ Usex - version 1.9-29 [19]
+         🚧 ✅ LTP lite [22]
+         🚧 ✅ CIFS Connectathon [23]
+         🚧 ✅ Memory function: kaslr [24]
+         🚧 ✅ Networking bridge: sanity [25]
+         🚧 ✅ Networking MACsec: sanity [26]
+         🚧 ✅ Networking route: pmtu [27]
+         🚧 ✅ Networking route_func: local [28]
+         🚧 ✅ Networking route_func: forward [28]
+         🚧 ✅ Networking tunnel: geneve basic test [29]
+         🚧 ✅ Networking ipsec: basic netns tunnel [30]
+         🚧 ✅ Networking vnic: ipvlan/basic [31]
+         🚧 ✅ trace: ftrace/tracer [32]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ xfstests: ext4 [33]
+         ✅ xfstests: xfs [33]
+         ✅ selinux-policy: serge-testsuite [34]
+         ✅ lvm thinp sanity [35]
+         ✅ storage: software RAID testing [36]
+         🚧 ✅ Storage blktests [37]
+
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ xfstests: ext4 [33]
+         ✅ xfstests: xfs [33]
+         ✅ selinux-policy: serge-testsuite [34]
+         ✅ lvm thinp sanity [35]
+         ✅ storage: software RAID testing [36]
+         🚧 ✅ Storage blktests [37]
+         🚧 ✅ IOMMU boot test [38]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ Storage SAN device stress - mpt3sas driver [39]
+
+      Host 3:
+         ✅ Boot test [0]
+         ✅ Storage SAN device stress - megaraid_sas [39]
+
+      Host 4:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ Loopdev Sanity [2]
+         ✅ jvm test suite [3]
+         ✅ Memory function: memfd_create [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Ethernet drivers sanity [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ Networking sctp-auth: sockopts test [9]
+         ✅ Networking: igmp conformance test [10]
+         ✅ Networking TCP: keepalive test [11]
+         ✅ Networking UDP: socket [12]
+         ✅ Networking tunnel: gre basic [13]
+         ✅ Networking tunnel: vxlan basic [14]
+         ✅ audit: audit testsuite test [15]
+         ✅ httpd: mod_ssl smoke sanity [16]
+         ✅ iotop: sanity [17]
+         ✅ tuned: tune-processes-through-perf [18]
+         ✅ pciutils: sanity smoke test [40]
+         ✅ Usex - version 1.9-29 [19]
+         ✅ storage: SCSI VPD [20]
+         ✅ stress: stress-ng [21]
+         🚧 ✅ LTP lite [22]
+         🚧 ✅ CIFS Connectathon [23]
+         🚧 ✅ Memory function: kaslr [24]
+         🚧 ✅ Networking bridge: sanity [25]
+         🚧 ✅ Networking MACsec: sanity [26]
+         🚧 ✅ Networking route: pmtu [27]
+         🚧 ✅ Networking route_func: local [28]
+         🚧 ✅ Networking route_func: forward [28]
+         🚧 ✅ Networking tunnel: geneve basic test [29]
+         🚧 ✅ Networking ipsec: basic netns transport [30]
+         🚧 ✅ Networking ipsec: basic netns tunnel [30]
+         🚧 ✅ Networking vnic: ipvlan/basic [31]
+         🚧 ✅ trace: ftrace/tracer [32]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/cifs/connectathon
+    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
+    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/bridge/sanity_check
+    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/macsec/sanity_check
+    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
+    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/vnic/ipvlan/basic
+    [32]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
+    [33]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [34]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [35]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [36]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [37]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [38]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
+    [39]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
+    [40]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
