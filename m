@@ -2,102 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BD0ABB9B
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 17:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89680ABC27
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 17:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393172AbfIFPAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 11:00:38 -0400
-Received: from bastet.se.axis.com ([195.60.68.11]:39490 "EHLO
-        bastet.se.axis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726019AbfIFPAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 11:00:38 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by bastet.se.axis.com (Postfix) with ESMTP id 0A0791806E;
-        Fri,  6 Sep 2019 17:00:35 +0200 (CEST)
-X-Axis-User: NO
-X-Axis-NonUser: YES
-X-Virus-Scanned: Debian amavisd-new at bastet.se.axis.com
-Received: from bastet.se.axis.com ([IPv6:::ffff:127.0.0.1])
-        by localhost (bastet.se.axis.com [::ffff:127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 2IlZI_wW4E_E; Fri,  6 Sep 2019 17:00:34 +0200 (CEST)
-Received: from boulder02.se.axis.com (boulder02.se.axis.com [10.0.8.16])
-        by bastet.se.axis.com (Postfix) with ESMTPS id 1018918502;
-        Fri,  6 Sep 2019 17:00:34 +0200 (CEST)
-Received: from boulder02.se.axis.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB50A1A066;
-        Fri,  6 Sep 2019 17:00:33 +0200 (CEST)
-Received: from boulder02.se.axis.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE8721A064;
-        Fri,  6 Sep 2019 17:00:33 +0200 (CEST)
-Received: from seth.se.axis.com (unknown [10.0.2.172])
-        by boulder02.se.axis.com (Postfix) with ESMTP;
-        Fri,  6 Sep 2019 17:00:33 +0200 (CEST)
-Received: from XBOX03.axis.com (xbox03.axis.com [10.0.5.17])
-        by seth.se.axis.com (Postfix) with ESMTP id D14302B14;
-        Fri,  6 Sep 2019 17:00:33 +0200 (CEST)
-Received: from lnxricardw1.se.axis.com (10.0.5.60) by XBOX03.axis.com
- (10.0.5.17) with Microsoft SMTP Server (TLS) id 15.0.1365.1; Fri, 6 Sep 2019
- 17:00:33 +0200
-Date:   Fri, 6 Sep 2019 17:00:28 +0200
-From:   Ricard Wanderlof <ricard.wanderlof@axis.com>
-X-X-Sender: ricardw@lnxricardw1.se.axis.com
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>
-CC:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-Subject: revert: ASoC: Fail card instantiation if DAI format setup fails
-Message-ID: <alpine.DEB.2.20.1909061658580.3985@lnxricardw1.se.axis.com>
-User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
+        id S2394689AbfIFPUj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 6 Sep 2019 11:20:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38190 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726231AbfIFPUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Sep 2019 11:20:39 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BD63F75752
+        for <stable@vger.kernel.org>; Fri,  6 Sep 2019 15:20:38 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DE6F75C231;
+        Fri,  6 Sep 2019 15:20:35 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Originating-IP: [10.0.5.60]
-X-ClientProxiedBy: XBOX03.axis.com (10.0.5.17) To XBOX03.axis.com (10.0.5.17)
-X-TM-AS-GCONF: 00
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
+Message-ID: <cki.F3A9C5552A.BUSNPBQ012@redhat.com>
+X-Gitlab-Pipeline-ID: 147783
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/147783
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Fri, 06 Sep 2019 15:20:38 +0000 (UTC)
+Date:   Fri, 6 Sep 2019 11:20:39 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Sorry for the repost, I relized I stupidly got Greg's email adress wrong 
-first time around.
+Hello,
 
-> > On Tue, Aug 27, 2019 at 12:00:14PM +0100, Mark Brown wrote:
-> > > On Sun, Aug 25, 2019 at 09:35:15PM -0400, Sasha Levin wrote:
-> > > > On Wed, Aug 14, 2019 at 10:22:13AM +0100, Mark Brown wrote:
-> > > 
-> > > > > > If the DAI format setup fails, there is no valid communication format
-> > > > > > between CPU and CODEC, so fail card instantiation, rather than
-> > > > continue
-> > > > > > with a card that will most likely not function properly.
-> > > 
-> > > > > This is another one where if nobody noticed a problem already and things
-> > > > > just happened to be working this might break things, it's vanishingly
-> > > > > unlikely to fix anything that was broken.
-> > > 
-> > > > Same as the other patch: this patch suggests it fixes a real bug, and if
-> > > > this patch is broken let's fix it.
-> > > 
-> > > If anyone ran into this on the older kernel and fixed or worked
-> > > around it locally there's a reasonable chance this will then
-> > > break what they're doing.  The patch itself is perfectly fine but
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-(Sorry about the mangled subject line, I'd accidentally deleted the 
-original message from my inbox.)
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 140839fe4e71 - Linux 5.2.12
 
-I'm a bit bewildered here. As the author of the original patch I'm of 
-course biased, and I can certainly understand the patch being dropped from 
-existing release branches, since as Mark correctly states, it does not fix 
-any broken behavior and might even break things that happen to work by 
-chance.
+The results of these automated tests are provided below.
 
-But is this being dropped from the master branch as well? To me it makes 
-the kernel behave in an inconsistent way, first reporting a failure to 
-instantiate a specific sound card in the kernel log, but then seemingly 
-bringing it up anyway.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-/Ricard
--- 
-Ricard Wolf Wanderlof                           ricardw(at)axis.com
-Axis Communications AB, Lund, Sweden            www.axis.com
-Phone +46 46 272 2016                           Fax +46 46 13 61 30
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/147783
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 140839fe4e71 - Linux 5.2.12
+
+
+We grabbed the 086f4245e484 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  revert-input-elantech-enable-smbus-on-new-2018-systems.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ jvm test suite [2]
+         ✅ AMTU (Abstract Machine Test Utility) [3]
+         ✅ LTP: openposix test suite [4]
+         ✅ audit: audit testsuite test [5]
+         ✅ httpd: mod_ssl smoke sanity [6]
+         ✅ iotop: sanity [7]
+         ✅ tuned: tune-processes-through-perf [8]
+         ✅ stress: stress-ng [9]
+         🚧 ✅ LTP lite [10]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [11]
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [11]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ jvm test suite [2]
+         ✅ AMTU (Abstract Machine Test Utility) [3]
+         ✅ LTP: openposix test suite [4]
+         ✅ audit: audit testsuite test [5]
+         ✅ httpd: mod_ssl smoke sanity [6]
+         ✅ iotop: sanity [7]
+         ✅ tuned: tune-processes-through-perf [8]
+         🚧 ✅ LTP lite [10]
+
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [11]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ jvm test suite [2]
+         ✅ AMTU (Abstract Machine Test Utility) [3]
+         ✅ LTP: openposix test suite [4]
+         ✅ audit: audit testsuite test [5]
+         ✅ httpd: mod_ssl smoke sanity [6]
+         ✅ iotop: sanity [7]
+         ✅ tuned: tune-processes-through-perf [8]
+         ✅ pciutils: sanity smoke test [12]
+         ✅ stress: stress-ng [9]
+         🚧 ✅ LTP lite [10]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
