@@ -2,88 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3693AAB9EF
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 15:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E720BABA2F
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 16:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729908AbfIFNya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 09:54:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40156 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729217AbfIFNya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 09:54:30 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id A559582094; Fri,  6 Sep 2019 15:54:14 +0200 (CEST)
-Date:   Fri, 6 Sep 2019 15:54:28 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 10/93] soundwire: cadence_master: fix register
- definition for SLAVE_STATE
-Message-ID: <20190906135428.GB28960@amd>
-References: <20190904175302.845828956@linuxfoundation.org>
- <20190904175304.057403828@linuxfoundation.org>
+        id S2388868AbfIFOFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Sep 2019 10:05:11 -0400
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:51762 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388178AbfIFOFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 10:05:11 -0400
+Received: by mail-wm1-f45.google.com with SMTP id k1so6680632wmi.1
+        for <stable@vger.kernel.org>; Fri, 06 Sep 2019 07:05:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hiBQuDg6e0z0CnYl2YnsP3MiBvgWfsZn8g0kJ7ANm+Q=;
+        b=n/+Is3eFStTPWdCeMuBWI8sC5L28Kx4fPl8+nMiDPDrGIsN9Qcg8IpNlanXaEUe35/
+         4ByU8Bfs1g7ot45oc/6rzPiipDgvsU5lk53DmARR5eRmmeASjiOYyrEpQg6kj84mCTDX
+         Mkiqg1X4tC4dOlX1ZcUG/4xaU4EzUGmJAH6vV7gOy73tLO4zZB26Lv9rj7aF1V4fLW1a
+         pBKR2zjCyXsUaMYr6BGB++NbQlPNnl7aK4EOhGw43dthNJHvdCTFlXKlNHNi/BEalSxt
+         6rPGfo83jHXRDQWm+clsXOb0QCP+WZecl2/ZtNmRzKX8tY/bI85tr1zLjG+enYUB5V9x
+         FfVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hiBQuDg6e0z0CnYl2YnsP3MiBvgWfsZn8g0kJ7ANm+Q=;
+        b=tlB5MSfia1/9yg03Wu17jO8dcaxc8k6WIxDr10y0JOX1JdzBF5jKEITBq0zn9WWWuE
+         sK30XchtklIqHRS2YG7KcBXue/9fUa95mUu9jzqZxb/zmJpalix6oEahJVKh3FB54Ilh
+         ctRxa3CovtG2GuGdMOmXYxvqgXCZCdDGsg8BEGMWcehWnZ6lq6YVrsbDELAU/x2fhmwg
+         Ar3MYtcXv1rQM2bkL09iR9Ond+em8slBCWwCwyF9ey7MKEPRVM27Q0JzLI+8SsQ4IiDV
+         vW4tMHltov+yUpXlhlgGQrO8VR6Q9MvicUhGtCkDy+LsrTV4XdFLLhs/XVrDxZKMwsdJ
+         v3yQ==
+X-Gm-Message-State: APjAAAV66LvJ4MvB6B/2ICX3hZcUmeXbjDvA27xGPK3N7S/Ph9a6pzyN
+        ZRPwEbGC85VVy09DNNqnH51pB8Wh0ySFzA==
+X-Google-Smtp-Source: APXvYqyhaLMkZ6QcVBhH3CECrUccJrcVyMV7+WYY9xq1BIbbLHok0boSchDZs683ZRgdd0RnvhWTDA==
+X-Received: by 2002:a7b:c651:: with SMTP id q17mr7299032wmk.13.1567778708949;
+        Fri, 06 Sep 2019 07:05:08 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f15sm5840225wml.8.2019.09.06.07.05.08
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 06 Sep 2019 07:05:08 -0700 (PDT)
+Message-ID: <5d726794.1c69fb81.eee03.cbde@mx.google.com>
+Date:   Fri, 06 Sep 2019 07:05:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-In-Reply-To: <20190904175304.057403828@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.12
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable/linux-5.2.y boot: 105 boots: 5 failed, 100 passed (v5.2.12)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.2.y boot: 105 boots: 5 failed, 100 passed (v5.2.12)
 
---3uo+9/B/ebqu+fSQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+2.y/kernel/v5.2.12/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.2.y/ke=
+rnel/v5.2.12/
 
-On Wed 2019-09-04 19:53:12, Greg Kroah-Hartman wrote:
-> [ Upstream commit b07dd9b400981f487940a4d84292d3a0e7cd9362 ]
->=20
-> wrong prefix and wrong macro.
+Tree: stable
+Branch: linux-5.2.y
+Git Describe: v5.2.12
+Git Commit: 140839fe4e71d4db6a7b342d54cd7165490fd1cc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 54 unique boards, 18 SoC families, 14 builds out of 209
 
-Both defines are unused in 4.19 stable... so this does not fix any
-bug.
+Boot Regressions Detected:
 
-Best regards,
-								Pavel
+arm:
 
-> Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-> Link: https://lore.kernel.org/r/20190725234032.21152-14-pierre-louis.boss=
-art@linux.intel.com
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+    exynos_defconfig:
+        gcc-8:
+          exynos5250-snow:
+              lab-collabora: new failure (last pass: v5.2.11)
 
-> =20
->  #define CDNS_MCP_INTSET				0x4C
-> =20
-> -#define CDNS_SDW_SLAVE_STAT			0x50
-> -#define CDNS_MCP_SLAVE_STAT_MASK		BIT(1, 0)
-> +#define CDNS_MCP_SLAVE_STAT			0x50
-> +#define CDNS_MCP_SLAVE_STAT_MASK		GENMASK(1, 0)
-> =20
->  #define CDNS_MCP_SLAVE_INTSTAT0			0x54
->  #define CDNS_MCP_SLAVE_INTSTAT1			0x58
+Boot Failures Detected:
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+arm:
+    vexpress_defconfig:
+        gcc-8:
+            qemu_arm-virt-gicv3: 4 failed labs
 
---3uo+9/B/ebqu+fSQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+    exynos_defconfig:
+        gcc-8:
+            exynos5250-snow: 1 failed lab
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl1yZRQACgkQMOfwapXb+vLNgwCgq3Fs7PgEqpbmrR8KP0HC0Kns
-yv0AoKIhUntTW5fAHi4hBDdVQViTzGEM
-=Wr65
------END PGP SIGNATURE-----
-
---3uo+9/B/ebqu+fSQ--
+---
+For more info write to <info@kernelci.org>
