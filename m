@@ -2,86 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3105CAB68D
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 12:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C3DAB96C
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 15:39:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731628AbfIFK7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 06:59:53 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:55946 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731418AbfIFK7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 06:59:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=nri1cRvD93fS1FSuajViJZ1Z2+h/3WzUxR8ezWWos1k=; b=efv0xVakc5gcr9ZGopxiCSdI+
-        SjXGitf9TSrgiuS6OByVO1M/MQKQoSXt+cBhS9lxkjkOf80W9Vg9br6JnyurOLa7geq1GyorJzf1L
-        z3bvJNdz0shL4xHdBuUOkTh9XbxLKb5PUM1Lh0a6r3MVUeTJuQzRabDixPWE/40VodJVY=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=fitzroy.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1i6By0-0001TN-U1; Fri, 06 Sep 2019 10:59:48 +0000
-Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
-        id 6454FD02CE7; Fri,  6 Sep 2019 11:59:48 +0100 (BST)
-Date:   Fri, 6 Sep 2019 11:59:48 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ricard Wanderlof <ricardw@axis.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 06/77] ASoC: Fail card instantiation if DAI format
- setup fails
-Message-ID: <20190906105948.GT23391@sirena.co.uk>
-References: <20190904175303.317468926@linuxfoundation.org>
- <20190904175304.060004729@linuxfoundation.org>
- <20190904180952.GF4348@sirena.co.uk>
- <20190905185648.GB24873@kroah.com>
+        id S2388106AbfIFNjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Sep 2019 09:39:06 -0400
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:45160 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731823AbfIFNjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 09:39:06 -0400
+Received: by mail-wr1-f42.google.com with SMTP id l16so6587327wrv.12
+        for <stable@vger.kernel.org>; Fri, 06 Sep 2019 06:39:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PMoORLvnq399f0E47C3CWqqtdUoONf9mVExUvUImGhc=;
+        b=DuSmkWhtoNembndhPiE4L7AakIMcMHF2X5w/8uDbbw5+vk6eNq2J1qSmXlH+LPt6jw
+         e3XXgtPTqOalHPFTfWW5m5/8E7gdpigc61OOjOsKQTIUR37hJcBUTHQKJccwn9947N1x
+         3lHjOi3m2ItWD9xP8Snztg7ZCv0od+8pp6bfpBkyssX7K1j3drL/xOEtpBxqpRXjaj0m
+         bHrqiz8e/Bx5vJ6py3z6QiWeeIXXnXUiLW3ALQ6jdkJh/CU+H9S0AJg7zqdtWniltBRy
+         tB9tZXGKY4OETEF30ukCLNlTSo3r0AiVMOHhB44uEkU2F1nLzG5nKM86okqwIU7u4r19
+         ZlJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PMoORLvnq399f0E47C3CWqqtdUoONf9mVExUvUImGhc=;
+        b=RErpVghSt7yEL2ARhN4MUzy36G6gvxRWMCg5PCJZlzYZYw7tRnIU9dBvdgN7igdRBV
+         vim/ipBfxe0QPtfUvDoswWoXLYUg8c1GQje9iYKAVUwSVcWV5roN6ZlXQYwApqKXgu/y
+         /HkJARnt06D1n2ShYL2Ozjfu0B6zeKX7foa9MJHMmJI0ZdCP7jBN37LS0eEpFYMEUlp5
+         e7u4x18R4tnbnNucCG8ijMzGwNrr9WP/0uXlgjiC3wU4chyzHrqsLS/o4iH0m5Mo/kR1
+         5MhLbAwkSM/4DEDYTT0llizngcU3BUJ1xYgzUUBfgDqpgOIGEwHNwcfXTQG8rluidTMJ
+         dXGQ==
+X-Gm-Message-State: APjAAAV9CRCXaFaSIeOIDw7tWj2luKuBan0h+pWyn1eH3O5NOD7Ew5HC
+        dwWp5bZfxPJhrL5ptU39G/oTZJaYLI5I4g==
+X-Google-Smtp-Source: APXvYqx2D9bFCZwJby3VFaruMSpOknB7/FH97flSCNVCcWPoUDIYVpU1dH4y5+M+OUKg0H3VuBCQ3g==
+X-Received: by 2002:adf:ee10:: with SMTP id y16mr4803292wrn.47.1567777144419;
+        Fri, 06 Sep 2019 06:39:04 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y14sm8672387wrd.84.2019.09.06.06.39.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 06 Sep 2019 06:39:03 -0700 (PDT)
+Message-ID: <5d726177.1c69fb81.52ad.a63f@mx.google.com>
+Date:   Fri, 06 Sep 2019 06:39:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="CMebLzmeJATad/OR"
-Content-Disposition: inline
-In-Reply-To: <20190905185648.GB24873@kroah.com>
-X-Cookie: Don't SANFORIZE me!!
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.191
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y boot: 78 boots: 5 failed, 73 passed (v4.9.191)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.9.y boot: 78 boots: 5 failed, 73 passed (v4.9.191)
 
---CMebLzmeJATad/OR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.191/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.191/
 
-On Thu, Sep 05, 2019 at 08:56:48PM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Sep 04, 2019 at 07:09:52PM +0100, Mark Brown wrote:
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.191
+Git Commit: bf489db05ebf7106dd77f79e6edabc45fc318416
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 29 unique boards, 15 SoC families, 11 builds out of 197
 
-> > I nacked this patch when Sasha posted it - it only improves diagnostics
-> > and might make systems that worked by accident break since it turns
-> > things into a hard failure, it won't make anything that didn't work
-> > previously work.
+Boot Failures Detected:
 
-> Now dropped.
+arm:
+    vexpress_defconfig:
+        gcc-8:
+            qemu_arm-virt-gicv3: 5 failed labs
 
-Thanks!
-
---CMebLzmeJATad/OR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl1yPCMACgkQJNaLcl1U
-h9ALpQf/WK2yXkTwMdpeaQVPdDYQVdZkwsV7MP3epmkRJw9MI+bD/677eAW8GJnc
-Q3DT3rHaaci7UGTXIiBeWkdoxI44lEaFqQtEuDBorC/2eFCRxdsJMDdBQDGKifXM
-yjvcpWWPSOd8HRK65p/mJSUx0Whz8lrGruR3QzzWlXQAFuqXJFVRb01QPOIC2pYi
-zXzLs53IaBdj4fFSBT/K4a7YivqRvPq0dGJQpbNe0JjLTC+Y+i/Lg8vhcYN6u1Wu
-nJSLEgF2DEPeEGCqdnapFhyeF5FBbF0Ipwydgng/UmLwmS1nfPsiF8uCFIYcv6aM
-JcI/REqMlowLymx659maPP7jsAzKlA==
-=A9pj
------END PGP SIGNATURE-----
-
---CMebLzmeJATad/OR--
+---
+For more info write to <info@kernelci.org>
