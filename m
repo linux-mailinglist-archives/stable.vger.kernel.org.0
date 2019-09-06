@@ -2,96 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6A4AC2CD
-	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 01:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3841AC30B
+	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 01:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388713AbfIFXJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 19:09:37 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:35606 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731231AbfIFXJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 19:09:36 -0400
-Received: by mail-wr1-f45.google.com with SMTP id g7so8161488wrx.2
-        for <stable@vger.kernel.org>; Fri, 06 Sep 2019 16:09:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sXdU6oDeFBzDfxa4Kjk7n88ceeJ79d9RUxWTE7pG7UY=;
-        b=cAR3tSbCEXXNG5VMJNKHFIRNEYKghQF3B06dQMZPWYlJujHR+JdKEi9ahFmvbtBuTT
-         v/9+iPi+SVCCgXoK7NZiu67lvrezYO97oWztFfDGnaWNEF7Zj1nV+StARR+UVD/ramRw
-         cMdZ4Etva+oc1LpM6eyXkmUQiyq2AVbyc9jgEPImtuqBpb1NK1eIFOTwrYl7VsxguN1i
-         4P/KjSYWMwdYGCuQc0xltMzWteybSSNzClL7SsjCEbPBrZq+dUd9zHc5D8AQWY8crcdY
-         JZGnVVmbPhrr8KWURJAnPR424NcaJrj1wMqbdPdhZO4edSAoOLRdC1AS9ldd/NA+44JN
-         vI9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sXdU6oDeFBzDfxa4Kjk7n88ceeJ79d9RUxWTE7pG7UY=;
-        b=I/4p7MqrELu0gh//S/p5pNrCsBwo8d65/YOYtifk96/c1YVM6gqwdMgpp1leGLyXT+
-         bRboc6A2K5mrJRzxw+aN5eR3Jqraa4FydUSD59os4lfkQRItr+uIpCcQCQuzkwkWKOq2
-         s5wEBBCOdLccNxp41C/Fj3vJavCzwLml8AWwUQBvPaA2pPY/V+7TcVPXt3lMWmB04S7L
-         AEloQKNmH30jp17zoWqQdkB5ggISCNF8aZDKIIzR2O9QLxWCoj+dT11CRYM+Hmr/B6gC
-         oY1glHoFeKayKiyAJmk6dYr35RPD5XMpz3fJrqV99LC4k2liUKAqwY81N7V5sJvlDUQD
-         1PZw==
-X-Gm-Message-State: APjAAAUbUoVTV4G2TqdkGj7/Pp/yH3Vm1DzeLUc7bNjNDBKFvUotqUk/
-        8Yqra/Rd/iWkt39w2iVT/PlqE4JSy6jhgw==
-X-Google-Smtp-Source: APXvYqytR1//P7jiaWZU7G5sSMUf2o4hCyqwjCvpWIhES0LdRxfDoLVkYTwAW3mB0VL/Ry3ggfShgQ==
-X-Received: by 2002:a5d:6647:: with SMTP id f7mr9209533wrw.170.1567811374661;
-        Fri, 06 Sep 2019 16:09:34 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b15sm6879518wmb.28.2019.09.06.16.09.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 06 Sep 2019 16:09:34 -0700 (PDT)
-Message-ID: <5d72e72e.1c69fb81.b58f.05de@mx.google.com>
-Date:   Fri, 06 Sep 2019 16:09:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2405445AbfIFXau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Sep 2019 19:30:50 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51599 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728978AbfIFXau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 19:30:50 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id F1DF32202A;
+        Fri,  6 Sep 2019 19:30:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 06 Sep 2019 19:30:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=FGZ8S19n43tAruLCrzOkg9MRjNq
+        62BLa54KBCyPc1Ic=; b=enS/hQsCWDFF6qI3rbYcTZyLHh+uaaU9vPEpOkLCmAh
+        J7u+hgfrXrQgUw/UILiZB3WDTnXjgqQwqBCNgHKAgF4v90BGOvt0LDjKt2lUkKcK
+        WR90Qqu0RRR+Yif2oSKFAsrVc2S4UIKAXZTGwrh6hiYCN7d/2E4taU23IsrVAJ1U
+        2paxk/lz18QuvdCaAiErJmc0NX+c2fTI27NhBq3kBaHs/mwi5bAH/mCFo+e1WLkK
+        1Uufn0n86xD3Zoj02TJl+dh0lr1487+NPDRhbBgGz975OYH5u/xHaD+EQzOS1oi1
+        Bc76tvsJR6jcWMVKZpP5CZatBu1ii8W4pCac9ANJCow==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FGZ8S1
+        9n43tAruLCrzOkg9MRjNq62BLa54KBCyPc1Ic=; b=HOVzxhMYZCcjkYxlDqttm8
+        Cw3fkZxuMsEUL/AwNxTpDF7jKUnJwaDaZQbMSxd47q/Ur7qKqugM78rb2RU+EUAI
+        nXVFj/1JGME89Vj0BUeaavKy/HQI2IbVUeaw5QyYrLzRXjbgNW4zK1CvM5UFdU3f
+        yihV2xmAtNxuf8zqOUAobHZWVUOxLmyI63ByQnQHn0Ih/ctwgUe8Yco3xYJ32WnT
+        HsdHRO5WftlGBhcVA5fya4cTCuYKEcXHzniYIVZfit0CFsYphCG5yZSwvQZoodh4
+        GmiwrqgPCsAWxs51Wbk2fobHaaNSlZzRCyrYjwj4M+9gZ6pMbt+ApSJDJ0mfkc8g
+        ==
+X-ME-Sender: <xms:KOxyXeCXnbphK_rHEudHrWoJMT_zQuvc0MryatwIn4QqRgvU95Fe2A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudektddgvdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeektddrvdehuddrudeivd
+    drudeigeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:KOxyXbG7eu3pSwfAE_T3eYhzU37ZxMp-b2vM4GCzpKhOC1BVn8glmA>
+    <xmx:KOxyXSjv9NaFxJVTtG9_RVE646Ut2ntkRKqOAFXtpTVwYWYjsG4Jig>
+    <xmx:KOxyXRzi6UZo7EXZoB2wLa6_jeLcWUxTT01cptI3lg0bt9Ratj4YvQ>
+    <xmx:KOxyXYuKPS2NVxX3TMzGKiaqBdn6ejmA8XLM42f6iZY02RNnAaBiSw>
+Received: from localhost (unknown [80.251.162.164])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 01ED8D6005B;
+        Fri,  6 Sep 2019 19:30:47 -0400 (EDT)
+Date:   Sat, 7 Sep 2019 01:30:45 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Mark Salyzyn <salyzyn@android.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] net: enable wireless core features with
+ LEGACY_WEXT_ALLCONFIG
+Message-ID: <20190906233045.GB9478@kroah.com>
+References: <20190906192403.195620-1-salyzyn@android.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.71
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y boot: 93 boots: 1 failed, 92 passed (v4.19.71)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190906192403.195620-1-salyzyn@android.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 93 boots: 1 failed, 92 passed (v4.19.71)
+On Fri, Sep 06, 2019 at 12:24:00PM -0700, Mark Salyzyn wrote:
+> In embedded environments the requirements are to be able to pick and
+> chose which features one requires built into the kernel.  If an
+> embedded environment wants to supports loading modules that have been
+> kbuilt out of tree, there is a need to enable hidden configurations
+> for legacy wireless core features to provide the API surface for
+> them to load.
+> 
+> Introduce CONFIG_LEGACY_WEXT_ALLCONFIG to select all legacy wireless
+> extension core features by activating in turn all the associated
+> hidden configuration options, without having to specifically select
+> any wireless module(s).
+> 
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> Cc: kernel-team@android.com
+> Cc: Johannes Berg <johannes@sipsolutions.net>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Marcel Holtmann <marcel@holtmann.org>
+> Cc: linux-wireless@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: stable@vger.kernel.org # 4.19
+> ---
+> v2: change name and documentation to CONFIG_LEGACY_WEXT_ALLCONFIG
+> ---
+>  net/wireless/Kconfig | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
+> index 67f8360dfcee..0d646cf28de5 100644
+> --- a/net/wireless/Kconfig
+> +++ b/net/wireless/Kconfig
+> @@ -17,6 +17,20 @@ config WEXT_SPY
+>  config WEXT_PRIV
+>  	bool
+>  
+> +config LEGACY_WEXT_ALLCONFIG
+> +	bool "allconfig for legacy wireless extensions"
+> +	select WIRELESS_EXT
+> +	select WEXT_CORE
+> +	select WEXT_PROC
+> +	select WEXT_SPY
+> +	select WEXT_PRIV
+> +	help
+> +	  Config option used to enable all the legacy wireless extensions to
+> +	  the core functionality used by add-in modules.
+> +
+> +	  If you are not building a kernel to be used for a variety of
+> +	  out-of-kernel built wireless modules, say N here.
+> +
+>  config CFG80211
+>  	tristate "cfg80211 - wireless configuration API"
+>  	depends on RFKILL || !RFKILL
+> -- 
+> 2.23.0.187.g17f5b7556c-goog
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.71/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.71/
-
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.71
-Git Commit: e7d2672c66e4d3675570369bf20856296da312c4
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 49 unique boards, 18 SoC families, 13 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-cubietruck:
-              lab-baylibre: new failure (last pass: v4.19.69)
-
-Boot Failure Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-cubietruck: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+How is this patch applicable to stable kernels???
