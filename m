@@ -2,110 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F396AB240
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 08:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63505AB2AB
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 08:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389591AbfIFGNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 02:13:15 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:41361 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729318AbfIFGNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 02:13:15 -0400
-Received: by mail-oi1-f196.google.com with SMTP id h4so4017170oih.8
-        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 23:13:14 -0700 (PDT)
+        id S2391707AbfIFG7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Sep 2019 02:59:03 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:41446 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391689AbfIFG7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Sep 2019 02:59:03 -0400
+Received: by mail-io1-f68.google.com with SMTP id r26so10416082ioh.8
+        for <stable@vger.kernel.org>; Thu, 05 Sep 2019 23:59:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=lm35lqYANr7RWzXjWDYZwksjF6Mq+BmtoOr5FpRGY5E=;
-        b=P1xzjDrAtEH0KIz7i+HCUC0aEUzA2M7SfWbAY6FsWDL8OowusO5ssEfZz/sK/Uqk+h
-         dJ/BS0UAHHJ05fFUVw/NgbsLuQ7e3coOMrKY61LZ6iB6y79ti/DgUu92lmPYz54/DBT6
-         x1Sq/PSpJednu5kJ5/IrA2RJKa6wPWMzVI1Te2pACQUg2el+5fFExFCM0etK5c64I+Ft
-         m+g9yVRH8A6Z0ZUOy5VlZ7S5ktwSGuxDxoA4ODLwaPc5mFrPA8IjnPRj2ecexyGQK4gl
-         eymHGHphsyZDy3BwwFVBtIJ5vUueJyO+xpyLVIWdnBrRJb1cTM/nSWSANBl0dPANwDEl
-         lNYw==
+        d=szeredi.hu; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bfktZU2LgTx6D7En0Wx2Mu5plOyFie+VjtJALYkbimU=;
+        b=Yak3xoXIqMKV5zuJXeaGtnIkCfLjFJbvThhEFLgtKC68SrbvkGOBucZ//qS5ymKDDj
+         WyyaBeb2JminBNDU6uvZzWy147y3b2D3IhAm5ZpuETBYXdn9u1VGy1zpF9Mjcdmc1kes
+         ekmY4xylU70A8hX3eQygyGuAe7cIqMcFCZZck=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=lm35lqYANr7RWzXjWDYZwksjF6Mq+BmtoOr5FpRGY5E=;
-        b=Yj52zHNLjAm8ZQJuCbKPRwDYJYGNlCKKGuHLrFnZbD+uNodRF4j7lNYPQUXMt2QDbK
-         gNrnqr55Xypism24cDJgeQ8SwZjG0+3oNvU1752O+Wz0JJ6zAt/SYqrHFWRMk5LwowEr
-         guhba0kdetvIzlS1eV/R/zT6rOVz+XS4YO0gj81Jd7928pfk+Px9IfXs4MdYk5lC0UfD
-         HbWUflTomm8K6wLJ+lnBG17K7kbVjA7XToyui++K8lDlGD2ES21odzBzeiUQCwlbdmn2
-         hUSkPk1DsNapQMiv4fS65W5vQGsG49+UKHJZJDjscNq1R4StfBfs6iK3i0cZd+f7+wVW
-         Umpg==
-X-Gm-Message-State: APjAAAX+FNjq3EaqQeCE8FfHlOyVT7w8+CIed3G1PmA6bfcwAKVpksqT
-        s0B8NZuMMp9qd71kWzwesPNRLnk7p77y/K/S+WgU2A==
-X-Google-Smtp-Source: APXvYqxgRgIp9PLl7te0QKBxk5XD4f5D41Jbzs5TkdJh3wkUZL28Q0diIuyhS40O/3LVoVDWP1DXCnE2wi9B7aJhpXc=
-X-Received: by 2002:aca:e183:: with SMTP id y125mr5704531oig.27.1567750394121;
- Thu, 05 Sep 2019 23:13:14 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=bfktZU2LgTx6D7En0Wx2Mu5plOyFie+VjtJALYkbimU=;
+        b=sWr4lmndyzvmJCQSSxsO9gW9dOM/NuEyy+5KBwgG3I3Od87hgnPvJIxw21c0Fw7LHT
+         R/uzpPG8XfJKu39M1p+cRylV5ib0Gh2D/A1xsBHsKjCHrHZqfMM1nfAv6lC80tu1Muug
+         8fsbT139Pr5OcAflf1rUStZ1qPGqc9FZdD+EctzSfZLqzuCphn+xHruF0xJnON/magnE
+         ZFGXz+VXZ+JqcU312oNn9NEwZzSwNEvQP0fOsQSI5OqCzHrHys0QAMi+Fd7LRQTZp2ky
+         ONsmFO4KfZNmEd0uag0zBAYTWfB4WpU6Tt+5w2VB/T2D53Lv13z0t1h3am85ZSlIGalg
+         ouHA==
+X-Gm-Message-State: APjAAAVikz0xVQU/25+Uu2HLQVMpQloTtK0QNq3fpzkKQMS4z5QJCafT
+        1pKmXfNDcYroMDDCWMOvVyLh2y7Y69UxnFsSP4b8GA==
+X-Google-Smtp-Source: APXvYqz6GOf3eZ8CIMGHYsCOx3oBkV38YAzTnCm5dhz4Vkacx+VwGnwOL5JYOLIRyClGsyYOX7qR7TsW4MsEHWJess4=
+X-Received: by 2002:a02:c94b:: with SMTP id u11mr5163432jao.35.1567753142656;
+ Thu, 05 Sep 2019 23:59:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <cover.1567649728.git.baolin.wang@linaro.org> <c24710bae9098ba971a2778a1a44627d5fa3ddc0.1567649729.git.baolin.wang@linaro.org>
- <20190905161642.GA5659@google.com>
-In-Reply-To: <20190905161642.GA5659@google.com>
-From:   Baolin Wang <baolin.wang@linaro.org>
-Date:   Fri, 6 Sep 2019 14:13:02 +0800
-Message-ID: <CAMz4kuJem-H4pPKSTDAy3vmWmYhAf-tdjH-HmZ_aN7VYXJN6mw@mail.gmail.com>
-Subject: Re: [BACKPORT 4.14.y v2 5/6] ppp: mppe: Revert "ppp: mppe: Add
- softdep to arc4"
-To:     Baolin Wang <baolin.wang@linaro.org>,
-        "# 3.4.x" <stable@vger.kernel.org>, paulus@samba.org,
-        linux-ppp@vger.kernel.org, Networking <netdev@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>
+References: <0000000000008d8eac05906691ac@google.com> <20190822233529.4176-1-ebiggers@kernel.org>
+ <CAJfpegvHgcZGFi-Ydyo2j89zQxqAtZ1Lh0+vC6vWeU-aEFZkYQ@mail.gmail.com>
+ <20190903133910.GA5144@zzz.localdomain> <CAJfpegtrkxAYq4_rXVNEhe=6SFCfXGgpNVtaiuyfSdh+kthazA@mail.gmail.com>
+ <20190906044324.GE803@sol.localdomain>
+In-Reply-To: <20190906044324.GE803@sol.localdomain>
+From:   Miklos Szeredi <miklos@szeredi.hu>
+Date:   Fri, 6 Sep 2019 08:58:51 +0200
+Message-ID: <CAJfpegvdh53VSQ9okuUTS3jQFjkbcwPdJFmUorE0nseeFRPaoA@mail.gmail.com>
+Subject: Re: [PATCH] fuse: disable irqs for fuse_iqueue::waitq.lock
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org, linux-aio <linux-aio@kvack.org>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 6 Sep 2019 at 00:16, Eric Biggers <ebiggers@google.com> wrote:
+On Fri, Sep 6, 2019 at 6:43 AM Eric Biggers <ebiggers@kernel.org> wrote:
 >
-> On Thu, Sep 05, 2019 at 11:10:45AM +0800, Baolin Wang wrote:
-> > From: Eric Biggers <ebiggers@google.com>
+> On Wed, Sep 04, 2019 at 04:29:03PM +0200, Miklos Szeredi wrote:
+
+> > TBH, I find the fix disgusting. It's confusing to sprinke code that
+> > has absolutely nothing to do with interrupts with spin_lock_irq()
+> > calls.
 > >
-> > [Upstream commit 25a09ce79639a8775244808c17282c491cff89cf]
-> >
-> > Commit 0e5a610b5ca5 ("ppp: mppe: switch to RC4 library interface"),
-> > which was merged through the crypto tree for v5.3, changed ppp_mppe.c to
-> > use the new arc4_crypt() library function rather than access RC4 through
-> > the dynamic crypto_skcipher API.
-> >
-> > Meanwhile commit aad1dcc4f011 ("ppp: mppe: Add softdep to arc4") was
-> > merged through the net tree and added a module soft-dependency on "arc4".
-> >
-> > The latter commit no longer makes sense because the code now uses the
-> > "libarc4" module rather than "arc4", and also due to the direct use of
-> > arc4_crypt(), no module soft-dependency is required.
-> >
-> > So revert the latter commit.
-> >
-> > Cc: Takashi Iwai <tiwai@suse.de>
-> > Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > ---
-> >  drivers/net/ppp/ppp_mppe.c |    1 -
-> >  1 file changed, 1 deletion(-)
-> >
-> > diff --git a/drivers/net/ppp/ppp_mppe.c b/drivers/net/ppp/ppp_mppe.c
-> > index d9eda7c..6c7fd98 100644
-> > --- a/drivers/net/ppp/ppp_mppe.c
-> > +++ b/drivers/net/ppp/ppp_mppe.c
-> > @@ -63,7 +63,6 @@
-> >  MODULE_DESCRIPTION("Point-to-Point Protocol Microsoft Point-to-Point Encryption support");
-> >  MODULE_LICENSE("Dual BSD/GPL");
-> >  MODULE_ALIAS("ppp-compress-" __stringify(CI_MPPE));
-> > -MODULE_SOFTDEP("pre: arc4");
+> > I think the lock/unlock calls should at least be done with a helper
+> > with a comment explaining why disabling interrupts is needed (though I
+> > have not managed to understand why aio needs to actually mess with the
+> > waitq lock...)
 >
-> Why is this being backported?  This revert was only needed because of a
-> different patch that was merged in v5.3, as I explained in the commit message.
+> The aio code is doing a poll(), so it needs to use the wait queue.
 
-Sorry I missed this. I should remove this patch from our product kernel too.
+Doesn't explain why the irq disabled nested locking is needed in
+aio_poll().  poll/select manage to do that without messing with waitq
+internals.   How is aio poll different?
 
--- 
-Baolin Wang
-Best Regards
+> >
+> > Probably a better fix would be to just use a separate spinlock to
+> > avoid the need to disable interrupts in cases where it's not
+> > necessary.
+>
+> Well, the below is what a separate lock would look like.  Note that it actually
+> still disables IRQs in some places; it's just hidden away in the nested
+> spin_lock_irqsave() in wake_up().  Likewise, adding something to the fuse_iqueue
+> then requires taking 2 spin locks -- one explicit, and one hidden in wake_up().
+
+Right, that's exactly why the waitq lock was used.
+
+> Is this the solution you'd prefer?
+
+I'd actually prefer if aio was fixed.   But I guess that's not
+realistic, so yes, the below patch looks okay.  If fiq->lock is in the
+same cacheline as fiq->waitq then it shouldn't make a difference.
+
+Thanks,
+Miklos
