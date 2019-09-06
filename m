@@ -2,84 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D9BABF7E
-	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 20:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7CFABFD7
+	for <lists+stable@lfdr.de>; Fri,  6 Sep 2019 20:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404838AbfIFSi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Sep 2019 14:38:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59248 "EHLO mail.kernel.org"
+        id S2389011AbfIFSsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Sep 2019 14:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404675AbfIFSi1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Sep 2019 14:38:27 -0400
+        id S2388265AbfIFSsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Sep 2019 14:48:52 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 491F4208C3;
-        Fri,  6 Sep 2019 18:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AF5C20838;
+        Fri,  6 Sep 2019 18:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567795106;
-        bh=hVhoaUaPmOU1ZOElqiu41uA2bABUvrV5xk96hEWFkvE=;
+        s=default; t=1567795731;
+        bh=Q9FD4VEg2CE1PHL3dqhCqK94wMwy1fA6VuGfiXRZyZo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OeqCGGKHQzQ4cT1+IU4+3do1YgTnwRgr3pls3NNNAzDXzd4hqR04yONuMCJVsUTgq
-         6cm1k3dNYPZGb3GuKQDgVD0u49h4oTyUAVAnnsEuKzItW5Tv8ZBje6YeuYaiIcBQh5
-         Y3u0wU/CTejLYAgo74+wghU5b+lpN/yLuGAtAIjw=
-Date:   Fri, 6 Sep 2019 14:38:24 -0400
+        b=f7qBSG7UMmAEzYZV/OwkYm5u+hJgiwIgTVqUiZp7RFdBvO3CrKPJP4d4pISoqX5UF
+         TRGBmv6a5K0Qy7T5BqOjUBvYk8J9h3OWEZ1TOPFwOwErbKXo/caHzj6iZocDM4GgoB
+         kz6TGbq4G8MEbu1+9p8ChZZBikW3VOpafGihBJeA=
+Date:   Fri, 6 Sep 2019 14:48:49 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Ricard Wanderlof <ricard.wanderlof@axis.com>,
-        stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: revert: ASoC: Fail card instantiation if DAI format setup fails
-Message-ID: <20190906183824.GB1528@sasha-vm>
-References: <20190814021047.14828-1-sashal@kernel.org>
- <20190814021047.14828-40-sashal@kernel.org>
- <20190814092213.GC4640@sirena.co.uk>
- <20190826013515.GG5281@sasha-vm>
- <20190827110014.GD23391@sirena.co.uk>
- <20190828021311.GV5281@sasha-vm>
- <alpine.DEB.2.20.1908280859060.5799@lnxricardw1.se.axis.com>
- <alpine.DEB.2.20.1909061031200.3985@lnxricardw1.se.axis.com>
- <20190906105824.GS23391@sirena.co.uk>
+To:     Sean Nyekjaer <sean@geanix.com>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rasmus Pedersen (RD SC)" <rap@serenergy.com>
+Subject: Re: bcm2835aux: broken in (4.9), 4.14 and 4.19
+Message-ID: <20190906184849.GC1528@sasha-vm>
+References: <5f6bd329-3848-98aa-bae9-e988de0d361a@geanix.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190906105824.GS23391@sirena.co.uk>
+In-Reply-To: <5f6bd329-3848-98aa-bae9-e988de0d361a@geanix.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 06, 2019 at 11:58:24AM +0100, Mark Brown wrote:
->On Fri, Sep 06, 2019 at 10:40:01AM +0200, Ricard Wanderlof wrote:
+On Thu, Sep 05, 2019 at 02:18:35PM +0200, Sean Nyekjaer wrote:
+>Hi,
 >
->> But is this being dropped from the master branch as well? To me it makes
->> the kernel behave in an inconsistent way, first reporting a failure to
->> instantiate a specific sound card in the kernel log, but then seemingly
->> bringing it up anyway.
+>Please consider picking:
 >
->No, this is absolutely a good and positive change to have in
->master and I'm not suggesting that we should drop it there -
->sorry if I sounded like that.  I just want to be conservative for
->stable so that we don't have anyone updating their stable kernel
->and having their audio blow up on them, we don't want to do
->anything that'd discourage people from taking stable updates and
->hence missing out on security or critical stability updates.
+>commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec
+>Author: Martin Sperl <kernel@martin.sperl.org>
+>Date:   Sat Mar 30 09:30:58 2019 +0000
+>
+>    spi: bcm2835aux: unifying code between polling and interrupt 
+>driven code
+>
+>commit c7de8500fd8ecbb544846dd5f11dca578c3777e1
+>Author: Martin Sperl <kernel@martin.sperl.org>
+>Date:   Sat Mar 30 09:30:59 2019 +0000
+>
+>    spi: bcm2835aux: remove dangerous uncontrolled read of fifo
+>
+>
+>commit 73b114ee7db1750c0b535199fae383b109bd61d0
+>Author: Martin Sperl <kernel@martin.sperl.org>
+>Date:   Sat Mar 30 09:31:00 2019 +0000
+>
+>    spi: bcm2835aux: fix corruptions for longer spi transfers
+>
+>for stable kernel 4.14 and 4.19.
+>
+>If we want to fix this in 4.9 you should also pick:
+>
+>commit bc519d9574618e47a0c788000fb78da95e18d953
+>Author: Rob Herring <robh@kernel.org>
+>Date:   Thu May 3 13:09:44 2018 -0500
+>
+>    spi: bcm2835aux: ensure interrupts are enabled for shared handler
 
-Hi Mark,
+I've queued this as per your instructions (plus all 4 for 4.4), thank
+you!
 
-I'm sorry for not dropping this to begin with: I saw your nack and the
-patch ended up still being released because of my fuck up rather than
-me purposefuly ignoring your ack, sorry.
-
-However, I'd like to say that I don't agree with it. I understand your
-reasoning about keeping the stable trees conservative, but I feel that
-going to the extreme with it will just encourage folks to not upgrade
-between major versions.
-
-I'd like to think that upgrading major versions should be the same as
-upgrading minor ones (because numbers don't matter here). If that's not
-the case, let's fix it!
 
 --
 Thanks,
