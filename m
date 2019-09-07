@@ -2,60 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B67AC8D7
-	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 20:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D61EAC8DE
+	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 20:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391613AbfIGSrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Sep 2019 14:47:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56018 "EHLO mail.kernel.org"
+        id S2394476AbfIGSzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Sep 2019 14:55:22 -0400
+Received: from mga18.intel.com ([134.134.136.126]:50138 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbfIGSrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Sep 2019 14:47:15 -0400
-Received: from localhost (unknown [80.251.162.164])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEE82208C3;
-        Sat,  7 Sep 2019 18:47:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567882034;
-        bh=ETlwQ/jDA2N/DocT9nVHq8Y/UgXTj0x2ZCKwFEuLirk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d7lhWhd3bM0O9T6OXqLR+D+sy4YnWKGTzPUhmGx3IkD1+rtUZte3doy/Va48GtOs/
-         +zkSqCS2GA5vzm35V7WOhaJjpj7Phxgp7RXUp5ZGpXcMMxQ8zzMFQIgFAat2geji0y
-         U65bTTi55rNld7a+p+dw/jaNgyAHfN93goAV+yWM=
-Date:   Sat, 7 Sep 2019 19:47:11 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
-        Francois Rigault <rigault.francois@gmail.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Vishnu DASA <vdasa@vmware.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] VMCI: Release resource if the work is already queued
-Message-ID: <20190907184711.GA30206@kroah.com>
-References: <20190820202638.49003-1-namit@vmware.com>
+        id S2393429AbfIGSzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Sep 2019 14:55:22 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Sep 2019 11:55:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,478,1559545200"; 
+   d="scan'208";a="186096982"
+Received: from bemmett-mobl.amr.corp.intel.com ([10.249.37.206])
+  by orsmga003.jf.intel.com with ESMTP; 07 Sep 2019 11:55:19 -0700
+Message-ID: <f2224c094836a4b8989c1cd6243a0b7ad1261a87.camel@linux.intel.com>
+Subject: Re: [PATCH AUTOSEL 4.19 126/167] tpm: Fix TPM 1.2 Shutdown sequence
+ to prevent future TPM operations
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        Doug Anderson <dianders@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
+Date:   Sat, 07 Sep 2019 21:55:18 +0300
+In-Reply-To: <20190903194335.GG5281@sasha-vm>
+References: <20190903162519.7136-1-sashal@kernel.org>
+         <20190903162519.7136-126-sashal@kernel.org>
+         <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
+         <20190903165346.hwqlrin77cmzjiti@cantor> <20190903194335.GG5281@sasha-vm>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.2-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190820202638.49003-1-namit@vmware.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 20, 2019 at 01:26:38PM -0700, Nadav Amit wrote:
-> Francois reported that VMware balloon gets stuck after a balloon reset,
-> when the VMCI doorbell is removed. A similar error can occur when the
-> balloon driver is removed with the following splat:
+On Tue, 2019-09-03 at 15:43 -0400, Sasha Levin wrote:
+> Right. I gave a go at backporting a few patches and this happens to be
+> one of them. It will be a while before it goes in a stable tree
+> (probably way after after LPC).
 
-<snip>
+It *semantically* depends on
 
-Note, google thinks your email is spam as you are not sending this from
-a valid vmware.com email server.  Please fix this up if you want to make
-sure your patches actually make it through...
+db4d8cb9c9f2 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
 
-thanks,
+I.e. can cause crashes without the above patch. As a code change your
+patch is fine but it needs the above patch backported to work in stable
+manner.
 
-greg k-h
+So... either I can backport that one (because ultimately I have
+responsibility to do that as the maintainer) but if you want to finish
+this one that is what you need to backport in addition and then it
+should be fine.
+
+/Jarkko
+
