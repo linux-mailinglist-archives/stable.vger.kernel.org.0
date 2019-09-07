@@ -2,278 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8658BAC67B
-	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 13:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7DB3AC713
+	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 16:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732220AbfIGLsG convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 7 Sep 2019 07:48:06 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50946 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732060AbfIGLsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Sep 2019 07:48:06 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AA9B430860BF
-        for <stable@vger.kernel.org>; Sat,  7 Sep 2019 11:48:05 +0000 (UTC)
-Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C42C91001947;
-        Sat,  7 Sep 2019 11:48:00 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2391750AbfIGO6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Sep 2019 10:58:19 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33938 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391733AbfIGO6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Sep 2019 10:58:18 -0400
+Received: by mail-wr1-f66.google.com with SMTP id s18so9411027wrn.1;
+        Sat, 07 Sep 2019 07:58:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1COcKaS2HXJAJL3v76zzn2hj7Bwkz387tvnsFY+Qqwo=;
+        b=KniegP04d/AhcqE+5LUIynxWrj4CHnLgNRFGgR7j8m829cSrKRqZLjBci1iMhrN9+x
+         cqyDDhNpm9roTgyItEoJBj9jYmhcfmOiEyJecJy+xX17N141k3tCye93e+hJxq2oXIDB
+         2x2zNGykFoX/BoI0c03XYb1SW0e2rtEpH2DysWWXHRAgWNMQz7SLWGUisP3CVuaoBXJk
+         hoNFQ2uHsjflydICv0dD6BWPs46wkgceQ9aSvnBXiTjZ/E1aAz0wzza4n/sDf/D3+icV
+         6KW8/8E0Wg/nkvsmHWe0k2DE4bzBIRAbzjsS5SLleqiJXKabVZqL4pFk1s9IvWhS8sqE
+         RrpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1COcKaS2HXJAJL3v76zzn2hj7Bwkz387tvnsFY+Qqwo=;
+        b=OLBrlOsQnwZNSqQDaAU/cWhRFV2JMhner3XB04U+kwOOjfy8DcUuBKz2oa1lmw/aNy
+         4rUQnCxEUbIpBSoIsmZJMLPUzEm3rLVcb2ge44mTAPcVjkLrdAgAlIg24eZH84Nrkg/V
+         Hxi3isyEvcWGwg+CCwiw8FxfXBjMyvnKQOh0p3wmqB4XEEG3zCDi/ZcWRQYQkHnZZUJB
+         TuCg8K9SmvUHkBoAkf1/ytRU+KOG607XVb5d+DeKLdtjperRI3wtqjZNp1o0y2s5Pile
+         0VUxUzQilrnmur4ktNnunmrW3wxHgHFNo+i07mdQzJwsWNEh6nslNVXvIN0ZIFPPUtDg
+         oj4A==
+X-Gm-Message-State: APjAAAUbIY5/SbZ8DctVuR2fKajdUU2jJVi+7qITQRpwpLLefN7AjTM0
+        VT9BWPIJS4tP4exCmRPUNaKDdPlDZT64/Y2GXE8=
+X-Google-Smtp-Source: APXvYqzSXDuicK9cIB3YHlgQmu0ZhC7GmzlZl5Qjwb/WQCt4v0+9tJb5jpYKC073HCxRSWvKDYp3DpEEhmnzeKDshIA=
+X-Received: by 2002:adf:e286:: with SMTP id v6mr11989190wri.4.1567868296438;
+ Sat, 07 Sep 2019 07:58:16 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
-CC:     Milos Malik <mmalik@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Memory Management <mm-qe@redhat.com>
-Message-ID: <cki.AF1A98C8BB.7JL3JRLMPG@redhat.com>
-X-Gitlab-Pipeline-ID: 149570
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/149570
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Sat, 07 Sep 2019 11:48:05 +0000 (UTC)
-Date:   Sat, 7 Sep 2019 07:48:06 -0400
+References: <20190903162519.7136-1-sashal@kernel.org> <20190903162519.7136-44-sashal@kernel.org>
+ <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net> <20190903170347.GA24357@kroah.com>
+ <20190903200139.GJ5281@sasha-vm> <CAKMK7uFpBnkF4xABdkDMZ8TYhL4jg6ZuGyHGyVeBxc9rkyUtXQ@mail.gmail.com>
+In-Reply-To: <CAKMK7uFpBnkF4xABdkDMZ8TYhL4jg6ZuGyHGyVeBxc9rkyUtXQ@mail.gmail.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Sat, 7 Sep 2019 10:58:03 -0400
+Message-ID: <CADnq5_Mfee4xmzMJ-Hmw251QCMfabWPKd8PX+o70D97qdCDJ8g@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch alignment
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Sasha Levin <sashal@kernel.org>, Dave Airlie <airlied@linux.ie>,
+        Yu Zhao <yuzhao@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Sep 3, 2019 at 4:16 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+>
+> On Tue, Sep 3, 2019 at 10:01 PM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > On Tue, Sep 03, 2019 at 07:03:47PM +0200, Greg KH wrote:
+> > >On Tue, Sep 03, 2019 at 06:40:43PM +0200, Michel D=C3=A4nzer wrote:
+> > >> On 2019-09-03 6:23 p.m., Sasha Levin wrote:
+> > >> > From: Yu Zhao <yuzhao@google.com>
+> > >> >
+> > >> > [ Upstream commit 89f23b6efef554766177bf51aa754bce14c3e7da ]
+> > >>
+> > >> Hold your horses!
+> > >>
+> > >> This commit and c4a32b266da7bb702e60381ca0c35eaddbc89a6c had to be
+> > >> reverted, as they caused regressions. See commits
+> > >> 25ec429e86bb790e40387a550f0501d0ac55a47c &
+> > >> 92b0730eaf2d549fdfb10ecc8b71f34b9f472c12 .
+> > >>
+> > >>
+> > >> This isn't bolstering confidence in how these patches are selected..=
+.
+> > >
+> > >The patch _itself_ said to be backported to the stable trees from 4.2
+> > >and newer.  Why wouldn't we be confident in doing this?
+> > >
+> > >If the patch doesn't want to be backported, then do not add the cc:
+> > >stable line to it...
+> >
+> > This patch was picked because it has a stable tag, which you presumably
+> > saw as your Reviewed-by tag is in the patch. This is why it was
+> > backported; it doesn't take AI to backport patches tagged for stable...
+> >
+> > The revert of this patch, however:
+> >
+> >  1. Didn't have a stable tag.
+> >  2. Didn't have a "Fixes:" tag.
+> >  3. Didn't have the usual "the reverts commit ..." string added by git
+> >  when one does a revert.
+> >
+> > Which is why we still kick patches for review, even though they had a
+> > stable tag, just so people could take a look and confirm we're not
+> > missing anything - like we did here.
+> >
+> > I'm not sure what you expected me to do differently here.
+>
+> Yeah this looks like fail on the revert side, they need to reference
+> the reverted commit somehow ...
+>
+> Alex, why got this dropped? Is this more fallout from the back&forth
+> shuffling you're doing between your internal branches behind the
+> firewall, and the public history?
 
-Hello,
+The behind the firewall comments are not really helpful.  There aren't
+any "behind the firewall" trees.  Everything is mirrored in public.
+Yes it is annoying that we don't have a direct committer tree, but the
+only shuffling is between public trees.  The problem is 90% of our
+customers want packaged out of tree drivers rather than in tree
+drivers because they are using an old distro or a custom distro or
+something else so we have to do this dance.  I realize there are other
+dances we could do to solve this problem, but they all have their own
+set of costs and this is what we have now.  The patch shuffling
+doesn't help, but regardless, the same thing could happen even with a
+direct committer tree if someone missed the tag when committing.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Alex
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 218ca2e5affe - Linux 5.2.13
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/149570
-
-
-
-One or more kernel tests failed:
-
-  ppc64le:
-    ❌ selinux-policy: serge-testsuite
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 218ca2e5affe - Linux 5.2.13
-
-
-We grabbed the 38896de0ab4b commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  batman-adv-fix-netlink-dumping-of-all-mcast_flags-bu.patch
-  libbpf-fix-erroneous-multi-closing-of-btf-fd.patch
-  libbpf-set-btf-fd-for-prog-only-when-there-is-suppor.patch
-  netfilter-nf_flow_table-fix-offload-for-flows-that-a.patch
-  net-mlx5e-fix-error-flow-of-cqe-recovery-on-tx-repor.patch
-  clk-samsung-change-signature-of-exynos5_subcmus_init.patch
-  clk-samsung-exynos5800-move-mau-subsystem-clocks-to-.patch
-  clk-samsung-exynos542x-move-mscl-subsystem-clocks-to.patch
-  net-tundra-tsi108-use-spin_lock_irqsave-instead-of-s.patch
-  netfilter-nf_tables-use-after-free-in-failing-rule-w.patch
-  netfilter-nf_flow_table-conntrack-picks-up-expired-f.patch
-  netfilter-nf_flow_table-teardown-flow-timeout-race.patch
-  tools-bpftool-fix-error-message-prog-object.patch
-  ixgbe-fix-possible-deadlock-in-ixgbe_service_task.patch
-  hv_netvsc-fix-a-warning-of-suspicious-rcu-usage.patch
-  net-tc35815-explicitly-check-net_ip_align-is-not-zer.patch
-  bluetooth-btqca-add-a-short-delay-before-downloading.patch
-  bluetooth-hci_qca-send-vs-pre-shutdown-command.patch
-  bluetooth-hidp-let-hidp_send_message-return-number-o.patch
-  s390-qeth-serialize-cmd-reply-with-concurrent-timeou.patch
-  ibmveth-convert-multicast-list-size-for-little-endia.patch
-  gpio-fix-build-error-of-function-redefinition.patch
-  netfilter-nft_flow_offload-skip-tcp-rst-and-fin-pack.patch
-  drm-mediatek-use-correct-device-to-import-prime-buff.patch
-  drm-mediatek-set-dma-max-segment-size.patch
-  scsi-qla2xxx-fix-gnl.l-memory-leak-on-adapter-init-f.patch
-  scsi-target-tcmu-avoid-use-after-free-after-command-.patch
-  cxgb4-fix-a-memory-leak-bug.patch
-  selftests-kvm-do-not-try-running-the-vm-in-vmx_set_n.patch
-  selftests-kvm-provide-common-function-to-enable-evmc.patch
-  selftests-kvm-fix-vmx_set_nested_state_test.patch
-  liquidio-add-cleanup-in-octeon_setup_iq.patch
-  net-myri10ge-fix-memory-leaks.patch
-  clk-fix-falling-back-to-legacy-parent-string-matchin.patch
-  clk-fix-potential-null-dereference-in-clk_fetch_pare.patch
-  lan78xx-fix-memory-leaks.patch
-  vfs-fix-page-locking-deadlocks-when-deduping-files.patch
-  cx82310_eth-fix-a-memory-leak-bug.patch
-  net-kalmia-fix-memory-leaks.patch
-  ibmvnic-unmap-dma-address-of-tx-descriptor-buffers-a.patch
-  net-cavium-fix-driver-name.patch
-  wimax-i2400m-fix-a-memory-leak-bug.patch
-  ravb-fix-use-after-free-ravb_tstamp_skb.patch
-  sched-core-schedule-new-worker-even-if-pi-blocked.patch
-  kprobes-fix-potential-deadlock-in-kprobe_optimizer.patch
-  hid-intel-ish-hid-ipc-add-ehl-device-id.patch
-  hid-cp2112-prevent-sleeping-function-called-from-inv.patch
-  x86-boot-compressed-64-fix-boot-on-machines-with-bro.patch
-  scsi-lpfc-mitigate-high-memory-pre-allocation-by-scs.patch
-  input-hyperv-keyboard-use-in-place-iterator-api-in-t.patch
-  tools-hv-kvp-eliminate-may-be-used-uninitialized-war.patch
-  nvme-multipath-fix-possible-i-o-hang-when-paths-are-.patch
-  nvme-fix-cntlid-validation-when-not-using-nvmeof.patch
-  rdma-cma-fix-null-ptr-deref-read-in-cma_cleanup.patch
-  ib-mlx4-fix-memory-leaks.patch
-  infiniband-hfi1-fix-a-memory-leak-bug.patch
-  infiniband-hfi1-fix-memory-leaks.patch
-  selftests-kvm-fix-state-save-load-on-processors-with.patch
-  selftests-kvm-make-platform_info_test-pass-on-amd.patch
-  drm-amdgpu-prevent-memory-leaks-in-amdgpu_cs-ioctl.patch
-  ceph-fix-buffer-free-while-holding-i_ceph_lock-in-__.patch
-  ceph-fix-buffer-free-while-holding-i_ceph_lock-in-__.patch
-  ceph-fix-buffer-free-while-holding-i_ceph_lock-in-fi.patch
-  kvm-arm-arm64-only-skip-mmio-insn-once.patch
-  afs-fix-leak-in-afs_lookup_cell_rcu.patch
-  afs-fix-possible-oops-in-afs_lookup-trace-event.patch
-  afs-use-correct-afs_call_type-in-yfs_fs_store_opaque.patch
-  rdma-bnxt_re-fix-stack-out-of-bounds-in-bnxt_qplib_r.patch
-  gpio-fix-irqchip-initialization-order.patch
-  kvm-arm-arm64-vgic-properly-initialise-private-irq-a.patch
-  x86-boot-compressed-64-fix-missing-initialization-in.patch
-  libceph-allow-ceph_buffer_put-to-receive-a-null-ceph.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ❌ selinux-policy: serge-testsuite [2]
-         🚧 ✅ Storage blktests [3]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [4]
-         ✅ Podman system integration test (as user) [4]
-         ✅ Loopdev Sanity [5]
-         ✅ jvm test suite [6]
-         ✅ AMTU (Abstract Machine Test Utility) [7]
-         ✅ LTP: openposix test suite [8]
-         ✅ Ethernet drivers sanity [9]
-         ✅ Networking socket: fuzz [10]
-         ✅ audit: audit testsuite test [11]
-         ✅ httpd: mod_ssl smoke sanity [12]
-         ✅ iotop: sanity [13]
-         ✅ tuned: tune-processes-through-perf [14]
-         ✅ Usex - version 1.9-29 [15]
-         🚧 ✅ LTP lite [16]
-         🚧 ✅ Memory function: kaslr [17]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         🚧 ✅ Storage blktests [3]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [4]
-         ✅ Podman system integration test (as user) [4]
-         ✅ Loopdev Sanity [5]
-         ✅ jvm test suite [6]
-         ✅ AMTU (Abstract Machine Test Utility) [7]
-         ✅ LTP: openposix test suite [8]
-         ✅ Ethernet drivers sanity [9]
-         ✅ Networking socket: fuzz [10]
-         ✅ audit: audit testsuite test [11]
-         ✅ httpd: mod_ssl smoke sanity [12]
-         ✅ iotop: sanity [13]
-         ✅ tuned: tune-processes-through-perf [14]
-         ✅ pciutils: sanity smoke test [18]
-         ✅ Usex - version 1.9-29 [15]
-         ✅ storage: SCSI VPD [19]
-         ✅ stress: stress-ng [20]
-         🚧 ✅ LTP lite [16]
-         🚧 ❌ Memory function: kaslr [17]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+>
+> Also adding Dave Airlie.
+> -Daniel
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> +41 (0) 79 365 57 48 - http://blog.ffwll.ch
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
