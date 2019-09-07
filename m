@@ -2,51 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5C9AC75B
-	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 17:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA190AC7C7
+	for <lists+stable@lfdr.de>; Sat,  7 Sep 2019 18:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404284AbfIGPuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Sep 2019 11:50:39 -0400
-Received: from smtprelay0226.hostedemail.com ([216.40.44.226]:35198 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2392067AbfIGPuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Sep 2019 11:50:39 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay04.hostedemail.com (Postfix) with ESMTP id CD557180A884B;
-        Sat,  7 Sep 2019 15:50:37 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,:::::::::::::::::::::,RULES_HIT:41:355:379:599:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1537:1560:1593:1594:1711:1714:1730:1747:1777:1792:2393:2559:2562:2828:3138:3139:3140:3141:3142:3622:3865:3866:3867:3872:3874:4321:5007:8531:10004:10400:10848:11658:11914:12297:12740:12760:12895:13069:13311:13357:13439:14659:21080:21627:30051:30054:30060:30069:30091,0,RBL:47.151.152.152:@perches.com:.lbl8.mailshell.net-62.8.0.100 64.201.201.201,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:fn,MSBL:0,DNSBL:neutral,Custom_rules:0:0:0,LFtime:27,LUA_SUMMARY:none
-X-HE-Tag: rake73_3f7a51a030944
-X-Filterd-Recvd-Size: 1669
-Received: from XPS-9350.home (unknown [47.151.152.152])
-        (Authenticated sender: joe@perches.com)
-        by omf04.hostedemail.com (Postfix) with ESMTPA;
-        Sat,  7 Sep 2019 15:50:36 +0000 (UTC)
-Message-ID: <b387b7ea498eb96d94f47b22ac4b11c75518513a.camel@perches.com>
-Subject: Re: [PATCH AUTOSEL 4.19 044/167] drm/amdgpu: validate user pitch
- alignment
-From:   Joe Perches <joe@perches.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@linux.ie>,
-        Yu Zhao <yuzhao@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable <stable@vger.kernel.org>
-Date:   Sat, 07 Sep 2019 08:50:34 -0700
-In-Reply-To: <20190904120823.GW5281@sasha-vm>
+        id S2406770AbfIGQ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Sep 2019 12:56:04 -0400
+Received: from mga18.intel.com ([134.134.136.126]:55496 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404220AbfIGQ4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Sep 2019 12:56:04 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Sep 2019 09:56:03 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,478,1559545200"; 
+   d="scan'208";a="195743666"
+Received: from perezfra-mobl.ger.corp.intel.com ([10.249.34.186])
+  by orsmga002.jf.intel.com with ESMTP; 07 Sep 2019 09:55:56 -0700
+Message-ID: <c41c38aa288d92502edf72f8c8f34f58c251db00.camel@linux.intel.com>
+Subject: Re: [PATCH AUTOSEL 4.19 126/167] tpm: Fix TPM 1.2 Shutdown sequence
+ to prevent future TPM operations
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Doug Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
+Date:   Sat, 07 Sep 2019 19:55:53 +0300
+In-Reply-To: <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
 References: <20190903162519.7136-1-sashal@kernel.org>
-         <20190903162519.7136-44-sashal@kernel.org>
-         <7957107d-634f-4771-327e-99fdd5e6474e@daenzer.net>
-         <20190903170347.GA24357@kroah.com> <20190903200139.GJ5281@sasha-vm>
-         <CAKMK7uFpBnkF4xABdkDMZ8TYhL4jg6ZuGyHGyVeBxc9rkyUtXQ@mail.gmail.com>
-         <829c5912-cf80-81d0-7400-d01d286861fc@daenzer.net>
-         <20190904120823.GW5281@sasha-vm>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.32.1-2 
+         <20190903162519.7136-126-sashal@kernel.org>
+         <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.2-1 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -54,11 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-09-04 at 08:08 -0400, Sasha Levin wrote:
-> it's better to get
-> it right rather than to be done quickly :)
+On Tue, 2019-09-03 at 09:39 -0700, Doug Anderson wrote:
+> Hi,
+> 
+> On Tue, Sep 3, 2019 at 9:28 AM Sasha Levin <sashal@kernel.org> wrote:
+> > From: Vadim Sukhomlinov <sukhomlinov@google.com>
+> > 
+> > [ Upstream commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 ]
+> > 
+> > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+> > future TPM operations. TPM 1.2 behavior was different, future TPM
+> > operations weren't disabled, causing rare issues. This patch ensures
+> > that future TPM operations are disabled.
+> > 
+> > Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+> > [dianders: resolved merge conflicts with mainline]
+> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/char/tpm/tpm-chip.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> Jarkko: did you deal with the issues that came up in response to my
+> post?  Are you happy with this going into 4.19 stable at this point?
+> I notice this has your Signed-off-by so maybe?
 
-That also applies to the initial selection of
-patches for the stable trees.
+No I have not dealt with the issues yet. The last thing I've said about
+this is:
 
+https://lore.kernel.org/stable/20190805210501.vjtmwgxjg334vtnc@linux.intel.com/
+
+I was actually going to look into this during the plane trip to Lissabon
+tomorrow morning. I have in mind that this needs to be backported first:
+
+db4d8cb9c9f2 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
+
+/Jarkko
 
