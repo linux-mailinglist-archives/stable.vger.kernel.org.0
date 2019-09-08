@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A03FACE87
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54447ACEBC
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbfIHMqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:46:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S1729627AbfIHMn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730424AbfIHMqg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:36 -0400
+        id S1729604AbfIHMnz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:43:55 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23FBE20644;
-        Sun,  8 Sep 2019 12:46:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88B66218AE;
+        Sun,  8 Sep 2019 12:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946795;
-        bh=yj1L5TzB2zLxXbKr7boJeyCjD2/e8hSz4PmXW/rMXt4=;
+        s=default; t=1567946633;
+        bh=JeZlGSUgsbC9kaxSnvIl1RuUMyQZlH7dsU6CQCcexzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaaMLT5ER4D5RUfbq7szyVTxx87iysXobcjGuAid6xXlJtBbXHEtPmLRFktTJR40u
-         ajsD9eb5A9OvW6Tqph76GZ59AdqUFcjs6iXiP9BHD0E0IdUffY7H5ojqOphXR9L9tE
-         shnvBHU7lcAd/X+G6ueofklp5T+HK9rlugcS1inc=
+        b=HNZW9yAuPDbMRIl9+Um69UlcvwtwCqthxho+JCi/fQ8jbFjx3+zPD+eOVKpaEI+9U
+         EG/12jGKTfXrcfYd7yNn/m2cBmJshJfT/lzzQrjSwU9m3qbioevwlEff0vOczv2aeS
+         NfyJ22G3ZiTv0ZildmgcOd5kzLkkVhszhr+JiJDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/40] gpio: Fix build error of function redefinition
+Subject: [PATCH 4.9 01/26] net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
 Date:   Sun,  8 Sep 2019 13:41:40 +0100
-Message-Id: <20190908121117.752034732@linuxfoundation.org>
+Message-Id: <20190908121057.476170936@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
-References: <20190908121114.260662089@linuxfoundation.org>
+In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
+References: <20190908121057.216802689@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,64 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 68e03b85474a51ec1921b4d13204782594ef7223 ]
+[ Upstream commit 8c25d0887a8bd0e1ca2074ac0c6dff173787a83b ]
 
-when do randbuilding, I got this error:
+As spin_unlock_irq will enable interrupts.
+Function tsi108_stat_carry is called from interrupt handler tsi108_irq.
+Interrupts are enabled in interrupt handler.
+Use spin_lock_irqsave/spin_unlock_irqrestore instead of spin_(un)lock_irq
+in IRQ context to avoid this.
 
-In file included from drivers/hwmon/pmbus/ucd9000.c:19:0:
-./include/linux/gpio/driver.h:576:1: error: redefinition of gpiochip_add_pin_range
- gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
- ^~~~~~~~~~~~~~~~~~~~~~
-In file included from drivers/hwmon/pmbus/ucd9000.c:18:0:
-./include/linux/gpio.h:245:1: note: previous definition of gpiochip_add_pin_range was here
- gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
- ^~~~~~~~~~~~~~~~~~~~~~
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 964cb341882f ("gpio: move pincontrol calls to <linux/gpio/driver.h>")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20190731123814.46624-1-yuehaibing@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/gpio.h | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ drivers/net/ethernet/tundra/tsi108_eth.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/gpio.h b/include/linux/gpio.h
-index 8ef7fc0ce0f0c..b2f103b170a97 100644
---- a/include/linux/gpio.h
-+++ b/include/linux/gpio.h
-@@ -230,30 +230,6 @@ static inline int irq_to_gpio(unsigned irq)
- 	return -EINVAL;
+diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
+index 8fd131207ee10..499abe9108fa6 100644
+--- a/drivers/net/ethernet/tundra/tsi108_eth.c
++++ b/drivers/net/ethernet/tundra/tsi108_eth.c
+@@ -381,9 +381,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
+ static void tsi108_stat_carry(struct net_device *dev)
+ {
+ 	struct tsi108_prv_data *data = netdev_priv(dev);
++	unsigned long flags;
+ 	u32 carry1, carry2;
+ 
+-	spin_lock_irq(&data->misclock);
++	spin_lock_irqsave(&data->misclock, flags);
+ 
+ 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
+ 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
+@@ -451,7 +452,7 @@ static void tsi108_stat_carry(struct net_device *dev)
+ 			      TSI108_STAT_TXPAUSEDROP_CARRY,
+ 			      &data->tx_pause_drop);
+ 
+-	spin_unlock_irq(&data->misclock);
++	spin_unlock_irqrestore(&data->misclock, flags);
  }
  
--static inline int
--gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
--		       unsigned int gpio_offset, unsigned int pin_offset,
--		       unsigned int npins)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline int
--gpiochip_add_pingroup_range(struct gpio_chip *chip,
--			struct pinctrl_dev *pctldev,
--			unsigned int gpio_offset, const char *pin_group)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline void
--gpiochip_remove_pin_ranges(struct gpio_chip *chip)
--{
--	WARN_ON(1);
--}
--
- static inline int devm_gpio_request(struct device *dev, unsigned gpio,
- 				    const char *label)
- {
+ /* Read a stat counter atomically with respect to carries.
 -- 
 2.20.1
 
