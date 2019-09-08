@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DA5ACE81
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C4AACE72
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730282AbfIHMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:46:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33474 "EHLO mail.kernel.org"
+        id S1729964AbfIHMpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730281AbfIHMqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:04 -0400
+        id S1729975AbfIHMpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:02 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43D5C20644;
-        Sun,  8 Sep 2019 12:46:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7C25218AE;
+        Sun,  8 Sep 2019 12:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946763;
-        bh=eux4fIGlT+5peVgOwVIJoXwTvuLrYXt5ySKlTBOOM2M=;
+        s=default; t=1567946701;
+        bh=gdF4uvgwLqBk17amB8Ul2Jm1qxH0Aqoc/x4M99Un1q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ie5CUb+5EU6OTELYUKnSMThPg8hc+wmBSzMl1wLdv7uPBD+AGW7FBg9SFYAqxv6lg
-         0P6evliIt+BcH3sNCai+LDguoqSfrKID+7tuyDQ/VsnanXdiGVob4MPoevx59BeKYu
-         aASCOxOfLtEF1NZuehgxD+n/POBwJjHLGpohSWQM=
+        b=HPPN7puNM7YCNN1BFd0Co9VxgWmmG2J0x2nNFmMc9f1dYgXuhrIs7Cz6wGao3jXnW
+         /pfOM0AdQdsEk0voPItqVfoZ7i20tEjjddpslVsN0vRM7wUVIafMvEdXpsIDQyy3aO
+         dlJxElaY/IQl/qibKBiISzNvvhul9N1kOwoIDvqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/40] spi: bcm2835aux: fix corruptions for longer spi transfers
-Date:   Sun,  8 Sep 2019 13:42:04 +0100
-Message-Id: <20190908121128.572126490@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 26/26] mld: fix memory leak in mld_del_delrec()
+Date:   Sun,  8 Sep 2019 13:42:05 +0100
+Message-Id: <20190908121111.344808096@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
-References: <20190908121114.260662089@linuxfoundation.org>
+In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
+References: <20190908121057.216802689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
+From: Eric Dumazet <edumazet@google.com>
 
-On long running tests with a mcp2517fd can controller it showed that
-on rare occations the data read shows corruptions for longer spi transfers.
+[ Upstream commit a84d016479896b5526a2cc54784e6ffc41c9d6f6 ]
 
-Example of a 22 byte transfer:
+Similar to the fix done for IPv4 in commit e5b1c6c6277d
+("igmp: fix memory leak in igmpv3_del_delrec()"), we need to
+make sure mca_tomb and mca_sources are not blindly overwritten.
 
-expected (as captured on logic analyzer):
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+Using swap() then a call to ip6_mc_clear_src() will take care
+of the missing free.
 
-read by the driver:
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
+BUG: memory leak
+unreferenced object 0xffff888117d9db00 (size 64):
+  comm "syz-executor247", pid 6918, jiffies 4294943989 (age 25.350s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 fe 88 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000005b463030>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
+    [<000000005b463030>] slab_post_alloc_hook mm/slab.h:522 [inline]
+    [<000000005b463030>] slab_alloc mm/slab.c:3319 [inline]
+    [<000000005b463030>] kmem_cache_alloc_trace+0x145/0x2c0 mm/slab.c:3548
+    [<00000000939cbf94>] kmalloc include/linux/slab.h:552 [inline]
+    [<00000000939cbf94>] kzalloc include/linux/slab.h:748 [inline]
+    [<00000000939cbf94>] ip6_mc_add1_src net/ipv6/mcast.c:2236 [inline]
+    [<00000000939cbf94>] ip6_mc_add_src+0x31f/0x420 net/ipv6/mcast.c:2356
+    [<00000000d8972221>] ip6_mc_source+0x4a8/0x600 net/ipv6/mcast.c:449
+    [<000000002b203d0d>] do_ipv6_setsockopt.isra.0+0x1b92/0x1dd0 net/ipv6/ipv6_sockglue.c:748
+    [<000000001f1e2d54>] ipv6_setsockopt+0x89/0xd0 net/ipv6/ipv6_sockglue.c:944
+    [<00000000c8f7bdf9>] udpv6_setsockopt+0x4e/0x90 net/ipv6/udp.c:1558
+    [<000000005a9a0c5e>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3139
+    [<00000000910b37b2>] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
+    [<00000000e9108023>] __do_sys_setsockopt net/socket.c:2100 [inline]
+    [<00000000e9108023>] __se_sys_setsockopt net/socket.c:2097 [inline]
+    [<00000000e9108023>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2097
+    [<00000000f4818160>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:296
+    [<000000008d367e8f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
-read data from the fifo reliably without any corruption.
-
-Surprisingly the only values ever empirically read in
-BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
-So whenever the mask is not 0 we can read from the fifo in a safe manner.
-
-The patch has now been tested intensively and we are no longer
-able to reproduce the "RX" issue any longer.
-
-Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
-Reported-by: Hubert Denkmair <h.denkmair@intence.de>
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
+Fixes: 9c8bb163ae78 ("igmp, mld: Fix memory leak in igmpv3/mld_del_delrec()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/ipv6/mcast.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 4454d9c6a3dd4..5c89bbb05441b 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -180,12 +180,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 
- static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
-+	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
-+
- 	/* check if we have data to read */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
-+	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
-+	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
- 		bcm2835aux_rd_fifo(bs);
--	}
- 
- 	/* check if we have data to write */
- 	while (bs->tx_len &&
--- 
-2.20.1
-
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -772,12 +772,13 @@ static void mld_del_delrec(struct inet6_
+ 		im->idev = pmc->idev;
+ 		im->mca_crcount = idev->mc_qrv;
+ 		if (im->mca_sfmode == MCAST_INCLUDE) {
+-			im->mca_tomb = pmc->mca_tomb;
+-			im->mca_sources = pmc->mca_sources;
++			swap(im->mca_tomb, pmc->mca_tomb);
++			swap(im->mca_sources, pmc->mca_sources);
+ 			for (psf = im->mca_sources; psf; psf = psf->sf_next)
+ 				psf->sf_crcount = im->mca_crcount;
+ 		}
+ 		in6_dev_put(pmc->idev);
++		ip6_mc_clear_src(pmc);
+ 		kfree(pmc);
+ 	}
+ 	spin_unlock_bh(&im->mca_lock);
 
 
