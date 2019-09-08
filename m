@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7826CACCDE
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E7FACD44
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbfIHMnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:43:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57066 "EHLO mail.kernel.org"
+        id S1730639AbfIHMrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:47:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729431AbfIHMnU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:43:20 -0400
+        id S1730629AbfIHMrR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:47:17 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29A7A218AF;
-        Sun,  8 Sep 2019 12:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FC45218AC;
+        Sun,  8 Sep 2019 12:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946599;
-        bh=mvzyqS+I5lfi/NFsoStqyrXMLbFW+sd2sHHzUZmUHNw=;
+        s=default; t=1567946836;
+        bh=BwTFiW9WT49zM91gkveS8EQjGrYoW+0H3KfR9rONbiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAFss99gClM/2ubjh2FEyCZpGtLLLFj1QAmN9tXizbj4nfnH1Z2VLW6i+BReRAJrS
-         NjEBNCNSW/D8S0K5rmnH3VY2cjGDjytKeqkLQdX/LM/XmMYFLJhLvJXqXgSvywpjyb
-         cBAC52BRMr+fjBeAusP6n+qpHfjS3LZILKt5O0mE=
+        b=nKnbQtUEO/p9XabdJyAU+LQND7C1wg7nroKyojxr3ZtG34LkQvX+Ljq0QmTahXaEA
+         TR1nm/ub2AwdqVRhXsId1sU48riI5H7A88ubkH3TLTU35m8NvvksZZvPnfHUybC5ZS
+         17WeOo4Ukgi35DITXzPcWQArOY56RNjhPh06WaqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Fabian Henneke <fabian.henneke@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/23] net: myri10ge: fix memory leaks
-Date:   Sun,  8 Sep 2019 13:41:42 +0100
-Message-Id: <20190908121056.307391534@linuxfoundation.org>
+Subject: [PATCH 4.19 19/57] Bluetooth: hidp: Let hidp_send_message return number of queued bytes
+Date:   Sun,  8 Sep 2019 13:41:43 +0100
+Message-Id: <20190908121132.859238319@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-References: <20190908121052.898169328@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20fb7c7a39b5c719e2e619673b5f5729ee7d2306 ]
+[ Upstream commit 48d9cc9d85dde37c87abb7ac9bbec6598ba44b56 ]
 
-In myri10ge_probe(), myri10ge_alloc_slices() is invoked to allocate slices
-related structures. Later on, myri10ge_request_irq() is used to get an irq.
-However, if this process fails, the allocated slices related structures are
-not deallocated, leading to memory leaks. To fix this issue, revise the
-target label of the goto statement to 'abort_with_slices'.
+Let hidp_send_message return the number of successfully queued bytes
+instead of an unconditional 0.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With the return value fixed to 0, other drivers relying on hidp, such as
+hidraw, can not return meaningful values from their respective
+implementations of write(). In particular, with the current behavior, a
+hidraw device's write() will have different return values depending on
+whether the device is connected via USB or Bluetooth, which makes it
+harder to abstract away the transport layer.
+
+Signed-off-by: Fabian Henneke <fabian.henneke@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hidp/core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 83651ac8ddb9d..8ebf3611aba3c 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -4114,7 +4114,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	 * setup (if available). */
- 	status = myri10ge_request_irq(mgp);
- 	if (status != 0)
--		goto abort_with_firmware;
-+		goto abort_with_slices;
- 	myri10ge_free_irq(mgp);
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 253975cce943e..7a31aec0c4a36 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -101,6 +101,7 @@ static int hidp_send_message(struct hidp_session *session, struct socket *sock,
+ {
+ 	struct sk_buff *skb;
+ 	struct sock *sk = sock->sk;
++	int ret;
  
- 	/* Save configuration space to be restored if the
+ 	BT_DBG("session %p data %p size %d", session, data, size);
+ 
+@@ -114,13 +115,17 @@ static int hidp_send_message(struct hidp_session *session, struct socket *sock,
+ 	}
+ 
+ 	skb_put_u8(skb, hdr);
+-	if (data && size > 0)
++	if (data && size > 0) {
+ 		skb_put_data(skb, data, size);
++		ret = size;
++	} else {
++		ret = 0;
++	}
+ 
+ 	skb_queue_tail(transmit, skb);
+ 	wake_up_interruptible(sk_sleep(sk));
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int hidp_send_ctrl_message(struct hidp_session *session,
 -- 
 2.20.1
 
