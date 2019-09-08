@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA32ACE61
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C779ACD9C
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730719AbfIHMre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
+        id S1732685AbfIHMvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730705AbfIHMrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:47:33 -0400
+        id S1732675AbfIHMvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:35 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E11B218AC;
-        Sun,  8 Sep 2019 12:47:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C2CC2196F;
+        Sun,  8 Sep 2019 12:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946852;
-        bh=kN9NqGek8Ie0c9DhttnXTmjhCO23MVeD6mXmL3G6P9I=;
+        s=default; t=1567947094;
+        bh=R4TG00Gp+qz4loKg0EFU3QYEx6+A4QxhkV1zPIdgigM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yICrmf+PAG1glvTLZXPKeWTp6X4D4Fwa/00vCaRs/VHBa2bLdBozF5YOU8sCMa9cS
-         UGJjtnwIkc/D7eZsLkF7h3EW422BeENKz9z/c1Pa7MM4zkifKCfyi3hwGaJtVFiDka
-         Uhj9SliTdJXWpa11RRH4fi5Jed58LOLcCv2pIGh8=
+        b=T1I1ej9dyVDxndFYuVPnyXFJOyS6uxPh1a4LIxm8WOOiTLCsL06RyGlBfjd42NlFW
+         08dXIw5HM+9GWkZeBW9wxJqx0wqPU18LyZF7G5jYHBfNKng28oGXQ/iwpLdNrXibuX
+         q8TjS7eVAvKZ3tRytK+4QhacVufrJVJemTVNSTns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Courbot <acourbot@chromium.org>,
-        Tomasz Figa <tfiga@chromium.org>, CK Hu <ck.hu@mediatek.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/57] drm/mediatek: set DMA max segment size
+Subject: [PATCH 5.2 52/94] net: myri10ge: fix memory leaks
 Date:   Sun,  8 Sep 2019 13:41:48 +0100
-Message-Id: <20190908121135.503944150@linuxfoundation.org>
+Message-Id: <20190908121151.926741421@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 070955558e820b9a89c570b91b1f21762f62b288 ]
+[ Upstream commit 20fb7c7a39b5c719e2e619673b5f5729ee7d2306 ]
 
-This driver requires imported PRIME buffers to appear contiguously in
-its IO address space. Make sure this is the case by setting the maximum
-DMA segment size to a more suitable value than the default 64KB.
+In myri10ge_probe(), myri10ge_alloc_slices() is invoked to allocate slices
+related structures. Later on, myri10ge_request_irq() is used to get an irq.
+However, if this process fails, the allocated slices related structures are
+not deallocated, leading to memory leaks. To fix this issue, revise the
+target label of the goto statement to 'abort_with_slices'.
 
-Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 35 ++++++++++++++++++++++++--
- drivers/gpu/drm/mediatek/mtk_drm_drv.h |  2 ++
- 2 files changed, 35 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index ffb997440851d..f6389479fccb5 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -220,6 +220,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 	struct mtk_drm_private *private = drm->dev_private;
- 	struct platform_device *pdev;
- 	struct device_node *np;
-+	struct device *dma_dev;
- 	int ret;
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index d8b7fba96d58e..337b0cbfd153e 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -3919,7 +3919,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	 * setup (if available). */
+ 	status = myri10ge_request_irq(mgp);
+ 	if (status != 0)
+-		goto abort_with_firmware;
++		goto abort_with_slices;
+ 	myri10ge_free_irq(mgp);
  
- 	if (!iommu_present(&platform_bus_type))
-@@ -282,7 +283,29 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 		goto err_component_unbind;
- 	}
- 
--	private->dma_dev = &pdev->dev;
-+	dma_dev = &pdev->dev;
-+	private->dma_dev = dma_dev;
-+
-+	/*
-+	 * Configure the DMA segment size to make sure we get contiguous IOVA
-+	 * when importing PRIME buffers.
-+	 */
-+	if (!dma_dev->dma_parms) {
-+		private->dma_parms_allocated = true;
-+		dma_dev->dma_parms =
-+			devm_kzalloc(drm->dev, sizeof(*dma_dev->dma_parms),
-+				     GFP_KERNEL);
-+	}
-+	if (!dma_dev->dma_parms) {
-+		ret = -ENOMEM;
-+		goto err_component_unbind;
-+	}
-+
-+	ret = dma_set_max_seg_size(dma_dev, (unsigned int)DMA_BIT_MASK(32));
-+	if (ret) {
-+		dev_err(dma_dev, "Failed to set DMA segment size\n");
-+		goto err_unset_dma_parms;
-+	}
- 
- 	/*
- 	 * We don't use the drm_irq_install() helpers provided by the DRM
-@@ -292,13 +315,16 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 	drm->irq_enabled = true;
- 	ret = drm_vblank_init(drm, MAX_CRTC);
- 	if (ret < 0)
--		goto err_component_unbind;
-+		goto err_unset_dma_parms;
- 
- 	drm_kms_helper_poll_init(drm);
- 	drm_mode_config_reset(drm);
- 
- 	return 0;
- 
-+err_unset_dma_parms:
-+	if (private->dma_parms_allocated)
-+		dma_dev->dma_parms = NULL;
- err_component_unbind:
- 	component_unbind_all(drm->dev, drm);
- err_config_cleanup:
-@@ -309,9 +335,14 @@ err_config_cleanup:
- 
- static void mtk_drm_kms_deinit(struct drm_device *drm)
- {
-+	struct mtk_drm_private *private = drm->dev_private;
-+
- 	drm_kms_helper_poll_fini(drm);
- 	drm_atomic_helper_shutdown(drm);
- 
-+	if (private->dma_parms_allocated)
-+		private->dma_dev->dma_parms = NULL;
-+
- 	component_unbind_all(drm->dev, drm);
- 	drm_mode_config_cleanup(drm);
- }
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.h b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-index ecc00ca3221da..8fa60d46f8605 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-@@ -59,6 +59,8 @@ struct mtk_drm_private {
- 	} commit;
- 
- 	struct drm_atomic_state *suspend_state;
-+
-+	bool dma_parms_allocated;
- };
- 
- extern struct platform_driver mtk_ddp_driver;
+ 	/* Save configuration space to be restored if the
 -- 
 2.20.1
 
