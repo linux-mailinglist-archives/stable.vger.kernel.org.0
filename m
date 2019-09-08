@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9290EACE13
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B8DACE67
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732112AbfIHMu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:50:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
+        id S1730648AbfIHMrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732061AbfIHMuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:50:20 -0400
+        id S1730611AbfIHMrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:47:19 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0A0521920;
-        Sun,  8 Sep 2019 12:50:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCAD6218AC;
+        Sun,  8 Sep 2019 12:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947019;
-        bh=EYrfnDqSgMzgf5DIBdN1vN7QHCkw64YspbkfRh4RT3o=;
+        s=default; t=1567946839;
+        bh=qUm4Hz3UlfFJcoxfNGwaaABMr5AHGadsYX+6XAWtEKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8ekluRB4DaxDW9t27pTs4Pw7OUF2zesSHKWE5++J+8DtFl8pAfMLrWyEc6e5IdqK
-         pk/R+KCsaOg2QEuVVUxHC5uyuD4ojQifLWy9J2zP+qCx4IinHj/xGEXYE2JwYGo/pp
-         SkDTO8XAOtmo9IhIWFEikTAyRJ0DM2cmsgm/ctgE=
+        b=yrLQ7IotFCX6xr8AHmA8JeB12CDEbv/OgSdfRlSXxaNm1ybfIZeIHAZRe6pcnoEz/
+         3IVqYU8X6cXMkt3Rz7p8hfMk+haTehSE1qfDcknZzyqcqESayQqcK58kdN50v77OBh
+         7gXwjvwKW2iqodKQ6HPxMDco4upZ99xuBUwTTCms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 30/94] netfilter: nf_flow_table: conntrack picks up expired flows
+        stable@vger.kernel.org, Feng Sun <loyou85@gmail.com>,
+        Xiaojun Zhao <xiaojunzhao141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 02/57] net: fix skb use after free in netpoll
 Date:   Sun,  8 Sep 2019 13:41:26 +0100
-Message-Id: <20190908121151.303047242@linuxfoundation.org>
+Message-Id: <20190908121127.158072530@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
-References: <20190908121150.420989666@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e68db2f6422d711550a32cbc87abd97bb6efab3 ]
+From: Feng Sun <loyou85@gmail.com>
 
-Update conntrack entry to pick up expired flows, otherwise the conntrack
-entry gets stuck with the internal offload timeout (one day). The TCP
-state also needs to be adjusted to ESTABLISHED state and tracking is set
-to liberal mode in order to give conntrack a chance to pick up the
-expired flow.
+[ Upstream commit 2c1644cf6d46a8267d79ed95cb9b563839346562 ]
 
-Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After commit baeababb5b85d5c4e6c917efe2a1504179438d3b
+("tun: return NET_XMIT_DROP for dropped packets"),
+when tun_net_xmit drop packets, it will free skb and return NET_XMIT_DROP,
+netpoll_send_skb_on_dev will run into following use after free cases:
+1. retry netpoll_start_xmit with freed skb;
+2. queue freed skb in npinfo->txq.
+queue_process will also run into use after free case.
+
+hit netpoll_send_skb_on_dev first case with following kernel log:
+
+[  117.864773] kernel BUG at mm/slub.c:306!
+[  117.864773] invalid opcode: 0000 [#1] SMP PTI
+[  117.864774] CPU: 3 PID: 2627 Comm: loop_printmsg Kdump: loaded Tainted: P           OE     5.3.0-050300rc5-generic #201908182231
+[  117.864775] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+[  117.864775] RIP: 0010:kmem_cache_free+0x28d/0x2b0
+[  117.864781] Call Trace:
+[  117.864781]  ? tun_net_xmit+0x21c/0x460
+[  117.864781]  kfree_skbmem+0x4e/0x60
+[  117.864782]  kfree_skb+0x3a/0xa0
+[  117.864782]  tun_net_xmit+0x21c/0x460
+[  117.864782]  netpoll_start_xmit+0x11d/0x1b0
+[  117.864788]  netpoll_send_skb_on_dev+0x1b8/0x200
+[  117.864789]  __br_forward+0x1b9/0x1e0 [bridge]
+[  117.864789]  ? skb_clone+0x53/0xd0
+[  117.864790]  ? __skb_clone+0x2e/0x120
+[  117.864790]  deliver_clone+0x37/0x50 [bridge]
+[  117.864790]  maybe_deliver+0x89/0xc0 [bridge]
+[  117.864791]  br_flood+0x6c/0x130 [bridge]
+[  117.864791]  br_dev_xmit+0x315/0x3c0 [bridge]
+[  117.864792]  netpoll_start_xmit+0x11d/0x1b0
+[  117.864792]  netpoll_send_skb_on_dev+0x1b8/0x200
+[  117.864792]  netpoll_send_udp+0x2c6/0x3e8
+[  117.864793]  write_msg+0xd9/0xf0 [netconsole]
+[  117.864793]  console_unlock+0x386/0x4e0
+[  117.864793]  vprintk_emit+0x17e/0x280
+[  117.864794]  vprintk_default+0x29/0x50
+[  117.864794]  vprintk_func+0x4c/0xbc
+[  117.864794]  printk+0x58/0x6f
+[  117.864795]  loop_fun+0x24/0x41 [printmsg_loop]
+[  117.864795]  kthread+0x104/0x140
+[  117.864795]  ? 0xffffffffc05b1000
+[  117.864796]  ? kthread_park+0x80/0x80
+[  117.864796]  ret_from_fork+0x35/0x40
+
+Signed-off-by: Feng Sun <loyou85@gmail.com>
+Signed-off-by: Xiaojun Zhao <xiaojunzhao141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_flow_table_core.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ net/core/netpoll.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 948b4ebbe3fbd..4254e42605135 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -112,7 +112,7 @@ static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
- #define NF_FLOWTABLE_TCP_PICKUP_TIMEOUT	(120 * HZ)
- #define NF_FLOWTABLE_UDP_PICKUP_TIMEOUT	(30 * HZ)
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -122,7 +122,7 @@ static void queue_process(struct work_st
+ 		txq = netdev_get_tx_queue(dev, q_index);
+ 		HARD_TX_LOCK(dev, txq, smp_processor_id());
+ 		if (netif_xmit_frozen_or_stopped(txq) ||
+-		    netpoll_start_xmit(skb, dev, txq) != NETDEV_TX_OK) {
++		    !dev_xmit_complete(netpoll_start_xmit(skb, dev, txq))) {
+ 			skb_queue_head(&npinfo->txq, skb);
+ 			HARD_TX_UNLOCK(dev, txq);
+ 			local_irq_restore(flags);
+@@ -335,7 +335,7 @@ void netpoll_send_skb_on_dev(struct netp
  
--static void flow_offload_fixup_ct_state(struct nf_conn *ct)
-+static void flow_offload_fixup_ct(struct nf_conn *ct)
- {
- 	const struct nf_conntrack_l4proto *l4proto;
- 	unsigned int timeout;
-@@ -209,6 +209,11 @@ int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
- }
- EXPORT_SYMBOL_GPL(flow_offload_add);
+ 				HARD_TX_UNLOCK(dev, txq);
  
-+static inline bool nf_flow_has_expired(const struct flow_offload *flow)
-+{
-+	return (__s32)(flow->timeout - (u32)jiffies) <= 0;
-+}
-+
- static void flow_offload_del(struct nf_flowtable *flow_table,
- 			     struct flow_offload *flow)
- {
-@@ -224,6 +229,9 @@ static void flow_offload_del(struct nf_flowtable *flow_table,
- 	e = container_of(flow, struct flow_offload_entry, flow);
- 	clear_bit(IPS_OFFLOAD_BIT, &e->ct->status);
+-				if (status == NETDEV_TX_OK)
++				if (dev_xmit_complete(status))
+ 					break;
  
-+	if (nf_flow_has_expired(flow))
-+		flow_offload_fixup_ct(e->ct);
-+
- 	flow_offload_free(flow);
- }
+ 			}
+@@ -352,7 +352,7 @@ void netpoll_send_skb_on_dev(struct netp
  
-@@ -234,7 +242,7 @@ void flow_offload_teardown(struct flow_offload *flow)
- 	flow->flags |= FLOW_OFFLOAD_TEARDOWN;
+ 	}
  
- 	e = container_of(flow, struct flow_offload_entry, flow);
--	flow_offload_fixup_ct_state(e->ct);
-+	flow_offload_fixup_ct(e->ct);
- }
- EXPORT_SYMBOL_GPL(flow_offload_teardown);
- 
-@@ -299,11 +307,6 @@ nf_flow_table_iterate(struct nf_flowtable *flow_table,
- 	return err;
- }
- 
--static inline bool nf_flow_has_expired(const struct flow_offload *flow)
--{
--	return (__s32)(flow->timeout - (u32)jiffies) <= 0;
--}
--
- static void nf_flow_offload_gc_step(struct flow_offload *flow, void *data)
- {
- 	struct nf_flowtable *flow_table = data;
--- 
-2.20.1
-
+-	if (status != NETDEV_TX_OK) {
++	if (!dev_xmit_complete(status)) {
+ 		skb_queue_tail(&npinfo->txq, skb);
+ 		schedule_delayed_work(&npinfo->tx_work,0);
+ 	}
 
 
