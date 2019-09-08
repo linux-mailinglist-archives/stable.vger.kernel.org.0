@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 806AFACCCD
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD12ACD3C
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728667AbfIHMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56136 "EHLO mail.kernel.org"
+        id S1730513AbfIHMrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726329AbfIHMmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:42:51 -0400
+        id S1729184AbfIHMq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:46:59 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 289CF2081B;
-        Sun,  8 Sep 2019 12:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36E2020644;
+        Sun,  8 Sep 2019 12:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946570;
-        bh=K6Vxcy2bvDEdCfKEJXIVSSgrnO14kMUndq2rRyG9TWM=;
+        s=default; t=1567946818;
+        bh=EsMyl5SLsBQmn7rvg7jiR+z1VA3Kknj+Hjo5z4HdEcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lzmj+HFdvIme6Ns2wBynHuqGc0lLcMO2Pb+HNB4kmCQfMAyeDXVJGSy9HXkE5uu6m
-         TZOJEfCHeMKmK2O3Q6UaHBSvjIKK6x1kAI8eKn6ipqX62I7GOTWJMrRjWI92+d2Elx
-         U8/NZbZZ/VU9kH1iFFKmep8XGZ7LPa3+yEbNRpuc=
+        b=cN+Qer+wmrGyY6cncDaTJfKRvmJ2wAlmQ+O5G5ibNnAR+4x3rAKKbAbnuE9HyoY+Z
+         Iji24WDxbd8X2jgWCzVZ+DMzUpZA69YFhecxr1g7pDyq27W1GbjW6QuVzqzNx+VJlV
+         xhgpP7qjR280Sfn34egpnrE5vjyEzzmB2+m88kZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 01/23] net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
+Subject: [PATCH 4.19 12/57] spi: bcm2835aux: fix corruptions for longer spi transfers
 Date:   Sun,  8 Sep 2019 13:41:36 +0100
-Message-Id: <20190908121054.303637970@linuxfoundation.org>
+Message-Id: <20190908121129.539776629@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-References: <20190908121052.898169328@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,46 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c25d0887a8bd0e1ca2074ac0c6dff173787a83b ]
+[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
 
-As spin_unlock_irq will enable interrupts.
-Function tsi108_stat_carry is called from interrupt handler tsi108_irq.
-Interrupts are enabled in interrupt handler.
-Use spin_lock_irqsave/spin_unlock_irqrestore instead of spin_(un)lock_irq
-in IRQ context to avoid this.
+On long running tests with a mcp2517fd can controller it showed that
+on rare occations the data read shows corruptions for longer spi transfers.
 
-Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Example of a 22 byte transfer:
+
+expected (as captured on logic analyzer):
+FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+
+read by the driver:
+FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
+
+To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
+read data from the fifo reliably without any corruption.
+
+Surprisingly the only values ever empirically read in
+BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
+So whenever the mask is not 0 we can read from the fifo in a safe manner.
+
+The patch has now been tested intensively and we are no longer
+able to reproduce the "RX" issue any longer.
+
+Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
+Reported-by: Hubert Denkmair <h.denkmair@intence.de>
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/tundra/tsi108_eth.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/spi-bcm2835aux.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
-index 520cf50a3d5a1..93fe0da0f15ea 100644
---- a/drivers/net/ethernet/tundra/tsi108_eth.c
-+++ b/drivers/net/ethernet/tundra/tsi108_eth.c
-@@ -379,9 +379,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
- static void tsi108_stat_carry(struct net_device *dev)
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index b4217f9480014..12c1fa5b06c5b 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -180,12 +180,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
+ 
+ static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
  {
- 	struct tsi108_prv_data *data = netdev_priv(dev);
-+	unsigned long flags;
- 	u32 carry1, carry2;
++	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
++
+ 	/* check if we have data to read */
+-	while (bs->rx_len &&
+-	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+-		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
++	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
++	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
+ 		bcm2835aux_rd_fifo(bs);
+-	}
  
--	spin_lock_irq(&data->misclock);
-+	spin_lock_irqsave(&data->misclock, flags);
- 
- 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
- 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
-@@ -449,7 +450,7 @@ static void tsi108_stat_carry(struct net_device *dev)
- 			      TSI108_STAT_TXPAUSEDROP_CARRY,
- 			      &data->tx_pause_drop);
- 
--	spin_unlock_irq(&data->misclock);
-+	spin_unlock_irqrestore(&data->misclock, flags);
- }
- 
- /* Read a stat counter atomically with respect to carries.
+ 	/* check if we have data to write */
+ 	while (bs->tx_len &&
 -- 
 2.20.1
 
