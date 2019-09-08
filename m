@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3F9ACD91
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BCBACE6B
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732329AbfIHMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:50:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
+        id S1730563AbfIHMrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:47:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732388AbfIHMu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:50:56 -0400
+        id S1730580AbfIHMrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:47:09 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63EB120863;
-        Sun,  8 Sep 2019 12:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72168218AC;
+        Sun,  8 Sep 2019 12:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947055;
-        bh=A4ZmiyPIF1uZo86eOM9WHNPb7h48PAF4MTOpjvOFQf0=;
+        s=default; t=1567946828;
+        bh=ckHC48in04SwhmT6ngLQZCD/vhD2yjIy5nX/6DJRkXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByJrTQ6XmZdIKlk89PFKFUIXmiOpZ2kBABBvk+YMwIq3EeDjU2lgB/0bTBW0LFBfw
-         zkVo2MVH5UFlhag9lkwTlUjgJoS5y8AXPwdmzTqb2mHSxWE10EN26GfauSlOAntUTE
-         mRKBAZIqboJoEBa0ONgL1FZfoFnGggePQ76fd6sw=
+        b=yRroT5hgTeAiCyHn9F/GpZMOjX4MAzV6fDnGjzMJewf5L15PVGRAODVGiMsMl9v2F
+         DywHf3VGot0AdPXGT21XxPoZeovSk1qz3aetp47WnAOcucQJxt1qFhe7kAHFBpIyxa
+         WnGvtY4GWcLwR2io2YslzKsb5ES14LpLThDWtg1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Courbot <acourbot@chromium.org>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 43/94] drm/mediatek: use correct device to import PRIME buffers
-Date:   Sun,  8 Sep 2019 13:41:39 +0100
-Message-Id: <20190908121151.671441758@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/57] hv_netvsc: Fix a warning of suspicious RCU usage
+Date:   Sun,  8 Sep 2019 13:41:40 +0100
+Message-Id: <20190908121132.068481992@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
-References: <20190908121150.420989666@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4c6f3196e6ea111c456c6086dc3f57d4706b0b2d ]
+[ Upstream commit 6d0d779dca73cd5acb649c54f81401f93098b298 ]
 
-PRIME buffers should be imported using the DMA device. To this end, use
-a custom import function that mimics drm_gem_prime_import_dev(), but
-passes the correct device.
+This fixes a warning of "suspicious rcu_dereference_check() usage"
+when nload runs.
 
-Fixes: 119f5173628aa ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
-Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Fixes: 776e726bfb34 ("netvsc: fix RCU warning in get_stats")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/hyperv/netvsc_drv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index 95fdbd0fbcace..8b18a00a58c7e 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -320,6 +320,18 @@ static const struct file_operations mtk_drm_fops = {
- 	.compat_ioctl = drm_compat_ioctl,
- };
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index cc60ef9634db2..6f6c0dbd91fc8 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1248,12 +1248,15 @@ static void netvsc_get_stats64(struct net_device *net,
+ 			       struct rtnl_link_stats64 *t)
+ {
+ 	struct net_device_context *ndev_ctx = netdev_priv(net);
+-	struct netvsc_device *nvdev = rcu_dereference_rtnl(ndev_ctx->nvdev);
++	struct netvsc_device *nvdev;
+ 	struct netvsc_vf_pcpu_stats vf_tot;
+ 	int i;
  
-+/*
-+ * We need to override this because the device used to import the memory is
-+ * not dev->dev, as drm_gem_prime_import() expects.
-+ */
-+struct drm_gem_object *mtk_drm_gem_prime_import(struct drm_device *dev,
-+						struct dma_buf *dma_buf)
-+{
-+	struct mtk_drm_private *private = dev->dev_private;
++	rcu_read_lock();
 +
-+	return drm_gem_prime_import_dev(dev, dma_buf, private->dma_dev);
-+}
-+
- static struct drm_driver mtk_drm_driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
- 			   DRIVER_ATOMIC,
-@@ -331,7 +343,7 @@ static struct drm_driver mtk_drm_driver = {
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
- 	.gem_prime_export = drm_gem_prime_export,
--	.gem_prime_import = drm_gem_prime_import,
-+	.gem_prime_import = mtk_drm_gem_prime_import,
- 	.gem_prime_get_sg_table = mtk_gem_prime_get_sg_table,
- 	.gem_prime_import_sg_table = mtk_gem_prime_import_sg_table,
- 	.gem_prime_mmap = mtk_drm_gem_mmap_buf,
++	nvdev = rcu_dereference(ndev_ctx->nvdev);
+ 	if (!nvdev)
+-		return;
++		goto out;
+ 
+ 	netdev_stats_to_stats64(t, &net->stats);
+ 
+@@ -1292,6 +1295,8 @@ static void netvsc_get_stats64(struct net_device *net,
+ 		t->rx_packets	+= packets;
+ 		t->multicast	+= multicast;
+ 	}
++out:
++	rcu_read_unlock();
+ }
+ 
+ static int netvsc_set_mac_addr(struct net_device *ndev, void *p)
 -- 
 2.20.1
 
