@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C196FACD6A
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82199ACDA3
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbfIHMtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
+        id S1732795AbfIHMvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731305AbfIHMtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:06 -0400
+        id S1732776AbfIHMvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:48 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D470E218AC;
-        Sun,  8 Sep 2019 12:49:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B5E8218AC;
+        Sun,  8 Sep 2019 12:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946946;
-        bh=VRPsPuIBY4yMxezp/2v4CZXX5VnhYHXSUl8WZGQ8Cno=;
+        s=default; t=1567947107;
+        bh=1k/BVrCS6n1SgWMHr/Nc9aR6j1n7/VUeMm+uIyN0rWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6B3cEMx3Yh1SAZD3aDSmh4daWtPF83vpMHqgh9+3koEmtneU7uVH40yqS6oLxQMB
-         N1Cbk3bXitfxczGc0g/nFArCXBvotkUkd/0yS4UnnHEMpCkwbtulD2qdYy6hsa7sgJ
-         5Px7zHXy+mV/vWSIDt1a+VaX4BsvDFlMxW7MHy8E=
+        b=TLETWWtKus4zcb4ZwXWmqwiFJ/9NUnlUjFj4RrohWogDbR7Ert8X/Yeg0ax57snc+
+         pbbnXNrybWD2jGCWxn0O+EVfnwLwCR6gvHZRohHsZaSnuAzgvzueT1X/YBnTHz+oOf
+         8teRHb9g0bDH9yJwSOSVpWCUYw+oviP1FUKqPvUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tho Vu <tho.vu.wh@rvc.renesas.com>,
-        Kazuya Mizuguchi <kazuya.mizuguchi.ks@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/57] ravb: Fix use-after-free ravb_tstamp_skb
+        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 65/94] HID: intel-ish-hid: ipc: add EHL device id
 Date:   Sun,  8 Sep 2019 13:42:01 +0100
-Message-Id: <20190908121141.858142099@linuxfoundation.org>
+Message-Id: <20190908121152.295812075@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cfef46d692efd852a0da6803f920cc756eea2855 ]
+[ Upstream commit b640be5bc8e4673dc8049cf74176ddedecea5597 ]
 
-When a Tx timestamp is requested, a pointer to the skb is stored in the
-ravb_tstamp_skb struct. This was done without an skb_get. There exists
-the possibility that the skb could be freed by ravb_tx_free (when
-ravb_tx_free is called from ravb_start_xmit) before the timestamp was
-processed, leading to a use-after-free bug.
+EHL is a new platform using ishtp solution, add its device id
+to support list.
 
-Use skb_get when filling a ravb_tstamp_skb struct, and add appropriate
-frees/consumes when a ravb_tstamp_skb struct is freed.
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Signed-off-by: Tho Vu <tho.vu.wh@rvc.renesas.com>
-Signed-off-by: Kazuya Mizuguchi <kazuya.mizuguchi.ks@renesas.com>
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 5f092bbd05148..5462d2e8a1b71 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- /* Renesas Ethernet AVB device driver
-  *
-- * Copyright (C) 2014-2015 Renesas Electronics Corporation
-+ * Copyright (C) 2014-2019 Renesas Electronics Corporation
-  * Copyright (C) 2015 Renesas Solutions Corp.
-  * Copyright (C) 2015-2016 Cogent Embedded, Inc. <source@cogentembedded.com>
-  *
-@@ -514,7 +514,10 @@ static void ravb_get_tx_tstamp(struct net_device *ndev)
- 			kfree(ts_skb);
- 			if (tag == tfa_tag) {
- 				skb_tstamp_tx(skb, &shhwtstamps);
-+				dev_consume_skb_any(skb);
- 				break;
-+			} else {
-+				dev_kfree_skb_any(skb);
- 			}
- 		}
- 		ravb_modify(ndev, TCCR, TCCR_TFR, TCCR_TFR);
-@@ -1556,7 +1559,7 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 					 DMA_TO_DEVICE);
- 			goto unmap;
- 		}
--		ts_skb->skb = skb;
-+		ts_skb->skb = skb_get(skb);
- 		ts_skb->tag = priv->ts_skb_tag++;
- 		priv->ts_skb_tag &= 0x3ff;
- 		list_add_tail(&ts_skb->list, &priv->ts_skb_list);
-@@ -1685,6 +1688,7 @@ static int ravb_close(struct net_device *ndev)
- 	/* Clear the timestamp list */
- 	list_for_each_entry_safe(ts_skb, ts_skb2, &priv->ts_skb_list, list) {
- 		list_del(&ts_skb->list);
-+		kfree_skb(ts_skb->skb);
- 		kfree(ts_skb);
- 	}
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+index 1065692f90e20..5792a104000a9 100644
+--- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -24,6 +24,7 @@
+ #define ICL_MOBILE_DEVICE_ID	0x34FC
+ #define SPT_H_DEVICE_ID		0xA135
+ #define CML_LP_DEVICE_ID	0x02FC
++#define EHL_Ax_DEVICE_ID	0x4BB3
  
+ #define	REVISION_ID_CHT_A0	0x6
+ #define	REVISION_ID_CHT_Ax_SI	0x0
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 17ae49fba920f..8cce3cfe28e08 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -33,6 +33,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ICL_MOBILE_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_H_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CML_LP_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, EHL_Ax_DEVICE_ID)},
+ 	{0, }
+ };
+ MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
 -- 
 2.20.1
 
