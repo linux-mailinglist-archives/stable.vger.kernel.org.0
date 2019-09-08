@@ -2,112 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B60A1ACF76
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 17:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9CDACF8F
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 17:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727085AbfIHPZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 11:25:44 -0400
-Received: from mail-wr1-f53.google.com ([209.85.221.53]:42862 "EHLO
-        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727082AbfIHPZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Sep 2019 11:25:44 -0400
-Received: by mail-wr1-f53.google.com with SMTP id q14so11155907wrm.9
-        for <stable@vger.kernel.org>; Sun, 08 Sep 2019 08:25:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FuMy7diqX1/MjHiV6/J5+0hfL4JSCr8dWL+Jw2w5uwc=;
-        b=CXZOxrVPVN+hiBi3Y4TE7gGYcElH3y28wERezfkz5exhFbU83+H7YE5lz6IpJeTzuQ
-         hBw3qr1Gg0sI1drb5ZE3dS8JL/dZYufEJ8CIbfutgo83VoqHyuqoX8gyRrjkjRAGTwZX
-         PcPIqYMsyUVQgjJmxugdH6Zb+cIlu0y9jiXuwVo/kDCuD36aE/fGgKfj+HtWP3i2OWJC
-         TyIa1ctZdTyXfVZ++R63qaxJIYuEQh935Saxq6JURpXeitOWQxl5q0vpgnIxCtJeoDM/
-         UnfxCnG+MeELSHcXY66q1KZwqpVLKisR5R49D1ouoyBWnLgGPrtZ3rnHTE4txs84QuHE
-         1EHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FuMy7diqX1/MjHiV6/J5+0hfL4JSCr8dWL+Jw2w5uwc=;
-        b=QKtZPnCFQmq4J8cqoAYify7j5ZAMKQ4nIaveIzCiu+Od8N6cHLDqTUtEXvua3jhrr9
-         V+qOgty9nZ9KPJx41Ivmyay74K01wA7HBJ4WC6g9y4+1F3wW/D1i++gDgsoxB8YpCGtN
-         sq7et70I4a4NIBL0zZT3LKg9SNKcgvYf1YSBdbtkF9K38z1ZawLN7x8ABe4alQyZKFq4
-         86tqWnXYQbh+Qgjyx8jmFMM2P/msHIIX9Pw8rzB2MF6r2i6Ritzuk/tHB0hzykCLt2jb
-         xd8E4QVIpNyegHvQyQdGEpDTg3JV5DNE4hHDpC3sgprqpTx+RtprsHc9KktZhA8cdV0d
-         WO0g==
-X-Gm-Message-State: APjAAAU9cMIRcrbpnNAkEDC9B8anTzpY1YzZEbqAHYdqHyb/1SIivbOG
-        kmFKr8ppAjFMnNVlSBbIsORNXjAuSNg=
-X-Google-Smtp-Source: APXvYqzy87ore8ywqvjgj0OkvPK+RHdL4vLndDi/4cug96wX2j37R1Nq+f5AbnvORbv9sif0+QOshQ==
-X-Received: by 2002:adf:c504:: with SMTP id q4mr12391309wrf.266.1567956342213;
-        Sun, 08 Sep 2019 08:25:42 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a192sm15186119wma.1.2019.09.08.08.25.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 08 Sep 2019 08:25:41 -0700 (PDT)
-Message-ID: <5d751d75.1c69fb81.6ec45.636e@mx.google.com>
-Date:   Sun, 08 Sep 2019 08:25:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        id S1729171AbfIHPqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 11:46:52 -0400
+Received: from mout.gmx.net ([212.227.17.20]:41183 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725978AbfIHPqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 11:46:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1567957589;
+        bh=SFrQS2AE6buvSq2XcNrsQJ4HnzDculs7JE6sErBescQ=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=JO+8z0/XnByWrmxPvyOb1faBCxMcF0FUA8/pZfKP3fW7SQCTHe5fJA2DtFfpXT35m
+         KCyXXNWlYDVumbFAZc/s/9B6KlHxzW/8psL0tBwhKDzzOQNnGUvZF6NVVwDZ5urx2Y
+         gfca2qqRqCRnzu3dluHaw1SVQg9KjFw2PV/6uNy4=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([37.4.249.90]) by mail.gmx.com (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1M7sDq-1i39de3QNm-0050ua; Sun, 08
+ Sep 2019 17:46:28 +0200
+From:   Stefan Wahren <wahrenst@gmx.net>
+To:     Eric Anholt <eric@anholt.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        boris.brezillon@bootlin.com
+Cc:     bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org,
+        dri-devel@lists.freedesktop.org, Stefan Wahren <wahrenst@gmx.net>,
+        stable@vger.kernel.org
+Subject: [PATCH] Revert "ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware."
+Date:   Sun,  8 Sep 2019 17:44:53 +0200
+Message-Id: <1567957493-4567-1-git-send-email-wahrenst@gmx.net>
+X-Mailer: git-send-email 2.7.4
+X-Provags-ID: V03:K1:8SS2m039FZNDDpUlAdXTSHBal6u5+ujaEtxV4T1c3m87WsiWPbb
+ nyfhBWj3eZScVg5xk3v6P65yl3Qcc+sNzVQNDYFzbWY9z61kGwjaU9rkHg7xTLUVfOd5qLt
+ 4iZ5YPEPVod6zIFHiNBxkUea52dqThXP8AhrTbRAEd6R0wJh/otCLINEOIn24Kbj0bmbT1d
+ LIEB9T6Ww3qBlBezldbtA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:tpXs0A6dc1I=:TjCpWo0lunQ5VVesCO+nDv
+ TwoByk8SZxK0ecUDsG9NCVLvB6f0IhUQCXrP3+5q8YiurBxgVbDlDALbrUh+2gIlNGWTeFHko
+ f2KAXvtmDhHuT06VVJZh3emH46wrrcYFYxZfSvu+kBVwqJP/49Iy2L2oan/NYU2kyRRh+Lek4
+ h29rE+t2IytoTdBVt2rp6NxE83M8pNmYbof7iVORrglJxZhkrB+EN4G2rmOFnKkZvFiFukjKx
+ kmCMsfa8kBRw4gfaF5PLfpbTSo1D+tkdBXA0qML546d6o+w+8mJeL5t02kg8nRdHF8rJOcI0G
+ E+bnva7qsZlikM/aoFk4eNuKNpQv2K36rJF86weM5LDX16iHXzNaDiKQIhh8V+DvUJuuH22bn
+ mSTlqZIeKLMGf94J14RhrXDNfM8heb7XtFnPv6vEKlR7wdU8PYcH67u5fjDYe3ZEK5M2yZEef
+ TfxO4ZGtzGXX2ojYYCXrURQDNXrKsci6cf6lEQrEe+H9fk1fOQl1247TIEXiVpjcZ4qjYIUN9
+ TO0IxiaAmMb7tdiQbN5ABhUyjCZpmB9hEY+isbItHgvzTKqBm6W2yTUf/ZiUQtS17btRoXUUS
+ VjbiAGYaP2BM5n2/gxO2xwLnId4Ksb5fu9hBWDYDwF91QJty+wXzHFix9Hb/Em1X9jfrooAkt
+ bhmrit8nGIPB/vbD+S9AH/LyQKkd4FqNthNiqpO9d2MIyrJSkSQVzxRVn9N+MvxDDJRKzV5YH
+ /kAgizDCBIXqK9pkzBUHyT+SkUo0RCdLrRhxGwAwg117458SF91hv8V7l4YKjKMkEb96uuo7z
+ MVdekbIDR1BH9oBeWL1YsoVGSOPoHVGqQXjCZ0c4uW2GQCIwkwLEQKGFi3MZUziD26UV7km2f
+ 4XYelyGN2wCZmNhND/TL3YFGUDmaef2s/IxGQWSqIu/O65EQ1QcWELOfiDwSVbsiw32LQ33oi
+ E25MqHiopj3KFFn9ZxcNKtZiwzeh2TsG1dsk1QRBUDR8g+J9Hgz8rm9tXMkj71o6Y5uHWNAvg
+ v53p8sqnqUnOVagoFA9Y/AIpQXEtMCiWFHWVtegcSSHto2u/YNmq/K9HL6s25dM/9id7A1z7R
+ z5DMn5S9RaucG+iCqJdqeOQAsmIub4pdXj0lF7/fDPHlgb4Rn7QAGqTh7ldc/Y/DquJfg1DGs
+ +KrN77tt3qIWOlTerxb2HlpsJTHmw4xOP/c/tNiWiSO86J+DXIy0rfminkkelY3vtL1c4=
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.70-59-g131247eaf9e6
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 138 boots: 0 failed,
- 129 passed with 9 offline (v4.19.70-59-g131247eaf9e6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 138 boots: 0 failed, 129 passed with 9 offline=
- (v4.19.70-59-g131247eaf9e6)
+Since release of the new BCM2835 PM driver there has been several reports
+of V3D probing issues. This is caused by timeouts during powering-up the
+GRAFX PM domain:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.70-59-g131247eaf9e6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.70-59-g131247eaf9e6/
+  bcm2835-power: Timeout waiting for grafx power OK
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.70-59-g131247eaf9e6
-Git Commit: 131247eaf9e64624384b4e88053151a00840a285
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 76 unique boards, 25 SoC families, 15 builds out of 206
+I was able to reproduce this reliable on my Raspberry Pi 3B+ after setting
+force_turbo=3D1 in the firmware configuration. Since there are no issues
+using the firmware PM driver with the same setup, there must be an issue
+in the BCM2835 PM driver.
 
-Offline Platforms:
+Unfortunately there hasn't been much progress in identifying the root caus=
+e
+since June (mostly in the lack of documentation), so i decided to switch
+back until the issue in the BCM2835 PM driver is fixed.
 
-arm64:
+Link: https://github.com/raspberrypi/linux/issues/3046
+Fixes: e1dc2b2e1bef (" ARM: bcm283x: Switch V3D over to using the PM drive=
+r instead of firmware.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+=2D--
+ arch/arm/boot/dts/bcm2835-rpi.dtsi | 4 ++++
+ arch/arm/boot/dts/bcm283x.dtsi     | 4 +---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
+diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm283=
+5-rpi.dtsi
+index 6c6a7f6..b909e3b 100644
+=2D-- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+@@ -67,6 +67,10 @@
+ 	power-domains =3D <&power RPI_POWER_DOMAIN_USB>;
+ };
 
-arm:
++&v3d {
++	power-domains =3D <&power RPI_POWER_DOMAIN_V3D>;
++};
++
+ &vec {
+ 	power-domains =3D <&power RPI_POWER_DOMAIN_VEC>;
+ 	status =3D "okay";
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dt=
+si
+index 2d191fc..b238567 100644
+=2D-- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -3,7 +3,6 @@
+ #include <dt-bindings/clock/bcm2835-aux.h>
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+-#include <dt-bindings/soc/bcm2835-pm.h>
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
+ /* firmware-provided startup stubs live here, where the secondary CPUs ar=
+e
+  * spinning.
+@@ -121,7 +120,7 @@
+ 			#interrupt-cells =3D <2>;
+ 		};
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+-		pm: watchdog@7e100000 {
++		watchdog@7e100000 {
+ 			compatible =3D "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
+ 			#power-domain-cells =3D <1>;
+ 			#reset-cells =3D <1>;
+@@ -641,7 +640,6 @@
+ 			compatible =3D "brcm,bcm2835-v3d";
+ 			reg =3D <0x7ec00000 0x1000>;
+ 			interrupts =3D <1 10>;
+-			power-domains =3D <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
+ 		};
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
+ 		vc4: gpu {
+=2D-
+2.7.4
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
