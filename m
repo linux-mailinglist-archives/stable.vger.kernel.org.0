@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFBB4ACE0D
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59103ACE0E
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731835AbfIHMuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:50:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40400 "EHLO mail.kernel.org"
+        id S1731838AbfIHMuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731838AbfIHMt7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:59 -0400
+        id S1731900AbfIHMuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:50:01 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032F8218AF;
-        Sun,  8 Sep 2019 12:49:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97EC721920;
+        Sun,  8 Sep 2019 12:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946998;
-        bh=rgOL4NPiC/hkYKl5aZH8hax7VlWtjwmjNx7MfqoK1Z0=;
+        s=default; t=1567947001;
+        bh=3xjWE/CDpSvOEYtD7JEvHbVT4suqGXx9Vnx3kvvBiMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kHteFJpsUTfstPoojzG7b4Z869JSZw5LRFI8iw+NtkNPiSdb80RDF8Sff9dUbW/V3
-         iKyNJFdIR3CZsoJ67eZPs45nUjRbjnBY2EhDWW9Mfu3XdJJPRSGvik9Mpit+uH12Gk
-         wRo25ta22hA8GT/l2rHEbbThFhwIuQ232COMm/aI=
+        b=zLgvVGoQi1wjl6Kw5/ZOeBlOfsIBudylTrupU8ak0Wp2OAl93BAiMKDrgWj4EyS3N
+         9X3ZrTCONKgvGgu4ZJHWIuBHB9LZJG6Bz/H428M1p9iDx/R8pt+DhXTkenUh4tEsm0
+         e/qgACV6Z+E3vSAnv/X0zvok9hHZeW5pduoyhxr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 23/94] netfilter: nf_flow_table: fix offload for flows that are subject to xfrm
-Date:   Sun,  8 Sep 2019 13:41:19 +0100
-Message-Id: <20190908121151.102445506@linuxfoundation.org>
+Subject: [PATCH 5.2 24/94] net/mlx5e: Fix error flow of CQE recovery on tx reporter
+Date:   Sun,  8 Sep 2019 13:41:20 +0100
+Message-Id: <20190908121151.131522925@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -44,112 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 589b474a4b7ce409d6821ef17234a995841bd131 ]
+[ Upstream commit 276d197e70bcc47153592f4384675b51c7d83aba ]
 
-This makes the previously added 'encap test' pass.
-Because its possible that the xfrm dst entry becomes stale while such
-a flow is offloaded, we need to call dst_check() -- the notifier that
-handles this for non-tunneled traffic isn't sufficient, because SA or
-or policies might have changed.
+CQE recovery function begins with test and set of recovery bit. Add an
+error flow which ensures clearing of this bit when leaving the recovery
+function, to allow further recoveries to take place. This allows removal
+of clearing recovery bit on sq activate.
 
-If dst becomes stale the flow offload entry will be tagged for teardown
-and packets will be passed to 'classic' forwarding path.
-
-Removing the entry right away is problematic, as this would
-introduce a race condition with the gc worker.
-
-In case flow is long-lived, it could eventually be offloaded again
-once the gc worker removes the entry from the flow table.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: de8650a82071 ("net/mlx5e: Add tx reporter support")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_ip.c | 43 ++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ .../net/ethernet/mellanox/mlx5/core/en/reporter_tx.c | 12 ++++++++----
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c    |  1 -
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index cdfc33517e85b..d68c801dd614b 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -214,6 +214,25 @@ static bool nf_flow_exceeds_mtu(const struct sk_buff *skb, unsigned int mtu)
- 	return true;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
+index c1caf14bc3346..c7f86453c6384 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
+@@ -80,17 +80,17 @@ static int mlx5e_tx_reporter_err_cqe_recover(struct mlx5e_txqsq *sq)
+ 	if (err) {
+ 		netdev_err(dev, "Failed to query SQ 0x%x state. err = %d\n",
+ 			   sq->sqn, err);
+-		return err;
++		goto out;
+ 	}
+ 
+ 	if (state != MLX5_SQC_STATE_ERR)
+-		return 0;
++		goto out;
+ 
+ 	mlx5e_tx_disable_queue(sq->txq);
+ 
+ 	err = mlx5e_wait_for_sq_flush(sq);
+ 	if (err)
+-		return err;
++		goto out;
+ 
+ 	/* At this point, no new packets will arrive from the stack as TXQ is
+ 	 * marked with QUEUE_STATE_DRV_XOFF. In addition, NAPI cleared all
+@@ -99,13 +99,17 @@ static int mlx5e_tx_reporter_err_cqe_recover(struct mlx5e_txqsq *sq)
+ 
+ 	err = mlx5e_sq_to_ready(sq, state);
+ 	if (err)
+-		return err;
++		goto out;
+ 
+ 	mlx5e_reset_txqsq_cc_pc(sq);
+ 	sq->stats->recover++;
++	clear_bit(MLX5E_SQ_STATE_RECOVERING, &sq->state);
+ 	mlx5e_activate_txqsq(sq);
+ 
+ 	return 0;
++out:
++	clear_bit(MLX5E_SQ_STATE_RECOVERING, &sq->state);
++	return err;
  }
  
-+static int nf_flow_offload_dst_check(struct dst_entry *dst)
-+{
-+	if (unlikely(dst_xfrm(dst)))
-+		return dst_check(dst, 0) ? 0 : -1;
-+
-+	return 0;
-+}
-+
-+static unsigned int nf_flow_xmit_xfrm(struct sk_buff *skb,
-+				      const struct nf_hook_state *state,
-+				      struct dst_entry *dst)
-+{
-+	skb_orphan(skb);
-+	skb_dst_set_noref(skb, dst);
-+	skb->tstamp = 0;
-+	dst_output(state->net, state->sk, skb);
-+	return NF_STOLEN;
-+}
-+
- unsigned int
- nf_flow_offload_ip_hook(void *priv, struct sk_buff *skb,
- 			const struct nf_hook_state *state)
-@@ -254,6 +273,11 @@ nf_flow_offload_ip_hook(void *priv, struct sk_buff *skb,
- 	if (nf_flow_state_check(flow, ip_hdr(skb)->protocol, skb, thoff))
- 		return NF_ACCEPT;
- 
-+	if (nf_flow_offload_dst_check(&rt->dst)) {
-+		flow_offload_teardown(flow);
-+		return NF_ACCEPT;
-+	}
-+
- 	if (nf_flow_nat_ip(flow, skb, thoff, dir) < 0)
- 		return NF_DROP;
- 
-@@ -261,6 +285,13 @@ nf_flow_offload_ip_hook(void *priv, struct sk_buff *skb,
- 	iph = ip_hdr(skb);
- 	ip_decrease_ttl(iph);
- 
-+	if (unlikely(dst_xfrm(&rt->dst))) {
-+		memset(skb->cb, 0, sizeof(struct inet_skb_parm));
-+		IPCB(skb)->iif = skb->dev->ifindex;
-+		IPCB(skb)->flags = IPSKB_FORWARDED;
-+		return nf_flow_xmit_xfrm(skb, state, &rt->dst);
-+	}
-+
- 	skb->dev = outdev;
- 	nexthop = rt_nexthop(rt, flow->tuplehash[!dir].tuple.src_v4.s_addr);
- 	skb_dst_set_noref(skb, &rt->dst);
-@@ -467,6 +498,11 @@ nf_flow_offload_ipv6_hook(void *priv, struct sk_buff *skb,
- 				sizeof(*ip6h)))
- 		return NF_ACCEPT;
- 
-+	if (nf_flow_offload_dst_check(&rt->dst)) {
-+		flow_offload_teardown(flow);
-+		return NF_ACCEPT;
-+	}
-+
- 	if (skb_try_make_writable(skb, sizeof(*ip6h)))
- 		return NF_DROP;
- 
-@@ -477,6 +513,13 @@ nf_flow_offload_ipv6_hook(void *priv, struct sk_buff *skb,
- 	ip6h = ipv6_hdr(skb);
- 	ip6h->hop_limit--;
- 
-+	if (unlikely(dst_xfrm(&rt->dst))) {
-+		memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
-+		IP6CB(skb)->iif = skb->dev->ifindex;
-+		IP6CB(skb)->flags = IP6SKB_FORWARDED;
-+		return nf_flow_xmit_xfrm(skb, state, &rt->dst);
-+	}
-+
- 	skb->dev = outdev;
- 	nexthop = rt6_nexthop(rt, &flow->tuplehash[!dir].tuple.src_v6);
- 	skb_dst_set_noref(skb, &rt->dst);
+ static int mlx5_tx_health_report(struct devlink_health_reporter *tx_reporter,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 882d26b8095da..bbdfdaf06391a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -1279,7 +1279,6 @@ err_free_txqsq:
+ void mlx5e_activate_txqsq(struct mlx5e_txqsq *sq)
+ {
+ 	sq->txq = netdev_get_tx_queue(sq->channel->netdev, sq->txq_ix);
+-	clear_bit(MLX5E_SQ_STATE_RECOVERING, &sq->state);
+ 	set_bit(MLX5E_SQ_STATE_ENABLED, &sq->state);
+ 	netdev_tx_reset_queue(sq->txq);
+ 	netif_tx_start_queue(sq->txq);
 -- 
 2.20.1
 
