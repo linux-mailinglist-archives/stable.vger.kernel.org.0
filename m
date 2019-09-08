@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BFEACE78
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05CE2ACEB7
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730151AbfIHMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60952 "EHLO mail.kernel.org"
+        id S1729545AbfIHMnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730105AbfIHMpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:45:35 -0400
+        id S1729539AbfIHMnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:43:42 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C121216C8;
-        Sun,  8 Sep 2019 12:45:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AA27218AF;
+        Sun,  8 Sep 2019 12:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946735;
-        bh=Nh49n9ilO5Cbv6t5OZ2rdENYqLyCobUsY0/dRk0rxEA=;
+        s=default; t=1567946620;
+        bh=uIHMUGNDhwuNAp0dkcKHC4ABTqlt4tfH3UwvmLyQCeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OU4BUEJm3KaIPDnw5xmc3kNIMGHkxXSt/acvPsKrBl7uToSfyGGt9seVdLvJrwmQp
-         ogxzFk1KE61MCPXWpaF/zChtcmsTpMhGQPdoOwSXyrUHV5nrcDiOh78dYAGp4thbvx
-         j7z0/wOECLYmtODz+Re/VwKNTphl4ZMKIE276Mms=
+        b=CtEQRPbSXQX2xpPtTCFwIP+mZVMOT/z0Ircv4bwpHFjTkfJVjJG0PZjxMme89o3jM
+         JsB56SP41pCYy/3oUc7tRyG0e4qJRfxV9CPOfvUdrZ4y2KkUV4Ge4B82V0Qsv0u77v
+         ewNSiGOOXtQFq8ue2TgnqNuOy4dgQV/UcGNGi6I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/40] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
-Date:   Sun,  8 Sep 2019 13:41:54 +0100
-Message-Id: <20190908121122.749934074@linuxfoundation.org>
+Subject: [PATCH 4.4 20/23] spi: bcm2835aux: fix corruptions for longer spi transfers
+Date:   Sun,  8 Sep 2019 13:41:55 +0100
+Message-Id: <20190908121103.259656286@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
-References: <20190908121114.260662089@linuxfoundation.org>
+In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
+References: <20190908121052.898169328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d09bc83640d524b8467a660db7b1d15e6562a1de ]
+[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
 
-Simplify the ring buffer handling with the in-place API.
+On long running tests with a mcp2517fd can controller it showed that
+on rare occations the data read shows corruptions for longer spi transfers.
 
-Also avoid the dynamic allocation and the memory leak in the channel
-callback function.
+Example of a 22 byte transfer:
 
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+expected (as captured on logic analyzer):
+FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+
+read by the driver:
+FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
+
+To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
+read data from the fifo reliably without any corruption.
+
+Surprisingly the only values ever empirically read in
+BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
+So whenever the mask is not 0 we can read from the fifo in a safe manner.
+
+The patch has now been tested intensively and we are no longer
+able to reproduce the "RX" issue any longer.
+
+Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
+Reported-by: Hubert Denkmair <h.denkmair@intence.de>
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hyperv-keyboard.c | 35 +++++----------------------
- 1 file changed, 6 insertions(+), 29 deletions(-)
+ drivers/spi/spi-bcm2835aux.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index 55288a026e4e2..c137ffa6fdec8 100644
---- a/drivers/input/serio/hyperv-keyboard.c
-+++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -245,40 +245,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index 4d233356772aa..ca655593c5e0e 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -183,12 +183,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
  
- static void hv_kbd_on_channel_callback(void *context)
+ static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
  {
-+	struct vmpacket_descriptor *desc;
- 	struct hv_device *hv_dev = context;
--	void *buffer;
--	int bufferlen = 0x100; /* Start with sensible size */
- 	u32 bytes_recvd;
- 	u64 req_id;
--	int error;
++	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
++
+ 	/* check if we have data to read */
+-	while (bs->rx_len &&
+-	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+-		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
++	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
++	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
+ 		bcm2835aux_rd_fifo(bs);
+-	}
  
--	buffer = kmalloc(bufferlen, GFP_ATOMIC);
--	if (!buffer)
--		return;
--
--	while (1) {
--		error = vmbus_recvpacket_raw(hv_dev->channel, buffer, bufferlen,
--					     &bytes_recvd, &req_id);
--		switch (error) {
--		case 0:
--			if (bytes_recvd == 0) {
--				kfree(buffer);
--				return;
--			}
--
--			hv_kbd_handle_received_packet(hv_dev, buffer,
--						      bytes_recvd, req_id);
--			break;
-+	foreach_vmbus_pkt(desc, hv_dev->channel) {
-+		bytes_recvd = desc->len8 * 8;
-+		req_id = desc->trans_id;
- 
--		case -ENOBUFS:
--			kfree(buffer);
--			/* Handle large packet */
--			bufferlen = bytes_recvd;
--			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
--			if (!buffer)
--				return;
--			break;
--		}
-+		hv_kbd_handle_received_packet(hv_dev, desc, bytes_recvd,
-+					      req_id);
- 	}
- }
- 
+ 	/* check if we have data to write */
+ 	while (bs->tx_len &&
 -- 
 2.20.1
 
