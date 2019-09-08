@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05CE2ACEB7
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 224EDACE7A
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfIHMnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57742 "EHLO mail.kernel.org"
+        id S1730179AbfIHMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729539AbfIHMnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:43:42 -0400
+        id S1730174AbfIHMpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:40 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AA27218AF;
-        Sun,  8 Sep 2019 12:43:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2455216C8;
+        Sun,  8 Sep 2019 12:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946620;
-        bh=uIHMUGNDhwuNAp0dkcKHC4ABTqlt4tfH3UwvmLyQCeQ=;
+        s=default; t=1567946740;
+        bh=XAXN7wp/eN76jJ2kLwNLkTG7oRPMZDQceWcjXgmL2LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CtEQRPbSXQX2xpPtTCFwIP+mZVMOT/z0Ircv4bwpHFjTkfJVjJG0PZjxMme89o3jM
-         JsB56SP41pCYy/3oUc7tRyG0e4qJRfxV9CPOfvUdrZ4y2KkUV4Ge4B82V0Qsv0u77v
-         ewNSiGOOXtQFq8ue2TgnqNuOy4dgQV/UcGNGi6I8=
+        b=pVVgj3O/AxQ6WPRAwhhKM6nZL3eoXeGyukx7WW/FHOO4xv5DnIQ8i2481OovDU2d2
+         Jh/sxwWt+nHXXP/cIVIgOgauQ5UL6enRWY2gg5eDVjSsanwMtFfceImdU7qeXZaxX/
+         1rxqAMK1pLytqNt+UPpdBmz0gol87dl4sF6VGb6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 20/23] spi: bcm2835aux: fix corruptions for longer spi transfers
+Subject: [PATCH 4.14 22/40] Tools: hv: kvp: eliminate may be used uninitialized warning
 Date:   Sun,  8 Sep 2019 13:41:55 +0100
-Message-Id: <20190908121103.259656286@linuxfoundation.org>
+Message-Id: <20190908121122.896892120@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-References: <20190908121052.898169328@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
+[ Upstream commit 89eb4d8d25722a0a0194cf7fa47ba602e32a6da7 ]
 
-On long running tests with a mcp2517fd can controller it showed that
-on rare occations the data read shows corruptions for longer spi transfers.
+When building hv_kvp_daemon GCC-8.3 complains:
 
-Example of a 22 byte transfer:
+hv_kvp_daemon.c: In function ‘kvp_get_ip_info.constprop’:
+hv_kvp_daemon.c:812:30: warning: ‘ip_buffer’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  struct hv_kvp_ipaddr_value *ip_buffer;
 
-expected (as captured on logic analyzer):
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+this seems to be a false positive: we only use ip_buffer when
+op == KVP_OP_GET_IP_INFO and it is only unset when op == KVP_OP_ENUMERATE.
 
-read by the driver:
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
+Silence the warning by initializing ip_buffer to NULL.
 
-To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
-read data from the fifo reliably without any corruption.
-
-Surprisingly the only values ever empirically read in
-BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
-So whenever the mask is not 0 we can read from the fifo in a safe manner.
-
-The patch has now been tested intensively and we are no longer
-able to reproduce the "RX" issue any longer.
-
-Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
-Reported-by: Hubert Denkmair <h.denkmair@intence.de>
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/hv/hv_kvp_daemon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 4d233356772aa..ca655593c5e0e 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -183,12 +183,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 
- static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
-+	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
-+
- 	/* check if we have data to read */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
-+	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
-+	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
- 		bcm2835aux_rd_fifo(bs);
--	}
- 
- 	/* check if we have data to write */
- 	while (bs->tx_len &&
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 0ef215061fb50..1b917eaffad8d 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -867,7 +867,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
+ 	int sn_offset = 0;
+ 	int error = 0;
+ 	char *buffer;
+-	struct hv_kvp_ipaddr_value *ip_buffer;
++	struct hv_kvp_ipaddr_value *ip_buffer = NULL;
+ 	char cidr_mask[5]; /* /xyz */
+ 	int weight;
+ 	int i;
 -- 
 2.20.1
 
