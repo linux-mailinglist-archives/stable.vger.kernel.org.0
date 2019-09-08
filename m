@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6015FACDFA
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED7EACDA7
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731355AbfIHMtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S1732851AbfIHMwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731349AbfIHMtO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:14 -0400
+        id S1732787AbfIHMv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:59 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A101B2190F;
-        Sun,  8 Sep 2019 12:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C819921924;
+        Sun,  8 Sep 2019 12:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946954;
-        bh=YjrcaMHDpD0i46urK4YSroz51TwSMsewD04w4Z/pCw8=;
+        s=default; t=1567947118;
+        bh=L00edrtZWVd9YpYNckfbTijs1oIMYJPX5ORCFygJC/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4g7xyTJSjtInzgv22vXdjl65CIHcJcroyv4jl/+qoi+AcsJkwMI6Mm72IecXcCtD
-         +pZdrmaAZwATBCUtFRLBc5effKGaBex6j5TOUzaumIkKt0bbKYNGM5hEvyROzNeD3P
-         br98jj3U24WTaScKudyaptPBCcUwdP3lobOFoQJU=
+        b=H2k9XXNbtIxgvZ7Tt+2ObGqVAC7KnvBjpKnJsOGD1eXHiQCayVrjqwsBGFoZP2r5u
+         FFKAlERCGdFsFoYFsTDEo5UOp61n4YwSzMEKyfsn1lcQLfhM4JHYL8OU09WOuh8I6g
+         zsC3WQVUtrT/m18l0cBbips+2iyArG0LcEzHqn+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/57] x86/boot/compressed/64: Fix boot on machines with broken E820 table
-Date:   Sun,  8 Sep 2019 13:42:04 +0100
-Message-Id: <20190908121144.033654811@linuxfoundation.org>
+Subject: [PATCH 5.2 69/94] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
+Date:   Sun,  8 Sep 2019 13:42:05 +0100
+Message-Id: <20190908121152.408878459@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,71 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0a46fff2f9108c2c44218380a43a736cf4612541 ]
+[ Upstream commit d09bc83640d524b8467a660db7b1d15e6562a1de ]
 
-BIOS on Samsung 500C Chromebook reports very rudimentary E820 table that
-consists of 2 entries:
+Simplify the ring buffer handling with the in-place API.
 
-  BIOS-e820: [mem 0x0000000000000000-0x0000000000000fff] usable
-  BIOS-e820: [mem 0x00000000fffff000-0x00000000ffffffff] reserved
+Also avoid the dynamic allocation and the memory leak in the channel
+callback function.
 
-It breaks logic in find_trampoline_placement(): bios_start lands on the
-end of the first 4k page and trampoline start gets placed below 0.
-
-Detect underflow and don't touch bios_start for such cases. It makes
-kernel ignore E820 table on machines that doesn't have two usable pages
-below BIOS_START_MAX.
-
-Fixes: 1b3a62643660 ("x86/boot/compressed/64: Validate trampoline placement against E820")
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203463
-Link: https://lkml.kernel.org/r/20190813131654.24378-1-kirill.shutemov@linux.intel.com
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/pgtable_64.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/input/serio/hyperv-keyboard.c | 35 +++++----------------------
+ 1 file changed, 6 insertions(+), 29 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/pgtable_64.c b/arch/x86/boot/compressed/pgtable_64.c
-index f8debf7aeb4c1..f0537a1f7fc25 100644
---- a/arch/x86/boot/compressed/pgtable_64.c
-+++ b/arch/x86/boot/compressed/pgtable_64.c
-@@ -73,6 +73,8 @@ static unsigned long find_trampoline_placement(void)
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index 8e457e50f837e..770e36d0c66fb 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -237,40 +237,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
  
- 	/* Find the first usable memory region under bios_start. */
- 	for (i = boot_params->e820_entries - 1; i >= 0; i--) {
-+		unsigned long new;
-+
- 		entry = &boot_params->e820_table[i];
+ static void hv_kbd_on_channel_callback(void *context)
+ {
++	struct vmpacket_descriptor *desc;
+ 	struct hv_device *hv_dev = context;
+-	void *buffer;
+-	int bufferlen = 0x100; /* Start with sensible size */
+ 	u32 bytes_recvd;
+ 	u64 req_id;
+-	int error;
  
- 		/* Skip all entries above bios_start. */
-@@ -85,15 +87,20 @@ static unsigned long find_trampoline_placement(void)
+-	buffer = kmalloc(bufferlen, GFP_ATOMIC);
+-	if (!buffer)
+-		return;
+-
+-	while (1) {
+-		error = vmbus_recvpacket_raw(hv_dev->channel, buffer, bufferlen,
+-					     &bytes_recvd, &req_id);
+-		switch (error) {
+-		case 0:
+-			if (bytes_recvd == 0) {
+-				kfree(buffer);
+-				return;
+-			}
+-
+-			hv_kbd_handle_received_packet(hv_dev, buffer,
+-						      bytes_recvd, req_id);
+-			break;
++	foreach_vmbus_pkt(desc, hv_dev->channel) {
++		bytes_recvd = desc->len8 * 8;
++		req_id = desc->trans_id;
  
- 		/* Adjust bios_start to the end of the entry if needed. */
- 		if (bios_start > entry->addr + entry->size)
--			bios_start = entry->addr + entry->size;
-+			new = entry->addr + entry->size;
- 
- 		/* Keep bios_start page-aligned. */
--		bios_start = round_down(bios_start, PAGE_SIZE);
-+		new = round_down(new, PAGE_SIZE);
- 
- 		/* Skip the entry if it's too small. */
--		if (bios_start - TRAMPOLINE_32BIT_SIZE < entry->addr)
-+		if (new - TRAMPOLINE_32BIT_SIZE < entry->addr)
- 			continue;
- 
-+		/* Protect against underflow. */
-+		if (new - TRAMPOLINE_32BIT_SIZE > bios_start)
-+			break;
-+
-+		bios_start = new;
- 		break;
+-		case -ENOBUFS:
+-			kfree(buffer);
+-			/* Handle large packet */
+-			bufferlen = bytes_recvd;
+-			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+-			if (!buffer)
+-				return;
+-			break;
+-		}
++		hv_kbd_handle_received_packet(hv_dev, desc, bytes_recvd,
++					      req_id);
  	}
+ }
  
 -- 
 2.20.1
