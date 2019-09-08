@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD12ACD3C
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DD2ACD0C
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730513AbfIHMrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:47:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34988 "EHLO mail.kernel.org"
+        id S1730011AbfIHMpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729184AbfIHMq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:59 -0400
+        id S1729995AbfIHMpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:09 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36E2020644;
-        Sun,  8 Sep 2019 12:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90D92218AE;
+        Sun,  8 Sep 2019 12:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946818;
-        bh=EsMyl5SLsBQmn7rvg7jiR+z1VA3Kknj+Hjo5z4HdEcY=;
+        s=default; t=1567946709;
+        bh=GTyJzGWec36HbGl1F9Y+ExAf/bHMcu9a8jpB7Pvlt4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cN+Qer+wmrGyY6cncDaTJfKRvmJ2wAlmQ+O5G5ibNnAR+4x3rAKKbAbnuE9HyoY+Z
-         Iji24WDxbd8X2jgWCzVZ+DMzUpZA69YFhecxr1g7pDyq27W1GbjW6QuVzqzNx+VJlV
-         xhgpP7qjR280Sfn34egpnrE5vjyEzzmB2+m88kZY=
+        b=xyoelmzkhfXlv+Gh71CaV/uY53wFx/zrKrw5pYLjWiDVaen8oqSvWJOxYFs/8GnOj
+         aD6q+ICUfPlcruoV0Udiq1UVHjNbC0gURjjxnR1LF5FLz4ZAbV8hN8JQqdznCNDWSa
+         rOrodTuBpPlzUh0OE8haxioYlvNvwU65p/M2luJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/57] spi: bcm2835aux: fix corruptions for longer spi transfers
+Subject: [PATCH 4.14 03/40] net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
 Date:   Sun,  8 Sep 2019 13:41:36 +0100
-Message-Id: <20190908121129.539776629@linuxfoundation.org>
+Message-Id: <20190908121115.210630056@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
+[ Upstream commit 125b7e0949d4e72b15c2b1a1590f8cece985a918 ]
 
-On long running tests with a mcp2517fd can controller it showed that
-on rare occations the data read shows corruptions for longer spi transfers.
+clang warns:
 
-Example of a 22 byte transfer:
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: warning: use of logical
+'&&' with constant operand [-Wconstant-logical-operand]
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                  ^  ~~~~~~~~~~~~
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: use '&' for a
+bitwise operation
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                  ^~
+                                                  &
+drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: remove constant to
+silence this warning
+                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
+                                                 ~^~~~~~~~~~~~~~~
+1 warning generated.
 
-expected (as captured on logic analyzer):
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+Explicitly check that NET_IP_ALIGN is not zero, which matches how this
+is checked in other parts of the tree. Because NET_IP_ALIGN is a build
+time constant, this check will be constant folded away during
+optimization.
 
-read by the driver:
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
-
-To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
-read data from the fifo reliably without any corruption.
-
-Surprisingly the only values ever empirically read in
-BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
-So whenever the mask is not 0 we can read from the fifo in a safe manner.
-
-The patch has now been tested intensively and we are no longer
-able to reproduce the "RX" issue any longer.
-
-Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
-Reported-by: Hubert Denkmair <h.denkmair@intence.de>
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 82a9928db560 ("tc35815: Enable StripCRC feature")
+Link: https://github.com/ClangBuiltLinux/linux/issues/608
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/toshiba/tc35815.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index b4217f9480014..12c1fa5b06c5b 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -180,12 +180,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 
- static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
-+	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
-+
- 	/* check if we have data to read */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
-+	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
-+	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
- 		bcm2835aux_rd_fifo(bs);
--	}
- 
- 	/* check if we have data to write */
- 	while (bs->tx_len &&
+diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
+index cce9c9ed46aa9..9146068979d2c 100644
+--- a/drivers/net/ethernet/toshiba/tc35815.c
++++ b/drivers/net/ethernet/toshiba/tc35815.c
+@@ -1497,7 +1497,7 @@ tc35815_rx(struct net_device *dev, int limit)
+ 			pci_unmap_single(lp->pci_dev,
+ 					 lp->rx_skbs[cur_bd].skb_dma,
+ 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+-			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
++			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
+ 				memmove(skb->data, skb->data - NET_IP_ALIGN,
+ 					pkt_len);
+ 			data = skb_put(skb, pkt_len);
 -- 
 2.20.1
 
