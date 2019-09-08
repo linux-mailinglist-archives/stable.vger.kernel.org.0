@@ -2,94 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D653ACB5C
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 09:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE3CACB75
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 10:06:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726287AbfIHHqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 03:46:53 -0400
-Received: from mout.gmx.net ([212.227.17.20]:36027 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725908AbfIHHqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 03:46:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1567928796;
-        bh=6F0QummU8imcXMVMrHV6+BZ6LAb4e7PC70awvqL69uU=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=aFXc/C/jjspa3E8a5GfmVYXWb7qxSARK4wdrzPrfOobAj7nFr8KoGrUcxN6y08pl2
-         gN5f7pdHtCyhcJxFSqWzA9lrvXzTjO0JWwkA49c9DJhdMdtgOga4xOYfcn9Y9gV3R8
-         Kof7KAsHVnhoYByvxnhKZ6fdh1CxfGgYRn0koMw8=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost.localdomain ([37.4.249.90]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1N0XD2-1iIswK0UUO-00wSFT; Sun, 08
- Sep 2019 09:46:36 +0200
-From:   Stefan Wahren <wahrenst@gmx.net>
-To:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Eric Anholt <eric@anholt.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Lukas Wunner <lukas@wunner.de>
-Cc:     linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Stefan Wahren <wahrenst@gmx.net>, stable@vger.kernel.org
-Subject: [PATCH] Revert "mmc: bcm2835: Terminate timeout work synchronously"
-Date:   Sun,  8 Sep 2019 09:45:52 +0200
-Message-Id: <1567928752-2557-1-git-send-email-wahrenst@gmx.net>
-X-Mailer: git-send-email 2.7.4
-X-Provags-ID: V03:K1:VwIaAgaE77BXr/OK8ymof3uAGLOUwsyBEkzyr0AbfRe+SAK6zDU
- V38GQU5finceBHAa44KL9PSo2iPyW9hAJ/PllzN7PFdXC3tEeYfcvSNEaXhCtXbWzzA9rBl
- CE2WuWLxEpfsm8XZekOsu+W2lll5TTsganOt/n1ZeJ2Vc4jZVWIe4qpgJnW1wmJQZMXG6St
- cKo+1rp9nrblsX49+AssQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:quBeLoVv08c=:KPB0k4C+t3kzBH3NJ1NLE/
- 16Re7YIMzT5wkuoJi+8mXU+2yYQ/EJ18Wh9H0V8EDvdkn5Eycw0CbEF4SxfeTadiR+Qmzq7NJ
- nUFw5XmJzKKU9l2lNTn6+W7pszH36VHeWW3ber5S28h97QdiQUH0u/I5yY/3+3uToSUrXQTmy
- FWv7Z+cWljSc1dVGe3BCMyEcZqiqdNAEfNAmRNBcrV+XcIlf9UhEpsnxoUOupg4BFlNF4Ngyt
- NFyxpLwgPtK2Ay3exIMHnzPI1lk4pItq3OQ/0EJtA5obu4sfjkOzEr4WL8B2wSicyXYXCtLOc
- h/x9X6VFeXw6/ffB+/gtOhlY+dgMKnTcQeqXY2nWlg2Po0003KdRxxjMCnJVpzBXkVfRkYIgd
- o0z9tYgHAeZFTYtjJVP5rGB6h5QGNu6mKUqQ2YFQVkxtHG7/dkSdUfpjAXMksxKt1E+FK9eAc
- kFwShhyMJEv+gvqFh1I5zTLpWS9eYIfxpulEBibfN4D1In6mG5aedxmkX+8OwqbWlCHUbHvvg
- SmgtJLv7I1eUdAU0Rzvp0bn4TgAGufTqVeOwjyJ3SzQjpJR0HMtFz+Pcy/6V0NeRyfXcQp3C9
- EdEMzjYYm/7ut9swjacYShk7A20sfRXKDbieiGAWz5Es7Ams2RRfVU8EnB+mS3QU8QGAbjk3W
- v4Q/es6UUJKhs4QIspuCefnrkaP2EnOhufuYhnzOxsuyHIPt4LHqH4PrnzHw3f+LAtE84dSlU
- K2Ff2258XqdJGgGw84qcq4XkeCMUeZcL56Hq07MrPrtpWZjzeXB6IVfSgQa/+AQJoTS0qc+LX
- 7ybr8Z451UDb9B26SyjpKQ+4ryV9RDLYQcORUBAn0++g/6i1vu7fo/78Aak3WqGEVT5XCclFx
- gsdHD5pSITgscj5iH7ppj85cbfsPXd6GXNjjelkVvx3sgcwQ72yBvl0cbM3bOwgeuZS9/yYA6
- WD7SQwMD9+xcFNhnTMeajvchWD2JX7/h16uI2FnZWdkky7gH/LKRVTd7Y0Wi6aeAWpeWUQAoG
- PKLHUciPUDlBPwqkivjAZIMDAycQZ3aOaq4f+XWjuixTukCSNRVkPHH35ygEj2oxpH6bAqs8k
- EBxt2hm+pKJTYQR5NCPrFq1E/Q2fbWfBD+VXYuuaXxOWf8iG6pNHI1+9J0yi+Qx0KRRAEEdwv
- NNa9A+4wr3OFO7hRxlf3EFSoIwOlXg5XpBZEO+3TQHncJkiRizdXrZNbf9o24fm7d4h6w=
-Content-Transfer-Encoding: quoted-printable
+        id S1726562AbfIHIG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 04:06:29 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:54785 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726504AbfIHIG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Sep 2019 04:06:29 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 804F821D6E;
+        Sun,  8 Sep 2019 04:06:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 08 Sep 2019 04:06:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=Ke5GRiKRIYLxrDlKozLyVhDZhQ1
+        JAqHaCox9pvEKXTg=; b=mcyOUKduzCSgJ6YzjcPTPHkKvrzzDeEwb0oOwublqOo
+        bNfBmajY1gKOfDaCOoTx10gC2Ucx0CtGt1bV5JCymvQAPHQuE3ChVadKVY4+DKmT
+        rno1v8mHdI9k4ROCr7qaidhXVmzTdNOIDvmx89rg22Z8xwBWeHCnfvXmOuIivbI2
+        Ubl+Qq8cIMkXumNjUw1x31hb51vZwXZZVR77yr4xxPbfrPEhmZWydw3Wmm2VG8I6
+        DJLqFvD2CjLQSMH7/rTQZYOU1Rb9Gda+cSx+Fg8Wzervy+JQ2YddGRV6mpu/XTlv
+        cy67FpSB8ycah1I8nTfVXOES3yCfghw10Gg+2hn3f3g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Ke5GRi
+        KRIYLxrDlKozLyVhDZhQ1JAqHaCox9pvEKXTg=; b=G1hJAi2iV/YmEeqwep9YJe
+        h+UpTGO+vlpSwV1oxkly0J+S9p1LFKXvPX7sNDK5WB4PEI+1m5vhtXfwikwOUIWz
+        ZaFWGtB99e79b7nlkGbbWrt171UX0gMrX8Rm5nQz4YV4JV1bUUEW6YJaHEuNIWhs
+        /yhdgTL6jg27x9FfFjDpYgDRambYL0F6+KA9NWHg8tjiWnXPajDLAeHEC8JE7huv
+        3q7pBLYkpnhIZz8yY17zmlAE/jWOAJcw4IxIlN9N4Gvul1PFvB2vyXjXfj72Ij5V
+        80Cj2Kttlb5T/W2l0O9I7raICSkeUiBxUpo7+K4jjjTWnkFmI+L7r8lbYUsjmEfA
+        ==
+X-ME-Sender: <xms:gbZ0XcQ-o8IV_0IetGlioMY47zV4R8Jctr1AQFBJhwBGb_TrNw4z6w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudekgecutefuodetggdotefrodftvfcurf
+    hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjfgesthdtredttd
+    ervdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecu
+    kfhppeektddrvdehuddrudeivddrudeigeenucfrrghrrghmpehmrghilhhfrhhomhepgh
+    hrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:gbZ0XeFySbxDv_eex6c72ZKwDJy0ZaxdPHgBlenCG-RBN98QRIm8ag>
+    <xmx:gbZ0XUOfWuHAnDgr3nKb5NoIndFkr3LgVfHZim6j8u2OxNSBwJ751A>
+    <xmx:gbZ0XeCXGcqSwai2SQoYd8lRrR01SN8GvrTTwcgmFOSmCYxUokd6Iw>
+    <xmx:gbZ0XVyVmCZOkOySidjrUHJ-7h3ZQTL618yOK7Kxb1HzeHN_Bmv1pA>
+Received: from localhost (unknown [80.251.162.164])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C22C5D6005D;
+        Sun,  8 Sep 2019 04:06:24 -0400 (EDT)
+Date:   Sun, 8 Sep 2019 09:06:22 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: Linux 5.3-rc7 (fwd)
+Message-ID: <20190908080622.GA31071@kroah.com>
+References: <alpine.DEB.2.21.1909080903450.1944@nanos.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.1909080903450.1944@nanos.tec.linutronix.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 37fefadee8bb ("mmc: bcm2835: Terminate timeout work
-synchronously") causes lockups in case of hardware timeouts due the
-timeout work also calling cancel_delayed_work_sync() on its own.
-So revert it.
+On Sun, Sep 08, 2019 at 09:05:34AM +0200, Thomas Gleixner wrote:
+> 
+> 950b07c14e8c ("Revert "x86/apic: Include the LDR when clearing out APIC registers"")
+> 
+> in Linus tree needs to go back into stable as the reverted commit
+> 558682b52919 ("x86/apic: Include the LDR when clearing out APIC registers")
+> hit stable trees.
 
-Fixes: 37fefadee8bb ("mmc: bcm2835: Terminate timeout work synchronously")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-=2D--
- drivers/mmc/host/bcm2835.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for the info, Sasha queued this up yesterday, and I'll push out
+the -rcs after breakfast today...
 
-diff --git a/drivers/mmc/host/bcm2835.c b/drivers/mmc/host/bcm2835.c
-index 7e0d3a4..bb31e13 100644
-=2D-- a/drivers/mmc/host/bcm2835.c
-+++ b/drivers/mmc/host/bcm2835.c
-@@ -597,7 +597,7 @@ static void bcm2835_finish_request(struct bcm2835_host=
- *host)
- 	struct dma_chan *terminate_chan =3D NULL;
- 	struct mmc_request *mrq;
-
--	cancel_delayed_work_sync(&host->timeout_work);
-+	cancel_delayed_work(&host->timeout_work);
-
- 	mrq =3D host->mrq;
-
-=2D-
-2.7.4
-
+greg k-h
