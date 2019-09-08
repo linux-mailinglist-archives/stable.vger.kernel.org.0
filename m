@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FA9ACE04
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F084ACE10
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbfIHMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
+        id S1731959AbfIHMuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:50:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731594AbfIHMti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:38 -0400
+        id S1731953AbfIHMuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:50:06 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2350B21924;
-        Sun,  8 Sep 2019 12:49:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA0B821927;
+        Sun,  8 Sep 2019 12:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946977;
-        bh=W1koJkvkMYnVS+GM1B7GyDGkTgqgk2lOuB3FVKbM4qY=;
+        s=default; t=1567947006;
+        bh=Hj/mEbfDcU4RvJYf9sQAXSGASOLtPSMuI0BJocJkky8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4LzuvUkoZiaBcsek8gTNhAEcc1H6X4lwHh+R2p6xCfHMnzzbZPSGgchH7/LvCk4V
-         hr7OYMgO9I46bRTSQmVyFeYAPsASVrLSwNfQGpQbggNieVuvdFYHIJuDcfGSd12p3C
-         fSy9vV/vJID3ZhKA2C1uJ9Z/34TZzSHdcEwucSZw=
+        b=gjVW2hRUU3xihrU4tdaxIT2vhmtUfzgy2VdErNBMlOdollEGPIY9DX8FvJuYcrfcH
+         XH0v+TVeAjZtR8bovAchUzaV7Sxl2VEBZN27vsrJeDsuNTCMX6o7SVCy8wxrZCUWF9
+         hke+Fla3Ncro9e8ZdXAeGHSU1DoWrhzvYn5JEEl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jason Baron <jbaron@akamai.com>,
-        Vladimir Rutsky <rutsky@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
+        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 07/94] tcp: remove empty skb from write queue in error cases
-Date:   Sun,  8 Sep 2019 13:41:03 +0100
-Message-Id: <20190908121150.642000321@linuxfoundation.org>
+Subject: [PATCH 5.2 08/94] nfp: flower: prevent ingress block binds on internal ports
+Date:   Sun,  8 Sep 2019 13:41:04 +0100
+Message-Id: <20190908121150.669979451@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -47,90 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: John Hurley <john.hurley@netronome.com>
 
-[ Upstream commit fdfc5c8594c24c5df883583ebd286321a80e0a67 ]
+[ Upstream commit 739d7c5752b255e89ddbb1b0474f3b88ef5cd343 ]
 
-Vladimir Rutsky reported stuck TCP sessions after memory pressure
-events. Edge Trigger epoll() user would never receive an EPOLLOUT
-notification allowing them to retry a sendmsg().
+Internal port TC offload is implemented through user-space applications
+(such as OvS) by adding filters at egress via TC clsact qdiscs. Indirect
+block offload support in the NFP driver accepts both ingress qdisc binds
+and egress binds if the device is an internal port. However, clsact sends
+bind notification for both ingress and egress block binds which can lead
+to the driver registering multiple callbacks and receiving multiple
+notifications of new filters.
 
-Jason tested the case of sk_stream_alloc_skb() returning NULL,
-but there are other paths that could lead both sendmsg() and sendpage()
-to return -1 (EAGAIN), with an empty skb queued on the write queue.
+Fix this by rejecting ingress block bind callbacks when the port is
+internal and only adding filter callbacks for egress binds.
 
-This patch makes sure we remove this empty skb so that
-Jason code can detect that the queue is empty, and
-call sk->sk_write_space(sk) accordingly.
-
-Fixes: ce5ec440994b ("tcp: ensure epoll edge trigger wakeup when write queue is empty")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Reported-by: Vladimir Rutsky <rutsky@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
+Fixes: 4d12ba42787b ("nfp: flower: allow offloading of matches on 'internal' ports")
+Signed-off-by: John Hurley <john.hurley@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   30 ++++++++++++++++++++----------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/netronome/nfp/flower/offload.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -935,6 +935,22 @@ static int tcp_send_mss(struct sock *sk,
- 	return mss_now;
- }
+--- a/drivers/net/ethernet/netronome/nfp/flower/offload.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/offload.c
+@@ -1280,9 +1280,10 @@ nfp_flower_setup_indr_tc_block(struct ne
+ 	struct nfp_flower_priv *priv = app->priv;
+ 	int err;
  
-+/* In some cases, both sendpage() and sendmsg() could have added
-+ * an skb to the write queue, but failed adding payload on it.
-+ * We need to remove it to consume less memory, but more
-+ * importantly be able to generate EPOLLOUT for Edge Trigger epoll()
-+ * users.
-+ */
-+static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
-+{
-+	if (skb && !skb->len) {
-+		tcp_unlink_write_queue(skb, sk);
-+		if (tcp_write_queue_empty(sk))
-+			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
-+		sk_wmem_free_skb(sk, skb);
-+	}
-+}
-+
- ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
- 			 size_t size, int flags)
- {
-@@ -1064,6 +1080,7 @@ out:
- 	return copied;
+-	if (f->binder_type != TCF_BLOCK_BINDER_TYPE_CLSACT_INGRESS &&
+-	    !(f->binder_type == TCF_BLOCK_BINDER_TYPE_CLSACT_EGRESS &&
+-	      nfp_flower_internal_port_can_offload(app, netdev)))
++	if ((f->binder_type != TCF_BLOCK_BINDER_TYPE_CLSACT_INGRESS &&
++	     !nfp_flower_internal_port_can_offload(app, netdev)) ||
++	    (f->binder_type != TCF_BLOCK_BINDER_TYPE_CLSACT_EGRESS &&
++	     nfp_flower_internal_port_can_offload(app, netdev)))
+ 		return -EOPNOTSUPP;
  
- do_error:
-+	tcp_remove_empty_skb(sk, tcp_write_queue_tail(sk));
- 	if (copied)
- 		goto out;
- out_err:
-@@ -1388,18 +1405,11 @@ out_nopush:
- 	sock_zerocopy_put(uarg);
- 	return copied + copied_syn;
- 
-+do_error:
-+	skb = tcp_write_queue_tail(sk);
- do_fault:
--	if (!skb->len) {
--		tcp_unlink_write_queue(skb, sk);
--		/* It is the one place in all of TCP, except connection
--		 * reset, where we can be unlinking the send_head.
--		 */
--		if (tcp_write_queue_empty(sk))
--			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
--		sk_wmem_free_skb(sk, skb);
--	}
-+	tcp_remove_empty_skb(sk, skb);
- 
--do_error:
- 	if (copied + copied_syn)
- 		goto out;
- out_err:
+ 	switch (f->command) {
 
 
