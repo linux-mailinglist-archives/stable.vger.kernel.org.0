@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD2AACEB0
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C54ACE86
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729363AbfIHMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56738 "EHLO mail.kernel.org"
+        id S1730420AbfIHMqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728206AbfIHMnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:43:08 -0400
+        id S1730411AbfIHMqd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:46:33 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FA16216C8;
-        Sun,  8 Sep 2019 12:43:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0F9420644;
+        Sun,  8 Sep 2019 12:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946586;
-        bh=J5P7PsZh7obLJvjEXH2ZA/N3bCYBx9+6jbf8RlCj/ng=;
+        s=default; t=1567946793;
+        bh=eFNmMDPU9oj+b/aRj0PIa7n2EuJNoiT010yd3l8TnhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTwNJ9esZyEC6mFhHmfYYKoA2dD9qLXcGIXumne6+Q6ujvjlPpC6yi/X+aXACIiyN
-         lwsyYP03GN5PHRe4T1KFUzP5nWvuDUSSENiutRAji3z5ezqes9gYyMJMp8UQFL9il6
-         uqNZ31ZwGJr4H52qo6PSPYv+Tm4A7No7CbzaMMxo=
+        b=pr9mexGO8EMy7B+jkA9yFc2Rg1F/VOvItAVUg7EN+x8b6XkWjsd6aqfbhkMi+L2ee
+         uHWzKSGm5WnoJgRt93YJQHpAcZgnb079/u8FB/S5iVVWoEJNHI0WYSDt+r445UTQFO
+         YVzN8y6W7lqyncEZc/zUoLQiSCkamfTRPYILEOJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Thomas Falcon <tlfalcon@linux.ibm.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/23] net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
-Date:   Sun,  8 Sep 2019 13:41:37 +0100
-Message-Id: <20190908121054.569045553@linuxfoundation.org>
+Subject: [PATCH 4.14 06/40] ibmveth: Convert multicast list size for little-endian system
+Date:   Sun,  8 Sep 2019 13:41:39 +0100
+Message-Id: <20190908121117.101933925@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-References: <20190908121052.898169328@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 125b7e0949d4e72b15c2b1a1590f8cece985a918 ]
+[ Upstream commit 66cf4710b23ab2adda11155684a2c8826f4fe732 ]
 
-clang warns:
+The ibm,mac-address-filters property defines the maximum number of
+addresses the hypervisor's multicast filter list can support. It is
+encoded as a big-endian integer in the OF device tree, but the virtual
+ethernet driver does not convert it for use by little-endian systems.
+As a result, the driver is not behaving as it should on affected systems
+when a large number of multicast addresses are assigned to the device.
 
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: warning: use of logical
-'&&' with constant operand [-Wconstant-logical-operand]
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                  ^  ~~~~~~~~~~~~
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: use '&' for a
-bitwise operation
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                  ^~
-                                                  &
-drivers/net/ethernet/toshiba/tc35815.c:1507:30: note: remove constant to
-silence this warning
-                        if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-                                                 ~^~~~~~~~~~~~~~~
-1 warning generated.
-
-Explicitly check that NET_IP_ALIGN is not zero, which matches how this
-is checked in other parts of the tree. Because NET_IP_ALIGN is a build
-time constant, this check will be constant folded away during
-optimization.
-
-Fixes: 82a9928db560 ("tc35815: Enable StripCRC feature")
-Link: https://github.com/ClangBuiltLinux/linux/issues/608
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/toshiba/tc35815.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmveth.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
-index 45ac38d29ed83..868fb6306df02 100644
---- a/drivers/net/ethernet/toshiba/tc35815.c
-+++ b/drivers/net/ethernet/toshiba/tc35815.c
-@@ -1528,7 +1528,7 @@ tc35815_rx(struct net_device *dev, int limit)
- 			pci_unmap_single(lp->pci_dev,
- 					 lp->rx_skbs[cur_bd].skb_dma,
- 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
--			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-+			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
- 				memmove(skb->data, skb->data - NET_IP_ALIGN,
- 					pkt_len);
- 			data = skb_put(skb, pkt_len);
+diff --git a/drivers/net/ethernet/ibm/ibmveth.c b/drivers/net/ethernet/ibm/ibmveth.c
+index 754dff4c1771e..880d925438c17 100644
+--- a/drivers/net/ethernet/ibm/ibmveth.c
++++ b/drivers/net/ethernet/ibm/ibmveth.c
+@@ -1618,7 +1618,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 	struct net_device *netdev;
+ 	struct ibmveth_adapter *adapter;
+ 	unsigned char *mac_addr_p;
+-	unsigned int *mcastFilterSize_p;
++	__be32 *mcastFilterSize_p;
+ 	long ret;
+ 	unsigned long ret_attr;
+ 
+@@ -1640,8 +1640,9 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 		return -EINVAL;
+ 	}
+ 
+-	mcastFilterSize_p = (unsigned int *)vio_get_attribute(dev,
+-						VETH_MCAST_FILTER_SIZE, NULL);
++	mcastFilterSize_p = (__be32 *)vio_get_attribute(dev,
++							VETH_MCAST_FILTER_SIZE,
++							NULL);
+ 	if (!mcastFilterSize_p) {
+ 		dev_err(&dev->dev, "Can't find VETH_MCAST_FILTER_SIZE "
+ 			"attribute\n");
+@@ -1658,7 +1659,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 
+ 	adapter->vdev = dev;
+ 	adapter->netdev = netdev;
+-	adapter->mcastFilterSize = *mcastFilterSize_p;
++	adapter->mcastFilterSize = be32_to_cpu(*mcastFilterSize_p);
+ 	adapter->pool_config = 0;
+ 
+ 	netif_napi_add(netdev, &adapter->napi, ibmveth_poll, 16);
 -- 
 2.20.1
 
