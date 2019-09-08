@@ -2,588 +2,1207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A165BAC9D9
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 01:18:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF3EACA1E
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 02:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726988AbfIGXSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Sep 2019 19:18:22 -0400
-Received: from mail-wr1-f44.google.com ([209.85.221.44]:44584 "EHLO
-        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727632AbfIGXSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Sep 2019 19:18:22 -0400
-Received: by mail-wr1-f44.google.com with SMTP id 30so9993935wrk.11;
-        Sat, 07 Sep 2019 16:18:19 -0700 (PDT)
+        id S1731557AbfIHAUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Sep 2019 20:20:01 -0400
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:55340 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727889AbfIHAUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Sep 2019 20:20:01 -0400
+Received: by mail-wm1-f42.google.com with SMTP id g207so9965703wmg.5
+        for <stable@vger.kernel.org>; Sat, 07 Sep 2019 17:19:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ho5rMqmvPV/b/YmpXToBzxMOBGjfEQyC6kp5sZH2O9g=;
-        b=crOpftYYJyOpDkmIh1LJKrucBmKU57BKLnAB9toHsusLcFSwP6eZQCOWNOrWKy60UJ
-         ZzzMUDtx42kYT/cbSJlIPQedR9JzrhwG9Ypb69UqBzY219eJyeUgrTLEweEeZ4Pnw8RW
-         4bvtXTUchFuYiB8fC42pv6QXbZ/Uop0nRpFo8wlFiDMKzcLGi3oBcbAWGxJcAHJqocI1
-         6VbaESA8/JYk5yP3CNhJfY4IOcyoIz/ksdAMeBu1m4c4fO4GU5OTqDaChEwUB9mB2cBP
-         +W3oJf5mL2cL4sipthTAYinAwW+2rTUT+iIdLx3udeAVmsIzH5jJApsc8VZGKSm/Le7y
-         pGiQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Rttr8xwCGA/tXexyDoLJ6S7O3RvJ94iAyRruYDkBD+g=;
+        b=Vr8b8WwjUad5BSTvJvaBKowMWZHbUEA+xreeCRBeEVOzOpFZZ2Pr133HLTNJ6WpU2I
+         V4TngtKODMzNhDJy5k/jtrOHTkgu+SJiKEVeEKTaqXyt6SowubgL4I9okojrW7PcOIt5
+         pB+QknFRC6czNyzmZkp3JCgw29UM/SN2WLdyosM8BEYE1bC4kUCzS8inQgvGueZVBfY0
+         tUMjaxX1t0uSL6uWXp4iPK9TsST61GSoji4k/5v95oBqHWesQ6pqZf2qs1M30g7mLcR5
+         4jTV7cbewXFDXDRKjnz9tu9bJd22WWo+pIGSfdelqPzFAZ2gaBYA/3tk7/JJO/8Cedht
+         jmjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ho5rMqmvPV/b/YmpXToBzxMOBGjfEQyC6kp5sZH2O9g=;
-        b=D3dMa2rSFpBRxtjYmkJEFoBDUZuos9zhQjaroz/aO66fEcoVCMy+QGiP3XPgKco/yK
-         YfZSgjrTMp/88gLqR7zReR1M4+gC7iZw+dXVWgv+vaaMLrpnvsRL0fK5fiStfPsLd8QJ
-         91R6FUT9N7VnvN3eiJHMvSD8eFijs5QEI2uc8KR7Y6Q2JdeRgvdY+Ppp20ZEL5flAdhh
-         yx5Ak9GUHQQjD2wvcR/ggNxhS8dGM/VAkQdpY83JTiikag5Jiuuihtet2tPpuhao26Lj
-         EGo95Yf3CSZgift/xAueef6ajVkMXNZ6/cyLYzie8SHsLHaSIghXQjo9NJk6ahKeHaKe
-         4nbg==
-X-Gm-Message-State: APjAAAXi3PhyYlKT16r0dI72aS5KvcFZJ8ScWmxNEuZqK2qTwY4g5fcd
-        XFRzGQcT1tohjQcIzNUnFx8=
-X-Google-Smtp-Source: APXvYqxhf+v1eBFCusMuONg6h8MDuROGxmo9w9eQTHdxd2yUSI3FQHDUGkBqlFjWwzwHp163qpj8iQ==
-X-Received: by 2002:adf:ef05:: with SMTP id e5mr12502866wro.127.1567898298181;
-        Sat, 07 Sep 2019 16:18:18 -0700 (PDT)
-Received: from debian64.daheim (pD9E29DC7.dip0.t-ipconnect.de. [217.226.157.199])
-        by smtp.gmail.com with ESMTPSA id k9sm19185994wrd.7.2019.09.07.16.18.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Sep 2019 16:18:17 -0700 (PDT)
-Received: from localhost.daheim ([127.0.0.1] helo=debian64.localnet)
-        by debian64.daheim with esmtp (Exim 4.92.1)
-        (envelope-from <chunkeey@gmail.com>)
-        id 1i6jyC-0007V1-HK; Sun, 08 Sep 2019 01:18:16 +0200
-From:   Christian Lamparter <chunkeey@gmail.com>
-To:     linux-wireless@vger.kernel.org, ath10k@lists.infradead.org,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Kalle Valo <kvalo@codeaurora.org>, stable@vger.kernel.org
-Subject: stable backports for "ath10k: restore QCA9880-AR1A (v1) detection"
-Date:   Sun, 08 Sep 2019 01:18:13 +0200
-Message-ID: <8482869.vuxnZITksI@debian64>
-In-Reply-To: <20190907214359.1C52A21835@mail.kernel.org>
-References: <20190906215423.23589-1-chunkeey@gmail.com> <20190907214359.1C52A21835@mail.kernel.org>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Rttr8xwCGA/tXexyDoLJ6S7O3RvJ94iAyRruYDkBD+g=;
+        b=jOarTBVY5X6jkdQQvfrGKIeX8i6/sY0pmk4Gakb3jurJntxU7Bu3Vb9vJTHpUrJ7am
+         luT4wqSe1UxgDiSci6kLCmH4fG+rB8py/8QD6I4vtZE2StfKyt1j0Pi5zFHJ7vjU6EPk
+         lgPHNoLppvpv6dbK/BXPB8tDjT1s/XD/V/zaP8zaQlR153EWKFS7x2uJ//TI9TobAv29
+         Zj9xez43xJ/jYXRQGZFmUIdbJSlkP6LmCdcYQCdyVvERyYifsqLocLv3FIdF7xnscB6w
+         VxduaRNPRn4vPUmFElP3R8KYVUFuKyEtLt6r/LIuMpNnG3Drg9Qw8NyFOcyOpJQ7ZpUd
+         VNvg==
+X-Gm-Message-State: APjAAAWe+XMmCAAytgLs7EEhVZyQpcjG+NUab0EtMRzSUMXjcIuAROgw
+        o1mv8FGhpkpJUondUS1fITIuo7BqxxU=
+X-Google-Smtp-Source: APXvYqydn8zjnIo6oXrj4q51qpJwQrAHB1OH38IQ/r4VVRt1P1K/DCeNrgrsLkK+3Bb5F89r2GhCKw==
+X-Received: by 2002:a7b:cd12:: with SMTP id f18mr13415024wmj.111.1567901993294;
+        Sat, 07 Sep 2019 17:19:53 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w125sm20507034wmg.32.2019.09.07.17.19.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 07 Sep 2019 17:19:52 -0700 (PDT)
+Message-ID: <5d744928.1c69fb81.7f0be.207d@mx.google.com>
+Date:   Sat, 07 Sep 2019 17:19:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart5470804.AK8FHB7eIg"
-Content-Transfer-Encoding: 7Bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.191-22-g4d39ebdeeabe
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y build: 190 builds: 12 failed, 178 passed,
+ 7 errors, 20 warnings (v4.4.191-22-g4d39ebdeeabe)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
+stable-rc/linux-4.4.y build: 190 builds: 12 failed, 178 passed, 7 errors, 2=
+0 warnings (v4.4.191-22-g4d39ebdeeabe)
 
---nextPart5470804.AK8FHB7eIg
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.191-22-g4d39ebdeeabe/
 
-Hello,
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.191-22-g4d39ebdeeabe
+Git Commit: 4d39ebdeeabe4abb102fb7dc70b913815dbb9eaf
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
-On Saturday, September 7, 2019 11:43:58 PM CEST Sasha Levin wrote:
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 1a7fecb766c8 ath10k: reset chip before reading chip_id in probe.
-> 
-> The bot has tested the following trees: v5.2.13, v4.19.71, v4.14.142, v4.9.191, v4.4.191.
-> 
-> v5.2.13: Failed to apply! Possible dependencies:
->     6d084ac27ab4 ("ath10k: initialise struct ath10k_bus params to zero")
+Build Failures Detected:
 
-The bot is right. Either add that patch or remove the "= {};" from the patch
-that was sent to linux-wireless (based on "wireless-testing.git").
+arc:
+    axs103_defconfig: (gcc-8) FAIL
+    axs103_smp_defconfig: (gcc-8) FAIL
+    nsim_hs_defconfig: (gcc-8) FAIL
+    nsim_hs_smp_defconfig: (gcc-8) FAIL
+    nsimosci_hs_defconfig: (gcc-8) FAIL
+    nsimosci_hs_smp_defconfig: (gcc-8) FAIL
 
-Alternatively, I've also added patches (as file attachments, I did this in
-the hopes of fooling patchwork and the bots at least a bit... as well as
-parking the patches for later). That said, I think this will go horribly
-wrong because of this response. Since It has been a long time since I needed
-a multi-version patch so I'm sorry for not being up-to-date with the latest
-for-stable meta.
+mips:
+    bigsur_defconfig: (gcc-8) FAIL
+    decstation_defconfig: (gcc-8) FAIL
+    jmr3927_defconfig: (gcc-8) FAIL
+    nlm_xlr_defconfig: (gcc-8) FAIL
+    sb1250_swarm_defconfig: (gcc-8) FAIL
+    sead3micro_defconfig: (gcc-8) FAIL
 
-> v4.19.71: Failed to apply! Possible dependencies:
->     31324d17976e ("ath10k: support extended board data download for dual-band QCA9984")
->     [...] too much
-> [...]: [...]
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-You could let loose your ci-bot on the attached patches and see if they would
-do the trick. I'm very optimistic that this will need some more time though. 
-So, "let's cross that bridge whenever we get there."
+Errors and Warnings Detected:
 
-Cheers,
-Christian
---nextPart5470804.AK8FHB7eIg
-Content-Disposition: attachment; filename="4-9-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="4-9-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
+arc:
+    allnoconfig (gcc-8): 3 warnings
+    tinyconfig (gcc-8): 4 warnings
 
-From 38ac13d668f237941c8b77f16375f8f0e4de966a Mon Sep 17 00:00:00 2001
-From: Christian Lamparter <chunkeey@gmail.com>
-Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 4.9] ath10k: restore QCA9880-AR1A (v1) detection
-To: linux-wireless@vger.kernel.org,
-    ath10k@lists.infradead.org
-Cc: Kalle Valo <kvalo@codeaurora.org>
+arm64:
 
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
+arm:
+    clps711x_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    lpc32xx_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
 
-Cc: stable@vger.kernel.org # 4.9
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+i386:
+
+mips:
+    bigsur_defconfig (gcc-8): 1 error, 4 warnings
+    decstation_defconfig (gcc-8): 1 error
+    jmr3927_defconfig (gcc-8): 1 error
+    nlm_xlr_defconfig (gcc-8): 1 error, 1 warning
+    sb1250_swarm_defconfig (gcc-8): 1 error, 4 warnings
+    sead3micro_defconfig (gcc-8): 2 errors
+
+x86_64:
+
+Errors summary:
+
+    1    cc1: error: '-march=3Dr3900' requires '-mfp32'
+    1    cc1: error: '-march=3Dr3000' requires '-mfp32'
+    1    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another=
+ ISA mode
+    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
+ ISA mode
+    1    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise co=
+mparison always evaluates to false [-Werror=3Dtautological-compare]
+    1    (.text+0x19558): undefined reference to `iommu_is_span_boundary'
+    1    (.text+0x19248): undefined reference to `iommu_is_span_boundary'
+
+Warnings summary:
+
+    8    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOT=
+LB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (C=
+AVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NL=
+M_XLR_BOARD)
+    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
+ependencies (FUTEX)
+    1    cc1: all warnings being treated as errors
+    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' de=
+claration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const'=
+ declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const'=
+ declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
+ 'const' declaration specifier [-Wduplicate-decl-specifier]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+smatches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0 secti=
+on mismatches
+
+Errors:
+    (.text+0x19558): undefined reference to `iommu_is_span_boundary'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate 'con=
+st' declaration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const' decl=
+aration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    cc1: error: '-march=3Dr3000' requires '-mfp32'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    cc1: error: '-march=3Dr3900' requires '-mfp32'
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const' decl=
+aration specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' declara=
+tion specifier [-Wduplicate-decl-specifier]
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise compari=
+son always evaluates to false [-Werror=3Dtautological-compare]
+
+Warnings:
+    cc1: all warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0=
+ section mismatches
+
+Errors:
+    (.text+0x19248): undefined reference to `iommu_is_span_boundary'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+
+---------------------------------------------------------------------------=
+-----
+sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another ISA =
+mode
+    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another ISA =
+mode
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
+matches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
---- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
-+++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
-@@ -3172,7 +3172,7 @@ static int ath10k_pci_probe(struct pci_d
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	u32 chip_id;
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3181,6 +3181,7 @@ static int ath10k_pci_probe(struct pci_d
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3300,6 +3301,19 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_deinit_irq;
- 	}
- 
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
-@@ -3312,11 +3326,8 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_free_irq;
- 	}
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, chip_id);
--		goto err_free_irq;
--	}
-+	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
-+		goto err_unsupported;
- 
- 	ret = ath10k_core_register(ar, chip_id);
- 	if (ret) {
-@@ -3326,6 +3337,10 @@ static int ath10k_pci_probe(struct pci_d
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
-
---nextPart5470804.AK8FHB7eIg
-Content-Disposition: attachment; filename="4-4-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="4-4-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-
-From 38ac13d668f237941c8b77f16375f8f0e4de966a Mon Sep 17 00:00:00 2001
-From: Christian Lamparter <chunkeey@gmail.com>
-Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 4.4] ath10k: restore QCA9880-AR1A (v1) detection
-To: linux-wireless@vger.kernel.org,
-    ath10k@lists.infradead.org
-Cc: Kalle Valo <kvalo@codeaurora.org>
-
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
-
-Cc: stable@vger.kernel.org # 4.4
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
----
- drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
---- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
-+++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
-@@ -2988,12 +2988,13 @@ static int ath10k_pci_probe(struct pci_d
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	u32 chip_id;
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 
- 	switch (pci_dev->device) {
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		break;
- 	case QCA6164_2_1_DEVICE_ID:
- 	case QCA6174_2_1_DEVICE_ID:
-@@ -3087,6 +3088,19 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_deinit_irq;
- 	}
- 
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
-@@ -3099,11 +3113,8 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_free_irq;
- 	}
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, chip_id);
--		goto err_free_irq;
--	}
-+	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
-+		goto err_unsupported;
- 
- 	ret = ath10k_core_register(ar, chip_id);
- 	if (ret) {
-@@ -3113,6 +3124,10 @@ static int ath10k_pci_probe(struct pci_d
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_kill_tasklet(ar);
-
---nextPart5470804.AK8FHB7eIg
-Content-Disposition: attachment; filename="4-14-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="4-14-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-
-From 38ac13d668f237941c8b77f16375f8f0e4de966a Mon Sep 17 00:00:00 2001
-From: Christian Lamparter <chunkeey@gmail.com>
-Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 4.14] ath10k: restore QCA9880-AR1A (v1) detection
-To: linux-wireless@vger.kernel.org,
-    ath10k@lists.infradead.org
-Cc: Kalle Valo <kvalo@codeaurora.org>
-
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
-
-Cc: stable@vger.kernel.org # 4.14
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
----
- drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
---- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
-+++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
-@@ -3202,7 +3202,7 @@ static int ath10k_pci_probe(struct pci_d
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	u32 chip_id;
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3211,6 +3211,7 @@ static int ath10k_pci_probe(struct pci_d
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3331,6 +3332,19 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_deinit_irq;
- 	}
- 
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
-@@ -3343,11 +3357,8 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_free_irq;
- 	}
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, chip_id);
--		goto err_free_irq;
--	}
-+	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
-+		goto err_unsupported;
- 
- 	ret = ath10k_core_register(ar, chip_id);
- 	if (ret) {
-@@ -3357,6 +3368,10 @@ static int ath10k_pci_probe(struct pci_d
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
-
---nextPart5470804.AK8FHB7eIg
-Content-Disposition: attachment; filename="4-19-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="4-19-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-
-From 38ac13d668f237941c8b77f16375f8f0e4de966a Mon Sep 17 00:00:00 2001
-From: Christian Lamparter <chunkeey@gmail.com>
-Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 4.19] ath10k: restore QCA9880-AR1A (v1) detection
-To: linux-wireless@vger.kernel.org,
-    ath10k@lists.infradead.org
-Cc: Kalle Valo <kvalo@codeaurora.org>
-
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
-
-Cc: stable@vger.kernel.org # 4.19
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
----
- drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
---- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
-+++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
-@@ -3483,7 +3483,7 @@ static int ath10k_pci_probe(struct pci_d
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	u32 chip_id;
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3493,6 +3493,7 @@ static int ath10k_pci_probe(struct pci_d
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3612,6 +3613,19 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_deinit_irq;
- 	}
- 
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
-@@ -3624,11 +3638,8 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_free_irq;
- 	}
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, chip_id);
--		goto err_free_irq;
--	}
-+	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
-+		goto err_unsupported;
- 
- 	ret = ath10k_core_register(ar, chip_id);
- 	if (ret) {
-@@ -3638,6 +3649,10 @@ static int ath10k_pci_probe(struct pci_d
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
-
---nextPart5470804.AK8FHB7eIg
-Content-Disposition: attachment; filename="5-2-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="5-2-ath10k-restore-QCA9880-AR1A-v1-detection.patch"
-
-From 38ac13d668f237941c8b77f16375f8f0e4de966a Mon Sep 17 00:00:00 2001
-From: Christian Lamparter <chunkeey@gmail.com>
-Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 5.2] ath10k: restore QCA9880-AR1A (v1) detection
-To: linux-wireless@vger.kernel.org,
-    ath10k@lists.infradead.org
-Cc: Kalle Valo <kvalo@codeaurora.org>
-
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
-
-Cc: stable@vger.kernel.org # 5.2
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
----
- drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -3490,7 +3490,7 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	struct ath10k_bus_params bus_params;
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3500,6 +3500,7 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3619,25 +3620,34 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
- 		goto err_deinit_irq;
- 	}
- 
-+	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
-+	bus_params.link_can_suspend = true;
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		bus_params.chip_id =
-+			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (bus_params.chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  bus_params.chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
- 		goto err_free_irq;
- 	}
- 
--	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
--	bus_params.link_can_suspend = true;
- 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
--	if (bus_params.chip_id == 0xffffffff) {
--		ath10k_err(ar, "failed to get chip id\n");
--		goto err_free_irq;
--	}
-+	if (bus_params.chip_id == 0xffffffff)
-+		goto err_unsupported;
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, bus_params.chip_id);
-+	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
- 		goto err_free_irq;
--	}
- 
- 	ret = ath10k_core_register(ar, &bus_params);
- 	if (ret) {
-@@ -3647,6 +3657,10 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
--- 
-2.23.0
-
-
---nextPart5470804.AK8FHB7eIg--
-
-
-
+For more info write to <info@kernelci.org>
