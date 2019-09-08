@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A05ACD39
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF3FACD09
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730519AbfIHMqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
+        id S1729997AbfIHMpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730513AbfIHMqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:54 -0400
+        id S1729995AbfIHMpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:04 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E7802081B;
-        Sun,  8 Sep 2019 12:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DBB2218AF;
+        Sun,  8 Sep 2019 12:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946813;
-        bh=ZJN68VxSrx5dGkmzWdbcqEqcy2uPSNkw2+KGn8/N7/U=;
+        s=default; t=1567946704;
+        bh=b/6p2K6OwCQ9VHvH/z3IInmSI+583pXbS1SgOG8OycQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rb6JSlZ+ndr0RjocE5QU0+yjgoGcY53vhSiuX7jyt6gbzztJK0HlZTm/nVbIEtakT
-         037OsCbP/o89QeMnE5Lv1jpiNbg2K8A3itEvb/Fy8mQVerqaZi/VguCm7Akjbu5z6y
-         Tkgf4SvOsjtcgHWW8C3U8W57DrvZ8skvInawavws=
+        b=ElDaWKl0oamOoYXJNqFPLAYf9l+iYRlxyqQBE54FDuwrprcy7ePfL/YdQVSd21o18
+         LZDQewRL/CJrd0xfXISoI8PQaxPFvZ8GoQrhqP+++Wi0NZaquPldCpzOima7Ngncsd
+         yernQIWp7DrBY5MI8ghmUtI8Rfxqi0W2eJC7E4eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/57] spi: bcm2835aux: unifying code between polling and interrupt driven code
+Subject: [PATCH 4.14 01/40] net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
 Date:   Sun,  8 Sep 2019 13:41:34 +0100
-Message-Id: <20190908121128.728857006@linuxfoundation.org>
+Message-Id: <20190908121114.485236005@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,123 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec ]
+[ Upstream commit 8c25d0887a8bd0e1ca2074ac0c6dff173787a83b ]
 
-Sharing more code between polling and interrupt-driven mode.
+As spin_unlock_irq will enable interrupts.
+Function tsi108_stat_carry is called from interrupt handler tsi108_irq.
+Interrupts are enabled in interrupt handler.
+Use spin_lock_irqsave/spin_unlock_irqrestore instead of spin_(un)lock_irq
+in IRQ context to avoid this.
 
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 51 +++++++++++++-----------------------
- 1 file changed, 18 insertions(+), 33 deletions(-)
+ drivers/net/ethernet/tundra/tsi108_eth.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 3094d818cf06d..79306e654f735 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -178,23 +178,13 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 		      BCM2835_AUX_SPI_CNTL0_CLEARFIFO);
+diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
+index c2d15d9c0c33b..455979e47424c 100644
+--- a/drivers/net/ethernet/tundra/tsi108_eth.c
++++ b/drivers/net/ethernet/tundra/tsi108_eth.c
+@@ -381,9 +381,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
+ static void tsi108_stat_carry(struct net_device *dev)
+ {
+ 	struct tsi108_prv_data *data = netdev_priv(dev);
++	unsigned long flags;
+ 	u32 carry1, carry2;
+ 
+-	spin_lock_irq(&data->misclock);
++	spin_lock_irqsave(&data->misclock, flags);
+ 
+ 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
+ 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
+@@ -451,7 +452,7 @@ static void tsi108_stat_carry(struct net_device *dev)
+ 			      TSI108_STAT_TXPAUSEDROP_CARRY,
+ 			      &data->tx_pause_drop);
+ 
+-	spin_unlock_irq(&data->misclock);
++	spin_unlock_irqrestore(&data->misclock, flags);
  }
  
--static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
--	struct spi_master *master = dev_id;
--	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
--	irqreturn_t ret = IRQ_NONE;
--
--	/* IRQ may be shared, so return if our interrupts are disabled */
--	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
--	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
--		return ret;
--
- 	/* check if we have data to read */
- 	while (bs->rx_len &&
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
- 		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
- 
- 	/* check if we have data to write */
-@@ -203,7 +193,6 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_TX_FULL))) {
- 		bcm2835aux_wr_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
- 
- 	/* and check if we have reached "done" */
-@@ -211,8 +200,21 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_BUSY))) {
- 		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
-+}
-+
-+static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+{
-+	struct spi_master *master = dev_id;
-+	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
-+
-+	/* IRQ may be shared, so return if our interrupts are disabled */
-+	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
-+	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
-+		return IRQ_NONE;
-+
-+	/* do common fifo handling */
-+	bcm2835aux_spi_transfer_helper(bs);
- 
- 	if (!bs->tx_len) {
- 		/* disable tx fifo empty interrupt */
-@@ -226,8 +228,7 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 		complete(&master->xfer_completion);
- 	}
- 
--	/* and return */
--	return ret;
-+	return IRQ_HANDLED;
- }
- 
- static int __bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
-@@ -273,7 +274,6 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- {
- 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
- 	unsigned long timeout;
--	u32 stat;
- 
- 	/* configure spi */
- 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
-@@ -284,24 +284,9 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- 
- 	/* loop until finished the transfer */
- 	while (bs->rx_len) {
--		/* read status */
--		stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
--
--		/* fill in tx fifo with remaining data */
--		if ((bs->tx_len) && (!(stat & BCM2835_AUX_SPI_STAT_TX_FULL))) {
--			bcm2835aux_wr_fifo(bs);
--			continue;
--		}
- 
--		/* read data from fifo for both cases */
--		if (!(stat & BCM2835_AUX_SPI_STAT_RX_EMPTY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
--		if (!(stat & BCM2835_AUX_SPI_STAT_BUSY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
-+		/* do common fifo handling */
-+		bcm2835aux_spi_transfer_helper(bs);
- 
- 		/* there is still data pending to read check the timeout */
- 		if (bs->rx_len && time_after(jiffies, timeout)) {
+ /* Read a stat counter atomically with respect to carries.
 -- 
 2.20.1
 
