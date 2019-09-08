@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B585ACCF8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0D4ACD1F
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729769AbfIHMoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
+        id S1730214AbfIHMpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729761AbfIHMoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:44:20 -0400
+        id S1730231AbfIHMpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:51 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30003218DE;
-        Sun,  8 Sep 2019 12:44:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DA2A218AC;
+        Sun,  8 Sep 2019 12:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946659;
-        bh=rBYyaw2fFXbK2tMlFMR++K1OgXVKO8FT5BhnKRKLqZg=;
+        s=default; t=1567946750;
+        bh=GkLqsmL+1SloL2tvr2cXjfPiKmTKlsH3FQOhy0qKwwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7DtCCiLpN8wVw3r5XBZDVQJ2C1Hx4yBwcM1HONNiHQcRKv2N8X25NO4BosC0H+0i
-         HMu2FVSMq1gTW76I3+qTOS9Fe4zIVFmZ3HwvS4euzhbmVLMvDFE2J6eL9q7mjDOqS4
-         zsGajPB3iqpd7CGUaJdp3lpZbiveg/Oe6q9Ysktw=
+        b=n7+P7IeGJB7RZbLf/tnKQy0D8SRjnTTzVZX5cMcSGVYFHkqEfX2hgbOnnZAvhma2/
+         lk83mhayDbPBn2+irPtndQQ55gDxpEQLgGfWPae0Vl46WVQNXMBbTwcEVP+iE3i7iS
+         rZMzoQuAV9kraxZbY2KKV+lDVS/Hd8sePtNK4wPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/26] spi: bcm2835aux: unifying code between polling and interrupt driven code
-Date:   Sun,  8 Sep 2019 13:41:58 +0100
-Message-Id: <20190908121108.756576804@linuxfoundation.org>
+Subject: [PATCH 4.14 26/40] ceph: fix buffer free while holding i_ceph_lock in fill_inode()
+Date:   Sun,  8 Sep 2019 13:41:59 +0100
+Message-Id: <20190908121125.633926958@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
-References: <20190908121057.216802689@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,123 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec ]
+[ Upstream commit af8a85a41734f37b67ba8ce69d56b685bee4ac48 ]
 
-Sharing more code between polling and interrupt-driven mode.
+Calling ceph_buffer_put() in fill_inode() may result in freeing the
+i_xattrs.blob buffer while holding the i_ceph_lock.  This can be fixed by
+postponing the call until later, when the lock is released.
 
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The following backtrace was triggered by fstests generic/070.
+
+  BUG: sleeping function called from invalid context at mm/vmalloc.c:2283
+  in_atomic(): 1, irqs_disabled(): 0, pid: 3852, name: kworker/0:4
+  6 locks held by kworker/0:4/3852:
+   #0: 000000004270f6bb ((wq_completion)ceph-msgr){+.+.}, at: process_one_work+0x1b8/0x5f0
+   #1: 00000000eb420803 ((work_completion)(&(&con->work)->work)){+.+.}, at: process_one_work+0x1b8/0x5f0
+   #2: 00000000be1c53a4 (&s->s_mutex){+.+.}, at: dispatch+0x288/0x1476
+   #3: 00000000559cb958 (&mdsc->snap_rwsem){++++}, at: dispatch+0x2eb/0x1476
+   #4: 000000000d5ebbae (&req->r_fill_mutex){+.+.}, at: dispatch+0x2fc/0x1476
+   #5: 00000000a83d0514 (&(&ci->i_ceph_lock)->rlock){+.+.}, at: fill_inode.isra.0+0xf8/0xf70
+  CPU: 0 PID: 3852 Comm: kworker/0:4 Not tainted 5.2.0+ #441
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-prebuilt.qemu.org 04/01/2014
+  Workqueue: ceph-msgr ceph_con_workfn
+  Call Trace:
+   dump_stack+0x67/0x90
+   ___might_sleep.cold+0x9f/0xb1
+   vfree+0x4b/0x60
+   ceph_buffer_release+0x1b/0x60
+   fill_inode.isra.0+0xa9b/0xf70
+   ceph_fill_trace+0x13b/0xc70
+   ? dispatch+0x2eb/0x1476
+   dispatch+0x320/0x1476
+   ? __mutex_unlock_slowpath+0x4d/0x2a0
+   ceph_con_workfn+0xc97/0x2ec0
+   ? process_one_work+0x1b8/0x5f0
+   process_one_work+0x244/0x5f0
+   worker_thread+0x4d/0x3e0
+   kthread+0x105/0x140
+   ? process_one_work+0x5f0/0x5f0
+   ? kthread_park+0x90/0x90
+   ret_from_fork+0x3a/0x50
+
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 51 +++++++++++++-----------------------
- 1 file changed, 18 insertions(+), 33 deletions(-)
+ fs/ceph/inode.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index bd00b7cc8b78b..97cb3beb9cc62 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -178,23 +178,13 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 		      BCM2835_AUX_SPI_CNTL0_CLEARFIFO);
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index f2b722f0df5d0..9bda8c7a80a05 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -730,6 +730,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+ 	int issued = 0, implemented, new_issued;
+ 	struct timespec mtime, atime, ctime;
+ 	struct ceph_buffer *xattr_blob = NULL;
++	struct ceph_buffer *old_blob = NULL;
+ 	struct ceph_string *pool_ns = NULL;
+ 	struct ceph_cap *new_cap = NULL;
+ 	int err = 0;
+@@ -847,7 +848,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+ 	if ((ci->i_xattrs.version == 0 || !(issued & CEPH_CAP_XATTR_EXCL))  &&
+ 	    le64_to_cpu(info->xattr_version) > ci->i_xattrs.version) {
+ 		if (ci->i_xattrs.blob)
+-			ceph_buffer_put(ci->i_xattrs.blob);
++			old_blob = ci->i_xattrs.blob;
+ 		ci->i_xattrs.blob = xattr_blob;
+ 		if (xattr_blob)
+ 			memcpy(ci->i_xattrs.blob->vec.iov_base,
+@@ -993,8 +994,8 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+ out:
+ 	if (new_cap)
+ 		ceph_put_cap(mdsc, new_cap);
+-	if (xattr_blob)
+-		ceph_buffer_put(xattr_blob);
++	ceph_buffer_put(old_blob);
++	ceph_buffer_put(xattr_blob);
+ 	ceph_put_string(pool_ns);
+ 	return err;
  }
- 
--static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
--	struct spi_master *master = dev_id;
--	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
--	irqreturn_t ret = IRQ_NONE;
--
--	/* IRQ may be shared, so return if our interrupts are disabled */
--	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
--	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
--		return ret;
--
- 	/* check if we have data to read */
- 	while (bs->rx_len &&
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
- 		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
- 
- 	/* check if we have data to write */
-@@ -203,7 +193,6 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_TX_FULL))) {
- 		bcm2835aux_wr_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
- 
- 	/* and check if we have reached "done" */
-@@ -211,8 +200,21 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_BUSY))) {
- 		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
-+}
-+
-+static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+{
-+	struct spi_master *master = dev_id;
-+	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
-+
-+	/* IRQ may be shared, so return if our interrupts are disabled */
-+	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
-+	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
-+		return IRQ_NONE;
-+
-+	/* do common fifo handling */
-+	bcm2835aux_spi_transfer_helper(bs);
- 
- 	if (!bs->tx_len) {
- 		/* disable tx fifo empty interrupt */
-@@ -226,8 +228,7 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 		complete(&master->xfer_completion);
- 	}
- 
--	/* and return */
--	return ret;
-+	return IRQ_HANDLED;
- }
- 
- static int __bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
-@@ -273,7 +274,6 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- {
- 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
- 	unsigned long timeout;
--	u32 stat;
- 
- 	/* configure spi */
- 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
-@@ -284,24 +284,9 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- 
- 	/* loop until finished the transfer */
- 	while (bs->rx_len) {
--		/* read status */
--		stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
--
--		/* fill in tx fifo with remaining data */
--		if ((bs->tx_len) && (!(stat & BCM2835_AUX_SPI_STAT_TX_FULL))) {
--			bcm2835aux_wr_fifo(bs);
--			continue;
--		}
- 
--		/* read data from fifo for both cases */
--		if (!(stat & BCM2835_AUX_SPI_STAT_RX_EMPTY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
--		if (!(stat & BCM2835_AUX_SPI_STAT_BUSY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
-+		/* do common fifo handling */
-+		bcm2835aux_spi_transfer_helper(bs);
- 
- 		/* there is still data pending to read check the timeout */
- 		if (bs->rx_len && time_after(jiffies, timeout)) {
 -- 
 2.20.1
 
