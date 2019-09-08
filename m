@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72CD3ACDB3
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4E6ACDD4
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733087AbfIHMwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44904 "EHLO mail.kernel.org"
+        id S2387407AbfIHMxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733079AbfIHMwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:52:32 -0400
+        id S1733298AbfIHMxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:53:01 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A06772082C;
-        Sun,  8 Sep 2019 12:52:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FF8621479;
+        Sun,  8 Sep 2019 12:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947152;
-        bh=kVhIA2VRlTtUs/TO0Zv+rRP6M6nsaEFIOYgZBjeOGxM=;
+        s=default; t=1567947180;
+        bh=fMbPfK1UhWLIjJXKJhL4Z2oYmNROo8CHt2j9I/iG4Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSeFCyHMxJeSXUPb8xEqB5Qr+d7CNLfcNetaTpj2znDYUsfWbkFmGwThU1huLYnyJ
-         w0QkIy5Jj1bCncSrU7CFmb+wqtZYuHd5hEtEsPZapAbjoBSxix/gOl3+AvMDTpn5XX
-         OXhONOqxBiAEenti3fHrrLvwfns3AjI6XxevZulM=
+        b=q9TEANnJ1l8pDc0mZzxZdh4H+ChTo3e0+F5d8LztVMpqyTYYxB1PA2ZsuET+iEH1r
+         U+dGuLwncjxGzVEw117ZPEEuJPLTEUQvZbQvfDunGZmTBETAx1B35vJiq2Q3t3FUhw
+         vQLhqSA4PP6GTgHao+qHY3vNpwrA/IjONpbIe8jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 54/94] clk: Fix potential NULL dereference in clk_fetch_parent_index()
-Date:   Sun,  8 Sep 2019 13:41:50 +0100
-Message-Id: <20190908121151.983360317@linuxfoundation.org>
+Subject: [PATCH 5.2 55/94] lan78xx: Fix memory leaks
+Date:   Sun,  8 Sep 2019 13:41:51 +0100
+Message-Id: <20190908121152.011370031@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -45,52 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 24876f09a7dfe36a82f53d304d8c1bceb3257a0f ]
+[ Upstream commit b9cbf8a64865b50fd0f4a3915fa00ac7365cdf8f ]
 
-Don't compare the parent clock name with a NULL name in the
-clk_parent_map. This prevents a kernel crash when passing NULL
-core->parents[i].name to strcmp().
+In lan78xx_probe(), a new urb is allocated through usb_alloc_urb() and
+saved to 'dev->urb_intr'. However, in the following execution, if an error
+occurs, 'dev->urb_intr' is not deallocated, leading to memory leaks. To fix
+this issue, invoke usb_free_urb() to free the allocated urb before
+returning from the function.
 
-An example which triggered this is a mux clock with four parents when
-each of them is referenced in the clock driver using
-clk_parent_data.fw_name and then calling clk_set_parent(clk, 3rd_parent)
-on this mux.
-In this case the first parent is also the HW default so
-core->parents[i].hw is populated when the clock is registered. Calling
-clk_set_parent(clk, 3rd_parent) will then go through all parents and
-skip the first parent because it's hw pointer doesn't match. For the
-second parent no hw pointer is cached yet and clk_core_get(core, 1)
-returns a non-matching pointer (which is correct because we are comparing
-the second with the third parent). Comparing the result of
-clk_core_get(core, 2) with the requested parent gives a match. However
-we don't reach this point because right after the clk_core_get(core, 1)
-mismatch the old code tried to !strcmp(parent->name, NULL) (where the
-second argument is actually core->parents[i].name, but that was never
-populated by the clock driver).
-
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lkml.kernel.org/r/20190815223155.21384-1-martin.blumenstingl@googlemail.com
-Fixes: fc0c209c147f ("clk: Allow parents to be specified without string names")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/lan78xx.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 498cd7bbe8984..3a4961dc58313 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -1657,7 +1657,8 @@ static int clk_fetch_parent_index(struct clk_core *core,
- 			break;
- 
- 		/* Fallback to comparing globally unique names */
--		if (!strcmp(parent->name, core->parents[i].name))
-+		if (core->parents[i].name &&
-+		    !strcmp(parent->name, core->parents[i].name))
- 			break;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 3d92ea6fcc02b..f033fee225a11 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3792,7 +3792,7 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 	ret = register_netdev(netdev);
+ 	if (ret != 0) {
+ 		netif_err(dev, probe, netdev, "couldn't register the device\n");
+-		goto out3;
++		goto out4;
  	}
  
+ 	usb_set_intfdata(intf, dev);
+@@ -3807,12 +3807,14 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 
+ 	ret = lan78xx_phy_init(dev);
+ 	if (ret < 0)
+-		goto out4;
++		goto out5;
+ 
+ 	return 0;
+ 
+-out4:
++out5:
+ 	unregister_netdev(netdev);
++out4:
++	usb_free_urb(dev->urb_intr);
+ out3:
+ 	lan78xx_unbind(dev, intf);
+ out2:
 -- 
 2.20.1
 
