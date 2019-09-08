@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAEAACDD2
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 750C6ACDD1
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387440AbfIHMxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45852 "EHLO mail.kernel.org"
+        id S1733298AbfIHMxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387431AbfIHMxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:53:06 -0400
+        id S2387448AbfIHMxI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:53:08 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59BCC21479;
-        Sun,  8 Sep 2019 12:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C617E218AC;
+        Sun,  8 Sep 2019 12:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947185;
-        bh=2LOeju+fO134tMo7NuDC68/erkLik4eZPU8wzgwt80M=;
+        s=default; t=1567947188;
+        bh=sMY8CX+ke/0X1cozkbi0shNM3husLo0be0Fv4RKdw+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZhJYDrsV0IJdsA0bxHHdnSRxs6wF06KHEU8WJfS8PxwmUo3b5PKDoUyv3fUXNVYU
-         vXTTwAW+p3ZbGB+RSz1AHSbNWFTT3KvZGyZD7irJ7n0zANw6Vjmt98Ai7OACGBWSzI
-         ugYAoXUVYNb+7e1h2kcikutC6d8b+5nJvmT/jRVk=
+        b=WuwVJPWELoSMcaN/5ZROyvgF3ZZElyCQV7Ki8O8pvPMh8F8r+wEmZtn+mCMVow5Ei
+         /mxs2wVrfs3zqM07vzvUZ9GAJFo/GjMCuJgV9XSft1hRcvo28xYTAlTko5sWNPWJuK
+         3T8i2I8K6LjmivC8o9t1T1e3AF8xWW434nr85X1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bandan Das <bsd@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 92/94] Revert "x86/apic: Include the LDR when clearing out APIC registers"
-Date:   Sun,  8 Sep 2019 13:42:28 +0100
-Message-Id: <20190908121153.061234422@linuxfoundation.org>
+        stable@vger.kernel.org, "John S. Gruber" <JohnSGruber@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Mark Brown <broonie@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 5.2 93/94] x86/boot: Preserve boot_params.secure_boot from sanitizing
+Date:   Sun,  8 Sep 2019 13:42:29 +0100
+Message-Id: <20190908121153.089539744@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -46,63 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 950b07c14e8c59444e2359f15fd70ed5112e11a0 ]
+From: John S. Gruber <JohnSGruber@gmail.com>
 
-This reverts commit 558682b5291937a70748d36fd9ba757fb25b99ae.
+commit 29d9a0b50736768f042752070e5cdf4e4d4c00df upstream.
 
-Chris Wilson reports that it breaks his CPU hotplug test scripts.  In
-particular, it breaks offlining and then re-onlining the boot CPU, which
-we treat specially (and the BIOS does too).
+Commit
 
-The symptoms are that we can offline the CPU, but it then does not come
-back online again:
+  a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
 
-    smpboot: CPU 0 is now offline
-    smpboot: Booting Node 0 Processor 0 APIC 0x0
-    smpboot: do_boot_cpu failed(-1) to wakeup CPU#0
+now zeroes the secure boot setting information (enabled/disabled/...)
+passed by the boot loader or by the kernel's EFI handover mechanism.
 
-Thomas says he knows why it's broken (my personal suspicion: our magic
-handling of the "cpu0_logical_apicid" thing), but for 5.3 the right fix
-is to just revert it, since we've never touched the LDR bits before, and
-it's not worth the risk to do anything else at this stage.
+The problem manifests itself with signed kernels using the EFI handoff
+protocol with grub and the kernel loses the information whether secure
+boot is enabled in the firmware, i.e., the log message "Secure boot
+enabled" becomes "Secure boot could not be determined".
 
-[ Hotpluging of the boot CPU is special anyway, and should be off by
-  default. See the "BOOTPARAM_HOTPLUG_CPU0" config option and the
-  cpu0_hotplug kernel parameter.
+efi_main() arch/x86/boot/compressed/eboot.c sets this field early but it
+is subsequently zeroed by the above referenced commit.
 
-  In general you should not do it, and it has various known limitations
-  (hibernate and suspend require the boot CPU, for example).
+Include boot_params.secure_boot in the preserve field list.
 
-  But it should work, even if the boot CPU is special and needs careful
-  treatment       - Linus ]
+ [ bp: restructure commit message and massage. ]
 
-Link: https://lore.kernel.org/lkml/156785100521.13300.14461504732265570003@skylake-alporthouse-com/
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Bandan Das <bsd@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
+Signed-off-by: John S. Gruber <JohnSGruber@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/CAPotdmSPExAuQcy9iAHqX3js_fc4mMLQOTr5RBGvizyCOPcTQQ@mail.gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/apic/apic.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/include/asm/bootparam_utils.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 97c3a1c9502e7..2f067b443326e 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1152,10 +1152,6 @@ void clear_local_APIC(void)
- 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
- 	v = apic_read(APIC_LVT1);
- 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
--	if (!x2apic_enabled()) {
--		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
--		apic_write(APIC_LDR, v);
--	}
- 	if (maxlvt >= 4) {
- 		v = apic_read(APIC_LVTPC);
- 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
--- 
-2.20.1
-
+--- a/arch/x86/include/asm/bootparam_utils.h
++++ b/arch/x86/include/asm/bootparam_utils.h
+@@ -70,6 +70,7 @@ static void sanitize_boot_params(struct
+ 			BOOT_PARAM_PRESERVE(eddbuf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
++			BOOT_PARAM_PRESERVE(secure_boot),
+ 			BOOT_PARAM_PRESERVE(hdr),
+ 			BOOT_PARAM_PRESERVE(e820_table),
+ 			BOOT_PARAM_PRESERVE(eddbuf),
 
 
