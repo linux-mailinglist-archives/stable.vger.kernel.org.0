@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3ADACEC8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2186ACE73
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729294AbfIHMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56216 "EHLO mail.kernel.org"
+        id S1730040AbfIHMpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726329AbfIHMmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:42:53 -0400
+        id S1729995AbfIHMpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:14 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFF622081B;
-        Sun,  8 Sep 2019 12:42:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B783C218AE;
+        Sun,  8 Sep 2019 12:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946573;
-        bh=mqnRnbDGslsvYo8EJuwu7K/kmlaG/SNDh43N8rER6D4=;
+        s=default; t=1567946714;
+        bh=E9KGdhC/jcBFobfc9mLhrYNF/oc4OdTm3fqc8AkqMOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWxvkTNABsdX3aY4XSNH0mtf/Y7S2b+ojdLFgz5+np6jl8ROfyVrkCbdIabfAGqrl
-         wnvs3CENhDE+ysNdxCo1vCu19eUGq3ezO5B3d7nhRdWnj0iWE3XaNefvvGBrJ06Oe9
-         1W3ujeord9w4uB5WrI3aNQ8OGUQQ3sP47YoM+3y0=
+        b=YJ7So3+dwyI0Icen4lHmGxZSAexQ6r849UEkUmesDcw2zgQ6oqJ8pbF2F0Bfl7nqc
+         0pTJYOrRNfzuxEgzTE2Zw+Hyf9/Y1soporHYZRROj6tSVxLCigifrkaEB/UbWnmD2o
+         B2pviNgGvfozampM+s5LPeQD09v8gADqWYX2bejE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/23] wimax/i2400m: fix a memory leak bug
-Date:   Sun,  8 Sep 2019 13:41:45 +0100
-Message-Id: <20190908121056.869762137@linuxfoundation.org>
+Subject: [PATCH 4.14 13/40] lan78xx: Fix memory leaks
+Date:   Sun,  8 Sep 2019 13:41:46 +0100
+Message-Id: <20190908121121.017746007@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-References: <20190908121052.898169328@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 44ef3a03252844a8753479b0cea7f29e4a804bdc ]
+[ Upstream commit b9cbf8a64865b50fd0f4a3915fa00ac7365cdf8f ]
 
-In i2400m_barker_db_init(), 'options_orig' is allocated through kstrdup()
-to hold the original command line options. Then, the options are parsed.
-However, if an error occurs during the parsing process, 'options_orig' is
-not deallocated, leading to a memory leak bug. To fix this issue, free
-'options_orig' before returning the error.
+In lan78xx_probe(), a new urb is allocated through usb_alloc_urb() and
+saved to 'dev->urb_intr'. However, in the following execution, if an error
+occurs, 'dev->urb_intr' is not deallocated, leading to memory leaks. To fix
+this issue, invoke usb_free_urb() to free the allocated urb before
+returning from the function.
 
 Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wimax/i2400m/fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/lan78xx.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wimax/i2400m/fw.c b/drivers/net/wimax/i2400m/fw.c
-index c9c711dcd0e6b..0e6c665a4de82 100644
---- a/drivers/net/wimax/i2400m/fw.c
-+++ b/drivers/net/wimax/i2400m/fw.c
-@@ -351,13 +351,15 @@ int i2400m_barker_db_init(const char *_options)
- 			}
- 			result = i2400m_barker_db_add(barker);
- 			if (result < 0)
--				goto error_add;
-+				goto error_parse_add;
- 		}
- 		kfree(options_orig);
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index b62c41114e34e..24b994c68bccd 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3645,7 +3645,7 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 	ret = register_netdev(netdev);
+ 	if (ret != 0) {
+ 		netif_err(dev, probe, netdev, "couldn't register the device\n");
+-		goto out3;
++		goto out4;
  	}
+ 
+ 	usb_set_intfdata(intf, dev);
+@@ -3660,12 +3660,14 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 
+ 	ret = lan78xx_phy_init(dev);
+ 	if (ret < 0)
+-		goto out4;
++		goto out5;
+ 
  	return 0;
  
-+error_parse_add:
- error_parse:
-+	kfree(options_orig);
- error_add:
- 	kfree(i2400m_barker_db);
- 	return result;
+-out4:
++out5:
+ 	unregister_netdev(netdev);
++out4:
++	usb_free_urb(dev->urb_intr);
+ out3:
+ 	lan78xx_unbind(dev, intf);
+ out2:
 -- 
 2.20.1
 
