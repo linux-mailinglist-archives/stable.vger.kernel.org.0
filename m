@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D73ACD03
+	by mail.lfdr.de (Postfix) with ESMTP id B6E84ACD04
 	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729931AbfIHMoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729934AbfIHMoy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 8 Sep 2019 08:44:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59748 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729922AbfIHMov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:44:51 -0400
+        id S1729904AbfIHMox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:44:53 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4621C218AE;
-        Sun,  8 Sep 2019 12:44:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D81462081B;
+        Sun,  8 Sep 2019 12:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946690;
-        bh=inprOnWNQxfFENHUk6bK9OzpIM4AZPt7usifBgxEHfI=;
+        s=default; t=1567946693;
+        bh=VKIhn3t5HKFT55uxxSW0rh1RrHK5MQdyDgOmvlyntj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6ksJRi86PPQeShiadMiGxo8iBi/04mETArGM9DVuLtC+FD1gI6A/qG6UepJFHuXe
-         znZ/d5hXm4wZbE1HC9T6kpEnz8mJtGCFDmsdN+k3iLPdObdNAQTSUr+XQx1vr5SklB
-         Nd7UUTxa+qdLPXIBHRiG5vJFo5VU8DwZ7JxfSq2c=
+        b=bH4Sur2J/l6tUO5K7npIiGBlpEMeyC/Hv0Qbq2z2TA3UXS2p7PV5m2Ey25MYzn1Yx
+         Xgd0rAjO8BzzUY/zHcYHGP0c47x0iZut1NXnp4lF1lQMNZ1HBGQUxR7YjAtdPsQGco
+         RDSffXP/vIIgf+15AR8E5u0kzWbIO6iheJ+aSNMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/26] net: myri10ge: fix memory leaks
-Date:   Sun,  8 Sep 2019 13:41:46 +0100
-Message-Id: <20190908121100.068647109@linuxfoundation.org>
+Subject: [PATCH 4.9 08/26] cx82310_eth: fix a memory leak bug
+Date:   Sun,  8 Sep 2019 13:41:47 +0100
+Message-Id: <20190908121100.249977437@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
 References: <20190908121057.216802689@linuxfoundation.org>
@@ -44,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20fb7c7a39b5c719e2e619673b5f5729ee7d2306 ]
+[ Upstream commit 1eca92eef18719027d394bf1a2d276f43e7cf886 ]
 
-In myri10ge_probe(), myri10ge_alloc_slices() is invoked to allocate slices
-related structures. Later on, myri10ge_request_irq() is used to get an irq.
-However, if this process fails, the allocated slices related structures are
-not deallocated, leading to memory leaks. To fix this issue, revise the
-target label of the goto statement to 'abort_with_slices'.
+In cx82310_bind(), 'dev->partial_data' is allocated through kmalloc().
+Then, the execution waits for the firmware to become ready. If the firmware
+is not ready in time, the execution is terminated. However, the allocated
+'dev->partial_data' is not deallocated on this path, leading to a memory
+leak bug. To fix this issue, free 'dev->partial_data' before returning the
+error.
 
 Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cx82310_eth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 6d1a956e3f779..02ec326cb1293 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -4113,7 +4113,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	 * setup (if available). */
- 	status = myri10ge_request_irq(mgp);
- 	if (status != 0)
--		goto abort_with_firmware;
-+		goto abort_with_slices;
- 	myri10ge_free_irq(mgp);
+diff --git a/drivers/net/usb/cx82310_eth.c b/drivers/net/usb/cx82310_eth.c
+index 947bea81d9241..dfbdea22fbad9 100644
+--- a/drivers/net/usb/cx82310_eth.c
++++ b/drivers/net/usb/cx82310_eth.c
+@@ -175,7 +175,8 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	}
+ 	if (!timeout) {
+ 		dev_err(&udev->dev, "firmware not ready in time\n");
+-		return -ETIMEDOUT;
++		ret = -ETIMEDOUT;
++		goto err;
+ 	}
  
- 	/* Save configuration space to be restored if the
+ 	/* enable ethernet mode (?) */
 -- 
 2.20.1
 
