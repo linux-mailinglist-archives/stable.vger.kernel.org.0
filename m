@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340E3ACE22
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FA9ACE04
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727819AbfIHMvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:51:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
+        id S1731612AbfIHMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:49:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732647AbfIHMvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:51:32 -0400
+        id S1731594AbfIHMti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:49:38 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD8052082C;
-        Sun,  8 Sep 2019 12:51:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2350B21924;
+        Sun,  8 Sep 2019 12:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947092;
-        bh=EKv6XyVe0mPNfXO66aMLd1sxG49UjF/mGSVb5T1EkjE=;
+        s=default; t=1567946977;
+        bh=W1koJkvkMYnVS+GM1B7GyDGkTgqgk2lOuB3FVKbM4qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DuaSDv96LZQk8A+VLP7fJfnhTFqycHFlurhO0AizDNbn76rlyjitDjTQucluh5Bl
-         VVZ+MhGouml0qB03y+6JGf1fr8tA6XAEX0gkb+zAcixMlfVjQunCWwmFqnI+V9ULdO
-         AznkKHRU2hTsKaHB2glwx/ihXI5xbe/QKrLnS/Nw=
+        b=P4LzuvUkoZiaBcsek8gTNhAEcc1H6X4lwHh+R2p6xCfHMnzzbZPSGgchH7/LvCk4V
+         hr7OYMgO9I46bRTSQmVyFeYAPsASVrLSwNfQGpQbggNieVuvdFYHIJuDcfGSd12p3C
+         fSy9vV/vJID3ZhKA2C1uJ9Z/34TZzSHdcEwucSZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jason Baron <jbaron@akamai.com>,
+        Vladimir Rutsky <rutsky@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 06/94] tcp: inherit timestamp on mtu probe
-Date:   Sun,  8 Sep 2019 13:41:02 +0100
-Message-Id: <20190908121150.614563401@linuxfoundation.org>
+Subject: [PATCH 5.2 07/94] tcp: remove empty skb from write queue in error cases
+Date:   Sun,  8 Sep 2019 13:41:03 +0100
+Message-Id: <20190908121150.642000321@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -44,47 +47,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 888a5c53c0d8be6e98bc85b677f179f77a647873 ]
+[ Upstream commit fdfc5c8594c24c5df883583ebd286321a80e0a67 ]
 
-TCP associates tx timestamp requests with a byte in the bytestream.
-If merging skbs in tcp_mtu_probe, migrate the tstamp request.
+Vladimir Rutsky reported stuck TCP sessions after memory pressure
+events. Edge Trigger epoll() user would never receive an EPOLLOUT
+notification allowing them to retry a sendmsg().
 
-Similar to MSG_EOR, do not allow moving a timestamp from any segment
-in the probe but the last. This to avoid merging multiple timestamps.
+Jason tested the case of sk_stream_alloc_skb() returning NULL,
+but there are other paths that could lead both sendmsg() and sendpage()
+to return -1 (EAGAIN), with an empty skb queued on the write queue.
 
-Tested with the packetdrill script at
-https://github.com/wdebruij/packetdrill/commits/mtu_probe-1
+This patch makes sure we remove this empty skb so that
+Jason code can detect that the queue is empty, and
+call sk->sk_write_space(sk) accordingly.
 
-Link: http://patchwork.ozlabs.org/patch/1143278/#2232897
-Fixes: 4ed2d765dfac ("net-timestamp: TCP timestamping")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
+Fixes: ce5ec440994b ("tcp: ensure epoll edge trigger wakeup when write queue is empty")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jason Baron <jbaron@akamai.com>
+Reported-by: Vladimir Rutsky <rutsky@google.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/tcp.c |   30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2051,7 +2051,7 @@ static bool tcp_can_coalesce_send_queue_
- 		if (len <= skb->len)
- 			break;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -935,6 +935,22 @@ static int tcp_send_mss(struct sock *sk,
+ 	return mss_now;
+ }
  
--		if (unlikely(TCP_SKB_CB(skb)->eor))
-+		if (unlikely(TCP_SKB_CB(skb)->eor) || tcp_has_tx_tstamp(skb))
- 			return false;
++/* In some cases, both sendpage() and sendmsg() could have added
++ * an skb to the write queue, but failed adding payload on it.
++ * We need to remove it to consume less memory, but more
++ * importantly be able to generate EPOLLOUT for Edge Trigger epoll()
++ * users.
++ */
++static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
++{
++	if (skb && !skb->len) {
++		tcp_unlink_write_queue(skb, sk);
++		if (tcp_write_queue_empty(sk))
++			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
++		sk_wmem_free_skb(sk, skb);
++	}
++}
++
+ ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
+ 			 size_t size, int flags)
+ {
+@@ -1064,6 +1080,7 @@ out:
+ 	return copied;
  
- 		len -= skb->len;
-@@ -2168,6 +2168,7 @@ static int tcp_mtu_probe(struct sock *sk
- 			 * we need to propagate it to the new skb.
- 			 */
- 			TCP_SKB_CB(nskb)->eor = TCP_SKB_CB(skb)->eor;
-+			tcp_skb_collapse_tstamp(nskb, skb);
- 			tcp_unlink_write_queue(skb, sk);
- 			sk_wmem_free_skb(sk, skb);
- 		} else {
+ do_error:
++	tcp_remove_empty_skb(sk, tcp_write_queue_tail(sk));
+ 	if (copied)
+ 		goto out;
+ out_err:
+@@ -1388,18 +1405,11 @@ out_nopush:
+ 	sock_zerocopy_put(uarg);
+ 	return copied + copied_syn;
+ 
++do_error:
++	skb = tcp_write_queue_tail(sk);
+ do_fault:
+-	if (!skb->len) {
+-		tcp_unlink_write_queue(skb, sk);
+-		/* It is the one place in all of TCP, except connection
+-		 * reset, where we can be unlinking the send_head.
+-		 */
+-		if (tcp_write_queue_empty(sk))
+-			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
+-		sk_wmem_free_skb(sk, skb);
+-	}
++	tcp_remove_empty_skb(sk, skb);
+ 
+-do_error:
+ 	if (copied + copied_syn)
+ 		goto out;
+ out_err:
 
 
