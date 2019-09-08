@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CBA5ACE6D
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3F9ACD91
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbfIHMrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:47:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35102 "EHLO mail.kernel.org"
+        id S1732329AbfIHMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730563AbfIHMrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:47:05 -0400
+        id S1732388AbfIHMu4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:50:56 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57DAE218AC;
-        Sun,  8 Sep 2019 12:47:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63EB120863;
+        Sun,  8 Sep 2019 12:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946823;
-        bh=nJxRvTItaS9t0k99PaqqVAhe9GJZhZADBijr2FquteI=;
+        s=default; t=1567947055;
+        bh=A4ZmiyPIF1uZo86eOM9WHNPb7h48PAF4MTOpjvOFQf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2ndQ/XZRfkCV/TlqbLh0c5dp90BTzNaUD/A3j5bdEWtOVUApD2wWL9I66t+AYajr
-         vqGz+6goWUtdMSCDJOTxxDV912gC2IZrY5YVdx2KoihXZwLhpS+FIZesCpJQ54tOKZ
-         XW2jAkbVLHJlsAEEmOIRxKBuITlv0TBwlwtjQL9M=
+        b=ByJrTQ6XmZdIKlk89PFKFUIXmiOpZ2kBABBvk+YMwIq3EeDjU2lgB/0bTBW0LFBfw
+         zkVo2MVH5UFlhag9lkwTlUjgJoS5y8AXPwdmzTqb2mHSxWE10EN26GfauSlOAntUTE
+         mRKBAZIqboJoEBa0ONgL1FZfoFnGggePQ76fd6sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/57] netfilter: nf_tables: use-after-free in failing rule with bound set
-Date:   Sun,  8 Sep 2019 13:41:38 +0100
-Message-Id: <20190908121130.668651613@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Courbot <acourbot@chromium.org>,
+        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 43/94] drm/mediatek: use correct device to import PRIME buffers
+Date:   Sun,  8 Sep 2019 13:41:39 +0100
+Message-Id: <20190908121151.671441758@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,141 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6a0a8d10a3661a036b55af695542a714c429ab7c ]
+[ Upstream commit 4c6f3196e6ea111c456c6086dc3f57d4706b0b2d ]
 
-If a rule that has already a bound anonymous set fails to be added, the
-preparation phase releases the rule and the bound set. However, the
-transaction object from the abort path still has a reference to the set
-object that is stale, leading to a use-after-free when checking for the
-set->bound field. Add a new field to the transaction that specifies if
-the set is bound, so the abort path can skip releasing it since the rule
-command owns it and it takes care of releasing it. After this update,
-the set->bound field is removed.
+PRIME buffers should be imported using the DMA device. To this end, use
+a custom import function that mimics drm_gem_prime_import_dev(), but
+passes the correct device.
 
-[   24.649883] Unable to handle kernel paging request at virtual address 0000000000040434
-[   24.657858] Mem abort info:
-[   24.660686]   ESR = 0x96000004
-[   24.663769]   Exception class = DABT (current EL), IL = 32 bits
-[   24.669725]   SET = 0, FnV = 0
-[   24.672804]   EA = 0, S1PTW = 0
-[   24.675975] Data abort info:
-[   24.678880]   ISV = 0, ISS = 0x00000004
-[   24.682743]   CM = 0, WnR = 0
-[   24.685723] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000428952000
-[   24.692207] [0000000000040434] pgd=0000000000000000
-[   24.697119] Internal error: Oops: 96000004 [#1] SMP
-[...]
-[   24.889414] Call trace:
-[   24.891870]  __nf_tables_abort+0x3f0/0x7a0
-[   24.895984]  nf_tables_abort+0x20/0x40
-[   24.899750]  nfnetlink_rcv_batch+0x17c/0x588
-[   24.904037]  nfnetlink_rcv+0x13c/0x190
-[   24.907803]  netlink_unicast+0x18c/0x208
-[   24.911742]  netlink_sendmsg+0x1b0/0x350
-[   24.915682]  sock_sendmsg+0x4c/0x68
-[   24.919185]  ___sys_sendmsg+0x288/0x2c8
-[   24.923037]  __sys_sendmsg+0x7c/0xd0
-[   24.926628]  __arm64_sys_sendmsg+0x2c/0x38
-[   24.930744]  el0_svc_common.constprop.0+0x94/0x158
-[   24.935556]  el0_svc_handler+0x34/0x90
-[   24.939322]  el0_svc+0x8/0xc
-[   24.942216] Code: 37280300 f9404023 91014262 aa1703e0 (f9401863)
-[   24.948336] ---[ end trace cebbb9dcbed3b56f ]---
-
-Fixes: f6ac85858976 ("netfilter: nf_tables: unbind set in rule from commit path")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 119f5173628aa ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h |  9 +++++++--
- net/netfilter/nf_tables_api.c     | 15 ++++++++++-----
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index f2be5d041ba3a..7685cbda9f28b 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -418,8 +418,7 @@ struct nft_set {
- 	unsigned char			*udata;
- 	/* runtime data below here */
- 	const struct nft_set_ops	*ops ____cacheline_aligned;
--	u16				flags:13,
--					bound:1,
-+	u16				flags:14,
- 					genmask:2;
- 	u8				klen;
- 	u8				dlen;
-@@ -1337,12 +1336,15 @@ struct nft_trans_rule {
- struct nft_trans_set {
- 	struct nft_set			*set;
- 	u32				set_id;
-+	bool				bound;
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 95fdbd0fbcace..8b18a00a58c7e 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -320,6 +320,18 @@ static const struct file_operations mtk_drm_fops = {
+ 	.compat_ioctl = drm_compat_ioctl,
  };
  
- #define nft_trans_set(trans)	\
- 	(((struct nft_trans_set *)trans->data)->set)
- #define nft_trans_set_id(trans)	\
- 	(((struct nft_trans_set *)trans->data)->set_id)
-+#define nft_trans_set_bound(trans)	\
-+	(((struct nft_trans_set *)trans->data)->bound)
- 
- struct nft_trans_chain {
- 	bool				update;
-@@ -1373,12 +1375,15 @@ struct nft_trans_table {
- struct nft_trans_elem {
- 	struct nft_set			*set;
- 	struct nft_set_elem		elem;
-+	bool				bound;
- };
- 
- #define nft_trans_elem_set(trans)	\
- 	(((struct nft_trans_elem *)trans->data)->set)
- #define nft_trans_elem(trans)	\
- 	(((struct nft_trans_elem *)trans->data)->elem)
-+#define nft_trans_elem_set_bound(trans)	\
-+	(((struct nft_trans_elem *)trans->data)->bound)
- 
- struct nft_trans_obj {
- 	struct nft_object		*obj;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 29ff59dd99ace..2145581d7b3dc 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -121,9 +121,14 @@ static void nft_set_trans_bind(const struct nft_ctx *ctx, struct nft_set *set)
- 		return;
- 
- 	list_for_each_entry_reverse(trans, &net->nft.commit_list, list) {
--		if (trans->msg_type == NFT_MSG_NEWSET &&
--		    nft_trans_set(trans) == set) {
--			set->bound = true;
-+		switch (trans->msg_type) {
-+		case NFT_MSG_NEWSET:
-+			if (nft_trans_set(trans) == set)
-+				nft_trans_set_bound(trans) = true;
-+			break;
-+		case NFT_MSG_NEWSETELEM:
-+			if (nft_trans_elem_set(trans) == set)
-+				nft_trans_elem_set_bound(trans) = true;
- 			break;
- 		}
- 	}
-@@ -6656,7 +6661,7 @@ static int __nf_tables_abort(struct net *net)
- 			break;
- 		case NFT_MSG_NEWSET:
- 			trans->ctx.table->use--;
--			if (nft_trans_set(trans)->bound) {
-+			if (nft_trans_set_bound(trans)) {
- 				nft_trans_destroy(trans);
- 				break;
- 			}
-@@ -6668,7 +6673,7 @@ static int __nf_tables_abort(struct net *net)
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_NEWSETELEM:
--			if (nft_trans_elem_set(trans)->bound) {
-+			if (nft_trans_elem_set_bound(trans)) {
- 				nft_trans_destroy(trans);
- 				break;
- 			}
++/*
++ * We need to override this because the device used to import the memory is
++ * not dev->dev, as drm_gem_prime_import() expects.
++ */
++struct drm_gem_object *mtk_drm_gem_prime_import(struct drm_device *dev,
++						struct dma_buf *dma_buf)
++{
++	struct mtk_drm_private *private = dev->dev_private;
++
++	return drm_gem_prime_import_dev(dev, dma_buf, private->dma_dev);
++}
++
+ static struct drm_driver mtk_drm_driver = {
+ 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
+ 			   DRIVER_ATOMIC,
+@@ -331,7 +343,7 @@ static struct drm_driver mtk_drm_driver = {
+ 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+ 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	.gem_prime_export = drm_gem_prime_export,
+-	.gem_prime_import = drm_gem_prime_import,
++	.gem_prime_import = mtk_drm_gem_prime_import,
+ 	.gem_prime_get_sg_table = mtk_gem_prime_get_sg_table,
+ 	.gem_prime_import_sg_table = mtk_gem_prime_import_sg_table,
+ 	.gem_prime_mmap = mtk_drm_gem_mmap_buf,
 -- 
 2.20.1
 
