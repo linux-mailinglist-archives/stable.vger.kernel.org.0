@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 275C1ACD62
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABF7ACDF3
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731161AbfIHMsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:48:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S1731186AbfIHMsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731155AbfIHMsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:48:46 -0400
+        id S1731174AbfIHMss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:48:48 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8E54218AC;
-        Sun,  8 Sep 2019 12:48:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7646A218AF;
+        Sun,  8 Sep 2019 12:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946925;
-        bh=cuk9IKddEYJFNC0reOXs5WcbRFOnRLMgpOZPlixQSzk=;
+        s=default; t=1567946928;
+        bh=lFnABTanQs6IkhrV1YIcC5mhDXDuSQ4tMUwczAbIc5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=No9oo9WYMAdWys/KpE3UJn4iQ8TZ1XQwWp9qoet48YjwZK6lOMTtmnR9ruo5l04V8
-         ITgu+xXRPbb/D2JfHtcDQSZRCMm/bVkB6IOsN/Q+jMxdhsk/6fOQ7yA1MOf67TbPUz
-         Zi/8kWP5DkVmPRURAhvs/6834fkowwbmz+wmXVfg=
+        b=yvhUQrhB1hrkDtcfUnExTC21utB7fC0+juXMqmN/SXgl6bBKw9zmXNLWsxB8gz6Ew
+         9Yhqw0DLId6NYB58GXrjYaRht8ab2CEOWntZsWcQ50BvJfsaz66hD27dKwPG8M+imT
+         mn6O8aDreH4FtyWBCVgq+DTdPYytjB/v2Hww6zs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/57] KVM: arm/arm64: Only skip MMIO insn once
-Date:   Sun,  8 Sep 2019 13:42:16 +0100
-Message-Id: <20190908121146.131070216@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 53/57] afs: Fix leak in afs_lookup_cell_rcu()
+Date:   Sun,  8 Sep 2019 13:42:17 +0100
+Message-Id: <20190908121146.244098641@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
 References: <20190908121125.608195329@linuxfoundation.org>
@@ -44,54 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2113c5f62b7423e4a72b890bd479704aa85c81ba ]
+[ Upstream commit a5fb8e6c02d6a518fb2b1a2b8c2471fa77b69436 ]
 
-If after an MMIO exit to userspace a VCPU is immediately run with an
-immediate_exit request, such as when a signal is delivered or an MMIO
-emulation completion is needed, then the VCPU completes the MMIO
-emulation and immediately returns to userspace. As the exit_reason
-does not get changed from KVM_EXIT_MMIO in these cases we have to
-be careful not to complete the MMIO emulation again, when the VCPU is
-eventually run again, because the emulation does an instruction skip
-(and doing too many skips would be a waste of guest code :-) We need
-to use additional VCPU state to track if the emulation is complete.
-As luck would have it, we already have 'mmio_needed', which even
-appears to be used in this way by other architectures already.
+Fix a leak on the cell refcount in afs_lookup_cell_rcu() due to
+non-clearance of the default error in the case a NULL cell name is passed
+and the workstation default cell is used.
 
-Fixes: 0d640732dbeb ("arm64: KVM: Skip MMIO insn after emulation")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Also put a bit at the end to make sure we don't leak a cell ref if we're
+going to be returning an error.
+
+This leak results in an assertion like the following when the kafs module is
+unloaded:
+
+	AFS: Assertion failed
+	2 == 1 is false
+	0x2 == 0x1 is false
+	------------[ cut here ]------------
+	kernel BUG at fs/afs/cell.c:770!
+	...
+	RIP: 0010:afs_manage_cells+0x220/0x42f [kafs]
+	...
+	 process_one_work+0x4c2/0x82c
+	 ? pool_mayday_timeout+0x1e1/0x1e1
+	 ? do_raw_spin_lock+0x134/0x175
+	 worker_thread+0x336/0x4a6
+	 ? rescuer_thread+0x4af/0x4af
+	 kthread+0x1de/0x1ee
+	 ? kthread_park+0xd4/0xd4
+	 ret_from_fork+0x24/0x30
+
+Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/mmio.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/afs/cell.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/virt/kvm/arm/mmio.c b/virt/kvm/arm/mmio.c
-index 08443a15e6be8..3caee91bca089 100644
---- a/virt/kvm/arm/mmio.c
-+++ b/virt/kvm/arm/mmio.c
-@@ -98,6 +98,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	unsigned int len;
- 	int mask;
+diff --git a/fs/afs/cell.c b/fs/afs/cell.c
+index 6127f0fcd62c4..ee07162d35c7a 100644
+--- a/fs/afs/cell.c
++++ b/fs/afs/cell.c
+@@ -76,6 +76,7 @@ struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
+ 			cell = rcu_dereference_raw(net->ws_cell);
+ 			if (cell) {
+ 				afs_get_cell(cell);
++				ret = 0;
+ 				break;
+ 			}
+ 			ret = -EDESTADDRREQ;
+@@ -110,6 +111,9 @@ struct afs_cell *afs_lookup_cell_rcu(struct afs_net *net,
  
-+	/* Detect an already handled MMIO return */
-+	if (unlikely(!vcpu->mmio_needed))
-+		return 0;
-+
-+	vcpu->mmio_needed = 0;
-+
- 	if (!run->mmio.is_write) {
- 		len = run->mmio.len;
- 		if (len > sizeof(unsigned long))
-@@ -200,6 +206,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
- 	run->mmio.is_write	= is_write;
- 	run->mmio.phys_addr	= fault_ipa;
- 	run->mmio.len		= len;
-+	vcpu->mmio_needed	= 1;
+ 	done_seqretry(&net->cells_lock, seq);
  
- 	if (!ret) {
- 		/* We handled the access successfully in the kernel. */
++	if (ret != 0 && cell)
++		afs_put_cell(net, cell);
++
+ 	return ret == 0 ? cell : ERR_PTR(ret);
+ }
+ 
 -- 
 2.20.1
 
