@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D4BACD2B
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73D8ACD2E
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730365AbfIHMqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:46:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33940 "EHLO mail.kernel.org"
+        id S1730380AbfIHMq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730361AbfIHMqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:22 -0400
+        id S1730369AbfIHMqZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:46:25 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8584D218AC;
-        Sun,  8 Sep 2019 12:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04885218AE;
+        Sun,  8 Sep 2019 12:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946781;
-        bh=8cxZQoccA38riXltPcjcux5V2PVhcAp6o3vBVpqBvV4=;
+        s=default; t=1567946784;
+        bh=6DDScwfq0M2R98a1hKbJLf7PU528/6ltcmq5C0Q0Zrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4zSU3CKkxo452lctryN9nZB3nAUvimCLefJSEl7qLdqE+jFGi+hhR3FTAaY7xNvE
-         OztdnVBBhWAsKD33ORFd6ASzGdjj4aoRbBS7YeyTt+dvJkP+O3L0xL8XHQ4zeenpRt
-         TTivcMUwfnDVn+273TvPrtGZCKP4+7/cvH75gArs=
+        b=VhCUyrPzqC/d36MpxobTbXjuNmtKo8OWJ5R7LpYtPY1J3+ZFjkEMWu1EakajCm4nY
+         DTjuSEMF7R5QlUu61SRPEi54ZHsjeZZGPp4I0CTWMdoB2kYSphkaea9NhDnTm5lejz
+         Rzqm6LfG1UvUd7vFzF/xhZx1Q+JTm9F2VKc49MYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jason Baron <jbaron@akamai.com>,
-        Vladimir Rutsky <rutsky@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
+        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 37/40] tcp: remove empty skb from write queue in error cases
-Date:   Sun,  8 Sep 2019 13:42:10 +0100
-Message-Id: <20190908121132.072577101@linuxfoundation.org>
+Subject: [PATCH 4.14 38/40] net: sched: act_sample: fix psample group handling on overwrite
+Date:   Sun,  8 Sep 2019 13:42:11 +0100
+Message-Id: <20190908121132.358667202@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
 References: <20190908121114.260662089@linuxfoundation.org>
@@ -47,89 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vlad Buslov <vladbu@mellanox.com>
 
-[ Upstream commit fdfc5c8594c24c5df883583ebd286321a80e0a67 ]
+[ Upstream commit dbf47a2a094edf58983265e323ca4bdcdb58b5ee ]
 
-Vladimir Rutsky reported stuck TCP sessions after memory pressure
-events. Edge Trigger epoll() user would never receive an EPOLLOUT
-notification allowing them to retry a sendmsg().
+Action sample doesn't properly handle psample_group pointer in overwrite
+case. Following issues need to be fixed:
 
-Jason tested the case of sk_stream_alloc_skb() returning NULL,
-but there are other paths that could lead both sendmsg() and sendpage()
-to return -1 (EAGAIN), with an empty skb queued on the write queue.
+- In tcf_sample_init() function RCU_INIT_POINTER() is used to set
+  s->psample_group, even though we neither setting the pointer to NULL, nor
+  preventing concurrent readers from accessing the pointer in some way.
+  Use rcu_swap_protected() instead to safely reset the pointer.
 
-This patch makes sure we remove this empty skb so that
-Jason code can detect that the queue is empty, and
-call sk->sk_write_space(sk) accordingly.
+- Old value of s->psample_group is not released or deallocated in any way,
+  which results resource leak. Use psample_group_put() on non-NULL value
+  obtained with rcu_swap_protected().
 
-Fixes: ce5ec440994b ("tcp: ensure epoll edge trigger wakeup when write queue is empty")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Reported-by: Vladimir Rutsky <rutsky@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
+- The function psample_group_put() that released reference to struct
+  psample_group pointed by rcu-pointer s->psample_group doesn't respect rcu
+  grace period when deallocating it. Extend struct psample_group with rcu
+  head and use kfree_rcu when freeing it.
+
+Fixes: 5c5670fae430 ("net/sched: Introduce sample tc action")
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ include/net/psample.h  |    1 +
+ net/psample/psample.c  |    2 +-
+ net/sched/act_sample.c |    5 ++++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -914,6 +914,22 @@ static int tcp_send_mss(struct sock *sk,
- 	return mss_now;
+--- a/include/net/psample.h
++++ b/include/net/psample.h
+@@ -12,6 +12,7 @@ struct psample_group {
+ 	u32 group_num;
+ 	u32 refcount;
+ 	u32 seq;
++	struct rcu_head rcu;
+ };
+ 
+ struct psample_group *psample_group_get(struct net *net, u32 group_num);
+--- a/net/psample/psample.c
++++ b/net/psample/psample.c
+@@ -156,7 +156,7 @@ static void psample_group_destroy(struct
+ {
+ 	psample_group_notify(group, PSAMPLE_CMD_DEL_GROUP);
+ 	list_del(&group->list);
+-	kfree(group);
++	kfree_rcu(group, rcu);
  }
  
-+/* In some cases, both sendpage() and sendmsg() could have added
-+ * an skb to the write queue, but failed adding payload on it.
-+ * We need to remove it to consume less memory, but more
-+ * importantly be able to generate EPOLLOUT for Edge Trigger epoll()
-+ * users.
-+ */
-+static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
-+{
-+	if (skb && !skb->len) {
-+		tcp_unlink_write_queue(skb, sk);
-+		if (tcp_write_queue_empty(sk))
-+			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
-+		sk_wmem_free_skb(sk, skb);
-+	}
-+}
-+
- ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
- 			 size_t size, int flags)
- {
-@@ -1034,6 +1050,7 @@ out:
- 	return copied;
+ static struct psample_group *
+--- a/net/sched/act_sample.c
++++ b/net/sched/act_sample.c
+@@ -92,13 +92,16 @@ static int tcf_sample_init(struct net *n
+ 			tcf_idr_release(*a, bind);
+ 		return -ENOMEM;
+ 	}
+-	RCU_INIT_POINTER(s->psample_group, psample_group);
++	rcu_swap_protected(s->psample_group, psample_group,
++			   lockdep_is_held(&s->tcf_lock));
  
- do_error:
-+	tcp_remove_empty_skb(sk, tcp_write_queue_tail(sk));
- 	if (copied)
- 		goto out;
- out_err:
-@@ -1412,17 +1429,11 @@ out_nopush:
- 	sock_zerocopy_put(uarg);
- 	return copied + copied_syn;
+ 	if (tb[TCA_SAMPLE_TRUNC_SIZE]) {
+ 		s->truncate = true;
+ 		s->trunc_size = nla_get_u32(tb[TCA_SAMPLE_TRUNC_SIZE]);
+ 	}
  
-+do_error:
-+	skb = tcp_write_queue_tail(sk);
- do_fault:
--	if (!skb->len) {
--		tcp_unlink_write_queue(skb, sk);
--		/* It is the one place in all of TCP, except connection
--		 * reset, where we can be unlinking the send_head.
--		 */
--		tcp_check_send_head(sk, skb);
--		sk_wmem_free_skb(sk, skb);
--	}
-+	tcp_remove_empty_skb(sk, skb);
- 
--do_error:
- 	if (copied + copied_syn)
- 		goto out;
- out_err:
++	if (psample_group)
++		psample_group_put(psample_group);
+ 	if (ret == ACT_P_CREATED)
+ 		tcf_idr_insert(tn, *a);
+ 	return ret;
 
 
