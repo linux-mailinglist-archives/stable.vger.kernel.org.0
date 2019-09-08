@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1CCACE84
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725E9ACE94
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730334AbfIHMqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33860 "EHLO mail.kernel.org"
+        id S1726239AbfIHM7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:59:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbfIHMqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:46:17 -0400
+        id S1730350AbfIHMqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:46:19 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EE4020644;
-        Sun,  8 Sep 2019 12:46:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFC1620644;
+        Sun,  8 Sep 2019 12:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946776;
-        bh=HNtAo6suQtfGvCkYmB3ViuLyFeRqmPGB5i7Q0TdwHjA=;
+        s=default; t=1567946779;
+        bh=XxXqfu4Hakr1MISZQjqiwxPuuOb8/u1nB9iqHSJYcNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG1LgaszzxJFKgdSRU26naR08NY1apkXvzYZyCAnFaDW+L/z2UztJA4cjf/+OdMmi
-         +fsy218c003YJJz1M9ZVl5TcpOzEjjBA3SoYQ5NiaxlpAJTtTSlAXSgKR/TKYkECId
-         U54q7mNBnRuyibz5yARD2cU+QAnc2ayrteu0LFjY=
+        b=upsckaP11EdzZ1F2F9R2g+PmSRtPzrkqOE4usV+5HE1BphHRDFifpDU8TDZAKRyKE
+         HevtsSNyPDcECrYyYoxPJkkVrWQd0G4rHImnyUoa8kNPTZIVhPO7ostslNRLC0Lq6d
+         84NxiQYW0XmliYxVxSlDeXa8ewuh91AeS5nMjaLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 35/40] net: stmmac: dwmac-rk: Dont fail if phy regulator is absent
-Date:   Sun,  8 Sep 2019 13:42:08 +0100
-Message-Id: <20190908121129.901030610@linuxfoundation.org>
+Subject: [PATCH 4.14 36/40] tcp: inherit timestamp on mtu probe
+Date:   Sun,  8 Sep 2019 13:42:09 +0100
+Message-Id: <20190908121131.936614353@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
 References: <20190908121114.260662089@linuxfoundation.org>
@@ -43,40 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 3b25528e1e355c803e73aa326ce657b5606cda73 ]
+[ Upstream commit 888a5c53c0d8be6e98bc85b677f179f77a647873 ]
 
-The devicetree binding lists the phy phy as optional. As such, the
-driver should not bail out if it can't find a regulator. Instead it
-should just skip the remaining regulator related code and continue
-on normally.
+TCP associates tx timestamp requests with a byte in the bytestream.
+If merging skbs in tcp_mtu_probe, migrate the tstamp request.
 
-Skip the remainder of phy_power_on() if a regulator supply isn't
-available. This also gets rid of the bogus return code.
+Similar to MSG_EOR, do not allow moving a timestamp from any segment
+in the probe but the last. This to avoid merging multiple timestamps.
 
-Fixes: 2e12f536635f ("net: stmmac: dwmac-rk: Use standard devicetree property for phy regulator")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Tested with the packetdrill script at
+https://github.com/wdebruij/packetdrill/commits/mtu_probe-1
+
+Link: http://patchwork.ozlabs.org/patch/1143278/#2232897
+Fixes: 4ed2d765dfac ("net-timestamp: TCP timestamping")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/ipv4/tcp_output.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-@@ -1145,10 +1145,8 @@ static int phy_power_on(struct rk_priv_d
- 	int ret;
- 	struct device *dev = &bsp_priv->pdev->dev;
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2025,7 +2025,7 @@ static bool tcp_can_coalesce_send_queue_
+ 		if (len <= skb->len)
+ 			break;
  
--	if (!ldo) {
--		dev_err(dev, "no regulator found\n");
--		return -1;
--	}
-+	if (!ldo)
-+		return 0;
+-		if (unlikely(TCP_SKB_CB(skb)->eor))
++		if (unlikely(TCP_SKB_CB(skb)->eor) || tcp_has_tx_tstamp(skb))
+ 			return false;
  
- 	if (enable) {
- 		ret = regulator_enable(ldo);
+ 		len -= skb->len;
+@@ -2148,6 +2148,7 @@ static int tcp_mtu_probe(struct sock *sk
+ 			 * we need to propagate it to the new skb.
+ 			 */
+ 			TCP_SKB_CB(nskb)->eor = TCP_SKB_CB(skb)->eor;
++			tcp_skb_collapse_tstamp(nskb, skb);
+ 			tcp_unlink_write_queue(skb, sk);
+ 			sk_wmem_free_skb(sk, skb);
+ 		} else {
 
 
