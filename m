@@ -2,80 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DB5ACC01
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 12:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF890ACC10
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 12:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727950AbfIHKTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 06:19:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38888 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727945AbfIHKTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 06:19:49 -0400
-Received: from localhost (unknown [80.251.162.164])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61D16207FC;
-        Sun,  8 Sep 2019 10:19:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567937988;
-        bh=6RGr8PQOWyIaRgGxUQE2vaEpQ+DEkWmYACF+abzXrlY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z21jSOBc7GcRT7upD69/SoJVXAzLu+gFubq/+1gt0mGjPmIgDuwHqITBFp9FO6dxu
-         H6pe8exAT6zC28KhfuWK9yv3SFsdXSO4gJh+r4hwdBoVw7r8pNFIKRyFwonFg6pS3C
-         9w8d6Ck/ePoM9RR6R2qzt4bMWDmNoHNIwDBCoYjg=
-Date:   Sun, 8 Sep 2019 11:19:44 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Francois Rigault <rigault.francois@gmail.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Vishnu Dasa <vdasa@vmware.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] VMCI: Release resource if the work is already queued
-Message-ID: <20190908101944.GA16596@kroah.com>
-References: <20190820202638.49003-1-namit@vmware.com>
- <20190907184711.GA30206@kroah.com>
- <00CA348F-5ACC-4A17-A5F6-9B36C92A95E7@vmware.com>
+        id S1728406AbfIHKc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 06:32:58 -0400
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:39755 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727932AbfIHKc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Sep 2019 06:32:58 -0400
+Received: by mail-vk1-f194.google.com with SMTP id j5so2147030vkn.6
+        for <stable@vger.kernel.org>; Sun, 08 Sep 2019 03:32:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bX3KqjL4fKpxNJSQAl68andrMAZ0zFQA7utOvXr90Wk=;
+        b=c04Ea7Qd/zMKT/FcbxFqguzMDiyky5hl4KTgVxYklu0gvxwcYx9WE7wEZOM7bJ3q+T
+         LpLB04fsPXAQGKS7ORsUyao+D9Ck/clQqS4zXpFn/MU9UZR94Z/MNfiW4kShbHjWnF2i
+         VHF9l48x7V4MhX+e++ks14gtSiiDwTUwFRNKh2+8M27ZHd/db64VmIvFtq0a7uQvlGii
+         2YuySmS+2dFEs5XirH5TuhCAvqRlBtRheiUbAGGBINaarTGq6VFq1I1yN4JHmIgR889R
+         iblEZexgIi9vJAXzXuIsetwC501NJImDYFMCDS/vnHP+FuwuSu5iCcWzFDWKIJzq7pyT
+         V5Yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bX3KqjL4fKpxNJSQAl68andrMAZ0zFQA7utOvXr90Wk=;
+        b=bfaKvsQYPW/mlJCe8mJ/vLTBMxJqJ5kWqOswSLAB5TN7zcqYvRuTClvdWKqRiOLr3g
+         VI4KZUBRtd2uteVGg6swXsn4BdrTUtMeSZCZaQyPfSokVzshh0kAe4YKxlqSW6j0pZIr
+         ki1UT1KTvaYyUtfIbI86Wg8+QMvTL0eDOXgVIhqHuOezMuLnFYEbM8UVrYLmx+866teS
+         akEeKq/AuwXKIPvdQDlI4gofH8AeLuPuC59cBENYYLaqOaD7z/kbp7dzaE856Zk3FR3A
+         vWknWqpFNkUFdbcyZ7ZSW/XwF9D+/34bqfJMq4K8G4zB7J1abfoTBTdQod6Xr1R00mtW
+         TsqQ==
+X-Gm-Message-State: APjAAAXfRJtdcd1T9ADqzGU0fZGO1ECXPPCQVaB71siAH/F2yTZQPZI2
+        LCBBPzd/it1fJ7SFXjzdohf3sUxGzwlbEi8/E7gcQw==
+X-Google-Smtp-Source: APXvYqx6AtGiyvrIbxIWnNr0Pg+dtCTgbgAuq/Fhl9QAovGWe1AuWd8I7KV41uSYL4a46U13t4KwGpG64r4f7TfJw2E=
+X-Received: by 2002:a1f:5e4f:: with SMTP id s76mr8536398vkb.4.1567938777211;
+ Sun, 08 Sep 2019 03:32:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00CA348F-5ACC-4A17-A5F6-9B36C92A95E7@vmware.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+References: <1567928752-2557-1-git-send-email-wahrenst@gmx.net>
+In-Reply-To: <1567928752-2557-1-git-send-email-wahrenst@gmx.net>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Sun, 8 Sep 2019 12:32:21 +0200
+Message-ID: <CAPDyKFpdZnQaH9NfTsmFk2pjREL_pv6netQjwubMzrkXAOg6hA@mail.gmail.com>
+Subject: Re: [PATCH] Revert "mmc: bcm2835: Terminate timeout work synchronously"
+To:     Stefan Wahren <wahrenst@gmx.net>
+Cc:     Eric Anholt <eric@anholt.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 08, 2019 at 04:04:39AM +0000, Nadav Amit wrote:
-> > On Sep 7, 2019, at 9:47 PM, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > 
-> > On Tue, Aug 20, 2019 at 01:26:38PM -0700, Nadav Amit wrote:
-> >> Francois reported that VMware balloon gets stuck after a balloon reset,
-> >> when the VMCI doorbell is removed. A similar error can occur when the
-> >> balloon driver is removed with the following splat:
-> > 
-> > <snip>
-> > 
-> > Note, google thinks your email is spam as you are not sending this from
-> > a valid vmware.com email server.  Please fix this up if you want to make
-> > sure your patches actually make it through...
-> 
-> I used gmail servers since I get complaints (mainly from Linus) that our
-> email servers use DMARC, and this causes mailing list postings to be
-> rejected.
+On Sun, 8 Sep 2019 at 09:46, Stefan Wahren <wahrenst@gmx.net> wrote:
+>
+> The commit 37fefadee8bb ("mmc: bcm2835: Terminate timeout work
+> synchronously") causes lockups in case of hardware timeouts due the
+> timeout work also calling cancel_delayed_work_sync() on its own.
+> So revert it.
+>
+> Fixes: 37fefadee8bb ("mmc: bcm2835: Terminate timeout work synchronously")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
 
-Well the email servers might not reject it now, but gmail itself sure
-does as you are lying about what your domain is :(
+Applied for fixes, thanks!
 
-> I will check again if our open source people got to a solution, or I
-> would just send it using my gmail identity, while keeping the vmware
-> authorship.
+Kind regards
+Uffe
 
-Please do, this is not a viable workflow.
 
-thanks,
-
-greg k-h
+> ---
+>  drivers/mmc/host/bcm2835.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/mmc/host/bcm2835.c b/drivers/mmc/host/bcm2835.c
+> index 7e0d3a4..bb31e13 100644
+> --- a/drivers/mmc/host/bcm2835.c
+> +++ b/drivers/mmc/host/bcm2835.c
+> @@ -597,7 +597,7 @@ static void bcm2835_finish_request(struct bcm2835_host *host)
+>         struct dma_chan *terminate_chan = NULL;
+>         struct mmc_request *mrq;
+>
+> -       cancel_delayed_work_sync(&host->timeout_work);
+> +       cancel_delayed_work(&host->timeout_work);
+>
+>         mrq = host->mrq;
+>
+> --
+> 2.7.4
+>
