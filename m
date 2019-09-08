@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 799CCACDF8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8F5ACDA0
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731280AbfIHMtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
+        id S1732742AbfIHMvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:51:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731270AbfIHMtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:01 -0400
+        id S1732675AbfIHMvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:43 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A630E2190F;
-        Sun,  8 Sep 2019 12:49:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28EAE20693;
+        Sun,  8 Sep 2019 12:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946941;
-        bh=a9+AhVAgKtt0rQrIbL6/WlHX5EiGkEPeOv+rP0NLTeo=;
+        s=default; t=1567947102;
+        bh=gZVmyGNN3awcb8D19eauWMRQw0XXcTPKXUb62OgyKc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uysW5zUfyvERCFYcOPA8ROOUDbKjYizee/lOldduq4ADhXWCOFx3iZ+OzXR/DauH
-         i2ZrbYo9ivsO/siYxO5QWlKTv8Y800uiPKoOycveFC4TLgcqzPrCF6JyHT1+SHH5xn
-         lKpsAHlWCBBSsNLipnNpfVj+PVj7l+6r67MMTEPg=
+        b=PVWoal+aRtJZIPF2BcyEmLMazuQrR05pQy5SSz04FpN7zuqLjGqpD1PVgGUAlT3lt
+         DrIUlvtqEuC0+7h3rcrzeSBC/EeAyx5z076nRzh/I6Q8cCAyE3CfzAwv382m1fOMgP
+         JI4zCHcaMco44LzMw75VlurWGb/MsBCV4oWbcQF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/57] net: cavium: fix driver name
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 63/94] sched/core: Schedule new worker even if PI-blocked
 Date:   Sun,  8 Sep 2019 13:41:59 +0100
-Message-Id: <20190908121141.140081282@linuxfoundation.org>
+Message-Id: <20190908121152.237568541@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3434341004a380f4e47c3a03d4320d43982162a0 ]
+[ Upstream commit b0fdc01354f45d43f082025636ef808968a27b36 ]
 
-The driver name gets exposed in sysfs under /sys/bus/pci/drivers
-so it should look like other devices. Change it to be common
-format (instead of "Cavium PTP").
+If a task is PI-blocked (blocking on sleeping spinlock) then we don't want to
+schedule a new kworker if we schedule out due to lock contention because !RT
+does not do that as well. A spinning spinlock disables preemption and a worker
+does not schedule out on lock contention (but spin).
 
-This is a trivial fix that was observed by accident because
-Debian kernels were building this driver into kernel (bug).
+On RT the RW-semaphore implementation uses an rtmutex so
+tsk_is_pi_blocked() will return true if a task blocks on it. In this case we
+will now start a new worker which may deadlock if one worker is waiting on
+progress from another worker. Since a RW-semaphore starts a new worker on !RT,
+we should do the same on RT.
 
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+XFS is able to trigger this deadlock.
+
+Allow to schedule new worker if the current worker is PI-blocked.
+
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20190816160626.12742-1-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/common/cavium_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cavium/common/cavium_ptp.c b/drivers/net/ethernet/cavium/common/cavium_ptp.c
-index 6aeb1045c302a..1ab40c97403ba 100644
---- a/drivers/net/ethernet/cavium/common/cavium_ptp.c
-+++ b/drivers/net/ethernet/cavium/common/cavium_ptp.c
-@@ -10,7 +10,7 @@
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 4d5962232a553..42bc2986520d7 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3469,7 +3469,7 @@ void __noreturn do_task_dead(void)
  
- #include "cavium_ptp.h"
+ static inline void sched_submit_work(struct task_struct *tsk)
+ {
+-	if (!tsk->state || tsk_is_pi_blocked(tsk))
++	if (!tsk->state)
+ 		return;
  
--#define DRV_NAME	"Cavium PTP Driver"
-+#define DRV_NAME "cavium_ptp"
+ 	/*
+@@ -3485,6 +3485,9 @@ static inline void sched_submit_work(struct task_struct *tsk)
+ 		preempt_enable_no_resched();
+ 	}
  
- #define PCI_DEVICE_ID_CAVIUM_PTP	0xA00C
- #define PCI_DEVICE_ID_CAVIUM_RST	0xA00E
++	if (tsk_is_pi_blocked(tsk))
++		return;
++
+ 	/*
+ 	 * If we are going to sleep and we have plugged IO queued,
+ 	 * make sure to submit it to avoid deadlocks.
 -- 
 2.20.1
 
