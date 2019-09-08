@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0D4ACD1F
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68490ACD20
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730214AbfIHMpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33076 "EHLO mail.kernel.org"
+        id S1730249AbfIHMp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:45:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbfIHMpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:45:51 -0400
+        id S1730231AbfIHMp4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:56 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DA2A218AC;
-        Sun,  8 Sep 2019 12:45:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EB2D20644;
+        Sun,  8 Sep 2019 12:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946750;
-        bh=GkLqsmL+1SloL2tvr2cXjfPiKmTKlsH3FQOhy0qKwwc=;
+        s=default; t=1567946755;
+        bh=SHPKLkyJkeRbcX+FRqPqt5fBERaFbyTjQBQ+1tmaYwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7+P7IeGJB7RZbLf/tnKQy0D8SRjnTTzVZX5cMcSGVYFHkqEfX2hgbOnnZAvhma2/
-         lk83mhayDbPBn2+irPtndQQ55gDxpEQLgGfWPae0Vl46WVQNXMBbTwcEVP+iE3i7iS
-         rZMzoQuAV9kraxZbY2KKV+lDVS/Hd8sePtNK4wPs=
+        b=ir57lXJKsP8Vt/kxo901kb0edxfUaFw1sRxNHI6L8FtOj9/mkbKrAuRlpyMqjLxKm
+         bzT+uZ87ZmssvJbrWcFn9fRUK7luo0cDyWCWUIlmzEN5lkRW0gKIaCidcmCtLrnxyy
+         ElIsYrEgO4XjIIQmJoxNbovLOPpZoOd78A96iu98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeff Layton <jlayton@kernel.org>,
         Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/40] ceph: fix buffer free while holding i_ceph_lock in fill_inode()
-Date:   Sun,  8 Sep 2019 13:41:59 +0100
-Message-Id: <20190908121125.633926958@linuxfoundation.org>
+Subject: [PATCH 4.14 28/40] libceph: allow ceph_buffer_put() to receive a NULL ceph_buffer
+Date:   Sun,  8 Sep 2019 13:42:01 +0100
+Message-Id: <20190908121128.111462356@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
 References: <20190908121114.260662089@linuxfoundation.org>
@@ -45,85 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit af8a85a41734f37b67ba8ce69d56b685bee4ac48 ]
-
-Calling ceph_buffer_put() in fill_inode() may result in freeing the
-i_xattrs.blob buffer while holding the i_ceph_lock.  This can be fixed by
-postponing the call until later, when the lock is released.
-
-The following backtrace was triggered by fstests generic/070.
-
-  BUG: sleeping function called from invalid context at mm/vmalloc.c:2283
-  in_atomic(): 1, irqs_disabled(): 0, pid: 3852, name: kworker/0:4
-  6 locks held by kworker/0:4/3852:
-   #0: 000000004270f6bb ((wq_completion)ceph-msgr){+.+.}, at: process_one_work+0x1b8/0x5f0
-   #1: 00000000eb420803 ((work_completion)(&(&con->work)->work)){+.+.}, at: process_one_work+0x1b8/0x5f0
-   #2: 00000000be1c53a4 (&s->s_mutex){+.+.}, at: dispatch+0x288/0x1476
-   #3: 00000000559cb958 (&mdsc->snap_rwsem){++++}, at: dispatch+0x2eb/0x1476
-   #4: 000000000d5ebbae (&req->r_fill_mutex){+.+.}, at: dispatch+0x2fc/0x1476
-   #5: 00000000a83d0514 (&(&ci->i_ceph_lock)->rlock){+.+.}, at: fill_inode.isra.0+0xf8/0xf70
-  CPU: 0 PID: 3852 Comm: kworker/0:4 Not tainted 5.2.0+ #441
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-prebuilt.qemu.org 04/01/2014
-  Workqueue: ceph-msgr ceph_con_workfn
-  Call Trace:
-   dump_stack+0x67/0x90
-   ___might_sleep.cold+0x9f/0xb1
-   vfree+0x4b/0x60
-   ceph_buffer_release+0x1b/0x60
-   fill_inode.isra.0+0xa9b/0xf70
-   ceph_fill_trace+0x13b/0xc70
-   ? dispatch+0x2eb/0x1476
-   dispatch+0x320/0x1476
-   ? __mutex_unlock_slowpath+0x4d/0x2a0
-   ceph_con_workfn+0xc97/0x2ec0
-   ? process_one_work+0x1b8/0x5f0
-   process_one_work+0x244/0x5f0
-   worker_thread+0x4d/0x3e0
-   kthread+0x105/0x140
-   ? process_one_work+0x5f0/0x5f0
-   ? kthread_park+0x90/0x90
-   ret_from_fork+0x3a/0x50
+[ Upstream commit 5c498950f730aa17c5f8a2cdcb903524e4002ed2 ]
 
 Signed-off-by: Luis Henriques <lhenriques@suse.com>
 Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/inode.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/linux/ceph/buffer.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index f2b722f0df5d0..9bda8c7a80a05 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -730,6 +730,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 	int issued = 0, implemented, new_issued;
- 	struct timespec mtime, atime, ctime;
- 	struct ceph_buffer *xattr_blob = NULL;
-+	struct ceph_buffer *old_blob = NULL;
- 	struct ceph_string *pool_ns = NULL;
- 	struct ceph_cap *new_cap = NULL;
- 	int err = 0;
-@@ -847,7 +848,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 	if ((ci->i_xattrs.version == 0 || !(issued & CEPH_CAP_XATTR_EXCL))  &&
- 	    le64_to_cpu(info->xattr_version) > ci->i_xattrs.version) {
- 		if (ci->i_xattrs.blob)
--			ceph_buffer_put(ci->i_xattrs.blob);
-+			old_blob = ci->i_xattrs.blob;
- 		ci->i_xattrs.blob = xattr_blob;
- 		if (xattr_blob)
- 			memcpy(ci->i_xattrs.blob->vec.iov_base,
-@@ -993,8 +994,8 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- out:
- 	if (new_cap)
- 		ceph_put_cap(mdsc, new_cap);
--	if (xattr_blob)
--		ceph_buffer_put(xattr_blob);
-+	ceph_buffer_put(old_blob);
-+	ceph_buffer_put(xattr_blob);
- 	ceph_put_string(pool_ns);
- 	return err;
+diff --git a/include/linux/ceph/buffer.h b/include/linux/ceph/buffer.h
+index 5e58bb29b1a36..11cdc7c60480f 100644
+--- a/include/linux/ceph/buffer.h
++++ b/include/linux/ceph/buffer.h
+@@ -30,7 +30,8 @@ static inline struct ceph_buffer *ceph_buffer_get(struct ceph_buffer *b)
+ 
+ static inline void ceph_buffer_put(struct ceph_buffer *b)
+ {
+-	kref_put(&b->kref, ceph_buffer_release);
++	if (b)
++		kref_put(&b->kref, ceph_buffer_release);
  }
+ 
+ extern int ceph_decode_buffer(struct ceph_buffer **b, void **p, void *end);
 -- 
 2.20.1
 
