@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B67F1ACE1A
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5D8ACE3A
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732263AbfIHMvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42212 "EHLO mail.kernel.org"
+        id S2387878AbfIHMz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732405AbfIHMvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:51:00 -0400
+        id S1732385AbfIHMvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:01 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00E8920863;
-        Sun,  8 Sep 2019 12:50:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D4E821479;
+        Sun,  8 Sep 2019 12:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947058;
-        bh=ACc+YmBwGbHCLj2cy/Y2CoS3DCdMEMMLQoOqdBRoTdU=;
+        s=default; t=1567947061;
+        bh=8SZwjoZv3NR0lY6S8VHhs1KtMMtLt3oxXNII1RkK9KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npPJHzgBqA8g6GLeLfwnXO3/Sod+GZPpnOfJasKY8GoXz7j5ShEfY0QiqNIaKuq/Z
-         zXzl0sxl/JFA8VKox/XrRzxy2eMnsWsszieCqIZxKgiFCEV3DwAuZ9TI0B+O88ZAgI
-         KJrW84BssZunLd5P5tlb8fg/0QPJrhuma4wHpAds=
+        b=BdtimrFb9eJ2tWWGfsz2RaWR38SAcUUHaYvNAS++UQkkKnF+4UoYzu47GX4FJ9FwH
+         Q7O00ZBLVsLt0iOV3LrLC/uJb7SZGWaqJNvqgJCtD6AMZNjffhfAF1eC7Y7FHTGrrm
+         ENiydsotg7dt/yBh1pxEOuhz+KBdpsSWrw98DSj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Courbot <acourbot@chromium.org>,
-        Tomasz Figa <tfiga@chromium.org>, CK Hu <ck.hu@mediatek.com>,
+        stable@vger.kernel.org, Bill Kuzeja <william.kuzeja@stratus.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 44/94] drm/mediatek: set DMA max segment size
-Date:   Sun,  8 Sep 2019 13:41:40 +0100
-Message-Id: <20190908121151.699854408@linuxfoundation.org>
+Subject: [PATCH 5.2 45/94] scsi: qla2xxx: Fix gnl.l memory leak on adapter init failure
+Date:   Sun,  8 Sep 2019 13:41:41 +0100
+Message-Id: <20190908121151.729595387@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -44,110 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 070955558e820b9a89c570b91b1f21762f62b288 ]
+[ Upstream commit 26fa656e9a0cbccddf7db132ea020d2169dbe46e ]
 
-This driver requires imported PRIME buffers to appear contiguously in
-its IO address space. Make sure this is the case by setting the maximum
-DMA segment size to a more suitable value than the default 64KB.
+If HBA initialization fails unexpectedly (exiting via probe_failed:), we
+may fail to free vha->gnl.l. So that we don't attempt to double free, set
+this pointer to NULL after a free and check for NULL at probe_failed: so we
+know whether or not to call dma_free_coherent.
 
-Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Bill Kuzeja <william.kuzeja@stratus.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 35 ++++++++++++++++++++++++--
- drivers/gpu/drm/mediatek/mtk_drm_drv.h |  2 ++
- 2 files changed, 35 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |  2 ++
+ drivers/scsi/qla2xxx/qla_os.c   | 11 ++++++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index 8b18a00a58c7e..c021d4c8324f5 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -213,6 +213,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 	struct mtk_drm_private *private = drm->dev_private;
- 	struct platform_device *pdev;
- 	struct device_node *np;
-+	struct device *dma_dev;
- 	int ret;
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 8d560c562e9c0..6b7b390b2e522 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2956,6 +2956,8 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
+ 	dma_free_coherent(&ha->pdev->dev, vha->gnl.size, vha->gnl.l,
+ 	    vha->gnl.ldma);
  
- 	if (!iommu_present(&platform_bus_type))
-@@ -275,7 +276,29 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 		goto err_component_unbind;
- 	}
- 
--	private->dma_dev = &pdev->dev;
-+	dma_dev = &pdev->dev;
-+	private->dma_dev = dma_dev;
++	vha->gnl.l = NULL;
 +
-+	/*
-+	 * Configure the DMA segment size to make sure we get contiguous IOVA
-+	 * when importing PRIME buffers.
-+	 */
-+	if (!dma_dev->dma_parms) {
-+		private->dma_parms_allocated = true;
-+		dma_dev->dma_parms =
-+			devm_kzalloc(drm->dev, sizeof(*dma_dev->dma_parms),
-+				     GFP_KERNEL);
-+	}
-+	if (!dma_dev->dma_parms) {
-+		ret = -ENOMEM;
-+		goto err_component_unbind;
-+	}
-+
-+	ret = dma_set_max_seg_size(dma_dev, (unsigned int)DMA_BIT_MASK(32));
-+	if (ret) {
-+		dev_err(dma_dev, "Failed to set DMA segment size\n");
-+		goto err_unset_dma_parms;
-+	}
+ 	vfree(vha->scan.l);
  
- 	/*
- 	 * We don't use the drm_irq_install() helpers provided by the DRM
-@@ -285,13 +308,16 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- 	drm->irq_enabled = true;
- 	ret = drm_vblank_init(drm, MAX_CRTC);
- 	if (ret < 0)
--		goto err_component_unbind;
-+		goto err_unset_dma_parms;
- 
- 	drm_kms_helper_poll_init(drm);
- 	drm_mode_config_reset(drm);
- 
+ 	if (vha->qpair && vha->qpair->vp_idx == vha->vp_idx) {
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index d056f5e7cf930..794478e5f7ec8 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3440,6 +3440,12 @@ skip_dpc:
  	return 0;
  
-+err_unset_dma_parms:
-+	if (private->dma_parms_allocated)
-+		dma_dev->dma_parms = NULL;
- err_component_unbind:
- 	component_unbind_all(drm->dev, drm);
- err_config_cleanup:
-@@ -302,9 +328,14 @@ err_config_cleanup:
- 
- static void mtk_drm_kms_deinit(struct drm_device *drm)
- {
-+	struct mtk_drm_private *private = drm->dev_private;
+ probe_failed:
++	if (base_vha->gnl.l) {
++		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
++				base_vha->gnl.l, base_vha->gnl.ldma);
++		base_vha->gnl.l = NULL;
++	}
 +
- 	drm_kms_helper_poll_fini(drm);
- 	drm_atomic_helper_shutdown(drm);
+ 	if (base_vha->timer_active)
+ 		qla2x00_stop_timer(base_vha);
+ 	base_vha->flags.online = 0;
+@@ -3673,7 +3679,7 @@ qla2x00_remove_one(struct pci_dev *pdev)
+ 	if (!atomic_read(&pdev->enable_cnt)) {
+ 		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
+ 		    base_vha->gnl.l, base_vha->gnl.ldma);
+-
++		base_vha->gnl.l = NULL;
+ 		scsi_host_put(base_vha->host);
+ 		kfree(ha);
+ 		pci_set_drvdata(pdev, NULL);
+@@ -3713,6 +3719,8 @@ qla2x00_remove_one(struct pci_dev *pdev)
+ 	dma_free_coherent(&ha->pdev->dev,
+ 		base_vha->gnl.size, base_vha->gnl.l, base_vha->gnl.ldma);
  
-+	if (private->dma_parms_allocated)
-+		private->dma_dev->dma_parms = NULL;
++	base_vha->gnl.l = NULL;
 +
- 	component_unbind_all(drm->dev, drm);
- 	drm_mode_config_cleanup(drm);
- }
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.h b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-index 598ff3e704465..e03fea12ff598 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.h
-@@ -51,6 +51,8 @@ struct mtk_drm_private {
- 	} commit;
+ 	vfree(base_vha->scan.l);
  
- 	struct drm_atomic_state *suspend_state;
-+
-+	bool dma_parms_allocated;
- };
- 
- extern struct platform_driver mtk_ddp_driver;
+ 	if (IS_QLAFX00(ha))
+@@ -4817,6 +4825,7 @@ struct scsi_qla_host *qla2x00_create_host(struct scsi_host_template *sht,
+ 		    "Alloc failed for scan database.\n");
+ 		dma_free_coherent(&ha->pdev->dev, vha->gnl.size,
+ 		    vha->gnl.l, vha->gnl.ldma);
++		vha->gnl.l = NULL;
+ 		scsi_remove_host(vha->host);
+ 		return NULL;
+ 	}
 -- 
 2.20.1
 
