@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7F0ACD76
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E82ACE08
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731701AbfIHMtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
+        id S1731739AbfIHMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:49:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731679AbfIHMtq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:46 -0400
+        id S1731719AbfIHMts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:49:48 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015D9218AC;
-        Sun,  8 Sep 2019 12:49:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 940AF21A4A;
+        Sun,  8 Sep 2019 12:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946985;
-        bh=eQlVCz7A4VtsmN4UIi6xwVpu5z5TDNmOHLMxu/wasDE=;
+        s=default; t=1567946988;
+        bh=UInMLA7CFEkckbHgViyrgOpN41KrT2K8pBfDhmGfCcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPFehOyL9TRXpfLVWwRTTgR8e6cDI4YQjm9tktSTgKgYKlNaEB8MbxuT2MMWmLFQ3
-         oxx0gCbiuSZ2CY/9pLwqEUyz5AP8agvQIGo23CVfiOJv0abP1qFsynzuUJ+T69tKcI
-         y1/ArGsqaU6EvpEdYAYlc/1iqrHc4Vp2Y/oe6mW0=
+        b=R0g4qHtNAgT5GkUBs9Yi75SFqA3W56bfnYiLs4Uy8TWU9PbOd20hZxSBOOwut0pmQ
+         z3Yn5n0zRkAlRj5APjnB2Dy1ns1U/NOa8sSdDmHoR32EZi8/DX2M+o6YrMgC/Phz/A
+         RilOjW/Ep0fwEv02GQqmM0nkcKjW4qDVcmn90Bps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Li Shuang <shuali@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Stefano Brivio <sbrivio@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E9=BB=84ID=E8=9D=B4=E8=9D=B6?= 
+        <butterflyhuangxx@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ka-Cheong Poon <ka-cheong.poon@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 18/94] net/sched: pfifo_fast: fix wrong dereference when qdisc is reset
-Date:   Sun,  8 Sep 2019 13:41:14 +0100
-Message-Id: <20190908121150.955754187@linuxfoundation.org>
+Subject: [PATCH 5.2 19/94] net/rds: Fix info leak in rds6_inc_info_copy()
+Date:   Sun,  8 Sep 2019 13:41:15 +0100
+Message-Id: <20190908121150.989665197@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -46,119 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
 
-[ Upstream commit 04d37cf46a773910f75fefaa9f9488f42bfe1fe2 ]
+[ Upstream commit 7d0a06586b2686ba80c4a2da5f91cb10ffbea736 ]
 
-Now that 'TCQ_F_CPUSTATS' bit can be cleared, depending on the value of
-'TCQ_F_NOLOCK' bit in the parent qdisc, we need to be sure that per-cpu
-counters are present when 'reset()' is called for pfifo_fast qdiscs.
-Otherwise, the following script:
+The rds6_inc_info_copy() function has a couple struct members which
+are leaking stack information.  The ->tos field should hold actual
+information and the ->flags field needs to be zeroed out.
 
- # tc q a dev lo handle 1: root htb default 100
- # tc c a dev lo parent 1: classid 1:100 htb \
- > rate 95Mbit ceil 100Mbit burst 64k
- [...]
- # tc f a dev lo parent 1: protocol arp basic classid 1:100
- [...]
- # tc q a dev lo parent 1:100 handle 100: pfifo_fast
- [...]
- # tc q d dev lo root
-
-can generate the following splat:
-
- Unable to handle kernel paging request at virtual address dfff2c01bd148000
- Mem abort info:
-   ESR = 0x96000004
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000004
-   CM = 0, WnR = 0
- [dfff2c01bd148000] address between user and kernel address ranges
- Internal error: Oops: 96000004 [#1] SMP
- [...]
- pstate: 80000005 (Nzcv daif -PAN -UAO)
- pc : pfifo_fast_reset+0x280/0x4d8
- lr : pfifo_fast_reset+0x21c/0x4d8
- sp : ffff800d09676fa0
- x29: ffff800d09676fa0 x28: ffff200012ee22e4
- x27: dfff200000000000 x26: 0000000000000000
- x25: ffff800ca0799958 x24: ffff1001940f332b
- x23: 0000000000000007 x22: ffff200012ee1ab8
- x21: 0000600de8a40000 x20: 0000000000000000
- x19: ffff800ca0799900 x18: 0000000000000000
- x17: 0000000000000002 x16: 0000000000000000
- x15: 0000000000000000 x14: 0000000000000000
- x13: 0000000000000000 x12: ffff1001b922e6e2
- x11: 1ffff001b922e6e1 x10: 0000000000000000
- x9 : 1ffff001b922e6e1 x8 : dfff200000000000
- x7 : 0000000000000000 x6 : 0000000000000000
- x5 : 1fffe400025dc45c x4 : 1fffe400025dc357
- x3 : 00000c01bd148000 x2 : 0000600de8a40000
- x1 : 0000000000000007 x0 : 0000600de8a40004
- Call trace:
-  pfifo_fast_reset+0x280/0x4d8
-  qdisc_reset+0x6c/0x370
-  htb_reset+0x150/0x3b8 [sch_htb]
-  qdisc_reset+0x6c/0x370
-  dev_deactivate_queue.constprop.5+0xe0/0x1a8
-  dev_deactivate_many+0xd8/0x908
-  dev_deactivate+0xe4/0x190
-  qdisc_graft+0x88c/0xbd0
-  tc_get_qdisc+0x418/0x8a8
-  rtnetlink_rcv_msg+0x3a8/0xa78
-  netlink_rcv_skb+0x18c/0x328
-  rtnetlink_rcv+0x28/0x38
-  netlink_unicast+0x3c4/0x538
-  netlink_sendmsg+0x538/0x9a0
-  sock_sendmsg+0xac/0xf8
-  ___sys_sendmsg+0x53c/0x658
-  __sys_sendmsg+0xc8/0x140
-  __arm64_sys_sendmsg+0x74/0xa8
-  el0_svc_handler+0x164/0x468
-  el0_svc+0x10/0x14
- Code: 910012a0 92400801 d343fc03 11000c21 (38fb6863)
-
-Fix this by testing the value of 'TCQ_F_CPUSTATS' bit in 'qdisc->flags',
-before dereferencing 'qdisc->cpu_qstats'.
-
-Changes since v1:
- - coding style improvements, thanks to Stefano Brivio
-
-Fixes: 8a53e616de29 ("net: sched: when clearing NOLOCK, clear TCQ_F_CPUSTATS, too")
-CC: Paolo Abeni <pabeni@redhat.com>
-Reported-by: Li Shuang <shuali@redhat.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Fixes: 3eb450367d08 ("rds: add type of service(tos) infrastructure")
+Fixes: b7ff8b1036f0 ("rds: Extend RDS API for IPv6 support")
+Reported-by: 黄ID蝴蝶 <butterflyhuangxx@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_generic.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/rds/recv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -692,11 +692,14 @@ static void pfifo_fast_reset(struct Qdis
- 			kfree_skb(skb);
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2006, 2018 Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2006, 2019 Oracle and/or its affiliates. All rights reserved.
+  *
+  * This software is available to you under a choice of one of two
+  * licenses.  You may choose to be licensed under the terms of the GNU
+@@ -811,6 +811,7 @@ void rds6_inc_info_copy(struct rds_incom
+ 
+ 	minfo6.seq = be64_to_cpu(inc->i_hdr.h_sequence);
+ 	minfo6.len = be32_to_cpu(inc->i_hdr.h_len);
++	minfo6.tos = inc->i_conn->c_tos;
+ 
+ 	if (flip) {
+ 		minfo6.laddr = *daddr;
+@@ -824,6 +825,8 @@ void rds6_inc_info_copy(struct rds_incom
+ 		minfo6.fport = inc->i_hdr.h_dport;
  	}
  
--	for_each_possible_cpu(i) {
--		struct gnet_stats_queue *q = per_cpu_ptr(qdisc->cpu_qstats, i);
-+	if (qdisc_is_percpu_stats(qdisc)) {
-+		for_each_possible_cpu(i) {
-+			struct gnet_stats_queue *q;
- 
--		q->backlog = 0;
--		q->qlen = 0;
-+			q = per_cpu_ptr(qdisc->cpu_qstats, i);
-+			q->backlog = 0;
-+			q->qlen = 0;
-+		}
- 	}
++	minfo6.flags = 0;
++
+ 	rds_info_copy(iter, &minfo6, sizeof(minfo6));
  }
- 
+ #endif
 
 
