@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B605ACDB8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2897ACDF4
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726462AbfIHMwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1731231AbfIHMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733155AbfIHMwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:52:40 -0400
+        id S1731219AbfIHMsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:48:54 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65C1D2082C;
-        Sun,  8 Sep 2019 12:52:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAA94218AF;
+        Sun,  8 Sep 2019 12:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947159;
-        bh=gFN5PABnxM+xWEeyJcURnpbwlPu2+6APHwDr1eOedvM=;
+        s=default; t=1567946933;
+        bh=27jcVKK/qpC0ilYCPfzWwVPw9oGhG5I+khgjFLMDj+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uaXIAgl7ADiaKuG38hbq0vEq2TXSQCrijruCUgnQxOcgANeNIxhsCWcWi7THZ/wjE
-         i3eAXHxCOUsdDew98lw6vGVCqrxLprtuoXTdvcqk5MxonoBt4Wvq587MAtHN0T6pi8
-         T1VBHRFhQCQFG5DvW7jBndz/saskyJRtKHW0UAIY=
+        b=CuC22lfQUDmkYixF0xDIU5MtCLWVCKUsKgdJTynp2Va+l8SjPd5sUYgTZo6jNE/V+
+         XeSy2V/mYPxD7j8uM+0SLmLqxkct+Fx9U2CDeL4nyqrN9z+WR62ALh83CHN5cs0RbO
+         N2S6TGhILxhhIfD4aIT608Y67YKQq5BIiMI/8TBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 83/94] KVM: arm/arm64: Only skip MMIO insn once
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 55/57] x86/boot/compressed/64: Fix missing initialization in find_trampoline_placement()
 Date:   Sun,  8 Sep 2019 13:42:19 +0100
-Message-Id: <20190908121152.810103467@linuxfoundation.org>
+Message-Id: <20190908121146.493805918@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
-References: <20190908121150.420989666@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2113c5f62b7423e4a72b890bd479704aa85c81ba ]
+[ Upstream commit c96e8483cb2da6695c8b8d0896fe7ae272a07b54 ]
 
-If after an MMIO exit to userspace a VCPU is immediately run with an
-immediate_exit request, such as when a signal is delivered or an MMIO
-emulation completion is needed, then the VCPU completes the MMIO
-emulation and immediately returns to userspace. As the exit_reason
-does not get changed from KVM_EXIT_MMIO in these cases we have to
-be careful not to complete the MMIO emulation again, when the VCPU is
-eventually run again, because the emulation does an instruction skip
-(and doing too many skips would be a waste of guest code :-) We need
-to use additional VCPU state to track if the emulation is complete.
-As luck would have it, we already have 'mmio_needed', which even
-appears to be used in this way by other architectures already.
+Gustavo noticed that 'new' can be left uninitialized if 'bios_start'
+happens to be less or equal to 'entry->addr + entry->size'.
 
-Fixes: 0d640732dbeb ("arm64: KVM: Skip MMIO insn after emulation")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Initialize the variable at the begin of the iteration to the current value
+of 'bios_start'.
+
+Fixes: 0a46fff2f910 ("x86/boot/compressed/64: Fix boot on machines with broken E820 table")
+Reported-by: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190826133326.7cxb4vbmiawffv2r@box
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/mmio.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/boot/compressed/pgtable_64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/virt/kvm/arm/mmio.c b/virt/kvm/arm/mmio.c
-index a8a6a0c883f1b..6af5c91337f25 100644
---- a/virt/kvm/arm/mmio.c
-+++ b/virt/kvm/arm/mmio.c
-@@ -86,6 +86,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	unsigned int len;
- 	int mask;
+diff --git a/arch/x86/boot/compressed/pgtable_64.c b/arch/x86/boot/compressed/pgtable_64.c
+index f0537a1f7fc25..76e1edf5bf12a 100644
+--- a/arch/x86/boot/compressed/pgtable_64.c
++++ b/arch/x86/boot/compressed/pgtable_64.c
+@@ -73,7 +73,7 @@ static unsigned long find_trampoline_placement(void)
  
-+	/* Detect an already handled MMIO return */
-+	if (unlikely(!vcpu->mmio_needed))
-+		return 0;
-+
-+	vcpu->mmio_needed = 0;
-+
- 	if (!run->mmio.is_write) {
- 		len = run->mmio.len;
- 		if (len > sizeof(unsigned long))
-@@ -188,6 +194,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
- 	run->mmio.is_write	= is_write;
- 	run->mmio.phys_addr	= fault_ipa;
- 	run->mmio.len		= len;
-+	vcpu->mmio_needed	= 1;
+ 	/* Find the first usable memory region under bios_start. */
+ 	for (i = boot_params->e820_entries - 1; i >= 0; i--) {
+-		unsigned long new;
++		unsigned long new = bios_start;
  
- 	if (!ret) {
- 		/* We handled the access successfully in the kernel. */
+ 		entry = &boot_params->e820_table[i];
+ 
 -- 
 2.20.1
 
