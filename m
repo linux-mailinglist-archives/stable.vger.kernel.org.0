@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C19ACCD8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96170ACCDA
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728206AbfIHMnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:43:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
+        id S1729412AbfIHMnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:43:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729367AbfIHMnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:43:09 -0400
+        id S1729384AbfIHMnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:43:14 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3F32218AE;
-        Sun,  8 Sep 2019 12:43:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFFB1216C8;
+        Sun,  8 Sep 2019 12:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946589;
-        bh=KeHxyIkBfKzEiV/bSVWp/zpWxx1Ab+ygjQl4NHL3pnE=;
+        s=default; t=1567946594;
+        bh=YC4A5FicODasF8B4WHyElnHgEqlJvrcGPU58B1FKcsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zm6ETgf8aWa4AtvO0mRgxpgm6Eixvv+cSnHtPFfKNMblf0WAh6douqC5w/82oOfH4
-         uh5+LXzkDWALA8NwEQnljbqTz86ZIxU0A2rJjU+lvsN9JGSyyYAxvWrZGP9n1mKsCM
-         MjCG7NTbwnu1cVYF9aNThEckw9MxAuJSF9wwOU8o=
+        b=Pax/rb2ik4b5hARMo4/QpcEHfdw+eZnVDhzhYHSJaIwAbOFFWxasndn2AdV27PQaS
+         CGce5bGapo8uMA1Xkq9H8rKIMspITBtxKkO7CEVs3ImrR+RIuxinOPEcH2eJUrPD8R
+         mOdlLOlscJAQl/SRxW8wUk27QP5Dn32WSbMBHwrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/23] Bluetooth: btqca: Add a short delay before downloading the NVM
-Date:   Sun,  8 Sep 2019 13:41:38 +0100
-Message-Id: <20190908121054.821544939@linuxfoundation.org>
+Subject: [PATCH 4.4 05/23] gpio: Fix build error of function redefinition
+Date:   Sun,  8 Sep 2019 13:41:40 +0100
+Message-Id: <20190908121055.659392623@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
 References: <20190908121052.898169328@linuxfoundation.org>
@@ -44,40 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8059ba0bd0e4694e51c2ee6438a77b325f06c0d5 ]
+[ Upstream commit 68e03b85474a51ec1921b4d13204782594ef7223 ]
 
-On WCN3990 downloading the NVM sometimes fails with a "TLV response
-size mismatch" error:
+when do randbuilding, I got this error:
 
-[  174.949955] Bluetooth: btqca.c:qca_download_firmware() hci0: QCA Downloading qca/crnv21.bin
-[  174.958718] Bluetooth: btqca.c:qca_tlv_send_segment() hci0: QCA TLV response size mismatch
+In file included from drivers/hwmon/pmbus/ucd9000.c:19:0:
+./include/linux/gpio/driver.h:576:1: error: redefinition of gpiochip_add_pin_range
+ gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
+ ^~~~~~~~~~~~~~~~~~~~~~
+In file included from drivers/hwmon/pmbus/ucd9000.c:18:0:
+./include/linux/gpio.h:245:1: note: previous definition of gpiochip_add_pin_range was here
+ gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
+ ^~~~~~~~~~~~~~~~~~~~~~
 
-It seems the controller needs a short time after downloading the
-firmware before it is ready for the NVM. A delay as short as 1 ms
-seems sufficient, make it 10 ms just in case. No event is received
-during the delay, hence we don't just silently drop an extra event.
-
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 964cb341882f ("gpio: move pincontrol calls to <linux/gpio/driver.h>")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20190731123814.46624-1-yuehaibing@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btqca.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/gpio.h | 24 ------------------------
+ 1 file changed, 24 deletions(-)
 
-diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
-index 4a62081688501..593fc2a5be0f9 100644
---- a/drivers/bluetooth/btqca.c
-+++ b/drivers/bluetooth/btqca.c
-@@ -363,6 +363,9 @@ int qca_uart_setup_rome(struct hci_dev *hdev, uint8_t baudrate)
- 		return err;
- 	}
+diff --git a/include/linux/gpio.h b/include/linux/gpio.h
+index d12b5d566e4b1..11555bd821b73 100644
+--- a/include/linux/gpio.h
++++ b/include/linux/gpio.h
+@@ -229,30 +229,6 @@ static inline int irq_to_gpio(unsigned irq)
+ 	return -EINVAL;
+ }
  
-+	/* Give the controller some time to get ready to receive the NVM */
-+	msleep(10);
-+
- 	/* Download NVM configuration */
- 	config.type = TLV_TYPE_NVM;
- 	snprintf(config.fwname, sizeof(config.fwname), "qca/nvm_%08x.bin",
+-static inline int
+-gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
+-		       unsigned int gpio_offset, unsigned int pin_offset,
+-		       unsigned int npins)
+-{
+-	WARN_ON(1);
+-	return -EINVAL;
+-}
+-
+-static inline int
+-gpiochip_add_pingroup_range(struct gpio_chip *chip,
+-			struct pinctrl_dev *pctldev,
+-			unsigned int gpio_offset, const char *pin_group)
+-{
+-	WARN_ON(1);
+-	return -EINVAL;
+-}
+-
+-static inline void
+-gpiochip_remove_pin_ranges(struct gpio_chip *chip)
+-{
+-	WARN_ON(1);
+-}
+-
+ static inline int devm_gpio_request(struct device *dev, unsigned gpio,
+ 				    const char *label)
+ {
 -- 
 2.20.1
 
