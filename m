@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29CD3ACE42
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10BE2ACE51
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbfIHMzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41604 "EHLO mail.kernel.org"
+        id S1730900AbfIHMsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:48:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732193AbfIHMui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:50:38 -0400
+        id S1730891AbfIHMsH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:48:07 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48FB8218AC;
-        Sun,  8 Sep 2019 12:50:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09C83218AC;
+        Sun,  8 Sep 2019 12:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947037;
-        bh=1Hz3gvQ0f2YPPR+1FUpI7H+4HAKYesWoaGOm0olvD3E=;
+        s=default; t=1567946886;
+        bh=LPBjogdDxQGRxl0QqqPik9edUm0vEPbU7w0GpYfhx30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCn5zNkwhq28bmhIPWkZOShqr7jwWttqgb/TpJJ8zCW9wyVobtyQuzniBJmBZA5ey
-         odcHBUDSR8RNIPsM62dqPGCQ0o870UU8QZYAshEYORVKfxjcQhgjN9QKl47V8PmHnj
-         Z4iE/Bf9W/7y4wGy8NraJOMXyLCrEoe6JkWy8e44=
+        b=nvoLUSdy/gD3PcKkQjk+U3RtZwQy8LS+47M085bW6gm56i5qZkjBSwFPEqC08p1oZ
+         o3aY/0RJokaz7yC6OJNIC3ajzjZa7j54fVpO6OUnWn2hQYSgQL8JiPWFBcfz8x6Unh
+         xIYQIbZzBLSWLZ3K/lGDbdOLwcrgS5c6AIFrtv/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 36/94] Bluetooth: btqca: Add a short delay before downloading the NVM
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E9=BB=84ID=E8=9D=B4=E8=9D=B6?= 
+        <butterflyhuangxx@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ka-Cheong Poon <ka-cheong.poon@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 08/57] net/rds: Fix info leak in rds6_inc_info_copy()
 Date:   Sun,  8 Sep 2019 13:41:32 +0100
-Message-Id: <20190908121151.472382621@linuxfoundation.org>
+Message-Id: <20190908121128.197012518@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
-References: <20190908121150.420989666@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+References: <20190908121125.608195329@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8059ba0bd0e4694e51c2ee6438a77b325f06c0d5 ]
+From: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
 
-On WCN3990 downloading the NVM sometimes fails with a "TLV response
-size mismatch" error:
+[ Upstream commit 7d0a06586b2686ba80c4a2da5f91cb10ffbea736 ]
 
-[  174.949955] Bluetooth: btqca.c:qca_download_firmware() hci0: QCA Downloading qca/crnv21.bin
-[  174.958718] Bluetooth: btqca.c:qca_tlv_send_segment() hci0: QCA TLV response size mismatch
+The rds6_inc_info_copy() function has a couple struct members which
+are leaking stack information.  The ->tos field should hold actual
+information and the ->flags field needs to be zeroed out.
 
-It seems the controller needs a short time after downloading the
-firmware before it is ready for the NVM. A delay as short as 1 ms
-seems sufficient, make it 10 ms just in case. No event is received
-during the delay, hence we don't just silently drop an extra event.
-
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3eb450367d08 ("rds: add type of service(tos) infrastructure")
+Fixes: b7ff8b1036f0 ("rds: Extend RDS API for IPv6 support")
+Reported-by: 黄ID蝴蝶 <butterflyhuangxx@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btqca.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/rds/recv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
-index aff1d22223bd4..0ee5acb685a10 100644
---- a/drivers/bluetooth/btqca.c
-+++ b/drivers/bluetooth/btqca.c
-@@ -350,6 +350,9 @@ int qca_uart_setup(struct hci_dev *hdev, uint8_t baudrate,
- 		return err;
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2006, 2018 Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2006, 2019 Oracle and/or its affiliates. All rights reserved.
+  *
+  * This software is available to you under a choice of one of two
+  * licenses.  You may choose to be licensed under the terms of the GNU
+@@ -803,6 +803,7 @@ void rds6_inc_info_copy(struct rds_incom
+ 
+ 	minfo6.seq = be64_to_cpu(inc->i_hdr.h_sequence);
+ 	minfo6.len = be32_to_cpu(inc->i_hdr.h_len);
++	minfo6.tos = 0;
+ 
+ 	if (flip) {
+ 		minfo6.laddr = *daddr;
+@@ -816,6 +817,8 @@ void rds6_inc_info_copy(struct rds_incom
+ 		minfo6.fport = inc->i_hdr.h_dport;
  	}
  
-+	/* Give the controller some time to get ready to receive the NVM */
-+	msleep(10);
++	minfo6.flags = 0;
 +
- 	/* Download NVM configuration */
- 	config.type = TLV_TYPE_NVM;
- 	if (qca_is_wcn399x(soc_type))
--- 
-2.20.1
-
+ 	rds_info_copy(iter, &minfo6, sizeof(minfo6));
+ }
+ #endif
 
 
