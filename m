@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62193ACEA8
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCF5ACEA6
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbfIHNAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 09:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59202 "EHLO mail.kernel.org"
+        id S1729813AbfIHMob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729797AbfIHMo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:44:27 -0400
+        id S1729789AbfIHMoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:44:30 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD5B121920;
-        Sun,  8 Sep 2019 12:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61DA92196E;
+        Sun,  8 Sep 2019 12:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946667;
-        bh=eux4fIGlT+5peVgOwVIJoXwTvuLrYXt5ySKlTBOOM2M=;
+        s=default; t=1567946669;
+        bh=GpRnmNX5Yy8YYLy/7hh6hDMrhJzNRC4rXonoaYC5ipo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yt11jyTCjYF1AqEsqaa5uQ4TtzFpFE0wDtOq0HqLIanxXoCwYuQofvS24smqwG2yl
-         MsnxrEzx2np6Xq6/9FG79YU2vMB/xvvimLpfqkS3BsS+VpHTSHYkV6wX6qdLLnrba3
-         ABzMjak4xiPx9YUP4o+jLkWFqvMpi2oJdb7nD4dQ=
+        b=xB5h6NUq4QINrTOjoHZfhapiLGd4IzoIYgDZZkXKqE61SCZsCIbtpJ4VA+YpTE90u
+         jme3Ivb6u+k8hFuR+dkd24yW7NrpUa4BxI8U9UZyAYBNPYLv6bKusQsGiWpTstIYVJ
+         GqLF2YFojreCJB8UZxO3lNOO7zAr3UfA+rlsRxLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hubert Denkmair <h.denkmair@intence.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bandan Das <bsd@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/26] spi: bcm2835aux: fix corruptions for longer spi transfers
-Date:   Sun,  8 Sep 2019 13:42:00 +0100
-Message-Id: <20190908121110.075802835@linuxfoundation.org>
+Subject: [PATCH 4.9 22/26] Revert "x86/apic: Include the LDR when clearing out APIC registers"
+Date:   Sun,  8 Sep 2019 13:42:01 +0100
+Message-Id: <20190908121110.627865125@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
 References: <20190908121057.216802689@linuxfoundation.org>
@@ -46,60 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73b114ee7db1750c0b535199fae383b109bd61d0 ]
+[ Upstream commit 950b07c14e8c59444e2359f15fd70ed5112e11a0 ]
 
-On long running tests with a mcp2517fd can controller it showed that
-on rare occations the data read shows corruptions for longer spi transfers.
+This reverts commit 558682b5291937a70748d36fd9ba757fb25b99ae.
 
-Example of a 22 byte transfer:
+Chris Wilson reports that it breaks his CPU hotplug test scripts.  In
+particular, it breaks offlining and then re-onlining the boot CPU, which
+we treat specially (and the BIOS does too).
 
-expected (as captured on logic analyzer):
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 85 86 87 88 89 8a 8b
+The symptoms are that we can offline the CPU, but it then does not come
+back online again:
 
-read by the driver:
-FF FF 78 00 00 00 08 06 00 00 91 20 77 56 84 88 89 8a 00 00 8b 9b
+    smpboot: CPU 0 is now offline
+    smpboot: Booting Node 0 Processor 0 APIC 0x0
+    smpboot: do_boot_cpu failed(-1) to wakeup CPU#0
 
-To fix this use BCM2835_AUX_SPI_STAT_RX_LVL to determine when we may
-read data from the fifo reliably without any corruption.
+Thomas says he knows why it's broken (my personal suspicion: our magic
+handling of the "cpu0_logical_apicid" thing), but for 5.3 the right fix
+is to just revert it, since we've never touched the LDR bits before, and
+it's not worth the risk to do anything else at this stage.
 
-Surprisingly the only values ever empirically read in
-BCM2835_AUX_SPI_STAT_RX_LVL are 0x00, 0x10, 0x20 and 0x30.
-So whenever the mask is not 0 we can read from the fifo in a safe manner.
+[ Hotpluging of the boot CPU is special anyway, and should be off by
+  default. See the "BOOTPARAM_HOTPLUG_CPU0" config option and the
+  cpu0_hotplug kernel parameter.
 
-The patch has now been tested intensively and we are no longer
-able to reproduce the "RX" issue any longer.
+  In general you should not do it, and it has various known limitations
+  (hibernate and suspend require the boot CPU, for example).
 
-Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
-Reported-by: Hubert Denkmair <h.denkmair@intence.de>
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  But it should work, even if the boot CPU is special and needs careful
+  treatment       - Linus ]
+
+Link: https://lore.kernel.org/lkml/156785100521.13300.14461504732265570003@skylake-alporthouse-com/
+Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bandan Das <bsd@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/apic/apic.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 4454d9c6a3dd4..5c89bbb05441b 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -180,12 +180,12 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 
- static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
-+	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
-+
- 	/* check if we have data to read */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
-+	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
-+	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
- 		bcm2835aux_rd_fifo(bs);
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 37666c5367415..928ffdc21873c 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1067,10 +1067,6 @@ void clear_local_APIC(void)
+ 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
+ 	v = apic_read(APIC_LVT1);
+ 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
+-	if (!x2apic_enabled()) {
+-		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
+-		apic_write(APIC_LDR, v);
 -	}
- 
- 	/* check if we have data to write */
- 	while (bs->tx_len &&
+ 	if (maxlvt >= 4) {
+ 		v = apic_read(APIC_LVTPC);
+ 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
 -- 
 2.20.1
 
