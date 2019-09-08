@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1082AACD85
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104DDACE44
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732094AbfIHMuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:50:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+        id S1732193AbfIHM4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732084AbfIHMuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:50:22 -0400
+        id S1732108AbfIHMu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:50:26 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8874021A49;
-        Sun,  8 Sep 2019 12:50:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E21D21924;
+        Sun,  8 Sep 2019 12:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947022;
-        bh=5P2vYLW9yNgQm5/Lp/2chgu9C1k0IkkpVYigawtSh4k=;
+        s=default; t=1567947024;
+        bh=7voc4DgD5zbXpZblGhwaQfWHnfnB54vFKdLsPuk1kcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqwzxGtdj/eIX9Wm8YPcQDV7XX4oYG2RSWzdGWr9u9Mr3Oc7EfU0xUAG6j+dqvct0
-         n88PDbWFqcVauIN6fwLtbOOEEzzDV+wj8uGAawElXh1niYvSdaWs0LLDTRlobQ5YTT
-         E1AO2rdQKmIz5the+wgKhmzxGIUBdKORK2sHS/kY=
+        b=pZeFzl2IZYKoGnXuy0azU8HjYL3gYWtnf7m5uvJEkMoaZEWjbXRp3J5/ciymR9Fum
+         e/JE7fT+w4MYtm0AOBGPGGBCqySOwWzUgWoAOzJUXCwCnxcYe/GLhlvKN8Grasd4Xy
+         /i1SFY+xc86oUTWv8pITW5Jl7JF/CN/qf+KCAld0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Quentin Monnet <quentin.monnet@netronome.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 31/94] netfilter: nf_flow_table: teardown flow timeout race
-Date:   Sun,  8 Sep 2019 13:41:27 +0100
-Message-Id: <20190908121151.330655724@linuxfoundation.org>
+Subject: [PATCH 5.2 32/94] tools: bpftool: fix error message (prog -> object)
+Date:   Sun,  8 Sep 2019 13:41:28 +0100
+Message-Id: <20190908121151.358570208@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -43,101 +46,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1e5b2471bcc4838df298080ae1ec042c2cbc9ce9 ]
+[ Upstream commit b3e78adcbf991a4e8b2ebb23c9889e968ec76c5f ]
 
-Flows that are in teardown state (due to RST / FIN TCP packet) still
-have their offload flag set on. Hence, the conntrack garbage collector
-may race to undo the timeout adjustment that the fixup routine performs,
-leaving the conntrack entry in place with the internal offload timeout
-(one day).
+Change an error message to work for any object being
+pinned not just programs.
 
-Update teardown flow state to ESTABLISHED and set tracking to liberal,
-then once the offload bit is cleared, adjust timeout if it is more than
-the default fixup timeout (conntrack might already have set a lower
-timeout from the packet path).
-
-Fixes: da5984e51063 ("netfilter: nf_flow_table: add support for sending flows back to the slow path")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 34 ++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ tools/bpf/bpftool/common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 4254e42605135..49248fe5847a1 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -112,15 +112,16 @@ static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
- #define NF_FLOWTABLE_TCP_PICKUP_TIMEOUT	(120 * HZ)
- #define NF_FLOWTABLE_UDP_PICKUP_TIMEOUT	(30 * HZ)
+diff --git a/tools/bpf/bpftool/common.c b/tools/bpf/bpftool/common.c
+index f7261fad45c19..647d8a4044fbd 100644
+--- a/tools/bpf/bpftool/common.c
++++ b/tools/bpf/bpftool/common.c
+@@ -236,7 +236,7 @@ int do_pin_any(int argc, char **argv, int (*get_fd_by_id)(__u32))
  
--static void flow_offload_fixup_ct(struct nf_conn *ct)
-+static inline __s32 nf_flow_timeout_delta(unsigned int timeout)
-+{
-+	return (__s32)(timeout - (u32)jiffies);
-+}
-+
-+static void flow_offload_fixup_ct_timeout(struct nf_conn *ct)
- {
- 	const struct nf_conntrack_l4proto *l4proto;
-+	int l4num = nf_ct_protonum(ct);
- 	unsigned int timeout;
--	int l4num;
--
--	l4num = nf_ct_protonum(ct);
--	if (l4num == IPPROTO_TCP)
--		flow_offload_fixup_tcp(&ct->proto.tcp);
- 
- 	l4proto = nf_ct_l4proto_find(l4num);
- 	if (!l4proto)
-@@ -133,7 +134,20 @@ static void flow_offload_fixup_ct(struct nf_conn *ct)
- 	else
- 		return;
- 
--	ct->timeout = nfct_time_stamp + timeout;
-+	if (nf_flow_timeout_delta(ct->timeout) > (__s32)timeout)
-+		ct->timeout = nfct_time_stamp + timeout;
-+}
-+
-+static void flow_offload_fixup_ct_state(struct nf_conn *ct)
-+{
-+	if (nf_ct_protonum(ct) == IPPROTO_TCP)
-+		flow_offload_fixup_tcp(&ct->proto.tcp);
-+}
-+
-+static void flow_offload_fixup_ct(struct nf_conn *ct)
-+{
-+	flow_offload_fixup_ct_state(ct);
-+	flow_offload_fixup_ct_timeout(ct);
- }
- 
- void flow_offload_free(struct flow_offload *flow)
-@@ -211,7 +225,7 @@ EXPORT_SYMBOL_GPL(flow_offload_add);
- 
- static inline bool nf_flow_has_expired(const struct flow_offload *flow)
- {
--	return (__s32)(flow->timeout - (u32)jiffies) <= 0;
-+	return nf_flow_timeout_delta(flow->timeout) <= 0;
- }
- 
- static void flow_offload_del(struct nf_flowtable *flow_table,
-@@ -231,6 +245,8 @@ static void flow_offload_del(struct nf_flowtable *flow_table,
- 
- 	if (nf_flow_has_expired(flow))
- 		flow_offload_fixup_ct(e->ct);
-+	else if (flow->flags & FLOW_OFFLOAD_TEARDOWN)
-+		flow_offload_fixup_ct_timeout(e->ct);
- 
- 	flow_offload_free(flow);
- }
-@@ -242,7 +258,7 @@ void flow_offload_teardown(struct flow_offload *flow)
- 	flow->flags |= FLOW_OFFLOAD_TEARDOWN;
- 
- 	e = container_of(flow, struct flow_offload_entry, flow);
--	flow_offload_fixup_ct(e->ct);
-+	flow_offload_fixup_ct_state(e->ct);
- }
- EXPORT_SYMBOL_GPL(flow_offload_teardown);
+ 	fd = get_fd_by_id(id);
+ 	if (fd < 0) {
+-		p_err("can't get prog by id (%u): %s", id, strerror(errno));
++		p_err("can't open object by id (%u): %s", id, strerror(errno));
+ 		return -1;
+ 	}
  
 -- 
 2.20.1
