@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 626B3ACDED
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD888ACE28
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731075AbfIHMsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37718 "EHLO mail.kernel.org"
+        id S1732970AbfIHMyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731069AbfIHMsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:48:32 -0400
+        id S1732982AbfIHMwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:52:19 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7BB8218AC;
-        Sun,  8 Sep 2019 12:48:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D312082C;
+        Sun,  8 Sep 2019 12:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946912;
-        bh=+ViCpTWVPKWPysN1s86/uNEgSImk78bymXGcG1jnfZ0=;
+        s=default; t=1567947139;
+        bh=FO5gHr8dnNSQ2RU2dbqQBpuvGlmBQpI/J/6PWMXIbSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuyCT+X5jhO3KXJ0tc4TMOeCbKE9NSQBCHWuFnnUeKcXJQvg/dDYfIgnrHYZl5k2N
-         ntyJsfsUT4FWn6BYUPJ9HVlYN1rRsw3ZMFjiEdlPIFlojwem8zwwWIGlu5d7Czt8B0
-         q62X1rFdS4QY9OFgPkQvlXs45Sd6AfpFWptdntv4=
+        b=Oj0vFf/XmodhqWBMW3g/JCArlY8Kw9RkJYhpxmkYDqq98lfVe7Dx3NrdZr1MoUNpo
+         ZShq6uVCXDR0xi9RHlLTzxA/gztezmhs9XevUTkY/EP4hCC0JBz0qfns/naznsTM3E
+         bMetpQL0zshA1Aek1fSvcYWo1O9f584j+TIZUf7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/57] selftests/kvm: make platform_info_test pass on AMD
+Subject: [PATCH 5.2 76/94] infiniband: hfi1: fix memory leaks
 Date:   Sun,  8 Sep 2019 13:42:12 +0100
-Message-Id: <20190908121145.741948715@linuxfoundation.org>
+Message-Id: <20190908121152.614020707@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e4427372398c31f57450565de277f861a4db5b3b ]
+[ Upstream commit 2323d7baab2b18d87d9bc267452e387aa9f0060a ]
 
-test_msr_platform_info_disabled() generates EXIT_SHUTDOWN but VMCB state
-is undefined after that so an attempt to launch this guest again from
-test_msr_platform_info_enabled() fails. Reorder the tests to make test
-pass.
+In fault_opcodes_write(), 'data' is allocated through kcalloc(). However,
+it is not deallocated in the following execution if an error occurs,
+leading to memory leaks. To fix this issue, introduce the 'free_data' label
+to free 'data' before returning the error.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Acked-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Link: https://lore.kernel.org/r/1566154486-3713-1-git-send-email-wenwen@cs.uga.edu
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/platform_info_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/fault.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/platform_info_test.c b/tools/testing/selftests/kvm/platform_info_test.c
-index 3764e71212650..65db510dddc34 100644
---- a/tools/testing/selftests/kvm/platform_info_test.c
-+++ b/tools/testing/selftests/kvm/platform_info_test.c
-@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
- 	msr_platform_info = vcpu_get_msr(vm, VCPU_ID, MSR_PLATFORM_INFO);
- 	vcpu_set_msr(vm, VCPU_ID, MSR_PLATFORM_INFO,
- 		msr_platform_info | MSR_PLATFORM_INFO_MAX_TURBO_RATIO);
--	test_msr_platform_info_disabled(vm);
- 	test_msr_platform_info_enabled(vm);
-+	test_msr_platform_info_disabled(vm);
- 	vcpu_set_msr(vm, VCPU_ID, MSR_PLATFORM_INFO, msr_platform_info);
+diff --git a/drivers/infiniband/hw/hfi1/fault.c b/drivers/infiniband/hw/hfi1/fault.c
+index 814324d172950..986c12153e62e 100644
+--- a/drivers/infiniband/hw/hfi1/fault.c
++++ b/drivers/infiniband/hw/hfi1/fault.c
+@@ -141,12 +141,14 @@ static ssize_t fault_opcodes_write(struct file *file, const char __user *buf,
+ 	if (!data)
+ 		return -ENOMEM;
+ 	copy = min(len, datalen - 1);
+-	if (copy_from_user(data, buf, copy))
+-		return -EFAULT;
++	if (copy_from_user(data, buf, copy)) {
++		ret = -EFAULT;
++		goto free_data;
++	}
  
- 	kvm_vm_free(vm);
+ 	ret = debugfs_file_get(file->f_path.dentry);
+ 	if (unlikely(ret))
+-		return ret;
++		goto free_data;
+ 	ptr = data;
+ 	token = ptr;
+ 	for (ptr = data; *ptr; ptr = end + 1, token = ptr) {
+@@ -195,6 +197,7 @@ static ssize_t fault_opcodes_write(struct file *file, const char __user *buf,
+ 	ret = len;
+ 
+ 	debugfs_file_put(file->f_path.dentry);
++free_data:
+ 	kfree(data);
+ 	return ret;
+ }
 -- 
 2.20.1
 
