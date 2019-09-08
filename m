@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36A0AACD58
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B585ACCF8
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730938AbfIHMsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        id S1729769AbfIHMoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:44:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730906AbfIHMsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:48:14 -0400
+        id S1729761AbfIHMoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:44:20 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D069A218AC;
-        Sun,  8 Sep 2019 12:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30003218DE;
+        Sun,  8 Sep 2019 12:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946894;
-        bh=HcGSro/bVINMTqXcmyDPCbmvI42TSvHeyoJFat3J3Os=;
+        s=default; t=1567946659;
+        bh=rBYyaw2fFXbK2tMlFMR++K1OgXVKO8FT5BhnKRKLqZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkYQDLlcy7uSlqlRmldDKvVFlmbgpwK/6StmxD6CMGTe8QAq6E26EYlKjjbxiPtjb
-         r999dA+zDtwxpvMTfyKdTG4Drxc2oGUqtZ+GqM56KxD9/re3DZzS9I0haL7vKmPA8W
-         1yXdsVcmsRPKcHQRcQMv3unKgpOP1lf75C2LgG7U=
+        b=i7DtCCiLpN8wVw3r5XBZDVQJ2C1Hx4yBwcM1HONNiHQcRKv2N8X25NO4BosC0H+0i
+         HMu2FVSMq1gTW76I3+qTOS9Fe4zIVFmZ3HwvS4euzhbmVLMvDFE2J6eL9q7mjDOqS4
+         zsGajPB3iqpd7CGUaJdp3lpZbiveg/Oe6q9Ysktw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/57] net: kalmia: fix memory leaks
-Date:   Sun,  8 Sep 2019 13:41:57 +0100
-Message-Id: <20190908121140.283695606@linuxfoundation.org>
+Subject: [PATCH 4.9 19/26] spi: bcm2835aux: unifying code between polling and interrupt driven code
+Date:   Sun,  8 Sep 2019 13:41:58 +0100
+Message-Id: <20190908121108.756576804@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
+References: <20190908121057.216802689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f1472cb09f11ddb41d4be84f0650835cb65a9073 ]
+[ Upstream commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec ]
 
-In kalmia_init_and_get_ethernet_addr(), 'usb_buf' is allocated through
-kmalloc(). In the following execution, if the 'status' returned by
-kalmia_send_init_packet() is not 0, 'usb_buf' is not deallocated, leading
-to memory leaks. To fix this issue, add the 'out' label to free 'usb_buf'.
+Sharing more code between polling and interrupt-driven mode.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/kalmia.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-bcm2835aux.c | 51 +++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/net/usb/kalmia.c b/drivers/net/usb/kalmia.c
-index bd2ba36590288..0cc6993c279a2 100644
---- a/drivers/net/usb/kalmia.c
-+++ b/drivers/net/usb/kalmia.c
-@@ -117,16 +117,16 @@ kalmia_init_and_get_ethernet_addr(struct usbnet *dev, u8 *ethernet_addr)
- 	status = kalmia_send_init_packet(dev, usb_buf, ARRAY_SIZE(init_msg_1),
- 					 usb_buf, 24);
- 	if (status != 0)
--		return status;
-+		goto out;
- 
- 	memcpy(usb_buf, init_msg_2, 12);
- 	status = kalmia_send_init_packet(dev, usb_buf, ARRAY_SIZE(init_msg_2),
- 					 usb_buf, 28);
- 	if (status != 0)
--		return status;
-+		goto out;
- 
- 	memcpy(ethernet_addr, usb_buf + 10, ETH_ALEN);
--
-+out:
- 	kfree(usb_buf);
- 	return status;
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index bd00b7cc8b78b..97cb3beb9cc62 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -178,23 +178,13 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
+ 		      BCM2835_AUX_SPI_CNTL0_CLEARFIFO);
  }
+ 
+-static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
++static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
+ {
+-	struct spi_master *master = dev_id;
+-	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+-	irqreturn_t ret = IRQ_NONE;
+-
+-	/* IRQ may be shared, so return if our interrupts are disabled */
+-	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
+-	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
+-		return ret;
+-
+ 	/* check if we have data to read */
+ 	while (bs->rx_len &&
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
+ 		bcm2835aux_rd_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	/* check if we have data to write */
+@@ -203,7 +193,6 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_TX_FULL))) {
+ 		bcm2835aux_wr_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	/* and check if we have reached "done" */
+@@ -211,8 +200,21 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_BUSY))) {
+ 		bcm2835aux_rd_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
++}
++
++static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
++{
++	struct spi_master *master = dev_id;
++	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
++
++	/* IRQ may be shared, so return if our interrupts are disabled */
++	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
++	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
++		return IRQ_NONE;
++
++	/* do common fifo handling */
++	bcm2835aux_spi_transfer_helper(bs);
+ 
+ 	if (!bs->tx_len) {
+ 		/* disable tx fifo empty interrupt */
+@@ -226,8 +228,7 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 		complete(&master->xfer_completion);
+ 	}
+ 
+-	/* and return */
+-	return ret;
++	return IRQ_HANDLED;
+ }
+ 
+ static int __bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
+@@ -273,7 +274,6 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
+ {
+ 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+ 	unsigned long timeout;
+-	u32 stat;
+ 
+ 	/* configure spi */
+ 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
+@@ -284,24 +284,9 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
+ 
+ 	/* loop until finished the transfer */
+ 	while (bs->rx_len) {
+-		/* read status */
+-		stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
+-
+-		/* fill in tx fifo with remaining data */
+-		if ((bs->tx_len) && (!(stat & BCM2835_AUX_SPI_STAT_TX_FULL))) {
+-			bcm2835aux_wr_fifo(bs);
+-			continue;
+-		}
+ 
+-		/* read data from fifo for both cases */
+-		if (!(stat & BCM2835_AUX_SPI_STAT_RX_EMPTY)) {
+-			bcm2835aux_rd_fifo(bs);
+-			continue;
+-		}
+-		if (!(stat & BCM2835_AUX_SPI_STAT_BUSY)) {
+-			bcm2835aux_rd_fifo(bs);
+-			continue;
+-		}
++		/* do common fifo handling */
++		bcm2835aux_spi_transfer_helper(bs);
+ 
+ 		/* there is still data pending to read check the timeout */
+ 		if (bs->rx_len && time_after(jiffies, timeout)) {
 -- 
 2.20.1
 
