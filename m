@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FE90ACD52
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62F9ACD55
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730854AbfIHMr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:47:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S1730912AbfIHMsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:48:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730847AbfIHMr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:47:59 -0400
+        id S1730906AbfIHMsJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:48:09 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28218218AC;
-        Sun,  8 Sep 2019 12:47:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7674A21924;
+        Sun,  8 Sep 2019 12:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946878;
-        bh=C1/xTk2w9kLHGUjT2ARTupMkA1Nis33kKJuHdUq1S18=;
+        s=default; t=1567946889;
+        bh=LtTjOxgtRGF6LCCtjHjnp/619AMlBzyRmzOQMaARqIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9I7SfUmWXAprlnbkayk52Eml3c4JfsbmmE5XqJHQNo6o8uOln9JKutmkMhSAPc1B
-         XUak4dXFnEXIGcASg6P11Y56VRGziYJeA85q0jc2fGAcqC26HZs9N1o9mfCqIggiMG
-         N9erc6T71WZ1TZUCq3W7UB9YeRsupJ4xz15ig3LY=
+        b=vinwsjBEhay72i69lhxAyqZZZrQlQMAfvyGiVnQJxJ2nKQ/l4mEI5EVKlvl/N2V9z
+         DSRTDdKEPoCQ87jOKRbUvNHLCR76/0kbX4WUsur8jc112JJmntUO+1sq4vyD/IUXUW
+         ZoKOE6zJwWNSseyAxXvamFguggxfsqhj8XWQH7lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/57] net: stmmac: dwmac-rk: Dont fail if phy regulator is absent
-Date:   Sun,  8 Sep 2019 13:41:29 +0100
-Message-Id: <20190908121127.550413578@linuxfoundation.org>
+        stable@vger.kernel.org, "John S. Gruber" <JohnSGruber@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Mark Brown <broonie@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 4.19 09/57] x86/boot: Preserve boot_params.secure_boot from sanitizing
+Date:   Sun,  8 Sep 2019 13:41:33 +0100
+Message-Id: <20190908121128.536275429@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
 References: <20190908121125.608195329@linuxfoundation.org>
@@ -43,40 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: John S. Gruber <JohnSGruber@gmail.com>
 
-[ Upstream commit 3b25528e1e355c803e73aa326ce657b5606cda73 ]
+commit 29d9a0b50736768f042752070e5cdf4e4d4c00df upstream.
 
-The devicetree binding lists the phy phy as optional. As such, the
-driver should not bail out if it can't find a regulator. Instead it
-should just skip the remaining regulator related code and continue
-on normally.
+Commit
 
-Skip the remainder of phy_power_on() if a regulator supply isn't
-available. This also gets rid of the bogus return code.
+  a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
 
-Fixes: 2e12f536635f ("net: stmmac: dwmac-rk: Use standard devicetree property for phy regulator")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+now zeroes the secure boot setting information (enabled/disabled/...)
+passed by the boot loader or by the kernel's EFI handover mechanism.
+
+The problem manifests itself with signed kernels using the EFI handoff
+protocol with grub and the kernel loses the information whether secure
+boot is enabled in the firmware, i.e., the log message "Secure boot
+enabled" becomes "Secure boot could not be determined".
+
+efi_main() arch/x86/boot/compressed/eboot.c sets this field early but it
+is subsequently zeroed by the above referenced commit.
+
+Include boot_params.secure_boot in the preserve field list.
+
+ [ bp: restructure commit message and massage. ]
+
+Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
+Signed-off-by: John S. Gruber <JohnSGruber@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/CAPotdmSPExAuQcy9iAHqX3js_fc4mMLQOTr5RBGvizyCOPcTQQ@mail.gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-@@ -1203,10 +1203,8 @@ static int phy_power_on(struct rk_priv_d
- 	int ret;
- 	struct device *dev = &bsp_priv->pdev->dev;
- 
--	if (!ldo) {
--		dev_err(dev, "no regulator found\n");
--		return -1;
--	}
-+	if (!ldo)
-+		return 0;
- 
- 	if (enable) {
- 		ret = regulator_enable(ldo);
+---
+ arch/x86/include/asm/bootparam_utils.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/x86/include/asm/bootparam_utils.h
++++ b/arch/x86/include/asm/bootparam_utils.h
+@@ -71,6 +71,7 @@ static void sanitize_boot_params(struct
+ 			BOOT_PARAM_PRESERVE(eddbuf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
++			BOOT_PARAM_PRESERVE(secure_boot),
+ 			BOOT_PARAM_PRESERVE(hdr),
+ 			BOOT_PARAM_PRESERVE(e820_table),
+ 			BOOT_PARAM_PRESERVE(eddbuf),
 
 
