@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD69BACDFB
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88459ACE25
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731376AbfIHMtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S1732859AbfIHMwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:52:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731368AbfIHMtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:49:17 -0400
+        id S1732856AbfIHMwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:52:01 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46F6921971;
-        Sun,  8 Sep 2019 12:49:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D1A82190F;
+        Sun,  8 Sep 2019 12:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946956;
-        bh=oDdfqgKInsvQwkihMaj/Qp0wp3abAtLMkvHrNt4kDic=;
+        s=default; t=1567947120;
+        bh=DOSF6AukBROLlNk0BEl1Q7MOQ+QargqIcHwxqCxuppA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FE+GpWfX6UC8DgpbrOfFm4kttNogidi4lyTJY97zwpcxsQiQh05o8fFunL/B0BQND
-         LHXG6TvPrFJe9oiOS6El+S1/ppkmR5G4FHsvl4gHQ1j2E+hXZd/Wv6nLw4UFqYyR/K
-         0kWaxEhATIc5SPRepfMaWaA72rxKdxaorkDjFIBU=
+        b=uOI3r7RKx/f3FnXvW71ZG9NbzRyJm1tm9pY/RlPw2WjcKSJtaQTXlTZymj5WWbFQQ
+         ZDVzHnnf+6taP7wWEM8/vGyB6S8sEGkdMRDGdWnkbLE3tnLdAsHnt/LkowpXUVqFQ2
+         bGybjWEE2RsXZrxdeB36jmWnplsX0JYPh4haW8sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/57] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
-Date:   Sun,  8 Sep 2019 13:42:05 +0100
-Message-Id: <20190908121144.160459197@linuxfoundation.org>
+Subject: [PATCH 5.2 70/94] Tools: hv: kvp: eliminate may be used uninitialized warning
+Date:   Sun,  8 Sep 2019 13:42:06 +0100
+Message-Id: <20190908121152.436929197@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
-References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d09bc83640d524b8467a660db7b1d15e6562a1de ]
+[ Upstream commit 89eb4d8d25722a0a0194cf7fa47ba602e32a6da7 ]
 
-Simplify the ring buffer handling with the in-place API.
+When building hv_kvp_daemon GCC-8.3 complains:
 
-Also avoid the dynamic allocation and the memory leak in the channel
-callback function.
+hv_kvp_daemon.c: In function ‘kvp_get_ip_info.constprop’:
+hv_kvp_daemon.c:812:30: warning: ‘ip_buffer’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  struct hv_kvp_ipaddr_value *ip_buffer;
 
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+this seems to be a false positive: we only use ip_buffer when
+op == KVP_OP_GET_IP_INFO and it is only unset when op == KVP_OP_ENUMERATE.
+
+Silence the warning by initializing ip_buffer to NULL.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hyperv-keyboard.c | 35 +++++----------------------
- 1 file changed, 6 insertions(+), 29 deletions(-)
+ tools/hv/hv_kvp_daemon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index a8b9be3e28db7..7d0a5ccf57751 100644
---- a/drivers/input/serio/hyperv-keyboard.c
-+++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -245,40 +245,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
- 
- static void hv_kbd_on_channel_callback(void *context)
- {
-+	struct vmpacket_descriptor *desc;
- 	struct hv_device *hv_dev = context;
--	void *buffer;
--	int bufferlen = 0x100; /* Start with sensible size */
- 	u32 bytes_recvd;
- 	u64 req_id;
--	int error;
- 
--	buffer = kmalloc(bufferlen, GFP_ATOMIC);
--	if (!buffer)
--		return;
--
--	while (1) {
--		error = vmbus_recvpacket_raw(hv_dev->channel, buffer, bufferlen,
--					     &bytes_recvd, &req_id);
--		switch (error) {
--		case 0:
--			if (bytes_recvd == 0) {
--				kfree(buffer);
--				return;
--			}
--
--			hv_kbd_handle_received_packet(hv_dev, buffer,
--						      bytes_recvd, req_id);
--			break;
-+	foreach_vmbus_pkt(desc, hv_dev->channel) {
-+		bytes_recvd = desc->len8 * 8;
-+		req_id = desc->trans_id;
- 
--		case -ENOBUFS:
--			kfree(buffer);
--			/* Handle large packet */
--			bufferlen = bytes_recvd;
--			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
--			if (!buffer)
--				return;
--			break;
--		}
-+		hv_kbd_handle_received_packet(hv_dev, desc, bytes_recvd,
-+					      req_id);
- 	}
- }
- 
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 0ce50c319cfd6..ef8a82f29f024 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -809,7 +809,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
+ 	int sn_offset = 0;
+ 	int error = 0;
+ 	char *buffer;
+-	struct hv_kvp_ipaddr_value *ip_buffer;
++	struct hv_kvp_ipaddr_value *ip_buffer = NULL;
+ 	char cidr_mask[5]; /* /xyz */
+ 	int weight;
+ 	int i;
 -- 
 2.20.1
 
