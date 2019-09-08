@@ -2,329 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 731E4ACE50
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2936DACD83
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730941AbfIHMsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37170 "EHLO mail.kernel.org"
+        id S1732062AbfIHMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:50:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730919AbfIHMsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:48:12 -0400
+        id S1731584AbfIHMuT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:50:19 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DB6D21920;
-        Sun,  8 Sep 2019 12:48:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A9E12190F;
+        Sun,  8 Sep 2019 12:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946891;
-        bh=9E1kOCPBT1YAbEtLXU07iRBcfdGRUwZdEkgWYmYjFfY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mtUnfR8H00EGMHQwcxc8CBy29UsJGebpM8B2evE4rRXNpjtWxu0m/Zd2nf3kTcPvV
-         yNAex7I7a3WJl3msjiIIgnOxCKHqaElILtGGu5pnG6wkZYsOZYfxdsDFI7/xrsqwNt
-         ZVxaafbSAAiPPSmuwdB5835ulVQhNoAQNGYZVjBI=
+        s=default; t=1567947016;
+        bh=oq/+oiyUJyElf9Wc29SfbD7i+AyeyKT8DPGrtYYrP/Y=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XuB+mp5WoBzNtVTlb2rWLXWWUpC11FH1ZLvH3D1gprPgf/PPxsgsjXW4GZLXJ8W1Y
+         kDikLMGWtdvQwe2QGpP2DfBYu6QkDfbfe9wFJQ6z7DlU1T24MxV/9QeEFTbd9qIVn2
+         lWSloyHF1SeTJZ6QR/6ICFtiapmf8Pmvrc8nLy10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/57] 4.19.72-stable review
-Date:   Sun,  8 Sep 2019 13:41:24 +0100
-Message-Id: <20190908121125.608195329@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 29/94] netfilter: nf_tables: use-after-free in failing rule with bound set
+Date:   Sun,  8 Sep 2019 13:41:25 +0100
+Message-Id: <20190908121151.274657412@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-MIME-Version: 1.0
+In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
+References: <20190908121150.420989666@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.72-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.72-rc1
-X-KernelTest-Deadline: 2019-09-10T12:11+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.72 release.
-There are 57 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+[ Upstream commit 6a0a8d10a3661a036b55af695542a714c429ab7c ]
+
+If a rule that has already a bound anonymous set fails to be added, the
+preparation phase releases the rule and the bound set. However, the
+transaction object from the abort path still has a reference to the set
+object that is stale, leading to a use-after-free when checking for the
+set->bound field. Add a new field to the transaction that specifies if
+the set is bound, so the abort path can skip releasing it since the rule
+command owns it and it takes care of releasing it. After this update,
+the set->bound field is removed.
+
+[   24.649883] Unable to handle kernel paging request at virtual address 0000000000040434
+[   24.657858] Mem abort info:
+[   24.660686]   ESR = 0x96000004
+[   24.663769]   Exception class = DABT (current EL), IL = 32 bits
+[   24.669725]   SET = 0, FnV = 0
+[   24.672804]   EA = 0, S1PTW = 0
+[   24.675975] Data abort info:
+[   24.678880]   ISV = 0, ISS = 0x00000004
+[   24.682743]   CM = 0, WnR = 0
+[   24.685723] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000428952000
+[   24.692207] [0000000000040434] pgd=0000000000000000
+[   24.697119] Internal error: Oops: 96000004 [#1] SMP
+[...]
+[   24.889414] Call trace:
+[   24.891870]  __nf_tables_abort+0x3f0/0x7a0
+[   24.895984]  nf_tables_abort+0x20/0x40
+[   24.899750]  nfnetlink_rcv_batch+0x17c/0x588
+[   24.904037]  nfnetlink_rcv+0x13c/0x190
+[   24.907803]  netlink_unicast+0x18c/0x208
+[   24.911742]  netlink_sendmsg+0x1b0/0x350
+[   24.915682]  sock_sendmsg+0x4c/0x68
+[   24.919185]  ___sys_sendmsg+0x288/0x2c8
+[   24.923037]  __sys_sendmsg+0x7c/0xd0
+[   24.926628]  __arm64_sys_sendmsg+0x2c/0x38
+[   24.930744]  el0_svc_common.constprop.0+0x94/0x158
+[   24.935556]  el0_svc_handler+0x34/0x90
+[   24.939322]  el0_svc+0x8/0xc
+[   24.942216] Code: 37280300 f9404023 91014262 aa1703e0 (f9401863)
+[   24.948336] ---[ end trace cebbb9dcbed3b56f ]---
+
+Fixes: f6ac85858976 ("netfilter: nf_tables: unbind set in rule from commit path")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/net/netfilter/nf_tables.h |  9 +++++++--
+ net/netfilter/nf_tables_api.c     | 15 ++++++++++-----
+ 2 files changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 5b8624ae4a27f..930d062940b7d 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -419,8 +419,7 @@ struct nft_set {
+ 	unsigned char			*udata;
+ 	/* runtime data below here */
+ 	const struct nft_set_ops	*ops ____cacheline_aligned;
+-	u16				flags:13,
+-					bound:1,
++	u16				flags:14,
+ 					genmask:2;
+ 	u8				klen;
+ 	u8				dlen;
+@@ -1333,12 +1332,15 @@ struct nft_trans_rule {
+ struct nft_trans_set {
+ 	struct nft_set			*set;
+ 	u32				set_id;
++	bool				bound;
+ };
+ 
+ #define nft_trans_set(trans)	\
+ 	(((struct nft_trans_set *)trans->data)->set)
+ #define nft_trans_set_id(trans)	\
+ 	(((struct nft_trans_set *)trans->data)->set_id)
++#define nft_trans_set_bound(trans)	\
++	(((struct nft_trans_set *)trans->data)->bound)
+ 
+ struct nft_trans_chain {
+ 	bool				update;
+@@ -1369,12 +1371,15 @@ struct nft_trans_table {
+ struct nft_trans_elem {
+ 	struct nft_set			*set;
+ 	struct nft_set_elem		elem;
++	bool				bound;
+ };
+ 
+ #define nft_trans_elem_set(trans)	\
+ 	(((struct nft_trans_elem *)trans->data)->set)
+ #define nft_trans_elem(trans)	\
+ 	(((struct nft_trans_elem *)trans->data)->elem)
++#define nft_trans_elem_set_bound(trans)	\
++	(((struct nft_trans_elem *)trans->data)->bound)
+ 
+ struct nft_trans_obj {
+ 	struct nft_object		*obj;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index bcf17fb46d965..8e4cdae2c4f14 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -136,9 +136,14 @@ static void nft_set_trans_bind(const struct nft_ctx *ctx, struct nft_set *set)
+ 		return;
+ 
+ 	list_for_each_entry_reverse(trans, &net->nft.commit_list, list) {
+-		if (trans->msg_type == NFT_MSG_NEWSET &&
+-		    nft_trans_set(trans) == set) {
+-			set->bound = true;
++		switch (trans->msg_type) {
++		case NFT_MSG_NEWSET:
++			if (nft_trans_set(trans) == set)
++				nft_trans_set_bound(trans) = true;
++			break;
++		case NFT_MSG_NEWSETELEM:
++			if (nft_trans_elem_set(trans) == set)
++				nft_trans_elem_set_bound(trans) = true;
+ 			break;
+ 		}
+ 	}
+@@ -6849,7 +6854,7 @@ static int __nf_tables_abort(struct net *net)
+ 			break;
+ 		case NFT_MSG_NEWSET:
+ 			trans->ctx.table->use--;
+-			if (nft_trans_set(trans)->bound) {
++			if (nft_trans_set_bound(trans)) {
+ 				nft_trans_destroy(trans);
+ 				break;
+ 			}
+@@ -6861,7 +6866,7 @@ static int __nf_tables_abort(struct net *net)
+ 			nft_trans_destroy(trans);
+ 			break;
+ 		case NFT_MSG_NEWSETELEM:
+-			if (nft_trans_elem_set(trans)->bound) {
++			if (nft_trans_elem_set_bound(trans)) {
+ 				nft_trans_destroy(trans);
+ 				break;
+ 			}
+-- 
+2.20.1
 
-Responses should be made by Tue 10 Sep 2019 12:09:36 PM UTC.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.72-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.72-rc1
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    Revert "x86/apic: Include the LDR when clearing out APIC registers"
-
-Luis Henriques <lhenriques@suse.com>
-    libceph: allow ceph_buffer_put() to receive a NULL ceph_buffer
-
-Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-    x86/boot/compressed/64: Fix missing initialization in find_trampoline_placement()
-
-Andre Przywara <andre.przywara@arm.com>
-    KVM: arm/arm64: VGIC: Properly initialise private IRQ affinity
-
-David Howells <dhowells@redhat.com>
-    afs: Fix leak in afs_lookup_cell_rcu()
-
-Andrew Jones <drjones@redhat.com>
-    KVM: arm/arm64: Only skip MMIO insn once
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: fix buffer free while holding i_ceph_lock in fill_inode()
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: fix buffer free while holding i_ceph_lock in __ceph_build_xattrs_blob()
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: fix buffer free while holding i_ceph_lock in __ceph_setxattr()
-
-Vitaly Kuznetsov <vkuznets@redhat.com>
-    selftests/kvm: make platform_info_test pass on AMD
-
-Paolo Bonzini <pbonzini@redhat.com>
-    selftests: kvm: fix state save/load on processors without XSAVE
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    infiniband: hfi1: fix memory leaks
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    infiniband: hfi1: fix a memory leak bug
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    IB/mlx4: Fix memory leaks
-
-Anton Eidelman <anton@lightbitslabs.com>
-    nvme-multipath: fix possible I/O hang when paths are updated
-
-Vitaly Kuznetsov <vkuznets@redhat.com>
-    Tools: hv: kvp: eliminate 'may be used uninitialized' warning
-
-Dexuan Cui <decui@microsoft.com>
-    Input: hyperv-keyboard: Use in-place iterator API in the channel callback
-
-Kirill A. Shutemov <kirill@shutemov.name>
-    x86/boot/compressed/64: Fix boot on machines with broken E820 table
-
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
-    HID: cp2112: prevent sleeping function called from invalid context
-
-Andrea Righi <andrea.righi@canonical.com>
-    kprobes: Fix potential deadlock in kprobe_optimizer()
-
-Tho Vu <tho.vu.wh@rvc.renesas.com>
-    ravb: Fix use-after-free ravb_tstamp_skb
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    wimax/i2400m: fix a memory leak bug
-
-Stephen Hemminger <stephen@networkplumber.org>
-    net: cavium: fix driver name
-
-Thomas Falcon <tlfalcon@linux.ibm.com>
-    ibmvnic: Unmap DMA address of TX descriptor buffers after use
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    net: kalmia: fix memory leaks
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    cx82310_eth: fix a memory leak bug
-
-Darrick J. Wong <darrick.wong@oracle.com>
-    vfs: fix page locking deadlocks when deduping files
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    lan78xx: Fix memory leaks
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    net: myri10ge: fix memory leaks
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    liquidio: add cleanup in octeon_setup_iq()
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    cxgb4: fix a memory leak bug
-
-Dmitry Fomichev <dmitry.fomichev@wdc.com>
-    scsi: target: tcmu: avoid use-after-free after command timeout
-
-Bill Kuzeja <William.Kuzeja@stratus.com>
-    scsi: qla2xxx: Fix gnl.l memory leak on adapter init failure
-
-Alexandre Courbot <acourbot@chromium.org>
-    drm/mediatek: set DMA max segment size
-
-Alexandre Courbot <acourbot@chromium.org>
-    drm/mediatek: use correct device to import PRIME buffers
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nft_flow_offload: skip tcp rst and fin packets
-
-YueHaibing <yuehaibing@huawei.com>
-    gpio: Fix build error of function redefinition
-
-Thomas Falcon <tlfalcon@linux.ibm.com>
-    ibmveth: Convert multicast list size for little-endian system
-
-Fabian Henneke <fabian.henneke@gmail.com>
-    Bluetooth: hidp: Let hidp_send_message return number of queued bytes
-
-Matthias Kaehlcke <mka@chromium.org>
-    Bluetooth: btqca: Add a short delay before downloading the NVM
-
-Nathan Chancellor <natechancellor@gmail.com>
-    net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
-
-Dexuan Cui <decui@microsoft.com>
-    hv_netvsc: Fix a warning of suspicious RCU usage
-
-Jakub Kicinski <jakub.kicinski@netronome.com>
-    tools: bpftool: fix error message (prog -> object)
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nf_tables: use-after-free in failing rule with bound set
-
-Fuqian Huang <huangfq.daxian@gmail.com>
-    net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq in IRQ context
-
-Martin Sperl <kernel@martin.sperl.org>
-    spi: bcm2835aux: fix corruptions for longer spi transfers
-
-Martin Sperl <kernel@martin.sperl.org>
-    spi: bcm2835aux: remove dangerous uncontrolled read of fifo
-
-Martin Sperl <kernel@martin.sperl.org>
-    spi: bcm2835aux: unifying code between polling and interrupt driven code
-
-John S. Gruber <JohnSGruber@gmail.com>
-    x86/boot: Preserve boot_params.secure_boot from sanitizing
-
-Ka-Cheong Poon <ka-cheong.poon@oracle.com>
-    net/rds: Fix info leak in rds6_inc_info_copy()
-
-Eric Dumazet <edumazet@google.com>
-    tcp: remove empty skb from write queue in error cases
-
-Willem de Bruijn <willemb@google.com>
-    tcp: inherit timestamp on mtu probe
-
-Chen-Yu Tsai <wens@csie.org>
-    net: stmmac: dwmac-rk: Don't fail if phy regulator is absent
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    net_sched: fix a NULL pointer deref in ipt action
-
-Vlad Buslov <vladbu@mellanox.com>
-    net: sched: act_sample: fix psample group handling on overwrite
-
-Feng Sun <loyou85@gmail.com>
-    net: fix skb use after free in netpoll
-
-Eric Dumazet <edumazet@google.com>
-    mld: fix memory leak in mld_del_delrec()
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/x86/boot/compressed/pgtable_64.c              | 13 +++--
- arch/x86/include/asm/bootparam_utils.h             |  1 +
- arch/x86/kernel/apic/apic.c                        |  4 --
- drivers/bluetooth/btqca.c                          |  3 ++
- drivers/gpu/drm/mediatek/mtk_drm_drv.c             | 49 +++++++++++++++--
- drivers/gpu/drm/mediatek/mtk_drm_drv.h             |  2 +
- drivers/hid/hid-cp2112.c                           |  8 ++-
- drivers/infiniband/hw/hfi1/fault.c                 | 12 +++--
- drivers/infiniband/hw/mlx4/mad.c                   |  4 +-
- drivers/input/serio/hyperv-keyboard.c              | 35 +++---------
- drivers/net/ethernet/cavium/common/cavium_ptp.c    |  2 +-
- .../net/ethernet/cavium/liquidio/request_manager.c |  4 +-
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c |  4 +-
- drivers/net/ethernet/ibm/ibmveth.c                 |  9 ++--
- drivers/net/ethernet/ibm/ibmvnic.c                 | 11 +---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c   |  2 +-
- drivers/net/ethernet/renesas/ravb_main.c           |  8 ++-
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c     |  6 +--
- drivers/net/ethernet/toshiba/tc35815.c             |  2 +-
- drivers/net/ethernet/tundra/tsi108_eth.c           |  5 +-
- drivers/net/hyperv/netvsc_drv.c                    |  9 +++-
- drivers/net/usb/cx82310_eth.c                      |  3 +-
- drivers/net/usb/kalmia.c                           |  6 +--
- drivers/net/usb/lan78xx.c                          |  8 +--
- drivers/net/wimax/i2400m/fw.c                      |  4 +-
- drivers/nvme/host/multipath.c                      |  1 +
- drivers/scsi/qla2xxx/qla_attr.c                    |  2 +
- drivers/scsi/qla2xxx/qla_os.c                      | 11 +++-
- drivers/spi/spi-bcm2835aux.c                       | 62 +++++++---------------
- drivers/target/target_core_user.c                  |  9 +++-
- fs/afs/cell.c                                      |  4 ++
- fs/ceph/caps.c                                     |  5 +-
- fs/ceph/inode.c                                    |  7 +--
- fs/ceph/snap.c                                     |  4 +-
- fs/ceph/super.h                                    |  2 +-
- fs/ceph/xattr.c                                    | 19 +++++--
- fs/read_write.c                                    | 49 ++++++++++++++---
- include/linux/ceph/buffer.h                        |  3 +-
- include/linux/gpio.h                               | 24 ---------
- include/net/act_api.h                              |  4 +-
- include/net/netfilter/nf_tables.h                  |  9 +++-
- include/net/psample.h                              |  1 +
- kernel/kprobes.c                                   |  8 +--
- net/bluetooth/hidp/core.c                          |  9 +++-
- net/core/netpoll.c                                 |  6 +--
- net/ipv4/tcp.c                                     | 29 ++++++----
- net/ipv4/tcp_output.c                              |  3 +-
- net/ipv6/mcast.c                                   |  5 +-
- net/netfilter/nf_tables_api.c                      | 15 ++++--
- net/netfilter/nft_flow_offload.c                   |  9 ++--
- net/psample/psample.c                              |  2 +-
- net/rds/recv.c                                     |  5 +-
- net/sched/act_bpf.c                                |  2 +-
- net/sched/act_connmark.c                           |  2 +-
- net/sched/act_csum.c                               |  2 +-
- net/sched/act_gact.c                               |  2 +-
- net/sched/act_ife.c                                |  2 +-
- net/sched/act_ipt.c                                | 11 ++--
- net/sched/act_mirred.c                             |  2 +-
- net/sched/act_nat.c                                |  2 +-
- net/sched/act_pedit.c                              |  2 +-
- net/sched/act_police.c                             |  2 +-
- net/sched/act_sample.c                             |  7 ++-
- net/sched/act_simple.c                             |  2 +-
- net/sched/act_skbedit.c                            |  2 +-
- net/sched/act_skbmod.c                             |  2 +-
- net/sched/act_tunnel_key.c                         |  2 +-
- net/sched/act_vlan.c                               |  2 +-
- tools/bpf/bpftool/common.c                         |  2 +-
- tools/hv/hv_kvp_daemon.c                           |  2 +-
- tools/testing/selftests/kvm/lib/x86.c              | 16 +++---
- tools/testing/selftests/kvm/platform_info_test.c   |  2 +-
- virt/kvm/arm/mmio.c                                |  7 +++
- virt/kvm/arm/vgic/vgic-init.c                      | 30 +++++++----
- 75 files changed, 382 insertions(+), 248 deletions(-)
 
 
