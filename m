@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6D8ACD14
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1DAACCE2
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730078AbfIHMpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60674 "EHLO mail.kernel.org"
+        id S1729490AbfIHMnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:43:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730100AbfIHMpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:45:25 -0400
+        id S1729431AbfIHMnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:43:31 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D145218DE;
-        Sun,  8 Sep 2019 12:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F170218AE;
+        Sun,  8 Sep 2019 12:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946724;
-        bh=fk9LczRr7FZJUTcD7jFe3t8VYw1EEj2ASjGrURari88=;
+        s=default; t=1567946610;
+        bh=w2MmB0TGNdTTQo9XjSIhZEyJjp2+5TCwC5sI3zA9Jww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sX+IbNn7x6AMCnVNLXIDiF+j1Ibg4IcXDZoZPjXC9iP6qx/QycaaE5djWfhWKfa88
-         X419Os2d2piQ73Q+fgeQU2rg5zG3XrFvL6Q8LxfrQMZ3YiRSbuuY6QULw+1RBOB9CF
-         DqEzF5DppgYX11tDJGXrUgpK0q4TLs+Q/30RNV3U=
+        b=zPMm0kaerSC95CqJeFOKC2vjEDfGSicc2RrtRMTGetU/g77ZiEGmxCrtwJd2ZMcj1
+         /FI4Cwp/S+V6NFTIKqAiOKHfoeEh8U6IHYDxzIYphvmKB32PXl2lPxhCOEYhbMQbak
+         2A+ZUOnB3XEdrb3MA8l247RFumwTfG6059qoaPHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/40] wimax/i2400m: fix a memory leak bug
-Date:   Sun,  8 Sep 2019 13:41:50 +0100
-Message-Id: <20190908121122.127215844@linuxfoundation.org>
+Subject: [PATCH 4.4 16/23] libceph: allow ceph_buffer_put() to receive a NULL ceph_buffer
+Date:   Sun,  8 Sep 2019 13:41:51 +0100
+Message-Id: <20190908121100.477137033@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
-References: <20190908121114.260662089@linuxfoundation.org>
+In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
+References: <20190908121052.898169328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 44ef3a03252844a8753479b0cea7f29e4a804bdc ]
+[ Upstream commit 5c498950f730aa17c5f8a2cdcb903524e4002ed2 ]
 
-In i2400m_barker_db_init(), 'options_orig' is allocated through kstrdup()
-to hold the original command line options. Then, the options are parsed.
-However, if an error occurs during the parsing process, 'options_orig' is
-not deallocated, leading to a memory leak bug. To fix this issue, free
-'options_orig' before returning the error.
-
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wimax/i2400m/fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/ceph/buffer.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wimax/i2400m/fw.c b/drivers/net/wimax/i2400m/fw.c
-index a89b5685e68b3..4577ee5bbddd6 100644
---- a/drivers/net/wimax/i2400m/fw.c
-+++ b/drivers/net/wimax/i2400m/fw.c
-@@ -351,13 +351,15 @@ int i2400m_barker_db_init(const char *_options)
- 			}
- 			result = i2400m_barker_db_add(barker);
- 			if (result < 0)
--				goto error_add;
-+				goto error_parse_add;
- 		}
- 		kfree(options_orig);
- 	}
- 	return 0;
+diff --git a/include/linux/ceph/buffer.h b/include/linux/ceph/buffer.h
+index 07ca15e761001..dada47a4360ff 100644
+--- a/include/linux/ceph/buffer.h
++++ b/include/linux/ceph/buffer.h
+@@ -29,7 +29,8 @@ static inline struct ceph_buffer *ceph_buffer_get(struct ceph_buffer *b)
  
-+error_parse_add:
- error_parse:
-+	kfree(options_orig);
- error_add:
- 	kfree(i2400m_barker_db);
- 	return result;
+ static inline void ceph_buffer_put(struct ceph_buffer *b)
+ {
+-	kref_put(&b->kref, ceph_buffer_release);
++	if (b)
++		kref_put(&b->kref, ceph_buffer_release);
+ }
+ 
+ extern int ceph_decode_buffer(struct ceph_buffer **b, void **p, void *end);
 -- 
 2.20.1
 
