@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 844D7ACEC3
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEC4ACEAD
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729737AbfIHMoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729745AbfIHMoS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 8 Sep 2019 08:44:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58704 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729695AbfIHMoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:44:12 -0400
+        id S1729705AbfIHMoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:44:15 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81980218DE;
-        Sun,  8 Sep 2019 12:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E0CB216C8;
+        Sun,  8 Sep 2019 12:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946652;
-        bh=WD7JZOmWMKwETyoeSdIpQDaUzS9OhQQvEvg9UVgNCsQ=;
+        s=default; t=1567946654;
+        bh=w2MmB0TGNdTTQo9XjSIhZEyJjp2+5TCwC5sI3zA9Jww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYv11BsiFYeyZZbvDYHUPRKjlMbRV1G7z0520SbEzDEKZifIGcq/6tOiTHz0AjHLR
-         uUdAWvBRuhyxMYyqyi85LqbPMm5HBL+nsm86s/y6DRSJHMik6pf9AZxdFGNGYbdIkl
-         YfKh7S2CTV71WO8cE0qTgEVkyZgK+UacHuPQfZpg=
+        b=LGfYHYXZhS48Rl6rgRou1ujGXQsokb+YjXHSnyDuNXO3EDSmsw5pJwj8yR5KvdtCv
+         lqFxvGIdxZHlckoLhHyDsWJyzc0r5aF0IWqhE/5BOfpS9KuTMWNnFZ46hKlaQmBSf9
+         12FrXshGctasnmvqTouhHdh47GHc836jOu0ClDsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/26] KVM: arm/arm64: Only skip MMIO insn once
-Date:   Sun,  8 Sep 2019 13:41:55 +0100
-Message-Id: <20190908121106.124679233@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 17/26] libceph: allow ceph_buffer_put() to receive a NULL ceph_buffer
+Date:   Sun,  8 Sep 2019 13:41:56 +0100
+Message-Id: <20190908121106.586997084@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
 References: <20190908121057.216802689@linuxfoundation.org>
@@ -44,54 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2113c5f62b7423e4a72b890bd479704aa85c81ba ]
+[ Upstream commit 5c498950f730aa17c5f8a2cdcb903524e4002ed2 ]
 
-If after an MMIO exit to userspace a VCPU is immediately run with an
-immediate_exit request, such as when a signal is delivered or an MMIO
-emulation completion is needed, then the VCPU completes the MMIO
-emulation and immediately returns to userspace. As the exit_reason
-does not get changed from KVM_EXIT_MMIO in these cases we have to
-be careful not to complete the MMIO emulation again, when the VCPU is
-eventually run again, because the emulation does an instruction skip
-(and doing too many skips would be a waste of guest code :-) We need
-to use additional VCPU state to track if the emulation is complete.
-As luck would have it, we already have 'mmio_needed', which even
-appears to be used in this way by other architectures already.
-
-Fixes: 0d640732dbeb ("arm64: KVM: Skip MMIO insn after emulation")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kvm/mmio.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/ceph/buffer.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kvm/mmio.c b/arch/arm/kvm/mmio.c
-index 08443a15e6be8..3caee91bca089 100644
---- a/arch/arm/kvm/mmio.c
-+++ b/arch/arm/kvm/mmio.c
-@@ -98,6 +98,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	unsigned int len;
- 	int mask;
+diff --git a/include/linux/ceph/buffer.h b/include/linux/ceph/buffer.h
+index 07ca15e761001..dada47a4360ff 100644
+--- a/include/linux/ceph/buffer.h
++++ b/include/linux/ceph/buffer.h
+@@ -29,7 +29,8 @@ static inline struct ceph_buffer *ceph_buffer_get(struct ceph_buffer *b)
  
-+	/* Detect an already handled MMIO return */
-+	if (unlikely(!vcpu->mmio_needed))
-+		return 0;
-+
-+	vcpu->mmio_needed = 0;
-+
- 	if (!run->mmio.is_write) {
- 		len = run->mmio.len;
- 		if (len > sizeof(unsigned long))
-@@ -200,6 +206,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
- 	run->mmio.is_write	= is_write;
- 	run->mmio.phys_addr	= fault_ipa;
- 	run->mmio.len		= len;
-+	vcpu->mmio_needed	= 1;
+ static inline void ceph_buffer_put(struct ceph_buffer *b)
+ {
+-	kref_put(&b->kref, ceph_buffer_release);
++	if (b)
++		kref_put(&b->kref, ceph_buffer_release);
+ }
  
- 	if (!ret) {
- 		/* We handled the access successfully in the kernel. */
+ extern int ceph_decode_buffer(struct ceph_buffer **b, void **p, void *end);
 -- 
 2.20.1
 
