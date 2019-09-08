@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCF5ACEA6
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70067ACE7F
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 15:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729813AbfIHMob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59252 "EHLO mail.kernel.org"
+        id S1730263AbfIHMqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729789AbfIHMoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:44:30 -0400
+        id S1730258AbfIHMp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:45:59 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61DA92196E;
-        Sun,  8 Sep 2019 12:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E3CB21A49;
+        Sun,  8 Sep 2019 12:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567946669;
-        bh=GpRnmNX5Yy8YYLy/7hh6hDMrhJzNRC4rXonoaYC5ipo=;
+        s=default; t=1567946758;
+        bh=rBYyaw2fFXbK2tMlFMR++K1OgXVKO8FT5BhnKRKLqZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xB5h6NUq4QINrTOjoHZfhapiLGd4IzoIYgDZZkXKqE61SCZsCIbtpJ4VA+YpTE90u
-         jme3Ivb6u+k8hFuR+dkd24yW7NrpUa4BxI8U9UZyAYBNPYLv6bKusQsGiWpTstIYVJ
-         GqLF2YFojreCJB8UZxO3lNOO7zAr3UfA+rlsRxLs=
+        b=yfJpDcTtM9R1YDr8nRObhWNu6FCZWftAOlbkQBWmKiaWlxSfTB7/q1U+pvWgJ9gWl
+         EE9HX1Rn564bcZ0YmDZSjMDVmkc7chz84fAwonnUp+N5cSXTben+MDedzS30dFxJrE
+         YGPn3x8ZliRPg2wIDNXklRqsMkXnjJh3Bz6MZB7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bandan Das <bsd@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 22/26] Revert "x86/apic: Include the LDR when clearing out APIC registers"
-Date:   Sun,  8 Sep 2019 13:42:01 +0100
-Message-Id: <20190908121110.627865125@linuxfoundation.org>
+Subject: [PATCH 4.14 29/40] spi: bcm2835aux: unifying code between polling and interrupt driven code
+Date:   Sun,  8 Sep 2019 13:42:02 +0100
+Message-Id: <20190908121128.223401411@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
-References: <20190908121057.216802689@linuxfoundation.org>
+In-Reply-To: <20190908121114.260662089@linuxfoundation.org>
+References: <20190908121114.260662089@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 950b07c14e8c59444e2359f15fd70ed5112e11a0 ]
+[ Upstream commit 7188a6f0eee3f1fae5d826cfc6d569657ff950ec ]
 
-This reverts commit 558682b5291937a70748d36fd9ba757fb25b99ae.
+Sharing more code between polling and interrupt-driven mode.
 
-Chris Wilson reports that it breaks his CPU hotplug test scripts.  In
-particular, it breaks offlining and then re-onlining the boot CPU, which
-we treat specially (and the BIOS does too).
-
-The symptoms are that we can offline the CPU, but it then does not come
-back online again:
-
-    smpboot: CPU 0 is now offline
-    smpboot: Booting Node 0 Processor 0 APIC 0x0
-    smpboot: do_boot_cpu failed(-1) to wakeup CPU#0
-
-Thomas says he knows why it's broken (my personal suspicion: our magic
-handling of the "cpu0_logical_apicid" thing), but for 5.3 the right fix
-is to just revert it, since we've never touched the LDR bits before, and
-it's not worth the risk to do anything else at this stage.
-
-[ Hotpluging of the boot CPU is special anyway, and should be off by
-  default. See the "BOOTPARAM_HOTPLUG_CPU0" config option and the
-  cpu0_hotplug kernel parameter.
-
-  In general you should not do it, and it has various known limitations
-  (hibernate and suspend require the boot CPU, for example).
-
-  But it should work, even if the boot CPU is special and needs careful
-  treatment       - Linus ]
-
-Link: https://lore.kernel.org/lkml/156785100521.13300.14461504732265570003@skylake-alporthouse-com/
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Bandan Das <bsd@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/spi/spi-bcm2835aux.c | 51 +++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 33 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 37666c5367415..928ffdc21873c 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1067,10 +1067,6 @@ void clear_local_APIC(void)
- 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
- 	v = apic_read(APIC_LVT1);
- 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
--	if (!x2apic_enabled()) {
--		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
--		apic_write(APIC_LDR, v);
--	}
- 	if (maxlvt >= 4) {
- 		v = apic_read(APIC_LVTPC);
- 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index bd00b7cc8b78b..97cb3beb9cc62 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -178,23 +178,13 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
+ 		      BCM2835_AUX_SPI_CNTL0_CLEARFIFO);
+ }
+ 
+-static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
++static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
+ {
+-	struct spi_master *master = dev_id;
+-	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+-	irqreturn_t ret = IRQ_NONE;
+-
+-	/* IRQ may be shared, so return if our interrupts are disabled */
+-	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
+-	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
+-		return ret;
+-
+ 	/* check if we have data to read */
+ 	while (bs->rx_len &&
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
+ 		bcm2835aux_rd_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	/* check if we have data to write */
+@@ -203,7 +193,6 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_TX_FULL))) {
+ 		bcm2835aux_wr_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	/* and check if we have reached "done" */
+@@ -211,8 +200,21 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
+ 		  BCM2835_AUX_SPI_STAT_BUSY))) {
+ 		bcm2835aux_rd_fifo(bs);
+-		ret = IRQ_HANDLED;
+ 	}
++}
++
++static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
++{
++	struct spi_master *master = dev_id;
++	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
++
++	/* IRQ may be shared, so return if our interrupts are disabled */
++	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
++	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
++		return IRQ_NONE;
++
++	/* do common fifo handling */
++	bcm2835aux_spi_transfer_helper(bs);
+ 
+ 	if (!bs->tx_len) {
+ 		/* disable tx fifo empty interrupt */
+@@ -226,8 +228,7 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
+ 		complete(&master->xfer_completion);
+ 	}
+ 
+-	/* and return */
+-	return ret;
++	return IRQ_HANDLED;
+ }
+ 
+ static int __bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
+@@ -273,7 +274,6 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
+ {
+ 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+ 	unsigned long timeout;
+-	u32 stat;
+ 
+ 	/* configure spi */
+ 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
+@@ -284,24 +284,9 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
+ 
+ 	/* loop until finished the transfer */
+ 	while (bs->rx_len) {
+-		/* read status */
+-		stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
+-
+-		/* fill in tx fifo with remaining data */
+-		if ((bs->tx_len) && (!(stat & BCM2835_AUX_SPI_STAT_TX_FULL))) {
+-			bcm2835aux_wr_fifo(bs);
+-			continue;
+-		}
+ 
+-		/* read data from fifo for both cases */
+-		if (!(stat & BCM2835_AUX_SPI_STAT_RX_EMPTY)) {
+-			bcm2835aux_rd_fifo(bs);
+-			continue;
+-		}
+-		if (!(stat & BCM2835_AUX_SPI_STAT_BUSY)) {
+-			bcm2835aux_rd_fifo(bs);
+-			continue;
+-		}
++		/* do common fifo handling */
++		bcm2835aux_spi_transfer_helper(bs);
+ 
+ 		/* there is still data pending to read check the timeout */
+ 		if (bs->rx_len && time_after(jiffies, timeout)) {
 -- 
 2.20.1
 
