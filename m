@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0ABACE21
-	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7064ACE34
+	for <lists+stable@lfdr.de>; Sun,  8 Sep 2019 14:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732621AbfIHMv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 08:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42934 "EHLO mail.kernel.org"
+        id S1732693AbfIHMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 08:55:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732615AbfIHMv1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 8 Sep 2019 08:51:27 -0400
+        id S1732631AbfIHMva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 8 Sep 2019 08:51:30 -0400
 Received: from localhost (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C4A2218AC;
-        Sun,  8 Sep 2019 12:51:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8E620693;
+        Sun,  8 Sep 2019 12:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567947087;
-        bh=l2YNntziq5/IXjI2hxmN5NXKaQAoKbhgICVAzS5Y+CM=;
+        s=default; t=1567947089;
+        bh=j6EGaUgINAbUeHJRDMaId7xXvK70U2UclSJg0QPS1sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5n9xi+BI24PLCGydYhBoeEgPSctlt6He3El4rr/WhlmX4BB+ghUWsQWSv3bLpenl
-         Qu+tOy67IMFabdkzW4yVwtW0/h3LpJlMEXq8Bdr+TYe7iDisgfW8ZZgMT3XHdlQ7pB
-         /9Be6D69pL09o3CzlyCFDZpP+TQfzwUxNO1Xtjlg=
+        b=LIl4AAv9JaImaNsNsE9BtGTa61TSKrWmULHt/e3tad5mfuc0yLVlBTcdKzDzq4vyO
+         ve4gmQPwS310DkAOwN5jhwtH611fmr9vmrhm7l8MzSMKA5Rbsl0dLUye8R4DTcPlcO
+         rfeKZfIRmQNZzsfLEgR1LOgqhiDAdm2QHYYi0kIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Leandro Dorileo <leandro.maciel.dorileo@intel.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org, Marco Hartmann <marco.hartmann@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 14/94] net/sched: cbs: Set default link speed to 10 Mbps in cbs_set_port_rate
-Date:   Sun,  8 Sep 2019 13:41:10 +0100
-Message-Id: <20190908121150.841099193@linuxfoundation.org>
+Subject: [PATCH 5.2 15/94] Add genphy_c45_config_aneg() function to phy-c45.c
+Date:   Sun,  8 Sep 2019 13:41:11 +0100
+Message-Id: <20190908121150.869039333@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190908121150.420989666@linuxfoundation.org>
 References: <20190908121150.420989666@linuxfoundation.org>
@@ -46,58 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Marco Hartmann <marco.hartmann@nxp.com>
 
-The discussion to be made is absolutely the same as in the case of
-previous patch ("taprio: Set default link speed to 10 Mbps in
-taprio_set_picos_per_byte"). Nothing is lost when setting a default.
+[ Upstream commit 2ebb991641d3f64b70fec0156e2b6933810177e9 ]
 
-Cc: Leandro Dorileo <leandro.maciel.dorileo@intel.com>
-Fixes: e0a7683d30e9 ("net/sched: cbs: fix port_rate miscalculation")
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Commit 34786005eca3 ("net: phy: prevent PHYs w/o Clause 22 regs from calling
+genphy_config_aneg") introduced a check that aborts phy_config_aneg()
+if the phy is a C45 phy.
+This causes phy_state_machine() to call phy_error() so that the phy
+ends up in PHY_HALTED state.
+
+Instead of returning -EOPNOTSUPP, call genphy_c45_config_aneg()
+(analogous to the C22 case) so that the state machine can run
+correctly.
+
+genphy_c45_config_aneg() closely resembles mv3310_config_aneg()
+in drivers/net/phy/marvell10g.c, excluding vendor specific
+configurations for 1000BaseT.
+
+Fixes: 22b56e827093 ("net: phy: replace genphy_10g_driver with genphy_c45_driver")
+
+Signed-off-by: Marco Hartmann <marco.hartmann@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cbs.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/net/phy/phy-c45.c |   26 ++++++++++++++++++++++++++
+ drivers/net/phy/phy.c     |    2 +-
+ include/linux/phy.h       |    1 +
+ 3 files changed, 28 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_cbs.c
-+++ b/net/sched/sch_cbs.c
-@@ -181,11 +181,6 @@ static struct sk_buff *cbs_dequeue_soft(
- 	s64 credits;
- 	int len;
+--- a/drivers/net/phy/phy-c45.c
++++ b/drivers/net/phy/phy-c45.c
+@@ -523,6 +523,32 @@ int genphy_c45_read_status(struct phy_de
+ }
+ EXPORT_SYMBOL_GPL(genphy_c45_read_status);
  
--	if (atomic64_read(&q->port_rate) == -1) {
--		WARN_ONCE(1, "cbs: dequeue() called with unknown port rate.");
--		return NULL;
--	}
--
- 	if (q->credits < 0) {
- 		credits = timediff_to_credits(now - q->last, q->idleslope);
- 
-@@ -303,11 +298,19 @@ static int cbs_enable_offload(struct net
- static void cbs_set_port_rate(struct net_device *dev, struct cbs_sched_data *q)
- {
- 	struct ethtool_link_ksettings ecmd;
-+	int speed = SPEED_10;
- 	int port_rate = -1;
-+	int err;
++/**
++ * genphy_c45_config_aneg - restart auto-negotiation or forced setup
++ * @phydev: target phy_device struct
++ *
++ * Description: If auto-negotiation is enabled, we configure the
++ *   advertising, and then restart auto-negotiation.  If it is not
++ *   enabled, then we force a configuration.
++ */
++int genphy_c45_config_aneg(struct phy_device *phydev)
++{
++	bool changed = false;
++	int ret;
 +
-+	err = __ethtool_get_link_ksettings(dev, &ecmd);
-+	if (err < 0)
-+		goto skip;
++	if (phydev->autoneg == AUTONEG_DISABLE)
++		return genphy_c45_pma_setup_forced(phydev);
 +
-+	if (ecmd.base.speed != SPEED_UNKNOWN)
-+		speed = ecmd.base.speed;
++	ret = genphy_c45_an_config_aneg(phydev);
++	if (ret < 0)
++		return ret;
++	if (ret > 0)
++		changed = true;
++
++	return genphy_c45_check_and_restart_aneg(phydev, changed);
++}
++EXPORT_SYMBOL_GPL(genphy_c45_config_aneg);
++
+ /* The gen10g_* functions are the old Clause 45 stub */
  
--	if (!__ethtool_get_link_ksettings(dev, &ecmd) &&
--	    ecmd.base.speed != SPEED_UNKNOWN)
--		port_rate = ecmd.base.speed * 1000 * BYTES_PER_KBIT;
-+skip:
-+	port_rate = speed * 1000 * BYTES_PER_KBIT;
+ int gen10g_config_aneg(struct phy_device *phydev)
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -499,7 +499,7 @@ static int phy_config_aneg(struct phy_de
+ 	 * allowed to call genphy_config_aneg()
+ 	 */
+ 	if (phydev->is_c45 && !(phydev->c45_ids.devices_in_package & BIT(0)))
+-		return -EOPNOTSUPP;
++		return genphy_c45_config_aneg(phydev);
  
- 	atomic64_set(&q->port_rate, port_rate);
- 	netdev_dbg(dev, "cbs: set %s's port_rate to: %lld, linkspeed: %d\n",
+ 	return genphy_config_aneg(phydev);
+ }
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -1108,6 +1108,7 @@ int genphy_c45_an_disable_aneg(struct ph
+ int genphy_c45_read_mdix(struct phy_device *phydev);
+ int genphy_c45_pma_read_abilities(struct phy_device *phydev);
+ int genphy_c45_read_status(struct phy_device *phydev);
++int genphy_c45_config_aneg(struct phy_device *phydev);
+ 
+ /* The gen10g_* functions are the old Clause 45 stub */
+ int gen10g_config_aneg(struct phy_device *phydev);
 
 
