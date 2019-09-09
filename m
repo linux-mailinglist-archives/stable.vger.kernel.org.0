@@ -2,220 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85693AD9DA
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 15:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8320EADA01
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 15:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730161AbfIINTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 09:19:20 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:37619 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730142AbfIINTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 09:19:19 -0400
-Received: by mail-lj1-f194.google.com with SMTP id y5so1894568lji.4
-        for <stable@vger.kernel.org>; Mon, 09 Sep 2019 06:19:18 -0700 (PDT)
+        id S1727205AbfIINcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 09:32:19 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:41669 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726863AbfIINcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 09:32:19 -0400
+Received: by mail-io1-f65.google.com with SMTP id r26so28566609ioh.8;
+        Mon, 09 Sep 2019 06:32:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ZGgBEktDuEpp437eI+l0oc8mQy/q7e53dFVNJhuHdZA=;
-        b=Kz4YOqP7hIoJolzb/cciYYVNzLGH6bJKibJMDqWRs02yTaESM889lgQOhuIIzfM4KS
-         S3/TG+Y9b6xRzM1CyHzYksvFI/u2uozMcGeWh0iSGlXKRoZ84Yo1ctmRx85eAmuUXnzR
-         3CgAin4gVpzhGvEjnY3HymYHP7muHFs3AYLcbc1cX+ZiorsnVr3B/RjG/lQgeGEXAAw7
-         kVlS1oEzQu2hgGaS7xw/XZRStllfVJPm0zKeSYJmalrv4zXgF+e1K8P+r8V58jbUuJQg
-         Wj5ZS+B6EEVini1g7LRSAqoca8bwd/hpBJRahzTq9Q0stsovMNNCQOfavqBdJV72zSvC
-         kzNw==
+         :cc;
+        bh=uNPO18E9u4VFHR5eE6QVM48gJTzLZL8W/Knzhp286xk=;
+        b=kNHXD6JFZgQUAAdrzrOtXDHAaJeBL1xnN3iwN3mKbai6Q7jKlJxgRu39o/iTAD3TeH
+         JvQH/prFlc7xMpZHQ9hPTCS7xrImCip45XKaKwayev6LJ0XxQdwiKuVS0NJTbQ/fdCA9
+         FV5FpGnJrjYoTzpr0PQYsYAjo493bmJpXO1qNDuiO8dV24MeTQyQ2wDdU+Q3ktLeMGYq
+         lVYJ1vjR88/KtWt7zyDM1lxQFksTFp/6BgwKcTxAtl0ynEemsN44g/skL+sppOLiNvIc
+         o4KmNbsK9gPlf0bt9xe3YyJ9Li4sQdRhj52vGN3VgAfRIXbIyO54otGYNOjHIJMEcr0N
+         RivA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZGgBEktDuEpp437eI+l0oc8mQy/q7e53dFVNJhuHdZA=;
-        b=EOQFPkLHi7XGvUaQR4Vgi56qNm/eU8catz8tK7FQKpCUUXQEzW6OACIqz2i4YDqa2R
-         8QvaKHvVBg95IIbdbWyzkpnQujYHMg0R6L//ewW2Qw6+VSudzhHQrW9cKnW5alM6yHPu
-         dPIU1fogMFkW4AKuRKK3IuwsjWNl+Oa+8KEec+ME5jOsO1nkYqMVr1mP3rzhtjLvSFPI
-         vx7vgDluy/PiaTLJyiOjP39Wbt3n2TtVx/XznLhlKn7dKM02KD/7blWobncrrUmbJ3KH
-         1CWWqe+FGUPzNQFoKfQvBpuez3iPgj3A8i8RSbEFEJaQNtjMSmjY/z6px9BVqpbyGhuj
-         D6qw==
-X-Gm-Message-State: APjAAAVbuExjbsmDCd5JkojaxsRPoz26eAuEXoWRCRcI7gbl7P28GNET
-        nHB3lQJZbfJRblIAzs1soH6/NSs5OGQCprrXu1D+Jg==
-X-Google-Smtp-Source: APXvYqwycdIBfJUQfKG6M1oZLvzuKTW+SyPB5bL2yKCH/1F0PrVqCy2vDB4TxpNS1NyR5YCvLNjmJuxi37mVTELLD6M=
-X-Received: by 2002:a2e:890d:: with SMTP id d13mr15918289lji.224.1568035157113;
- Mon, 09 Sep 2019 06:19:17 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=uNPO18E9u4VFHR5eE6QVM48gJTzLZL8W/Knzhp286xk=;
+        b=byFJoyiyhf/siJL9lvyV3xc7oIa1WhP3/UFd47yYW1MQCi7yd11t3BIDgwjX+W0wNN
+         aF2ooUlaGCJynwvdvyM7wADxSVBVn/Wm5TY0wu/fAfxNh5ojHiF7EAHaiJjLDgNoWIN/
+         KQ8A1QkoLltCy/ae1/E7btRYtpFxbvFeP/Kh9Carvnq+jaZrKakWX9WMicF6dwTh4BhK
+         TddS/A+z6vp0nkuGX/hqCqA8rZd+xPFInc0R3vJ9PvDtnMgSWf48l9dsy0lPw0IBdV3u
+         jvInAZzH41eXb0/RKg38IVPeshAknpIqxcfxiAuQq6h1jG1g64Pnz/c+bVhG7uHk8NEt
+         xIWw==
+X-Gm-Message-State: APjAAAWbQpFZw+kfn/IuUJtAuBdvgHiXqCo1L+tq7gX5Reh0iPFWl5QO
+        AIJ+gkO6tQqAQ9ZvY2sIOCQ//Ns2DtY0ci8YJYw=
+X-Google-Smtp-Source: APXvYqwLFSwDFF4ktapBCBuY9u/0Yh7kqig52d6DQ/Kmcw1NR1FMw1oGhVlizUKzQqVuwAUlzoNX4hC9NZnYBHbbLbg=
+X-Received: by 2002:a02:b395:: with SMTP id p21mr26999521jan.52.1568035937967;
+ Mon, 09 Sep 2019 06:32:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190908121052.898169328@linuxfoundation.org>
-In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 9 Sep 2019 18:49:06 +0530
-Message-ID: <CA+G9fYuYNaCsfFFXmyv2OK0KycC29cw7OuX0eEWK=Vmv1Xe9tQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/23] 4.4.192-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+References: <20190814214319.24087-1-andreas@kemnade.info> <CAHCN7xL4K+1nJDXDRs7yVi6LhGL-4uPu9M+SN1dcOPu8=M8s2g@mail.gmail.com>
+In-Reply-To: <CAHCN7xL4K+1nJDXDRs7yVi6LhGL-4uPu9M+SN1dcOPu8=M8s2g@mail.gmail.com>
+From:   Adam Ford <aford173@gmail.com>
+Date:   Mon, 9 Sep 2019 08:32:06 -0500
+Message-ID: <CAHCN7xJ0RmRQwo3bSF6FoLjOtrg5YZAMD9+=332LMzLLR1qdDA@mail.gmail.com>
+Subject: Re: [PATCH v2] regulator: twl: voltage lists for vdd1/2 on twl4030
+To:     Andreas Kemnade <andreas@kemnade.info>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-pm@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        Nishanth Menon <nm@ti.com>, vireshk@kernel.org,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 8 Sep 2019 at 18:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, Aug 15, 2019 at 5:47 AM Adam Ford <aford173@gmail.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.4.192 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Wed, Aug 14, 2019 at 5:18 PM Andreas Kemnade <andreas@kemnade.info> wrote:
+> >
+> > _opp_supported_by_regulators() wrongly ignored errors from
+> > regulator_is_supported_voltage(), so it considered errors as
+> > success. Since
+> > commit 498209445124 ("regulator: core: simplify return value on suported_voltage")
+> > regulator_is_supported_voltage() returns a real boolean, so
+> > errors make _opp_supported_by_regulators() return false.
+> >
+> > That reveals a problem with the declaration of the VDD1/2
+> > regulators on twl4030.
+> > The VDD1/VDD2 regulators on twl4030 are neither defined with
+> > voltage lists nor with the continuous flag set, so
+> > regulator_is_supported_voltage() returns false and an error
+> > before above mentioned commit (which was considered success)
+> > The result is that after the above mentioned commit cpufreq
+> > does not work properly e.g. dm3730.
+> >
+> > [    2.490997] core: _opp_supported_by_regulators: OPP minuV: 1012500 maxuV: 1012500, not supported by regulator
+> > [    2.501617] cpu cpu0: _opp_add: OPP not supported by regulators (300000000)
+> > [    2.509246] core: _opp_supported_by_regulators: OPP minuV: 1200000 maxuV: 1200000, not supported by regulator
+> > [    2.519775] cpu cpu0: _opp_add: OPP not supported by regulators (600000000)
+> > [    2.527313] core: _opp_supported_by_regulators: OPP minuV: 1325000 maxuV: 1325000, not supported by regulator
+> > [    2.537750] cpu cpu0: _opp_add: OPP not supported by regulators (800000000)
+> >
+> > The patch fixes declaration of VDD1/2 regulators by
+> > adding proper voltage lists.
+> >
+> > Fixes: 498209445124 ("regulator: core: simplify return value on suported_voltage")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
 >
-> Responses should be made by Tue 10 Sep 2019 12:09:36 PM UTC.
-> Anything received after that time might be too late.
+> Tested-by: Adam Ford <aford173@gmail.com> #logicpd-torpedo-37xx-devkit
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.192-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I am not sure who the right maintainer is, but as of today, cpufreq
+for users of twl4030 on 5.3-RC8 is still broken without this patch.
+Is there any way it can be applied before the final release?
 
-Summary
-------------------------------------------------------------------------
+thank you,
 
-kernel: 4.4.192-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: fbce796fcbec98dc9e077846a5b7ba9c0f42d0cc
-git describe: v4.4.191-24-gfbce796fcbec
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.191-24-gfbce796fcbec
-
-
-No regressions (compared to build v4.4.191)
-
-
-No fixes (compared to build v4.4.191)
-
-Ran 18270 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* prep-tmp-disk
-* spectre-meltdown-checker-test
-* kvm-unit-tests
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.192-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.192-rc1-hikey-20190908-552
-git commit: 2bbf7053f847783ad819ce5cdbc4e30b361cf11a
-git describe: 4.4.192-rc1-hikey-20190908-552
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.192-rc1-hikey-20190908-552
-
-
-No regressions (compared to build 4.4.192-rc1-hikey-20190908-551)
-
-
-No fixes (compared to build 4.4.192-rc1-hikey-20190908-551)
-
-Ran 1536 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+adam
+> > ---
+> > resent because it was rejected by mailing lists, due to technical
+> > issues, sorry for the noise.
+> > changes in v2:
+> >   using a proper voltage list instead of misusing the continuous flag
+> >   subject was regulator: twl: mark vdd1/2 as continuous on twl4030
+> >
+> >  drivers/regulator/twl-regulator.c | 23 ++++++++++++++++++++---
+> >  1 file changed, 20 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
+> > index 6fa15b2d6fb3..866b4dd01da9 100644
+> > --- a/drivers/regulator/twl-regulator.c
+> > +++ b/drivers/regulator/twl-regulator.c
+> > @@ -359,6 +359,17 @@ static const u16 VINTANA2_VSEL_table[] = {
+> >         2500, 2750,
+> >  };
+> >
+> > +/* 600mV to 1450mV in 12.5 mV steps */
+> > +static const struct regulator_linear_range VDD1_ranges[] = {
+> > +       REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500)
+> > +};
+> > +
+> > +/* 600mV to 1450mV in 12.5 mV steps, everything above = 1500mV */
+> > +static const struct regulator_linear_range VDD2_ranges[] = {
+> > +       REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500),
+> > +       REGULATOR_LINEAR_RANGE(1500000, 69, 69, 12500)
+> > +};
+> > +
+> >  static int twl4030ldo_list_voltage(struct regulator_dev *rdev, unsigned index)
+> >  {
+> >         struct twlreg_info      *info = rdev_get_drvdata(rdev);
+> > @@ -427,6 +438,8 @@ static int twl4030smps_get_voltage(struct regulator_dev *rdev)
+> >  }
+> >
+> >  static const struct regulator_ops twl4030smps_ops = {
+> > +       .list_voltage   = regulator_list_voltage_linear_range,
+> > +
+> >         .set_voltage    = twl4030smps_set_voltage,
+> >         .get_voltage    = twl4030smps_get_voltage,
+> >  };
+> > @@ -466,7 +479,8 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
+> >                 }, \
+> >         }
+> >
+> > -#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf) \
+> > +#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf, \
+> > +               n_volt) \
+> >  static const struct twlreg_info TWL4030_INFO_##label = { \
+> >         .base = offset, \
+> >         .id = num, \
+> > @@ -479,6 +493,9 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
+> >                 .owner = THIS_MODULE, \
+> >                 .enable_time = turnon_delay, \
+> >                 .of_map_mode = twl4030reg_map_mode, \
+> > +               .n_voltages = n_volt, \
+> > +               .n_linear_ranges = ARRAY_SIZE(label ## _ranges), \
+> > +               .linear_ranges = label ## _ranges, \
+> >                 }, \
+> >         }
+> >
+> > @@ -518,8 +535,8 @@ TWL4030_ADJUSTABLE_LDO(VSIM, 0x37, 9, 100, 0x00);
+> >  TWL4030_ADJUSTABLE_LDO(VDAC, 0x3b, 10, 100, 0x08);
+> >  TWL4030_ADJUSTABLE_LDO(VINTANA2, 0x43, 12, 100, 0x08);
+> >  TWL4030_ADJUSTABLE_LDO(VIO, 0x4b, 14, 1000, 0x08);
+> > -TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08);
+> > -TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08);
+> > +TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08, 68);
+> > +TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08, 69);
+> >  /* VUSBCP is managed *only* by the USB subchip */
+> >  TWL4030_FIXED_LDO(VINTANA1, 0x3f, 1500, 11, 100, 0x08);
+> >  TWL4030_FIXED_LDO(VINTDIG, 0x47, 1500, 13, 100, 0x08);
+> > --
+> > 2.20.1
+> >
