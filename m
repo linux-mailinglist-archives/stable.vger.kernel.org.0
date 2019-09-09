@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC80EAE0C3
+	by mail.lfdr.de (Postfix) with ESMTP id 5E40DAE0C2
 	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406277AbfIIWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S2406364AbfIIWRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:17:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392262AbfIIWR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:17:27 -0400
+        id S2406338AbfIIWR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:17:29 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E57421D6C;
-        Mon,  9 Sep 2019 22:17:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8884E21A4A;
+        Mon,  9 Sep 2019 22:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067447;
-        bh=eArGvEepIIpMO6s2toapya3rfKhfxPzPCS9EURu4A60=;
+        s=default; t=1568067448;
+        bh=EEJyiFOb58dYeSeHP50yL1HEZhSK5Fe9OBqGqb3mxTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbEYXeYpz6RYmRrNf/96Vze1F5FFDOZgnmEH4sQMfEmpI5Gkmi+2lFeh6hXwFh17W
-         X0B4xIfGbmwWSSzn4w5swsEq++2gkJcPRuTtNvZyhJ4kCdcXqBFqW+Ii2gCo3Q5dVE
-         M+V9650+qc/R7p+s4SJw21qPjKdKD6tPOY7+xsmU=
+        b=vRDKCxrM9q9qA8Li8WJZGN81LYyjTqw4C49Jbw2hcqSOnYEisozyuVR2yryP7pIuG
+         3TygeS7SbQ+ZXblHo11hubYDp/IhJ7928FoT7cMHOkMVhpOQW+UgKT1FMpypcFHpHG
+         djaigjdKyY6Mhvrh3Y9N9zijmCpAZCt5u/jTaCfQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hillf Danton <hdanton@sina.com>,
-        Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/6] keys: Fix missing null pointer check in request_key_auth_describe()
-Date:   Mon,  9 Sep 2019 11:42:04 -0400
-Message-Id: <20190909154205.31376-5-sashal@kernel.org>
+Cc:     Joerg Roedel <jroedel@suse.de>, Qian Cai <cai@lca.pw>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 6/6] iommu/amd: Fix race in increase_address_space()
+Date:   Mon,  9 Sep 2019 11:42:05 -0400
+Message-Id: <20190909154205.31376-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190909154205.31376-1-sashal@kernel.org>
 References: <20190909154205.31376-1-sashal@kernel.org>
@@ -46,72 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit d41a3effbb53b1bcea41e328d16a4d046a508381 ]
+[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
 
-If a request_key authentication token key gets revoked, there's a window in
-which request_key_auth_describe() can see it with a NULL payload - but it
-makes no check for this and something like the following oops may occur:
+After the conversion to lock-less dma-api call the
+increase_address_space() function can be called without any
+locking. Multiple CPUs could potentially race for increasing
+the address space, leading to invalid domain->mode settings
+and invalid page-tables. This has been happening in the wild
+under high IO load and memory pressure.
 
-	BUG: Kernel NULL pointer dereference at 0x00000038
-	Faulting instruction address: 0xc0000000004ddf30
-	Oops: Kernel access of bad area, sig: 11 [#1]
-	...
-	NIP [...] request_key_auth_describe+0x90/0xd0
-	LR [...] request_key_auth_describe+0x54/0xd0
-	Call Trace:
-	[...] request_key_auth_describe+0x54/0xd0 (unreliable)
-	[...] proc_keys_show+0x308/0x4c0
-	[...] seq_read+0x3d0/0x540
-	[...] proc_reg_read+0x90/0x110
-	[...] __vfs_read+0x3c/0x70
-	[...] vfs_read+0xb4/0x1b0
-	[...] ksys_read+0x7c/0x130
-	[...] system_call+0x5c/0x70
+Fix the race by locking this operation. The function is
+called infrequently so that this does not introduce
+a performance regression in the dma-api path again.
 
-Fix this by checking for a NULL pointer when describing such a key.
-
-Also make the read routine check for a NULL pointer to be on the safe side.
-
-[DH: Modified to not take already-held rcu lock and modified to also check
- in the read routine]
-
-Fixes: 04c567d9313e ("[PATCH] Keys: Fix race between two instantiators of a key")
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Qian Cai <cai@lca.pw>
+Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/request_key_auth.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iommu/amd_iommu.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
-index f60baeb338e5f..b47445022d5ce 100644
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -71,6 +71,9 @@ static void request_key_auth_describe(const struct key *key,
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index c1233d0288a03..dd7880de7e4e9 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1321,18 +1321,21 @@ static void domain_flush_devices(struct protection_domain *domain)
+  * another level increases the size of the address space by 9 bits to a size up
+  * to 64 bits.
+  */
+-static bool increase_address_space(struct protection_domain *domain,
++static void increase_address_space(struct protection_domain *domain,
+ 				   gfp_t gfp)
  {
- 	struct request_key_auth *rka = key->payload.data[0];
++	unsigned long flags;
+ 	u64 *pte;
  
-+	if (!rka)
-+		return;
+-	if (domain->mode == PAGE_MODE_6_LEVEL)
++	spin_lock_irqsave(&domain->lock, flags);
 +
- 	seq_puts(m, "key:");
- 	seq_puts(m, key->description);
- 	if (key_is_positive(key))
-@@ -88,6 +91,9 @@ static long request_key_auth_read(const struct key *key,
- 	size_t datalen;
- 	long ret;
++	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
+ 		/* address space already 64 bit large */
+-		return false;
++		goto out;
  
-+	if (!rka)
-+		return -EKEYREVOKED;
+ 	pte = (void *)get_zeroed_page(gfp);
+ 	if (!pte)
+-		return false;
++		goto out;
+ 
+ 	*pte             = PM_LEVEL_PDE(domain->mode,
+ 					virt_to_phys(domain->pt_root));
+@@ -1340,7 +1343,10 @@ static bool increase_address_space(struct protection_domain *domain,
+ 	domain->mode    += 1;
+ 	domain->updated  = true;
+ 
+-	return true;
++out:
++	spin_unlock_irqrestore(&domain->lock, flags);
 +
- 	datalen = rka->callout_len;
- 	ret = datalen;
++	return;
+ }
  
+ static u64 *alloc_pte(struct protection_domain *domain,
 -- 
 2.20.1
 
