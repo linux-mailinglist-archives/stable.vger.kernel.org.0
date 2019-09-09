@@ -2,149 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D28ADB20
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 16:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22D2ADB79
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 16:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfIIOYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 10:24:34 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45084 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbfIIOYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 10:24:32 -0400
-Received: by mail-pl1-f196.google.com with SMTP id x3so6570899plr.12
-        for <stable@vger.kernel.org>; Mon, 09 Sep 2019 07:24:31 -0700 (PDT)
+        id S1728039AbfIIOtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 10:49:21 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:36898 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726070AbfIIOtV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 10:49:21 -0400
+Received: by mail-pf1-f195.google.com with SMTP id y5so6559714pfo.4;
+        Mon, 09 Sep 2019 07:49:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=lbfN6bb/Cab8FhmK5hvUyGyJpQngTjGaLYzqkqMwwaw=;
-        b=EQ4hPfczVhylUYRlafgNbmIAVyWADkVHZnQxtGRIDwglF0ej4vEUlQs4ZeqXnwPEVT
-         2ItoFqyzus9e3C0nBj3hom99xV4k3T0CnheuBynGqH5sQvEQ34XAQhBwBybwtiIy3DG+
-         HFo0UykNjE7Ogp1fggKxfUNxUCAKcjjkDu/pIKDyQPDwrQnl584WWKljk91zf9jF9t5J
-         UxmGqAlEc3+ie2cousgkn5X6twTsNaKVgxb19X0CRygS41KNfbTazoD6PnAzvMvCjZsx
-         LwVP7Jkc348TE/OgZywMPCJfjkGWRz7YH79hq1nFdZgYockykF0oLyiXdECXQXnwNcbi
-         Cjtg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Cny7mfH3Tw4JydlW9/MqyhLRT/uPeeSAk9W98YCTlZQ=;
+        b=q9eROu7PL7Jh1Axr1Z7D3NyBdffI6JS1UXhwy9D1VJYhln1SbB6YjhpmnUr0ffv76P
+         3oqHQw2hr8e7iq6qSMgHOLMhU0SOJdMwX4ittpi3YKK9bPMdUbCLxScT9wwXfx1yMKRI
+         7COof5xCbr/y+nbQ4rl/G5SNblH5J4JFk78VgWmlJaZN8AdIDDsC0vobAANcC5YtrvCM
+         OA2XFY1fSyb93kdc4BPQKvF+DHdh/sLq/PLhp3CfAlLFENEydQutKeNREvJk8CdmOUB5
+         5uNy74RFVtGmxcriXJHhXVrU6/Vsk/6uqPLFAc3AwIY5jhehKTJf1Pl8MSnNPCO4T++a
+         53Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=lbfN6bb/Cab8FhmK5hvUyGyJpQngTjGaLYzqkqMwwaw=;
-        b=LUI9CFiurgakm5rjNZAvuhb8KwYiwiT136P5j80XuJyp7epJOgXHmFcYfrsqhTCATc
-         6S2cCixfWIPd9vRNj4Wgzxb6grtCLO1447KclfJ0sqt75gS2yQN2s6F+wEvn5SEyg5F1
-         NMXS9mZamp8SJiw1ArU9q6Og1n79dnUWrPnfTgmn53Ss/cqYvIpC13fuaxA7fJg78dFU
-         DRa2cruFvuE5hmS2llCba+NDnCegqfNE/44QT1HohcR2gP1usPdAMMhirMJohGwiO7vN
-         QIda8UsCocI6vCksZVMkMOfxH4ODAi4l4wWlCzTHMN/67hbCtd7oHKUUS1n0f7Z+lvSw
-         fEJg==
-X-Gm-Message-State: APjAAAWsyvklMyDPLK8YKWSBC84QOfN625aipOwlW49HuG42jIxqk+Nq
-        9ZfV+zStPUbF3pLO8mdW3jigXhpbgRJCBw==
-X-Google-Smtp-Source: APXvYqyjDridxJhQUEYdPB5+tEjPSrzcb2ywbeHXAAUKunZY07oQ/lp8Rm8oyeLdMgC3OJ/Z3wtddQ==
-X-Received: by 2002:a17:902:a615:: with SMTP id u21mr23375821plq.4.1568039071132;
-        Mon, 09 Sep 2019 07:24:31 -0700 (PDT)
-Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
-        by smtp.googlemail.com with ESMTPSA id z21sm16010682pfn.183.2019.09.09.07.24.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Sep 2019 07:24:30 -0700 (PDT)
-Subject: Re: [PATCH v2] net: enable wireless core features with
- LEGACY_WEXT_ALLCONFIG
-To:     Greg KH <greg@kroah.com>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20190906192403.195620-1-salyzyn@android.com>
- <20190906233045.GB9478@kroah.com>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <b7027a5d-5d75-677b-0e9b-cd70e5e30092@android.com>
-Date:   Mon, 9 Sep 2019 07:24:29 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Cny7mfH3Tw4JydlW9/MqyhLRT/uPeeSAk9W98YCTlZQ=;
+        b=s8k/A+9bIwDsTfSv/DpiUWL23AGQPi5QHB/8jVOkMuwJTUGOuKBeVjpg5uft+d+WxJ
+         GRqQIeGUFEx8eyj0I4CAqG7ZMbtyM63qb3jp/MnFMVcdz6XnsnP/pMJQyeuKxVZGNCVv
+         msyOOV6xQLYH2+jA64mZL41HeotLyyuJglADDXUUvTZ3UXTnmn8n9DNpBiy9Vw2DyRvI
+         W5EPXx2sjb121KhJHpcOClrw5Rrr8Pe9a4RN68+cw5Cx2mutQOI6c2LdsXl0eLRZ/4lr
+         UEh1vAUlyq6av32mCEcqopirunFwzUEgyI348hug/rSEo4F4FqA9CGEMJQSs5D4PK67m
+         PMMA==
+X-Gm-Message-State: APjAAAWvAtZKtBoeW7k2yW/5gCIMQIu9IIrJQCPdMp52szpQI43PquI6
+        Dm5Z7kQgS1XrWQVJZ3AcYMTS6GQ8
+X-Google-Smtp-Source: APXvYqzmQcEQ129TjwrhcxMsAxDFnWBxXxktST+V0dFAde3OthoDB7AP0fUwMghDhSEpk/XhmQeOrg==
+X-Received: by 2002:a63:561c:: with SMTP id k28mr22046746pgb.143.1568040560809;
+        Mon, 09 Sep 2019 07:49:20 -0700 (PDT)
+Received: from bharath12345-Inspiron-5559 ([103.110.42.34])
+        by smtp.gmail.com with ESMTPSA id b16sm7848096pfb.54.2019.09.09.07.49.16
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 09 Sep 2019 07:49:20 -0700 (PDT)
+Date:   Mon, 9 Sep 2019 20:19:13 +0530
+From:   Bharath Vedartham <linux.bhar@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 00/26] 4.9.192-stable review
+Message-ID: <20190909144913.GA4050@bharath12345-Inspiron-5559>
+References: <20190908121057.216802689@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20190906233045.GB9478@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/6/19 4:30 PM, Greg KH wrote:
-> On Fri, Sep 06, 2019 at 12:24:00PM -0700, Mark Salyzyn wrote:
->> In embedded environments the requirements are to be able to pick and
->> chose which features one requires built into the kernel.  If an
->> embedded environment wants to supports loading modules that have been
->> kbuilt out of tree, there is a need to enable hidden configurations
->> for legacy wireless core features to provide the API surface for
->> them to load.
->>
->> Introduce CONFIG_LEGACY_WEXT_ALLCONFIG to select all legacy wireless
->> extension core features by activating in turn all the associated
->> hidden configuration options, without having to specifically select
->> any wireless module(s).
->>
->> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
->> Cc: kernel-team@android.com
->> Cc: Johannes Berg <johannes@sipsolutions.net>
->> Cc: "David S. Miller" <davem@davemloft.net>
->> Cc: Marcel Holtmann <marcel@holtmann.org>
->> Cc: linux-wireless@vger.kernel.org
->> Cc: netdev@vger.kernel.org
->> Cc: linux-kernel@vger.kernel.org
->> Cc: stable@vger.kernel.org # 4.19
->> ---
->> v2: change name and documentation to CONFIG_LEGACY_WEXT_ALLCONFIG
->> ---
->>   net/wireless/Kconfig | 14 ++++++++++++++
->>   1 file changed, 14 insertions(+)
->>
->> diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
->> index 67f8360dfcee..0d646cf28de5 100644
->> --- a/net/wireless/Kconfig
->> +++ b/net/wireless/Kconfig
->> @@ -17,6 +17,20 @@ config WEXT_SPY
->>   config WEXT_PRIV
->>   	bool
->>   
->> +config LEGACY_WEXT_ALLCONFIG
->> +	bool "allconfig for legacy wireless extensions"
->> +	select WIRELESS_EXT
->> +	select WEXT_CORE
->> +	select WEXT_PROC
->> +	select WEXT_SPY
->> +	select WEXT_PRIV
->> +	help
->> +	  Config option used to enable all the legacy wireless extensions to
->> +	  the core functionality used by add-in modules.
->> +
->> +	  If you are not building a kernel to be used for a variety of
->> +	  out-of-kernel built wireless modules, say N here.
->> +
->>   config CFG80211
->>   	tristate "cfg80211 - wireless configuration API"
->>   	depends on RFKILL || !RFKILL
->> -- 
->> 2.23.0.187.g17f5b7556c-goog
->>
-> How is this patch applicable to stable kernels???
+Built and booted on my x86 arch machine. No dmesg regressions found.
 
-A) worth a shot ;-}
-
-B) there is a shortcoming in _all_ kernel versions with respect to 
-hidden configurations options like this, hoping to set one precedent in 
-how to handle them if acceptable to the community.
-
-C) [AGENDA ALERT] Android _will_ be back-porting this to android-4.19 
-kernel anyway, would help maintenance if via stable. <holding hat in hand>
-
-D) Not an ABI or interface break, does not introduce instability, but 
-rather keeps downstream kernels of any distributions from having to hack 
-in their own alternate means of dealing with this problem leading to 
-further fragmentation.
-
-E) Timely discussion item for LPC?
-
-Sincerely -- Mark Salyzyn
-
+Thank you
+Bharath
