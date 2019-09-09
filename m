@@ -2,81 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC487ADF96
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 21:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9B7ADFB3
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 21:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730636AbfIITn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 15:43:26 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:32802 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730465AbfIITn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 15:43:26 -0400
-Received: by mail-pg1-f195.google.com with SMTP id n190so8419430pgn.0;
-        Mon, 09 Sep 2019 12:43:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=BwjnaJdx1SiBo+TheuZxiJ5csvHPGuBQdHlcmoRVupA=;
-        b=RO9JUHGH08g7kphsZqDsJiwVexYWyk0Jl3UEv0gh5DgcTSsYMxIAWs5cxW1cde3LEj
-         7QE626YKytXLOJkDYGfb8VH0dYih5MMCL9A/vr85PFy/vWwiD6DtpBFPUQXats7XPrFJ
-         ATWTbzmmx1MKfhSL6E7x5mklV7nvQLDiujZ8KOpM719kj080ffPE6P9KWbyexo9KmuJP
-         FuEG6lpgePaAxgTLC9+q5V39cdWmgS5hAFzmDChoOTSOyn4Tdoeuu9kJENXweBqoGTcE
-         rtXIDp36aBSjIv9bGC6Iq0I+aucrMsWcg9B/01DUElP0OqkFq58oUvjLTlWOHs3TXeap
-         4uTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=BwjnaJdx1SiBo+TheuZxiJ5csvHPGuBQdHlcmoRVupA=;
-        b=ii/5ZHbdoZN2wp20FaHFtd7Ug8PV+/MDUISZ9HiauD/YOqj1F2izeWaNCdaUdFMzl2
-         TTexPFJzulsc8/LbVRMUaC3aTb+5sWSaUhZ39nw6dFywqNDGMosTuf0SGKeHc4+9BG/F
-         gPOXKJ9mD9EOhLG3uF9jHq8f+Gagj1JGcdBM2AvKWx55zYHtxCWqRj9dsGHlrNdsCN8V
-         ymbB2ng5QsOuTPa50q/Wmny22G4bWk4qtjnqUgA8YCLTpo9HjHNAviZ8ie34ayGfD1sz
-         4JryQ7jUs0etXPIOUY7WpsPw/quIZGPPa0xxm9MShvc5aADvhdyBoMDwfsaoo9NB0srV
-         T01g==
-X-Gm-Message-State: APjAAAX1Z5f2AaWd2FmgsO6JU2p2pAlGqeLrO4YmfFWx3o11tOEvAdh5
-        hMTHa/UHTDbffSigaOrMntKys/O+
-X-Google-Smtp-Source: APXvYqxGUMv+2lJQK0/VGme9C7n17h0qJIAIz8Qvo5PPCOUgfrC4v6Ewqz4ZYEKgAklxZTAsgW6gVQ==
-X-Received: by 2002:a63:ee08:: with SMTP id e8mr23811185pgi.70.1568058204822;
-        Mon, 09 Sep 2019 12:43:24 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o19sm355690pjr.23.2019.09.09.12.43.24
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 09 Sep 2019 12:43:24 -0700 (PDT)
-Date:   Mon, 9 Sep 2019 12:43:23 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/26] 4.9.192-stable review
-Message-ID: <20190909194323.GE22633@roeck-us.net>
-References: <20190908121057.216802689@linuxfoundation.org>
+        id S2405859AbfIITyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 15:54:46 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:33290 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730465AbfIITyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 15:54:46 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 5F4DA6050D; Mon,  9 Sep 2019 19:54:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1568058885;
+        bh=0Y5RJGwYszMax0e5oQ2MqEGWVwn6xKyFpRRCX20USas=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ULCoXa8IBEAJ9v6pzbirwB844a4ZsjZP+lMBs2KCbD2y3e341vbtUvmSG50FbrRRp
+         lra2UEGyf/Z8sUTjfTFJN7XmgrLzJQVHbIpw22tPnxi0qxgS2sbjpNfd46D7qhzaHV
+         SysSDmO8kzw3vBJQcLfXjsTCcBnY/CzhZk+uKELw=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED autolearn=no autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by smtp.codeaurora.org (Postfix) with ESMTP id B5A2D6030B;
+        Mon,  9 Sep 2019 19:54:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1568058884;
+        bh=0Y5RJGwYszMax0e5oQ2MqEGWVwn6xKyFpRRCX20USas=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=gu4XOgzPUFUL7y/qpwqRIl3lhvEoYpjSUmgTTlumsoaBh5CLfGz48emDYFctvztiv
+         O0/GsA+3kZC9wdUKMgwcXrFIMxgzWf2RI5GWriUNrr+axGEVfnPjvouog9d0+oFp/6
+         wNk9jAsuqvjszVLAOrp3VXjHUEWd4GmFiUn8J8KQ=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190908121057.216802689@linuxfoundation.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 09 Sep 2019 12:54:44 -0700
+From:   Jeff Johnson <jjohnson@codeaurora.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     Mark Salyzyn <salyzyn@android.com>, Greg KH <greg@kroah.com>,
+        linux-kernel@vger.kernel.org, kernel-team@android.com,
+        "David S. Miller" <davem@davemloft.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org, linux-wireless-owner@vger.kernel.org
+Subject: Re: [PATCH v2] net: enable wireless core features with
+ LEGACY_WEXT_ALLCONFIG
+In-Reply-To: <6f3487136e71afbd4d2b621551ee14e68c4cc1ab.camel@sipsolutions.net>
+References: <20190906192403.195620-1-salyzyn@android.com>
+ <20190906233045.GB9478@kroah.com>
+ <b7027a5d-5d75-677b-0e9b-cd70e5e30092@android.com>
+ (sfid-20190909_162434_303033_C0355249)
+ <6f3487136e71afbd4d2b621551ee14e68c4cc1ab.camel@sipsolutions.net>
+Message-ID: <5d78042c98d35bc9f9822e2de6d16ec8@codeaurora.org>
+X-Sender: jjohnson@codeaurora.org
+User-Agent: Roundcube Webmail/1.2.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 08, 2019 at 01:41:39PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.192 release.
-> There are 26 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue 10 Sep 2019 12:09:36 PM UTC.
-> Anything received after that time might be too late.
-> 
+On 2019-09-09 08:44, Johannes Berg wrote:
+> Also, you probably know this, but in this particular case you really
+> should just get rid of your wext dependencies
 
-Build results:
-	total: 172 pass: 172 fail: 0
-Qemu test results:
-	total: 356 pass: 356 fail: 0
+This.
 
-Guenter
+Particularly for one out-of-tree driver with which I'm intimately 
+familiar there has been considerable recent work to make all WEXT code 
+correctly conditional, and nothing in the Android support should be 
+reliant upon WEXT.
