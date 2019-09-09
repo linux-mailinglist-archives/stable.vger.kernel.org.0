@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 330FCAE0DA
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E22FAE0A1
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406183AbfIIWQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45344 "EHLO mail.kernel.org"
+        id S2406162AbfIIWQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406141AbfIIWQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:27 -0400
+        id S2406149AbfIIWQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:30 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DE292171F;
-        Mon,  9 Sep 2019 22:16:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B829E21D7B;
+        Mon,  9 Sep 2019 22:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067387;
-        bh=e1h3js1akksNSdN7MbHfoSgbNrAbeyQ3zCDjASU0y00=;
+        s=default; t=1568067389;
+        bh=Zqd5/E63vnr/mwIYahJPTQHIhkHsBfJp65brYETECCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0hMFG1jEQMDske5iVUdteeo8Pbl3A/5BzfHDREPMRlC8VqD6Ux2WTRdRnYUsxgm7
-         3CCRzzmhA0/WPmwNbh1HfoRD/hUbAfn3nFb4UCra757OrPAjvRP/Rv9rNIAV2fY3DC
-         mBk59k8XDTdUXdps6I6ulZcIcjiyR3/ZTXR/QmQ8=
+        b=DtSD5kRpWOmMKHecazLXZfeqDRlayQc8eUPuTSXb5SWEP0gFs11nNEV1KoRUoLjBW
+         Urmyu772gIT5yy5iUJPc0BOM/75FD9UjQ2d+sziGHd1zJ7y/Pnrq2jd1GfesFzAng2
+         1aUbWWMbRkDinO5NHJqPSocGyKH/r6fLYyweMAoY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hillf Danton <hdanton@sina.com>,
-        Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 10/12] keys: Fix missing null pointer check in request_key_auth_describe()
-Date:   Mon,  9 Sep 2019 11:40:50 -0400
-Message-Id: <20190909154052.30941-10-sashal@kernel.org>
+Cc:     Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.2 11/12] iommu/amd: Flush old domains in kdump kernel
+Date:   Mon,  9 Sep 2019 11:40:51 -0400
+Message-Id: <20190909154052.30941-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190909154052.30941-1-sashal@kernel.org>
 References: <20190909154052.30941-1-sashal@kernel.org>
@@ -46,72 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Stuart Hayes <stuart.w.hayes@gmail.com>
 
-[ Upstream commit d41a3effbb53b1bcea41e328d16a4d046a508381 ]
+[ Upstream commit 36b7200f67dfe75b416b5281ed4ace9927b513bc ]
 
-If a request_key authentication token key gets revoked, there's a window in
-which request_key_auth_describe() can see it with a NULL payload - but it
-makes no check for this and something like the following oops may occur:
+When devices are attached to the amd_iommu in a kdump kernel, the old device
+table entries (DTEs), which were copied from the crashed kernel, will be
+overwritten with a new domain number.  When the new DTE is written, the IOMMU
+is told to flush the DTE from its internal cache--but it is not told to flush
+the translation cache entries for the old domain number.
 
-	BUG: Kernel NULL pointer dereference at 0x00000038
-	Faulting instruction address: 0xc0000000004ddf30
-	Oops: Kernel access of bad area, sig: 11 [#1]
-	...
-	NIP [...] request_key_auth_describe+0x90/0xd0
-	LR [...] request_key_auth_describe+0x54/0xd0
-	Call Trace:
-	[...] request_key_auth_describe+0x54/0xd0 (unreliable)
-	[...] proc_keys_show+0x308/0x4c0
-	[...] seq_read+0x3d0/0x540
-	[...] proc_reg_read+0x90/0x110
-	[...] __vfs_read+0x3c/0x70
-	[...] vfs_read+0xb4/0x1b0
-	[...] ksys_read+0x7c/0x130
-	[...] system_call+0x5c/0x70
+Without this patch, AMD systems using the tg3 network driver fail when kdump
+tries to save the vmcore to a network system, showing network timeouts and
+(sometimes) IOMMU errors in the kernel log.
 
-Fix this by checking for a NULL pointer when describing such a key.
+This patch will flush IOMMU translation cache entries for the old domain when
+a DTE gets overwritten with a new domain number.
 
-Also make the read routine check for a NULL pointer to be on the safe side.
-
-[DH: Modified to not take already-held rcu lock and modified to also check
- in the read routine]
-
-Fixes: 04c567d9313e ("[PATCH] Keys: Fix race between two instantiators of a key")
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Fixes: 3ac3e5ee5ed5 ('iommu/amd: Copy old trans table from old kernel')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/request_key_auth.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iommu/amd_iommu.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
-index e45b5cf3b97fd..8491becb57270 100644
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -66,6 +66,9 @@ static void request_key_auth_describe(const struct key *key,
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index dce1d8d2e8a44..b265062edf6c8 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1143,6 +1143,17 @@ static void amd_iommu_flush_tlb_all(struct amd_iommu *iommu)
+ 	iommu_completion_wait(iommu);
+ }
+ 
++static void amd_iommu_flush_tlb_domid(struct amd_iommu *iommu, u32 dom_id)
++{
++	struct iommu_cmd cmd;
++
++	build_inv_iommu_pages(&cmd, 0, CMD_INV_IOMMU_ALL_PAGES_ADDRESS,
++			      dom_id, 1);
++	iommu_queue_command(iommu, &cmd);
++
++	iommu_completion_wait(iommu);
++}
++
+ static void amd_iommu_flush_all(struct amd_iommu *iommu)
  {
- 	struct request_key_auth *rka = get_request_key_auth(key);
+ 	struct iommu_cmd cmd;
+@@ -1863,6 +1874,7 @@ static void set_dte_entry(u16 devid, struct protection_domain *domain,
+ {
+ 	u64 pte_root = 0;
+ 	u64 flags = 0;
++	u32 old_domid;
  
-+	if (!rka)
-+		return;
+ 	if (domain->mode != PAGE_MODE_NONE)
+ 		pte_root = iommu_virt_to_phys(domain->pt_root);
+@@ -1912,8 +1924,20 @@ static void set_dte_entry(u16 devid, struct protection_domain *domain,
+ 	flags &= ~DEV_DOMID_MASK;
+ 	flags |= domain->id;
+ 
++	old_domid = amd_iommu_dev_table[devid].data[1] & DEV_DOMID_MASK;
+ 	amd_iommu_dev_table[devid].data[1]  = flags;
+ 	amd_iommu_dev_table[devid].data[0]  = pte_root;
 +
- 	seq_puts(m, "key:");
- 	seq_puts(m, key->description);
- 	if (key_is_positive(key))
-@@ -83,6 +86,9 @@ static long request_key_auth_read(const struct key *key,
- 	size_t datalen;
- 	long ret;
- 
-+	if (!rka)
-+		return -EKEYREVOKED;
++	/*
++	 * A kdump kernel might be replacing a domain ID that was copied from
++	 * the previous kernel--if so, it needs to flush the translation cache
++	 * entries for the old domain ID that is being overwritten
++	 */
++	if (old_domid) {
++		struct amd_iommu *iommu = amd_iommu_rlookup_table[devid];
 +
- 	datalen = rka->callout_len;
- 	ret = datalen;
++		amd_iommu_flush_tlb_domid(iommu, old_domid);
++	}
+ }
  
+ static void clear_dte_entry(u16 devid)
 -- 
 2.20.1
 
