@@ -2,109 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EEAFADA9E
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 16:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2AEADAB2
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 16:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbfIIN7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 09:59:30 -0400
-Received: from mail.andi.de1.cc ([85.214.55.253]:43216 "EHLO mail.andi.de1.cc"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726698AbfIIN7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 09:59:30 -0400
+        id S2405142AbfIIOEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 10:04:25 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:59264 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404997AbfIIOEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 10:04:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Content-Type:MIME-Version:References:
-        In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=/AFGG/f6EaJVXJNRdgri096CPzRiFvet7SwlKHTMKh4=; b=TI2mf67XY3jlg30elZyEGOQzQ
-        af405SRfOPFtWLppj1PdSHwiUGgF8GRtgwaRMtl3PG3s5BYWkKHidXCzkZemv/qj51k2GAn1GpR43
-        +2HapYaxNwNp9avJvKy7ILiNSfDUTNnJYcaVAtIazJfhhUO//31/3uaQ3A01JQ9XZMVdo=;
-Received: from [2a02:790:ff:1019:7ee9:d3ff:fe1f:a246] (helo=localhost)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1i7KCR-0002fX-Dv; Mon, 09 Sep 2019 15:59:23 +0200
-Received: from [::1] (helo=localhost)
-        by localhost with esmtp (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1i7KCO-0007EI-Tt; Mon, 09 Sep 2019 15:59:21 +0200
-Date:   Mon, 9 Sep 2019 15:59:11 +0200
-From:   Andreas Kemnade <andreas@kemnade.info>
+         bh=NMGAZ2kso2CJvMMFlGWgyiOLFbmHpsfQY9TMalmQTQI=; b=HaVEIgzOh4ofkQ5vWoDixXQBW
+        x4qLygbbGZYUKO25bDxUNn96y8DMZpE+kQRqMEVEEw0P0rZGCQk4am5hYpJp1kQ0vTvyRyO5aY3W8
+        OsrldiI6krdp5Pleof99z8J2hbkQ1djy+u0ifSPwHM4de2Kewvzu7i0jnCu4sRk0OnDaA=;
+Received: from [148.69.85.38] (helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1i7KHC-0002bF-TQ; Mon, 09 Sep 2019 14:04:18 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id 42CC1D02D3E; Mon,  9 Sep 2019 15:04:18 +0100 (BST)
+Date:   Mon, 9 Sep 2019 15:04:18 +0100
+From:   Mark Brown <broonie@kernel.org>
 To:     Adam Ford <aford173@gmail.com>
-Cc:     Tony Lindgren <tony@atomide.com>,
+Cc:     Andreas Kemnade <andreas@kemnade.info>,
+        Tony Lindgren <tony@atomide.com>,
         Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
         Linux-OMAP <linux-omap@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-pm@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
         Nishanth Menon <nm@ti.com>, vireshk@kernel.org,
         stable@vger.kernel.org
 Subject: Re: [PATCH v2] regulator: twl: voltage lists for vdd1/2 on twl4030
-Message-ID: <20190909155911.63f8bb54@kemnade.info>
-In-Reply-To: <CAHCN7xJ0RmRQwo3bSF6FoLjOtrg5YZAMD9+=332LMzLLR1qdDA@mail.gmail.com>
+Message-ID: <20190909140418.GH2036@sirena.org.uk>
 References: <20190814214319.24087-1-andreas@kemnade.info>
-        <CAHCN7xL4K+1nJDXDRs7yVi6LhGL-4uPu9M+SN1dcOPu8=M8s2g@mail.gmail.com>
-        <CAHCN7xJ0RmRQwo3bSF6FoLjOtrg5YZAMD9+=332LMzLLR1qdDA@mail.gmail.com>
-X-Mailer: Claws Mail 3.14.1 (GTK+ 2.24.31; i686-pc-linux-gnu)
+ <CAHCN7xL4K+1nJDXDRs7yVi6LhGL-4uPu9M+SN1dcOPu8=M8s2g@mail.gmail.com>
+ <CAHCN7xJ0RmRQwo3bSF6FoLjOtrg5YZAMD9+=332LMzLLR1qdDA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/i1vz99ml6P9dqs764owEbgp"; protocol="application/pgp-signature"
-X-Spam-Score: -1.0 (-)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3VRmKSg17yJg2MZg"
+Content-Disposition: inline
+In-Reply-To: <CAHCN7xJ0RmRQwo3bSF6FoLjOtrg5YZAMD9+=332LMzLLR1qdDA@mail.gmail.com>
+X-Cookie: Be careful!  UGLY strikes 9 out of 10!
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---Sig_/i1vz99ml6P9dqs764owEbgp
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 9 Sep 2019 08:32:06 -0500
-Adam Ford <aford173@gmail.com> wrote:
+--3VRmKSg17yJg2MZg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Mon, Sep 09, 2019 at 08:32:06AM -0500, Adam Ford wrote:
 
-> > > The patch fixes declaration of VDD1/2 regulators by
-> > > adding proper voltage lists.
-> > >
-> > > Fixes: 498209445124 ("regulator: core: simplify return value on supor=
-ted_voltage")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Andreas Kemnade <andreas@kemnade.info> =20
-> >
-> > Tested-by: Adam Ford <aford173@gmail.com> #logicpd-torpedo-37xx-devkit
-> > =20
->=20
 > I am not sure who the right maintainer is, but as of today, cpufreq
 > for users of twl4030 on 5.3-RC8 is still broken without this patch.
 > Is there any way it can be applied before the final release?
->=20
-seems to have arrived in Mark Brown's regulator branches. and in linux-next=
-/pending-fixes.
-But did not go further...
 
-Regards,
-Andreas
+Ugh, this affects cpufreq :/  I hadn't realized, sorry.  At this
+point it's probably a bit late to get it into the release, but it
+is tagged for stable so if it doesn't make it in it will be in
+one of the first stable releases.
 
---Sig_/i1vz99ml6P9dqs764owEbgp
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+--3VRmKSg17yJg2MZg
+Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEPIWxmAFyOaBcwCpFl4jFM1s/ye8FAl12Wq8ACgkQl4jFM1s/
-ye84Jw//S1zGHJKjlOFnpDDPhc/2QqOWuOmzhP2x79Vh4Iv+cmyvcUdhkJTWi5gA
-W/Meomgy7EQ3jvFv3HCkOBd64kk32PFjo5COjR/FwzTuDiVRaBfsLb/wjc4IOKCg
-0llnlB7V3lX9ZmTkGRg3GbnJhdGn+fiAl41YQ16sUQ6Ef52nneE0x+mX7z50KvjD
-BQhAbXzsBZLLcW/MH12DkszXc5JJ3FtU9/yx0B4UKPCCY9BeqoUYGTZrJ2yop7b5
-RiCTcsxa659f6kGybnIGb743cYi1ibc6yGHIsR9qQf53hIvKFR+bXzjZ/UoGca02
-VHOtATygBzHOsg5EKFwit60h3l1tvuPHb5LzqYok+lWHQtF1FFVcr2tGvlEycGd5
-TF8XnlPUhEMFS7eGaB7r3xuZoTaVevhCOpznNQfVk8U/ebpW0K5I7Vu6XMKmbqIt
-nXG/7GPk1hdcQdqqRg3mPDvNB8vcFv5L9duOmL+rW5nkF6Xmyr4v8vmyqBeYaZ3R
-/gBXy3oCIwxIxpEJXmlGZOI/3cdKDJncib+PJRICPHfbubT86iZp3psMVCdtCohA
-rqd4On/JjPvsVPc7rHyU//K/v9PnzkWIwXKRTDfP2lhbgPoRyrYh7cwRdBA/aw0o
-ru9SIpgvx+oEsoXcQf1KB53IyntcG/6OT7F7ibxld69Pam3wBpM=
-=+Fw/
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl12W98ACgkQJNaLcl1U
+h9B5Egf/RSjS9nKNpgdxDfA8C+vwvwNwsFjhjR9RlJ2MbT2bQhFOeDiV/x6bYOJS
+97B50GiDQ/srWPPpvHfFQDhYVrlbBFPuBVYxD8HcpvXvEooKdyKvsrarPxgMSxn0
+hqrWt0DaPWjlhQRqs9PIMZctl+92QT2+YtA40uF2xbESgYOr1GSP76vPJrph/gS2
+woFz8MjXyZL8bHtRv7vGhJem61Fcm8CjRZFWLX3h5B4k7mAKH1W5gZWoB2PaZicD
+7+X9001/NbA1xirpe2cdUkwnjPJ6xfHqYQcm2kT233A4X57q88Et4l0rYFG3nqJp
+2BHnXooXkmnlQHLXs2kgZuTxldDSZA==
+=UEcM
 -----END PGP SIGNATURE-----
 
---Sig_/i1vz99ml6P9dqs764owEbgp--
+--3VRmKSg17yJg2MZg--
