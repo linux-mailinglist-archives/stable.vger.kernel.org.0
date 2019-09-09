@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E8DAE0AC
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A258FAE0E3
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406281AbfIIWQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
+        id S2406293AbfIIWRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:17:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406277AbfIIWQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:58 -0400
+        id S2406290AbfIIWQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:59 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 214172171F;
-        Mon,  9 Sep 2019 22:16:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1237321A4A;
+        Mon,  9 Sep 2019 22:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067417;
-        bh=m9stGIrurleB7teL5+inn8FM52zyFO2QE5pbq3KecwI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SIiLM6oImvJbZCljtWbW7BEMUJLcXdCy7fyNJCsdYwPgh4nkSNkSvDkhZCBhmhszo
-         Sd2Oh12pCr6/Ue9cIWeGQJWgx6cHPc7JIrCoDgdERQQ7F6P4cG9ZZHo9FQLOkRUByE
-         S6DhviK0bvMmbfeqSpDsXo4vnXGeCU4DRmq9evww=
+        s=default; t=1568067419;
+        bh=dMmQ/8eCsAFOvBzLqKSRTPtQzG0tXkumYwZ1Un/PvgQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CC6io8IHg7DJ4bnR6jLYxHotiCriczwqAMr2WZEocr4JLKznTfCatSo+JYY8pU+pa
+         KeE7SC8+VGlzQYKGgZ5A/64XDhbU5pTtFFRxyXbUpaEUbJcZrVHuTyFH1TqHEzMbnm
+         3szLH1zLuLKvye9gbr/nMFv0v6+t9knbhhZryK1w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
         Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
         dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/8] dmaengine: ti: dma-crossbar: Fix a memory leak bug
-Date:   Mon,  9 Sep 2019 11:41:38 -0400
-Message-Id: <20190909154145.31263-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 2/8] dmaengine: ti: omap-dma: Add cleanup in omap_dma_probe()
+Date:   Mon,  9 Sep 2019 11:41:39 -0400
+Message-Id: <20190909154145.31263-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190909154145.31263-1-sashal@kernel.org>
+References: <20190909154145.31263-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,39 +46,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 2c231c0c1dec42192aca0f87f2dc68b8f0cbc7d2 ]
+[ Upstream commit 962411b05a6d3342aa649e39cda1704c1fc042c6 ]
 
-In ti_dra7_xbar_probe(), 'rsv_events' is allocated through kcalloc(). Then
-of_property_read_u32_array() is invoked to search for the property.
-However, if this process fails, 'rsv_events' is not deallocated, leading to
-a memory leak bug. To fix this issue, free 'rsv_events' before returning
-the error.
+If devm_request_irq() fails to disable all interrupts, no cleanup is
+performed before retuning the error. To fix this issue, invoke
+omap_dma_free() to do the cleanup.
 
 Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/1565938136-7249-1-git-send-email-wenwen@cs.uga.edu
+Link: https://lore.kernel.org/r/1565938570-7528-1-git-send-email-wenwen@cs.uga.edu
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti-dma-crossbar.c | 4 +++-
+ drivers/dma/omap-dma.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti-dma-crossbar.c b/drivers/dma/ti-dma-crossbar.c
-index 9272b173c7465..6574cb5a12fee 100644
---- a/drivers/dma/ti-dma-crossbar.c
-+++ b/drivers/dma/ti-dma-crossbar.c
-@@ -395,8 +395,10 @@ static int ti_dra7_xbar_probe(struct platform_device *pdev)
+diff --git a/drivers/dma/omap-dma.c b/drivers/dma/omap-dma.c
+index 8c1665c8fe33a..14b560facf779 100644
+--- a/drivers/dma/omap-dma.c
++++ b/drivers/dma/omap-dma.c
+@@ -1534,8 +1534,10 @@ static int omap_dma_probe(struct platform_device *pdev)
  
- 		ret = of_property_read_u32_array(node, pname, (u32 *)rsv_events,
- 						 nelm * 2);
--		if (ret)
-+		if (ret) {
-+			kfree(rsv_events);
- 			return ret;
+ 		rc = devm_request_irq(&pdev->dev, irq, omap_dma_irq,
+ 				      IRQF_SHARED, "omap-dma-engine", od);
+-		if (rc)
++		if (rc) {
++			omap_dma_free(od);
+ 			return rc;
 +		}
+ 	}
  
- 		for (i = 0; i < nelm; i++) {
- 			ti_dra7_xbar_reserve(rsv_events[i][0], rsv_events[i][1],
+ 	if (omap_dma_glbl_read(od, CAPS_0) & CAPS_0_SUPPORT_LL123)
 -- 
 2.20.1
 
