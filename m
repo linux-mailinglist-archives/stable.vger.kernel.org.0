@@ -2,127 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C303AD75C
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 12:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 878AAAD77D
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 13:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729301AbfIIK4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 06:56:10 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:39330 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729084AbfIIK4K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 06:56:10 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3B376C049E10;
-        Mon,  9 Sep 2019 10:56:10 +0000 (UTC)
-Received: from llong.remote.csb (ovpn-120-141.rdu2.redhat.com [10.10.120.141])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 121D760623;
-        Mon,  9 Sep 2019 10:56:01 +0000 (UTC)
-Subject: Re: [PATCH] Revert "locking/pvqspinlock: Don't wait if vCPU is
- preempted"
-To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, loobinliu@tencent.com,
+        id S2390915AbfIILAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 07:00:21 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:64268 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2390909AbfIILAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 07:00:21 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 18424996-1500050 
+        for multiple; Mon, 09 Sep 2019 12:00:14 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Martin Peres <martin.peres@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         stable@vger.kernel.org
-References: <1567993228-23668-1-git-send-email-wanpengli@tencent.com>
-From:   Waiman Long <longman@redhat.com>
-Organization: Red Hat
-Message-ID: <29d04ee4-60e7-4df9-0c4f-fc29f2b0c6a8@redhat.com>
-Date:   Mon, 9 Sep 2019 11:56:00 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+Subject: [PATCH 3/6] drm/i915: Perform GGTT restore much earlier during resume
+Date:   Mon,  9 Sep 2019 12:00:08 +0100
+Message-Id: <20190909110011.8958-4-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190909110011.8958-1-chris@chris-wilson.co.uk>
+References: <20190909110011.8958-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-In-Reply-To: <1567993228-23668-1-git-send-email-wanpengli@tencent.com>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Mon, 09 Sep 2019 10:56:10 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/9/19 2:40 AM, Wanpeng Li wrote:
-> From: Wanpeng Li <wanpengli@tencent.com>
->
-> This patch reverts commit 75437bb304b20 (locking/pvqspinlock: Don't wait if 
-> vCPU is preempted), we found great regression caused by this commit.
->
-> Xeon Skylake box, 2 sockets, 40 cores, 80 threads, three VMs, each is 80 vCPUs.
-> The score of ebizzy -M can reduce from 13000-14000 records/s to 1700-1800 
-> records/s with this commit.
->
->           Host                       Guest                score
->
-> vanilla + w/o kvm optimizes     vanilla               1700-1800 records/s
-> vanilla + w/o kvm optimizes     vanilla + revert      13000-14000 records/s
-> vanilla + w/ kvm optimizes      vanilla               4500-5000 records/s
-> vanilla + w/ kvm optimizes      vanilla + revert      14000-15500 records/s
->
-> Exit from aggressive wait-early mechanism can result in yield premature and 
-> incur extra scheduling latency in over-subscribe scenario.
->
-> kvm optimizes:
-> [1] commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts)
-> [2] commit 266e85a5ec9 (KVM: X86: Boost queue head vCPU to mitigate lock waiter preemption)
->
-> Tested-by: loobinliu@tencent.com
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Cc: Waiman Long <longman@redhat.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Radim Krčmář <rkrcmar@redhat.com>
-> Cc: loobinliu@tencent.com
-> Cc: stable@vger.kernel.org 
-> Fixes: 75437bb304b20 (locking/pvqspinlock: Don't wait if vCPU is preempted)
-> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> ---
->  kernel/locking/qspinlock_paravirt.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/kernel/locking/qspinlock_paravirt.h b/kernel/locking/qspinlock_paravirt.h
-> index 89bab07..e84d21a 100644
-> --- a/kernel/locking/qspinlock_paravirt.h
-> +++ b/kernel/locking/qspinlock_paravirt.h
-> @@ -269,7 +269,7 @@ pv_wait_early(struct pv_node *prev, int loop)
->  	if ((loop & PV_PREV_CHECK_MASK) != 0)
->  		return false;
->  
-> -	return READ_ONCE(prev->state) != vcpu_running || vcpu_is_preempted(prev->cpu);
-> +	return READ_ONCE(prev->state) != vcpu_running;
->  }
->  
->  /*
+As soon as we re-enable the various functions within the HW, they may go
+off and read data via a GGTT offset. Hence, if we have not yet restored
+the GGTT PTE before then, they may read and even *write* random locations
+in memory.
 
-There are several possibilities for this performance regression:
+Detected by DMAR faults during resume.
 
-1) Multiple vcpus calling vcpu_is_preempted() repeatedly may cause some
-cacheline contention issue depending on how that callback is implemented.
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Martin Peres <martin.peres@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/gem/i915_gem_pm.c    | 3 ---
+ drivers/gpu/drm/i915/i915_drv.c           | 5 +++++
+ drivers/gpu/drm/i915/selftests/i915_gem.c | 6 ++++++
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
-2) KVM may set the preempt flag for a short period whenver an vmexit
-happens even if a vmenter is executed shortly after. In this case, we
-may want to use a more durable vcpu suspend flag that indicates the vcpu
-won't get a real vcpu back for a longer period of time.
-
-Perhaps you can add a lock event counter to count the number of
-wait_early events caused by vcpu_is_preempted() being true to see if it
-really cause a lot more wait_early than without the vcpu_is_preempted()
-call.
-
-I have no objection to this, I just want to find out the root cause of it.
-
-Cheers,
-Longman
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pm.c b/drivers/gpu/drm/i915/gem/i915_gem_pm.c
+index b3993d24b83d..9b1129aaacfe 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pm.c
+@@ -242,9 +242,6 @@ void i915_gem_resume(struct drm_i915_private *i915)
+ 	mutex_lock(&i915->drm.struct_mutex);
+ 	intel_uncore_forcewake_get(&i915->uncore, FORCEWAKE_ALL);
+ 
+-	i915_gem_restore_gtt_mappings(i915);
+-	i915_gem_restore_fences(i915);
+-
+ 	if (i915_gem_init_hw(i915))
+ 		goto err_wedged;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 7b2c81a8bbaa..1af4eba968c0 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -1877,6 +1877,11 @@ static int i915_drm_resume(struct drm_device *dev)
+ 	if (ret)
+ 		DRM_ERROR("failed to re-enable GGTT\n");
+ 
++	mutex_lock(&dev_priv->drm.struct_mutex);
++	i915_gem_restore_gtt_mappings(dev_priv);
++	i915_gem_restore_fences(dev_priv);
++	mutex_unlock(&dev_priv->drm.struct_mutex);
++
+ 	intel_csr_ucode_resume(dev_priv);
+ 
+ 	i915_restore_state(dev_priv);
+diff --git a/drivers/gpu/drm/i915/selftests/i915_gem.c b/drivers/gpu/drm/i915/selftests/i915_gem.c
+index bb6dd54a6ff3..37593831b539 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_gem.c
++++ b/drivers/gpu/drm/i915/selftests/i915_gem.c
+@@ -118,6 +118,12 @@ static void pm_resume(struct drm_i915_private *i915)
+ 	with_intel_runtime_pm(&i915->runtime_pm, wakeref) {
+ 		intel_gt_sanitize(&i915->gt, false);
+ 		i915_gem_sanitize(i915);
++
++		mutex_lock(&i915->drm.struct_mutex);
++		i915_gem_restore_gtt_mappings(i915);
++		i915_gem_restore_fences(i915);
++		mutex_unlock(&i915->drm.struct_mutex);
++
+ 		i915_gem_resume(i915);
+ 	}
+ }
+-- 
+2.23.0
 
