@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4D4AE0D7
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 330FCAE0DA
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406116AbfIIWQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
+        id S2406183AbfIIWQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392099AbfIIWQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:26 -0400
+        id S2406141AbfIIWQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:27 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6303D222BF;
-        Mon,  9 Sep 2019 22:16:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DE292171F;
+        Mon,  9 Sep 2019 22:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067385;
-        bh=g76naGs97Ybb8HLkSTNdZwBrQayN+tkzV82EWo/D3AQ=;
+        s=default; t=1568067387;
+        bh=e1h3js1akksNSdN7MbHfoSgbNrAbeyQ3zCDjASU0y00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8c3JL7WzHBCEkPtsBiAa+SIQF60qDJOB1yAuJoM3gOoN5wun43gGqr+8YTGWdGIV
-         j71fO2R7VLRsoIOD+khnzmD54qRhraFCsiSk8KsbrmJGe95d6WtwpzAblsivvOyyh/
-         yKTTM00WPWyecSylCcehVBlrw5Ezh7fXoRxvAFmQ=
+        b=A0hMFG1jEQMDske5iVUdteeo8Pbl3A/5BzfHDREPMRlC8VqD6Ux2WTRdRnYUsxgm7
+         3CCRzzmhA0/WPmwNbh1HfoRD/hUbAfn3nFb4UCra757OrPAjvRP/Rv9rNIAV2fY3DC
+         mBk59k8XDTdUXdps6I6ulZcIcjiyR3/ZTXR/QmQ8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 09/12] dmaengine: rcar-dmac: Fix DMACHCLR handling if iommu is mapped
-Date:   Mon,  9 Sep 2019 11:40:49 -0400
-Message-Id: <20190909154052.30941-9-sashal@kernel.org>
+Cc:     Hillf Danton <hdanton@sina.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 10/12] keys: Fix missing null pointer check in request_key_auth_describe()
+Date:   Mon,  9 Sep 2019 11:40:50 -0400
+Message-Id: <20190909154052.30941-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190909154052.30941-1-sashal@kernel.org>
 References: <20190909154052.30941-1-sashal@kernel.org>
@@ -45,131 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit cf24aac38698bfa1d021afd3883df3c4c65143a4 ]
+[ Upstream commit d41a3effbb53b1bcea41e328d16a4d046a508381 ]
 
-The commit 20c169aceb45 ("dmaengine: rcar-dmac: clear pertinence
-number of channels") forgets to clear the last channel by
-DMACHCLR in rcar_dmac_init() (and doesn't need to clear the first
-channel) if iommu is mapped to the device. So, this patch fixes it
-by using "channels_mask" bitfield.
+If a request_key authentication token key gets revoked, there's a window in
+which request_key_auth_describe() can see it with a NULL payload - but it
+makes no check for this and something like the following oops may occur:
 
-Note that the hardware and driver don't support more than 32 bits
-in DMACHCLR register anyway, so this patch should reject more than
-32 channels in rcar_dmac_parse_of().
+	BUG: Kernel NULL pointer dereference at 0x00000038
+	Faulting instruction address: 0xc0000000004ddf30
+	Oops: Kernel access of bad area, sig: 11 [#1]
+	...
+	NIP [...] request_key_auth_describe+0x90/0xd0
+	LR [...] request_key_auth_describe+0x54/0xd0
+	Call Trace:
+	[...] request_key_auth_describe+0x54/0xd0 (unreliable)
+	[...] proc_keys_show+0x308/0x4c0
+	[...] seq_read+0x3d0/0x540
+	[...] proc_reg_read+0x90/0x110
+	[...] __vfs_read+0x3c/0x70
+	[...] vfs_read+0xb4/0x1b0
+	[...] ksys_read+0x7c/0x130
+	[...] system_call+0x5c/0x70
 
-Fixes: 20c169aceb459575 ("dmaengine: rcar-dmac: clear pertinence number of channels")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/1567424643-26629-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this by checking for a NULL pointer when describing such a key.
+
+Also make the read routine check for a NULL pointer to be on the safe side.
+
+[DH: Modified to not take already-held rcu lock and modified to also check
+ in the read routine]
+
+Fixes: 04c567d9313e ("[PATCH] Keys: Fix race between two instantiators of a key")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/rcar-dmac.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ security/keys/request_key_auth.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
-index 54de669c38b84..f1d89bdebddab 100644
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -192,6 +192,7 @@ struct rcar_dmac_chan {
-  * @iomem: remapped I/O memory base
-  * @n_channels: number of available channels
-  * @channels: array of DMAC channels
-+ * @channels_mask: bitfield of which DMA channels are managed by this driver
-  * @modules: bitmask of client modules in use
-  */
- struct rcar_dmac {
-@@ -202,6 +203,7 @@ struct rcar_dmac {
- 
- 	unsigned int n_channels;
- 	struct rcar_dmac_chan *channels;
-+	unsigned int channels_mask;
- 
- 	DECLARE_BITMAP(modules, 256);
- };
-@@ -438,7 +440,7 @@ static int rcar_dmac_init(struct rcar_dmac *dmac)
- 	u16 dmaor;
- 
- 	/* Clear all channels and enable the DMAC globally. */
--	rcar_dmac_write(dmac, RCAR_DMACHCLR, GENMASK(dmac->n_channels - 1, 0));
-+	rcar_dmac_write(dmac, RCAR_DMACHCLR, dmac->channels_mask);
- 	rcar_dmac_write(dmac, RCAR_DMAOR,
- 			RCAR_DMAOR_PRI_FIXED | RCAR_DMAOR_DME);
- 
-@@ -814,6 +816,9 @@ static void rcar_dmac_stop_all_chan(struct rcar_dmac *dmac)
- 	for (i = 0; i < dmac->n_channels; ++i) {
- 		struct rcar_dmac_chan *chan = &dmac->channels[i];
- 
-+		if (!(dmac->channels_mask & BIT(i)))
-+			continue;
-+
- 		/* Stop and reinitialize the channel. */
- 		spin_lock_irq(&chan->lock);
- 		rcar_dmac_chan_halt(chan);
-@@ -1776,6 +1781,8 @@ static int rcar_dmac_chan_probe(struct rcar_dmac *dmac,
- 	return 0;
- }
- 
-+#define RCAR_DMAC_MAX_CHANNELS	32
-+
- static int rcar_dmac_parse_of(struct device *dev, struct rcar_dmac *dmac)
+diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
+index e45b5cf3b97fd..8491becb57270 100644
+--- a/security/keys/request_key_auth.c
++++ b/security/keys/request_key_auth.c
+@@ -66,6 +66,9 @@ static void request_key_auth_describe(const struct key *key,
  {
- 	struct device_node *np = dev->of_node;
-@@ -1787,12 +1794,16 @@ static int rcar_dmac_parse_of(struct device *dev, struct rcar_dmac *dmac)
- 		return ret;
- 	}
+ 	struct request_key_auth *rka = get_request_key_auth(key);
  
--	if (dmac->n_channels <= 0 || dmac->n_channels >= 100) {
-+	/* The hardware and driver don't support more than 32 bits in CHCLR */
-+	if (dmac->n_channels <= 0 ||
-+	    dmac->n_channels >= RCAR_DMAC_MAX_CHANNELS) {
- 		dev_err(dev, "invalid number of channels %u\n",
- 			dmac->n_channels);
- 		return -EINVAL;
- 	}
- 
-+	dmac->channels_mask = GENMASK(dmac->n_channels - 1, 0);
++	if (!rka)
++		return;
 +
- 	return 0;
- }
+ 	seq_puts(m, "key:");
+ 	seq_puts(m, key->description);
+ 	if (key_is_positive(key))
+@@ -83,6 +86,9 @@ static long request_key_auth_read(const struct key *key,
+ 	size_t datalen;
+ 	long ret;
  
-@@ -1802,7 +1813,6 @@ static int rcar_dmac_probe(struct platform_device *pdev)
- 		DMA_SLAVE_BUSWIDTH_2_BYTES | DMA_SLAVE_BUSWIDTH_4_BYTES |
- 		DMA_SLAVE_BUSWIDTH_8_BYTES | DMA_SLAVE_BUSWIDTH_16_BYTES |
- 		DMA_SLAVE_BUSWIDTH_32_BYTES | DMA_SLAVE_BUSWIDTH_64_BYTES;
--	unsigned int channels_offset = 0;
- 	struct dma_device *engine;
- 	struct rcar_dmac *dmac;
- 	struct resource *mem;
-@@ -1831,10 +1841,8 @@ static int rcar_dmac_probe(struct platform_device *pdev)
- 	 * level we can't disable it selectively, so ignore channel 0 for now if
- 	 * the device is part of an IOMMU group.
- 	 */
--	if (device_iommu_mapped(&pdev->dev)) {
--		dmac->n_channels--;
--		channels_offset = 1;
--	}
-+	if (device_iommu_mapped(&pdev->dev))
-+		dmac->channels_mask &= ~BIT(0);
- 
- 	dmac->channels = devm_kcalloc(&pdev->dev, dmac->n_channels,
- 				      sizeof(*dmac->channels), GFP_KERNEL);
-@@ -1892,8 +1900,10 @@ static int rcar_dmac_probe(struct platform_device *pdev)
- 	INIT_LIST_HEAD(&engine->channels);
- 
- 	for (i = 0; i < dmac->n_channels; ++i) {
--		ret = rcar_dmac_chan_probe(dmac, &dmac->channels[i],
--					   i + channels_offset);
-+		if (!(dmac->channels_mask & BIT(i)))
-+			continue;
++	if (!rka)
++		return -EKEYREVOKED;
 +
-+		ret = rcar_dmac_chan_probe(dmac, &dmac->channels[i], i);
- 		if (ret < 0)
- 			goto error;
- 	}
+ 	datalen = rka->callout_len;
+ 	ret = datalen;
+ 
 -- 
 2.20.1
 
