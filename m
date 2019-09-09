@@ -2,41 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E644AE0A6
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50D1AE0DE
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406242AbfIIWQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2406237AbfIIWQt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 9 Sep 2019 18:16:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45660 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406221AbfIIWQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:47 -0400
+        id S2406226AbfIIWQs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:48 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA5D721A4A;
-        Mon,  9 Sep 2019 22:16:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93C9421D7D;
+        Mon,  9 Sep 2019 22:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067406;
-        bh=cA0/ajFdxMeE7KcBnjMNO94Hp7DUcbWHvPWzYGo6SCU=;
+        s=default; t=1568067407;
+        bh=eTPyePWV3IKKH2kJg7I/BE53B+fu/Ar+GJyFDi2phBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVTSKDmxouI/xgDgqXI2lGlp8eeosOcupZ9J8NbQ2ORKRe/qXsNLHaPf5a0BCEe6d
-         pS7jKOtDMDp84bRhPMJefxPQ5HVnWc0m6WYE6CgwS4Se32hiEhydsenWIwu40a5jTw
-         qO35hp+4MN02bf8Lf8RE7lpbWVpsA3vqDR/DLjMo=
+        b=iXDFmmD2nPCGjuE/78bjkJpqtaelHRRZYHRwfp5BgBSEzASh9pPM02bQOOX4xKRmb
+         O0tHdVZ7tV230aN4eTHtRUXgUf2x1X1SNJvpx9JQxeSER9k2rdFkVZ/0LbfMfIjY1P
+         eQqscBqyMcTzRqe6xE1LR1h5CEbdhReSlkoVyhWw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Jong Hyun Park <park.jonghyun@yonsei.ac.kr>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/8] x86/hyper-v: Fix overflow bug in fill_gva_list()
-Date:   Mon,  9 Sep 2019 11:41:19 -0400
-Message-Id: <20190909154124.31146-4-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 5/8] configfs_register_group() shouldn't be (and isn't) called in rmdirable parts
+Date:   Mon,  9 Sep 2019 11:41:20 -0400
+Message-Id: <20190909154124.31146-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190909154124.31146-1-sashal@kernel.org>
 References: <20190909154124.31146-1-sashal@kernel.org>
@@ -49,56 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 4030b4c585c41eeefec7bd20ce3d0e100a0f2e4d ]
+[ Upstream commit f19e4ed1e1edbfa3c9ccb9fed17759b7d6db24c6 ]
 
-When the 'start' parameter is >=  0xFF000000 on 32-bit
-systems, or >= 0xFFFFFFFF'FF000000 on 64-bit systems,
-fill_gva_list() gets into an infinite loop.
+revert cc57c07343bd "configfs: fix registered group removal"
+It was an attempt to handle something that fundamentally doesn't
+work - configfs_register_group() should never be done in a part
+of tree that can be rmdir'ed.  And in mainline it never had been,
+so let's not borrow trouble; the fix was racy anyway, it would take
+a lot more to make that work and desired semantics is not clear.
 
-With such inputs, 'cur' overflows after adding HV_TLB_FLUSH_UNIT
-and always compares as less than end.  Memory is filled with
-guest virtual addresses until the system crashes.
-
-Fix this by never incrementing 'cur' to be larger than 'end'.
-
-Reported-by: Jong Hyun Park <park.jonghyun@yonsei.ac.kr>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 2ffd9e33ce4a ("x86/hyper-v: Use hypercall for remote TLB flush")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/mmu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/configfs/dir.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index ef5f29f913d7b..2f34d52753526 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -37,12 +37,14 @@ static inline int fill_gva_list(u64 gva_list[], int offset,
- 		 * Lower 12 bits encode the number of additional
- 		 * pages to flush (in addition to the 'cur' page).
- 		 */
--		if (diff >= HV_TLB_FLUSH_UNIT)
-+		if (diff >= HV_TLB_FLUSH_UNIT) {
- 			gva_list[gva_n] |= ~PAGE_MASK;
--		else if (diff)
-+			cur += HV_TLB_FLUSH_UNIT;
-+		}  else if (diff) {
- 			gva_list[gva_n] |= (diff - 1) >> PAGE_SHIFT;
-+			cur = end;
-+		}
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index 809c1edffbaf1..19c8ce2a40430 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1782,16 +1782,6 @@ void configfs_unregister_group(struct config_group *group)
+ 	struct dentry *dentry = group->cg_item.ci_dentry;
+ 	struct dentry *parent = group->cg_item.ci_parent->ci_dentry;
  
--		cur += HV_TLB_FLUSH_UNIT;
- 		gva_n++;
+-	mutex_lock(&subsys->su_mutex);
+-	if (!group->cg_item.ci_parent->ci_group) {
+-		/*
+-		 * The parent has already been unlinked and detached
+-		 * due to a rmdir.
+-		 */
+-		goto unlink_group;
+-	}
+-	mutex_unlock(&subsys->su_mutex);
+-
+ 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
+ 	spin_lock(&configfs_dirent_lock);
+ 	configfs_detach_prep(dentry, NULL);
+@@ -1806,7 +1796,6 @@ void configfs_unregister_group(struct config_group *group)
+ 	dput(dentry);
  
- 	} while (cur < end);
+ 	mutex_lock(&subsys->su_mutex);
+-unlink_group:
+ 	unlink_group(group);
+ 	mutex_unlock(&subsys->su_mutex);
+ }
 -- 
 2.20.1
 
