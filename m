@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12272AE0DC
+	by mail.lfdr.de (Postfix) with ESMTP id 7B864AE0DD
 	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406200AbfIIWQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
+        id S2406219AbfIIWQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406193AbfIIWQk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:40 -0400
+        id S2406211AbfIIWQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:43 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31EF421D7B;
-        Mon,  9 Sep 2019 22:16:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50FB32171F;
+        Mon,  9 Sep 2019 22:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067399;
-        bh=SnUH4sy7Tmwsma9T2xbT6T44lkJhYIsahjVjFV3Oqik=;
+        s=default; t=1568067403;
+        bh=Yl59bSCmjGQO8ga6KfcvRC+PKgjgMXblO8qVnUO1YgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ih9fQSLFYG5e3pi3MMErMjbLFQIFqM+an2KsrXxDnuda4Q1I+IlFW+YXMyQCsWEV/
-         a64zJiwmHZ17+Z3YhkBZ/OMMB8JaGLd/DCQG4pz/cMVlaGZvLKqKyf6I7BYacclw8M
-         jrmbaxA2PYT3IDYmc5AAQG0eBi2zVwRhYMqyPxw8=
+        b=Zy2aIfhO+JyTCLlQ9S5H6JSWAkakszOef6jjvBd4K18C6ZpQLWZW0yiiMFp3vmpom
+         QzOsQVZGL88qagLAxCb3Q4PZ9THkz9FdcBk56Byeof79X8ITmCJDc2UYOnQJSSiS6e
+         J4gG8/TUVDMJcvfquryINVKE/5TY+6RELne/Oz1U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 2/8] dmaengine: ti: omap-dma: Add cleanup in omap_dma_probe()
-Date:   Mon,  9 Sep 2019 11:41:17 -0400
-Message-Id: <20190909154124.31146-2-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, broonie@kernel.org,
+        sfr@canb.auug.org.au, akpm@linux-foundation.org, mhocko@suse.cz,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 3/8] x86/uaccess: Don't leak the AC flags into __get_user() argument evaluation
+Date:   Mon,  9 Sep 2019 11:41:18 -0400
+Message-Id: <20190909154124.31146-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190909154124.31146-1-sashal@kernel.org>
 References: <20190909154124.31146-1-sashal@kernel.org>
@@ -44,39 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 962411b05a6d3342aa649e39cda1704c1fc042c6 ]
+[ Upstream commit 9b8bd476e78e89c9ea26c3b435ad0201c3d7dbf5 ]
 
-If devm_request_irq() fails to disable all interrupts, no cleanup is
-performed before retuning the error. To fix this issue, invoke
-omap_dma_free() to do the cleanup.
+Identical to __put_user(); the __get_user() argument evalution will too
+leak UBSAN crud into the __uaccess_begin() / __uaccess_end() region.
+While uncommon this was observed to happen for:
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/1565938570-7528-1-git-send-email-wenwen@cs.uga.edu
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+  drivers/xen/gntdev.c: if (__get_user(old_status, batch->status[i]))
+
+where UBSAN added array bound checking.
+
+This complements commit:
+
+  6ae865615fc4 ("x86/uaccess: Dont leak the AC flag into __put_user() argument evaluation")
+
+Tested-by Sedat Dilek <sedat.dilek@gmail.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: broonie@kernel.org
+Cc: sfr@canb.auug.org.au
+Cc: akpm@linux-foundation.org
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: mhocko@suse.cz
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20190829082445.GM2369@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/omap-dma.c | 4 +++-
+ arch/x86/include/asm/uaccess.h | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/omap-dma.c b/drivers/dma/ti/omap-dma.c
-index aeb9c29e52554..c192bdc30aae1 100644
---- a/drivers/dma/ti/omap-dma.c
-+++ b/drivers/dma/ti/omap-dma.c
-@@ -1543,8 +1543,10 @@ static int omap_dma_probe(struct platform_device *pdev)
- 
- 		rc = devm_request_irq(&pdev->dev, irq, omap_dma_irq,
- 				      IRQF_SHARED, "omap-dma-engine", od);
--		if (rc)
-+		if (rc) {
-+			omap_dma_free(od);
- 			return rc;
-+		}
- 	}
- 
- 	if (omap_dma_glbl_read(od, CAPS_0) & CAPS_0_SUPPORT_LL123)
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 4111edb3188e2..9718303410614 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -451,8 +451,10 @@ do {									\
+ ({									\
+ 	int __gu_err;							\
+ 	__inttype(*(ptr)) __gu_val;					\
++	__typeof__(ptr) __gu_ptr = (ptr);				\
++	__typeof__(size) __gu_size = (size);				\
+ 	__uaccess_begin_nospec();					\
+-	__get_user_size(__gu_val, (ptr), (size), __gu_err, -EFAULT);	\
++	__get_user_size(__gu_val, __gu_ptr, __gu_size, __gu_err, -EFAULT);	\
+ 	__uaccess_end();						\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
+ 	__builtin_expect(__gu_err, 0);					\
 -- 
 2.20.1
 
