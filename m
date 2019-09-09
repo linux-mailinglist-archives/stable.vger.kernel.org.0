@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C20ADFB5
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 21:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAEDADFDC
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 22:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405918AbfIITzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 15:55:03 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:36642 "EHLO
+        id S1726626AbfIIUTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 16:19:02 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:37467 "EHLO
         mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730465AbfIITzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 15:55:03 -0400
-Received: by mail-pf1-f194.google.com with SMTP id y22so9927956pfr.3
-        for <stable@vger.kernel.org>; Mon, 09 Sep 2019 12:55:02 -0700 (PDT)
+        with ESMTP id S1732979AbfIIUTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 16:19:01 -0400
+Received: by mail-pf1-f194.google.com with SMTP id y5so7245333pfo.4
+        for <stable@vger.kernel.org>; Mon, 09 Sep 2019 13:19:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=uq1vOZmAZWkLF7K17ZXxDZiv8Z7gVxrVpiTC8znLLKU=;
-        b=OKIKRRw2rP0AlPBwRSiQrYch3qsqaQWiy7HNfc5EP3YrTLPW7sYfWHZ9+iJJTxrVaN
-         1gmDTeVgwjXjv1nYOmqCI8tu9DLRqQ0HUDCvuO1hTI4jm4XwILuZC66p2VBBzqGizUzu
-         6YtvIBPpVe4x6VyUnbl4nsQw1+lKB/HoXKris=
+        bh=2SbHHuGlSF/34N7YRgI+XPxIHYN1V6G0+OaK6aiEA+U=;
+        b=KGh8wFdR/Jo4kBpbdRvb8JE1/Ac/hwF3I58Lvz5VPmRa4ih/uCTqCGWW4BMACbhsKL
+         bNBBJyFOqUO2MdlSiTz67IFBsgQ971lkEYGMuRhaGTyzbhM/mhL6rIno9qG6sahLx72C
+         XMiM/+KtY2Y+7Dt7njY6WLDfWfsvm758OVRmg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=uq1vOZmAZWkLF7K17ZXxDZiv8Z7gVxrVpiTC8znLLKU=;
-        b=ccH0y3v4Hqgdo3ODW6edOpbVBS1rxJxeO1m0R46EUtkYEaeCnVRZ1WczJiz3/qtwOM
-         MLUM78QYFLFnZjL2BLi/m1Pt7gLqiveJ89FaDscaRR2HYRmCcbeBwjCdGZEcHUDWjich
-         eLePLG5ulVc6XChGsng8tjcKGKLyL/OuP9UpBIN1fZ8KE/I+FcmbJT0f4fcwUaQy3Kji
-         6ubmV3DZEkVNAcO1V0A55cARHmkPBLFZ8S8WYkSfPOnOsf7K7SPq6cz6xMV34aT7aDso
-         wIKzX5qLIPRLPbVUOee/wqAiAyawqUjnBrTm3y0uUPiv709/JxHH44PYuS4/gs4/D9Cy
-         5mig==
-X-Gm-Message-State: APjAAAWz1cFUeYqOLFkVEfr/aZsp/Weeoh2iqXCaQT+oPhBFkw+FjQYK
-        B4Iu57JBrld5l4GvvEKHZ/S3upw7OP6GmQ==
-X-Google-Smtp-Source: APXvYqxeRElw6/2mRI2Z8CvfDEgKSuDzSumGZE9lpC/CumwQrR5W+pOdRPPAUWR/5dBTKaTVD9vuCw==
-X-Received: by 2002:a63:3805:: with SMTP id f5mr23311711pga.272.1568058901637;
-        Mon, 09 Sep 2019 12:55:01 -0700 (PDT)
+        bh=2SbHHuGlSF/34N7YRgI+XPxIHYN1V6G0+OaK6aiEA+U=;
+        b=iiQV5cpx+8lq8YyKnicokK2z7+3RzmF9VGElpAniklS2ybRrmBkSLX6+lb23xB4yzY
+         kFjUFBmzd3zuX5+1TdRzJDlSMgFLWRqoqAUr6GTR9TOD63Y1II9RQAe8fO75CQoy8h3q
+         3u9asTAXUgkS9OMYfghUtzpqbDKjNPU6z6Z6J08KVBWGRXQtE4NPCOP7XFPJhP1XHvK6
+         d+lOcyWKW3Urms8glSHKjSuufqK1GS6Qx5/6iBVHBXP+yf0ZgpxrNOrcrG0j6iR6Zhxr
+         hYv75laQE8uv6z1V/J/J144biXHQ+l8t6fUyNHreO6yNZuN6IWKWfTm1xSs1drA+BoHK
+         al4g==
+X-Gm-Message-State: APjAAAVMmnTljUHrQ9zjeg/LeK76qstBRDGflyPITHs6EKtg/WbvMo5l
+        j5seqBADe8k50ow6cewgSJrEQOhtESI8Jw==
+X-Google-Smtp-Source: APXvYqxLIUgW3u67VXjvKdpynD3T+8ohv1d5VbXhxvsfiiqUpHdFfMvgEje4PktAPBUnYr76DoY4kQ==
+X-Received: by 2002:a62:e50c:: with SMTP id n12mr30439439pff.206.1568060340546;
+        Mon, 09 Sep 2019 13:19:00 -0700 (PDT)
 Received: from zsm-linux.mtv.corp.google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
-        by smtp.googlemail.com with ESMTPSA id c125sm23389647pfa.107.2019.09.09.12.55.00
+        by smtp.googlemail.com with ESMTPSA id f128sm21932432pfg.143.2019.09.09.13.18.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Sep 2019 12:55:00 -0700 (PDT)
+        Mon, 09 Sep 2019 13:18:59 -0700 (PDT)
 From:   Zubin Mithra <zsm@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
         xiyou.wangcong@gmail.com, steffen.klassert@secunet.com,
         herbert@gondor.apana.org.au
-Subject: [v4.14.y, v4.9.y] xfrm: clean up xfrm protocol checks
-Date:   Mon,  9 Sep 2019 12:54:57 -0700
-Message-Id: <20190909195457.56783-1-zsm@chromium.org>
+Subject: [v4.4.y] xfrm: clean up xfrm protocol checks
+Date:   Mon,  9 Sep 2019 13:18:51 -0700
+Message-Id: <20190909201851.117250-1-zsm@chromium.org>
 X-Mailer: git-send-email 2.23.0.162.g0b9fbb3734-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -87,30 +87,28 @@ Signed-off-by: Zubin Mithra <zsm@chromium.org>
 ---
 Notes:
 * Syzkaller triggered a WARNING with the following stacktrace:
- __dump_stack lib/dump_stack.c:17 [inline]
- dump_stack+0x114/0x1cf lib/dump_stack.c:53
- panic+0x1bb/0x3a0 kernel/panic.c:181
- __warn.cold.9+0x149/0x186 kernel/panic.c:542
- report_bug+0x1f7/0x272 lib/bug.c:186
- fixup_bug arch/x86/kernel/traps.c:177 [inline]
- do_error_trap+0x1c1/0x430 arch/x86/kernel/traps.c:295
- do_invalid_op+0x20/0x30 arch/x86/kernel/traps.c:314
- invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:944
- xfrm_net_exit+0x2a/0x30 net/xfrm/xfrm_policy.c:2971
- ops_exit_list.isra.11+0xb5/0x160 net/core/net_namespace.c:142
- cleanup_net+0x575/0xab0 net/core/net_namespace.c:483
- process_one_work+0xb5c/0x1950 kernel/workqueue.c:2114
- worker_thread+0x224/0x18c0 kernel/workqueue.c:2248
- kthread+0x359/0x430 kernel/kthread.c:231
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:402
+  __dump_stack lib/dump_stack.c:15 [inline]
+  dump_stack+0xbf/0x113 lib/dump_stack.c:51
+  panic+0x1a6/0x361 kernel/panic.c:116
+  __warn+0x168/0x1b0 kernel/panic.c:470
+  warn_slowpath_null+0x3c/0x40 kernel/panic.c:514
+  xfrm_state_fini+0x83/0x28e net/xfrm/xfrm_state.c:2131
+  xfrm_net_exit+0x32/0x35 net/xfrm/xfrm_policy.c:3044
+  ops_exit_list+0xfc/0x12f net/core/net_namespace.c:136
+  cleanup_net+0x328/0x4ce net/core/net_namespace.c:454
+  process_one_work+0x7df/0xca8 kernel/workqueue.c:2064
+  worker_thread+0x592/0x765 kernel/workqueue.c:2196
+  kthread+0x279/0x28d kernel/kthread.c:211
+  ret_from_fork+0x4e/0x80 arch/x86/entry/entry_64.S:600
 
-* The commit is present in linux-4.19.y. A backport for linux-4.4.y will
-be sent separately.
+* The commit is present in linux-4.19.y. A backport for 4.14.y and 4.9.y
+has been sent separately.
 
 * The patch resolves the following conflicts:
 - conflicts in content of xfrm6_tunnel_net_exit()
 - changes in the prototype of xfrm_state_flush()
-- ordering of xfrm_state_flush(...) and flush_work(&xfrm_state_gc_work)
+- net->xfrm.state_gc_work has been moved to a global xfrm_state_gc_work
+- ordering of xfrm_state_flush(...) and flush_work(...)
   inside xfrm_state_fini.
 
 * Tests run: Chrome OS tryjobs, syzkaller reproducer
@@ -122,10 +120,10 @@ be sent separately.
  4 files changed, 22 insertions(+), 15 deletions(-)
 
 diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index bdf185ae93db..57b8b11cf7d4 100644
+index 185fb037b332..631614856afc 100644
 --- a/include/net/xfrm.h
 +++ b/include/net/xfrm.h
-@@ -1366,6 +1366,23 @@ static inline int xfrm_state_kern(const struct xfrm_state *x)
+@@ -1301,6 +1301,23 @@ static inline int xfrm_state_kern(const struct xfrm_state *x)
  	return atomic_read(&x->tunnel_users);
  }
  
@@ -150,10 +148,10 @@ index bdf185ae93db..57b8b11cf7d4 100644
  {
  	return (!userproto || proto == userproto ||
 diff --git a/net/key/af_key.c b/net/key/af_key.c
-index ac38b47e9f86..f8f7065f7b62 100644
+index 36db179d848e..d2ec620319d7 100644
 --- a/net/key/af_key.c
 +++ b/net/key/af_key.c
-@@ -1951,8 +1951,10 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
+@@ -1969,8 +1969,10 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
  
  	if (rq->sadb_x_ipsecrequest_mode == 0)
  		return -EINVAL;
@@ -166,23 +164,23 @@ index ac38b47e9f86..f8f7065f7b62 100644
  		return -EINVAL;
  	t->mode = mode;
 diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 7c093de68780..bd16e6882017 100644
+index 13f261feb75c..787f2cac18c5 100644
 --- a/net/xfrm/xfrm_state.c
 +++ b/net/xfrm/xfrm_state.c
-@@ -2330,7 +2330,7 @@ void xfrm_state_fini(struct net *net)
+@@ -2133,7 +2133,7 @@ void xfrm_state_fini(struct net *net)
  	unsigned int sz;
  
  	flush_work(&net->xfrm.state_hash_work);
 -	xfrm_state_flush(net, IPSEC_PROTO_ANY, false);
 +	xfrm_state_flush(net, 0, false);
- 	flush_work(&xfrm_state_gc_work);
+ 	flush_work(&net->xfrm.state_gc_work);
  
  	WARN_ON(!list_empty(&net->xfrm.state_all));
 diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 150c58dc8a7b..339a070da597 100644
+index 8cc2a9df84fd..4dbe6ebeabf8 100644
 --- a/net/xfrm/xfrm_user.c
 +++ b/net/xfrm/xfrm_user.c
-@@ -1489,20 +1489,8 @@ static int validate_tmpl(int nr, struct xfrm_user_tmpl *ut, u16 family)
+@@ -1448,20 +1448,8 @@ static int validate_tmpl(int nr, struct xfrm_user_tmpl *ut, u16 family)
  			return -EINVAL;
  		}
  
