@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E40DAE0C2
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4264AE0C1
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406364AbfIIWRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:17:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
+        id S2406378AbfIIWRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:17:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406338AbfIIWR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:17:29 -0400
+        id S2406370AbfIIWRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:17:33 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8884E21A4A;
-        Mon,  9 Sep 2019 22:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69EE121D7D;
+        Mon,  9 Sep 2019 22:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067448;
-        bh=EEJyiFOb58dYeSeHP50yL1HEZhSK5Fe9OBqGqb3mxTA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRDKCxrM9q9qA8Li8WJZGN81LYyjTqw4C49Jbw2hcqSOnYEisozyuVR2yryP7pIuG
-         3TygeS7SbQ+ZXblHo11hubYDp/IhJ7928FoT7cMHOkMVhpOQW+UgKT1FMpypcFHpHG
-         djaigjdKyY6Mhvrh3Y9N9zijmCpAZCt5u/jTaCfQ=
+        s=default; t=1568067452;
+        bh=L0xacNcsY2XpxXNLsk8K58LyQ1BNZxBNfKIvvTCiasE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tZZT7625XvUTqgHbQgm6cUenB8wtOPInb9ojr1BtpbUXh0ohJOnLvNIAGYXpMuMU6
+         tHNPrJltMA2DGWVSdpcigd5nNo+/0U6mxhPlO46Ex/7EMUPpVgaNRD3heblj+xhG9a
+         4fEC0mR0/tTUKQrfOnDpoIPes0r73XKYLqkJCnts=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>, Qian Cai <cai@lca.pw>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 6/6] iommu/amd: Fix race in increase_address_space()
-Date:   Mon,  9 Sep 2019 11:42:05 -0400
-Message-Id: <20190909154205.31376-6-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 1/2] dmaengine: ti: omap-dma: Add cleanup in omap_dma_probe()
+Date:   Mon,  9 Sep 2019 11:42:20 -0400
+Message-Id: <20190909154221.31473-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190909154205.31376-1-sashal@kernel.org>
-References: <20190909154205.31376-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,71 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
+[ Upstream commit 962411b05a6d3342aa649e39cda1704c1fc042c6 ]
 
-After the conversion to lock-less dma-api call the
-increase_address_space() function can be called without any
-locking. Multiple CPUs could potentially race for increasing
-the address space, leading to invalid domain->mode settings
-and invalid page-tables. This has been happening in the wild
-under high IO load and memory pressure.
+If devm_request_irq() fails to disable all interrupts, no cleanup is
+performed before retuning the error. To fix this issue, invoke
+omap_dma_free() to do the cleanup.
 
-Fix the race by locking this operation. The function is
-called infrequently so that this does not introduce
-a performance regression in the dma-api path again.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/1565938570-7528-1-git-send-email-wenwen@cs.uga.edu
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/dma/omap-dma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index c1233d0288a03..dd7880de7e4e9 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1321,18 +1321,21 @@ static void domain_flush_devices(struct protection_domain *domain)
-  * another level increases the size of the address space by 9 bits to a size up
-  * to 64 bits.
-  */
--static bool increase_address_space(struct protection_domain *domain,
-+static void increase_address_space(struct protection_domain *domain,
- 				   gfp_t gfp)
- {
-+	unsigned long flags;
- 	u64 *pte;
+diff --git a/drivers/dma/omap-dma.c b/drivers/dma/omap-dma.c
+index 1dfc71c90123f..57b6e6ca14a88 100644
+--- a/drivers/dma/omap-dma.c
++++ b/drivers/dma/omap-dma.c
+@@ -1199,8 +1199,10 @@ static int omap_dma_probe(struct platform_device *pdev)
  
--	if (domain->mode == PAGE_MODE_6_LEVEL)
-+	spin_lock_irqsave(&domain->lock, flags);
-+
-+	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
- 		/* address space already 64 bit large */
--		return false;
-+		goto out;
+ 		rc = devm_request_irq(&pdev->dev, irq, omap_dma_irq,
+ 				      IRQF_SHARED, "omap-dma-engine", od);
+-		if (rc)
++		if (rc) {
++			omap_dma_free(od);
+ 			return rc;
++		}
+ 	}
  
- 	pte = (void *)get_zeroed_page(gfp);
- 	if (!pte)
--		return false;
-+		goto out;
- 
- 	*pte             = PM_LEVEL_PDE(domain->mode,
- 					virt_to_phys(domain->pt_root));
-@@ -1340,7 +1343,10 @@ static bool increase_address_space(struct protection_domain *domain,
- 	domain->mode    += 1;
- 	domain->updated  = true;
- 
--	return true;
-+out:
-+	spin_unlock_irqrestore(&domain->lock, flags);
-+
-+	return;
- }
- 
- static u64 *alloc_pte(struct protection_domain *domain,
+ 	rc = dma_async_device_register(&od->ddev);
 -- 
 2.20.1
 
