@@ -2,76 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 845C9AD94F
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 14:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87005AD98B
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 15:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728703AbfIIMpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 08:45:07 -0400
-Received: from mail-lj1-f177.google.com ([209.85.208.177]:36308 "EHLO
-        mail-lj1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726008AbfIIMpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 08:45:07 -0400
-Received: by mail-lj1-f177.google.com with SMTP id l20so12595492ljj.3
-        for <stable@vger.kernel.org>; Mon, 09 Sep 2019 05:45:06 -0700 (PDT)
+        id S1726329AbfIINAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 09:00:50 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:36629 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbfIINAt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Sep 2019 09:00:49 -0400
+Received: by mail-wm1-f65.google.com with SMTP id p13so14600700wmh.1;
+        Mon, 09 Sep 2019 06:00:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=XZNU9mYm+eA3iubpUKCBjLPxCWOCN99H94H5Z96yb+c=;
-        b=NWhyNH6OabvIz4lctQbmreCqzgzmH2Xa7CaDocgi/tonXDYHk80PSyfhhYpKu6EPLG
-         mxB79qkb8zpLjQzxTPijpm6U5xjzJDQnNxGhFJnmDfMiuqcFu/4QCX6IztYek69O90hy
-         lLx3c5ohXqkL/mm4g2hK2DhXxTmEi6TN7HQcVbgLvE5Sx+78Nelgo8f7Xj0yQCZsJ4Oc
-         /S0AcSJySMsEoDITjm8vkMPUyftNde8L1Gj53WtW6ca0oXO3L6JlxhNwwLFebmU9GX3t
-         nlJ6UYP/+Dbt2jyachGKB1Kqx1Ic3VbVT1j63TnBrob4Qf2SWrY8V4gZyYfp+mumgdSa
-         exxA==
+        d=gmail.com; s=20161025;
+        h=from:subject:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2mtaXV7efDqHnLl+I+7SAMFY03vfoRhhBlpiVGaFQk8=;
+        b=o5Mu6W+2SUKWlKCtvnhhXFy04FVwBepV5lS1KIj3m+C/9Og0pMUOcf++P4N0w8Yvzz
+         ir/ZcGOzKohQvKMr37eVmCE14/ggnYO0b1P390t10x43LCdDJdHdjZqrUflV7uwzOZRn
+         +1TN8GpHqhU2rz+SUJFx64QmBlUGeSATBH59Ljcptzl8/Q+sHGn7RFmwjZGlWGZN+Us7
+         7iLWHlGrZ5VwnYeMyGpg1YO+gsp424rYI+xCZuUwXzgPyO2UEV1vD2+ytTLbDxYkjFtd
+         dvbYvOmk2cm/gvj9uvv6gJGH9THmPDSzLHRJ7g3cEUCenkmjFqtpvjEnDlsvWbdX3whC
+         pKDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=XZNU9mYm+eA3iubpUKCBjLPxCWOCN99H94H5Z96yb+c=;
-        b=lv2AhJFPSd0+4j8WzCfd196hhVoBTl265NcGi61z9DeBOOyUjR807sSjtRPwDoOLMs
-         BNSGVfDLdWQ8M7fpW2/u4LVmw4Fr8y8KNXd4Sq8/dqBby/QoEpglBaDnFDUVpZoC48U9
-         VsfT0ggXwEObhXLaiCpCF2R75eRoJZ1pTacv5td2xW+bKIsWJ4so69h9uiMm6iYq1Qvj
-         V1tmjBgzC9Uyv3fmvOOlkzG8yyYMQ8EpE0KJk+XR1FtonNBTuDqgXflelsbCy3QAykNi
-         0ZdSRL62H9qLmTjexC1DUYTjqAguSXMS34+I5+OVwdbDWKMK/RvZwfwnrtInYs1Hqsw8
-         m5RA==
-X-Gm-Message-State: APjAAAV2ClquUZ20PvmqGqyPJq9EZYm42QqvkRg2Ggb1gGMgL3HSFzVA
-        uh14ULjpBbzVmDP6kuwYs4GjYtApc2c=
-X-Google-Smtp-Source: APXvYqyThmC0MpAEFB4INR+SFYVizkkvnw5Zhg8d4DXEDYZWY8IUKCOBIQDSY6UCpYiSySQFc8NiYQ==
-X-Received: by 2002:a2e:3102:: with SMTP id x2mr7498528ljx.218.1568033104962;
-        Mon, 09 Sep 2019 05:45:04 -0700 (PDT)
-Received: from centauri (ua-84-219-138-247.bbcust.telenor.se. [84.219.138.247])
-        by smtp.gmail.com with ESMTPSA id r11sm2904021ljh.23.2019.09.09.05.45.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Sep 2019 05:45:04 -0700 (PDT)
-Date:   Mon, 9 Sep 2019 14:45:01 +0200
-From:   Niklas Cassel <niklas.cassel@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     will.deacon@arm.com
-Subject: stable backport request, add cortex-a cpus to whitelist
-Message-ID: <20190909124501.GA14378@centauri>
+        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2mtaXV7efDqHnLl+I+7SAMFY03vfoRhhBlpiVGaFQk8=;
+        b=l2DqugTZP7E+gZijTyYuXKZjhUVWQxt89K4EAcm+i7q+ylCrdNGZo96wrpYr9lcQkU
+         fn6xjIH7xLfjOdIZ3zbYD+1z28cvt0QrL4L25hlbdpsyRWLQa4nKUgqu/MtiNhXcmaGK
+         WPB7H/rIycdz6ry9DPQEucOhWeU7XedXEbw94HDP8PL9hFMLr5Rg2l7VCL5P19c4fqto
+         4LbmQlAGOyUMZY19iohK3aA1tnT4XitKNwiIlh+QYOiOggyYbXxIlkzj500eD7tPdn3C
+         aRYPm4Af3beDEn+T8b55SUO8RK6Wt2tBzO89iFUj3mgc0egobJF83i+8hjaArayArpNb
+         khjA==
+X-Gm-Message-State: APjAAAX/GO6QyUDnC+Fb555EnHLs0IUOzFv67x4221nzWDi+adJfuPam
+        tKbUPcqc2/0Q1kiUWGGs5pM=
+X-Google-Smtp-Source: APXvYqwZNcsdhyfgf9pTofH/0xIuzvtR6S8IvHvjLtdXCPvCCUI3NCXN+ewuYCoam7pbMLdJp4XpPw==
+X-Received: by 2002:a1c:a713:: with SMTP id q19mr1412073wme.127.1568034047476;
+        Mon, 09 Sep 2019 06:00:47 -0700 (PDT)
+Received: from [132.199.67.133] (roam067133.uni-regensburg.de. [132.199.67.133])
+        by smtp.gmail.com with ESMTPSA id u8sm11518806wmj.3.2019.09.09.06.00.46
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 09 Sep 2019 06:00:46 -0700 (PDT)
+From:   Fabian Henneke <fabian.henneke@gmail.com>
+Subject: Re: [PATCH 4.19 19/57] Bluetooth: hidp: Let hidp_send_message return
+ number of queued bytes
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+References: <20190908121125.608195329@linuxfoundation.org>
+ <20190908121132.859238319@linuxfoundation.org> <20190909121555.GA18869@amd>
+Message-ID: <8e7731e0-f0ad-8cbb-799e-dd585e6b7ed6@gmail.com>
+Date:   Mon, 9 Sep 2019 15:00:46 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190909121555.GA18869@amd>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Hi,
 
-I would like to request
-2a355ec25729 ("arm64: kpti: Whitelist Cortex-A CPUs that don't implement the CSV3 field")
+On Mon, Sep 9, 2019 at 2:15 PM Pavel Machek <pavel@denx.de> wrote:
 
-to be backported to 4.19 stable.
+> Hi!
+>
+> > [ Upstream commit 48d9cc9d85dde37c87abb7ac9bbec6598ba44b56 ]
+> >
+> > Let hidp_send_message return the number of successfully queued bytes
+> > instead of an unconditional 0.
+> >
+> > With the return value fixed to 0, other drivers relying on hidp, such as
+> > hidraw, can not return meaningful values from their respective
+> > implementations of write(). In particular, with the current behavior, a
+> > hidraw device's write() will have different return values depending on
+> > whether the device is connected via USB or Bluetooth, which makes it
+> > harder to abstract away the transport layer.
+>
+> So, does this change any actual behaviour?
+>
+> Is it fixing a bug, or is it just preparation for a patch that is not
+> going to make it to stable?
+>
 
-These CPUs are not susceptible to Meltdown, so enabling the mitigations
-for Meltdown (kpti) should be redundant, especially since we know that
-it can have a huge performance penalty for certain workloads.
+I created this patch specifically in order to ensure that user space
+applications can use HID devices with hidraw without needing to care about
+whether the transport is USB or Bluetooth. Without the patch, every
+hidraw-backed Bluetooth device needs to be treated specially as its write()
+violates the usual return value contract, which could be viewed as a bug.
 
-kpti will still be automatically enabled if KASLR is enabled.
+Please note that a later patch (
+https://www.spinics.net/lists/linux-input/msg63291.html) fixes some
+important error checks that were relying on the old behavior (and were
+unfortunately missed by me).
 
+Best regards,
+Fabian
 
-Kind regards,
-Niklas
+>                                                         Pavel
+>
+> --
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures)
+> http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>
+
