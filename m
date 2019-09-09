@@ -2,102 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65748AD1EF
-	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 04:30:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0638FAD220
+	for <lists+stable@lfdr.de>; Mon,  9 Sep 2019 05:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732947AbfIICaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Sep 2019 22:30:55 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:44760 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732530AbfIICaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Sep 2019 22:30:55 -0400
-Received: by mail-io1-f68.google.com with SMTP id j4so25205324iog.11
-        for <stable@vger.kernel.org>; Sun, 08 Sep 2019 19:30:54 -0700 (PDT)
+        id S2387415AbfIIDNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Sep 2019 23:13:06 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:35174 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387407AbfIIDNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Sep 2019 23:13:06 -0400
+Received: by mail-lf1-f67.google.com with SMTP id w6so9284112lfl.2
+        for <stable@vger.kernel.org>; Sun, 08 Sep 2019 20:13:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=r1kBM8+FpCn5DwArkBe4qisyPtgF0D1ChYizbMJcwFY=;
-        b=f99c3fWlG0hXsPYKN1ha72hlU183tKwmYztOnrgbbGD5XZnzv4em8Y9vsOCyx9DSlS
-         dUarEbTMEHWjtf7eMG0g1uFW7cCPXMx5p0J73Z8s8I6CRNHP8Zfzt4ZOVacCn4ecwMKi
-         tUyk9xKtYjU6KIkeibQe6Tqske60T+U1+UxfFSO0nsEKzwnqUPOhy8SbKNjrUNqBPu+g
-         2yT3JE09WyZsoKHDzmVrPK/+8W4FLmypaWCiQcjXU8sCBo4qs83TwZ8p6lOfl/1AZYD7
-         lxwZNrzwMqKFix5+OwAXYkkSWgSlpHeKMG6xTdTNegui8bKsIZ0tUYMxsMgExlO3Xea7
-         JUyQ==
+         :cc:content-transfer-encoding;
+        bh=3LfCbYav0GuA0YL9gmVzYCUuIMsC4Vv6UiM5Mn7c/LM=;
+        b=O5lXIvrUXnr+WXbBbwSSiq5gXFIIxXcbW9uQLIbQKyA4HtPBk/3jqsAppET63fAgm2
+         J5zOWrn6s8UnYjEgQrmrJJTcgVkm0KII5G3V1NNRzawSKm8+QdUOxR6i3B7YtgTMgfEo
+         /R+z7F95ftZMRK/Y9uR61G+BFg5193eFOH5VuARuJjOpHkpG2cERFZBFlC5/vmCTT7X5
+         p5eK2weHnDIkj0URyKTuUZQziSTLlqXT3AeRJls+hce8RKeRoYFxwQnVf2EDLhLZPScM
+         klAXg3oH8jPdm910u1kEP1bLQbCgfnnsvtVOAYXlFZnLCIuN1uVxiTk6HBWpDg6I5wIK
+         rQHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=r1kBM8+FpCn5DwArkBe4qisyPtgF0D1ChYizbMJcwFY=;
-        b=PQRx2jzeG6YmMJ9hwI2fNKGTOkpYTH9vWrQ8LZxdNxaXak+S1XKLMot7vd6IJ4JO5b
-         d/Hd+wf0B9xRX0BUF36VU+m9XPxJt2t/XVMGhJGOD01l8DofZodfCCfoK6r0RjOZX8+l
-         kCcWRhMGNRo+6mjDePa45ecJpafRSGmTaBPJWvLSFW+Yi6y++tOqczTsXuMHK5nrFwsv
-         mQhokmu2slhHvCs29f8cnWzmVugX7tEvqhU/171DXkOx/u4gDDLThSnYlqLtu4jOxHqB
-         GBBy/q+eZRGDqblQJIvPofqzrVlc2T+Gin7Bbvxg60zIo1m014tbpSngvnCvf9VvS+zc
-         O3TA==
-X-Gm-Message-State: APjAAAUwZYdU3h0sU/u+QpOddvxWnG8dZxDW9bFx1Shaixb92uQKbxJU
-        JnGuzcnqBVt2R5flMb+SwvI5lNnl/o7cuS9hqxU=
-X-Google-Smtp-Source: APXvYqyrCRQRwtZO2cJ0+ag91SP1gVT+1Xx5uH6/S0Y8lrBOq+8Dv2NKb0Hllam9Zz1D3Zr/9La3rNfeotnolKfrwNI=
-X-Received: by 2002:a02:608:: with SMTP id 8mr23052655jav.88.1567996254437;
- Sun, 08 Sep 2019 19:30:54 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=3LfCbYav0GuA0YL9gmVzYCUuIMsC4Vv6UiM5Mn7c/LM=;
+        b=lck8aQB64AAQ3A0SPI1AOS8clPNB3JuvKOH0OyMoOLyyE1SWEarQr+KrfsDu6U2jiN
+         tK5qXLX34iMCWNcUlyayoMuRbqSk1UIIQY+/EbYU9f0Gre4W4cYOXsG5Qq8kJZOshwyA
+         /huXh/P0+7dD1yLM67wKYyKzcctbO2k8ehMmquIvIJHfIcJr5C/74Z5EjIvjAUDgL6zN
+         H6plEgx4oZP9F7Sd7wYRXS/bVzVcusdrT9Qi8UkPtkLEtwpo2YgFGDZkKqcuWQGtqI4y
+         mDd4tbAqiYZxnZRBNsDVSKDE8LwJsxCOU7vSqyjgCDwZaF4InkQqr1XbNA9jfNH8lOOV
+         10KA==
+X-Gm-Message-State: APjAAAXaTvFpTn3CJnEp6dsmMtbBVoHq5bqlRZOZhk9VgNIrQKmfhr5A
+        NPF/qbrY/9Mw+tgBtonYJQl/+FRqYvNNYHlSv1ABxQ==
+X-Google-Smtp-Source: APXvYqzTargLBkYl79X0rGmUOLaXZUdvMWAMG7oW/+CUGnU/EiQ1JEwEMQuXHB1GLY4nZD/63U4bbu8hdAXHZjWMZ84=
+X-Received: by 2002:ac2:4352:: with SMTP id o18mr15000583lfl.164.1567998783481;
+ Sun, 08 Sep 2019 20:13:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190908024800.23229-1-anarsoul@gmail.com>
-In-Reply-To: <20190908024800.23229-1-anarsoul@gmail.com>
-From:   Qiang Yu <yuq825@gmail.com>
-Date:   Mon, 9 Sep 2019 10:30:43 +0800
-Message-ID: <CAKGbVbt056DyZHer1bKnAv8uBCX6zbsWeMjE6AQy8HYQf7L1wg@mail.gmail.com>
-Subject: Re: [PATCH] drm/lima: fix lima_gem_wait() return value
-To:     Vasily Khoruzhick <anarsoul@gmail.com>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        lima@lists.freedesktop.org, stable@vger.kernel.org
+References: <20190908121125.608195329@linuxfoundation.org>
+In-Reply-To: <20190908121125.608195329@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 9 Sep 2019 08:42:51 +0530
+Message-ID: <CA+G9fYttXw5buEQkt+PVH2By+S0OazBJZp6FJbDQXPZru_obew@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/57] 4.19.72-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Oh, I was miss leading by the drm_gem_reservation_object_wait
-comments. Patch is:
-Reviewed-by: Qiang Yu <yuq825@gmail.com>
+On Sun, 8 Sep 2019 at 18:20, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.72 release.
+> There are 57 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Tue 10 Sep 2019 12:09:36 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.72-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-I'll apply this patch to drm-misc-next.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Current kernel release is 5.3-rc8, is it too late for this fix to go
-into the mainline 5.3 release?
-I'd like to know how to apply this fix for current rc kernels, by
-drm-misc-fixes? Can I push
-to drm-misc-fixes by dim or I can only push to drm-misc-next and
-drm-misc maintainer will
-pick fixes from it to drm-misc-fixes?
+Summary
+------------------------------------------------------------------------
 
-Thanks,
-Qiang
+kernel: 4.19.72-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 20f1e9f544166cca04c111f8719286155a5b9b09
+git describe: v4.19.70-60-g20f1e9f54416
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.70-60-g20f1e9f54416
 
-On Sun, Sep 8, 2019 at 10:48 AM Vasily Khoruzhick <anarsoul@gmail.com> wrote:
->
-> drm_gem_reservation_object_wait() returns 0 if it succeeds and -ETIME
-> if it timeouts, but lima driver assumed that 0 is error.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-> ---
->  drivers/gpu/drm/lima/lima_gem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
-> index 477c0f766663..b609dc030d6c 100644
-> --- a/drivers/gpu/drm/lima/lima_gem.c
-> +++ b/drivers/gpu/drm/lima/lima_gem.c
-> @@ -342,7 +342,7 @@ int lima_gem_wait(struct drm_file *file, u32 handle, u32 op, s64 timeout_ns)
->         timeout = drm_timeout_abs_to_jiffies(timeout_ns);
->
->         ret = drm_gem_reservation_object_wait(file, handle, write, timeout);
-> -       if (ret == 0)
-> +       if (ret == -ETIME)
->                 ret = timeout ? -ETIMEDOUT : -EBUSY;
->
->         return ret;
-> --
-> 2.23.0
->
+
+No regressions (compared to build v4.19.70)
+
+
+No fixes (compared to build v4.19.70)
+
+Ran 22190 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
