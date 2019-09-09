@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47900AE0A3
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0428BAE0F4
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 00:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406179AbfIIWQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Sep 2019 18:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S1726613AbfIIWS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Sep 2019 18:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406159AbfIIWQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Sep 2019 18:16:31 -0400
+        id S2406149AbfIIWQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Sep 2019 18:16:36 -0400
 Received: from sasha-vm.mshome.net (unknown [62.28.240.114])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BB1F21D7D;
-        Mon,  9 Sep 2019 22:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 114392171F;
+        Mon,  9 Sep 2019 22:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568067390;
-        bh=M8QDHlclBiqqcG4kczDfCX8BbuxFzi0ECb4PydXMguo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlRpmCRvLRl2w2pCVDdG2kYG08qeyMwt90luH2bphG7tYeOLkfljSQALCjWF65t+7
-         QPoQIXbJIjQRjIpv2OSeV1C/R9n4tEGk8PSJH6/Dn0QSvzBe/9ZvpofZEwRgUsrG7W
-         LMfCSMKg5j3daoLwn+B4RnRMBXXEAjOfr5I6cH+4=
+        s=default; t=1568067396;
+        bh=566Bz2o9qSdYSA2i4UQw+4bzvn1OWackuqqOtUWjLro=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VWkrOhaOvDXXhvtmt1kK0+dH+KCBoOG/02z8Ly7R2U0Xk4RnwpNw17j1XpXGGGcPS
+         nvUOQXw7HGxo6jGUu7mh5hu/IdcrTRpI8qTsD8AhIeUuSpYyBmkf17DPidIPZ2Li88
+         iPsMr3da+UV7WV1fHgxr16kcEwyvD45IHs0GXM6s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>, Qian Cai <cai@lca.pw>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.2 12/12] iommu/amd: Fix race in increase_address_space()
-Date:   Mon,  9 Sep 2019 11:40:52 -0400
-Message-Id: <20190909154052.30941-12-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/8] dmaengine: ti: dma-crossbar: Fix a memory leak bug
+Date:   Mon,  9 Sep 2019 11:41:16 -0400
+Message-Id: <20190909154124.31146-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190909154052.30941-1-sashal@kernel.org>
-References: <20190909154052.30941-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,71 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
+[ Upstream commit 2c231c0c1dec42192aca0f87f2dc68b8f0cbc7d2 ]
 
-After the conversion to lock-less dma-api call the
-increase_address_space() function can be called without any
-locking. Multiple CPUs could potentially race for increasing
-the address space, leading to invalid domain->mode settings
-and invalid page-tables. This has been happening in the wild
-under high IO load and memory pressure.
+In ti_dra7_xbar_probe(), 'rsv_events' is allocated through kcalloc(). Then
+of_property_read_u32_array() is invoked to search for the property.
+However, if this process fails, 'rsv_events' is not deallocated, leading to
+a memory leak bug. To fix this issue, free 'rsv_events' before returning
+the error.
 
-Fix the race by locking this operation. The function is
-called infrequently so that this does not introduce
-a performance regression in the dma-api path again.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/1565938136-7249-1-git-send-email-wenwen@cs.uga.edu
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/dma/ti/dma-crossbar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index b265062edf6c8..3e687f18b203a 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1425,18 +1425,21 @@ static void free_pagetable(struct protection_domain *domain)
-  * another level increases the size of the address space by 9 bits to a size up
-  * to 64 bits.
-  */
--static bool increase_address_space(struct protection_domain *domain,
-+static void increase_address_space(struct protection_domain *domain,
- 				   gfp_t gfp)
- {
-+	unsigned long flags;
- 	u64 *pte;
+diff --git a/drivers/dma/ti/dma-crossbar.c b/drivers/dma/ti/dma-crossbar.c
+index 9272b173c7465..6574cb5a12fee 100644
+--- a/drivers/dma/ti/dma-crossbar.c
++++ b/drivers/dma/ti/dma-crossbar.c
+@@ -395,8 +395,10 @@ static int ti_dra7_xbar_probe(struct platform_device *pdev)
  
--	if (domain->mode == PAGE_MODE_6_LEVEL)
-+	spin_lock_irqsave(&domain->lock, flags);
-+
-+	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
- 		/* address space already 64 bit large */
--		return false;
-+		goto out;
+ 		ret = of_property_read_u32_array(node, pname, (u32 *)rsv_events,
+ 						 nelm * 2);
+-		if (ret)
++		if (ret) {
++			kfree(rsv_events);
+ 			return ret;
++		}
  
- 	pte = (void *)get_zeroed_page(gfp);
- 	if (!pte)
--		return false;
-+		goto out;
- 
- 	*pte             = PM_LEVEL_PDE(domain->mode,
- 					iommu_virt_to_phys(domain->pt_root));
-@@ -1444,7 +1447,10 @@ static bool increase_address_space(struct protection_domain *domain,
- 	domain->mode    += 1;
- 	domain->updated  = true;
- 
--	return true;
-+out:
-+	spin_unlock_irqrestore(&domain->lock, flags);
-+
-+	return;
- }
- 
- static u64 *alloc_pte(struct protection_domain *domain,
+ 		for (i = 0; i < nelm; i++) {
+ 			ti_dra7_xbar_reserve(rsv_events[i][0], rsv_events[i][1],
 -- 
 2.20.1
 
