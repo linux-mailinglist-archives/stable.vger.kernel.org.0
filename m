@@ -2,84 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F10BAF0E9
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 20:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F4218AF109
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 20:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729186AbfIJSKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 14:10:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59266 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728222AbfIJSKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 14:10:54 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8AHuwmY004777
-        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 14:10:53 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2uxfrvjdjv-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 14:10:53 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Tue, 10 Sep 2019 19:10:51 +0100
-Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
-        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Tue, 10 Sep 2019 19:10:46 +0100
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8AIAjNQ39321930
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Sep 2019 18:10:45 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17C32AE06A;
-        Tue, 10 Sep 2019 18:10:45 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A3DD3AE059;
-        Tue, 10 Sep 2019 18:10:44 +0000 (GMT)
-Received: from osiris (unknown [9.145.57.86])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 10 Sep 2019 18:10:44 +0000 (GMT)
-Date:   Tue, 10 Sep 2019 20:10:43 +0200
-From:   Heiko Carstens <heiko.carstens@de.ibm.com>
-To:     Igor Mammedov <imammedo@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        david@redhat.com, cohuck@redhat.com, frankja@linux.ibm.com,
-        gor@linux.ibm.com, imbrenda@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: s390: kvm_s390_vm_start_migration: check
- dirty_bitmap before using it as target for memset()
-References: <20190910130215.23647-1-imammedo@redhat.com>
+        id S1727023AbfIJSam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 14:30:42 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:58755 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725875AbfIJSam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 14:30:42 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 46SYW11NV4z9sCJ;
+        Wed, 11 Sep 2019 04:30:36 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
+        s=201909; t=1568140238;
+        bh=f4U1zO2/pzQQfC6HW1AIvY8jEzHpvz5Va9YInwDeUe4=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=bjPAWTkE2pbHDx9ZvsEug69vxtE8M/T3yz/Qd+vrB8ielWshLQ6SaPq+mGAbac2ct
+         ej7BQXJYmyEQPMX3ETl4iM0BYuRfmYzjTKbXwy4HtOyNGtv4OsKWUBy/cmESiekcao
+         Z834pvArUYWOFG+n9JeXwhoSFnFKZrvnQ2Sho6LOfVE/jSSzKMPyPp6EzJm3o2vK68
+         9LD6Ksr+s2ZbX2GMGy6yLQwXSWDU3uqJutIHuvElI5FuD1XlF0Ebdb6AcTN5E5aF/6
+         g4IL+72+IJ3MKpJKGUF4TeWwSR727VCuDDNP99bgDwOMKKoLNyXXV9lsYbMLTxlVhW
+         ucSd4fpHnrS4A==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Nathan Chancellor <natechancellor@gmail.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+In-Reply-To: <20190904231554.GA42450@archlinux-threadripper>
+References: <878srdv206.fsf@mpe.ellerman.id.au> <20190828175322.GA121833@archlinux-threadripper> <CAKwvOdmXbYrR6n-cxKt3XxkE4Lmj0sSoZBUtHVb0V2LTUFHmug@mail.gmail.com> <20190828184529.GC127646@archlinux-threadripper> <6801a83ed6d54d95b87a41c57ef6e6b0@AcuMS.aculab.com> <20190903055553.GC60296@archlinux-threadripper> <20190903193128.GC9749@gate.crashing.org> <20190904002401.GA70635@archlinux-threadripper> <1bcd7086f3d24dfa82eec03980f30fbc@AcuMS.aculab.com> <20190904130135.GN9749@gate.crashing.org> <20190904231554.GA42450@archlinux-threadripper>
+Date:   Wed, 11 Sep 2019 04:30:38 +1000
+Message-ID: <87mufcypf5.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190910130215.23647-1-imammedo@redhat.com>
-X-TM-AS-GCONF: 00
-x-cbid: 19091018-0028-0000-0000-0000039A9C5F
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19091018-0029-0000-0000-0000245D0143
-Message-Id: <20190910181043.GB4313@osiris>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-10_11:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=477 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1906280000 definitions=main-1909100172
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 10, 2019 at 09:02:15AM -0400, Igor Mammedov wrote:
-> Make sure that ms->dirty_bitmap is set before using it or
-> print a warning and return -ENIVAL otherwise.
-...
-> v2:
->    - drop WARN()
-...
-> +		if (!ms->dirty_bitmap)
-> +			return -EINVAL;
+Nathan Chancellor <natechancellor@gmail.com> writes:
+> On Wed, Sep 04, 2019 at 08:01:35AM -0500, Segher Boessenkool wrote:
+>> On Wed, Sep 04, 2019 at 08:16:45AM +0000, David Laight wrote:
+>> > From: Nathan Chancellor [mailto:natechancellor@gmail.com]
+>> > > Fair enough so I guess we are back to just outright disabling the
+>> > > warning.
+>> > 
+>> > Just disabling the warning won't stop the compiler generating code
+>> > that breaks a 'user' implementation of setjmp().
+>> 
+>> Yeah.  I have a patch (will send in an hour or so) that enables the
+>> "returns_twice" attribute for setjmp (in <asm/setjmp.h>).  In testing
+>> (with GCC trunk) it showed no difference in code generation, but
+>> better save than sorry.
+>> 
+>> It also sets "noreturn" on longjmp, and that *does* help, it saves a
+>> hundred insns or so (all in xmon, no surprise there).
+>> 
+>> I don't think this will make LLVM shut up about this though.  And
+>> technically it is right: the C standard does say that in hosted mode
+>> setjmp is a reserved name and you need to include <setjmp.h> to access
+>> it (not <asm/setjmp.h>).
+>
+> It does not fix the warning, I tested your patch.
+>
+>> So why is the kernel compiled as hosted?  Does adding -ffreestanding
+>> hurt anything?  Is that actually supported on LLVM, on all relevant
+>> versions of it?  Does it shut up the warning there (if not, that would
+>> be an LLVM bug)?
+>
+> It does fix this warning because -ffreestanding implies -fno-builtin,
+> which also solves the warning. LLVM has supported -ffreestanding since
+> at least 3.0.0. There are some parts of the kernel that are compiled
+> with this and it probably should be used in more places but it sounds
+> like there might be some good codegen improvements that are disabled
+> with it:
+>
+> https://lore.kernel.org/lkml/CAHk-=wi-epJZfBHDbKKDZ64us7WkF=LpUfhvYBmZSteO8Q0RAg@mail.gmail.com/
 
-The patch description needs an update. ;)
+For xmon.c and crash.c I think using -ffreestanding would be fine.
+They're both crash/debug code, so we don't care about minor optimisation
+differences. If anything we don't want the compiler being too clever
+when generating that code.
 
+cheers
