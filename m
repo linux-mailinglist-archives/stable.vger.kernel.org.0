@@ -2,149 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6103AE56E
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 10:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59464AE61F
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 10:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfIJIWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 04:22:20 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42953 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725856AbfIJIWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 04:22:20 -0400
-Received: by mail-wr1-f67.google.com with SMTP id q14so18215707wrm.9
-        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 01:22:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RMKlXc+O7D5bCEwjDFFMVCcJWJjC2HcosOo5F0af2FI=;
-        b=w5yp3SAoZLSEZHdc4COhQMLChm6+6lkbYEEEox3jiTQJlbtARAZq0gCWGPUZbvCR1N
-         Fa28W1OpRk6mjYDIeE4Q3QDcQzEZef+qYmuz1Tl1SktRh24VyKr5+UaleXWmlK8iXYvA
-         OTedXapPS/oe2CR46mDhaAsNYE6Jc3mvwjcyHTwQ2019/hOvrPvZSpTucSsY55149Azr
-         FYUUT9T9xmvBIE8NsXwokYqaEXA/FhRuLa7qNK/IR3fvAIrGBr4qVQkvURboA2mqVUfs
-         8xTP1rWx8wj+SsUGMoXzy1+DXMZXOeaFqFj3wpbuXBA2cZ59Enp9bcacLMSs9Y49dBrn
-         jWRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RMKlXc+O7D5bCEwjDFFMVCcJWJjC2HcosOo5F0af2FI=;
-        b=SVg1QHss258RgPDPxF5mazYZbVa3Jxt0leeRqTXqRZZbaHN8TbcOgxSdHYGkARc1bp
-         rNtMsWGGBkD0n05PBgnGzPfAo9YFECjFvYD91T4swEQc4D8t0UFe+N9XiQn6fOktHoA8
-         OpM8UEGmbFFISXYYfar71XP3wrERCsUiSjM8Zqtx5DVKh/Txl6U2kn5Qhu5ApSQanv+F
-         xzeo3V6fjHBvNdb4BDWuR+XQHuvfxOldkUPMFn40dFfI+ouvgT9DxF7c/ntTD1KPYYOe
-         CxWluPtbONceF+XfeAhJsAHy/DfWWthWK9Q2qPxfGxcOwsJtTrqfPjBaS7By+N7KMdVN
-         9edw==
-X-Gm-Message-State: APjAAAXF8HROS3VmgGxG1TreQIl2FnADDjkoBgBS4h8AEPn/4htElT7+
-        mNecpxEENDMf+peES0yrVUOAYg==
-X-Google-Smtp-Source: APXvYqyM5+/RiHdg9qMKBydxzwyIXjhSzKk7we5ZuMc9Gn9PbbHTDuepiFwku8fXnT/Vo+JTAk0qyQ==
-X-Received: by 2002:adf:dc41:: with SMTP id m1mr11190301wrj.46.1568103738351;
-        Tue, 10 Sep 2019 01:22:18 -0700 (PDT)
-Received: from localhost.localdomain (amontpellier-652-1-281-69.w109-210.abo.wanadoo.fr. [109.210.96.69])
-        by smtp.gmail.com with ESMTPSA id 189sm2534813wmz.19.2019.09.10.01.22.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Sep 2019 01:22:17 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>
-Subject: [PATCH] gpiolib: don't clear FLAG_IS_OUT when emulating open-drain/open-source
-Date:   Tue, 10 Sep 2019 10:21:38 +0200
-Message-Id: <20190910082138.30193-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.21.0
+        id S1726575AbfIJI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 04:58:15 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48785 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726121AbfIJI6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 04:58:15 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id C23715C5;
+        Tue, 10 Sep 2019 04:58:13 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 10 Sep 2019 04:58:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=N
+        wXi/oe0IydEdExqK0+dznaH54PXUdT25LQcXIyjYQk=; b=DoVNlvF2zaTqjn8aU
+        /Qr2nxkdAPJ49iWGvvMhQe0phIOLAJw36qs5McE01Kdg+he3Pk//tWJUupGUjKEO
+        OvqDQ8FaV8JjM8Ea8Axh083ZYjTLO1kqo4Ott+/fDCJE0TBD0MSPQHfHbVOAPpsk
+        YdsHZLBSf/lo2DsTmb+oKFIaeeR6k1OqQh+RETAg8UZQawfW6W4R91qODEGv8wPF
+        CABJNaMbU4bl93qb6/0A/PaLu8dnPQA4NItZ+AK9hO3sgl3Wfr02Nog8//UHEdNh
+        EoPYNNAlSWcJW5L467ZxHaj0KgGQUDws8PFN0A9vnxZzzPBU+7uqgirPHY9HjCk7
+        x+M/Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=NwXi/oe0IydEdExqK0+dznaH54PXUdT25LQcXIyjY
+        Qk=; b=SbyPuNZqTDqQaGGKp3vFlT/U460sMpUHXJMyb5qDSkJZvWWOBHV+YeX5n
+        m7sAuQxMB75WOY4q4UgzTSbn57b8rdRO7s2C3xKs/avs4N/qNI/CF+RBlx+JU+pi
+        LGqjmqJnbZUNK1tT5oODMrPHqgCX4UwhziyW+hU5dHRt3BVbTykWCyVIQ2uaO6Ml
+        3K/AXarOeHbsvgYnxUferuFeZ5c7ujTMf5+erjPYASfUoLCohKYK3bYnyGyP7MuX
+        gtzgl4BZepImZVDuTAu2SGY8ypdbhb86FE4ErSmx9qUXepmynQjsRLeaBuTLEnMu
+        qukTe8vr1mlMfBUBZy3/nYiEFPHZA==
+X-ME-Sender: <xms:pGV3XUBLT97HoZfsDuzdE0lB8W-oNuPH5YOOJcg5LFDqvwvWYUL6yg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudekkedguddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinheptghkihdqph
+    hrohhjvggtthdrohhrghdpkhgvrhhnvghlrdhorhhgnecukfhppedvudefrdeftddrkedr
+    uddutdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmne
+    cuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:pGV3Xax_g2W__zRRjkWxRwB4r5cScCxm_7OCCwneCfSQVwndVSIl8Q>
+    <xmx:pGV3XSnR7Pm4QRV5D7zhskDuyCyfQwzDAg7g1mXcfM4JxsiTdGQJXQ>
+    <xmx:pGV3XfHtipx2KlGKN8Eb3pOjUcSzudJqSAxA-htpUYlkl5iqmunxmw>
+    <xmx:pWV3XZyuM7kSI2J8Jko8hUDIQC6SFpnXt-6kfUfrjUhWiS4K5iAV3A>
+Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5260B8005A;
+        Tue, 10 Sep 2019 04:58:12 -0400 (EDT)
+Date:   Tue, 10 Sep 2019 09:58:10 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Hangbin Liu <haliu@redhat.com>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        netdev@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
+        Xiumei Mu <xmu@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.2
+Message-ID: <20190910085810.GA3593@kroah.com>
+References: <cki.77A5953448.UY7ROQ6BKT@redhat.com>
+ <20190910081956.GG22496@dhcp-12-139.nay.redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190910081956.GG22496@dhcp-12-139.nay.redhat.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Tue, Sep 10, 2019 at 04:19:56PM +0800, Hangbin Liu wrote:
+> On Wed, Aug 28, 2019 at 08:36:14AM -0400, CKI Project wrote:
+> > 
+> > Hello,
+> > 
+> > We ran automated tests on a patchset that was proposed for merging into this
+> > kernel tree. The patches were applied to:
+> > 
+> >        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+> >             Commit: f7d5b3dc4792 - Linux 5.2.10
+> > 
+> > The results of these automated tests are provided below.
+> > 
+> >     Overall result: FAILED (see details below)
+> >              Merge: OK
+> >            Compile: OK
+> >              Tests: FAILED
+> > 
+> > All kernel binaries, config files, and logs are available for download here:
+> > 
+> >   https://artifacts.cki-project.org/pipelines/128519
+> > 
+> > 
+> > 
+> > One or more kernel tests failed:
+> > 
+> >   x86_64:
+> >     ❌ Networking socket: fuzz
+> 
+> Sorry, maybe the info is a little late, I just found the call traces for this
+> failure.
 
-When emulating open-drain/open-source by not actively driving the output
-lines - we're simply changing their mode to input. This is wrong as it
-will then make it impossible to change the value of such line - it's now
-considered to actually be in input mode. If we want to still use the
-direction_input() callback for simplicity then we need to set FLAG_IS_OUT
-manually in gpiod_direction_output() and not clear it in
-gpio_set_open_drain_value_commit() and
-gpio_set_open_source_value_commit().
+And this is no longer failing?
 
-Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
-Cc: stable@vger.kernel.org
-Reported-by: Kent Gibson <warthog618@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/gpio/gpiolib.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+What is the "fuzz" test?
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index cca749010cd0..6bb4191d3844 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2769,8 +2769,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open drain by not actively driving the line high */
--		if (value)
--			return gpiod_direction_input(desc);
-+		if (value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	}
- 	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
- 		ret = gpio_set_config(gc, gpio_chip_hwgpio(desc),
-@@ -2778,8 +2780,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open source by not actively driving the line low */
--		if (!value)
--			return gpiod_direction_input(desc);
-+		if (!value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	} else {
- 		gpio_set_config(gc, gpio_chip_hwgpio(desc),
- 				PIN_CONFIG_DRIVE_PUSH_PULL);
-@@ -2787,6 +2791,17 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 
- set_output_value:
- 	return gpiod_direction_output_raw_commit(desc, value);
-+
-+set_output_flag:
-+	/*
-+	 * When emulating open-source or open-drain functionalities by not
-+	 * actively driving the line (setting mode to input) we still need to
-+	 * set the IS_OUT flag or otherwise we won't be able to set the line
-+	 * value anymore.
-+	 */
-+	if (ret == 0)
-+		set_bit(FLAG_IS_OUT, &desc->flags);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(gpiod_direction_output);
- 
-@@ -3147,8 +3162,6 @@ static void gpio_set_open_drain_value_commit(struct gpio_desc *desc, bool value)
- 
- 	if (value) {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_output(chip, offset, 0);
- 		if (!err)
-@@ -3178,8 +3191,6 @@ static void gpio_set_open_source_value_commit(struct gpio_desc *desc, bool value
- 			set_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	}
- 	trace_gpio_direction(desc_to_gpio(desc), !value, err);
- 	if (err < 0)
--- 
-2.21.0
-
+greg k-h
