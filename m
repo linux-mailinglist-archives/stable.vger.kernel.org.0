@@ -2,110 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE7FAEFAF
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 18:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A386AEFC1
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 18:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436866AbfIJQex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 12:34:53 -0400
-Received: from mga09.intel.com ([134.134.136.24]:21105 "EHLO mga09.intel.com"
+        id S2436785AbfIJQk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 12:40:57 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:50220 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436803AbfIJQeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Sep 2019 12:34:37 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Sep 2019 09:34:36 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,490,1559545200"; 
-   d="scan'208";a="184223729"
-Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.96])
-  by fmsmga008.fm.intel.com with ESMTP; 10 Sep 2019 09:34:36 -0700
-From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-To:     davem@davemloft.net
-Cc:     Stefan Assmann <sassmann@kpanic.de>, netdev@vger.kernel.org,
-        nhorman@redhat.com, sassmann@redhat.com, stable@vger.kernel.org,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [net-next 02/14] i40e: check __I40E_VF_DISABLE bit in i40e_sync_filters_subtask
-Date:   Tue, 10 Sep 2019 09:34:22 -0700
-Message-Id: <20190910163434.2449-3-jeffrey.t.kirsher@intel.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190910163434.2449-1-jeffrey.t.kirsher@intel.com>
-References: <20190910163434.2449-1-jeffrey.t.kirsher@intel.com>
+        id S1729580AbfIJQk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 12:40:57 -0400
+Received: from zn.tnic (p200300EC2F0ABE00F527A81DC3416441.dip0.t-ipconnect.de [IPv6:2003:ec:2f0a:be00:f527:a81d:c341:6441])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 1A6891EC0A91;
+        Tue, 10 Sep 2019 18:40:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1568133656;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=XtHKBvvT6hRDvVQrlI/kCAwmX4eSzoQdN87+l4zR9TA=;
+        b=WblFv4yQtTjDzBQUuW+wU5Tfm7msSatpYprxSfEBMe8cL+IYilTHDGd4VwIsGXUoTFnAHl
+        evKBQhw14L6MTWSYRt6givb39YdZptEJNFcoFmORgRT+5vUgnjwO6xWmAZywu9Kk4uAANz
+        aWdSfim6rEHetCZOWghaBKh5d4UOnp8=
+Date:   Tue, 10 Sep 2019 18:40:51 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Mike Travis <mike.travis@hpe.com>
+Cc:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 0/8] x86/platform/UV: Update UV Hubless System Support
+Message-ID: <20190910164050.GH23931@zn.tnic>
+References: <20190905130252.590161292@stormcage.eag.rdlabs.hpecorp.net>
+ <CANiq72nTKbNEKezoy_CqdFRuQ0SD2OsORV8u=i_1g=2atkCRiA@mail.gmail.com>
+ <797654d8-562a-6492-79e1-65a292157d04@hpe.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <797654d8-562a-6492-79e1-65a292157d04@hpe.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+On Tue, Sep 10, 2019 at 08:34:44AM -0700, Mike Travis wrote:
+> Hi,  I'm not conscientiously adding any attachments.  I think what is
+> happening is some email readers mistake the '---' to signify an attachment
+> follows.  I see the "staple" symbol on some indicating an attachment, but
+> not usually all of the email I send.  Thanks, Mike
 
-While testing VF spawn/destroy the following panic occurred.
+Btw, is there anyway to fix your mail setup and not flood with your
+patchset?
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000029
-[...]
-Workqueue: i40e i40e_service_task [i40e]
-RIP: 0010:i40e_sync_vsi_filters+0x6fd/0xc60 [i40e]
-[...]
-Call Trace:
- ? __switch_to_asm+0x35/0x70
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x35/0x70
- ? _cond_resched+0x15/0x30
- i40e_sync_filters_subtask+0x56/0x70 [i40e]
- i40e_service_task+0x382/0x11b0 [i40e]
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x41/0x70
- process_one_work+0x1a7/0x3b0
- worker_thread+0x30/0x390
- ? create_worker+0x1a0/0x1a0
- kthread+0x112/0x130
- ? kthread_bind+0x30/0x30
- ret_from_fork+0x35/0x40
+I have received your V2 patchset 5(!) times yesterday and today. All
+separate submissions!
 
-Investigation revealed a race where pf->vf[vsi->vf_id].trusted may get
-accessed by the watchdog via i40e_sync_filters_subtask() although
-i40e_free_vfs() already free'd pf->vf.
-To avoid this the call to i40e_sync_vsi_filters() in
-i40e_sync_filters_subtask() needs to be guarded by __I40E_VF_DISABLE,
-which is also used by i40e_free_vfs().
+;-(
 
-Note: put the __I40E_VF_DISABLE check after the
-__I40E_MACVLAN_SYNC_PENDING check as the latter is more likely to
-trigger.
-
-CC: stable@vger.kernel.org
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
----
- drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index e9f2f276bf27..3e2e465f43f9 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2592,6 +2592,10 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
- 		return;
- 	if (!test_and_clear_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state))
- 		return;
-+	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state)) {
-+		set_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state);
-+		return;
-+	}
- 
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
- 		if (pf->vsi[v] &&
-@@ -2606,6 +2610,7 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
- 			}
- 		}
- 	}
-+	clear_bit(__I40E_VF_DISABLE, pf->state);
- }
- 
- /**
 -- 
-2.21.0
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
