@@ -2,655 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA53AE7C4
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 12:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2770AE7CA
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 12:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732790AbfIJKRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 06:17:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46174 "EHLO mail.kernel.org"
+        id S2405859AbfIJKSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 06:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726353AbfIJKRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Sep 2019 06:17:48 -0400
+        id S2388426AbfIJKSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 06:18:01 -0400
 Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6A8D2081B;
-        Tue, 10 Sep 2019 10:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AAF12081B;
+        Tue, 10 Sep 2019 10:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568110666;
-        bh=DdgRD0lybkiqxespS6Q7NzJydyYvFbo2qdQUTdcnu2w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n2TIbTUJ3i+DK2NtFnsu/yeRUpFlHh4z8OugVGZQ0kz10krpq02lmmVvprOgMKfMM
-         1iWfeWYIzJnispH9COLr6x0zSRdGvCgTATZ31ip3z1mKpbhoF0LcVnyjkcDu56DsZQ
-         OzfOZkRRTZ3hOdn6okwlQPIygeh7sGngOamV6InI=
-Date:   Tue, 10 Sep 2019 11:17:43 +0100
+        s=default; t=1568110678;
+        bh=J1eqSSSzE+jWYKQ1i9iiJcV5V6TxLNo/c827cEgKsnk=;
+        h=Date:From:To:Cc:Subject:From;
+        b=r3vz8XKi1bAPAcwzVx2ZCpHCR38r15AzjgnZE5N00jJOjxeoK+AY7xGmJM/3pNDiZ
+         X+8qbMKjSANaBfqezuDDOVgrbMlufWHWLb8UgX3oJLc61cdOkoM17Koj/meFivfj1h
+         5IeuteksT6mU9tWyyA0DY/DDF2+D5v289SK6pRuw=
+Date:   Tue, 10 Sep 2019 11:17:55 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 4.9.192
-Message-ID: <20190910101743.GB7195@kroah.com>
-References: <20190910101736.GA7195@kroah.com>
+Subject: Linux 4.14.143
+Message-ID: <20190910101755.GA7330@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Content-Disposition: inline
-In-Reply-To: <20190910101736.GA7195@kroah.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 311e861afb15..946951930f62 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 191
-+SUBLEVEL = 192
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/arm/kvm/mmio.c b/arch/arm/kvm/mmio.c
-index 08443a15e6be..3caee91bca08 100644
---- a/arch/arm/kvm/mmio.c
-+++ b/arch/arm/kvm/mmio.c
-@@ -98,6 +98,12 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	unsigned int len;
- 	int mask;
- 
-+	/* Detect an already handled MMIO return */
-+	if (unlikely(!vcpu->mmio_needed))
-+		return 0;
-+
-+	vcpu->mmio_needed = 0;
-+
- 	if (!run->mmio.is_write) {
- 		len = run->mmio.len;
- 		if (len > sizeof(unsigned long))
-@@ -200,6 +206,7 @@ int io_mem_abort(struct kvm_vcpu *vcpu, struct kvm_run *run,
- 	run->mmio.is_write	= is_write;
- 	run->mmio.phys_addr	= fault_ipa;
- 	run->mmio.len		= len;
-+	vcpu->mmio_needed	= 1;
- 
- 	if (!ret) {
- 		/* We handled the access successfully in the kernel. */
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 37666c536741..928ffdc21873 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1067,10 +1067,6 @@ void clear_local_APIC(void)
- 	apic_write(APIC_LVT0, v | APIC_LVT_MASKED);
- 	v = apic_read(APIC_LVT1);
- 	apic_write(APIC_LVT1, v | APIC_LVT_MASKED);
--	if (!x2apic_enabled()) {
--		v = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
--		apic_write(APIC_LDR, v);
--	}
- 	if (maxlvt >= 4) {
- 		v = apic_read(APIC_LVTPC);
- 		apic_write(APIC_LVTPC, v | APIC_LVT_MASKED);
-diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
-index 28afd5d585f9..b7dfa4afd516 100644
---- a/drivers/bluetooth/btqca.c
-+++ b/drivers/bluetooth/btqca.c
-@@ -363,6 +363,9 @@ int qca_uart_setup_rome(struct hci_dev *hdev, uint8_t baudrate)
- 		return err;
- 	}
- 
-+	/* Give the controller some time to get ready to receive the NVM */
-+	msleep(10);
-+
- 	/* Download NVM configuration */
- 	config.type = TLV_TYPE_NVM;
- 	snprintf(config.fwname, sizeof(config.fwname), "qca/nvm_%08x.bin",
-diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
-index d9323d7c479c..f32ffd74ec47 100644
---- a/drivers/infiniband/hw/mlx4/mad.c
-+++ b/drivers/infiniband/hw/mlx4/mad.c
-@@ -1643,8 +1643,6 @@ static int mlx4_ib_alloc_pv_bufs(struct mlx4_ib_demux_pv_ctx *ctx,
- 				    tx_buf_size, DMA_TO_DEVICE);
- 		kfree(tun_qp->tx_ring[i].buf.addr);
- 	}
--	kfree(tun_qp->tx_ring);
--	tun_qp->tx_ring = NULL;
- 	i = MLX4_NUM_TUNNEL_BUFS;
- err:
- 	while (i > 0) {
-@@ -1653,6 +1651,8 @@ static int mlx4_ib_alloc_pv_bufs(struct mlx4_ib_demux_pv_ctx *ctx,
- 				    rx_buf_size, DMA_FROM_DEVICE);
- 		kfree(tun_qp->ring[i].addr);
- 	}
-+	kfree(tun_qp->tx_ring);
-+	tun_qp->tx_ring = NULL;
- 	kfree(tun_qp->ring);
- 	tun_qp->ring = NULL;
- 	return -ENOMEM;
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-index 20455d082cb8..61c55621b958 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-@@ -2781,8 +2781,10 @@ static ssize_t blocked_fl_write(struct file *filp, const char __user *ubuf,
- 		return -ENOMEM;
- 
- 	err = bitmap_parse_user(ubuf, count, t, adap->sge.egr_sz);
--	if (err)
-+	if (err) {
-+		kvfree(t);
- 		return err;
-+	}
- 
- 	bitmap_copy(adap->sge.blocked_fl, t, adap->sge.egr_sz);
- 	t4_free_mem(t);
-diff --git a/drivers/net/ethernet/ibm/ibmveth.c b/drivers/net/ethernet/ibm/ibmveth.c
-index 955f658f3b65..de9897c8e933 100644
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1557,7 +1557,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 	struct net_device *netdev;
- 	struct ibmveth_adapter *adapter;
- 	unsigned char *mac_addr_p;
--	unsigned int *mcastFilterSize_p;
-+	__be32 *mcastFilterSize_p;
- 	long ret;
- 	unsigned long ret_attr;
- 
-@@ -1579,8 +1579,9 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 		return -EINVAL;
- 	}
- 
--	mcastFilterSize_p = (unsigned int *)vio_get_attribute(dev,
--						VETH_MCAST_FILTER_SIZE, NULL);
-+	mcastFilterSize_p = (__be32 *)vio_get_attribute(dev,
-+							VETH_MCAST_FILTER_SIZE,
-+							NULL);
- 	if (!mcastFilterSize_p) {
- 		dev_err(&dev->dev, "Can't find VETH_MCAST_FILTER_SIZE "
- 			"attribute\n");
-@@ -1597,7 +1598,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 
- 	adapter->vdev = dev;
- 	adapter->netdev = netdev;
--	adapter->mcastFilterSize = *mcastFilterSize_p;
-+	adapter->mcastFilterSize = be32_to_cpu(*mcastFilterSize_p);
- 	adapter->pool_config = 0;
- 
- 	netif_napi_add(netdev, &adapter->napi, ibmveth_poll, 16);
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 6d1a956e3f77..02ec326cb129 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -4113,7 +4113,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	 * setup (if available). */
- 	status = myri10ge_request_irq(mgp);
- 	if (status != 0)
--		goto abort_with_firmware;
-+		goto abort_with_slices;
- 	myri10ge_free_irq(mgp);
- 
- 	/* Save configuration space to be restored if the
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 480883a7a3e5..545cb6262cff 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1,6 +1,6 @@
- /* Renesas Ethernet AVB device driver
-  *
-- * Copyright (C) 2014-2015 Renesas Electronics Corporation
-+ * Copyright (C) 2014-2019 Renesas Electronics Corporation
-  * Copyright (C) 2015 Renesas Solutions Corp.
-  * Copyright (C) 2015-2016 Cogent Embedded, Inc. <source@cogentembedded.com>
-  *
-@@ -512,7 +512,10 @@ static void ravb_get_tx_tstamp(struct net_device *ndev)
- 			kfree(ts_skb);
- 			if (tag == tfa_tag) {
- 				skb_tstamp_tx(skb, &shhwtstamps);
-+				dev_consume_skb_any(skb);
- 				break;
-+			} else {
-+				dev_kfree_skb_any(skb);
- 			}
- 		}
- 		ravb_modify(ndev, TCCR, TCCR_TFR, TCCR_TFR);
-@@ -1537,7 +1540,7 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 					 DMA_TO_DEVICE);
- 			goto unmap;
- 		}
--		ts_skb->skb = skb;
-+		ts_skb->skb = skb_get(skb);
- 		ts_skb->tag = priv->ts_skb_tag++;
- 		priv->ts_skb_tag &= 0x3ff;
- 		list_add_tail(&ts_skb->list, &priv->ts_skb_list);
-@@ -1665,6 +1668,7 @@ static int ravb_close(struct net_device *ndev)
- 	/* Clear the timestamp list */
- 	list_for_each_entry_safe(ts_skb, ts_skb2, &priv->ts_skb_list, list) {
- 		list_del(&ts_skb->list);
-+		kfree_skb(ts_skb->skb);
- 		kfree(ts_skb);
- 	}
- 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-index 6e61bccc90b3..15c063880f88 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-@@ -771,10 +771,8 @@ static int phy_power_on(struct rk_priv_data *bsp_priv, bool enable)
- 	int ret;
- 	struct device *dev = &bsp_priv->pdev->dev;
- 
--	if (!ldo) {
--		dev_err(dev, "no regulator found\n");
--		return -1;
--	}
-+	if (!ldo)
-+		return 0;
- 
- 	if (enable) {
- 		ret = regulator_enable(ldo);
-diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
-index 5b01b3fa9fec..47ebac456ae5 100644
---- a/drivers/net/ethernet/toshiba/tc35815.c
-+++ b/drivers/net/ethernet/toshiba/tc35815.c
-@@ -1498,7 +1498,7 @@ tc35815_rx(struct net_device *dev, int limit)
- 			pci_unmap_single(lp->pci_dev,
- 					 lp->rx_skbs[cur_bd].skb_dma,
- 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
--			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN)
-+			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
- 				memmove(skb->data, skb->data - NET_IP_ALIGN,
- 					pkt_len);
- 			data = skb_put(skb, pkt_len);
-diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
-index 8fd131207ee1..499abe9108fa 100644
---- a/drivers/net/ethernet/tundra/tsi108_eth.c
-+++ b/drivers/net/ethernet/tundra/tsi108_eth.c
-@@ -381,9 +381,10 @@ tsi108_stat_carry_one(int carry, int carry_bit, int carry_shift,
- static void tsi108_stat_carry(struct net_device *dev)
- {
- 	struct tsi108_prv_data *data = netdev_priv(dev);
-+	unsigned long flags;
- 	u32 carry1, carry2;
- 
--	spin_lock_irq(&data->misclock);
-+	spin_lock_irqsave(&data->misclock, flags);
- 
- 	carry1 = TSI_READ(TSI108_STAT_CARRY1);
- 	carry2 = TSI_READ(TSI108_STAT_CARRY2);
-@@ -451,7 +452,7 @@ static void tsi108_stat_carry(struct net_device *dev)
- 			      TSI108_STAT_TXPAUSEDROP_CARRY,
- 			      &data->tx_pause_drop);
- 
--	spin_unlock_irq(&data->misclock);
-+	spin_unlock_irqrestore(&data->misclock, flags);
- }
- 
- /* Read a stat counter atomically with respect to carries.
-diff --git a/drivers/net/usb/cx82310_eth.c b/drivers/net/usb/cx82310_eth.c
-index 947bea81d924..dfbdea22fbad 100644
---- a/drivers/net/usb/cx82310_eth.c
-+++ b/drivers/net/usb/cx82310_eth.c
-@@ -175,7 +175,8 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
- 	}
- 	if (!timeout) {
- 		dev_err(&udev->dev, "firmware not ready in time\n");
--		return -ETIMEDOUT;
-+		ret = -ETIMEDOUT;
-+		goto err;
- 	}
- 
- 	/* enable ethernet mode (?) */
-diff --git a/drivers/net/usb/kalmia.c b/drivers/net/usb/kalmia.c
-index 3e37724d30ae..0c4f4190c58e 100644
---- a/drivers/net/usb/kalmia.c
-+++ b/drivers/net/usb/kalmia.c
-@@ -117,16 +117,16 @@ kalmia_init_and_get_ethernet_addr(struct usbnet *dev, u8 *ethernet_addr)
- 	status = kalmia_send_init_packet(dev, usb_buf, sizeof(init_msg_1)
- 		/ sizeof(init_msg_1[0]), usb_buf, 24);
- 	if (status != 0)
--		return status;
-+		goto out;
- 
- 	memcpy(usb_buf, init_msg_2, 12);
- 	status = kalmia_send_init_packet(dev, usb_buf, sizeof(init_msg_2)
- 		/ sizeof(init_msg_2[0]), usb_buf, 28);
- 	if (status != 0)
--		return status;
-+		goto out;
- 
- 	memcpy(ethernet_addr, usb_buf + 10, ETH_ALEN);
--
-+out:
- 	kfree(usb_buf);
- 	return status;
- }
-diff --git a/drivers/net/wimax/i2400m/fw.c b/drivers/net/wimax/i2400m/fw.c
-index c9c711dcd0e6..0e6c665a4de8 100644
---- a/drivers/net/wimax/i2400m/fw.c
-+++ b/drivers/net/wimax/i2400m/fw.c
-@@ -351,13 +351,15 @@ int i2400m_barker_db_init(const char *_options)
- 			}
- 			result = i2400m_barker_db_add(barker);
- 			if (result < 0)
--				goto error_add;
-+				goto error_parse_add;
- 		}
- 		kfree(options_orig);
- 	}
- 	return 0;
- 
-+error_parse_add:
- error_parse:
-+	kfree(options_orig);
- error_add:
- 	kfree(i2400m_barker_db);
- 	return result;
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 7428091d3f5b..5c89bbb05441 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -178,19 +178,14 @@ static void bcm2835aux_spi_reset_hw(struct bcm2835aux_spi *bs)
- 		      BCM2835_AUX_SPI_CNTL0_CLEARFIFO);
- }
- 
--static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+static void bcm2835aux_spi_transfer_helper(struct bcm2835aux_spi *bs)
- {
--	struct spi_master *master = dev_id;
--	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
--	irqreturn_t ret = IRQ_NONE;
-+	u32 stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
- 
- 	/* check if we have data to read */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_RX_EMPTY))) {
-+	for (; bs->rx_len && (stat & BCM2835_AUX_SPI_STAT_RX_LVL);
-+	     stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT))
- 		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
--	}
- 
- 	/* check if we have data to write */
- 	while (bs->tx_len &&
-@@ -198,16 +193,21 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
- 		  BCM2835_AUX_SPI_STAT_TX_FULL))) {
- 		bcm2835aux_wr_fifo(bs);
--		ret = IRQ_HANDLED;
- 	}
-+}
- 
--	/* and check if we have reached "done" */
--	while (bs->rx_len &&
--	       (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT) &
--		  BCM2835_AUX_SPI_STAT_BUSY))) {
--		bcm2835aux_rd_fifo(bs);
--		ret = IRQ_HANDLED;
--	}
-+static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
-+{
-+	struct spi_master *master = dev_id;
-+	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
-+
-+	/* IRQ may be shared, so return if our interrupts are disabled */
-+	if (!(bcm2835aux_rd(bs, BCM2835_AUX_SPI_CNTL1) &
-+	      (BCM2835_AUX_SPI_CNTL1_TXEMPTY | BCM2835_AUX_SPI_CNTL1_IDLE)))
-+		return IRQ_NONE;
-+
-+	/* do common fifo handling */
-+	bcm2835aux_spi_transfer_helper(bs);
- 
- 	if (!bs->tx_len) {
- 		/* disable tx fifo empty interrupt */
-@@ -221,8 +221,7 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
- 		complete(&master->xfer_completion);
- 	}
- 
--	/* and return */
--	return ret;
-+	return IRQ_HANDLED;
- }
- 
- static int __bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
-@@ -268,7 +267,6 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- {
- 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
- 	unsigned long timeout;
--	u32 stat;
- 
- 	/* configure spi */
- 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
-@@ -279,24 +277,9 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
- 
- 	/* loop until finished the transfer */
- 	while (bs->rx_len) {
--		/* read status */
--		stat = bcm2835aux_rd(bs, BCM2835_AUX_SPI_STAT);
- 
--		/* fill in tx fifo with remaining data */
--		if ((bs->tx_len) && (!(stat & BCM2835_AUX_SPI_STAT_TX_FULL))) {
--			bcm2835aux_wr_fifo(bs);
--			continue;
--		}
--
--		/* read data from fifo for both cases */
--		if (!(stat & BCM2835_AUX_SPI_STAT_RX_EMPTY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
--		if (!(stat & BCM2835_AUX_SPI_STAT_BUSY)) {
--			bcm2835aux_rd_fifo(bs);
--			continue;
--		}
-+		/* do common fifo handling */
-+		bcm2835aux_spi_transfer_helper(bs);
- 
- 		/* there is still data pending to read check the timeout */
- 		if (bs->rx_len && time_after(jiffies, timeout)) {
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 7a4052501866..339fdf6355df 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -741,6 +741,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 	int issued = 0, implemented, new_issued;
- 	struct timespec mtime, atime, ctime;
- 	struct ceph_buffer *xattr_blob = NULL;
-+	struct ceph_buffer *old_blob = NULL;
- 	struct ceph_string *pool_ns = NULL;
- 	struct ceph_cap *new_cap = NULL;
- 	int err = 0;
-@@ -858,7 +859,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 	if ((ci->i_xattrs.version == 0 || !(issued & CEPH_CAP_XATTR_EXCL))  &&
- 	    le64_to_cpu(info->xattr_version) > ci->i_xattrs.version) {
- 		if (ci->i_xattrs.blob)
--			ceph_buffer_put(ci->i_xattrs.blob);
-+			old_blob = ci->i_xattrs.blob;
- 		ci->i_xattrs.blob = xattr_blob;
- 		if (xattr_blob)
- 			memcpy(ci->i_xattrs.blob->vec.iov_base,
-@@ -1004,8 +1005,8 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- out:
- 	if (new_cap)
- 		ceph_put_cap(mdsc, new_cap);
--	if (xattr_blob)
--		ceph_buffer_put(xattr_blob);
-+	ceph_buffer_put(old_blob);
-+	ceph_buffer_put(xattr_blob);
- 	ceph_put_string(pool_ns);
- 	return err;
- }
-diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
-index 81144a8c0927..18b999deed03 100644
---- a/fs/ceph/xattr.c
-+++ b/fs/ceph/xattr.c
-@@ -951,6 +951,7 @@ int __ceph_setxattr(struct inode *inode, const char *name,
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
- 	struct ceph_cap_flush *prealloc_cf = NULL;
-+	struct ceph_buffer *old_blob = NULL;
- 	int issued;
- 	int err;
- 	int dirty = 0;
-@@ -1019,13 +1020,15 @@ int __ceph_setxattr(struct inode *inode, const char *name,
- 		struct ceph_buffer *blob;
- 
- 		spin_unlock(&ci->i_ceph_lock);
--		dout(" preaallocating new blob size=%d\n", required_blob_size);
-+		ceph_buffer_put(old_blob); /* Shouldn't be required */
-+		dout(" pre-allocating new blob size=%d\n", required_blob_size);
- 		blob = ceph_buffer_new(required_blob_size, GFP_NOFS);
- 		if (!blob)
- 			goto do_sync_unlocked;
- 		spin_lock(&ci->i_ceph_lock);
-+		/* prealloc_blob can't be released while holding i_ceph_lock */
- 		if (ci->i_xattrs.prealloc_blob)
--			ceph_buffer_put(ci->i_xattrs.prealloc_blob);
-+			old_blob = ci->i_xattrs.prealloc_blob;
- 		ci->i_xattrs.prealloc_blob = blob;
- 		goto retry;
- 	}
-@@ -1041,6 +1044,7 @@ int __ceph_setxattr(struct inode *inode, const char *name,
- 	}
- 
- 	spin_unlock(&ci->i_ceph_lock);
-+	ceph_buffer_put(old_blob);
- 	if (lock_snap_rwsem)
- 		up_read(&mdsc->snap_rwsem);
- 	if (dirty)
-diff --git a/include/linux/ceph/buffer.h b/include/linux/ceph/buffer.h
-index 07ca15e76100..dada47a4360f 100644
---- a/include/linux/ceph/buffer.h
-+++ b/include/linux/ceph/buffer.h
-@@ -29,7 +29,8 @@ static inline struct ceph_buffer *ceph_buffer_get(struct ceph_buffer *b)
- 
- static inline void ceph_buffer_put(struct ceph_buffer *b)
- {
--	kref_put(&b->kref, ceph_buffer_release);
-+	if (b)
-+		kref_put(&b->kref, ceph_buffer_release);
- }
- 
- extern int ceph_decode_buffer(struct ceph_buffer **b, void **p, void *end);
-diff --git a/include/linux/gpio.h b/include/linux/gpio.h
-index d12b5d566e4b..11555bd821b7 100644
---- a/include/linux/gpio.h
-+++ b/include/linux/gpio.h
-@@ -229,30 +229,6 @@ static inline int irq_to_gpio(unsigned irq)
- 	return -EINVAL;
- }
- 
--static inline int
--gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
--		       unsigned int gpio_offset, unsigned int pin_offset,
--		       unsigned int npins)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline int
--gpiochip_add_pingroup_range(struct gpio_chip *chip,
--			struct pinctrl_dev *pctldev,
--			unsigned int gpio_offset, const char *pin_group)
--{
--	WARN_ON(1);
--	return -EINVAL;
--}
--
--static inline void
--gpiochip_remove_pin_ranges(struct gpio_chip *chip)
--{
--	WARN_ON(1);
--}
--
- static inline int devm_gpio_request(struct device *dev, unsigned gpio,
- 				    const char *label)
- {
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index 9b2d61120c0d..5de180a9b7f5 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -122,7 +122,7 @@ static void queue_process(struct work_struct *work)
- 		txq = netdev_get_tx_queue(dev, q_index);
- 		HARD_TX_LOCK(dev, txq, smp_processor_id());
- 		if (netif_xmit_frozen_or_stopped(txq) ||
--		    netpoll_start_xmit(skb, dev, txq) != NETDEV_TX_OK) {
-+		    !dev_xmit_complete(netpoll_start_xmit(skb, dev, txq))) {
- 			skb_queue_head(&npinfo->txq, skb);
- 			HARD_TX_UNLOCK(dev, txq);
- 			local_irq_restore(flags);
-@@ -357,7 +357,7 @@ void netpoll_send_skb_on_dev(struct netpoll *np, struct sk_buff *skb,
- 
- 				HARD_TX_UNLOCK(dev, txq);
- 
--				if (status == NETDEV_TX_OK)
-+				if (dev_xmit_complete(status))
- 					break;
- 
- 			}
-@@ -374,7 +374,7 @@ void netpoll_send_skb_on_dev(struct netpoll *np, struct sk_buff *skb,
- 
- 	}
- 
--	if (status != NETDEV_TX_OK) {
-+	if (!dev_xmit_complete(status)) {
- 		skb_queue_tail(&npinfo->txq, skb);
- 		schedule_delayed_work(&npinfo->tx_work,0);
- 	}
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 9ddb05b98312..2e77e78ab226 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1943,7 +1943,7 @@ static bool tcp_can_coalesce_send_queue_head(struct sock *sk, int len)
- 		if (len <= skb->len)
- 			break;
- 
--		if (unlikely(TCP_SKB_CB(skb)->eor))
-+		if (unlikely(TCP_SKB_CB(skb)->eor) || tcp_has_tx_tstamp(skb))
- 			return false;
- 
- 		len -= skb->len;
-@@ -2066,6 +2066,7 @@ static int tcp_mtu_probe(struct sock *sk)
- 			 * we need to propagate it to the new skb.
- 			 */
- 			TCP_SKB_CB(nskb)->eor = TCP_SKB_CB(skb)->eor;
-+			tcp_skb_collapse_tstamp(nskb, skb);
- 			tcp_unlink_write_queue(skb, sk);
- 			sk_wmem_free_skb(sk, skb);
- 		} else {
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 40262abb15db..e065d48b31b9 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -772,12 +772,13 @@ static void mld_del_delrec(struct inet6_dev *idev, struct ifmcaddr6 *im)
- 		im->idev = pmc->idev;
- 		im->mca_crcount = idev->mc_qrv;
- 		if (im->mca_sfmode == MCAST_INCLUDE) {
--			im->mca_tomb = pmc->mca_tomb;
--			im->mca_sources = pmc->mca_sources;
-+			swap(im->mca_tomb, pmc->mca_tomb);
-+			swap(im->mca_sources, pmc->mca_sources);
- 			for (psf = im->mca_sources; psf; psf = psf->sf_next)
- 				psf->sf_crcount = im->mca_crcount;
- 		}
- 		in6_dev_put(pmc->idev);
-+		ip6_mc_clear_src(pmc);
- 		kfree(pmc);
- 	}
- 	spin_unlock_bh(&im->mca_lock);
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index fffc7c418459..834008639c4b 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -878,7 +878,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
- 	int sn_offset = 0;
- 	int error = 0;
- 	char *buffer;
--	struct hv_kvp_ipaddr_value *ip_buffer;
-+	struct hv_kvp_ipaddr_value *ip_buffer = NULL;
- 	char cidr_mask[5]; /* /xyz */
- 	int weight;
- 	int i;
+
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 4.14.143 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                               |    2=20
+ arch/x86/include/asm/bootparam_utils.h                 |    1=20
+ arch/x86/kernel/apic/apic.c                            |    4 -
+ drivers/bluetooth/btqca.c                              |    3=20
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c                 |   49 ++++++++++++-
+ drivers/gpu/drm/mediatek/mtk_drm_drv.h                 |    2=20
+ drivers/hid/hid-cp2112.c                               |    8 +-
+ drivers/infiniband/hw/mlx4/mad.c                       |    4 -
+ drivers/input/serio/hyperv-keyboard.c                  |   35 +--------
+ drivers/net/ethernet/cavium/liquidio/request_manager.c |    4 -
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c     |    4 -
+ drivers/net/ethernet/ibm/ibmveth.c                     |    9 +-
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c       |    2=20
+ drivers/net/ethernet/renesas/ravb_main.c               |    8 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c         |    6 -
+ drivers/net/ethernet/toshiba/tc35815.c                 |    2=20
+ drivers/net/ethernet/tundra/tsi108_eth.c               |    5 -
+ drivers/net/hyperv/netvsc_drv.c                        |    9 +-
+ drivers/net/usb/cx82310_eth.c                          |    3=20
+ drivers/net/usb/kalmia.c                               |    6 -
+ drivers/net/usb/lan78xx.c                              |    8 +-
+ drivers/net/wimax/i2400m/fw.c                          |    4 -
+ drivers/spi/spi-bcm2835aux.c                           |   62 +++++-------=
+-----
+ fs/ceph/caps.c                                         |    5 +
+ fs/ceph/inode.c                                        |    7 +
+ fs/ceph/snap.c                                         |    4 -
+ fs/ceph/super.h                                        |    2=20
+ fs/ceph/xattr.c                                        |   19 +++--
+ fs/read_write.c                                        |   49 +++++++++++--
+ include/linux/ceph/buffer.h                            |    3=20
+ include/linux/gpio.h                                   |   24 ------
+ include/net/act_api.h                                  |    4 -
+ include/net/psample.h                                  |    1=20
+ kernel/kprobes.c                                       |    8 +-
+ net/core/netpoll.c                                     |    6 -
+ net/ipv4/tcp.c                                         |   29 +++++--
+ net/ipv4/tcp_output.c                                  |    3=20
+ net/ipv6/mcast.c                                       |    5 -
+ net/psample/psample.c                                  |    2=20
+ net/sched/act_bpf.c                                    |    2=20
+ net/sched/act_connmark.c                               |    2=20
+ net/sched/act_csum.c                                   |    2=20
+ net/sched/act_gact.c                                   |    2=20
+ net/sched/act_ife.c                                    |    2=20
+ net/sched/act_ipt.c                                    |   11 +--
+ net/sched/act_mirred.c                                 |    2=20
+ net/sched/act_nat.c                                    |    2=20
+ net/sched/act_pedit.c                                  |    2=20
+ net/sched/act_police.c                                 |    2=20
+ net/sched/act_sample.c                                 |    7 +
+ net/sched/act_simple.c                                 |    2=20
+ net/sched/act_skbedit.c                                |    2=20
+ net/sched/act_skbmod.c                                 |    2=20
+ net/sched/act_tunnel_key.c                             |    2=20
+ net/sched/act_vlan.c                                   |    2=20
+ tools/hv/hv_kvp_daemon.c                               |    2=20
+ virt/kvm/arm/mmio.c                                    |    7 +
+ 57 files changed, 270 insertions(+), 196 deletions(-)
+
+Alexandre Courbot (2):
+      drm/mediatek: use correct device to import PRIME buffers
+      drm/mediatek: set DMA max segment size
+
+Andrea Righi (1):
+      kprobes: Fix potential deadlock in kprobe_optimizer()
+
+Andrew Jones (1):
+      KVM: arm/arm64: Only skip MMIO insn once
+
+Benjamin Tissoires (1):
+      HID: cp2112: prevent sleeping function called from invalid context
+
+Chen-Yu Tsai (1):
+      net: stmmac: dwmac-rk: Don't fail if phy regulator is absent
+
+Cong Wang (1):
+      net_sched: fix a NULL pointer deref in ipt action
+
+Darrick J. Wong (1):
+      vfs: fix page locking deadlocks when deduping files
+
+Dexuan Cui (2):
+      hv_netvsc: Fix a warning of suspicious RCU usage
+      Input: hyperv-keyboard: Use in-place iterator API in the channel call=
+back
+
+Eric Dumazet (2):
+      tcp: remove empty skb from write queue in error cases
+      mld: fix memory leak in mld_del_delrec()
+
+Feng Sun (1):
+      net: fix skb use after free in netpoll
+
+Fuqian Huang (1):
+      net: tundra: tsi108: use spin_lock_irqsave instead of spin_lock_irq i=
+n IRQ context
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.143
+
+John S. Gruber (1):
+      x86/boot: Preserve boot_params.secure_boot from sanitizing
+
+Linus Torvalds (1):
+      Revert "x86/apic: Include the LDR when clearing out APIC registers"
+
+Luis Henriques (4):
+      ceph: fix buffer free while holding i_ceph_lock in __ceph_setxattr()
+      ceph: fix buffer free while holding i_ceph_lock in __ceph_build_xattr=
+s_blob()
+      ceph: fix buffer free while holding i_ceph_lock in fill_inode()
+      libceph: allow ceph_buffer_put() to receive a NULL ceph_buffer
+
+Martin Sperl (3):
+      spi: bcm2835aux: unifying code between polling and interrupt driven c=
+ode
+      spi: bcm2835aux: remove dangerous uncontrolled read of fifo
+      spi: bcm2835aux: fix corruptions for longer spi transfers
+
+Matthias Kaehlcke (1):
+      Bluetooth: btqca: Add a short delay before downloading the NVM
+
+Nathan Chancellor (1):
+      net: tc35815: Explicitly check NET_IP_ALIGN is not zero in tc35815_rx
+
+Tho Vu (1):
+      ravb: Fix use-after-free ravb_tstamp_skb
+
+Thomas Falcon (1):
+      ibmveth: Convert multicast list size for little-endian system
+
+Vitaly Kuznetsov (1):
+      Tools: hv: kvp: eliminate 'may be used uninitialized' warning
+
+Vlad Buslov (1):
+      net: sched: act_sample: fix psample group handling on overwrite
+
+Wenwen Wang (8):
+      cxgb4: fix a memory leak bug
+      liquidio: add cleanup in octeon_setup_iq()
+      net: myri10ge: fix memory leaks
+      lan78xx: Fix memory leaks
+      cx82310_eth: fix a memory leak bug
+      net: kalmia: fix memory leaks
+      wimax/i2400m: fix a memory leak bug
+      IB/mlx4: Fix memory leaks
+
+Willem de Bruijn (1):
+      tcp: inherit timestamp on mtu probe
+
+YueHaibing (1):
+      gpio: Fix build error of function redefinition
+
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl13eFMACgkQONu9yGCS
+aT4eChAAlHl3Pw+qiJ+pB24HqpDL+mpTxaw8CbsIv12bCjUvRm1mrBII8vq136P+
+aihfxrzYOv91RNEnKLV2SqKjVMUXMinqLgmyYTTaffk9Bebv9S5CBmjO8GQuPDq/
+1NcpAATQ6JwQXz0xcTGwz38EHBoEN8giXtG7a8ntnp7TNhNhqtADsrVAjKXyZcvr
+DocSjHRiwXF4F6TH5CDbfOvhKh6suWPSKhCNh/qOQGXs8fSabzvZ8X92MQf2Civ4
+lt0LeFFy46mWTahS6dinJfz6jTTM3PbXi340qQML+hIsPb+zk8nbQsA/yg15UNk8
+nQ7DHlffECYdtwZVypCQQfwDIB8szij9wOi9dhTaoNq+/X90rgodMj46w71Ekh8C
+IEUqPcDgzrEKqb/cos5af7Na85Pi2UMM5WJj91RYPnaheEXwdVu5WDBn0WbaDrxV
+jrR8l3ZLjyCrZypC2aFu3hXwZZIOG2eHkQvaXgt7NZ3eIsRd4svOPJbhRVqKM1rT
+HveqKBpU68wTD9cJYf2CnhJXWwaiEgMaXdFdmF6yptZ3z2GD0a026kO6OIBfULNd
+i8fx/++1yy1INix6k8ejX8QamWBgdCAE8VNPbZjNQis1rnoVxx4DfkUt5uOl2bXK
+NkV/DMWwQPOl+8FD3Bve3vv10qcyAxe/krfseDnMSjahxvt74uA=
+=12ln
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
