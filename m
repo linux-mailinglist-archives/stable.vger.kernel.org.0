@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 130CEAE918
+	by mail.lfdr.de (Postfix) with ESMTP id 80984AE919
 	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 13:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbfIJL1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 07:27:02 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:35843 "EHLO
+        id S1728180AbfIJL1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 07:27:04 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:36827 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726527AbfIJL1C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 07:27:02 -0400
+        by vger.kernel.org with ESMTP id S1726527AbfIJL1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 07:27:04 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 089DE63B;
-        Tue, 10 Sep 2019 07:27:00 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 6DCF160D;
+        Tue, 10 Sep 2019 07:27:03 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 10 Sep 2019 07:27:01 -0400
+  by compute6.internal (MEProxy); Tue, 10 Sep 2019 07:27:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=MUFRBm
-        l35jJTt7XOLaEkXQ46xrAKW1mnueALrf0wrt8=; b=HTeWCp1AmLKSryGlNlYhEC
-        f3jvXEDPIqjiz2bvE4R7gf0jF+JeRpkbAIlibD/jtSRNME5ZlM5ONXhh2BKpvor3
-        0o8QspFZguIi43vs2EkWEe4npaSV/Jz/kTGLy4bS7kF7MpSbXsIAlegHXoPmcH8e
-        IVmo2GP3Ymzlbqa84h9YG+AV2ijpMjGlUnT5e+lirtMiYsA2c6fT2dErCqUD6mTf
-        0O2wsqM6q1fQJxGoXqo2AFy0rDOi/3wjIKTqhnA/q+F1xOE0Num/S5BKKOU9SMrY
-        RFT0yEBgQnEToePl2KZZVPjlXwlDMtwVKZT+OLQBpUcbQj32MRZtbCH4pmARYcdQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Jut87w
+        iHf2Vzg8FkJJWwS41rKGC64oYRGVdIfiUiYqs=; b=zgHNueuoGSNzGspa0P3eQA
+        v/D8dS1Bl6hJIsWoPAqsyxL+jzTIXT3NeCTbVpjByEQ1YeqwKIwUR0EF4EUIxraL
+        DOAijXr3KQK1vbH4Y7AABRYsPcunp2AVGm6tXzJBnjSl6+uaV0t30kXrWlrb8L3F
+        w2UmrEH3gpMycOxIm/rNceNVylWNAnRphpv55rSrKLpG2nro6fW6GQUR8vkBQRAt
+        4NkfjvArKFeJdkt+tdz8a9YJooaR66aSMMjglbJtpc1FUEsTMZZQMZ8Mj4zwmeuO
+        jx/AHF7bQVAWQtB7l8IYAL5GoZCjvqmXlfotR1xG4dCFyUIKXnIuX3P3w+cw6whg
         ==
-X-ME-Sender: <xms:hIh3XedGHcHBsRM8sufVJB8v3XwVoIim5FerKepxxihO8UhPvubxEA>
+X-ME-Sender: <xms:h4h3XSpr1oT750-ZaFoIBAkbG3OYydCqxTaEQKQlIk6xxybpumwn6Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrtddtgddujecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppedvudefrdeftddrkedrud
     dutdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:hIh3XT7zxKkttWisyYfgNiYmjWKJpLaJ-26T3Wrydm8vX9GawjKasg>
-    <xmx:hIh3Xb9GAm0HxxFJT4tvBtSaF5UBhKBUpmjeydfUnThv3P7ZTIN4tw>
-    <xmx:hIh3XVGRuavIRD2zgkoPVae0yHx87-GBAuXykjNTWHqbhQTDMYNLfg>
-    <xmx:hIh3XRmlnDM470fSwfqCVsxb6dKZzz0P7-p-hQTWnf1Te7RZcGPN7w>
+    vehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:h4h3Xc5dltmPTNMa8tCdfckRWMSi0NKeD_qANZOl5QEKohrco1J8Cg>
+    <xmx:h4h3XQ2NHfdOeRpSQyzG9NmZu8BM44rmBmv4RiXak2_R8Obv2c6Nxw>
+    <xmx:h4h3XSPuaYWz6VVcqPHoYY40j5wSKhp4XqQTXz7tBhz7P9sp5S4DUw>
+    <xmx:h4h3XYb5yTkFV2zgkFFkXQmCPrqqAqQLPmTXkFmo84pS9hq6DbBOQQ>
 Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1A894D6005F;
-        Tue, 10 Sep 2019 07:26:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/64e: Drop stale call to smp_processor_id() which" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8A5F8D6005A;
+        Tue, 10 Sep 2019 07:27:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/64e: Drop stale call to smp_processor_id() which" failed to apply to 4.9-stable tree
 To:     christophe.leroy@c-s.fr, Chris.Packham@alliedtelesis.co.nz,
         chris.packham@alliedtelesis.co.nz, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Sep 2019 12:26:56 +0100
-Message-ID: <1568114816251171@kroah.com>
+Date:   Tue, 10 Sep 2019 12:26:58 +0100
+Message-ID: <156811481811893@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
