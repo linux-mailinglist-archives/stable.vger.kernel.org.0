@@ -2,115 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59464AE61F
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 10:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4DF7AE694
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 11:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726575AbfIJI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 04:58:15 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48785 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726121AbfIJI6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 04:58:15 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id C23715C5;
-        Tue, 10 Sep 2019 04:58:13 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 10 Sep 2019 04:58:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=N
-        wXi/oe0IydEdExqK0+dznaH54PXUdT25LQcXIyjYQk=; b=DoVNlvF2zaTqjn8aU
-        /Qr2nxkdAPJ49iWGvvMhQe0phIOLAJw36qs5McE01Kdg+he3Pk//tWJUupGUjKEO
-        OvqDQ8FaV8JjM8Ea8Axh083ZYjTLO1kqo4Ott+/fDCJE0TBD0MSPQHfHbVOAPpsk
-        YdsHZLBSf/lo2DsTmb+oKFIaeeR6k1OqQh+RETAg8UZQawfW6W4R91qODEGv8wPF
-        CABJNaMbU4bl93qb6/0A/PaLu8dnPQA4NItZ+AK9hO3sgl3Wfr02Nog8//UHEdNh
-        EoPYNNAlSWcJW5L467ZxHaj0KgGQUDws8PFN0A9vnxZzzPBU+7uqgirPHY9HjCk7
-        x+M/Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=NwXi/oe0IydEdExqK0+dznaH54PXUdT25LQcXIyjY
-        Qk=; b=SbyPuNZqTDqQaGGKp3vFlT/U460sMpUHXJMyb5qDSkJZvWWOBHV+YeX5n
-        m7sAuQxMB75WOY4q4UgzTSbn57b8rdRO7s2C3xKs/avs4N/qNI/CF+RBlx+JU+pi
-        LGqjmqJnbZUNK1tT5oODMrPHqgCX4UwhziyW+hU5dHRt3BVbTykWCyVIQ2uaO6Ml
-        3K/AXarOeHbsvgYnxUferuFeZ5c7ujTMf5+erjPYASfUoLCohKYK3bYnyGyP7MuX
-        gtzgl4BZepImZVDuTAu2SGY8ypdbhb86FE4ErSmx9qUXepmynQjsRLeaBuTLEnMu
-        qukTe8vr1mlMfBUBZy3/nYiEFPHZA==
-X-ME-Sender: <xms:pGV3XUBLT97HoZfsDuzdE0lB8W-oNuPH5YOOJcg5LFDqvwvWYUL6yg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudekkedguddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinheptghkihdqph
-    hrohhjvggtthdrohhrghdpkhgvrhhnvghlrdhorhhgnecukfhppedvudefrdeftddrkedr
-    uddutdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmne
-    cuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:pGV3Xax_g2W__zRRjkWxRwB4r5cScCxm_7OCCwneCfSQVwndVSIl8Q>
-    <xmx:pGV3XSnR7Pm4QRV5D7zhskDuyCyfQwzDAg7g1mXcfM4JxsiTdGQJXQ>
-    <xmx:pGV3XfHtipx2KlGKN8Eb3pOjUcSzudJqSAxA-htpUYlkl5iqmunxmw>
-    <xmx:pWV3XZyuM7kSI2J8Jko8hUDIQC6SFpnXt-6kfUfrjUhWiS4K5iAV3A>
-Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5260B8005A;
-        Tue, 10 Sep 2019 04:58:12 -0400 (EDT)
-Date:   Tue, 10 Sep 2019 09:58:10 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Hangbin Liu <haliu@redhat.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        netdev@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
-        Xiumei Mu <xmu@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.2
-Message-ID: <20190910085810.GA3593@kroah.com>
-References: <cki.77A5953448.UY7ROQ6BKT@redhat.com>
- <20190910081956.GG22496@dhcp-12-139.nay.redhat.com>
+        id S2389217AbfIJJSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 05:18:34 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:3532 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729421AbfIJJSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 05:18:33 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d776a6d0000>; Tue, 10 Sep 2019 02:18:37 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 10 Sep 2019 02:18:32 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 10 Sep 2019 02:18:32 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 10 Sep
+ 2019 09:18:30 +0000
+Subject: Re: [PATCH 4.4 00/23] 4.4.192-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190908121052.898169328@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <f97b50f6-e5c4-7de4-3e2b-beeaac184be9@nvidia.com>
+Date:   Tue, 10 Sep 2019 10:18:28 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190910081956.GG22496@dhcp-12-139.nay.redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190908121052.898169328@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1568107117; bh=qJDUkPJb2mRPZbtMz7qKxXKPcoI7CNW+AGNQ3wuxp3c=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Y+tpokf8o+SEDBfF2u9ej+klbuqL8oTn7jzdySS3ospX4+DoHmiEUXYazKj/H+Zxn
+         x/U6wa/CTLJdmza/v9adccFvp1w45tQWD0Ieafy95X5GS0PSgBlfbAbn6VWUILSEGZ
+         JlQcmb67uyLl4LQOIdrQtCvTl1lh/Uu5dHACvNMTG5wx5j/txLd426QgbLAoaLph5g
+         0PBUsF7qoN7sXFH10bS9gMZ5ZArPAHGmY0ioJI3C5j02pQRX6B80hNEnRoBrd4Xcxi
+         QUCxF9gPtlQs6nuBKCpFzCuUTkAKv8T/dNrRQPpmc9Ve4tb3wQQNUc9qCRIT5x7PAG
+         rQTSus9g5urgQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 10, 2019 at 04:19:56PM +0800, Hangbin Liu wrote:
-> On Wed, Aug 28, 2019 at 08:36:14AM -0400, CKI Project wrote:
-> > 
-> > Hello,
-> > 
-> > We ran automated tests on a patchset that was proposed for merging into this
-> > kernel tree. The patches were applied to:
-> > 
-> >        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-> >             Commit: f7d5b3dc4792 - Linux 5.2.10
-> > 
-> > The results of these automated tests are provided below.
-> > 
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
-> > 
-> > All kernel binaries, config files, and logs are available for download here:
-> > 
-> >   https://artifacts.cki-project.org/pipelines/128519
-> > 
-> > 
-> > 
-> > One or more kernel tests failed:
-> > 
-> >   x86_64:
-> >     ❌ Networking socket: fuzz
+
+On 08/09/2019 13:41, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.192 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Sorry, maybe the info is a little late, I just found the call traces for this
-> failure.
+> Responses should be made by Tue 10 Sep 2019 12:09:36 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.192-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-And this is no longer failing?
+All tests are passing for Tegra ...
 
-What is the "fuzz" test?
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-greg k-h
+Linux version:	4.4.192-rc1-gfbce796fcbec
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
