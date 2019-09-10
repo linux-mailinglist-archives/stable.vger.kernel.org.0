@@ -2,87 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BECD0AEE98
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 17:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE7FAEFAF
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 18:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393987AbfIJPej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 11:34:39 -0400
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:26636 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393960AbfIJPej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 11:34:39 -0400
-Received: from pps.filterd (m0150241.ppops.net [127.0.0.1])
-        by mx0a-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x8AFW19p001475;
-        Tue, 10 Sep 2019 15:34:16 GMT
-Received: from g4t3425.houston.hpe.com (g4t3425.houston.hpe.com [15.241.140.78])
-        by mx0a-002e3701.pphosted.com with ESMTP id 2uxc4t2b6q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Sep 2019 15:34:16 +0000
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g4t3425.houston.hpe.com (Postfix) with ESMTP id C8E7CAA;
-        Tue, 10 Sep 2019 15:34:15 +0000 (UTC)
-Received: from [16.116.129.27] (unknown [16.116.129.27])
-        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id 8873D46;
-        Tue, 10 Sep 2019 15:34:14 +0000 (UTC)
-Subject: Re: [PATCH 0/8] x86/platform/UV: Update UV Hubless System Support
-To:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-References: <20190905130252.590161292@stormcage.eag.rdlabs.hpecorp.net>
- <CANiq72nTKbNEKezoy_CqdFRuQ0SD2OsORV8u=i_1g=2atkCRiA@mail.gmail.com>
-From:   Mike Travis <mike.travis@hpe.com>
-Message-ID: <797654d8-562a-6492-79e1-65a292157d04@hpe.com>
-Date:   Tue, 10 Sep 2019 08:34:44 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-In-Reply-To: <CANiq72nTKbNEKezoy_CqdFRuQ0SD2OsORV8u=i_1g=2atkCRiA@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S2436866AbfIJQex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 12:34:53 -0400
+Received: from mga09.intel.com ([134.134.136.24]:21105 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2436803AbfIJQeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 12:34:37 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Sep 2019 09:34:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,490,1559545200"; 
+   d="scan'208";a="184223729"
+Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.96])
+  by fmsmga008.fm.intel.com with ESMTP; 10 Sep 2019 09:34:36 -0700
+From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To:     davem@davemloft.net
+Cc:     Stefan Assmann <sassmann@kpanic.de>, netdev@vger.kernel.org,
+        nhorman@redhat.com, sassmann@redhat.com, stable@vger.kernel.org,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [net-next 02/14] i40e: check __I40E_VF_DISABLE bit in i40e_sync_filters_subtask
+Date:   Tue, 10 Sep 2019 09:34:22 -0700
+Message-Id: <20190910163434.2449-3-jeffrey.t.kirsher@intel.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190910163434.2449-1-jeffrey.t.kirsher@intel.com>
+References: <20190910163434.2449-1-jeffrey.t.kirsher@intel.com>
 MIME-Version: 1.0
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
- definitions=2019-09-10_11:2019-09-10,2019-09-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- phishscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 malwarescore=0
- mlxlogscore=883 spamscore=0 adultscore=0 priorityscore=1501 clxscore=1011
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-1906280000
- definitions=main-1909100147
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Stefan Assmann <sassmann@kpanic.de>
 
+While testing VF spawn/destroy the following panic occurred.
 
-On 9/10/2019 5:07 AM, Miguel Ojeda wrote:
-> On Thu, Sep 5, 2019 at 3:50 PM Mike Travis <mike.travis@hpe.com> wrote:
->>
->> These patches support upcoming UV systems that do not have a UV HUB.
-> 
-> Please send patches as plain text without attachments. See:
-> 
->    https://www.kernel.org/doc/html/latest/process/submitting-patches.html#no-mime-no-links-no-compression-no-attachments-just-plain-text
-> 
-> for details.
-> 
-> Cheers,
-> Miguel
-> 
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000029
+[...]
+Workqueue: i40e i40e_service_task [i40e]
+RIP: 0010:i40e_sync_vsi_filters+0x6fd/0xc60 [i40e]
+[...]
+Call Trace:
+ ? __switch_to_asm+0x35/0x70
+ ? __switch_to_asm+0x41/0x70
+ ? __switch_to_asm+0x35/0x70
+ ? _cond_resched+0x15/0x30
+ i40e_sync_filters_subtask+0x56/0x70 [i40e]
+ i40e_service_task+0x382/0x11b0 [i40e]
+ ? __switch_to_asm+0x41/0x70
+ ? __switch_to_asm+0x41/0x70
+ process_one_work+0x1a7/0x3b0
+ worker_thread+0x30/0x390
+ ? create_worker+0x1a0/0x1a0
+ kthread+0x112/0x130
+ ? kthread_bind+0x30/0x30
+ ret_from_fork+0x35/0x40
 
-Hi,  I'm not conscientiously adding any attachments.  I think what is 
-happening is some email readers mistake the '---' to signify an 
-attachment follows.  I see the "staple" symbol on some indicating an 
-attachment, but not usually all of the email I send.  Thanks, Mike
+Investigation revealed a race where pf->vf[vsi->vf_id].trusted may get
+accessed by the watchdog via i40e_sync_filters_subtask() although
+i40e_free_vfs() already free'd pf->vf.
+To avoid this the call to i40e_sync_vsi_filters() in
+i40e_sync_filters_subtask() needs to be guarded by __I40E_VF_DISABLE,
+which is also used by i40e_free_vfs().
+
+Note: put the __I40E_VF_DISABLE check after the
+__I40E_MACVLAN_SYNC_PENDING check as the latter is more likely to
+trigger.
+
+CC: stable@vger.kernel.org
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+---
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index e9f2f276bf27..3e2e465f43f9 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -2592,6 +2592,10 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
+ 		return;
+ 	if (!test_and_clear_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state))
+ 		return;
++	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state)) {
++		set_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state);
++		return;
++	}
+ 
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+ 		if (pf->vsi[v] &&
+@@ -2606,6 +2610,7 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
+ 			}
+ 		}
+ 	}
++	clear_bit(__I40E_VF_DISABLE, pf->state);
+ }
+ 
+ /**
+-- 
+2.21.0
+
