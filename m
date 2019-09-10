@@ -2,123 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57809AEE32
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 17:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECD0AEE98
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 17:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388356AbfIJPLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 11:11:25 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:44834 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733175AbfIJPLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Sep 2019 11:11:25 -0400
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 28AFE4E93D
-        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 15:11:25 +0000 (UTC)
-Received: by mail-qt1-f197.google.com with SMTP id l22so20184880qtq.5
-        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 08:11:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=mjlmQ8q4ebSGeqcCwGl4CP2ghV+MJ2RVpTWgq9fAfiY=;
-        b=W3xPy6SxWaZQQjIXF5GXcHeG1K3NTxAtEfD1xCAS1oUbyoZ0dc4lyn9ultKzNIX04R
-         s+wtrmSmDxEaTtEEWsEDjOPyAkwmi3RKAMMT/AtNC0SC95ud3FLfrfXgTGhim8q2Nn3a
-         7Ng61SoPrHDKzb2YMLelX6T65FlwUa9WshckYpYIfSr0gGGF0X6Elc8+unit8mIlouMQ
-         rotnDZRDB1rRXEyquB/biWja3fXxYWGCJ8rMCh8fp8ZF+vOkw8ujSeNYbdS5q9nGbEP6
-         QRvNCA6+BX2/PyGev34VILH4NZ4nO1hC0wUc/22KZKcGOffn1psmOkb9+ZdHWfu7rOjq
-         DUXQ==
-X-Gm-Message-State: APjAAAVIzzWwOga1Y8/KnQb+BG4EP2VDVBxdULv+mDLAxYHC7eXH9kJV
-        OFikVIBggJ1fTvMTYXukqbnZBfbceVBEUvCrI1UscV6cwqcBlRwi2oa1wHe3PDQQXtqL6Smef1e
-        nCUQnpG+ogN2s9u9R
-X-Received: by 2002:ad4:4246:: with SMTP id l6mr17975784qvq.140.1568128284314;
-        Tue, 10 Sep 2019 08:11:24 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqzpuL3859rR0LE2rl/dgBb2h5pYNfUuwtFD0PdhTLyboBw9QPffFa+4gWJicHD8zJTrvwDs6A==
-X-Received: by 2002:ad4:4246:: with SMTP id l6mr17975751qvq.140.1568128283949;
-        Tue, 10 Sep 2019 08:11:23 -0700 (PDT)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id z72sm10001318qka.115.2019.09.10.08.11.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Sep 2019 08:11:23 -0700 (PDT)
-Date:   Tue, 10 Sep 2019 08:11:21 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tpm: Call tpm_put_ops() when the validation for @digests
- fails
-Message-ID: <20190910151121.3tgzwuhrroog5dvb@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20190910142437.20889-1-jarkko.sakkinen@linux.intel.com>
+        id S2393987AbfIJPej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 11:34:39 -0400
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:26636 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2393960AbfIJPej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 11:34:39 -0400
+Received: from pps.filterd (m0150241.ppops.net [127.0.0.1])
+        by mx0a-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x8AFW19p001475;
+        Tue, 10 Sep 2019 15:34:16 GMT
+Received: from g4t3425.houston.hpe.com (g4t3425.houston.hpe.com [15.241.140.78])
+        by mx0a-002e3701.pphosted.com with ESMTP id 2uxc4t2b6q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Sep 2019 15:34:16 +0000
+Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
+        by g4t3425.houston.hpe.com (Postfix) with ESMTP id C8E7CAA;
+        Tue, 10 Sep 2019 15:34:15 +0000 (UTC)
+Received: from [16.116.129.27] (unknown [16.116.129.27])
+        by g4t3433.houston.hpecorp.net (Postfix) with ESMTP id 8873D46;
+        Tue, 10 Sep 2019 15:34:14 +0000 (UTC)
+Subject: Re: [PATCH 0/8] x86/platform/UV: Update UV Hubless System Support
+To:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+References: <20190905130252.590161292@stormcage.eag.rdlabs.hpecorp.net>
+ <CANiq72nTKbNEKezoy_CqdFRuQ0SD2OsORV8u=i_1g=2atkCRiA@mail.gmail.com>
+From:   Mike Travis <mike.travis@hpe.com>
+Message-ID: <797654d8-562a-6492-79e1-65a292157d04@hpe.com>
+Date:   Tue, 10 Sep 2019 08:34:44 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+In-Reply-To: <CANiq72nTKbNEKezoy_CqdFRuQ0SD2OsORV8u=i_1g=2atkCRiA@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190910142437.20889-1-jarkko.sakkinen@linux.intel.com>
-User-Agent: NeoMutt/20180716
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.70,1.0.8
+ definitions=2019-09-10_11:2019-09-10,2019-09-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
+ phishscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ mlxlogscore=883 spamscore=0 adultscore=0 priorityscore=1501 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-1906280000
+ definitions=main-1909100147
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue Sep 10 19, Jarkko Sakkinen wrote:
->The chip is not released when the validation for @digests fails. Add
->tpm_put_ops() to the failure path.
->
->Cc: stable@vger.kernel.org
->Reported-by: Roberto Sassu <roberto.sassu@huawei.com>
->Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
->---
-> drivers/char/tpm/tpm-interface.c | 14 +++++++++-----
-> 1 file changed, 9 insertions(+), 5 deletions(-)
->
->diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
->index 208e5ba40e6e..c7eeb40feac8 100644
->--- a/drivers/char/tpm/tpm-interface.c
->+++ b/drivers/char/tpm/tpm-interface.c
->@@ -320,18 +320,22 @@ int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
-> 	if (!chip)
-> 		return -ENODEV;
->
->-	for (i = 0; i < chip->nr_allocated_banks; i++)
->-		if (digests[i].alg_id != chip->allocated_banks[i].alg_id)
->-			return -EINVAL;
->+	for (i = 0; i < chip->nr_allocated_banks; i++) {
->+		if (digests[i].alg_id != chip->allocated_banks[i].alg_id) {
->+			rc = EINVAL;
->+			goto out;
->+		}
->+	}
->
-> 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
-> 		rc = tpm2_pcr_extend(chip, pcr_idx, digests);
->-		tpm_put_ops(chip);
->-		return rc;
->+		goto out;
-> 	}
->
-> 	rc = tpm1_pcr_extend(chip, pcr_idx, digests[0].digest,
-> 			     "attempting extend a PCR value");
->+
->+out:
-> 	tpm_put_ops(chip);
-> 	return rc;
-> }
->-- 
->2.20.1
->
+On 9/10/2019 5:07 AM, Miguel Ojeda wrote:
+> On Thu, Sep 5, 2019 at 3:50 PM Mike Travis <mike.travis@hpe.com> wrote:
+>>
+>> These patches support upcoming UV systems that do not have a UV HUB.
+> 
+> Please send patches as plain text without attachments. See:
+> 
+>    https://www.kernel.org/doc/html/latest/process/submitting-patches.html#no-mime-no-links-no-compression-no-attachments-just-plain-text
+> 
+> for details.
+> 
+> Cheers,
+> Miguel
+> 
+
+Hi,  I'm not conscientiously adding any attachments.  I think what is 
+happening is some email readers mistake the '---' to signify an 
+attachment follows.  I see the "staple" symbol on some indicating an 
+attachment, but not usually all of the email I send.  Thanks, Mike
