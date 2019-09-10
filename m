@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E75B2AECC8
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 16:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B605AECCC
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 16:18:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbfIJOR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 10:17:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41900 "EHLO mx1.suse.de"
+        id S1725935AbfIJORm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 10:17:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41952 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725935AbfIJOR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Sep 2019 10:17:29 -0400
+        id S1726060AbfIJORm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 10:17:42 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id E2285ABCE;
-        Tue, 10 Sep 2019 14:17:27 +0000 (UTC)
-Date:   Tue, 10 Sep 2019 16:17:27 +0200
-Message-ID: <s5hzhjc6xs8.wl-tiwai@suse.de>
+        by mx1.suse.de (Postfix) with ESMTP id 88A0EABCE;
+        Tue, 10 Sep 2019 14:17:40 +0000 (UTC)
+Date:   Tue, 10 Sep 2019 16:17:40 +0200
+Message-ID: <s5hy2yw6xrv.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Takashi Sakamoto <o-takashi@sakamocchi.jp>
 Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] ALSA: firewire-tascam: handle error code when getting current source of clock
-In-Reply-To: <20190910135152.29800-2-o-takashi@sakamocchi.jp>
+Subject: Re: [PATCH 2/2] ALSA: firewire-tascam: check intermediate state of clock status and retry
+In-Reply-To: <20190910135152.29800-3-o-takashi@sakamocchi.jp>
 References: <20190910135152.29800-1-o-takashi@sakamocchi.jp>
-        <20190910135152.29800-2-o-takashi@sakamocchi.jp>
+        <20190910135152.29800-3-o-takashi@sakamocchi.jp>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -35,11 +35,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Sep 2019 15:51:51 +0200,
+On Tue, 10 Sep 2019 15:51:52 +0200,
 Takashi Sakamoto wrote:
 > 
-> The return value of snd_tscm_stream_get_clock() is ignored. This commit
-> checks the value and handle error.
+> 2 bytes in MSB of register for clock status is zero during intermediate
+> state after changing status of sampling clock in models of TASCAM FireWire
+> series. The duration of this state differs depending on cases. During the
+> state, it's better to retry reading the register for current status of
+> the clock.
+> 
+> In current implementation, the intermediate state is checked only when
+> getting current sampling transmission frequency, then retry reading.
+> This care is required for the other operations to read the register.
+> 
+> This commit moves the codes of check and retry into helper function
+> commonly used for operations to read the register.
 > 
 > Fixes: e453df44f0d6 ("ALSA: firewire-tascam: add PCM functionality")
 > Cc: <stable@vger.kernel.org> # v4.4+
