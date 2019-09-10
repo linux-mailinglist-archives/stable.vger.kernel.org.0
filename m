@@ -2,104 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE261AED29
-	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 16:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71710AED81
+	for <lists+stable@lfdr.de>; Tue, 10 Sep 2019 16:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732967AbfIJOgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 10:36:06 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:50927 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726060AbfIJOgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 10:36:06 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5B83D39D;
-        Tue, 10 Sep 2019 10:36:04 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 10 Sep 2019 10:36:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=CTpkFiirlhlfJdSOyJ+gt7DX6Cy
-        zDZ62hzOsET0mhbo=; b=lkh6dNnA3YhMT+NXx0V2JjxLY7ygwA858KG/TNG82FR
-        l+c0YziEnMJXolVI1m9Y06jNivfKgKPI8B5Z1Y+JDXa6H/7UpdPydIVoHGpBukhR
-        ndb0uDrrTUgJ5pxvb71eV6p84+TdYDaXvm1vuS4zOpwo1uxsoIn3tITv9TsKBsYV
-        VyaJR/07WM0YbsPuBfofcizQp0dqsI44yjNfRggE7QnC7t8sD2WE492HDr0AbPDe
-        sBj0rD8VzwPtv9vPpQmVlXSpH6EZPsgL8PLcj6PF8WjlULjFtwSyg1hFXBEeM1C2
-        VEn3ytXGUkxKgPU316VxQwhqw2NOgULhGe2K5XRKVMw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CTpkFi
-        irlhlfJdSOyJ+gt7DX6CyzDZ62hzOsET0mhbo=; b=c3dcJSeZEG1PqPZAbXtE0N
-        1hRnC1pV4ZOMXbarctoPPUYS6zQdxGjFCmkKR7SV3892oLJRuujtuPjVlJd3vYoR
-        Tl0rRjQK5Z0767L/PL78VlNvbWzCq45ioIR6PJ94Ux1t9IehrxP7WXZAGTGfAmxT
-        wyw1lRpBTBKRl1LjlmkfR0svmvb6sfMg7bJd35/rZvkvEa+gMuTAeIcFy0aHHTHH
-        XbyOH7BEnAWNwfuvy/qmcat6Cy2odTuoB7D8n+Rm+EHWmNyeYcHvUzOs8R5/Kw9a
-        wUKl0hlaM92sOQpE/P9CLHq0OSbcUEBL2kBGfPmSS/hnbgmK+LHJhh83b9bizGsw
-        ==
-X-ME-Sender: <xms:07R3XYD3YvM0uVfjzS-sGVIlJ-VEfMYImfUF4DfbjfRAkK5c6FdbGg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrtddtgdehhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepvddufedrfedtrdekrdduud
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:07R3XSozf-BdWF6nTSVNcofSfTsb1ymwvCRI7MjgdeeQWELQCvza-g>
-    <xmx:07R3XbGScT5vv2mtk8uqx05QhjRKJ3sB8gWwFrQRQPpWTItLm4zxuw>
-    <xmx:07R3Xev5vKvi9esoDJ0xfA1WnYASLl26F-ek7FWORmfLhS4q65OXPw>
-    <xmx:1LR3XaYlSxd1KG3afAJf4xBB2ytd8KUbFayK_ZPrdno8OoI8FrYJVg>
-Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F1F8D8005C;
-        Tue, 10 Sep 2019 10:36:02 -0400 (EDT)
-Date:   Tue, 10 Sep 2019 15:36:01 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-omap@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Subject: Re: [BACKPORT 4.14.y 04/18] usb: dwc3: Allow disabling of
- metastability workaround
-Message-ID: <20190910143601.GD3362@kroah.com>
-References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
- <20190905161759.28036-5-mathieu.poirier@linaro.org>
+        id S1732596AbfIJOoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 10:44:25 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:36326 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725935AbfIJOoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Sep 2019 10:44:25 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 96B5A10C696B;
+        Tue, 10 Sep 2019 14:44:25 +0000 (UTC)
+Received: from gondolin (ovpn-117-116.ams2.redhat.com [10.36.117.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E2E560BF7;
+        Tue, 10 Sep 2019 14:44:19 +0000 (UTC)
+Date:   Tue, 10 Sep 2019 16:44:15 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Igor Mammedov <imammedo@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        david@redhat.com, frankja@linux.ibm.com, heiko.carstens@de.ibm.com,
+        gor@linux.ibm.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: s390: kvm_s390_vm_start_migration: check
+ dirty_bitmap before using it as target for memset()
+Message-ID: <20190910164415.3ef74c39.cohuck@redhat.com>
+In-Reply-To: <20190910130215.23647-1-imammedo@redhat.com>
+References: <20190910130215.23647-1-imammedo@redhat.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190905161759.28036-5-mathieu.poirier@linaro.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.65]); Tue, 10 Sep 2019 14:44:25 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 10:17:45AM -0600, Mathieu Poirier wrote:
-> From: Roger Quadros <rogerq@ti.com>
-> 
-> commit 42bf02ec6e420e541af9a47437d0bdf961ca2972 upstream
-> 
-> Some platforms (e.g. TI's DRA7 USB2 instance) have more trouble
-> with the metastability workaround as it supports only
-> a High-Speed PHY and the PHY can enter into an Erratic state [1]
-> when the controller is set in SuperSpeed mode as part of
-> the metastability workaround.
-> 
-> This causes upto 2 seconds delay in enumeration on DRA7's USB2
-> instance in gadget mode.
-> 
-> If these platforms can be better off without the workaround,
-> provide a device tree property to suggest that so the workaround
-> is avoided.
-> 
-> [1] Device mode enumeration trace showing PHY Erratic Error.
->      irq/90-dwc3-969   [000] d...    52.323145: dwc3_event: event (00000901): Erratic Error [U0]
->      irq/90-dwc3-969   [000] d...    52.560646: dwc3_event: event (00000901): Erratic Error [U0]
->      irq/90-dwc3-969   [000] d...    52.798144: dwc3_event: event (00000901): Erratic Error [U0]
+On Tue, 10 Sep 2019 09:02:15 -0400
+Igor Mammedov <imammedo@redhat.com> wrote:
 
-Does the DT also need to get updated with this new id for this?  Is that
-a separate patch somewhere?
+> If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
+> kvm_s390_vm_start_migration(), kernel will oops with:
+> 
+>   Unable to handle kernel pointer dereference in virtual kernel address space
+>   Failing address: 0000000000000000 TEID: 0000000000000483
+>   Fault in home space mode while using kernel ASCE.
+>   AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007 S:00000001bff91000 P:000000000000003d
+>   Oops: 0004 ilc:2 [#1] SMP
+>   ...
+>   Call Trace:
+>   ([<001fffff804ec552>] kvm_s390_vm_set_attr+0x347a/0x3828 [kvm])
+>    [<001fffff804ecfc0>] kvm_arch_vm_ioctl+0x6c0/0x1998 [kvm]
+>    [<001fffff804b67e4>] kvm_vm_ioctl+0x51c/0x11a8 [kvm]
+>    [<00000000008ba572>] do_vfs_ioctl+0x1d2/0xe58
+>    [<00000000008bb284>] ksys_ioctl+0x8c/0xb8
+>    [<00000000008bb2e2>] sys_ioctl+0x32/0x40
+>    [<000000000175552c>] system_call+0x2b8/0x2d8
+>   INFO: lockdep is turned off.
+>   Last Breaking-Event-Address:
+>    [<0000000000dbaf60>] __memset+0xc/0xa0
+> 
+> due to ms->dirty_bitmap being NULL, which might crash the host.
+> 
+> Make sure that ms->dirty_bitmap is set before using it or
+> print a warning and return -ENIVAL otherwise.
+> 
+> Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration with memory slots")
+> Signed-off-by: Igor Mammedov <imammedo@redhat.com>
+> ---
+> Cc: stable@vger.kernel.org # v4.19+
+> 
+> v2:
+>    - drop WARN()
+> 
+>  arch/s390/kvm/kvm-s390.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f329dcb3f44c..2a40cd3e40b4 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1018,6 +1018,8 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+>  	/* mark all the pages in active slots as dirty */
+>  	for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
+>  		ms = slots->memslots + slotnr;
+> +		if (!ms->dirty_bitmap)
+> +			return -EINVAL;
+>  		/*
+>  		 * The second half of the bitmap is only used on x86,
+>  		 * and would be wasted otherwise, so we put it to good
 
-thanks,
-
-greg k-h
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
