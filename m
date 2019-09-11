@@ -2,186 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6846FAF392
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 02:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C21EAF393
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 02:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725965AbfIKANb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Sep 2019 20:13:31 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:47671 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725916AbfIKANb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Sep 2019 20:13:31 -0400
-Received: from neuling.org (localhost [127.0.0.1])
-        by ozlabs.org (Postfix) with ESMTP id 46Sj6b6p9Zz9sCJ;
-        Wed, 11 Sep 2019 10:13:27 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=neuling.org;
-        s=201811; t=1568160808;
-        bh=0AGDlcZqZDs7DeRmnSi1gq21BoDalePX2/5KJl/r6FI=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=B4D5Xwt1TNcUc1FdgQKPD8Hn8WWCpxCFWSu7S7f/pr4xsZtshsbb1ZfjNxVNffs26
-         B2pWoblQjbEZgQU9zXJYPZ0upXBpYbDQLeg1a1iy3VRdZJWMo6eOe99KoN0UB2NKIx
-         F6NT2xYdia8o61+xrHQZHN6bhlhy6gsvQmh6WbA3wtOD+OnkjbFhr/gVoT59KUsGgz
-         FMpI0UaXXEQpab70QGItCIk0OlocR7LQnv/YeDVYQDVeTd0Jn9Wus4QDxbAg+ennIb
-         DU9G7ML/liY91NoHlG7moPdmMDoNzeh5g8s9chViBUfpSXtZ0RlG5yF3rcL/pe3pIt
-         +Bx4uUbc2gmNg==
-Received: by neuling.org (Postfix, from userid 1000)
-        id DE3F22A01E8; Wed, 11 Sep 2019 10:13:27 +1000 (AEST)
-Message-ID: <07d47bd664b13cf5cdc0361a59b26f9e448e2079.camel@neuling.org>
-Subject: [PATCH 4.19] powerpc/tm: Fix restoring FP/VMX facility incorrectly
- on interrupts
-From:   Michael Neuling <mikey@neuling.org>
-To:     gregkh@linuxfoundation.org, gromero@linux.ibm.com,
-        mpe@ellerman.id.au
-Cc:     stable@vger.kernel.org
-Date:   Wed, 11 Sep 2019 10:13:27 +1000
-In-Reply-To: <15681148654568@kroah.com>
-References: <15681148654568@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        id S1726026AbfIKAO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Sep 2019 20:14:26 -0400
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:32998 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbfIKAOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Sep 2019 20:14:25 -0400
+Received: by mail-wm1-f51.google.com with SMTP id r17so910983wme.0
+        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 17:14:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=u6GvJrFhZXHdjVWcPHGWH/csgmt5BqzCj6MFDV0KBN0=;
+        b=edl6vT6Y2b/XBe/Ms49LaUhxshK8F2tYBDKJu37wQLZbzvvCmQ+CC8Ir+eF3iqbm5P
+         azdJA8ZbthhbVEAg424JSLAvLFQKVME13E+q6qwPfeM4uU3QOphvqN8k1rQ0tMgTYdXC
+         F0vI3A+Pqu5aA6t+BsuyAqewT7veepc5rxAF3R64jwzNeYVY105tUcRk+WwrDGvMo556
+         46PkQ/MXEumMrLGbWn3EaZoQQ27ZEwgtFifSdMSlu2ZjR/QpodBC8N90nEpa0tbuwxjB
+         tSCKPf9/L7uVCQ2HiFQRZM9g0stxuq/vbzZplh8mOqxzMr/0P+7/BCkunbogBl3Z1qHC
+         HM3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=u6GvJrFhZXHdjVWcPHGWH/csgmt5BqzCj6MFDV0KBN0=;
+        b=NAkCbPQH4k7KgUJqI1k+sJpjyn2NNmmYHHooJ/dfSJge+u/wnsk1aS2DOIGetiSx7n
+         53+zrLWwPyNuaJdbXySUyaR50r1MeADXvuPGnFKQQd1xIzlFN1t++FlwvvJ1BvAvBinZ
+         BjTTmlNk9pQNuJwWajiXxqHqOJcYvHLiluYzSNOYpsa61BVdWAeMQQOfAOmsHXSC3AQR
+         J2PoskhxSwZig83ybXIyxO9YFbIw7xEtT6P8g0poM7+4VCmxJL/YntH8CPskYIPyBexZ
+         FLMD/mp0ZpIUgKFNdjwAT/7ygftK3mvbn26qxlwr5Ch4wXLwo+pqQL0klRznlsDpeKDZ
+         sFag==
+X-Gm-Message-State: APjAAAV7rFTx+v+JX1sMpyKvlPAqglUGswMb3EStA04DmSyhmajGPuIC
+        RijeZW0FqRSSoyqOKKqPTO+7S08GAR1q1w==
+X-Google-Smtp-Source: APXvYqwqB1gy9laOV0Eddc/lZr7RTXjxZkCD/oqlRo1FXq6MoFn2HfZRbyDCk3Ax8nruKWTaOlQlxA==
+X-Received: by 2002:a1c:7ec4:: with SMTP id z187mr1514986wmc.94.1568160862013;
+        Tue, 10 Sep 2019 17:14:22 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s19sm29742951wrb.14.2019.09.10.17.14.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 10 Sep 2019 17:14:21 -0700 (PDT)
+Message-ID: <5d783c5d.1c69fb81.b1d8a.ee01@mx.google.com>
+Date:   Tue, 10 Sep 2019 17:14:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.192
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 108 boots: 0 failed,
+ 100 passed with 8 offline (v4.9.192)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When in userspace and MSR FP=3D0 the hardware FP state is unrelated to
-the current process. This is extended for transactions where if tbegin
-is run with FP=3D0, the hardware checkpoint FP state will also be
-unrelated to the current process. Due to this, we need to ensure this
-hardware checkpoint is updated with the correct state before we enable
-FP for this process.
+stable-rc/linux-4.9.y boot: 108 boots: 0 failed, 100 passed with 8 offline =
+(v4.9.192)
 
-Unfortunately we get this wrong when returning to a process from a
-hardware interrupt. A process that starts a transaction with FP=3D0 can
-take an interrupt. When the kernel returns back to that process, we
-change to FP=3D1 but with hardware checkpoint FP state not updated. If
-this transaction is then rolled back, the FP registers now contain the
-wrong state.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.192/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.192/
 
-The process looks like this:
-   Userspace:                      Kernel
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.192
+Git Commit: 5ce2e060020bf0efa1ce8a261a4d51abe70dc9ea
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 55 unique boards, 22 SoC families, 14 builds out of 197
 
-               Start userspace
-                with MSR FP=3D0 TM=3D1
-                  < -----
-   ...
-   tbegin
-   bne
-               Hardware interrupt
-                   ---- >
-                                    <do_IRQ...>
-                                    ....
-                                    ret_from_except
-                                      restore_math()
-				        /* sees FP=3D0 */
-                                        restore_fp()
-                                          tm_active_with_fp()
-					    /* sees FP=3D1 (Incorrect) */
-                                          load_fp_state()
-                                        FP =3D 0 -> 1
-                  < -----
-               Return to userspace
-                 with MSR TM=3D1 FP=3D1
-                 with junk in the FP TM checkpoint
-   TM rollback
-   reads FP junk
+Offline Platforms:
 
-When returning from the hardware exception, tm_active_with_fp() is
-incorrectly making restore_fp() call load_fp_state() which is setting
-FP=3D1.
+arm64:
 
-The fix is to remove tm_active_with_fp().
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-tm_active_with_fp() is attempting to handle the case where FP state
-has been changed inside a transaction. In this case the checkpointed
-and transactional FP state is different and hence we must restore the
-FP state (ie. we can't do lazy FP restore inside a transaction that's
-used FP). It's safe to remove tm_active_with_fp() as this case is
-handled by restore_tm_state(). restore_tm_state() detects if FP has
-been using inside a transaction and will set load_fp and call
-restore_math() to ensure the FP state (checkpoint and transaction) is
-restored.
+arm:
 
-This is a data integrity problem for the current process as the FP
-registers are corrupted. It's also a security problem as the FP
-registers from one process may be leaked to another.
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
 
-Similarly for VMX.
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-A simple testcase to replicate this will be posted to
-tools/testing/selftests/powerpc/tm/tm-poison.c
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-This fixes CVE-2019-15031.
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-Fixes: a7771176b439 ("powerpc: Don't enable FP/Altivec if not checkpointed"=
-)
-Cc: stable@vger.kernel.org # 4.15+
-Signed-off-by: Gustavo Romero <gromero@linux.ibm.com>
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190904045529.23002-2-gromero@linux.vnet.i=
-bm.com
 ---
-Greg, This is a backport for v4.19 only since the original patch didn't
-apply.
-
-Commit a8318c13e79badb92bc6640704a64cc022a6eb97 upstream.
-
-arch/powerpc/kernel/process.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
-
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index d29f2dca72..96edb4e129 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -106,23 +106,9 @@ static inline bool msr_tm_active(unsigned long msr)
- {
- 	return MSR_TM_ACTIVE(msr);
- }
--
--static bool tm_active_with_fp(struct task_struct *tsk)
--{
--	return msr_tm_active(tsk->thread.regs->msr) &&
--		(tsk->thread.ckpt_regs.msr & MSR_FP);
--}
--
--static bool tm_active_with_altivec(struct task_struct *tsk)
--{
--	return msr_tm_active(tsk->thread.regs->msr) &&
--		(tsk->thread.ckpt_regs.msr & MSR_VEC);
--}
- #else
- static inline bool msr_tm_active(unsigned long msr) { return false; }
- static inline void check_if_tm_restore_required(struct task_struct *tsk) {=
- }
--static inline bool tm_active_with_fp(struct task_struct *tsk) { return fal=
-se; }
--static inline bool tm_active_with_altivec(struct task_struct *tsk) { retur=
-n false; }
- #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
-=20
- bool strict_msr_control;
-@@ -256,7 +242,7 @@ EXPORT_SYMBOL(enable_kernel_fp);
-=20
- static int restore_fp(struct task_struct *tsk)
- {
--	if (tsk->thread.load_fp || tm_active_with_fp(tsk)) {
-+	if (tsk->thread.load_fp) {
- 		load_fp_state(&current->thread.fp_state);
- 		current->thread.load_fp++;
- 		return 1;
-@@ -337,8 +323,7 @@ EXPORT_SYMBOL_GPL(flush_altivec_to_thread);
-=20
- static int restore_altivec(struct task_struct *tsk)
- {
--	if (cpu_has_feature(CPU_FTR_ALTIVEC) &&
--		(tsk->thread.load_vec || tm_active_with_altivec(tsk))) {
-+	if (cpu_has_feature(CPU_FTR_ALTIVEC) && (tsk->thread.load_vec)) {
- 		load_vr_state(&tsk->thread.vr_state);
- 		tsk->thread.used_vr =3D 1;
- 		tsk->thread.load_vec++;
---=20
-2.21.0
-
-
+For more info write to <info@kernelci.org>
