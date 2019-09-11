@@ -2,89 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EEFBAF753
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 09:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 182F1AF75B
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 09:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbfIKH4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 03:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39638 "EHLO mail.kernel.org"
+        id S1726911AbfIKH7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 03:59:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57680 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725924AbfIKH4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 03:56:07 -0400
-Received: from localhost (unknown [62.28.240.114])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726793AbfIKH7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 03:59:03 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A300820872;
-        Wed, 11 Sep 2019 07:56:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568188566;
-        bh=vwdg9KLjse6e40fTr8aUorTZdfy5Ppck3ADiYBkf1T4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lql4CiyQX+heooybFPSHweBYg47+93NbswFcMHmw9S7BaznL4jbaVGRLpH9+YLRxx
-         Y+fc/AIWCX3tOALBJNCE7HGMevBuYz4x0i7pGGvx67iZnKaXXFh8pqi75QvyL9whzx
-         blWuoauoUenq8nBmQuFaolKDEU/ODjPok59jw7eI=
-Date:   Wed, 11 Sep 2019 03:56:03 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Doug Anderson <dianders@chromium.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH AUTOSEL 4.19 126/167] tpm: Fix TPM 1.2 Shutdown sequence
- to prevent future TPM operations
-Message-ID: <20190911075603.GH2012@sasha-vm>
-References: <20190903162519.7136-1-sashal@kernel.org>
- <20190903162519.7136-126-sashal@kernel.org>
- <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
- <20190903165346.hwqlrin77cmzjiti@cantor>
- <20190903194335.GG5281@sasha-vm>
- <f2224c094836a4b8989c1cd6243a0b7ad1261a87.camel@linux.intel.com>
- <20190907220448.GB2012@sasha-vm>
- <20190909162808.ggcnrtvbvor7deqy@linux.intel.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id 47684300183D;
+        Wed, 11 Sep 2019 07:59:02 +0000 (UTC)
+Received: from [10.36.117.155] (ovpn-117-155.ams2.redhat.com [10.36.117.155])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1E8E360BEC;
+        Wed, 11 Sep 2019 07:58:59 +0000 (UTC)
+Subject: Re: [PATCH v2] KVM: s390: kvm_s390_vm_start_migration: check
+ dirty_bitmap before using it as target for memset()
+To:     Igor Mammedov <imammedo@redhat.com>, linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com,
+        heiko.carstens@de.ibm.com, gor@linux.ibm.com,
+        imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org
+References: <20190911075218.29153-1-imammedo@redhat.com>
+From:   David Hildenbrand <david@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+ SE+xAvmumFBY
+Organization: Red Hat GmbH
+Message-ID: <a69e625a-9661-c859-6dfb-ab8e11cf46e0@redhat.com>
+Date:   Wed, 11 Sep 2019 09:58:59 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190909162808.ggcnrtvbvor7deqy@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190911075218.29153-1-imammedo@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Wed, 11 Sep 2019 07:59:02 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 09, 2019 at 05:28:08PM +0100, Jarkko Sakkinen wrote:
->On Sat, Sep 07, 2019 at 06:04:48PM -0400, Sasha Levin wrote:
->> On Sat, Sep 07, 2019 at 09:55:18PM +0300, Jarkko Sakkinen wrote:
->> > On Tue, 2019-09-03 at 15:43 -0400, Sasha Levin wrote:
->> > > Right. I gave a go at backporting a few patches and this happens to be
->> > > one of them. It will be a while before it goes in a stable tree
->> > > (probably way after after LPC).
->> >
->> > It *semantically* depends on
->> >
->> > db4d8cb9c9f2 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
->> >
->> > I.e. can cause crashes without the above patch. As a code change your
->> > patch is fine but it needs the above patch backported to work in stable
->> > manner.
->> >
->> > So... either I can backport that one (because ultimately I have
->> > responsibility to do that as the maintainer) but if you want to finish
->> > this one that is what you need to backport in addition and then it
->> > should be fine.
->>
->> If you're ok with the backport of this commit, I can just add
->> db4d8cb9c9f2 on top.
->
->Sure, I've already gave my promise to do that :-)
+On 11.09.19 09:52, Igor Mammedov wrote:
+> If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
+> kvm_s390_vm_start_migration(), kernel will oops with:
+> 
+>   Unable to handle kernel pointer dereference in virtual kernel address space
+>   Failing address: 0000000000000000 TEID: 0000000000000483
+>   Fault in home space mode while using kernel ASCE.
+>   AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007 S:00000001bff91000 P:000000000000003d
+>   Oops: 0004 ilc:2 [#1] SMP
+>   ...
+>   Call Trace:
+>   ([<001fffff804ec552>] kvm_s390_vm_set_attr+0x347a/0x3828 [kvm])
+>    [<001fffff804ecfc0>] kvm_arch_vm_ioctl+0x6c0/0x1998 [kvm]
+>    [<001fffff804b67e4>] kvm_vm_ioctl+0x51c/0x11a8 [kvm]
+>    [<00000000008ba572>] do_vfs_ioctl+0x1d2/0xe58
+>    [<00000000008bb284>] ksys_ioctl+0x8c/0xb8
+>    [<00000000008bb2e2>] sys_ioctl+0x32/0x40
+>    [<000000000175552c>] system_call+0x2b8/0x2d8
+>   INFO: lockdep is turned off.
+>   Last Breaking-Event-Address:
+>    [<0000000000dbaf60>] __memset+0xc/0xa0
+> 
+> due to ms->dirty_bitmap being NULL, which might crash the host.
+> 
+> Make sure that ms->dirty_bitmap is set before using it or
+> return -ENIVAL otherwise.
 
-I think that the dependency in question is actually:
+s/ENIVAL/EINVAL/
 
-	2677ca98ae377 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
+I assume Christian can fix that up when applying.
 
-Which is tricky to backport. I think I'll drop this patch for now and
-wait for your backport instead.
+> 
+> Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration with memory slots")
+> Signed-off-by: Igor Mammedov <imammedo@redhat.com>
+> ---
+> Cc: stable@vger.kernel.org # v4.19+
+> 
+> v2:
+>    - remove not true anym 'warning' clause in commit message
+> v2:
+>    - drop WARN()
+> 
+>  arch/s390/kvm/kvm-s390.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f329dcb3f44c..2a40cd3e40b4 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1018,6 +1018,8 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+>  	/* mark all the pages in active slots as dirty */
+>  	for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
+>  		ms = slots->memslots + slotnr;
+> +		if (!ms->dirty_bitmap)
+> +			return -EINVAL;
+>  		/*
+>  		 * The second half of the bitmap is only used on x86,
+>  		 * and would be wasted otherwise, so we put it to good
+> 
 
---
+You should keep the RB's, especially when only rephrasing the commit
+message ;)
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
 Thanks,
-Sasha
+
+David / dhildenb
