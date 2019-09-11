@@ -2,148 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CD2AFEF5
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 16:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4FAAFF40
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 16:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727873AbfIKOkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 10:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbfIKOkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 10:40:36 -0400
-Received: from X1 (110.8.30.213.rev.vodafone.pt [213.30.8.110])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAAFA2053B;
-        Wed, 11 Sep 2019 14:40:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568212834;
-        bh=7+lVFYbRktVQI+z/QVJmU6+lRbjrBmADarr84olHN4M=;
-        h=Date:From:To:Subject:From;
-        b=RnVsyfPzmxcPETO67LfPudE1yxPBDrx+7KGKALZ7ueOvtT99PDLPF7v4kYWxp9url
-         dL7Pet0X+vnxcsXBfH/HUg2/ZzeRPIXzQ3+G0ucng1enIftoZjFspcQFIqK/LZti+o
-         /cWfMCGnC9tRVgLivm53GcWEj1o+uQ1//5z/K5MQ=
-Date:   Wed, 11 Sep 2019 07:40:30 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vdavydov.dev@gmail.com,
-        thomas.lindroth@gmail.com, stable@vger.kernel.org,
-        shakeelb@google.com, penguin-kernel@i-love.sakura.ne.jp,
-        hannes@cmpxchg.org, aryabinin@virtuozzo.com, mhocko@suse.com
-Subject:  + memcg-kmem-do-not-fail-__gfp_nofail-charges.patch added
- to -mm tree
-Message-ID: <20190911144030.qkDA_%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1728217AbfIKOzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 10:55:03 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:45828 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728202AbfIKOzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 10:55:03 -0400
+Received: by mail-wr1-f68.google.com with SMTP id l16so24847975wrv.12
+        for <stable@vger.kernel.org>; Wed, 11 Sep 2019 07:55:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KxDFMmNCu89AbLLZ1ABrLG8MlHI1MRFWZx5+4GFIF5s=;
+        b=DY/70FamkKnjfWeSnbyivFSKBC0iJEWUkGLZJmSz+hlEp4ifOxIvhZGhryDi00Ka1F
+         QBZYLVzm82UUXRwsdUt+C4kkp7CZQjg9jBDd4ypjE2wRcxwfE2Tofom3dT8YKvyG2amT
+         RVd2a+rTVf+Vx+pqew0ZaSBi/odbNyhVaczPzZUYyMkBysaMXUTm5LIzVP0dGJPq5/oY
+         kNXsVnUMJjhqsyVPOLYzfhh0PlQ/3DXnwmOcQbS01U4eWkkV5UAHDvcBUQFO3R/KA0xm
+         SvVlQPlFlDZeLYj9gW9Rsrkns7nWlEjVUXJT/rZM/k8QC+MB/i8qS1f/1AdkZAHnVi4f
+         QRLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KxDFMmNCu89AbLLZ1ABrLG8MlHI1MRFWZx5+4GFIF5s=;
+        b=RNKJebEYyZE9ypRurbLWUfrSXnpss/hOfhs4jn0m1EGDTUjLtB3DFGlgVzrALE0n/G
+         C3kBYPEfJJCOnDqvJyAjyGRHTzlrcr837bPFj/w/5npGlzAi7fGlNpzJPv9zK0RY44tD
+         U8aM3GzEPdvIszht2Kt5cgTmoStouuJkkxrQ+GxSKC91OuVisRAnKouu4eB2N523CBmn
+         2ui1j8kRhAreQrMYP+XfZQqiadu8kcXbo20OXurVz0mZ/BzkLJg3ZGx+gzRJW9RMEP/g
+         E3DnOyf+1QvuJujVZZjeOWMb1v+KFUvDEMJi8SETEKUE0UJ6dR6WRtaEA8tVdWHx/fxH
+         mLmw==
+X-Gm-Message-State: APjAAAU9XXvGXkjyb/+ovjppboL5i4TGlYJnG/LWx6IScSI7GQFn9zE+
+        akNnJR7ZttiA0SEtfHM6iNHYsq2dyZR0Xg==
+X-Google-Smtp-Source: APXvYqwHl/KJw6JD/HPG/RJAzkCEHr48oTUQKxBNmoh3dy3jlSpmSpUlmA4SW+0yNbLuvfDBCfPO2Q==
+X-Received: by 2002:adf:dc81:: with SMTP id r1mr4645992wrj.52.1568213700247;
+        Wed, 11 Sep 2019 07:55:00 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f15sm3194568wml.8.2019.09.11.07.54.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 11 Sep 2019 07:54:59 -0700 (PDT)
+Message-ID: <5d790ac3.1c69fb81.455f1.fec9@mx.google.com>
+Date:   Wed, 11 Sep 2019 07:54:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.14-36-gfda53119ddbd
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y boot: 140 boots: 1 failed,
+ 130 passed with 9 offline (v5.2.14-36-gfda53119ddbd)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.2.y boot: 140 boots: 1 failed, 130 passed with 9 offline =
+(v5.2.14-36-gfda53119ddbd)
 
-The patch titled
-     Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
-has been added to the -mm tree.  Its filename is
-     memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.14-36-gfda53119ddbd/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.14-36-gfda53119ddbd/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.14-36-gfda53119ddbd
+Git Commit: fda53119ddbde247a9eef68ecc9de569ec7a7d6b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 84 unique boards, 28 SoC families, 17 builds out of 209
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Failure Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Offline Platforms:
 
-------------------------------------------------------
-From: Michal Hocko <mhocko@suse.com>
-Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
+arm64:
 
-Thomas has noticed the following NULL ptr dereference when using cgroup
-v1 kmem limit:
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-PGD 0
-P4D 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
-Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
-RIP: 0010:create_empty_buffers+0x24/0x100
-Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
-RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
-RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
-RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
-R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
-FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
-Call Trace:
- create_page_buffers+0x4d/0x60
- __block_write_begin_int+0x8e/0x5a0
- ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
- ? jbd2__journal_start+0xd7/0x1f0
- ext4_da_write_begin+0x112/0x3d0
- generic_perform_write+0xf1/0x1b0
- ? file_update_time+0x70/0x140
- __generic_file_write_iter+0x141/0x1a0
- ext4_file_write_iter+0xef/0x3b0
- __vfs_write+0x17e/0x1e0
- vfs_write+0xa5/0x1a0
- ksys_write+0x57/0xd0
- do_syscall_64+0x55/0x160
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
-fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
-behavior because nofail allocations are not allowed to fail.  Normal
-charge path simply forces the charge even if that means to cross the
-limit.  Kmem accounting should be doing the same.
+arm:
 
-Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
-Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
-
- mm/memcontrol.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
-
---- a/mm/memcontrol.c~memcg-kmem-do-not-fail-__gfp_nofail-charges
-+++ a/mm/memcontrol.c
-@@ -2821,6 +2821,16 @@ int __memcg_kmem_charge_memcg(struct pag
- 
- 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
- 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
-+
-+		/*
-+		 * Enforce __GFP_NOFAIL allocation because callers are not
-+		 * prepared to see failures and likely do not have any failure
-+		 * handling code.
-+		 */
-+		if (gfp & __GFP_NOFAIL) {
-+			page_counter_charge(&memcg->kmem, nr_pages);
-+			return 0;
-+		}
- 		cancel_charge(memcg, nr_pages);
- 		return -ENOMEM;
- 	}
-_
-
-Patches currently in -mm which might be from mhocko@suse.com are
-
-memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
-mm-oom-consider-present-pages-for-the-node-size.patch
-
+For more info write to <info@kernelci.org>
