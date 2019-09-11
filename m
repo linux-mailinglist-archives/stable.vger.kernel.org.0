@@ -2,147 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D44ABAF980
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D1BBAF9C3
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 12:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727496AbfIKJvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 05:51:43 -0400
-Received: from s3.sipsolutions.net ([144.76.43.62]:34792 "EHLO
-        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726341AbfIKJvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 05:51:41 -0400
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1i7zHm-0003Eu-Q0; Wed, 11 Sep 2019 11:51:38 +0200
-Message-ID: <ea9a895d18a34b876c440e6272b1d55d27c8a419.camel@sipsolutions.net>
-Subject: Re: [PATCH] cfg80211: Purge frame registrations on iftype change
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Denis Kenzior <denkenz@gmail.com>, linux-wireless@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Date:   Wed, 11 Sep 2019 11:51:37 +0200
-In-Reply-To: <bb8d43d2-8383-1f7c-94f8-feecc29240f3@gmail.com> (sfid-20190830_172839_535654_F8184AE6)
-References: <20190828211110.15005-1-denkenz@gmail.com>
-         <5dc694c33759a32eb3796668a8b396c0133e1ebe.camel@sipsolutions.net>
-         <bb8d43d2-8383-1f7c-94f8-feecc29240f3@gmail.com>
-         (sfid-20190830_172839_535654_F8184AE6)
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
+        id S1726657AbfIKKB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 06:01:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726579AbfIKKB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 06:01:56 -0400
+Received: from localhost (unknown [148.69.85.38])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 554072075C;
+        Wed, 11 Sep 2019 10:01:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568196116;
+        bh=4AC8fqWOxhpdaHQC9zy9mO1g7IsQxUCxKasNYiJ67Sk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mljHzRvNp+zT/odA0CD+eCB+uUCbE0BFQLzZoc91Xl+VMoPI4EuUKf4E79Bkjmqku
+         fnLtAeItAmtQ5JD50e8+wBrMhXtiTYqB01dX0n7tUTCdu0upwf2qleunh/h1K2P2ki
+         Tk8vGtrOa4kpN8av6hExdi9KLIuJklJjr04JmnBg=
+Date:   Wed, 11 Sep 2019 06:01:53 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Tiwei Bie <tiwei.bie@intel.com>, stable@vger.kernel.org,
+        mst@redhat.com, jasowang@redhat.com
+Subject: Re: [PATCH 4.14] vhost/test: fix build for vhost test
+Message-ID: <20190911100153.GM2012@sasha-vm>
+References: <20190911025055.26774-1-tiwei.bie@intel.com>
+ <20190911091631.GI2012@sasha-vm>
+ <20190911093532.GA17308@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190911093532.GA17308@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, Sep 11, 2019 at 10:35:32AM +0100, Greg KH wrote:
+>On Wed, Sep 11, 2019 at 05:16:31AM -0400, Sasha Levin wrote:
+>> On Wed, Sep 11, 2019 at 10:50:55AM +0800, Tiwei Bie wrote:
+>> > commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
+>> >
+>> > Since vhost_exceeds_weight() was introduced, callers need to specify
+>> > the packet weight and byte weight in vhost_dev_init(). Note that, the
+>> > packet weight isn't counted in this patch to keep the original behavior
+>> > unchanged.
+>> >
+>> > Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
+>> > Cc: stable@vger.kernel.org
+>> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> > Acked-by: Jason Wang <jasowang@redhat.com>
+>>
+>> I've queued it up for 4.14, 4.9, and 4.4. Thank you.
+>
+>So did I, I think you will get conflicts when you try to merge :)
 
-On Fri, 2019-08-30 at 01:32 -0500, Denis Kenzior wrote:
-> Hi Johannes,
-> 
-> On 8/30/19 3:53 AM, Johannes Berg wrote:
-> > On Wed, 2019-08-28 at 16:11 -0500, Denis Kenzior wrote:
-> > > Currently frame registrations are not purged, even when changing the
-> > > interface type.  This can lead to potentially weird / dangerous
-> > > situations where frames possibly not relevant to a given interface
-> > > type remain registered and mgmt_frame_register is not called for the
-> > > no-longer-relevant frame types.
-> > 
-> > I'd argue really just "weird and non-working", hardly dangerous. 
+I did. Good thing we live in different timezones :)
 
-I think I may just have found a way that's sort of "dangerous" in the
-sense of breaking all of our tests, but hey.
-
-> > Even in
-> > the mac80211 design where we want to not let you intercept e.g. AUTH
-> > frames in client mode - if you did, then you'd just end up with a non-
-> > working interface. Not sure I see any "dangerous situation". Not really
-> > an all that important distinction though.
-> 
-> Fair enough, I'm happy to drop / reword this language.  It seemed fishy 
-> to me since the unregistration operation was not called at all, and the 
-> driver does go to some lengths to set up the valid frame registration 
-> types.
-
-Sure.
-
-> > However, I do wonder if we should make this more transactional, and hang
-> > on to them if the type switching fails. We're not notifying userspace
-> > that the registrations have disappeared, so if type switching fails and
-> > it continues to work with the old type rather than throwing its hands up
-> > and quitting or something, it'd make a possibly bigger mess to just
-> > silently have removed them already.
-> 
-> I do like that idea, not sure how to go about implementing it though? 
-> The failure case is a bit hard to deal with.  Something like 
-> NL80211_EXT_FEATURE_LIVE_IFTYPE_CHANGE would help, particularly if 
-> nl80211/cfg80211 actually checked it prior to doing anything (e.g. 
-> disconnecting, etc).  That would then take care of the majority of the 
-> 'typical' failure paths.  I didn't add such checking in the other patch 
-> set since I felt you might find it overly intrusive on userspace.  But 
-> maybe we really should do this?
-
-As I just said on the other patch, I think we probably should do that
-there, if just to be able to advertise a correct set of interface types
-that you can switch between there. I don't see how it'd be more
-intrusive to userspace than failing later? :-)
-
-> So playing devil's advocate, another argument might be that by the time 
-> we got here, we've already tore down a bunch of state.  E.g. 
-> disconnected the station, stopped AP, etc.  So we've already 
-> side-effected state in a bunch of ways, what's one more?
-
-True, fair point.
-
-> > I *think* it should be safe to just move this after the switching
-> > succeeds, since the switching can pretty much only be done at a point
-> > where nothing is happening on the interface anyway, though that might
-> > confuse the driver when the remove happens.
-> > 
-> 
-> I would concur as that is what happens today.  But should it?
-
-Well, dunno, what should happen? If you ask drivers they might want to
-remove & re-register after, for those registrations that are still
-possible.
-
-> It isn't currently clear to me if there are any guarantees on the driver 
-> operation call sequence that cfg80211 provides.  E.g. can the driver 
-> expect rdev_change_virtual_intf to be called only once all the old 
-> registrations are purged and the new registrations are performed after 
-> the fact?  Or should it expect things to just happen in any order?
-
-Well, evidently it cannot rely on anything today, and for the most part
-I guess this is implemented in the software paths where it doesn't
-really matter (the same way that mac80211 implements it).
-
-But it probably should be defined better.
-
-> > What do you think?
-> > 
-> 
-> A big part of me thinks that just wiping the slate clean and having 
-> userspace set it up from scratch isn't that much to ask and it might 
-> want to do that anyway.  It might (a big maybe?) also make the driver's 
-> life easier if it can rely on certain guarantees from cfg80211.  E.g. 
-> that all invalid registrations are purged.
-
-Yeah, fair point.
-
-> I have seen wpa_s perform a bunch of register commands which bounce off 
-> with an -EALREADY.  So it may already be erring on the side of caution 
-> and assuming that it needs to reset the state fully?  Not sure.
-
-I'm pretty sure that it does in fact go through a full reset (re-setup)
-after switching things around.
-
-> But if the kernel wants to be nice and spends some cycles figuring out 
-> which frame registrations to keep and re-register them, that is also 
-> fine with me.
-
-Let's not then.
-
-I've applied this patch now.
-
-johannes
-
+--
+Thanks,
+Sasha
