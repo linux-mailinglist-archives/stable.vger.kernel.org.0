@@ -2,155 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACE1AF50E
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 06:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F89AF581
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 07:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbfIKEZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 00:25:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:53382 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725798AbfIKEZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 00:25:59 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 343C718CB511;
-        Wed, 11 Sep 2019 04:25:58 +0000 (UTC)
-Received: from llong.remote.csb (ovpn-120-46.rdu2.redhat.com [10.10.120.46])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 42E6119C6A;
-        Wed, 11 Sep 2019 04:25:54 +0000 (UTC)
-Subject: Re: [PATCH] Revert "locking/pvqspinlock: Don't wait if vCPU is
- preempted"
-To:     Wanpeng Li <kernellwp@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, loobinliu@tencent.com,
-        "# v3 . 10+" <stable@vger.kernel.org>
-References: <1567993228-23668-1-git-send-email-wanpengli@tencent.com>
- <29d04ee4-60e7-4df9-0c4f-fc29f2b0c6a8@redhat.com>
- <CANRm+CxVXsQCmEpxNJSifmQJk5cqoSifFq+huHJE1s7a-=0iXw@mail.gmail.com>
-From:   Waiman Long <longman@redhat.com>
-Organization: Red Hat
-Message-ID: <2dda32db-5662-f7a6-f52d-b835df1f45f1@redhat.com>
-Date:   Wed, 11 Sep 2019 05:25:53 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1726759AbfIKFz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 01:55:27 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:34422 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726735AbfIKFz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 01:55:27 -0400
+Received: by mail-oi1-f194.google.com with SMTP id 12so1950607oiq.1
+        for <stable@vger.kernel.org>; Tue, 10 Sep 2019 22:55:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=YM9Kdr6pR5ir7duMfXwKDarzHXJpHvXrhgqbZfkgyPo=;
+        b=qsq1GMF2ulu4HYjpmfNjkU+svPULNKsFBDnfrbqvgBAt0sI3P5hnPGDp+PXIxN5Qnr
+         ULHtUiLC7YYgwecrpKkiJOHZSgj8ZS9+lGTJlH9LBByDp3iieP138pzF1dUR3GL8QKCf
+         ujLaU2k4LfPVymsjQlPCjPjKxQxNppnzV1pi4c3AbsOny/l+quvwbyWQGPac9xW1bEZg
+         wFUhmqHdPJLbBs5zSYwfEashUsHkRLqckbQI+v3jN+b/YB18JBJ43IAbPYqaUIL9ffcs
+         E8pI++hXavPOnHIApgP4tuwuxRu2I5+I+BLVB5Jeylihn3eNTKKVXs/e7+ndw8nygvZC
+         cg0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=YM9Kdr6pR5ir7duMfXwKDarzHXJpHvXrhgqbZfkgyPo=;
+        b=dscPUqxYwh4TrzWMFwbb5m1+Neo47kIVlvnakfG120V79MjfKfy+rVjqs9RNsgCUuV
+         pC6XTmjPP/sfkH7jZBTPBEj/kNRmrszZsCeFiUIcP/WXj3S9IrSyXP6+MOQtMVlAl64G
+         WoOry8IcRtstGP53jD1rysmzeoexxJ0Gq4FtnuLiQGkIywsPJ6TT4q3n9aPcBol9ltJE
+         QQT6TNCYL3qM3oNNEGP/m+teDOYFuBEg9w4taJYY6U07psmYl8NO22dr6tgnzJFfBtB+
+         iG8AZxu+DBtkR6oA89Jc/AMR3wQ1xcRdauOvCB8/s1Znpm5KWjWS9voCOMqpdLQGyuTH
+         RmWw==
+X-Gm-Message-State: APjAAAV39cWaUk7DQJvolSM366kw4yYm7q3j2qWNw9A5qF6J6v4SgxWX
+        +hJMC16cUEjMS6TEAWU1uFEf6wYRlr7YzZkdP1i/+A==
+X-Google-Smtp-Source: APXvYqz0CXlFQ4QKcgT2lV5sbnXYFZ+y9GQ1tRvJmX8PPD/t7utrccBcs5DQOstgiQUvQmjfaq7+K9YdmeYUA14R33g=
+X-Received: by 2002:a54:4f8a:: with SMTP id g10mr2667440oiy.147.1568181326176;
+ Tue, 10 Sep 2019 22:55:26 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CANRm+CxVXsQCmEpxNJSifmQJk5cqoSifFq+huHJE1s7a-=0iXw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.62]); Wed, 11 Sep 2019 04:25:58 +0000 (UTC)
+References: <20190910082138.30193-1-brgl@bgdev.pl> <20190910104829.983FE2067B@mail.kernel.org>
+In-Reply-To: <20190910104829.983FE2067B@mail.kernel.org>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Wed, 11 Sep 2019 07:55:15 +0200
+Message-ID: <CAMpxmJW0gd9vVp-UXeRBsrLuvYiOJNo=mcLZi8DLCQKNNXgO2A@mail.gmail.com>
+Subject: Re: [PATCH] gpiolib: don't clear FLAG_IS_OUT when emulating open-drain/open-source
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio <linux-gpio@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Stable # 4 . 20+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/10/19 6:56 AM, Wanpeng Li wrote:
-> On Mon, 9 Sep 2019 at 18:56, Waiman Long <longman@redhat.com> wrote:
->> On 9/9/19 2:40 AM, Wanpeng Li wrote:
->>> From: Wanpeng Li <wanpengli@tencent.com>
->>>
->>> This patch reverts commit 75437bb304b20 (locking/pvqspinlock: Don't wait if
->>> vCPU is preempted), we found great regression caused by this commit.
->>>
->>> Xeon Skylake box, 2 sockets, 40 cores, 80 threads, three VMs, each is 80 vCPUs.
->>> The score of ebizzy -M can reduce from 13000-14000 records/s to 1700-1800
->>> records/s with this commit.
->>>
->>>           Host                       Guest                score
->>>
->>> vanilla + w/o kvm optimizes     vanilla               1700-1800 records/s
->>> vanilla + w/o kvm optimizes     vanilla + revert      13000-14000 records/s
->>> vanilla + w/ kvm optimizes      vanilla               4500-5000 records/s
->>> vanilla + w/ kvm optimizes      vanilla + revert      14000-15500 records/s
->>>
->>> Exit from aggressive wait-early mechanism can result in yield premature and
->>> incur extra scheduling latency in over-subscribe scenario.
->>>
->>> kvm optimizes:
->>> [1] commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts)
->>> [2] commit 266e85a5ec9 (KVM: X86: Boost queue head vCPU to mitigate lock waiter preemption)
->>>
->>> Tested-by: loobinliu@tencent.com
->>> Cc: Peter Zijlstra <peterz@infradead.org>
->>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>> Cc: Ingo Molnar <mingo@kernel.org>
->>> Cc: Waiman Long <longman@redhat.com>
->>> Cc: Paolo Bonzini <pbonzini@redhat.com>
->>> Cc: Radim Krčmář <rkrcmar@redhat.com>
->>> Cc: loobinliu@tencent.com
->>> Cc: stable@vger.kernel.org
->>> Fixes: 75437bb304b20 (locking/pvqspinlock: Don't wait if vCPU is preempted)
->>> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
->>> ---
->>>  kernel/locking/qspinlock_paravirt.h | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/kernel/locking/qspinlock_paravirt.h b/kernel/locking/qspinlock_paravirt.h
->>> index 89bab07..e84d21a 100644
->>> --- a/kernel/locking/qspinlock_paravirt.h
->>> +++ b/kernel/locking/qspinlock_paravirt.h
->>> @@ -269,7 +269,7 @@ pv_wait_early(struct pv_node *prev, int loop)
->>>       if ((loop & PV_PREV_CHECK_MASK) != 0)
->>>               return false;
->>>
->>> -     return READ_ONCE(prev->state) != vcpu_running || vcpu_is_preempted(prev->cpu);
->>> +     return READ_ONCE(prev->state) != vcpu_running;
->>>  }
->>>
->>>  /*
->> There are several possibilities for this performance regression:
->>
->> 1) Multiple vcpus calling vcpu_is_preempted() repeatedly may cause some
->> cacheline contention issue depending on how that callback is implemented.
->>
->> 2) KVM may set the preempt flag for a short period whenver an vmexit
->> happens even if a vmenter is executed shortly after. In this case, we
->> may want to use a more durable vcpu suspend flag that indicates the vcpu
->> won't get a real vcpu back for a longer period of time.
->>
->> Perhaps you can add a lock event counter to count the number of
->> wait_early events caused by vcpu_is_preempted() being true to see if it
->> really cause a lot more wait_early than without the vcpu_is_preempted()
->> call.
-> pv_wait_again:1:179
-> pv_wait_early:1:189429
-> pv_wait_head:1:263
-> pv_wait_node:1:189429
-> pv_vcpu_is_preempted:1:45588
-> =========sleep 5============
-> pv_wait_again:1:181
-> pv_wait_early:1:202574
-> pv_wait_head:1:267
-> pv_wait_node:1:202590
-> pv_vcpu_is_preempted:1:46336
+wt., 10 wrz 2019 o 12:48 Sasha Levin <sashal@kernel.org> napisa=C5=82(a):
 >
-> The sampling period is 5s, 6% of wait_early events caused by
-> vcpu_is_preempted() being true.
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: c663e5f56737 gpio: support native single-ended hardware dr=
+ivers.
+>
+> The bot has tested the following trees: v5.2.13, v4.19.71, v4.14.142, v4.=
+9.191.
+>
+> v5.2.13: Build OK!
+> v4.19.71: Build OK!
+> v4.14.142: Failed to apply! Possible dependencies:
+>     02e479808b5d ("gpio: Alter semantics of *raw* operations to actually =
+be raw")
+>     fac9d8850a0c ("gpio: Get rid of _prefix and __prefixes")
+>
+> v4.9.191: Failed to apply! Possible dependencies:
+>     02e479808b5d ("gpio: Alter semantics of *raw* operations to actually =
+be raw")
+>     0db0f26c2c5d ("pinctrl-sx150x: Convert driver to use regmap API")
+>     2956b5d94a76 ("pinctrl / gpio: Introduce .set_config() callback for G=
+PIO chips")
+>     46a5c112a401 ("gpio: merrifield: Implement gpio_get_direction callbac=
+k")
+>     6489677f86c3 ("pinctrl-sx150x: Replace sx150x_*_cfg by means of regma=
+p API")
+>     6697546d650d ("pinctrl-sx150x: Add SX1503 specific data")
+>     9e80f9064e73 ("pinctrl: Add SX150X GPIO Extender Pinctrl Driver")
+>     e3ba81206811 ("pinctrl-sx150x: Improve OF device matching code")
+>     e7a718f9b1c1 ("gpio: merrifield: Add support for hardware debouncer")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
+>
 
-6% isn't that high. However, when one vCPU voluntarily releases its
-vCPU, all the subsequently waiters in the queue will do the same. It is
-a cascading effect. Perhaps we wait early too aggressive with the
-original patch.
+Once it's accepted, I'll prepare backports.
 
-I also look up the email chain of the original commit. The patch
-submitter did not provide any performance data to support this change.
-The patch just looked reasonable at that time. So there was no
-objection. Given that we now have hard evidence that this was not a good
-idea. I think we should revert it.
-
-Reviewed-by: Waiman Long <longman@redhat.com>
-
-Thanks,
-Longman
-
+Bart
