@@ -2,270 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F95AFE23
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 15:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E63CAFE4A
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 16:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727307AbfIKNzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 09:55:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43858 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727093AbfIKNzk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 09:55:40 -0400
-Received: from X1 (110.8.30.213.rev.vodafone.pt [213.30.8.110])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBFDB206A5;
-        Wed, 11 Sep 2019 13:55:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568210138;
-        bh=4q8Q5S6B4Dwz4GK+zVCfwt5+5CR7fgs73JAOdqBSMAw=;
-        h=Date:From:To:Subject:From;
-        b=07n1CcpOPbDvbQ20isidsr0V5pg1I378yO9QGXNR5g42+Tp8EN0lsali71lTa7EKN
-         mriq6ey9vFM2W5HTfZ7znnRJ8IfStQKRpyIrgoDff3nNEGmqLKUtEcoQCop8h8wo/4
-         eLey2wtO0ZEjitJ47qaSGhP95efwZFST1A2P1lFc=
-Date:   Wed, 11 Sep 2019 06:55:34 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        shakeelb@google.com, jwadams@google.com, henrywolfeburns@gmail.com,
-        agustin@dallalba.com.ar, vitalywool@gmail.com
-Subject:  +
- revert-mm-z3foldc-fix-race-between-migration-and-destruction.patch added to
- -mm tree
-Message-ID: <20190911135534.0T9Wu%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1727581AbfIKOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 10:06:06 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:36697 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbfIKOGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 10:06:06 -0400
+Received: by mail-oi1-f193.google.com with SMTP id k20so14197135oih.3;
+        Wed, 11 Sep 2019 07:06:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=dG0h5xr7PLWX3L1atFp9BWDn9f7GpG/Z8DYTb3U4rQ4=;
+        b=ZP2OF21C3vwcf7/IRHQORsFEZmCsgicTi1Op+DG2/KplgJVDynX5wuLDrzyOkVlX0f
+         hUxoAlJXYriNpae7K3bbZYoOSoXR4gP1JXwCMVCzd612qB1PvozP0/3K1BZMB3yjV0a+
+         c6SxtaouKPgXbvv8LyiwDU00REQsv4TdN6phb5TvoUyQSNVkOWusjkdqO8pLPNAcs0MP
+         ahg0exc4I5NlVcrSt1w2lwVXxEAb6iQc0VEpGIb2Wgoui/tEvmFxN0pcH4Mu59IBFdT5
+         CNTSLVkfygneI9wOBFNzad4DvfAzafUeP08r/nYxdOm2Ld/uOiDmAS1CNJ17yQi8cChr
+         chxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dG0h5xr7PLWX3L1atFp9BWDn9f7GpG/Z8DYTb3U4rQ4=;
+        b=S6O3vTBluwMl6jEl3XtZFrCWNnz9q+ZJlFwrmQ2/9ElDdPIpBkzS/FrBoX8WOHX+/A
+         ckP8Bf1k4YgzSE3iWWo29IwCSbBvDnhJyOs4ERUjb88ThE1Jb2be2qgGf82jBBhlJAp0
+         vWRSB8Z0TBXDs8GwiybZmPlMry02/igpOHesyGbpdrW1CP4zcUdeMVLRIgR8wS0ZZ/xR
+         8tVpbR9gxM971wZ/OrmI4wb6AHo5/JzGw0BuGWfwEqMge8jUCVqAxcCxBAdV97Bx7PP1
+         4IM69IkVjhBAkIoPtsKQ9zfrhRl4gwuHQYaJForON0snsZoa0YO5CzzvyDLMAzX/lZI9
+         +8Kw==
+X-Gm-Message-State: APjAAAV0b7yj5Tk2feB+FgwALGotTKSLddeVWs8WJuUYikI3eTrDBne7
+        5XpLuULqg2uR9Lw+dPtZpIUCqlvQ
+X-Google-Smtp-Source: APXvYqyX2jvH3BqvZXW/hU+naeoh/m6eknkg01iFOvHHszGb1/7T64Zi4J5PJex2m/6UnXOf4OnC2w==
+X-Received: by 2002:aca:c645:: with SMTP id w66mr4413165oif.9.1568210765336;
+        Wed, 11 Sep 2019 07:06:05 -0700 (PDT)
+Received: from [192.168.1.249] (cpe-70-114-247-242.austin.res.rr.com. [70.114.247.242])
+        by smtp.googlemail.com with ESMTPSA id i47sm8174197ota.1.2019.09.11.07.06.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 11 Sep 2019 07:06:04 -0700 (PDT)
+Subject: Re: [PATCH] cfg80211: Purge frame registrations on iftype change
+To:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20190828211110.15005-1-denkenz@gmail.com>
+ <5dc694c33759a32eb3796668a8b396c0133e1ebe.camel@sipsolutions.net>
+ <bb8d43d2-8383-1f7c-94f8-feecc29240f3@gmail.com>
+ <ea9a895d18a34b876c440e6272b1d55d27c8a419.camel@sipsolutions.net>
+From:   Denis Kenzior <denkenz@gmail.com>
+Message-ID: <8fdb9d1f-d535-22ed-1a1a-357f826ecf54@gmail.com>
+Date:   Wed, 11 Sep 2019 07:12:42 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <ea9a895d18a34b876c440e6272b1d55d27c8a419.camel@sipsolutions.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Johannes,
 
-The patch titled
-     Subject: Revert "mm/z3fold.c: fix race between migration and destructi=
-on"
-has been added to the -mm tree.  Its filename is
-     revert-mm-z3foldc-fix-race-between-migration-and-destruction.patch
+>> 'typical' failure paths.  I didn't add such checking in the other patch
+>> set since I felt you might find it overly intrusive on userspace.  But
+>> maybe we really should do this?
+> 
+> As I just said on the other patch, I think we probably should do that
+> there, if just to be able to advertise a correct set of interface types
+> that you can switch between there. I don't see how it'd be more
+> intrusive to userspace than failing later? :-)
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/revert-mm-z3foldc-fix-race-bet=
-ween-migration-and-destruction.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/revert-mm-z3foldc-fix-race-bet=
-ween-migration-and-destruction.patch
+What I was worried about was that all the fullmac drivers would have had 
+to be updated to set the feature bit, and it would have caused 
+wpa_s/hostapd to no longer be able to do the whole set_iftype -> ebusy 
+-> ifdown & set_iftype retry logic until all were updated.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+>> I would concur as that is what happens today.  But should it?
+> 
+> Well, dunno, what should happen? If you ask drivers they might want to
+> remove & re-register after, for those registrations that are still
+> possible.
+> 
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
+I would think you'd want to define a clear order of operations that 
+cfg80211 / mac80211 would enforce :)
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+> 
+> Let's not then.
+> 
+> I've applied this patch now.
+> 
 
-------------------------------------------------------
-From: Vitaly Wool <vitalywool@gmail.com>
-Subject: Revert "mm/z3fold.c: fix race between migration and destruction"
+Great, thanks.
 
-With the original commit applied, z3fold_zpool_destroy() may get blocked
-on wait_event() for indefinite time.  Revert this commit for the time
-being to get rid of this problem since the issue the original commit
-addresses is less severe.
-
-Link: http://lkml.kernel.org/r/20190910123142.7a9c8d2de4d0acbc0977c602@gmai=
-l.com
-Fixes: d776aaa9895eb6eb77 ("mm/z3fold.c: fix race between migration and des=
-truction")
-Reported-by: Agust=EDn Dall'Alba <agustin@dallalba.com.ar>
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Vitaly Wool <vitalywool@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/z3fold.c |   90 --------------------------------------------------
- 1 file changed, 90 deletions(-)
-
---- a/mm/z3fold.c~revert-mm-z3foldc-fix-race-between-migration-and-destruct=
-ion
-+++ a/mm/z3fold.c
-@@ -41,7 +41,6 @@
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
--#include <linux/wait.h>
- #include <linux/zpool.h>
- #include <linux/magic.h>
-=20
-@@ -146,8 +145,6 @@ struct z3fold_header {
-  * @release_wq:	workqueue for safe page release
-  * @work:	work_struct for safe page release
-  * @inode:	inode for z3fold pseudo filesystem
-- * @destroying: bool to stop migration once we start destruction
-- * @isolated: int to count the number of pages currently in isolation
-  *
-  * This structure is allocated at pool creation time and maintains metadata
-  * pertaining to a particular z3fold pool.
-@@ -166,11 +163,8 @@ struct z3fold_pool {
- 	const struct zpool_ops *zpool_ops;
- 	struct workqueue_struct *compact_wq;
- 	struct workqueue_struct *release_wq;
--	struct wait_queue_head isolate_wait;
- 	struct work_struct work;
- 	struct inode *inode;
--	bool destroying;
--	int isolated;
- };
-=20
- /*
-@@ -775,7 +769,6 @@ static struct z3fold_pool *z3fold_create
- 		goto out_c;
- 	spin_lock_init(&pool->lock);
- 	spin_lock_init(&pool->stale_lock);
--	init_waitqueue_head(&pool->isolate_wait);
- 	pool->unbuddied =3D __alloc_percpu(sizeof(struct list_head)*NCHUNKS, 2);
- 	if (!pool->unbuddied)
- 		goto out_pool;
-@@ -815,15 +808,6 @@ out:
- 	return NULL;
- }
-=20
--static bool pool_isolated_are_drained(struct z3fold_pool *pool)
--{
--	bool ret;
--
--	spin_lock(&pool->lock);
--	ret =3D pool->isolated =3D=3D 0;
--	spin_unlock(&pool->lock);
--	return ret;
--}
- /**
-  * z3fold_destroy_pool() - destroys an existing z3fold pool
-  * @pool:	the z3fold pool to be destroyed
-@@ -833,22 +817,6 @@ static bool pool_isolated_are_drained(st
- static void z3fold_destroy_pool(struct z3fold_pool *pool)
- {
- 	kmem_cache_destroy(pool->c_handle);
--	/*
--	 * We set pool-> destroying under lock to ensure that
--	 * z3fold_page_isolate() sees any changes to destroying. This way we
--	 * avoid the need for any memory barriers.
--	 */
--
--	spin_lock(&pool->lock);
--	pool->destroying =3D true;
--	spin_unlock(&pool->lock);
--
--	/*
--	 * We need to ensure that no pages are being migrated while we destroy
--	 * these workqueues, as migration can queue work on either of the
--	 * workqueues.
--	 */
--	wait_event(pool->isolate_wait, !pool_isolated_are_drained(pool));
-=20
- 	/*
- 	 * We need to destroy pool->compact_wq before pool->release_wq,
-@@ -1339,28 +1307,6 @@ static u64 z3fold_get_pool_size(struct z
- 	return atomic64_read(&pool->pages_nr);
- }
-=20
--/*
-- * z3fold_dec_isolated() expects to be called while pool->lock is held.
-- */
--static void z3fold_dec_isolated(struct z3fold_pool *pool)
--{
--	assert_spin_locked(&pool->lock);
--	VM_BUG_ON(pool->isolated <=3D 0);
--	pool->isolated--;
--
--	/*
--	 * If we have no more isolated pages, we have to see if
--	 * z3fold_destroy_pool() is waiting for a signal.
--	 */
--	if (pool->isolated =3D=3D 0 && waitqueue_active(&pool->isolate_wait))
--		wake_up_all(&pool->isolate_wait);
--}
--
--static void z3fold_inc_isolated(struct z3fold_pool *pool)
--{
--	pool->isolated++;
--}
--
- static bool z3fold_page_isolate(struct page *page, isolate_mode_t mode)
- {
- 	struct z3fold_header *zhdr;
-@@ -1387,34 +1333,6 @@ static bool z3fold_page_isolate(struct p
- 		spin_lock(&pool->lock);
- 		if (!list_empty(&page->lru))
- 			list_del(&page->lru);
--		/*
--		 * We need to check for destruction while holding pool->lock, as
--		 * otherwise destruction could see 0 isolated pages, and
--		 * proceed.
--		 */
--		if (unlikely(pool->destroying)) {
--			spin_unlock(&pool->lock);
--			/*
--			 * If this page isn't stale, somebody else holds a
--			 * reference to it. Let't drop our refcount so that they
--			 * can call the release logic.
--			 */
--			if (unlikely(kref_put(&zhdr->refcount,
--					      release_z3fold_page_locked))) {
--				/*
--				 * If we get here we have kref problems, so we
--				 * should freak out.
--				 */
--				WARN(1, "Z3fold is experiencing kref problems\n");
--				z3fold_page_unlock(zhdr);
--				return false;
--			}
--			z3fold_page_unlock(zhdr);
--			return false;
--		}
--
--
--		z3fold_inc_isolated(pool);
- 		spin_unlock(&pool->lock);
- 		z3fold_page_unlock(zhdr);
- 		return true;
-@@ -1483,10 +1401,6 @@ static int z3fold_page_migrate(struct ad
-=20
- 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
-=20
--	spin_lock(&pool->lock);
--	z3fold_dec_isolated(pool);
--	spin_unlock(&pool->lock);
--
- 	page_mapcount_reset(page);
- 	put_page(page);
- 	return 0;
-@@ -1506,14 +1420,10 @@ static void z3fold_page_putback(struct p
- 	INIT_LIST_HEAD(&page->lru);
- 	if (kref_put(&zhdr->refcount, release_z3fold_page_locked)) {
- 		atomic64_dec(&pool->pages_nr);
--		spin_lock(&pool->lock);
--		z3fold_dec_isolated(pool);
--		spin_unlock(&pool->lock);
- 		return;
- 	}
- 	spin_lock(&pool->lock);
- 	list_add(&page->lru, &pool->lru);
--	z3fold_dec_isolated(pool);
- 	spin_unlock(&pool->lock);
- 	z3fold_page_unlock(zhdr);
- }
-_
-
-Patches currently in -mm which might be from vitalywool@gmail.com are
-
-revert-mm-z3foldc-fix-race-between-migration-and-destruction.patch
-
+Regards,
+-Denis
