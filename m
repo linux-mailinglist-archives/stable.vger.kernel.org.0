@@ -2,92 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2EDAF740
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 09:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EEFBAF753
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 09:56:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727224AbfIKHw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 03:52:28 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40046 "EHLO mx1.redhat.com"
+        id S1726579AbfIKH4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 03:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727208AbfIKHw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 03:52:28 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725924AbfIKH4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 03:56:07 -0400
+Received: from localhost (unknown [62.28.240.114])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B4E55316E536;
-        Wed, 11 Sep 2019 07:52:27 +0000 (UTC)
-Received: from dell-r430-03.lab.eng.brq.redhat.com (dell-r430-03.lab.eng.brq.redhat.com [10.37.153.18])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2AD0B6012A;
-        Wed, 11 Sep 2019 07:52:23 +0000 (UTC)
-From:   Igor Mammedov <imammedo@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
-        frankja@linux.ibm.com, heiko.carstens@de.ibm.com,
-        gor@linux.ibm.com, imbrenda@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] KVM: s390: kvm_s390_vm_start_migration: check dirty_bitmap before using it as target for memset()
-Date:   Wed, 11 Sep 2019 03:52:18 -0400
-Message-Id: <20190911075218.29153-1-imammedo@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Wed, 11 Sep 2019 07:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A300820872;
+        Wed, 11 Sep 2019 07:56:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568188566;
+        bh=vwdg9KLjse6e40fTr8aUorTZdfy5Ppck3ADiYBkf1T4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lql4CiyQX+heooybFPSHweBYg47+93NbswFcMHmw9S7BaznL4jbaVGRLpH9+YLRxx
+         Y+fc/AIWCX3tOALBJNCE7HGMevBuYz4x0i7pGGvx67iZnKaXXFh8pqi75QvyL9whzx
+         blWuoauoUenq8nBmQuFaolKDEU/ODjPok59jw7eI=
+Date:   Wed, 11 Sep 2019 03:56:03 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Doug Anderson <dianders@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        linux-integrity@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH AUTOSEL 4.19 126/167] tpm: Fix TPM 1.2 Shutdown sequence
+ to prevent future TPM operations
+Message-ID: <20190911075603.GH2012@sasha-vm>
+References: <20190903162519.7136-1-sashal@kernel.org>
+ <20190903162519.7136-126-sashal@kernel.org>
+ <CAD=FV=W0YodeoOCiCv9zmv+-gswuU8U_XgrBnesE=wynTbDBiA@mail.gmail.com>
+ <20190903165346.hwqlrin77cmzjiti@cantor>
+ <20190903194335.GG5281@sasha-vm>
+ <f2224c094836a4b8989c1cd6243a0b7ad1261a87.camel@linux.intel.com>
+ <20190907220448.GB2012@sasha-vm>
+ <20190909162808.ggcnrtvbvor7deqy@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190909162808.ggcnrtvbvor7deqy@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
-kvm_s390_vm_start_migration(), kernel will oops with:
+On Mon, Sep 09, 2019 at 05:28:08PM +0100, Jarkko Sakkinen wrote:
+>On Sat, Sep 07, 2019 at 06:04:48PM -0400, Sasha Levin wrote:
+>> On Sat, Sep 07, 2019 at 09:55:18PM +0300, Jarkko Sakkinen wrote:
+>> > On Tue, 2019-09-03 at 15:43 -0400, Sasha Levin wrote:
+>> > > Right. I gave a go at backporting a few patches and this happens to be
+>> > > one of them. It will be a while before it goes in a stable tree
+>> > > (probably way after after LPC).
+>> >
+>> > It *semantically* depends on
+>> >
+>> > db4d8cb9c9f2 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
+>> >
+>> > I.e. can cause crashes without the above patch. As a code change your
+>> > patch is fine but it needs the above patch backported to work in stable
+>> > manner.
+>> >
+>> > So... either I can backport that one (because ultimately I have
+>> > responsibility to do that as the maintainer) but if you want to finish
+>> > this one that is what you need to backport in addition and then it
+>> > should be fine.
+>>
+>> If you're ok with the backport of this commit, I can just add
+>> db4d8cb9c9f2 on top.
+>
+>Sure, I've already gave my promise to do that :-)
 
-  Unable to handle kernel pointer dereference in virtual kernel address space
-  Failing address: 0000000000000000 TEID: 0000000000000483
-  Fault in home space mode while using kernel ASCE.
-  AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007 S:00000001bff91000 P:000000000000003d
-  Oops: 0004 ilc:2 [#1] SMP
-  ...
-  Call Trace:
-  ([<001fffff804ec552>] kvm_s390_vm_set_attr+0x347a/0x3828 [kvm])
-   [<001fffff804ecfc0>] kvm_arch_vm_ioctl+0x6c0/0x1998 [kvm]
-   [<001fffff804b67e4>] kvm_vm_ioctl+0x51c/0x11a8 [kvm]
-   [<00000000008ba572>] do_vfs_ioctl+0x1d2/0xe58
-   [<00000000008bb284>] ksys_ioctl+0x8c/0xb8
-   [<00000000008bb2e2>] sys_ioctl+0x32/0x40
-   [<000000000175552c>] system_call+0x2b8/0x2d8
-  INFO: lockdep is turned off.
-  Last Breaking-Event-Address:
-   [<0000000000dbaf60>] __memset+0xc/0xa0
+I think that the dependency in question is actually:
 
-due to ms->dirty_bitmap being NULL, which might crash the host.
+	2677ca98ae377 ("tpm: use tpm_try_get_ops() in tpm-sysfs.c.")
 
-Make sure that ms->dirty_bitmap is set before using it or
-return -ENIVAL otherwise.
+Which is tricky to backport. I think I'll drop this patch for now and
+wait for your backport instead.
 
-Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration with memory slots")
-Signed-off-by: Igor Mammedov <imammedo@redhat.com>
----
-Cc: stable@vger.kernel.org # v4.19+
-
-v2:
-   - remove not true anym 'warning' clause in commit message
-v2:
-   - drop WARN()
-
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f329dcb3f44c..2a40cd3e40b4 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1018,6 +1018,8 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
- 	/* mark all the pages in active slots as dirty */
- 	for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
- 		ms = slots->memslots + slotnr;
-+		if (!ms->dirty_bitmap)
-+			return -EINVAL;
- 		/*
- 		 * The second half of the bitmap is only used on x86,
- 		 * and would be wasted otherwise, so we put it to good
--- 
-2.18.1
-
+--
+Thanks,
+Sasha
