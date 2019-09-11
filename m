@@ -2,79 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C077AF8BE
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7839AF8D2
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726857AbfIKJUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 05:20:12 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:39191 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726702AbfIKJUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 05:20:12 -0400
-Received: by mail-ed1-f68.google.com with SMTP id u6so19961869edq.6;
-        Wed, 11 Sep 2019 02:20:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=xco/af/x6HLCOyTU+F8H8hS4JAyuU2ZOlKKdPNtbpTc=;
-        b=IBQkqAd12yBtK7nUuezywmOLAhdKqEfDOGXS/rpxNGoG0SWhmCi0eQoQ+N5PpBj66G
-         FwZSPnzD7gRissIkhDNBGvyI3qG+alfEf76ataezk8eiJD9hXs3qrFjFljsmBagnA00D
-         AFM5P/MQtW30Lmier4a9FNH8sKnyjzAgu7leE52yCOe2+YPa5Z53PQMlVRwpFr8v7Mxs
-         DQkxacEhzTs31k3OwYJQjn5IedecyueCd4zKrtNdKvDDFvbOe42eaAX2H5ggjUiJkaAO
-         Zf6yjpC1B06wU2+AXCcxAZElwYkB+7XFbaHGf9XEGYeSHuVpd9vdo+hzHFB0YKnI71E3
-         jpeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=xco/af/x6HLCOyTU+F8H8hS4JAyuU2ZOlKKdPNtbpTc=;
-        b=ktL32IgkqMeBBNk8EJVAau+k/QRP17f2MPBv9r7kNvQB+GG5T4EnSiQ611u/3XzTTS
-         Wkfb8wxFbzFLtzmYR6wnP5VxNuciWth/r4OGriMumGVIMgaLCa34dd9tHkxT6WXtWmzY
-         0TCyYnQlO+FTwHauayM149mjeggW2+3+YOCkhQ70BpGJuztIqOHehaSfpdw8vFzw8Aqu
-         O39AQ2lR6ozCLZER7MHzqzruSx0NpcBZXP1RQHbS3PaaI6bzTj+ptA6UbQ7PNQ+Buyqo
-         FQNKUoCVKd/S73JiN63gxcp5JzkLktczoOTVyQNxpDzhE1gPvESVue71FsUELP88buYD
-         jqaQ==
-X-Gm-Message-State: APjAAAVsnOWaccbM1vmDwzU+c3ndnrIAVr9tcqzdHT3L0og0h7XEsccW
-        KlAaCtfNlttoXtQbIDs3RIU=
-X-Google-Smtp-Source: APXvYqy4BvSO0gG/4I1Sjsy9hAklRK2xOgW5m/CB7P/ljWkEEbYILxaBvColTBRBPjXu3ggDmikluA==
-X-Received: by 2002:a50:eb4c:: with SMTP id z12mr35703111edp.155.1568193608578;
-        Wed, 11 Sep 2019 02:20:08 -0700 (PDT)
-Received: from dell5510 ([62.201.25.198])
-        by smtp.gmail.com with ESMTPSA id l11sm157360ejn.62.2019.09.11.02.20.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Sep 2019 02:20:07 -0700 (PDT)
-Date:   Wed, 11 Sep 2019 11:20:06 +0200
-From:   Petr Vorel <petr.vorel@gmail.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Joey Pabalinas <joeypabalinas@gmail.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] selftests/tpm2: Add the missing TEST_FILES assignment
-Message-ID: <20190911092005.GA22492@dell5510>
-Reply-To: Petr Vorel <petr.vorel@gmail.com>
-References: <20190910222523.8116-1-jarkko.sakkinen@linux.intel.com>
+        id S1727472AbfIKJXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 05:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45200 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726857AbfIKJXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 05:23:34 -0400
+Received: from localhost (unknown [148.69.85.38])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2F9D2089F;
+        Wed, 11 Sep 2019 09:23:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568193813;
+        bh=wqsC4eQMaI6W5IauLZxIsmiwgmOCoou6usBCuc3yDHY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qCKY7C7Jav+0vy+A7kEDyCrB5VdHEanrieqZZFZogLWn5Oc5o7JhWP2vnFIWuTmoE
+         CDBa1r9XDc1Jr9B01KtFXmylSz3lizQv4Vievg0wgaRec4ndIX1A1IW6Y+GIofEC/b
+         Qzk6WoAR6iSfQtkund2p+TPn/4+wCIdlT/76yaoM=
+Date:   Wed, 11 Sep 2019 05:23:30 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Michael Neuling <mikey@neuling.org>, gromero@linux.ibm.com,
+        mpe@ellerman.id.au, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19] powerpc/tm: Fix restoring FP/VMX facility
+ incorrectly on interrupts
+Message-ID: <20190911092330.GJ2012@sasha-vm>
+References: <15681148654568@kroah.com>
+ <07d47bd664b13cf5cdc0361a59b26f9e448e2079.camel@neuling.org>
+ <20190911090903.GA30714@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190910222523.8116-1-jarkko.sakkinen@linux.intel.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+In-Reply-To: <20190911090903.GA30714@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jarkko,
+On Wed, Sep 11, 2019 at 10:09:03AM +0100, Greg KH wrote:
+>On Wed, Sep 11, 2019 at 10:13:27AM +1000, Michael Neuling wrote:
+>> When in userspace and MSR FP=0 the hardware FP state is unrelated to
+>> the current process. This is extended for transactions where if tbegin
+>> is run with FP=0, the hardware checkpoint FP state will also be
+>> unrelated to the current process. Due to this, we need to ensure this
+>> hardware checkpoint is updated with the correct state before we enable
+>> FP for this process.
+>>
+>> Unfortunately we get this wrong when returning to a process from a
+>> hardware interrupt. A process that starts a transaction with FP=0 can
+>> take an interrupt. When the kernel returns back to that process, we
+>> change to FP=1 but with hardware checkpoint FP state not updated. If
+>> this transaction is then rolled back, the FP registers now contain the
+>> wrong state.
+>>
+>> The process looks like this:
+>>    Userspace:                      Kernel
+>>
+>>                Start userspace
+>>                 with MSR FP=0 TM=1
+>>                   < -----
+>>    ...
+>>    tbegin
+>>    bne
+>>                Hardware interrupt
+>>                    ---- >
+>>                                     <do_IRQ...>
+>>                                     ....
+>>                                     ret_from_except
+>>                                       restore_math()
+>> 				        /* sees FP=0 */
+>>                                         restore_fp()
+>>                                           tm_active_with_fp()
+>> 					    /* sees FP=1 (Incorrect) */
+>>                                           load_fp_state()
+>>                                         FP = 0 -> 1
+>>                   < -----
+>>                Return to userspace
+>>                  with MSR TM=1 FP=1
+>>                  with junk in the FP TM checkpoint
+>>    TM rollback
+>>    reads FP junk
+>>
+>> When returning from the hardware exception, tm_active_with_fp() is
+>> incorrectly making restore_fp() call load_fp_state() which is setting
+>> FP=1.
+>>
+>> The fix is to remove tm_active_with_fp().
+>>
+>> tm_active_with_fp() is attempting to handle the case where FP state
+>> has been changed inside a transaction. In this case the checkpointed
+>> and transactional FP state is different and hence we must restore the
+>> FP state (ie. we can't do lazy FP restore inside a transaction that's
+>> used FP). It's safe to remove tm_active_with_fp() as this case is
+>> handled by restore_tm_state(). restore_tm_state() detects if FP has
+>> been using inside a transaction and will set load_fp and call
+>> restore_math() to ensure the FP state (checkpoint and transaction) is
+>> restored.
+>>
+>> This is a data integrity problem for the current process as the FP
+>> registers are corrupted. It's also a security problem as the FP
+>> registers from one process may be leaked to another.
+>>
+>> Similarly for VMX.
+>>
+>> A simple testcase to replicate this will be posted to
+>> tools/testing/selftests/powerpc/tm/tm-poison.c
+>>
+>> This fixes CVE-2019-15031.
+>>
+>> Fixes: a7771176b439 ("powerpc: Don't enable FP/Altivec if not checkpointed")
+>> Cc: stable@vger.kernel.org # 4.15+
+>> Signed-off-by: Gustavo Romero <gromero@linux.ibm.com>
+>> Signed-off-by: Michael Neuling <mikey@neuling.org>
+>> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+>> Link: https://lore.kernel.org/r/20190904045529.23002-2-gromero@linux.vnet.ibm.com
+>> ---
+>> Greg, This is a backport for v4.19 only since the original patch didn't
+>> apply.
+>>
+>> Commit a8318c13e79badb92bc6640704a64cc022a6eb97 upstream.
+>
+>Now queued up, thanks.
 
-> The Python files required by the selftests are not packaged because of
-> the missing assignment to TEST_FILES. Add the assignment.
+Michael,
 
-> Cc: stable@vger.kernel.org
-> Fixes: 6ea3dfe1e073 ("selftests: add TPM 2.0 tests")
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Thank you for the backport. Would you have an objection if instead I'd
+just take 5c784c8414fba ("powerpc/tm: Remove msr_tm_active()") as well?
 
-Reviewed-by: Petr Vorel <pvorel@suse.cz>
-
-Kind regards,
-Petr
+--
+Thanks,
+Sasha
