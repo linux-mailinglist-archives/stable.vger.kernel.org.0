@@ -2,103 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A296AFE3F
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 16:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F05AFE55
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 16:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728046AbfIKOBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 10:01:53 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:35035 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727664AbfIKOBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 10:01:52 -0400
-Received: by mail-io1-f66.google.com with SMTP id f4so45316706ion.2
-        for <stable@vger.kernel.org>; Wed, 11 Sep 2019 07:01:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gVldwPHBEEmbVAp0mqxQZ8yLS+V+O/vse0Nw9BG4UF4=;
-        b=hBNyoV0eH/Hs1sEwCVhxj9P0JoyfQUrF0U3/ZXzz5girYAggowVoFY2+1JI1EFRFpQ
-         Fjsdy0gmaNawhrBqh3dirr4WnLeBVcC85YwTMGzVZcowXPgFcVvsoCQ2eF8suXeCJVkz
-         JzE011UVXk9nKhJXe1Y50RbHaKbNCH5/fiOGC5eeYN5XB9LkSZHr4wCn93Q4fqtTOCHy
-         ptj6s8zn2e1a8JDLxhyaflKp/gsslZYNCH3Xqp+OJsjpf3peoaBVI2T8yCpbdH7MD6Fo
-         bl/p/zPK8SVvwuHoAbYY/baFe/qYTBigkc9dQIQv9bno/q7j4HmDRzajYYWIY4yFWnXz
-         WJBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gVldwPHBEEmbVAp0mqxQZ8yLS+V+O/vse0Nw9BG4UF4=;
-        b=Ma02mwhZ7QG7eWzORJ8Fewc1I34tSrFb/xCLYihE3IJBlGD4dLio7I5U0mTm5JVr1D
-         EjdUj+37PZKWDzZ+MQSuTzwBtoCq78mATI074ub+si++oxWWhLZI0BaGdAtXrjl8hJRK
-         YDzUEDfBJmUSHQtC95/1CG+TYjluV1IGQypuePCXTusUPtAgs/B7xXcnk1KTtiEOmFsZ
-         2Ks0CM512hS5Y0u9w8OD+yzijOhJrWLzMW7E04x2qOuvBGP/gNxvrX+X5+6ppqqj+98+
-         nO35zXDsHJhdjue627yaZhRgblzUTF0+xWKUOWHoF+ggA0HyvIlVZFvGB/OVD+gUqTeo
-         C7bQ==
-X-Gm-Message-State: APjAAAUt2CUMkGAS4xvW/RpyNCdA8Q8npNKJOddEg/pos19hv0NAYjj+
-        t0AI2Auveh5lDY2yY328wt2WYeleArrucFUqz1/WbQ==
-X-Google-Smtp-Source: APXvYqxA0bdjqPHqQ2NueNxICWH/tLLMJq1Vz+tJAm+kZ8i8BExfLfIhffXcQQNYtvksdWYGm4ADVKWY6+G86Koreqs=
-X-Received: by 2002:a05:6638:93b:: with SMTP id 27mr1396480jak.36.1568210511727;
- Wed, 11 Sep 2019 07:01:51 -0700 (PDT)
+        id S1726766AbfIKOI5 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 11 Sep 2019 10:08:57 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57334 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725981AbfIKOI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 10:08:57 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0C8A689C38
+        for <stable@vger.kernel.org>; Wed, 11 Sep 2019 14:08:57 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 29ADF5C22C;
+        Wed, 11 Sep 2019 14:08:54 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
- <20190905161759.28036-5-mathieu.poirier@linaro.org> <20190910143601.GD3362@kroah.com>
-In-Reply-To: <20190910143601.GD3362@kroah.com>
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-Date:   Wed, 11 Sep 2019 08:01:40 -0600
-Message-ID: <CANLsYkwkq2fLWsGXHxr2tSBLHdfe4JXgu8ehuD1FOEQeDAPNnA@mail.gmail.com>
-Subject: Re: [BACKPORT 4.14.y 04/18] usb: dwc3: Allow disabling of
- metastability workaround
-To:     Greg KH <greg@kroah.com>
-Cc:     "# 4 . 7" <stable@vger.kernel.org>, linux-usb@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
+Message-ID: <cki.9DF03F9DFA.TADT9Q0WIH@redhat.com>
+X-Gitlab-Pipeline-ID: 157953
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/157953
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Wed, 11 Sep 2019 14:08:57 +0000 (UTC)
+Date:   Wed, 11 Sep 2019 10:08:57 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Sep 2019 at 08:36, Greg KH <greg@kroah.com> wrote:
->
-> On Thu, Sep 05, 2019 at 10:17:45AM -0600, Mathieu Poirier wrote:
-> > From: Roger Quadros <rogerq@ti.com>
-> >
-> > commit 42bf02ec6e420e541af9a47437d0bdf961ca2972 upstream
-> >
-> > Some platforms (e.g. TI's DRA7 USB2 instance) have more trouble
-> > with the metastability workaround as it supports only
-> > a High-Speed PHY and the PHY can enter into an Erratic state [1]
-> > when the controller is set in SuperSpeed mode as part of
-> > the metastability workaround.
-> >
-> > This causes upto 2 seconds delay in enumeration on DRA7's USB2
-> > instance in gadget mode.
-> >
-> > If these platforms can be better off without the workaround,
-> > provide a device tree property to suggest that so the workaround
-> > is avoided.
-> >
-> > [1] Device mode enumeration trace showing PHY Erratic Error.
-> >      irq/90-dwc3-969   [000] d...    52.323145: dwc3_event: event (00000901): Erratic Error [U0]
-> >      irq/90-dwc3-969   [000] d...    52.560646: dwc3_event: event (00000901): Erratic Error [U0]
-> >      irq/90-dwc3-969   [000] d...    52.798144: dwc3_event: event (00000901): Erratic Error [U0]
->
-> Does the DT also need to get updated with this new id for this?  Is that
-> a separate patch somewhere?
 
-The upstream commit is:
+Hello,
 
-b8c9c6fa2002 ARM: dts: dra7: Disable USB metastability workaround for USB2
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Should I just send the latter or you prefer a resend with both patches?
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 997fee5473ce - Linux 5.2.14
 
-Thanks,
-Mathieu
+The results of these automated tests are provided below.
 
->
-> thanks,
->
-> greg k-h
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/157953
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 997fee5473ce - Linux 5.2.14
+
+
+We grabbed the ddfea0b99563 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  gpio-pca953x-correct-type-of-reg_direction.patch
+  gpio-pca953x-use-pca953x_read_regs-instead-of-regmap_bulk_read.patch
+  alsa-hda-fix-potential-endless-loop-at-applying-quirks.patch
+  alsa-hda-realtek-fix-overridden-device-specific-initialization.patch
+  alsa-hda-realtek-add-quirk-for-hp-pavilion-15.patch
+  alsa-hda-realtek-enable-internal-speaker-headset-mic-of-asus-ux431fl.patch
+  alsa-hda-realtek-fix-the-problem-of-two-front-mics-on-a-thinkcentre.patch
+  sched-fair-don-t-assign-runtime-for-throttled-cfs_rq.patch
+  drm-vmwgfx-fix-double-free-in-vmw_recv_msg.patch
+  drm-nouveau-sec2-gp102-add-missing-module_firmwares.patch
+  vhost-test-fix-build-for-vhost-test.patch
+  vhost-test-fix-build-for-vhost-test-again.patch
+  powerpc-64e-drop-stale-call-to-smp_processor_id-which-hangs-smp-startup.patch
+  powerpc-tm-fix-fp-vmx-unavailable-exceptions-inside-a-transaction.patch
+  powerpc-tm-fix-restoring-fp-vmx-facility-incorrectly-on-interrupts.patch
+  batman-adv-fix-uninit-value-in-batadv_netlink_get_ifindex.patch
+  batman-adv-only-read-ogm-tvlv_len-after-buffer-len-check.patch
+  bcache-only-clear-btree_node_dirty-bit-when-it-is-se.patch
+  bcache-add-comments-for-mutex_lock-b-write_lock.patch
+  bcache-fix-race-in-btree_flush_write.patch
+  ib-rdmavt-add-new-completion-inline.patch
+  ib-rdmavt-qib-hfi1-convert-to-new-completion-api.patch
+  ib-hfi1-unreserve-a-flushed-opfn-request.patch
+  drm-i915-disable-sampler_state-prefetching-on-all-ge.patch
+  drm-i915-userptr-acquire-the-page-lock-around-set_pa.patch
+  drm-i915-make-sure-cdclk-is-high-enough-for-dp-audio.patch
+  mmc-sdhci-sprd-fix-the-incorrect-soft-reset-operatio.patch
+  usb-chipidea-imx-add-imx7ulp-support.patch
+  usb-chipidea-imx-fix-eprobe_defer-support-during-dri.patch
+  virtio-s390-fix-race-on-airq_areas.patch
+  drm-i915-support-flags-in-whitlist-was.patch
+  drm-i915-support-whitelist-workarounds-on-all-engine.patch
+  drm-i915-whitelist-ps_-depth-invocation-_count.patch
+  drm-i915-add-whitelist-workarounds-for-icl.patch
+  drm-i915-icl-whitelist-ps_-depth-invocation-_count.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ✅ jvm test suite [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [8]
+         ✅ httpd: mod_ssl smoke sanity [9]
+         ✅ iotop: sanity [10]
+         ✅ tuned: tune-processes-through-perf [11]
+         ✅ Usex - version 1.9-29 [12]
+         ✅ stress: stress-ng [13]
+         🚧 ✅ LTP lite [14]
+         🚧 ✅ ALSA PCM loopback test [15]
+         🚧 ✅  ALSA Control (mixer) Userspace Element test [16]
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ✅ jvm test suite [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [8]
+         ✅ httpd: mod_ssl smoke sanity [9]
+         ✅ iotop: sanity [10]
+         ✅ tuned: tune-processes-through-perf [11]
+         ✅ Usex - version 1.9-29 [12]
+         🚧 ✅ LTP lite [14]
+         🚧 ✅ ALSA PCM loopback test [15]
+         🚧 ✅  ALSA Control (mixer) Userspace Element test [16]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ✅ jvm test suite [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [8]
+         ✅ httpd: mod_ssl smoke sanity [9]
+         ✅ iotop: sanity [10]
+         ✅ tuned: tune-processes-through-perf [11]
+         ✅ pciutils: sanity smoke test [17]
+         ✅ Usex - version 1.9-29 [12]
+         ✅ stress: stress-ng [13]
+         🚧 ⚡⚡⚡ LTP lite [14]
+         🚧 ⚡⚡⚡ ALSA PCM loopback test [15]
+         🚧 ✅  ALSA Control (mixer) Userspace Element test [16]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/aloop
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/user-ctl-elem
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
