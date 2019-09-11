@@ -2,106 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CC5B04CC
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 22:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97064B04FF
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 22:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729075AbfIKUTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 16:19:12 -0400
-Received: from mail-bgr052101133070.outbound.protection.outlook.com ([52.101.133.70]:2883
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729054AbfIKUTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 16:19:12 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZYF86XU3N5gPvGIFJb8/EPT3KDU+EwX+osS5X+CAc0fRgnjI5qLpiHXSV9BtaO/AMHBnnSAOXy3ws/7F+pXFahJFvho+cDGPffKqxDQnUr5t8HMbpLSCWrQ6HebRkvkrj/hs+MKgf9CmsZk5bH3Tf7Bcpz8ErVkcqJp83bRS+XIHHhbYEBPQMH7kk9u055X2a+X/nFwkgQ7aV3cLt1FFk5la0mC6nOvfosJAYYp093GwJNMWMV/Q4yjAVXIL+UvRQREpT/6TUpyS/hMItJJpT2HrpiZbs9GI0ihkap0ICR+JKMFcVCdEXVfFzBP2+hdTZbAslx0pSp1R3Ljsmdv9Vg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kZ+Yq4cYhnzJ+TIUdW3/PGmGSfUPsVhWRRzeaprLeN4=;
- b=A7LEo9Ey1ZkvNAFhVNqBN79GZR2IJJhYEH1jTO7ynOsgeshJBnRzs2HuvFzL6gtb/baR1sv6UcgKzF9dPBGWbZ9sfydLsjzvqML6xEQNJ/AYbQwxYuz4cw151pr0nb2US/C5dHIOFZXKTEpKlVqIuTQVFIx/VRenFXkvrnPM0heyo04nCbDk73n7JPxJw++1dPydfRrZ4Y8n/g5jiUjVvNwLojSB/uX0n2P7sqA5pYD4/rfFrfEyoo/ffO3XVGS+ryI/jmhwPMwYoDV9Z8FkoJl6H99rbAvZy+hUzui0dEDkbxRrke5MT6+dzY6s5TdZLHBKNK3RVc34ydLO6Al+9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=sun.ac.za; dmarc=pass action=none header.from=sun.ac.za;
- dkim=pass header.d=sun.ac.za; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sun.ac.za;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kZ+Yq4cYhnzJ+TIUdW3/PGmGSfUPsVhWRRzeaprLeN4=;
- b=nPK598O5+wC9ozkQIp9+jqYFINUAPDy09SipDPrRgUCml1/+Bucax3Eg2TbYxq752wfx/CV/cOJTOJI9GoTmfcQAnRBpwmlKDfnM/uIaa6a11bMhyfAivQ5iT1SgCYcpe2g2+h0SEtdvydof6ILMhV+20CR9pGt5M7hUXczcCpQ=
-Received: from DB6PR0701MB2376.eurprd07.prod.outlook.com (10.168.72.146) by
- DB6PR0701MB2215.eurprd07.prod.outlook.com (10.168.58.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2263.10; Wed, 11 Sep 2019 20:19:08 +0000
-Received: from DB6PR0701MB2376.eurprd07.prod.outlook.com
- ([fe80::e4e5:ea63:2e11:9d08]) by DB6PR0701MB2376.eurprd07.prod.outlook.com
- ([fe80::e4e5:ea63:2e11:9d08%12]) with mapi id 15.20.2263.015; Wed, 11 Sep
- 2019 20:19:08 +0000
-From:   "Nell, Mario, Dr [mdn@sun.ac.za]" <mdn@sun.ac.za>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Product Order
-Thread-Topic: Product Order
-Thread-Index: AQHVaNzLCgZKLPWuN0mVjOcXaDADVA==
-Date:   Wed, 11 Sep 2019 20:09:18 +0000
-Message-ID: <DB6PR0701MB2376F5DA5334267391642975ECB10@DB6PR0701MB2376.eurprd07.prod.outlook.com>
-Reply-To: "chengjuan1986@outlook.com" <chengjuan1986@outlook.com>
-Accept-Language: en-ZA, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.112.112.78]
-x-clientproxiedby: LO2P265CA0056.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:60::20) To DB6PR0701MB2376.eurprd07.prod.outlook.com
- (2603:10a6:4:5b::18)
-authentication-results: spf=none (sender IP is ) smtp.mailfrom=mdn@sun.ac.za; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 975ea9ff-08dd-482a-fb56-08d736f3ed81
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(7168020)(4627221)(201703031133081)(201702281549075)(8990200)(5600166)(711020)(4605104)(1401327)(2017052603328)(7167020)(7193020);SRVR:DB6PR0701MB2215;
-x-ms-traffictypediagnostic: DB6PR0701MB2215:
-x-microsoft-antispam-prvs: <DB6PR0701MB2215EFD6C9D12ECE151737EFECB10@DB6PR0701MB2215.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:3276;
-x-forefront-prvs: 0157DEB61B
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(366004)(396003)(39860400002)(376002)(346002)(136003)(189003)(199004)(2906002)(66806009)(186003)(1730700003)(221733001)(81166006)(81156014)(8676002)(8936002)(66946007)(256004)(66446008)(64756008)(66556008)(66476007)(8796002)(99286004)(7696005)(52116002)(5660300002)(6116002)(3846002)(5003540100004)(52536014)(86362001)(66066001)(74316002)(7736002)(305945005)(6666004)(33656002)(9686003)(6306002)(55016002)(486006)(6436002)(5640700003)(62860400002)(6916009)(6506007)(53936002)(55236004)(102836004)(386003)(26005)(14454004)(476003)(43066004)(2501003)(36542004)(786003)(316002)(4744005)(478600001)(7116003)(2351001)(25786009)(3480700005)(71200400001)(71190400001)(2860700004)(19580200005);DIR:OUT;SFP:1501;SCL:1;SRVR:DB6PR0701MB2215;H:DB6PR0701MB2376.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: sun.ac.za does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: rFNhDuXYxX7qy1wRV/IUHwUYSZn9N4sB+wdykMfxGV2d0FyqeELpWAdQE2cIqNjIb2NyOJfK04d8cPV/uRG2dYRAKUOS3eGcjYhQW0K73IhzJEifGyHKda0kiH4fgOnucs8NOJiZnq9CSyxB6almRq0kDKMDCqb533Me/lckVuq5tVIUYe/on9Erd6RvCPmSN9ZscXMFOW1EkJx5eL6XXXAy5SVDXp2u2VHzF2Udj1F0btYxpXFZ1pjwdarCL9iJspP+mWiVJGVHoeH9cOvwvmgM2fL4dFaY1l+GWSgbIlHn+FradAFw8yc637v+ZmC65cXgxj2qvDdfuQ3N4JOuy4X9BGaGvIPQIN21qImX7Vp2DV7gtiKzi3gI1Z66c6AE61nDaNBYzry1MqZ6Kt7oyvKAuu9plv37gsYL/8kXhZE=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <BCDB934EB952F1468182D5AA15E44EB4@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1729413AbfIKUsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 16:48:47 -0400
+Received: from anholt.net ([50.246.234.109]:39966 "EHLO anholt.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729327AbfIKUsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 16:48:47 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by anholt.net (Postfix) with ESMTP id B20CF10A37A2;
+        Wed, 11 Sep 2019 13:48:46 -0700 (PDT)
+X-Virus-Scanned: Debian amavisd-new at anholt.net
+Received: from anholt.net ([127.0.0.1])
+        by localhost (kingsolver.anholt.net [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id QFhPKD3VB0id; Wed, 11 Sep 2019 13:48:45 -0700 (PDT)
+Received: from eliezer.anholt.net (localhost [127.0.0.1])
+        by anholt.net (Postfix) with ESMTP id 70C5D10A379E;
+        Wed, 11 Sep 2019 13:48:45 -0700 (PDT)
+Received: by eliezer.anholt.net (Postfix, from userid 1000)
+        id A112E2FE2E27; Wed, 11 Sep 2019 13:48:46 -0700 (PDT)
+From:   Eric Anholt <eric@anholt.net>
+To:     Stefan Wahren <wahrenst@gmx.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        boris.brezillon@bootlin.com
+Cc:     bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org,
+        dri-devel@lists.freedesktop.org, Stefan Wahren <wahrenst@gmx.net>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware."
+In-Reply-To: <1567957493-4567-1-git-send-email-wahrenst@gmx.net>
+References: <1567957493-4567-1-git-send-email-wahrenst@gmx.net>
+User-Agent: Notmuch/0.22.2+1~gb0bcfaa (http://notmuchmail.org) Emacs/26.1 (x86_64-pc-linux-gnu)
+Date:   Wed, 11 Sep 2019 13:48:46 -0700
+Message-ID: <87ftl2lftd.fsf@anholt.net>
 MIME-Version: 1.0
-X-OriginatorOrg: sun.ac.za
-X-MS-Exchange-CrossTenant-Network-Message-Id: 975ea9ff-08dd-482a-fb56-08d736f3ed81
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Sep 2019 20:09:18.6785
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a6fa3b03-0a3c-4258-8433-a120dffcd348
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UVE3pkrN4A35TLp9rUDn8xFJ+7R3bdtN0nnpd8WjvxLji1Cfqz2ZI+KSYjhGEKUH
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB6PR0701MB2215
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Sir/Madam,
+--=-=-=
+Content-Type: text/plain
 
-We are interested in purchasing your products.
+Stefan Wahren <wahrenst@gmx.net> writes:
 
-Please send your catalog so we can make a quick purchase.
-
-Hope to hear from you soon.
-
-Best regards,
-Mrs. Juan Cheng | Sales manager
-SAH INDUSTRY&TRADE CO.,LTD
-No.4023, Wuhe Street, Bantian, Longgang District,
-Shenzhen, 518129, China
-[http://cdn.sun.ac.za/100/ProductionFooter.jpg]<http://www.sun.ac.za/englis=
-h/about-us/strategic-documents>
-
-The integrity and confidentiality of this email are governed by these terms=
-. Disclaimer<http://www.sun.ac.za/emaildisclaimer>
-Die integriteit en vertroulikheid van hierdie e-pos word deur die volgende =
-bepalings bere=EBl. Vrywaringsklousule<http://www.sun.ac.za/emaildisclaimer=
+> Since release of the new BCM2835 PM driver there has been several reports
+> of V3D probing issues. This is caused by timeouts during powering-up the
+> GRAFX PM domain:
 >
+>   bcm2835-power: Timeout waiting for grafx power OK
+>
+> I was able to reproduce this reliable on my Raspberry Pi 3B+ after setting
+> force_turbo=1 in the firmware configuration. Since there are no issues
+> using the firmware PM driver with the same setup, there must be an issue
+> in the BCM2835 PM driver.
+>
+> Unfortunately there hasn't been much progress in identifying the root cause
+> since June (mostly in the lack of documentation), so i decided to switch
+> back until the issue in the BCM2835 PM driver is fixed.
+>
+> Link: https://github.com/raspberrypi/linux/issues/3046
+> Fixes: e1dc2b2e1bef (" ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+
+Acked-by: Eric Anholt <eric@anholt.net>
+
+I wish someone with firmware source had the time to look into why using
+open source drivers to drive this hardware was failing, but I don't have
+that time or code any more.
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAl15Xa4ACgkQtdYpNtH8
+nui29hAAghQUxmPKCpEEJiONuOiuIC7ozMT9p5wZ2f3fdWyJdDFBBLGldPea7SgA
+mjNWZ2dk4yUEY2BFKVjoeMCCs3KMdiuqzi+6kkAaK21zflRA1A65Vw65/tfyvzdw
+iKL24+/dAH9A0k+UcZZ5ujptijaOCdnxif1lc4+hyADe1Oxw5E8Be8d9GvadZwaU
+mOG+16Sf0U3OcbGOvfPndIrHeKHgDpVN+U0MNUlEx1HMh7yfXT0QtK7iSwabjWZF
+FJ27WGqPaEo3+LMGCOSj5TEA72B08oEvl0nbl562dFWT6mau3R9DiCEZcWNODMhZ
+YAZ+fxJR3MeHsr8KdxH1p6Z9eDNCxaa9LOz6+Tmn5SEUlaMdiNFi84FjMgct9JoK
+3O1h8tzijpjvifSvwa1r4jVNMi3y+8vIZ+RTyGCTB9yoye0Hs+zJgtSu3vbjs6Nz
+Scd3TjCslZBPlm7TpSAFCyIowuMOGmWASq0eoOxRBMGTQYPLorqR+llenYOCbtEC
+l9Vx3WdoPgH2Zd+Hof9Jn7ZDwDrtyFXkOsFwSmoRkVzPTH9u108rTX8+AkyxDybt
+CvhnFGxUg2cOTTTIUoDYFpxQN7bTzjIqq7iu5iVQlXzq9js5/TovcdA6jO9u5B4N
+2fVQGEGrfJeWZM0ICoVDaILnEHdASZYD/s3nbIq4/Jkrmu40MMc=
+=vNM5
+-----END PGP SIGNATURE-----
+--=-=-=--
