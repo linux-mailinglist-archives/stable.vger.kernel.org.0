@@ -2,80 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22986B01FB
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 18:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C0AB0200
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 18:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729137AbfIKQth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 12:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40422 "EHLO mail.kernel.org"
+        id S1729214AbfIKQt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 12:49:58 -0400
+Received: from mga14.intel.com ([192.55.52.115]:31944 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728794AbfIKQtg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 12:49:36 -0400
-Received: from localhost (unknown [62.28.240.114])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF7DB20838;
-        Wed, 11 Sep 2019 16:49:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568220576;
-        bh=A2qAhsh3sOP7/ZiAL5HFy5Kd2qFX1x6e0g1DcVMInck=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d0phoVz/WDpRXrAtZqI15eMbMMYP+VvHHa50f8m8haGoryO/DyQ0PJgGmwdh/9Zml
-         LNfKh5LH4/+LcKy5eJsuACz45n3IBz4OFtG1pAxbmftPTFPbxQHlVsJLp7odVlC8m2
-         0E36ifK+zxduTE1nKpzyoZfucFObvhvoJQnHBwYo=
-Date:   Wed, 11 Sep 2019 12:49:34 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ricardo Biehl Pasquali <pasqualirb@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Patch "ALSA: pcm: Return 0 when size < start_threshold in
- capture" has been added to the 4.19-stable tree
-Message-ID: <20190911164934.GO2012@sasha-vm>
-References: <20190911093035.57F102089F@mail.kernel.org>
- <20190911141431.GA21115@localhost.localdomain>
+        id S1728794AbfIKQt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 12:49:58 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Sep 2019 09:49:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,492,1559545200"; 
+   d="scan'208";a="179078816"
+Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.96])
+  by orsmga008.jf.intel.com with ESMTP; 11 Sep 2019 09:49:57 -0700
+From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To:     davem@davemloft.net
+Cc:     Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        netdev@vger.kernel.org, nhorman@redhat.com, sassmann@redhat.com,
+        stable@vger.kernel.org,
+        Gregg Leventhal <gleventhal@janestreet.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [net 1/2] ixgbe: Prevent u8 wrapping of ITR value to something less than 10us
+Date:   Wed, 11 Sep 2019 09:49:54 -0700
+Message-Id: <20190911164955.10644-2-jeffrey.t.kirsher@intel.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190911164955.10644-1-jeffrey.t.kirsher@intel.com>
+References: <20190911164955.10644-1-jeffrey.t.kirsher@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190911141431.GA21115@localhost.localdomain>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 11, 2019 at 11:14:31AM -0300, Ricardo Biehl Pasquali wrote:
->On Wed, Sep 11, 2019 at 05:30:33AM -0400, Sasha Levin wrote:
->> This is a note to let you know that I've just added the patch titled
->>
->>     ALSA: pcm: Return 0 when size < start_threshold in capture
->>
->> to the 4.19-stable tree which can be found at:
->>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->>
->> The filename of the patch is:
->>      alsa-pcm-return-0-when-size-start_threshold-in-captu.patch
->> and it can be found in the queue-4.19 subdirectory.
->>
->> If you, or anyone else, feels it should not be added to the stable tree,
->> please let <stable@vger.kernel.org> know about it.
->
->Hi Sasha.
->
->This patch was reverted by the commit 932a81519572156a88db
->("ALSA: pcm: Comment why read blocks when PCM is not
->running"):
->
->  This avoids bringing back the problem introduced by
->  62ba568f7aef ("ALSA: pcm: Return 0 when size <
->  start_threshold in capture") and fixed in 00a399cad1a0
->  ("ALSA: pcm: Revert capture stream behavior change in
->  blocking mode"), which prevented the user from starting
->  capture from another thread.
->
->Should this be queued anyway? If yes, I think it should also
->be queued the fix and the commit above.
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-Nope, I'll drop it. Thank you.
+There were a couple cases where the ITR value generated via the adaptive
+ITR scheme could exceed 126. This resulted in the value becoming either 0
+or something less than 10. Switching back and forth between a value less
+than 10 and a value greater than 10 can cause issues as certain hardware
+features such as RSC to not function well when the ITR value has dropped
+that low.
 
---
-Thanks,
-Sasha
+CC: stable@vger.kernel.org
+Fixes: b4ded8327fea ("ixgbe: Update adaptive ITR algorithm")
+Reported-by: Gregg Leventhal <gleventhal@janestreet.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+---
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 7882148abb43..77ca9005dc41 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -2621,7 +2621,7 @@ static void ixgbe_update_itr(struct ixgbe_q_vector *q_vector,
+ 		/* 16K ints/sec to 9.2K ints/sec */
+ 		avg_wire_size *= 15;
+ 		avg_wire_size += 11452;
+-	} else if (avg_wire_size <= 1980) {
++	} else if (avg_wire_size < 1968) {
+ 		/* 9.2K ints/sec to 8K ints/sec */
+ 		avg_wire_size *= 5;
+ 		avg_wire_size += 22420;
+@@ -2654,6 +2654,8 @@ static void ixgbe_update_itr(struct ixgbe_q_vector *q_vector,
+ 	case IXGBE_LINK_SPEED_2_5GB_FULL:
+ 	case IXGBE_LINK_SPEED_1GB_FULL:
+ 	case IXGBE_LINK_SPEED_10_FULL:
++		if (avg_wire_size > 8064)
++			avg_wire_size = 8064;
+ 		itr += DIV_ROUND_UP(avg_wire_size,
+ 				    IXGBE_ITR_ADAPTIVE_MIN_INC * 64) *
+ 		       IXGBE_ITR_ADAPTIVE_MIN_INC;
+-- 
+2.21.0
+
