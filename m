@@ -2,76 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C77AF905
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF566AF90C
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbfIKJfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 05:35:02 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:34497 "EHLO ozlabs.org"
+        id S1726724AbfIKJff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 05:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725616AbfIKJfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 05:35:01 -0400
-Received: from neuling.org (localhost [127.0.0.1])
-        by ozlabs.org (Postfix) with ESMTP id 46SxZW0115z9s00;
-        Wed, 11 Sep 2019 19:34:59 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=neuling.org;
-        s=201811; t=1568194499;
-        bh=uI8zZ+ou+v7v0XtrYxdP7Z5FhZmRjZF9ORPQwVBqyn4=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=ahggcW/uWjMul7ZLNlWbSCwMP0oYuEOQyOgFL8Fg68GuEfMP5P1Efeh6JQ94+/KyK
-         ywGY01w0Xd5ZptpFlpI956+EzS59ZpyDXAdyQ/KeSONuwW4XwV4NGs/rU+dfvphQvG
-         Hc5PpCbe1T7k1GCus0LbhzzEP5z2cedNvM1FAZsSYTM2FAIbeDiiOEmCon3c9GePSO
-         5+eilQYomNFTGlhADHL+24/4hpm3kDlBJ2t7M5iXXhP5jmIroK474qOM0q8qTm/nnh
-         b5R5yRXZsAGrZ01e4VvVhvluBJg9sS9GgEW8txDBfuRLu4hRT5mwIBGU8TwPMfYSg4
-         swqTI2E0qCahA==
-Received: by neuling.org (Postfix, from userid 1000)
-        id BE06E2A01E8; Wed, 11 Sep 2019 19:34:58 +1000 (AEST)
-Message-ID: <06d2ec17fbb65d98faba0fb271cf3b03977ec46b.camel@neuling.org>
-Subject: Re: [PATCH 4.19] powerpc/tm: Fix restoring FP/VMX facility
- incorrectly on interrupts
-From:   Michael Neuling <mikey@neuling.org>
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     gromero@linux.ibm.com, mpe@ellerman.id.au, stable@vger.kernel.org
-Date:   Wed, 11 Sep 2019 19:34:58 +1000
-In-Reply-To: <20190911092330.GJ2012@sasha-vm>
-References: <15681148654568@kroah.com>
-         <07d47bd664b13cf5cdc0361a59b26f9e448e2079.camel@neuling.org>
-         <20190911090903.GA30714@kroah.com> <20190911092330.GJ2012@sasha-vm>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        id S1727471AbfIKJff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 05:35:35 -0400
+Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46A9B2089F;
+        Wed, 11 Sep 2019 09:35:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568194534;
+        bh=Un1JpOS93XSCTrbz75Ep3c5FA22URzD0+5XcajleO3Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GttIcZwrTmVuDE/ngRKjYYUGYBilG83frfYUE4JC4NPhNfqwnJvdtA25fUHQPPtvd
+         4gjPLPgY/azpMk1Xf1f1dBqZDoge7KwTJAtWzTaVGR8LEAg4xybwLtkb0agoR4ggRD
+         gAu1QHXC9sray77FSkrmrsHanGpAufcZvH/1HICY=
+Date:   Wed, 11 Sep 2019 10:35:32 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Tiwei Bie <tiwei.bie@intel.com>, stable@vger.kernel.org,
+        mst@redhat.com, jasowang@redhat.com
+Subject: Re: [PATCH 4.14] vhost/test: fix build for vhost test
+Message-ID: <20190911093532.GA17308@kroah.com>
+References: <20190911025055.26774-1-tiwei.bie@intel.com>
+ <20190911091631.GI2012@sasha-vm>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190911091631.GI2012@sasha-vm>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 11, 2019 at 05:16:31AM -0400, Sasha Levin wrote:
+> On Wed, Sep 11, 2019 at 10:50:55AM +0800, Tiwei Bie wrote:
+> > commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
+> > 
+> > Since vhost_exceeds_weight() was introduced, callers need to specify
+> > the packet weight and byte weight in vhost_dev_init(). Note that, the
+> > packet weight isn't counted in this patch to keep the original behavior
+> > unchanged.
+> > 
+> > Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> 
+> I've queued it up for 4.14, 4.9, and 4.4. Thank you.
 
-> > > Fixes: a7771176b439 ("powerpc: Don't enable FP/Altivec if not
-> > > checkpointed")
-> > > Cc: stable@vger.kernel.org # 4.15+
-> > > Signed-off-by: Gustavo Romero <gromero@linux.ibm.com>
-> > > Signed-off-by: Michael Neuling <mikey@neuling.org>
-> > > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> > > Link:=20
-> > > https://lore.kernel.org/r/20190904045529.23002-2-gromero@linux.vnet.i=
-bm.com
-> > > ---
-> > > Greg, This is a backport for v4.19 only since the original patch didn=
-'t
-> > > apply.
-> > >=20
-> > > Commit a8318c13e79badb92bc6640704a64cc022a6eb97 upstream.
-> >=20
-> > Now queued up, thanks.
->=20
-> Michael,
->=20
-> Thank you for the backport. Would you have an objection if instead I'd
-> just take 5c784c8414fba ("powerpc/tm: Remove msr_tm_active()") as well?
-
-Yep that works.
-
-Thanks,
-Mikey
+So did I, I think you will get conflicts when you try to merge :)
