@@ -2,100 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97064B04FF
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 22:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E27B0507
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 22:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729413AbfIKUsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 16:48:47 -0400
-Received: from anholt.net ([50.246.234.109]:39966 "EHLO anholt.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729327AbfIKUsr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 16:48:47 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by anholt.net (Postfix) with ESMTP id B20CF10A37A2;
-        Wed, 11 Sep 2019 13:48:46 -0700 (PDT)
-X-Virus-Scanned: Debian amavisd-new at anholt.net
-Received: from anholt.net ([127.0.0.1])
-        by localhost (kingsolver.anholt.net [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id QFhPKD3VB0id; Wed, 11 Sep 2019 13:48:45 -0700 (PDT)
-Received: from eliezer.anholt.net (localhost [127.0.0.1])
-        by anholt.net (Postfix) with ESMTP id 70C5D10A379E;
-        Wed, 11 Sep 2019 13:48:45 -0700 (PDT)
-Received: by eliezer.anholt.net (Postfix, from userid 1000)
-        id A112E2FE2E27; Wed, 11 Sep 2019 13:48:46 -0700 (PDT)
-From:   Eric Anholt <eric@anholt.net>
-To:     Stefan Wahren <wahrenst@gmx.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        boris.brezillon@bootlin.com
-Cc:     bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org,
-        dri-devel@lists.freedesktop.org, Stefan Wahren <wahrenst@gmx.net>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware."
-In-Reply-To: <1567957493-4567-1-git-send-email-wahrenst@gmx.net>
-References: <1567957493-4567-1-git-send-email-wahrenst@gmx.net>
-User-Agent: Notmuch/0.22.2+1~gb0bcfaa (http://notmuchmail.org) Emacs/26.1 (x86_64-pc-linux-gnu)
-Date:   Wed, 11 Sep 2019 13:48:46 -0700
-Message-ID: <87ftl2lftd.fsf@anholt.net>
+        id S1729687AbfIKU4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 16:56:04 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:42896 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729685AbfIKU4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Sep 2019 16:56:04 -0400
+Received: by mail-pl1-f193.google.com with SMTP id g6so80818plj.9
+        for <stable@vger.kernel.org>; Wed, 11 Sep 2019 13:56:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hECyZnP2/Wb3+Wh7idFWgoa4zJGDS5Ymb1IJNhVMGsM=;
+        b=O4HLFzuLvgRtaOYD+41+U97SXnxP09FStmC8vuSWi1/3Md/asn73q1z3atC6YBnIp0
+         U0GJtUwMWu0aPVl70WI9gq1j3E3MWR/ca+WwxESdzEEcx2PiOYkgMHz8y/ZMfAikCgYc
+         NdfD+1ztePAqXEIyFab7iXjCt7OUz+sJebpixEcD32vSZmCidk3dPa5OBoORsYy1Rsus
+         +OTzjB8hgDGuPSUh3FEFQT+GonA4RRpOgCc1rNYQXkj/DXE8DKCEJwwpkJd2KwDcgxqY
+         6kneExfgwdKVtAseOKzKSZFla1DbA8hUPPIRE78vmXEyVY+R8RD29XvNewSBrVrvf5b5
+         MEFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hECyZnP2/Wb3+Wh7idFWgoa4zJGDS5Ymb1IJNhVMGsM=;
+        b=kKVYIXBcb/5SJcrATBnvNuPtPjarHluQwmiycZWZ5c6KodMhSldGH3ZBnDUsKNmp3i
+         9AfF9amMsjDZq2P2l7RwVV/hAGWVHszQfxNKNLt03deNmlBIwS5UexhCKKdrpUoF13Qy
+         nuqRDWF0aWg7EANi4sVix3NO1WfI4SE4hNPZw2Dkf3HIZQf6E87MgxLVtVEZA8qDBVct
+         bENboyDPp50B/GKUMPsg71pxtEu127xLuyZ2NjG9y4UcQelnYXZDOY98lPB4I2cy0J0f
+         54cbNxOBxJybaoKEpujmJEkJADhDeIYoAhqyKBk+glqBRwau9NVHezxbIs7nkqjwAt88
+         RnbQ==
+X-Gm-Message-State: APjAAAWWEzmmreNiiqwNg7zaFTLQrHf/5IY0Ac6mmNuYRMObuRi98ll0
+        uZwrILTQF1fQeui0+GR7ibhpnpaAIrhpxxHtQIa4sQ==
+X-Google-Smtp-Source: APXvYqygXwwB3HrJAYGIzgZFaTxeGs7BobXjt9YTik0bsJO7DbpauDgLEBayH/87rd+PF6LMKAqF7jHu/7L1+MMzZfc=
+X-Received: by 2002:a17:902:7296:: with SMTP id d22mr39066409pll.179.1568235363028;
+ Wed, 11 Sep 2019 13:56:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+References: <20190911182049.77853-1-natechancellor@gmail.com> <20190911182049.77853-3-natechancellor@gmail.com>
+In-Reply-To: <20190911182049.77853-3-natechancellor@gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 11 Sep 2019 13:55:52 -0700
+Message-ID: <CAKwvOdn2vz0XGDQrbBiGFAp6vvBzmOgUH3GLkgGY4UAWLhhZUQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] powerpc: Avoid clang warnings around setjmp and longjmp
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-
-Stefan Wahren <wahrenst@gmx.net> writes:
-
-> Since release of the new BCM2835 PM driver there has been several reports
-> of V3D probing issues. This is caused by timeouts during powering-up the
-> GRAFX PM domain:
+On Wed, Sep 11, 2019 at 11:21 AM Nathan Chancellor
+<natechancellor@gmail.com> wrote:
 >
->   bcm2835-power: Timeout waiting for grafx power OK
+> Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+> setjmp is used") disabled -Wbuiltin-requires-header because of a warning
+> about the setjmp and longjmp declarations.
 >
-> I was able to reproduce this reliable on my Raspberry Pi 3B+ after setting
-> force_turbo=1 in the firmware configuration. Since there are no issues
-> using the firmware PM driver with the same setup, there must be an issue
-> in the BCM2835 PM driver.
+> r367387 in clang added another diagnostic around this, complaining that
+> there is no jmp_buf declaration.
 >
-> Unfortunately there hasn't been much progress in identifying the root cause
-> since June (mostly in the lack of documentation), so i decided to switch
-> back until the issue in the BCM2835 PM driver is fixed.
+> In file included from ../arch/powerpc/xmon/xmon.c:47:
+> ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+> built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+> type, commonly provided in the header <setjmp.h>.
+> [-Werror,-Wincomplete-setjmp-declaration]
+> extern long setjmp(long *);
+>             ^
+> ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+> built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+> type, commonly provided in the header <setjmp.h>.
+> [-Werror,-Wincomplete-setjmp-declaration]
+> extern void longjmp(long *, long);
+>             ^
+> 2 errors generated.
 >
-> Link: https://github.com/raspberrypi/linux/issues/3046
-> Fixes: e1dc2b2e1bef (" ARM: bcm283x: Switch V3D over to using the PM driver instead of firmware.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+> We are not using the standard library's longjmp/setjmp implementations
+> for obvious reasons; make this clear to clang by using -ffreestanding
+> on these files.
 
-Acked-by: Eric Anholt <eric@anholt.net>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+https://godbolt.org/z/B2oQnl
 
-I wish someone with firmware source had the time to look into why using
-open source drivers to drive this hardware was failing, but I don't have
-that time or code any more.
+>
+> Cc: stable@vger.kernel.org # 4.14+
+> Link: https://github.com/ClangBuiltLinux/linux/issues/625
+> Link: https://github.com/llvm/llvm-project/commit/3be25e79477db2d31ac46493d97eca8c20592b07
+> Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+>
+> v1 -> v3:
+>
+> * Use -ffreestanding instead of outright disabling the warning because
+>   it is legitimate.
+>
+> I skipped v2 because the first patch in the series already had a v2.
+>
+>  arch/powerpc/kernel/Makefile | 4 ++--
+>  arch/powerpc/xmon/Makefile   | 4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+> index c9cc4b689e60..19f19c8c874b 100644
+> --- a/arch/powerpc/kernel/Makefile
+> +++ b/arch/powerpc/kernel/Makefile
+> @@ -5,8 +5,8 @@
+>
+>  CFLAGS_ptrace.o                += -DUTS_MACHINE='"$(UTS_MACHINE)"'
+>
+> -# Disable clang warning for using setjmp without setjmp.h header
+> -CFLAGS_crash.o         += $(call cc-disable-warning, builtin-requires-header)
+> +# Avoid clang warnings around longjmp/setjmp declarations
+> +CFLAGS_crash.o         += -ffreestanding
+>
+>  ifdef CONFIG_PPC64
+>  CFLAGS_prom_init.o     += $(NO_MINIMAL_TOC)
+> diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+> index f142570ad860..c3842dbeb1b7 100644
+> --- a/arch/powerpc/xmon/Makefile
+> +++ b/arch/powerpc/xmon/Makefile
+> @@ -1,8 +1,8 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  # Makefile for xmon
+>
+> -# Disable clang warning for using setjmp without setjmp.h header
+> -subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
+> +# Avoid clang warnings around longjmp/setjmp declarations
+> +subdir-ccflags-y := -ffreestanding
+>
+>  GCOV_PROFILE := n
+>  KCOV_INSTRUMENT := n
+> --
+> 2.23.0
+>
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAl15Xa4ACgkQtdYpNtH8
-nui29hAAghQUxmPKCpEEJiONuOiuIC7ozMT9p5wZ2f3fdWyJdDFBBLGldPea7SgA
-mjNWZ2dk4yUEY2BFKVjoeMCCs3KMdiuqzi+6kkAaK21zflRA1A65Vw65/tfyvzdw
-iKL24+/dAH9A0k+UcZZ5ujptijaOCdnxif1lc4+hyADe1Oxw5E8Be8d9GvadZwaU
-mOG+16Sf0U3OcbGOvfPndIrHeKHgDpVN+U0MNUlEx1HMh7yfXT0QtK7iSwabjWZF
-FJ27WGqPaEo3+LMGCOSj5TEA72B08oEvl0nbl562dFWT6mau3R9DiCEZcWNODMhZ
-YAZ+fxJR3MeHsr8KdxH1p6Z9eDNCxaa9LOz6+Tmn5SEUlaMdiNFi84FjMgct9JoK
-3O1h8tzijpjvifSvwa1r4jVNMi3y+8vIZ+RTyGCTB9yoye0Hs+zJgtSu3vbjs6Nz
-Scd3TjCslZBPlm7TpSAFCyIowuMOGmWASq0eoOxRBMGTQYPLorqR+llenYOCbtEC
-l9Vx3WdoPgH2Zd+Hof9Jn7ZDwDrtyFXkOsFwSmoRkVzPTH9u108rTX8+AkyxDybt
-CvhnFGxUg2cOTTTIUoDYFpxQN7bTzjIqq7iu5iVQlXzq9js5/TovcdA6jO9u5B4N
-2fVQGEGrfJeWZM0ICoVDaILnEHdASZYD/s3nbIq4/Jkrmu40MMc=
-=vNM5
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+Thanks,
+~Nick Desaulniers
