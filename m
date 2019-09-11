@@ -2,61 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF566AF90C
-	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86AAAF945
+	for <lists+stable@lfdr.de>; Wed, 11 Sep 2019 11:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726724AbfIKJff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 05:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
+        id S1726857AbfIKJnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 05:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727471AbfIKJff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 05:35:35 -0400
-Received: from localhost (110.8.30.213.rev.vodafone.pt [213.30.8.110])
+        id S1726724AbfIKJnn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 05:43:43 -0400
+Received: from localhost (unknown [148.69.85.38])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46A9B2089F;
-        Wed, 11 Sep 2019 09:35:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A95E2067B;
+        Wed, 11 Sep 2019 09:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568194534;
-        bh=Un1JpOS93XSCTrbz75Ep3c5FA22URzD0+5XcajleO3Q=;
+        s=default; t=1568195022;
+        bh=vjeeUTBmC8jj2qIZWanHOOc7lNc0TdW2gTy2YWtIGtE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GttIcZwrTmVuDE/ngRKjYYUGYBilG83frfYUE4JC4NPhNfqwnJvdtA25fUHQPPtvd
-         4gjPLPgY/azpMk1Xf1f1dBqZDoge7KwTJAtWzTaVGR8LEAg4xybwLtkb0agoR4ggRD
-         gAu1QHXC9sray77FSkrmrsHanGpAufcZvH/1HICY=
-Date:   Wed, 11 Sep 2019 10:35:32 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Tiwei Bie <tiwei.bie@intel.com>, stable@vger.kernel.org,
-        mst@redhat.com, jasowang@redhat.com
-Subject: Re: [PATCH 4.14] vhost/test: fix build for vhost test
-Message-ID: <20190911093532.GA17308@kroah.com>
-References: <20190911025055.26774-1-tiwei.bie@intel.com>
- <20190911091631.GI2012@sasha-vm>
+        b=rFOe35iSNJYS5pD+D3hx27jVWPoTxaROQyOFzrBYVHGGRnRhl+VmD6FZCjMEPnPCe
+         1OTe4IiDEtesZXO/ps95Msd+5YPfKbfT98a31DtQOQTa4KIgj9JGVoSr9/DmaFkymP
+         kMlChTHK7JadM7q/s5yooMWqQfUu+XUR6eZWEzwQ=
+Date:   Wed, 11 Sep 2019 05:43:39 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     christophe.leroy@c-s.fr, Chris.Packham@alliedtelesis.co.nz,
+        mpe@ellerman.id.au, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] powerpc/64e: Drop stale call to
+ smp_processor_id() which" failed to apply to 4.19-stable tree
+Message-ID: <20190911094339.GL2012@sasha-vm>
+References: <156811481474161@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190911091631.GI2012@sasha-vm>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <156811481474161@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 11, 2019 at 05:16:31AM -0400, Sasha Levin wrote:
-> On Wed, Sep 11, 2019 at 10:50:55AM +0800, Tiwei Bie wrote:
-> > commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
-> > 
-> > Since vhost_exceeds_weight() was introduced, callers need to specify
-> > the packet weight and byte weight in vhost_dev_init(). Note that, the
-> > packet weight isn't counted in this patch to keep the original behavior
-> > unchanged.
-> > 
-> > Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> 
-> I've queued it up for 4.14, 4.9, and 4.4. Thank you.
+On Tue, Sep 10, 2019 at 12:26:54PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.19-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From b9ee5e04fd77898208c51b1395fa0b5e8536f9b6 Mon Sep 17 00:00:00 2001
+>From: Christophe Leroy <christophe.leroy@c-s.fr>
+>Date: Thu, 8 Aug 2019 12:48:26 +0000
+>Subject: [PATCH] powerpc/64e: Drop stale call to smp_processor_id() which
+> hangs SMP startup
+>
+>Commit ebb9d30a6a74 ("powerpc/mm: any thread in one core can be the
+>first to setup TLB1") removed the need to know the cpu_id in
+>early_init_this_mmu(), but the call to smp_processor_id() which was
+>marked __maybe_used remained.
+>
+>Since commit ed1cd6deb013 ("powerpc: Activate CONFIG_THREAD_INFO_IN_TASK")
+>thread_info cannot be reached before MMU is properly set up.
+>
+>Drop this stale call to smp_processor_id() which makes SMP hang when
+>CONFIG_PREEMPT is set.
+>
+>Fixes: ebb9d30a6a74 ("powerpc/mm: any thread in one core can be the first to setup TLB1")
+>Fixes: ed1cd6deb013 ("powerpc: Activate CONFIG_THREAD_INFO_IN_TASK")
 
-So did I, I think you will get conflicts when you try to merge :)
+Hi Greg,
+
+I *think* we should have our scripts parse multiple "Fixes:" tags as &&
+rather than ||.
+
+--
+Thanks,
+Sasha
