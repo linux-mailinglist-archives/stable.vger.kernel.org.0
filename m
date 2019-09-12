@@ -2,85 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB6CB14F9
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 21:57:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB15B159B
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 22:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbfILT5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 15:57:49 -0400
-Received: from 162-144-78-174.unifiedlayer.com ([162.144.78.174]:37826 "EHLO
-        162-144-78-174.ipage.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725775AbfILT5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 15:57:49 -0400
-X-Greylist: delayed 31226 seconds by postgrey-1.27 at vger.kernel.org; Thu, 12 Sep 2019 15:57:48 EDT
-Received: from uofejiro85554 by 162-144-78-174.ipage.com with local (Exim 4.92)
-        (envelope-from <uofejiro85554@162-144-78-174.ipage.com>)
-        id 1i8N0F-000374-8e; Thu, 12 Sep 2019 11:11:07 +0000
-To:     suleb76@yahoo.com
-Subject: SCRIPT PROOFREADING
-X-PHP-Script: scripteditsam12.org/mail5/send.php for 129.205.113.81
-X-PHP-Originating-Script: 500:send.php
-From:   scriptediting23@pub45.org
-Reply-To: modernacademicedit@gmail.com
-Message-Id: <E1i8N0F-000374-8e@162-144-78-174.ipage.com>
-Date:   Thu, 12 Sep 2019 11:11:07 +0000
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 162-144-78-174.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [500 500] / [47 12]
-X-AntiAbuse: Sender Address Domain - 162-144-78-174.ipage.com
-X-Get-Message-Sender-Via: 162-144-78-174.ipage.com: authenticated_id: uofejiro85554/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 162-144-78-174.ipage.com: uofejiro85554
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+        id S1727968AbfILUvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 16:51:37 -0400
+Received: from mx1.yrkesakademin.fi ([85.134.45.194]:50294 "EHLO
+        mx1.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726308AbfILUvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 16:51:37 -0400
+Subject: Re: [PATCH AUTOSEL 5.2 13/23] drm/i915/userptr: Acquire the page lock
+ around set_page_dirty()
+To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     Jani Nikula <jani.nikula@intel.com>,
+        <intel-gfx@lists.freedesktop.org>,
+        <dri-devel@lists.freedesktop.org>
+References: <20190903162424.6877-1-sashal@kernel.org>
+ <20190903162424.6877-13-sashal@kernel.org>
+From:   Thomas Backlund <tmb@mageia.org>
+Message-ID: <36993214-6ce7-260f-68c7-6fbb0630143f@mageia.org>
+Date:   Thu, 12 Sep 2019 23:51:33 +0300
+MIME-Version: 1.0
+In-Reply-To: <20190903162424.6877-13-sashal@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-WatchGuard-Spam-ID: str=0001.0A0C020F.5D7AAFD8.0051,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
+X-WatchGuard-Mail-Client-IP: 85.134.45.194
+X-WatchGuard-Mail-From: tmb@mageia.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN ACADEMIC EDITING
-www.modernacademicedit.com
+Den 03-09-2019 kl. 19:24, skrev Sasha Levin:
+> From: Chris Wilson <chris@chris-wilson.co.uk>
+> 
+> [ Upstream commit aa56a292ce623734ddd30f52d73f527d1f3529b5 ]
+> 
+> set_page_dirty says:
+> 
+> 	For pages with a mapping this should be done under the page lock
+> 	for the benefit of asynchronous memory errors who prefer a
+> 	consistent dirty state. This rule can be broken in some special
+> 	cases, but should be better not to.
+> 
+> Under those rules, it is only safe for us to use the plain set_page_dirty
+> calls for shmemfs/anonymous memory. Userptr may be used with real
+> mappings and so needs to use the locked version (set_page_dirty_lock).
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+> Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
+> References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
+> (cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
+> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   drivers/gpu/drm/i915/i915_gem_userptr.c | 10 +++++++++-
+>   1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_gem_userptr.c b/drivers/gpu/drm/i915/i915_gem_userptr.c
+> index 8079ea3af1039..b1fc15c7f5997 100644
+> --- a/drivers/gpu/drm/i915/i915_gem_userptr.c
+> +++ b/drivers/gpu/drm/i915/i915_gem_userptr.c
+> @@ -678,7 +678,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+>   
+>   	for_each_sgt_page(page, sgt_iter, pages) {
+>   		if (obj->mm.dirty)
+> -			set_page_dirty(page);
+> +			/*
+> +			 * As this may not be anonymous memory (e.g. shmem)
+> +			 * but exist on a real mapping, we have to lock
+> +			 * the page in order to dirty it -- holding
+> +			 * the page reference is not sufficient to
+> +			 * prevent the inode from being truncated.
+> +			 * Play safe and take the lock.
+> +			 */
+> +			set_page_dirty_lock(page);
+>   
+>   		mark_page_accessed(page);
+>   		put_page(page);
+> 
 
 
-Don't allow poor spelling or poor formatting in a target journal deny your manuscript(s) of publication in high-quality journals
-Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling errors, grammatical errors, typographical errors or punctuation errors.
-Hence, what Are You Waiting For?
-Modern Academic Editing is the most trusted academic proofreading and editing services for you.
+Please drop this one from all 5.2 and 4.19 stable queues
 
-Dear Colleague,
-MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking professionals, authors, and individuals from around the globe in ensuring the highest-possible quality of editing and making sure that their ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services — now it’s your turn! Therefore, we call on writers/authors in all fields of academics to submit their manuscripts for proofreading/editing. We also observed that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to your manuscript from reviewers, and using an online grammar correction service will not always highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
+It has now been reverted in Linus tree:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=505a8ec7e11ae5236c4a154a1e24ef49a8349600
 
-We invite you to submit your articles and theses (MS-Word document) as e-mail attachment to the Editorial Office at: articles@modernacademicedit.com or modernacademicedit@gmail.com. Articles are expected to be in double line spacing (Still depends on the journal's format). Upon receipt of the Manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
-
-Our charges are as follows:
-
-WORD COUNT	STANDARD
-3 days	EXPRESS
-2 days	URGENT**
-24 hrs
-Up to 1,000	$25	$35	$50
-1,001 to 2,000	$50	$70	$100
-2,001 to 3,000	$75	$105	$150
-3,001 to 4,000	$100	$140	$200
-4,001 to 5,000	$125	$175	$250
-5,001 to 6,000	$150	$210	$300
-6,001 to 7,000	$175	$240	$350
-8,001 to 9,000	$200	$275	$400
-9,001 to 10,000	$225	$310	$450
-10,001 to 11,000	$250	$345	$500
-11,001 to 12,000	$275	$380	$550
-12,001 to 13,000	$300	$415	$600
-Over 13,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
-
-Payments are made through Western Union, bank wire or via credit card online (instant payment). Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
-
-For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Chris Tom
-Editor
-Modern Academic Editing
-
-To unsubscribe, kindly send a mail to unsubscribe.modernacademicedit@gmail.com
-
+--
+Thomas
