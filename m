@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 086A8B097E
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7A0B097F
 	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726308AbfILHao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729230AbfILHao (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Sep 2019 03:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
         id S1725775AbfILHao (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 12 Sep 2019 03:30:44 -0400
 Received: from localhost (unknown [40.117.208.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD65A2075C;
-        Thu, 12 Sep 2019 07:30:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D6D20830;
+        Thu, 12 Sep 2019 07:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568273442;
-        bh=/4FFg4V9Dw7gfO91ycK9E3A5BotunSngO5z+vqD/Ets=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=UILODMz73F8Z+EDXHc+AjcibWZNdLzNMPUy49Llahp9mjIiY9EkygkQc+b/xTGa43
-         fnbvf8lXbmyssityN9HVetclttGol9NbfcpYCpHY+VCj79ZlXR7XV4ypRsOZ0z+GNu
-         tueSexFKLmGs21n/jtJJ0JbcHnuzDUrl4rfUu3OM=
-Date:   Thu, 12 Sep 2019 07:30:41 +0000
+        s=default; t=1568273444;
+        bh=eSno5oWZdjvWc0BcI1bJMaVCqkQPb3mwV3ZomdGFiGg=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=s7M1VbeQSGeDEmAmQqhZaEqsk3CXm+kQ4w8UifF/pSKC3e+O8VmpLp7+ZOoSyPMCo
+         8Phbl/HJSp3uMsXr5jMkHZA7JQKNo1UhTjVVWjvHLOABik3xhhBQajWREwNg1jt53+
+         V+YYellOBgRGMgeF6qcCksJC910XqpaYnGjS8POU=
+Date:   Thu, 12 Sep 2019 07:30:43 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Ming Lei <ming.lei@redhat.com>
-To:     Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com
-Cc:     Ming Lei <ming.lei@redhat.com>, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
+To:     Trond Myklebust <trondmy@gmail.com>
+To:     Anna Schumaker <Anna.Schumaker@netapp.com>
+Cc:     linux-nfs@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] dm-raid: fix updating of max_discard_sectors limit
-In-Reply-To: <20190911111249.19772-1-ming.lei@redhat.com>
-References: <20190911111249.19772-1-ming.lei@redhat.com>
-Message-Id: <20190912073042.AD65A2075C@mail.kernel.org>
+Subject: Re: [PATCH v2] SUNRPC: Dequeue the request from the receive queue while we're re-encoding
+In-Reply-To: <20190910170135.104865-1-trond.myklebust@hammerspace.com>
+References: <20190910170135.104865-1-trond.myklebust@hammerspace.com>
+Message-Id: <20190912073043.E0D6D20830@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,52 +43,13 @@ Hi,
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag,
+fixing commit: 753690898204 SUNRPC: Ensure the bvecs are reset when we re-encode the RPC request.
 
-The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143, v4.9.192, v4.4.192.
+The bot has tested the following trees: v5.2.14.
 
-v5.2.14: Build OK!
-v4.19.72: Failed to apply! Possible dependencies:
-    53b471687012 ("dm: remove indirect calls from __send_changing_extent_only()")
-    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
-
-v4.14.143: Failed to apply! Possible dependencies:
-    00716545c894 ("dm: add support for secure erase forwarding")
-    0519c71e8d46 ("dm: backfill abnormal IO support to non-splitting IO submission")
-    0776aa0e30aa ("dm: ensure bio-based DM's bioset and io_pool support targets' maximum IOs")
-    18a25da84354 ("dm: ensure bio submission follows a depth-first tree walk")
-    318716ddea08 ("dm: safely allocate multiple bioset bios")
-    3d7f45625a84 ("dm: fix __send_changing_extent_only() to send first bio and chain remainder")
-    53b471687012 ("dm: remove indirect calls from __send_changing_extent_only()")
-    552aa679f265 ("dm raid: use rs_is_raid*()")
-    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
-    64f52b0e3148 ("dm: improve performance by moving dm_io structure to per-bio-data")
-    745dc570b2c3 ("dm: rename 'bio' member of dm_io structure to 'orig_bio'")
-    978e51ba38e0 ("dm: optimize bio-based NVMe IO submission")
-    f31c21e4365c ("dm: remove unused 'num_write_bios' target interface")
-
-v4.9.192: Failed to apply! Possible dependencies:
-    124d6db07c3b ("nbd: use our own workqueue for recv threads")
-    19372e276917 ("loop: implement REQ_OP_WRITE_ZEROES")
-    3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-    48920ff2a5a9 ("block: remove the discard_zeroes_data flag")
-    552aa679f265 ("dm raid: use rs_is_raid*()")
-    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
-    7ab84db64f11 ("dm integrity: improve the Kconfig help text for DM_INTEGRITY")
-    9561a7ade0c2 ("nbd: add multi-connection support")
-    b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-
-v4.4.192: Failed to apply! Possible dependencies:
-    33e53f06850f ("dm raid: introduce extended superblock and new raid types to support takeover/reshaping")
-    4c9971ca6a17 ("dm raid: make sure no feature flags are set in metadata")
-    552aa679f265 ("dm raid: use rs_is_raid*()")
-    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
-    676fa5ad6e96 ("dm raid: use rt_is_raid*() in all appropriate checks")
-    702108d194e3 ("dm raid: cleanup / provide infrastructure")
-    73c6f239a862 ("dm raid: rename variable 'ret' to 'r' to conform to other dm code")
-    92c83d79b07e ("dm raid: use dm_arg_set API in constructor")
-    f090279eaff8 ("dm raid: check constructor arguments for invalid raid level/argument combinations")
+v5.2.14: Failed to apply! Possible dependencies:
+    b5e924191f87 ("SUNRPC: Remove the bh-safe lock requirement on xprt->transport_lock")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
