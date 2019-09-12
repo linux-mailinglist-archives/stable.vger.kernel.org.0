@@ -2,76 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EB2B0F05
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 14:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2065B0F3B
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 14:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731639AbfILMp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 08:45:29 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:35494 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731611AbfILMp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 08:45:29 -0400
-Received: by mail-lf1-f66.google.com with SMTP id w6so19265657lfl.2
-        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 05:45:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=vd7ndvJJPpWnEg9Gh2zVzLYBqUW1BMggsfCGvkTYLn4=;
-        b=KMGmxpnyHjuHvwyd1wuta4zMPWb97GeFF82eXolLl0ah9E0w9Qiyir4622OaAcMQv/
-         +iDukenJVzx1zMnleHdiyxJDL8ahYB+l8vRuYIkreu9YA+9n/PSzGTCJqTf3PARZtMF7
-         IwArQzSosDO2fwljrXlLREc23/pwaFNOdKXi0X/RhzZEedlSGGKAS7pfrfoavDCHLAa8
-         Fili+xKVmvT14dEI2Vm9KRdHWViN6oaMbZW8kh1HRg1gZ5mza/3afdiwl5dAPEFHIlu7
-         DcaYwQeA86WWiBMcWFx4MHwG02b1nzillJezjtCzAgxt4325uZLe6iyMIvoyMDkJa98U
-         pXAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=vd7ndvJJPpWnEg9Gh2zVzLYBqUW1BMggsfCGvkTYLn4=;
-        b=iQCtqAd7TaqFP/oUQDuLqvyHm4j0m/uniqA1ryJ9V6r6aDXaidvIEn89evxdTysJV1
-         ghcGZoIhre2dl1iHnaxWooCcCXYfeZn9w/MRObzrTtY84XD/RQVkeF/+DJpCUFuJyMLA
-         8liVHpLblT4t7K0KknONXXFNB1jOs1dRmJHL32jDZwOnRcuDBKD/RemqAMmRGMbig8Sp
-         KMbpsQFCOoP8g00rYTrgBYEo1rna60WNpU6/ghPRZKawUOGafQ6zB/M2cu0FrL/5y2YN
-         A/jWZyIy2aRbPEybmy0ff6blkNPpp+4kYuYu7w8Za/1+COQ1o8LCD6x4CISlBg1x7wu7
-         C41w==
-X-Gm-Message-State: APjAAAW84fxxReqwbCXOT9HUmKk8ZQCQ1vNjU8bxZrwrAD0b7MAdDmml
-        3YoImEd4SAGp+1HOOc32sRPsbN0CstvWM5W47ZE=
-X-Google-Smtp-Source: APXvYqy/ZfLXFSInRRvSmPMAnQqOm+YpPbKDZCEhZzLVyeqd0fz294/lgX2nT+pDNTN4cGHBxAiS5FsokRY8N5KSWaw=
-X-Received: by 2002:a19:2314:: with SMTP id j20mr11568261lfj.22.1568292327174;
- Thu, 12 Sep 2019 05:45:27 -0700 (PDT)
+        id S1731792AbfILM4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 08:56:39 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:57034 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731772AbfILM4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 08:56:39 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 18464246-1500050 
+        for multiple; Thu, 12 Sep 2019 13:56:36 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org, torvalds@linux-foundation.org
+Cc:     Martin.Wilck@suse.com, MKoutny@suse.com, leho@kraav.com,
+        tiwai@suse.de, linux-kernel@vger.kernel.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] Revert "drm/i915/userptr: Acquire the page lock around set_page_dirty()"
+Date:   Thu, 12 Sep 2019 13:56:34 +0100
+Message-Id: <20190912125634.29054-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <CAHk-=wjKv_Zw2zGHduyrQH_VQzxXYzwKdwwzzpsdnsdx=EK30Q@mail.gmail.com>
+References: <CAHk-=wjKv_Zw2zGHduyrQH_VQzxXYzwKdwwzzpsdnsdx=EK30Q@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a19:40ca:0:0:0:0:0 with HTTP; Thu, 12 Sep 2019 05:45:26
- -0700 (PDT)
-From:   Johnson Egobia <infoegobiaesq@gmail.com>
-Date:   Thu, 12 Sep 2019 05:45:26 -0700
-Message-ID: <CAJ1izy6eVzPnCA8fhh-RhHPexLNnA1g+4y1u1oyANGewK23vCA@mail.gmail.com>
-Subject: Attention Dear Package Owner ,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention Dear Package Owner ,
+The userptr put_pages can be called from inside try_to_unmap, and so
+enters with the page lock held on one of the object's backing pages. We
+cannot take the page lock ourselves for fear of recursion.
 
-  I have registered your ATM Master CARD of $2.5 Million USD with DHL
-  EXPRESS Courier Company with registration code of (Shipment Code AWB
-  33xzs)please Contact with your delivery information such as,
+Reported-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Reported-by: Martin Wilck <Martin.Wilck@suse.com>
+Reported-by: Leo Kraav <leho@kraav.com>
+Fixes: aa56a292ce62 ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
+References: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-  Your Name:..........
-  Your Address:.......
-  Your Telephone Number:.....
-  Your Age:.........
-  Your Country:.........
-  Your occupation
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 74da35611d7c..11b231c187c5 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -672,15 +672,7 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+ 
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+ 		if (obj->mm.dirty)
+-			/*
+-			 * As this may not be anonymous memory (e.g. shmem)
+-			 * but exist on a real mapping, we have to lock
+-			 * the page in order to dirty it -- holding
+-			 * the page reference is not sufficient to
+-			 * prevent the inode from being truncated.
+-			 * Play safe and take the lock.
+-			 */
+-			set_page_dirty_lock(page);
++			set_page_dirty(page);
+ 
+ 		mark_page_accessed(page);
+ 		put_page(page);
+-- 
+2.23.0
 
-  Name Of Director Ms. Siton Ann
-  E-mil:(sitonann14444@gmail.com)
-
-  I have paid for the security fee.the only fee you have to pay is their
-  Delivery fee only. Please indicate the registration Code
-  Number(awb-33xzs) to DHL when contacting the and ask them how much is
-  their delivery fee,
-
-  Best Regards,
-  Mr. Johnson Egobia,
