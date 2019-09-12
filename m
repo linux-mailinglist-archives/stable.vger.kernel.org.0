@@ -2,233 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 397A2B0BC6
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 11:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDFA5B0C27
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 12:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbfILJoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 05:44:15 -0400
-Received: from mail-eopbgr30094.outbound.protection.outlook.com ([40.107.3.94]:55461
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        id S1730470AbfILKDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 06:03:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:58864 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730835AbfILJoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Sep 2019 05:44:14 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aA+OG/XIFSl08Ww+otKdIwdNuFia0oP2YR/0w/IwyAvfywmyeVqhR0HQXFoba43Q28lzdfOsoIeDKj00LgkcuoDiFRzADlfTppLBcEdCbPEgaHkjAT2rk5B74HncA4Q9N7onG9hHL5rtYavd+KD8Xt3pSJvp85uocGmcNsLQ76FhYvweiNIr24RqZP4nnhkU6AfqIRFvYGYrcXP7jVbALJRgzuS3e6Gb0NULTx43uqKStOO0+ZNlR4ChFwhWpbJ9Qheh9gu8H8pX+jvKhELkfDOULh4gmXXaxlmFLjXYcCG3gcdtJS+D35vO8R0ete7ZmZLIix0YHEyjRu4vY29yPw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UE+HEtwhHIsezNX6gn/hDBiF4Y2+YR4kyHGqo5ONTkE=;
- b=GLO8B1WXENoW4VtFOzGxd3kI0QyJ6fqSPrTU5d8x0uBTng9IrpmWsl8wy4/hw+idgRZkDA1oTi176khdEre4N0ANbEsFj79bWOW1a12RQzTLiucEbAO+g4nsFv1LGQFd/qCtOl8wpmmuG0HCd/vEP9JSgCVW1N3qNUCMWkBFDG3IICNmaNnlNAP582Hvcii0ipvdFo4MXfk0WReP5WfJ/h3wW2p1aUgEK1EK0v9RwVNQ3X8ptdhcuYGpzpWb50g4m/hoCVpP2GqCil5zuOcLcMX4polCLvMNquhw8+ARLbC1G2TF4KSWP0ZoVaHD/857P8xi/7ascSIGmU6UY8QHUg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UE+HEtwhHIsezNX6gn/hDBiF4Y2+YR4kyHGqo5ONTkE=;
- b=GRWPuOpPdWlrKV37hZzW+Qn5YIeCR2PwUBtB4JsE4Nm5NVXXKTe+xztxnu/A0AM2Nu7ONrdyHF1TcW5wEkEzUmK01BxKkJqXsMUBlls0C3aYuKsAkHg84ACGP1ciua/5YDHnuwazQZk+oyTpi2OUHg8oMYo0ya+OQTkiy++Hw3Y=
-Received: from AM6PR0702MB3527.eurprd07.prod.outlook.com (52.133.24.149) by
- AM6PR0702MB3573.eurprd07.prod.outlook.com (52.133.19.14) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2263.10; Thu, 12 Sep 2019 09:44:10 +0000
-Received: from AM6PR0702MB3527.eurprd07.prod.outlook.com
- ([fe80::892c:2b90:e54f:ab56]) by AM6PR0702MB3527.eurprd07.prod.outlook.com
- ([fe80::892c:2b90:e54f:ab56%3]) with mapi id 15.20.2263.016; Thu, 12 Sep 2019
- 09:44:10 +0000
-From:   "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
-To:     Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Grant Likely <grant.likely@secretlab.ca>
-CC:     "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>,
-        Mark Brown <broonie@opensource.wolfsonmicro.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        "Glavinic-Pecotic, Matija (EXT - DE/Ulm)" 
-        <matija.glavinic-pecotic.ext@nokia.com>,
-        "Adamski, Krzysztof (Nokia - PL/Wroclaw)" 
-        <krzysztof.adamski@nokia.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH 3/3] genirq/irqdomain: Detect type race in
- irq_create_fwspec_mapping()
-Thread-Topic: [PATCH 3/3] genirq/irqdomain: Detect type race in
- irq_create_fwspec_mapping()
-Thread-Index: AQHVaU6gc4wd5DvxjEeG+LE441tLCA==
-Date:   Thu, 12 Sep 2019 09:44:10 +0000
-Message-ID: <20190912094343.5480-4-alexander.sverdlin@nokia.com>
-References: <20190912094343.5480-1-alexander.sverdlin@nokia.com>
-In-Reply-To: <20190912094343.5480-1-alexander.sverdlin@nokia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [131.228.2.21]
-x-mailer: git-send-email 2.23.0
-x-clientproxiedby: HE1PR05CA0342.eurprd05.prod.outlook.com
- (2603:10a6:7:92::37) To AM6PR0702MB3527.eurprd07.prod.outlook.com
- (2603:10a6:209:11::21)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=alexander.sverdlin@nokia.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 9fc3c94c-aa8d-41e5-aac3-08d73765c351
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600166)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM6PR0702MB3573;
-x-ms-traffictypediagnostic: AM6PR0702MB3573:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <AM6PR0702MB3573DF4BC54ACCA2F252C76288B00@AM6PR0702MB3573.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:862;
-x-forefront-prvs: 01583E185C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(39860400002)(136003)(396003)(366004)(346002)(376002)(199004)(189003)(102836004)(2501003)(76176011)(71190400001)(66066001)(3846002)(50226002)(2616005)(6512007)(446003)(7736002)(66446008)(486006)(476003)(6486002)(6436002)(186003)(1076003)(305945005)(71200400001)(11346002)(14454004)(64756008)(86362001)(8676002)(66476007)(66946007)(99286004)(8936002)(6116002)(53936002)(52116002)(110136005)(36756003)(25786009)(386003)(54906003)(26005)(81156014)(66556008)(2906002)(14444005)(6506007)(256004)(478600001)(4326008)(81166006)(316002)(5660300002);DIR:OUT;SFP:1102;SCL:1;SRVR:AM6PR0702MB3573;H:AM6PR0702MB3527.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: GzVQaQ9xnxDF9MXlJ6Tgif4JC+W4tdDSlTcdquXyv4ZIGF/AD60wLEL1Rsb7SoEGf9cqtvt6qI842nigWRl5KNzKGLLUiAj8l6/PjmgJ/VruPgyhWMQyrHcW4uX0i9vCPIARyCQo9W+gDh6UsbmbGu3xkIBmzOCY8sR2WYpDgFzy9LPHaIWH6d+CbQCeTclgs2PqqdIynPy706pXEsg5wqz7MHXlRdAhdQR4hsV80KcZKpNnyoPXZKQhQDJx+1EL5BzGwGk8VTuhYxfeRCNKWgGRFB0tfDPKV9XPIvPMXb28KI0CdOOFuJaLLNWN5iXo9O3GxUiXJ7cuZAAIYHAvRawy98iSPKFngtMJkcuqGrpfKY2nSI5oFgRm1HseV46tEqUh8U1N8vGQWHoJqghjMGevwLYJ3B/aUum1AP1tMtg=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9fc3c94c-aa8d-41e5-aac3-08d73765c351
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Sep 2019 09:44:10.5987
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Z8zs8wMgHUORkafQt+GETME1BicfxLtjbWyI1gV/IgAkRwQzqbtlLVUcaQIlZsgFhxAC9Ja8XZ1qSsM+o3KChJWlsbm2XM1fEmrs1ZwnkIA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR0702MB3573
+        id S1730580AbfILKDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Sep 2019 06:03:02 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 28718AF24;
+        Thu, 12 Sep 2019 10:03:00 +0000 (UTC)
+From:   Johannes Thumshirn <jthumshirn@suse.de>
+To:     stable@vger.kernel.org
+Cc:     Linux BTRFS Mailinglist <linux-btrfs@vger.kernel.org>,
+        Johannes Thumshirn <jthumshirn@suse.de>
+Subject: [PATCH for-4.19.x ] btrfs: correctly validate compression type
+Date:   Thu, 12 Sep 2019 12:02:59 +0200
+Message-Id: <20190912100259.7784-1-jthumshirn@suse.de>
+X-Mailer: git-send-email 2.16.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+[ Upstream commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e ]
 
-irq_create_fwspec_mapping() can race with itself during IRQ trigger type
-configuration. Possible scenarios include:
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-- Mapping exists, two irq_create_fwspec_mapping() running in parallel do
-  not detect type mismatch, IRQ remains configured with one of the
-  different trigger types randomly
-- Second call to irq_create_fwspec_mapping() sees existing mapping just
-  created by first call, but earlier irqd_set_trigger_type() call races
-  with later irqd_set_trigger_type() =3D> totally undetected, IRQ type
-  is being set randomly to either one or another type
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
 
-Introduce helper function to detect parallel changes to IRQ type.
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
+
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
+
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 ---
- kernel/irq/irqdomain.c | 66 +++++++++++++++++++++++++++++-----------------=
-----
- 1 file changed, 38 insertions(+), 28 deletions(-)
+ fs/btrfs/compression.c | 16 ++++++++++++++++
+ fs/btrfs/compression.h |  1 +
+ fs/btrfs/props.c       |  6 +-----
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 176f2cc..af4d30c 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -764,10 +764,45 @@ static void of_phandle_args_to_fwspec(struct device_n=
-ode *np, const u32 *args,
- 		fwspec->param[i] =3D args[i];
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 9bfa66592aa7..c71e534ca7ef 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -42,6 +42,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
+ 	return NULL;
  }
-=20
-+/* Detect races during IRQ type setting */
-+static int irq_set_trigger_type_locked(unsigned int virq, unsigned int typ=
-e,
-+				       irq_hw_number_t hwirq,
-+				       const struct irq_fwspec *fwspec)
+ 
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
 +{
-+	struct irq_data *irq_data;
-+	int ret =3D 0;
++	int i;
 +
-+	mutex_lock(&irq_domain_mutex);
-+	/*
-+	 * If the trigger type is not specified or matches the current trigger
-+	 * type then we are done.
-+	 */
-+	if (type =3D=3D IRQ_TYPE_NONE || type =3D=3D irq_get_trigger_type(virq))
-+		goto unlock;
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
 +
-+	/* If the trigger type has not been set yet, then set it now */
-+	if (irq_get_trigger_type(virq) !=3D IRQ_TYPE_NONE) {
-+		pr_warn("type mismatch, failed to map hwirq-%lu for %s!\n",
-+			hwirq, of_node_full_name(to_of_node(fwspec->fwnode)));
-+		ret =3D -EINVAL;
-+		goto unlock;
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
 +	}
-+
-+	irq_data =3D irq_get_irq_data(virq);
-+	if (!irq_data) {
-+		ret =3D -ENOENT;
-+		goto unlock;
-+	}
-+	irqd_set_trigger_type(irq_data, type);
-+
-+unlock:
-+	mutex_unlock(&irq_domain_mutex);
-+	return ret;
++	return false;
 +}
 +
- unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
+ 
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
+index ddda9b80bf20..f97d90a1fa53 100644
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -127,6 +127,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+index 61d22a56c0ba..6980a0e13f18 100644
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -366,11 +366,7 @@ int btrfs_subvol_inherit_props(struct btrfs_trans_handle *trans,
+ 
+ static int prop_compression_validate(const char *value, size_t len)
  {
- 	struct irq_domain *domain;
--	struct irq_data *irq_data;
- 	irq_hw_number_t hwirq;
- 	unsigned int type =3D IRQ_TYPE_NONE;
- 	int virq;
-@@ -802,29 +837,8 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwsp=
-ec *fwspec)
- 	 */
- 	virq =3D irq_find_mapping(domain, hwirq);
- 	if (virq) {
--		/*
--		 * If the trigger type is not specified or matches the
--		 * current trigger type then we are done so return the
--		 * interrupt number.
--		 */
--		if (type =3D=3D IRQ_TYPE_NONE || type =3D=3D irq_get_trigger_type(virq))
--			return virq;
--
--		/*
--		 * If the trigger type has not been set yet, then set
--		 * it now and return the interrupt number.
--		 */
--		if (irq_get_trigger_type(virq) =3D=3D IRQ_TYPE_NONE) {
--			irq_data =3D irq_get_irq_data(virq);
--			if (!irq_data)
--				return 0;
--
--			irqd_set_trigger_type(irq_data, type);
-+		if (!irq_set_trigger_type_locked(virq, type, hwirq, fwspec))
- 			return virq;
--		}
--
--		pr_warn("type mismatch, failed to map hwirq-%lu for %s!\n",
--			hwirq, of_node_full_name(to_of_node(fwspec->fwnode)));
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
  		return 0;
- 	}
-=20
-@@ -839,8 +853,7 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspe=
-c *fwspec)
- 			return virq;
- 	}
-=20
--	irq_data =3D irq_get_irq_data(virq);
--	if (!irq_data) {
-+	if (irq_set_trigger_type_locked(virq, type, hwirq, fwspec)) {
- 		if (irq_domain_is_hierarchy(domain))
- 			irq_domain_free_irqs(virq, 1);
- 		else
-@@ -848,9 +861,6 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspe=
-c *fwspec)
- 		return 0;
- 	}
-=20
--	/* Store trigger type */
--	irqd_set_trigger_type(irq_data, type);
--
- 	return virq;
- }
- EXPORT_SYMBOL_GPL(irq_create_fwspec_mapping);
---=20
-2.4.6
+ 
+ 	return -EINVAL;
+-- 
+2.16.4
 
