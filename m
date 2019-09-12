@@ -2,137 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5381B096D
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 086A8B097E
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729894AbfILHWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 03:22:18 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:35745 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726952AbfILHWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 03:22:18 -0400
-Received: by mail-wm1-f68.google.com with SMTP id n10so6288149wmj.0
-        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 00:22:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2CeyyRMj4arJ5MswszulwIkFPEnYjRfvfQK3SvLqDb4=;
-        b=uHa+xmaO71Z9V5NADf0EW/N3p8Lfp6Gh70zeI1lwSwUqnLY3Zq8o1tjnDFog8Fx0E0
-         T3sd/B5YgC7nA96ysGGDf66YduYOzOEEDWDkuDyvgS3eCy1+s21RXjsXzIhnnfOlOabW
-         BqZqKzxAYHs7z2i6TGG/V5/ItKvdZrPvtUOEU77ZUANzbu1SRp3MbI/lf/Ofd1ZcB+Jk
-         79ipOSIQVRd8HjL+wLAyz6Hh23WC5nqjMu7ULFCO5XtSarCtayxQ07lC8tT8mAIRAIsE
-         AbaQ0E+iWOhLD9aVhX1/HkUKJEKZ46XP0FfuL0dX2EcKB1GVv1fQS+q7knQCCW07waJn
-         TVhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2CeyyRMj4arJ5MswszulwIkFPEnYjRfvfQK3SvLqDb4=;
-        b=O6VyFQ9ekJmIchUNaGJALEb2qqlNMI9J/NuqB1muuP1SQLbRLblarwdJv0X5ujxWw1
-         1T+Om+F/GLrOyJd3Mwj1Klc8nJ7jHuyDDM5Ls0mfcad3lT9tiWrUeR3PYrfOE6VaA4+1
-         Ybz8nDZx+pFlJOS9yVakFpgUP+DcKZDX7XbqfRZkM3ZV4NShBKSyRyO8zOCbnCHVY6/5
-         gX3inrvqB9NV+X9SpBxsgChgS29ubmfV78ll8k/+8ZlgY1PcPV2mHc+EggqRaxwD9yPy
-         K3y9yOIMsWroir8WQnyk14y6lE3CqaCiTgKXfz3dQeNS+HL69dijwBR2G3dhMxtmOi7A
-         B6bA==
-X-Gm-Message-State: APjAAAXPqQ7Nuz5aBqkcuUsoYRxoFFf7YvUKwBMRLQLBtmyLkKdFQJyK
-        4kmpTynOZM5QhWewVwCwP7o=
-X-Google-Smtp-Source: APXvYqxe/tEJkeMm4EqKT/2Wy92fFk11UiYijbXGUlV2E0QrZ2KOdbdso3/sXFTOWlF7WUwp2RRm8w==
-X-Received: by 2002:a1c:7f86:: with SMTP id a128mr7336940wmd.104.1568272936590;
-        Thu, 12 Sep 2019 00:22:16 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:4f8:222:2f1b::2])
-        by smtp.gmail.com with ESMTPSA id b144sm5382465wmb.3.2019.09.12.00.22.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Sep 2019 00:22:16 -0700 (PDT)
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.4] x86, boot: Remove multiple copy of static function sanitize_boot_params()
-Date:   Thu, 12 Sep 2019 00:21:48 -0700
-Message-Id: <20190912072146.68410-1-natechancellor@gmail.com>
-X-Mailer: git-send-email 2.23.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726308AbfILHao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 03:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725775AbfILHao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Sep 2019 03:30:44 -0400
+Received: from localhost (unknown [40.117.208.15])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD65A2075C;
+        Thu, 12 Sep 2019 07:30:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568273442;
+        bh=/4FFg4V9Dw7gfO91ycK9E3A5BotunSngO5z+vqD/Ets=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=UILODMz73F8Z+EDXHc+AjcibWZNdLzNMPUy49Llahp9mjIiY9EkygkQc+b/xTGa43
+         fnbvf8lXbmyssityN9HVetclttGol9NbfcpYCpHY+VCj79ZlXR7XV4ypRsOZ0z+GNu
+         tueSexFKLmGs21n/jtJJ0JbcHnuzDUrl4rfUu3OM=
+Date:   Thu, 12 Sep 2019 07:30:41 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Ming Lei <ming.lei@redhat.com>
+To:     Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com
+Cc:     Ming Lei <ming.lei@redhat.com>, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] dm-raid: fix updating of max_discard_sectors limit
+In-Reply-To: <20190911111249.19772-1-ming.lei@redhat.com>
+References: <20190911111249.19772-1-ming.lei@redhat.com>
+Message-Id: <20190912073042.AD65A2075C@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Hi,
 
-commit 8c5477e8046ca139bac250386c08453da37ec1ae upstream.
+[This is an automated email]
 
-Kernel build warns:
- 'sanitize_boot_params' defined but not used [-Wunused-function]
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-at below files:
-  arch/x86/boot/compressed/cmdline.c
-  arch/x86/boot/compressed/error.c
-  arch/x86/boot/compressed/early_serial_console.c
-  arch/x86/boot/compressed/acpi.c
+The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143, v4.9.192, v4.4.192.
 
-That's becausethey each include misc.h which includes a definition of
-sanitize_boot_params() via bootparam_utils.h.
+v5.2.14: Build OK!
+v4.19.72: Failed to apply! Possible dependencies:
+    53b471687012 ("dm: remove indirect calls from __send_changing_extent_only()")
+    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
 
-Remove the inclusion from misc.h and have the c file including
-bootparam_utils.h directly.
+v4.14.143: Failed to apply! Possible dependencies:
+    00716545c894 ("dm: add support for secure erase forwarding")
+    0519c71e8d46 ("dm: backfill abnormal IO support to non-splitting IO submission")
+    0776aa0e30aa ("dm: ensure bio-based DM's bioset and io_pool support targets' maximum IOs")
+    18a25da84354 ("dm: ensure bio submission follows a depth-first tree walk")
+    318716ddea08 ("dm: safely allocate multiple bioset bios")
+    3d7f45625a84 ("dm: fix __send_changing_extent_only() to send first bio and chain remainder")
+    53b471687012 ("dm: remove indirect calls from __send_changing_extent_only()")
+    552aa679f265 ("dm raid: use rs_is_raid*()")
+    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
+    64f52b0e3148 ("dm: improve performance by moving dm_io structure to per-bio-data")
+    745dc570b2c3 ("dm: rename 'bio' member of dm_io structure to 'orig_bio'")
+    978e51ba38e0 ("dm: optimize bio-based NVMe IO submission")
+    f31c21e4365c ("dm: remove unused 'num_write_bios' target interface")
 
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1563283092-1189-1-git-send-email-zhenzhong.duan@oracle.com
-[nc: Fixed conflict around lack of 67b6662559f7f]
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
----
+v4.9.192: Failed to apply! Possible dependencies:
+    124d6db07c3b ("nbd: use our own workqueue for recv threads")
+    19372e276917 ("loop: implement REQ_OP_WRITE_ZEROES")
+    3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+    48920ff2a5a9 ("block: remove the discard_zeroes_data flag")
+    552aa679f265 ("dm raid: use rs_is_raid*()")
+    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
+    7ab84db64f11 ("dm integrity: improve the Kconfig help text for DM_INTEGRITY")
+    9561a7ade0c2 ("nbd: add multi-connection support")
+    b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
 
-Hi Greg and Sasha,
+v4.4.192: Failed to apply! Possible dependencies:
+    33e53f06850f ("dm raid: introduce extended superblock and new raid types to support takeover/reshaping")
+    4c9971ca6a17 ("dm raid: make sure no feature flags are set in metadata")
+    552aa679f265 ("dm raid: use rs_is_raid*()")
+    61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
+    676fa5ad6e96 ("dm raid: use rt_is_raid*() in all appropriate checks")
+    702108d194e3 ("dm raid: cleanup / provide infrastructure")
+    73c6f239a862 ("dm raid: rename variable 'ret' to 'r' to conform to other dm code")
+    92c83d79b07e ("dm raid: use dm_arg_set API in constructor")
+    f090279eaff8 ("dm raid: check constructor arguments for invalid raid level/argument combinations")
 
-Please consider applying this to 4.4 as it resolves a compilation error
-with clang on 4.4 and it has already been applied to 4.9 and newer:
 
-https://travis-ci.com/ClangBuiltLinux/continuous-integration/jobs/232287034
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-https://github.com/ClangBuiltLinux/linux/issues/654
+How should we proceed with this patch?
 
-Thanks to Ilie Halip for debugging this; TL;DR: clang pretends that it
-is GCC 4.2.1 for glibc compatibility and this trips up a definition of
-memcpy for GCC < 4.3. This is not an issue on mainline because GCC 4.6
-is the earliest supported GCC version so that code was removed and this
-patch resolves it because string.h redefines memcpy to a proper version.
-
- arch/x86/boot/compressed/misc.c | 1 +
- arch/x86/boot/compressed/misc.h | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
-index 16df89c30c20..1e5b68228aff 100644
---- a/arch/x86/boot/compressed/misc.c
-+++ b/arch/x86/boot/compressed/misc.c
-@@ -11,6 +11,7 @@
- 
- #include "misc.h"
- #include "../string.h"
-+#include <asm/bootparam_utils.h>
- 
- /* WARNING!!
-  * This code is compiled with -fPIC and it is relocated dynamically
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 4abb284a5b9c..bce182708814 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -19,7 +19,6 @@
- #include <asm/page.h>
- #include <asm/boot.h>
- #include <asm/bootparam.h>
--#include <asm/bootparam_utils.h>
- 
- #define BOOT_BOOT_H
- #include "../ctype.h"
--- 
-2.23.0
-
+--
+Thanks,
+Sasha
