@@ -2,193 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46780B0EC2
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 14:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A3BB0EB0
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 14:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731519AbfILMTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 08:19:18 -0400
-Received: from mailout1.samsung.com ([203.254.224.24]:24802 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730454AbfILMTS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 08:19:18 -0400
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20190912121916epoutp01e5d7dd7f2a3562cc60780f3e2ee627d6~DsCIygYts1832118321epoutp01a
-        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 12:19:16 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20190912121916epoutp01e5d7dd7f2a3562cc60780f3e2ee627d6~DsCIygYts1832118321epoutp01a
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1568290756;
-        bh=PzTe36grY6sw2UW4Pv0TfJk8OfKRzsyqw53J3AvyFYU=;
-        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
-        b=SZEeMrCRTj2BN3Cf+c42A2uJ2PM28HSXDVi+kGfQnobNuHCBwM6l/3w5pqZKc8Nfn
-         /YzSY/aqTgOyNxu54DBT2NtM8rRU86dfjupGFmD4SLqtZbL5mLXyT1vDK8yBx74kuZ
-         EPa2Of03oW/2oRuRpLxumRFTE84P1CAeodHzGz10=
-Received: from epsmges5p1new.samsung.com (unknown [182.195.42.73]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20190912121915epcas5p4ddbcbd2d9ef766d6b3d1e81012c4f1de~DsCH9P9aV0804308043epcas5p4y;
-        Thu, 12 Sep 2019 12:19:15 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        AF.98.04150.3C73A7D5; Thu, 12 Sep 2019 21:19:15 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-        20190912121914epcas5p3f4952e5a791470dccf8e15442a65f8e0~DsCHYNsp81220412204epcas5p3f;
-        Thu, 12 Sep 2019 12:19:14 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20190912121914epsmtrp2cf02f8836306f78d5db94b499c2707e8~DsCHXbUXb1986919869epsmtrp22;
-        Thu, 12 Sep 2019 12:19:14 +0000 (GMT)
-X-AuditID: b6c32a49-a5bff70000001036-e2-5d7a37c3daad
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        77.1F.03638.2C73A7D5; Thu, 12 Sep 2019 21:19:14 +0900 (KST)
-Received: from [107.108.73.28] (unknown [107.108.73.28]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20190912121913epsmtip19d14299ca1abc31d156511fab4232091~DsCGjiozQ2617226172epsmtip1j;
-        Thu, 12 Sep 2019 12:19:13 +0000 (GMT)
-Subject: Re: [PATCH] arm64: dts: exynos: Revert
- "Remove unneeded address space mapping for soc node"
-To:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        linux-samsung-soc@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        stable@vger.kernel.org
-From:   Alim Akhtar <alim.akhtar@samsung.com>
-Message-ID: <28550827-0ada-6f7a-dfee-a9aa3f8fd976@samsung.com>
-Date:   Thu, 12 Sep 2019 17:26:55 +0530
+        id S1731542AbfILMOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 08:14:38 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62902 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730454AbfILMOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 08:14:38 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8CCECK9019408
+        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 08:14:37 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2uyk7mxgf7-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 08:14:37 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 12 Sep 2019 13:14:34 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 12 Sep 2019 13:14:30 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8CCEUk023330860
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Sep 2019 12:14:30 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E71A311C052;
+        Thu, 12 Sep 2019 12:14:29 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D8A411C05E;
+        Thu, 12 Sep 2019 12:14:29 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.152.224.133])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 12 Sep 2019 12:14:29 +0000 (GMT)
+Subject: Re: [PATCH v2] KVM: s390: Do not leak kernel stack data in the
+ KVM_S390_INTERRUPT ioctl
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20190912115438.25761-1-thuth@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
+ 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
+ syiRa+UVlsKmx1hsEg==
+Date:   Thu, 12 Sep 2019 14:14:29 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
-        Thunderbird/60.8.0
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190912073602.22829-1-m.szyprowski@samsung.com>
+In-Reply-To: <20190912115438.25761-1-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprJKsWRmVeSWpSXmKPExsWy7bCmhu5h86pYg823+Sw2zljPanH+/AZ2
-        ixnn9zFZrD1yl91iwcZHjA6sHptWdbJ59G1ZxejxeZNcAHMUl01Kak5mWWqRvl0CV8bW+duY
-        Cu5KVfT9O87UwDhDtIuRk0NCwETi0+GrbF2MXBxCArsZJRraGqCcT4wSL9c2MEI43xglOiat
-        YYJpWbmlmR0isZdR4nXzDxYI5y2jxPnGE2wgVcICaRLz364E6xARCJG4//QFK4jNLFApMX3b
-        VBYQm01AW+Lu9C1gNbwCdhJLPu5iB7FZBFQl3m98xgxiiwpESHx6cJgVokZQ4uTMJ2C9nED1
-        Db9a2SBmikvcejKfCcKWl9j+dg4zyEESAkfYJHZ272aDONtF4s+UiywQtrDEq+Nb2CFsKYnP
-        7/YC1XAA2dkSPbuMIcI1EkvnHYMqt5c4cGUOC0gJs4CmxPpd+hCr+CR6fz9hgujklehoE4Ko
-        VpVofncVqlNaYmJ3NyuE7SFx+dZcZkhQTWSUmHBkFtMERoVZSD6bheSbWUi+mYWweQEjyypG
-        ydSC4tz01GLTAsO81HK94sTc4tK8dL3k/NxNjOAEo+W5g3HWOZ9DjAIcjEo8vBY6VbFCrIll
-        xZW5hxglOJiVRHh93lTGCvGmJFZWpRblxxeV5qQWH2KU5mBREuedxHo1RkggPbEkNTs1tSC1
-        CCbLxMEp1cB4kCNmulOFd5Wyr0WbCaNo/EMp6bZDL19NbZjawrkhMMD3jEJHjpcN44bfHL8P
-        RZXOv5Ckc1knaXHy500mlzdPjZuW+mRv4AwZEZ5t0hdchczMLNSPCBrJbtC5v3ndBDnGRdP5
-        HX/4OHte6pOOMJnz+dnFxTNjH63RPLLHoL5oC3fs5omSh9qVWIozEg21mIuKEwHciVqKLAMA
-        AA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrPLMWRmVeSWpSXmKPExsWy7bCSnO4h86pYg19tahYbZ6xntTh/fgO7
-        xYzz+5gs1h65y26xYOMjRgdWj02rOtk8+rasYvT4vEkugDmKyyYlNSezLLVI3y6BK2Pr/G1M
-        BXelKvr+HWdqYJwh2sXIySEhYCKxckszexcjF4eQwG5GiVnbprJCJKQlrm+cwA5hC0us/Pcc
-        qug1o8TLndOZuxg5OIQF0iS2dOeBmCICIRIL3+uBlDMLVEqsnzKRCaJ8IqNE0+5jbCAJNgFt
-        ibvTtzCB2LwCdhJLPu4Cm88ioCrxfuMzZhBbVCBC4vCOWYwQNYISJ2c+YQGxOYHqG361skEs
-        MJOYt/khM4QtLnHryXwmCFteYvvbOcwTGIVmIWmfhaRlFpKWWUhaFjCyrGKUTC0ozk3PLTYs
-        MMpLLdcrTswtLs1L10vOz93ECI4GLa0djCdOxB9iFOBgVOLhfaBZFSvEmlhWXJl7iFGCg1lJ
-        hNfnTWWsEG9KYmVValF+fFFpTmrxIUZpDhYlcV75/GORQgLpiSWp2ampBalFMFkmDk6pBsb8
-        3fzFf+s8ihSOPpv0d/+TmBTlA76+/nO8ozSuf0npWPzMtUGwR336K6cvXNvqin/IOwWeWv/z
-        Y9XvvRF7nUy6pVKyM43OTJ3WnerxWFL3vR6rx76DrS0LF89+9HYl40fZ+fMdGiqDVI4dLX/J
-        mvn7+ZqSSsOolKOrND8XsR8rfRj/uSD8xBYlluKMREMt5qLiRACDd5CIggIAAA==
-X-CMS-MailID: 20190912121914epcas5p3f4952e5a791470dccf8e15442a65f8e0
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3
-References: <CGME20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3@eucas1p1.samsung.com>
-        <20190912073602.22829-1-m.szyprowski@samsung.com>
+X-TM-AS-GCONF: 00
+x-cbid: 19091212-0012-0000-0000-0000034A67FD
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19091212-0013-0000-0000-00002184D461
+Message-Id: <aee51ff7-010c-42ed-b528-e479bba44b94@de.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-12_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1909120131
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marek,
+thanks, applied and queued for 5.3 (need to do some regression testing before
+sending out)
 
-On 9/12/19 1:06 PM, Marek Szyprowski wrote:
-> Commit ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space
-> mapping for soc node") changed the address and size cells in root node from
-> 2 to 1, but /memory nodes for the affected boards were not updated. This
-> went unnoticed on Exynos5433-based TM2(e) boards, because they use u-boot,
-> which updates /memory node to the correct values. On the other hand, the
-> mentioned commit broke boot on Exynos7-based Espresso board, which
-> bootloader doesn't touch /memory node at all.
+On 12.09.19 13:54, Thomas Huth wrote:
+> When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
+> an interrupt, we convert them from the legacy struct kvm_s390_interrupt
+> to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
+> However, this function does not take care of all types of interrupts
+> that we can inject into the guest later (see do_inject_vcpu()). Since we
+> do not clear out the s390irq values before calling s390int_to_s390irq(),
+> there is a chance that we copy random data from the kernel stack which
+> could be leaked to the userspace later.
 > 
-> This patch reverts commit ef72171b3621, so Exynos5433 and Exynos7 SoCs
-> again matches other ARM64 platforms with 64bit mappings in root node.
+> Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
+> interrupt: s390int_to_s390irq() does not handle it, and the function
+> __inject_pfault_init() later copies irq->u.ext which contains the
+> random kernel stack data. This data can then be leaked either to
+> the guest memory in __deliver_pfault_init(), or the userspace might
+> retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
 > 
-> Reported-by: Alim Akhtar <alim.akhtar@samsung.com>
-> Fixes: ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space mapping for soc node")
-> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> Cc: <stable@vger.kernel.org>
-> Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+> Fix it by handling that interrupt type in s390int_to_s390irq(), too,
+> and by making sure that the s390irq struct is properly pre-initialized.
+> And while we're at it, make sure that s390int_to_s390irq() now
+> directly returns -EINVAL for unknown interrupt types, so that we
+> immediately get a proper error code in case we add more interrupt
+> types to do_inject_vcpu() without updating s390int_to_s390irq()
+> sometime in the future.
+> 
+> Cc: stable@vger.kernel.org
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 > ---
-> A few more comments:
+>  arch/s390/kvm/interrupt.c | 10 ++++++++++
+>  arch/s390/kvm/kvm-s390.c  |  2 +-
+>  2 files changed, 11 insertions(+), 1 deletion(-)
 > 
-> 1. I've added 'tested-by' tag from Alim, as his original report pointed
-> that reverting the offending commit fixes the boot issue.
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 3e7efdd9228a..165dea4c7f19 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1960,6 +1960,16 @@ int s390int_to_s390irq(struct kvm_s390_interrupt *s390int,
+>  	case KVM_S390_MCHK:
+>  		irq->u.mchk.mcic = s390int->parm64;
+>  		break;
+> +	case KVM_S390_INT_PFAULT_INIT:
+> +		irq->u.ext.ext_params = s390int->parm;
+> +		irq->u.ext.ext_params2 = s390int->parm64;
+> +		break;
+> +	case KVM_S390_RESTART:
+> +	case KVM_S390_INT_CLOCK_COMP:
+> +	case KVM_S390_INT_CPU_TIMER:
+> +		break;
+> +	default:
+> +		return -EINVAL;
+>  	}
+>  	return 0;
+>  }
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f329dcb3f44c..082eac2abc88 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4323,7 +4323,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+>  	}
+>  	case KVM_S390_INTERRUPT: {
+>  		struct kvm_s390_interrupt s390int;
+> -		struct kvm_s390_irq s390irq;
+> +		struct kvm_s390_irq s390irq = {};
+>  
+>  		if (copy_from_user(&s390int, argp, sizeof(s390int)))
+>  			return -EFAULT;
 > 
-This is still valid,reverting the offending commit does work.
-Thanks!
 
-> 2. This patch applies down to v4.18.
-> 
-> 3. For v5.3 release, two patches:
->     - "arm64: dts: exynos: Move GPU under /soc node for  Exynos5433"
->     - "arm64: dts: exynos: Move GPU under /soc node for Exynos7"
->     has to be applied first to ensure that GPU node will have correct 'reg'
->     property (nodes under /soc still use 32bit mappings). I'm not sure if
->     this can be expressed somehow in stable porting tags.
-> 
-> Best regards
-> Marek Szyprowski
-> Samsung R&D Institute Poland
-> ---
->   arch/arm64/boot/dts/exynos/exynos5433.dtsi | 6 +++---
->   arch/arm64/boot/dts/exynos/exynos7.dtsi    | 6 +++---
->   2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/arm64/boot/dts/exynos/exynos5433.dtsi b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
-> index 239bf44d174b..f69530730219 100644
-> --- a/arch/arm64/boot/dts/exynos/exynos5433.dtsi
-> +++ b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
-> @@ -18,8 +18,8 @@
->   
->   / {
->   	compatible = "samsung,exynos5433";
-> -	#address-cells = <1>;
-> -	#size-cells = <1>;
-> +	#address-cells = <2>;
-> +	#size-cells = <2>;
->   
->   	interrupt-parent = <&gic>;
->   
-> @@ -260,7 +260,7 @@
->   		compatible = "simple-bus";
->   		#address-cells = <1>;
->   		#size-cells = <1>;
-> -		ranges;
-> +		ranges = <0x0 0x0 0x0 0x18000000>;
->   
->   		chipid@10000000 {
->   			compatible = "samsung,exynos4210-chipid";
-> diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-> index f09800f355db..3a00ef0a17ff 100644
-> --- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
-> +++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-> @@ -12,8 +12,8 @@
->   / {
->   	compatible = "samsung,exynos7";
->   	interrupt-parent = <&gic>;
-> -	#address-cells = <1>;
-> -	#size-cells = <1>;
-> +	#address-cells = <2>;
-> +	#size-cells = <2>;
->   
->   	aliases {
->   		pinctrl0 = &pinctrl_alive;
-> @@ -87,7 +87,7 @@
->   		compatible = "simple-bus";
->   		#address-cells = <1>;
->   		#size-cells = <1>;
-> -		ranges;
-> +		ranges = <0 0 0 0x18000000>;
->   
->   		chipid@10000000 {
->   			compatible = "samsung,exynos4210-chipid";
-> 
