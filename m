@@ -2,315 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DCFB05E3
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 01:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C80B063B
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 02:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728296AbfIKXWy convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 11 Sep 2019 19:22:54 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43230 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727093AbfIKXWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 19:22:54 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728523AbfILAjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Sep 2019 20:39:48 -0400
+Received: from mta-02.yadro.com ([89.207.88.252]:56102 "EHLO mta-01.yadro.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726157AbfILAjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Sep 2019 20:39:48 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mta-01.yadro.com (Postfix) with ESMTP id 7C6F5435D5;
+        Thu, 12 Sep 2019 00:39:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
+        content-type:content-type:content-transfer-encoding:mime-version
+        :references:in-reply-to:x-mailer:message-id:date:date:subject
+        :subject:from:from:received:received:received; s=mta-01; t=
+        1568248785; x=1570063186; bh=Z3rnI2RPv/4SD5cZvIOO8hxpI5GaHwztBil
+        7r7WFUgA=; b=BogG0yYEXRJbTfLl6may6zIjll7fR/nLLqVm4AkQJzxvLR97t3q
+        LBFHOwR1wmmmqm2clYx6dBeg6UBITChNcTt0PQk1+hYYobdmHUdHIYDjzYdukNcC
+        +b0lGIj+Wrp0uNHtXm8IjptYOoOtZnnkkqfx+NRUrXzv5NXA4KieNm2k=
+X-Virus-Scanned: amavisd-new at yadro.com
+Received: from mta-01.yadro.com ([127.0.0.1])
+        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id GtBGaZt3B_OZ; Thu, 12 Sep 2019 03:39:45 +0300 (MSK)
+Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3EA811DB7
-        for <stable@vger.kernel.org>; Wed, 11 Sep 2019 23:22:54 +0000 (UTC)
-Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A9CE360C05;
-        Wed, 11 Sep 2019 23:22:48 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mta-01.yadro.com (Postfix) with ESMTPS id 1F699412D6;
+        Thu, 12 Sep 2019 03:39:45 +0300 (MSK)
+Received: from localhost (172.17.128.60) by T-EXCH-02.corp.yadro.com
+ (172.17.10.102) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Thu, 12
+ Sep 2019 03:39:44 +0300
+From:   Roman Bolshakov <r.bolshakov@yadro.com>
+To:     <linux-scsi@vger.kernel.org>
+CC:     Roman Bolshakov <r.bolshakov@yadro.com>,
+        Quinn Tran <qtran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 1/4] scsi: qla2xxx: Ignore NULL pointer in tcm_qla2xxx_free_mcmd
+Date:   Thu, 12 Sep 2019 03:39:16 +0300
+Message-ID: <20190912003919.8488-2-r.bolshakov@yadro.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190912003919.8488-1-r.bolshakov@yadro.com>
+References: <20190912003919.8488-1-r.bolshakov@yadro.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.2.15-rc1-fda5311.cki
- (stable)
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.91A9E33466.QDOXWRTUV7@redhat.com>
-X-Gitlab-Pipeline-ID: 157981
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/157981
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.71]); Wed, 11 Sep 2019 23:22:54 +0000 (UTC)
-Date:   Wed, 11 Sep 2019 19:22:54 -0400
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [172.17.128.60]
+X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
+ T-EXCH-02.corp.yadro.com (172.17.10.102)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If ABTS cannot be completed in target mode, the driver attempts to free
+related management command and crashes:
 
-Hello,
+  NIP [d000000019181ee8] tcm_qla2xxx_free_mcmd+0x40/0x80 [tcm_qla2xxx]
+  LR [d00000001dc1e6f8] qlt_response_pkt+0x190/0xa10 [qla2xxx]
+  Call Trace:
+  [c000003fff27bb50] [c000003fff27bc10] 0xc000003fff27bc10 (unreliable)
+  [c000003fff27bb70] [d00000001dc1e6f8] qlt_response_pkt+0x190/0xa10 [qla2xxx]
+  [c000003fff27bc10] [d00000001dbc2be0] qla24xx_process_response_queue+0x5d8/0xbd0 [qla2xxx]
+  [c000003fff27bd50] [d00000001dbc632c] qla24xx_msix_rsp_q+0x64/0x150 [qla2xxx]
+  [c000003fff27bde0] [c000000000187200] __handle_irq_event_percpu+0x90/0x310
+  [c000003fff27bea0] [c0000000001874b8] handle_irq_event_percpu+0x38/0x90
+  [c000003fff27bee0] [c000000000187574] handle_irq_event+0x64/0xb0
+  [c000003fff27bf10] [c00000000018cd38] handle_fasteoi_irq+0xe8/0x280
+  [c000003fff27bf40] [c000000000185ccc] generic_handle_irq+0x4c/0x70
+  [c000003fff27bf60] [c000000000016cec] __do_irq+0x7c/0x1d0
+  [c000003fff27bf90] [c00000000002a530] call_do_irq+0x14/0x24
+  [c00000207d2cba90] [c000000000016edc] do_IRQ+0x9c/0x130
+  [c00000207d2cbae0] [c000000000008bf4] hardware_interrupt_common+0x114/0x120
+  --- interrupt: 501 at arch_local_irq_restore+0x74/0x90
+      LR = arch_local_irq_restore+0x74/0x90
+  [c00000207d2cbdd0] [c0000000001c64fc] tick_broadcast_oneshot_control+0x4c/0x60 (unreliable)
+  [c00000207d2cbdf0] [c0000000007ac840] cpuidle_enter_state+0xf0/0x450
+  [c00000207d2cbe50] [c00000000016b81c] call_cpuidle+0x4c/0x90
+  [c00000207d2cbe70] [c00000000016bc30] do_idle+0x2b0/0x330
+  [c00000207d2cbec0] [c00000000016beec] cpu_startup_entry+0x3c/0x50
+  [c00000207d2cbef0] [c00000000004a06c] start_secondary+0x63c/0x670
+  [c00000207d2cbf90] [c00000000000aa6c] start_secondary_prolog+0x10/0x14
 
-We ran automated tests on a recent commit from this kernel tree:
+The crash can be triggered by ACL deletion when there's active I/O.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: fda53119ddbd - Linux 5.2.15-rc1
+During ACL deletion, qla2xxx performs implicit LOGO that's invisible for
+the initiator. Only the driver and firmware are aware of the logout.
+Therefore the initiator continues to send SCSI commands and the target
+always responds with SAM STATUS BUSY as it can't find the session.
 
-The results of these automated tests are provided below.
+The command times out after a while and initiator invokes ABORT TASK TMF
+for the command. The TMF is mapped to ABTS-LS in FCP. The target can't
+find session for S_ID originating ABTS-LS so it never allocates mcmd.
+And since N_Port handle was deleted after LOGO, it is no longer valid
+and ABTS Response IOCB is returned from firmware with status 31. Then
+free_mcmd is invoked on NULL pointer and the kernel crashes.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+[ 7734.578642] qla2xxx [0000:00:0c.0]-e837:6: ABTS_RECV_24XX: instance 0
+[ 7734.578644] qla2xxx [0000:00:0c.0]-f811:6: qla_target(0): task abort (s_id=1:2:0, tag=1209504, param=0)
+[ 7734.578645] find_sess_by_s_id: 0x010200
+[ 7734.578645] Unable to locate s_id: 0x010200
+[ 7734.578646] qla2xxx [0000:00:0c.0]-f812:6: qla_target(0): task abort for non-existent session
+[ 7734.578648] qla2xxx [0000:00:0c.0]-e806:6: Sending task mgmt ABTS response (ha=c0000000d5819000, atio=c0000000d3fd4700, status=4
+[ 7734.578730] qla2xxx [0000:00:0c.0]-e838:6: ABTS_RESP_24XX: compl_status 31
+[ 7734.578732] qla2xxx [0000:00:0c.0]-e863:6: qla_target(0): ABTS_RESP_24XX failed 31 (subcode 19:a)
+[ 7734.578740] Unable to handle kernel paging request for data at address 0x00000200
 
-All kernel binaries, config files, and logs are available for download here:
+Fixes: 6b0431d6fa20b ("scsi: qla2xxx: Fix out of order Termination and ABTS response")
+Cc: Quinn Tran <qtran@marvell.com>
+Cc: Himanshu Madhani <hmadhani@marvell.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+---
+ drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-  https://artifacts.cki-project.org/pipelines/157981
+diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+index 042a24314edc..bab2073c1f72 100644
+--- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
++++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+@@ -246,6 +246,8 @@ static void tcm_qla2xxx_complete_mcmd(struct work_struct *work)
+  */
+ static void tcm_qla2xxx_free_mcmd(struct qla_tgt_mgmt_cmd *mcmd)
+ {
++	if (!mcmd)
++		return;
+ 	INIT_WORK(&mcmd->free_work, tcm_qla2xxx_complete_mcmd);
+ 	queue_work(tcm_qla2xxx_free_wq, &mcmd->free_work);
+ }
+-- 
+2.22.0
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ⚡⚡⚡ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ Memory function: memfd_create [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking: igmp conformance test [15]
-         ✅ Networking TCP: keepalive test [16]
-         ✅ Networking UDP: socket [17]
-         ✅ Networking tunnel: gre basic [18]
-         ✅ Networking tunnel: vxlan basic [19]
-         ✅ audit: audit testsuite test [20]
-         ✅ httpd: mod_ssl smoke sanity [21]
-         ✅ iotop: sanity [22]
-         ✅ tuned: tune-processes-through-perf [23]
-         ✅ Usex - version 1.9-29 [24]
-         ✅ storage: SCSI VPD [25]
-         ✅ stress: stress-ng [26]
-         🚧 ❌ LTP lite [27]
-         🚧 ✅ CIFS Connectathon [28]
-         🚧 ✅ Memory function: kaslr [29]
-         🚧 ✅ Networking bridge: sanity [30]
-         🚧 ✅ Networking MACsec: sanity [31]
-         🚧 ✅ Networking route: pmtu [32]
-         🚧 ✅ Networking tunnel: geneve basic test [33]
-         🚧 ✅ Networking vnic: ipvlan/basic [34]
-         🚧 ✅ ALSA PCM loopback test [35]
-         🚧 ✅  ALSA Control (mixer) Userspace Element test [36]
-         🚧 ✅ trace: ftrace/tracer [37]
-         🚧 ✅ Networking route_func: local [38]
-         🚧 ✅ Networking route_func: forward [38]
-         🚧 ✅ Networking ipsec: basic netns transport [39]
-         🚧 ✅ Networking ipsec: basic netns tunnel [39]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ⚡⚡⚡ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ Memory function: memfd_create [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking TCP: keepalive test [16]
-         ✅ Networking UDP: socket [17]
-         ✅ Networking tunnel: gre basic [18]
-         ✅ Networking tunnel: vxlan basic [19]
-         ✅ audit: audit testsuite test [20]
-         ✅ httpd: mod_ssl smoke sanity [21]
-         ✅ iotop: sanity [22]
-         ✅ tuned: tune-processes-through-perf [23]
-         ✅ Usex - version 1.9-29 [24]
-         🚧 ❌ LTP lite [27]
-         🚧 ✅ CIFS Connectathon [28]
-         🚧 ✅ Memory function: kaslr [29]
-         🚧 ✅ Networking bridge: sanity [30]
-         🚧 ✅ Networking MACsec: sanity [31]
-         🚧 ✅ Networking route: pmtu [32]
-         🚧 ✅ Networking tunnel: geneve basic test [33]
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [39]
-         🚧 ✅ Networking vnic: ipvlan/basic [34]
-         🚧 ✅ ALSA PCM loopback test [35]
-         🚧 ✅  ALSA Control (mixer) Userspace Element test [36]
-         🚧 ✅ trace: ftrace/tracer [37]
-         🚧 ✅ Networking route_func: local [38]
-         🚧 ✅ Networking route_func: forward [38]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Storage SAN device stress - mpt3sas driver [40]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Storage SAN device stress - megaraid_sas [40]
-
-      Host 3:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ⚡⚡⚡ Loopdev Sanity [7]
-         ✅ jvm test suite [8]
-         ✅ Memory function: memfd_create [9]
-         ✅ AMTU (Abstract Machine Test Utility) [10]
-         ✅ LTP: openposix test suite [11]
-         ✅ Ethernet drivers sanity [12]
-         ✅ Networking socket: fuzz [13]
-         ✅ Networking sctp-auth: sockopts test [14]
-         ✅ Networking: igmp conformance test [15]
-         ✅ Networking TCP: keepalive test [16]
-         ✅ Networking UDP: socket [17]
-         ✅ Networking tunnel: gre basic [18]
-         ✅ Networking tunnel: vxlan basic [19]
-         ✅ audit: audit testsuite test [20]
-         ✅ httpd: mod_ssl smoke sanity [21]
-         ✅ iotop: sanity [22]
-         ✅ tuned: tune-processes-through-perf [23]
-         ✅ pciutils: sanity smoke test [41]
-         ✅ Usex - version 1.9-29 [24]
-         ✅ storage: SCSI VPD [25]
-         ✅ stress: stress-ng [26]
-         🚧 ⚡⚡⚡ LTP lite [27]
-         🚧 ⚡⚡⚡ CIFS Connectathon [28]
-         🚧 ❌ Memory function: kaslr [29]
-         🚧 ✅ Networking bridge: sanity [30]
-         🚧 ✅ Networking MACsec: sanity [31]
-         🚧 ✅ Networking route: pmtu [32]
-         🚧 ✅ Networking tunnel: geneve basic test [33]
-         🚧 ✅ Networking vnic: ipvlan/basic [34]
-         🚧 ✅ ALSA PCM loopback test [35]
-         🚧 ✅  ALSA Control (mixer) Userspace Element test [36]
-         🚧 ✅ trace: ftrace/tracer [37]
-         🚧 ✅ Networking route_func: local [38]
-         🚧 ✅ Networking route_func: forward [38]
-         🚧 ✅ Networking ipsec: basic netns transport [39]
-         🚧 ✅ Networking ipsec: basic netns tunnel [39]
-
-      Host 4:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-         🚧 ✅ IOMMU boot test [42]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/cifs/connectathon
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
-    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/bridge/sanity_check
-    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/macsec/sanity_check
-    [32]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [33]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [34]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/vnic/ipvlan/basic
-    [35]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/aloop
-    [36]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/user-ctl-elem
-    [37]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
-    [38]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [39]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [40]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
-    [41]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-    [42]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/iommu/boot
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
