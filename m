@@ -2,89 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5319FB0641
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 02:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5381B096D
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbfILAjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Sep 2019 20:39:54 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:56146 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726157AbfILAjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Sep 2019 20:39:53 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id 88676435D9;
-        Thu, 12 Sep 2019 00:39:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-type:content-type:content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:date:subject
-        :subject:from:from:received:received:received; s=mta-01; t=
-        1568248791; x=1570063192; bh=0mflloWsjya3SzTXcn/bDjATsmhmG3gmW1a
-        FmjrD1do=; b=JJyF7xyLGC9AkHOK9FR3N7eHA5J9u6Oi5o9M56sWlw7UtJP8of0
-        Vsy3JMaq0CddQ2w9LvnW8xADSfFB5mgBr2vWWOXVxkWH6JDz2m8qHOSQ9Gs1nFfG
-        /uTc2fqBoU4Yj34HrNSFu6dsg7l0M1G7Y445bPmmhCuNd+Ho1as+88Ag=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id i6UPLw9_BNU8; Thu, 12 Sep 2019 03:39:51 +0300 (MSK)
-Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id 3581742001;
-        Thu, 12 Sep 2019 03:39:51 +0300 (MSK)
-Received: from localhost (172.17.128.60) by T-EXCH-02.corp.yadro.com
- (172.17.10.102) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Thu, 12
- Sep 2019 03:39:50 +0300
-From:   Roman Bolshakov <r.bolshakov@yadro.com>
-To:     <linux-scsi@vger.kernel.org>
-CC:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Quinn Tran <qtran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 4/4] scsi: qla2xxx: Change discovery state before PLOGI
-Date:   Thu, 12 Sep 2019 03:39:19 +0300
-Message-ID: <20190912003919.8488-5-r.bolshakov@yadro.com>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190912003919.8488-1-r.bolshakov@yadro.com>
-References: <20190912003919.8488-1-r.bolshakov@yadro.com>
+        id S1729894AbfILHWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 03:22:18 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:35745 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726952AbfILHWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 03:22:18 -0400
+Received: by mail-wm1-f68.google.com with SMTP id n10so6288149wmj.0
+        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 00:22:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2CeyyRMj4arJ5MswszulwIkFPEnYjRfvfQK3SvLqDb4=;
+        b=uHa+xmaO71Z9V5NADf0EW/N3p8Lfp6Gh70zeI1lwSwUqnLY3Zq8o1tjnDFog8Fx0E0
+         T3sd/B5YgC7nA96ysGGDf66YduYOzOEEDWDkuDyvgS3eCy1+s21RXjsXzIhnnfOlOabW
+         BqZqKzxAYHs7z2i6TGG/V5/ItKvdZrPvtUOEU77ZUANzbu1SRp3MbI/lf/Ofd1ZcB+Jk
+         79ipOSIQVRd8HjL+wLAyz6Hh23WC5nqjMu7ULFCO5XtSarCtayxQ07lC8tT8mAIRAIsE
+         AbaQ0E+iWOhLD9aVhX1/HkUKJEKZ46XP0FfuL0dX2EcKB1GVv1fQS+q7knQCCW07waJn
+         TVhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2CeyyRMj4arJ5MswszulwIkFPEnYjRfvfQK3SvLqDb4=;
+        b=O6VyFQ9ekJmIchUNaGJALEb2qqlNMI9J/NuqB1muuP1SQLbRLblarwdJv0X5ujxWw1
+         1T+Om+F/GLrOyJd3Mwj1Klc8nJ7jHuyDDM5Ls0mfcad3lT9tiWrUeR3PYrfOE6VaA4+1
+         Ybz8nDZx+pFlJOS9yVakFpgUP+DcKZDX7XbqfRZkM3ZV4NShBKSyRyO8zOCbnCHVY6/5
+         gX3inrvqB9NV+X9SpBxsgChgS29ubmfV78ll8k/+8ZlgY1PcPV2mHc+EggqRaxwD9yPy
+         K3y9yOIMsWroir8WQnyk14y6lE3CqaCiTgKXfz3dQeNS+HL69dijwBR2G3dhMxtmOi7A
+         B6bA==
+X-Gm-Message-State: APjAAAXPqQ7Nuz5aBqkcuUsoYRxoFFf7YvUKwBMRLQLBtmyLkKdFQJyK
+        4kmpTynOZM5QhWewVwCwP7o=
+X-Google-Smtp-Source: APXvYqxe/tEJkeMm4EqKT/2Wy92fFk11UiYijbXGUlV2E0QrZ2KOdbdso3/sXFTOWlF7WUwp2RRm8w==
+X-Received: by 2002:a1c:7f86:: with SMTP id a128mr7336940wmd.104.1568272936590;
+        Thu, 12 Sep 2019 00:22:16 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:4f8:222:2f1b::2])
+        by smtp.gmail.com with ESMTPSA id b144sm5382465wmb.3.2019.09.12.00.22.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Sep 2019 00:22:16 -0700 (PDT)
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Ilie Halip <ilie.halip@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH 4.4] x86, boot: Remove multiple copy of static function sanitize_boot_params()
+Date:   Thu, 12 Sep 2019 00:21:48 -0700
+Message-Id: <20190912072146.68410-1-natechancellor@gmail.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.17.128.60]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-02.corp.yadro.com (172.17.10.102)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When a port sends PLOGI, discovery state should be changed to login
-pending, otherwise RELOGIN_NEEDED bit is set in
-qla24xx_handle_plogi_done_event(). RELOGIN_NEEDED triggers another
-PLOGI, and it never goes out of the loop until login timer expires.
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-Fixes: 8777e4314d397 ("scsi: qla2xxx: Migrate NVME N2N handling into state machine")
-Fixes: 8b5292bcfcacf ("scsi: qla2xxx: Fix Relogin to prevent modifying scan_state flag")
-Cc: Quinn Tran <qtran@marvell.com>
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+commit 8c5477e8046ca139bac250386c08453da37ec1ae upstream.
+
+Kernel build warns:
+ 'sanitize_boot_params' defined but not used [-Wunused-function]
+
+at below files:
+  arch/x86/boot/compressed/cmdline.c
+  arch/x86/boot/compressed/error.c
+  arch/x86/boot/compressed/early_serial_console.c
+  arch/x86/boot/compressed/acpi.c
+
+That's becausethey each include misc.h which includes a definition of
+sanitize_boot_params() via bootparam_utils.h.
+
+Remove the inclusion from misc.h and have the c file including
+bootparam_utils.h directly.
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1563283092-1189-1-git-send-email-zhenzhong.duan@oracle.com
+[nc: Fixed conflict around lack of 67b6662559f7f]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index c8d89912d044..e4857ef0e5c4 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -516,6 +516,7 @@ static int qla_post_els_plogi_work(struct scsi_qla_host *vha, fc_port_t *fcport)
+Hi Greg and Sasha,
+
+Please consider applying this to 4.4 as it resolves a compilation error
+with clang on 4.4 and it has already been applied to 4.9 and newer:
+
+https://travis-ci.com/ClangBuiltLinux/continuous-integration/jobs/232287034
+
+https://github.com/ClangBuiltLinux/linux/issues/654
+
+Thanks to Ilie Halip for debugging this; TL;DR: clang pretends that it
+is GCC 4.2.1 for glibc compatibility and this trips up a definition of
+memcpy for GCC < 4.3. This is not an issue on mainline because GCC 4.6
+is the earliest supported GCC version so that code was removed and this
+patch resolves it because string.h redefines memcpy to a proper version.
+
+ arch/x86/boot/compressed/misc.c | 1 +
+ arch/x86/boot/compressed/misc.h | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 16df89c30c20..1e5b68228aff 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -11,6 +11,7 @@
  
- 	e->u.fcport.fcport = fcport;
- 	fcport->flags |= FCF_ASYNC_ACTIVE;
-+	fcport->disc_state = DSC_LOGIN_PEND;
- 	return qla2x00_post_work(vha, e);
- }
+ #include "misc.h"
+ #include "../string.h"
++#include <asm/bootparam_utils.h>
  
+ /* WARNING!!
+  * This code is compiled with -fPIC and it is relocated dynamically
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 4abb284a5b9c..bce182708814 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -19,7 +19,6 @@
+ #include <asm/page.h>
+ #include <asm/boot.h>
+ #include <asm/bootparam.h>
+-#include <asm/bootparam_utils.h>
+ 
+ #define BOOT_BOOT_H
+ #include "../ctype.h"
 -- 
-2.22.0
+2.23.0
 
