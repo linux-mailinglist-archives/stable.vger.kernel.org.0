@@ -2,103 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BF6B0983
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4BCB0992
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 09:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729396AbfILHas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 03:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725775AbfILHar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Sep 2019 03:30:47 -0400
-Received: from localhost (unknown [40.117.208.15])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47C2020830;
-        Thu, 12 Sep 2019 07:30:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568273446;
-        bh=SLb56/wc9e67mCk6uQXq9HjK5V8W2cfzFl+bufVz/70=;
-        h=Date:From:To:To:To:Cc:Subject:In-Reply-To:References:From;
-        b=HkGtsiDW35cDE7cHEZ0C9Em1262DZbCbUiJmTluku/XAzWf6I9X4L/47hzKWnbgy3
-         86aCdAyt9naKCGv64xZhCAvC6nPpcHJwkgXdbWhS+PxOGHGFoLxAbYJWR/m6RWdOOu
-         5eVz3E7vhng0/KD36zPtpvBI01nQYLNyLBYza5tQ=
-Date:   Thu, 12 Sep 2019 07:30:45 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Filipe Manana <fdmanana@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] Btrfs: fix assertion failure during fsync and use of stale transaction
-In-Reply-To: <20190910142649.19808-1-fdmanana@kernel.org>
-References: <20190910142649.19808-1-fdmanana@kernel.org>
-Message-Id: <20190912073046.47C2020830@mail.kernel.org>
+        id S1729333AbfILHgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 03:36:12 -0400
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:56691 "EHLO
+        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728296AbfILHgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 03:36:12 -0400
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20190912073609euoutp011bab12d391fa544bf0d3e7e625d16e9b~DoK9GeOas0063000630euoutp01P
+        for <stable@vger.kernel.org>; Thu, 12 Sep 2019 07:36:09 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20190912073609euoutp011bab12d391fa544bf0d3e7e625d16e9b~DoK9GeOas0063000630euoutp01P
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1568273769;
+        bh=xr1ve3qxfxo+cmsy8W7XSfa0V/j5rgDfSkv6SiKMv18=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=N2hw0AvxuT4xOLpft7RLK3UG7UCuqFCh/5m4rhsLd0usAKuUP7fmebtqYG3/WYJYS
+         XkSuZgX6M+MF8gR7WqQPPaWWGIXYr5E8hTRFV9mmK4Ws4oiF0dlJWIsZ7hRDscxkJz
+         0SX1rEMa0REpS8Gd+MukpTYUr904P3hcjY+gFrNo=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20190912073609eucas1p2a2358048db5e416f956a7382e64a4b0c~DoK8cL2Mw3255232552eucas1p2h;
+        Thu, 12 Sep 2019 07:36:09 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges1new.samsung.com (EUCPMTA) with SMTP id 67.25.04469.865F97D5; Thu, 12
+        Sep 2019 08:36:08 +0100 (BST)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3~DoK7qWCL01439614396eucas1p19;
+        Thu, 12 Sep 2019 07:36:08 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20190912073608eusmtrp273c289cdbb8efbb23b26911a82e1d42c~DoK7buTrE0606806068eusmtrp2Z;
+        Thu, 12 Sep 2019 07:36:08 +0000 (GMT)
+X-AuditID: cbfec7f2-569ff70000001175-15-5d79f568c538
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 65.31.04166.865F97D5; Thu, 12
+        Sep 2019 08:36:08 +0100 (BST)
+Received: from AMDC2765.DIGITAL.local (unknown [106.120.51.73]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20190912073607eusmtip1a8062ea741ba3490b4306770698d4d9a~DoK7EK7c80236902369eusmtip1F;
+        Thu, 12 Sep 2019 07:36:07 +0000 (GMT)
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+To:     linux-samsung-soc@vger.kernel.org
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>, stable@vger.kernel.org
+Subject: [PATCH] arm64: dts: exynos: Revert
+ "Remove unneeded address space mapping for soc node"
+Date:   Thu, 12 Sep 2019 09:36:02 +0200
+Message-Id: <20190912073602.22829-1-m.szyprowski@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrIIsWRmVeSWpSXmKPExsWy7djP87oZXytjDQ4fN7J4MG8bm8XGGetZ
+        Lc6f38BuMeP8PiaLtUfuslss2PiI0YHNY9OqTjaPvi2rGD0+b5ILYI7isklJzcksSy3St0vg
+        ymhe95ixYJpEReuJGywNjPeFuxg5OSQETCTefNvH1sXIxSEksIJR4viT+awQzhdGif5zncwQ
+        zmdGiaMrG4EyHGAtJ2abQ8SXM0ocaW9nguu4P+EXC8hcNgFDia63XWwgtoiAqsTntgXsIEXM
+        AucZJd72T2EGSQgLJEm8eHCRFcRmASr6t34fWDOvgK3EtteXWCAOlJdYveEA2BkSAgfYJBpu
+        PWGGSLhIXD/RwgphC0u8Or6FHcKWkfi/cz4TREMzo8TDc2vZIZweRonLTTMYIaqsJQ4fvwj2
+        ELOApsT6XfoQYUeJpxtOsED8ySdx460gSJgZyJy0bTozRJhXoqNNCKJaTWLW8XVwaw9euAR1
+        mofE5VtzwWwhgViJDWeb2CYwys1C2LWAkXEVo3hqaXFuemqxYV5quV5xYm5xaV66XnJ+7iZG
+        YMSf/nf80w7Gr5eSDjEKcDAq8fAK3K2IFWJNLCuuzD3EKMHBrCTC6/OmMlaINyWxsiq1KD++
+        qDQntfgQozQHi5I4bzXDg2ghgfTEktTs1NSC1CKYLBMHp1QD4xJLhpXTvzzteSNjuObSk/Mb
+        4rcc5E0MuvnqilmzSa2PyZx5JVt29LRP9vuVvPFJ8HPP2MIVM197/HiZIvzUxfGdueSEv02S
+        5n3Jpv3r5r4N14wXaj379oy6+BSdcyW3imxfWcpIP9QRK9414XLWt2dq/g1PH9ZdcVDRnjGH
+        83rzVUXuzMTj25VYijMSDbWYi4oTAbCJAo/0AgAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrKLMWRmVeSWpSXmKPExsVy+t/xu7oZXytjDW72slk8mLeNzWLjjPWs
+        FufPb2C3mHF+H5PF2iN32S0WbHzE6MDmsWlVJ5tH35ZVjB6fN8kFMEfp2RTll5akKmTkF5fY
+        KkUbWhjpGVpa6BmZWOoZGpvHWhmZKunb2aSk5mSWpRbp2yXoZTSve8xYME2iovXEDZYGxvvC
+        XYwcHBICJhInZpt3MXJxCAksZZQ4dPkbexcjJ1BcRuLktAZWCFtY4s+1LjaIok+MEr8Xz2EG
+        SbAJGEp0vQVJcHKICKhKfG5bANbMLHCZUeLJZWMQW1ggQeL8nrlMIDYLUM2/9ftYQGxeAVuJ
+        ba8vsUAskJdYveEA8wRGngWMDKsYRVJLi3PTc4sN9YoTc4tL89L1kvNzNzECg2zbsZ+bdzBe
+        2hh8iFGAg1GJh1fgbkWsEGtiWXFl7iFGCQ5mJRFenzeVsUK8KYmVValF+fFFpTmpxYcYTYGW
+        T2SWEk3OB0ZAXkm8oamhuYWlobmxubGZhZI4b4fAwRghgfTEktTs1NSC1CKYPiYOTqkGRq5n
+        wUwLp3JM2xL5QsZGO0poakuPWruAYTBXa9Vt7evf03faPWa8vDHPMu3UjdPLc75NPRZ+lffH
+        438CVyx99+fX7JrzeaHfnSXpTs6XRH16GkvC/4ue2dIsuDCCreXnOsZdCm9TojULlXc/shf9
+        sjr53uSyOpHaC+57lk+5auJVdvxv0PfCciWW4oxEQy3mouJEAPgx/cBIAgAA
+X-CMS-MailID: 20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3
+References: <CGME20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3@eucas1p1.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Commit ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space
+mapping for soc node") changed the address and size cells in root node from
+2 to 1, but /memory nodes for the affected boards were not updated. This
+went unnoticed on Exynos5433-based TM2(e) boards, because they use u-boot,
+which updates /memory node to the correct values. On the other hand, the
+mentioned commit broke boot on Exynos7-based Espresso board, which
+bootloader doesn't touch /memory node at all.
 
-[This is an automated email]
+This patch reverts commit ef72171b3621, so Exynos5433 and Exynos7 SoCs
+again matches other ARM64 platforms with 64bit mappings in root node.
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 4.4+
+Reported-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space mapping for soc node")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+---
+A few more comments:
 
-The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143, v4.9.192, v4.4.192.
+1. I've added 'tested-by' tag from Alim, as his original report pointed
+that reverting the offending commit fixes the boot issue.
 
-v5.2.14: Build OK!
-v4.19.72: Failed to apply! Possible dependencies:
-    6b5fc433a7ad ("Btrfs: fix fsync after succession of renames of different files")
-    a3baaf0d786e ("Btrfs: fix fsync after succession of renames and unlink/rmdir")
-    b8aa330d2acb ("Btrfs: improve performance on fsync of files with multiple hardlinks")
+2. This patch applies down to v4.18.
 
-v4.14.143: Failed to apply! Possible dependencies:
-    0d836392cadd ("Btrfs: fix mount failure after fsync due to hard link recreation")
-    1f250e929a9c ("Btrfs: fix log replay failure after unlink and link combination")
-    6b5fc433a7ad ("Btrfs: fix fsync after succession of renames of different files")
-    8d9e220ca084 ("btrfs: simplify IS_ERR/PTR_ERR checks")
-    a3baaf0d786e ("Btrfs: fix fsync after succession of renames and unlink/rmdir")
-    b8aa330d2acb ("Btrfs: improve performance on fsync of files with multiple hardlinks")
+3. For v5.3 release, two patches:
+   - "arm64: dts: exynos: Move GPU under /soc node for  Exynos5433"
+   - "arm64: dts: exynos: Move GPU under /soc node for Exynos7"
+   has to be applied first to ensure that GPU node will have correct 'reg'
+   property (nodes under /soc still use 32bit mappings). I'm not sure if
+   this can be expressed somehow in stable porting tags.
 
-v4.9.192: Failed to apply! Possible dependencies:
-    0b246afa62b0 ("btrfs: root->fs_info cleanup, add fs_info convenience variables")
-    0d836392cadd ("Btrfs: fix mount failure after fsync due to hard link recreation")
-    1f250e929a9c ("Btrfs: fix log replay failure after unlink and link combination")
-    4791c8f19c45 ("btrfs: Make btrfs_check_ref_name_override take btrfs_inode")
-    6b5fc433a7ad ("Btrfs: fix fsync after succession of renames of different files")
-    a3baaf0d786e ("Btrfs: fix fsync after succession of renames and unlink/rmdir")
-    cf8cddd38bab ("btrfs: don't abuse REQ_OP_* flags for btrfs_map_block")
-    da17066c4047 ("btrfs: pull node/sector/stripe sizes out of root and into fs_info")
-    db0a669fb002 ("btrfs: Make btrfs_add_link take btrfs_inode")
-    de143792253e ("btrfs: struct btrfsic_state->root should be an fs_info")
-    fb456252d3d9 ("btrfs: root->fs_info cleanup, use fs_info->dev_root everywhere")
+Best regards
+Marek Szyprowski
+Samsung R&D Institute Poland
+---
+ arch/arm64/boot/dts/exynos/exynos5433.dtsi | 6 +++---
+ arch/arm64/boot/dts/exynos/exynos7.dtsi    | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-v4.4.192: Failed to apply! Possible dependencies:
-    0132761017e0 ("btrfs: fix string and comment grammatical issues and typos")
-    09cbfeaf1a5a ("mm, fs: get rid of PAGE_CACHE_* and page_cache_{get,release} macros")
-    0b246afa62b0 ("btrfs: root->fs_info cleanup, add fs_info convenience variables")
-    0d836392cadd ("Btrfs: fix mount failure after fsync due to hard link recreation")
-    0e749e54244e ("dax: increase granularity of dax_clear_blocks() operations")
-    1f250e929a9c ("Btrfs: fix log replay failure after unlink and link combination")
-    44f714dae50a ("Btrfs: improve performance on fsync against new inode after rename/unlink")
-    4791c8f19c45 ("btrfs: Make btrfs_check_ref_name_override take btrfs_inode")
-    52db400fcd50 ("pmem, dax: clean up clear_pmem()")
-    6b5fc433a7ad ("Btrfs: fix fsync after succession of renames of different files")
-    781feef7e6be ("Btrfs: fix lockdep warning about log_mutex")
-    a3baaf0d786e ("Btrfs: fix fsync after succession of renames and unlink/rmdir")
-    b2e0d1625e19 ("dax: fix lifetime of in-kernel dax mappings with dax_map_atomic()")
-    bb7ab3b92e46 ("btrfs: Fix misspellings in comments.")
-    cf8cddd38bab ("btrfs: don't abuse REQ_OP_* flags for btrfs_map_block")
-    d1a5f2b4d8a1 ("block: use DAX for partition table reads")
-    db0a669fb002 ("btrfs: Make btrfs_add_link take btrfs_inode")
-    de143792253e ("btrfs: struct btrfsic_state->root should be an fs_info")
+diff --git a/arch/arm64/boot/dts/exynos/exynos5433.dtsi b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
+index 239bf44d174b..f69530730219 100644
+--- a/arch/arm64/boot/dts/exynos/exynos5433.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
+@@ -18,8 +18,8 @@
+ 
+ / {
+ 	compatible = "samsung,exynos5433";
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
+ 
+ 	interrupt-parent = <&gic>;
+ 
+@@ -260,7 +260,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0x0 0x0 0x0 0x18000000>;
+ 
+ 		chipid@10000000 {
+ 			compatible = "samsung,exynos4210-chipid";
+diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+index f09800f355db..3a00ef0a17ff 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -12,8 +12,8 @@
+ / {
+ 	compatible = "samsung,exynos7";
+ 	interrupt-parent = <&gic>;
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
+ 
+ 	aliases {
+ 		pinctrl0 = &pinctrl_alive;
+@@ -87,7 +87,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0 0 0 0x18000000>;
+ 
+ 		chipid@10000000 {
+ 			compatible = "samsung,exynos4210-chipid";
+-- 
+2.17.1
 
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
---
-Thanks,
-Sasha
