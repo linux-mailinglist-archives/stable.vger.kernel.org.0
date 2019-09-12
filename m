@@ -2,76 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEA8B15A4
-	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 22:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2352DB15AC
+	for <lists+stable@lfdr.de>; Thu, 12 Sep 2019 23:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727381AbfILU7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Sep 2019 16:59:00 -0400
-Received: from mga04.intel.com ([192.55.52.120]:16448 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726308AbfILU7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Sep 2019 16:59:00 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Sep 2019 13:59:00 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,492,1559545200"; 
-   d="scan'208";a="269209602"
-Received: from jjiang35-mobl1.ger.corp.intel.com (HELO [10.252.53.130]) ([10.252.53.130])
-  by orsmga001.jf.intel.com with ESMTP; 12 Sep 2019 13:58:57 -0700
-Subject: Re: [Intel-gfx] [PATCH 01/23] drm/i915/dp: Fix dsc bpp calculations.
-To:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     Sasha Levin <sashal@kernel.org>, intel-gfx@lists.freedesktop.org,
+        id S1728163AbfILVHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Sep 2019 17:07:11 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:41151 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728141AbfILVHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Sep 2019 17:07:11 -0400
+Received: by mail-qt1-f195.google.com with SMTP id j10so31309002qtp.8;
+        Thu, 12 Sep 2019 14:07:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=f7nk601YqWAtG+BppI4tPpvttoWT+EaLudF5cFheh38=;
+        b=FFrASHQ44NekZUkiYiULB1yPlB5ZHs24EM0JoHbNeivI71UUrRKiW7ppZWKGBNPied
+         bzaKmz3jiSogA89RTsOOM9yLSPbJdX53Q1ggBRuLI8J4vtgOH27Qn8kLNr3Su6q0qaHa
+         /Gg/NSSaXimEYmKsUqxvPxqilpVF/IF22Fn7CHrzY1gv8Fl/H0yEciDTs6kAAQkOfoxb
+         jn8svAHdBHjlfYE2+CRHkdsk7YIhf3XxLBNXtbCw/o5aNFPbKFaAx5CClXf1bF1FbFKO
+         bbvAYhE2Yo9NQ73feXQDui0ZKhOtbOKAWhakkZem//Q2Qr2bmCKCtTp/uS7rOaBdYmUd
+         NPHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=f7nk601YqWAtG+BppI4tPpvttoWT+EaLudF5cFheh38=;
+        b=f61hvR97lUsams3h1F6xCmopO6jCWgCaFHxlzN2qvpU4a6QM84mBE/NncxFgbzWgWi
+         WlbmLNhIrTJHwyz0dGvkNc3yPXgljgRMI+aKLnpQ+iPzswyZZ3iruv/rchX25ItEKiKf
+         kNAXrvEMv34jPGMrcA/spnvVBWEJbveo6ln0iu8VM+J23OdImtoxqc0LLRKw+8ehCWkx
+         hTdELUxyk6shNTuSvjeEXqu3niQc8AlB/ddfjqKzrLCMEkfnCxgY6Kxl163ZstuQA3gL
+         Wcz4nnKYwDpfVw6UJejRW2RbuBv7zjcTu6FeamuzQwp2igTi1OX0k/qM8srXgmMo60FC
+         /C8A==
+X-Gm-Message-State: APjAAAVyE2n5huPov1bJW9T0BTBSJg4srlJ37sso1oevIhYWNgqcaf1n
+        GDMHpxoQNosfDaIhXt87NiQ=
+X-Google-Smtp-Source: APXvYqzqDBM8p56umtip5kV+4PDLCzJ17NXK8g2F1/hqe2gU67FhacZkiwCPsMnhQXSzwgnqnNIyzg==
+X-Received: by 2002:ac8:700d:: with SMTP id x13mr20754210qtm.25.1568322429671;
+        Thu, 12 Sep 2019 14:07:09 -0700 (PDT)
+Received: from localhost ([2620:10d:c091:500::12af])
+        by smtp.gmail.com with ESMTPSA id 194sm1352297qkm.62.2019.09.12.14.07.08
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 12 Sep 2019 14:07:08 -0700 (PDT)
+Date:   Thu, 12 Sep 2019 14:07:05 -0700
+From:   Tejun Heo <tj@kernel.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@fb.com, Mark Crossen <mcrossen@fb.com>,
         stable@vger.kernel.org
-References: <20190912130109.5873-1-maarten.lankhorst@linux.intel.com>
- <20190912143415.D8F552081B@mail.kernel.org>
- <db913560-ee38-71e0-39e8-28bc75bbdc5e@linux.intel.com>
- <20190912180524.GA1208@intel.com>
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Message-ID: <395f8c15-25fd-7168-f00c-22f30db2ce25@linux.intel.com>
-Date:   Thu, 12 Sep 2019 22:58:56 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+Subject: Re: [PATCH 2/2] cgroup: freezer: fix frozen state inheritance
+Message-ID: <20190912210705.GA3084169@devbig004.ftw2.facebook.com>
+References: <20190912175645.2841713-1-guro@fb.com>
+ <20190912175645.2841713-2-guro@fb.com>
 MIME-Version: 1.0
-In-Reply-To: <20190912180524.GA1208@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190912175645.2841713-2-guro@fb.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Op 12-09-2019 om 20:05 schreef Ville Syrjälä:
-> On Thu, Sep 12, 2019 at 06:01:57PM +0200, Maarten Lankhorst wrote:
->> Hey,
->>
->> Op 12-09-2019 om 16:34 schreef Sasha Levin:
->>> Hi,
->>>
->>> [This is an automated email]
->>>
->>> This commit has been processed because it contains a "Fixes:" tag,
->>> fixing commit: d9218c8f6cf4 drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC.
->>>
->>> The bot has tested the following trees: v5.2.14.
->>>
->>> v5.2.14: Failed to apply! Possible dependencies:
->>>     Unable to calculate
->>>
->>>
->>> NOTE: The patch will not be queued to stable trees until it is upstream.
->>>
->>> How should we proceed with this patch?
->>>
->>> --
->>> Thanks,
->>> Sasha
->> Why is this bot asking for patches on the trybot mailing list?
-> Did you forget --suppress-cc=all ?
->
-Ah that's it, thanks! :)
+Applied 1-2 to cgroup/for-5.3-fixes.
 
-~Maarten
+Thanks.
 
+-- 
+tejun
