@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F1EB206A
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7721CB1FE4
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390875AbfIMNVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:21:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51484 "EHLO mail.kernel.org"
+        id S2388727AbfIMNKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390868AbfIMNVk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:21:40 -0400
+        id S2388711AbfIMNKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:19 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66E6620830;
-        Fri, 13 Sep 2019 13:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38184206A5;
+        Fri, 13 Sep 2019 13:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380899;
-        bh=ZHa7rEENihqV/0KTMZkFZicFXDV49RlTYVZmkEMkbR0=;
+        s=default; t=1568380217;
+        bh=Xs++mhuXmM6PCHfhoFnMqARTGYYms+RpHEFXyftpFBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfQPabEIqjBWxpYdmKPJesDXLw0Wxt+BjaKWpJKycSXB3W9GHOYrochyBrUFvEj4U
-         U765Cz/0BFFzU/ZGrtxaZOl20FZfz7qt5CH5+wdk82/t5Amwth4LpFCOICU3HnRtzu
-         vbH8d9Ezz8GsJxHGBv8OTCFcbD1c9ZssccOw/PZ8=
+        b=IENhk3ia0zIPlNP2LhgUAdts7Y70qAFyr2GpdZke9vmYs2lCCli2gAQ49KO4+/d9A
+         3pzxYG7xjowq1a/BQqAd8R7KKmFEu+0qDL5l9fwjnjrtO1LNq76IZU4grI8Vk3iRTj
+         2y9/x4u8mCUmWPOH8n2NqljbaXP7pumMzHkDSrmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bazley <sambazley@fastmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 05/37] ALSA: hda/realtek - Add quirk for HP Pavilion 15
+        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 17/21] scripts/decode_stacktrace: match basepath using shell prefix operator, not regex
 Date:   Fri, 13 Sep 2019 14:07:10 +0100
-Message-Id: <20190913130512.071594930@linuxfoundation.org>
+Message-Id: <20190913130508.286213499@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
-References: <20190913130510.727515099@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bazley <sambazley@fastmail.com>
+[ Upstream commit 31013836a71e07751a6827f9d2ad41ef502ddaff ]
 
-commit d33cd42d86671bed870827aa399aeb9f1da74119 upstream.
+The basepath may contain special characters, which would confuse the regex
+matcher.  ${var#prefix} does the right thing.
 
-HP Pavilion 15 (AMD Ryzen-based model) with 103c:84e7 needs the same
-quirk like HP Envy/Spectre x360 for enabling the mute LED over Mic3 pin.
-
-[ rearranged in the SSID number order by tiwai ]
-
-Signed-off-by: Sam Bazley <sambazley@fastmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20190518055946.181563-1-drinkcat@chromium.org
+Fixes: 67a28de47faa8358 ("scripts/decode_stacktrace: only strip base path when a prefix of the path")
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ scripts/decode_stacktrace.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6981,6 +6981,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x82c0, "HP G3 mini premium", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
+index c4a9ddb174bc5..5aa75a0a1cede 100755
+--- a/scripts/decode_stacktrace.sh
++++ b/scripts/decode_stacktrace.sh
+@@ -78,7 +78,7 @@ parse_symbol() {
+ 	fi
+ 
+ 	# Strip out the base of the path
+-	code=${code//^$basepath/""}
++	code=${code#$basepath/}
+ 
+ 	# In the case of inlines, move everything to same line
+ 	code=${code//$'\n'/' '}
+-- 
+2.20.1
+
 
 
