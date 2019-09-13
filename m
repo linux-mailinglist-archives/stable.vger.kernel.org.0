@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB170B1F79
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF5FDB1F84
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390457AbfIMNTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48282 "EHLO mail.kernel.org"
+        id S2390516AbfIMNUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:20:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390444AbfIMNTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:54 -0400
+        id S2390508AbfIMNUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:06 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D3D820640;
-        Fri, 13 Sep 2019 13:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB92206BB;
+        Fri, 13 Sep 2019 13:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380791;
-        bh=SKOaMgoQdCagdl1Ji8fMjbDb3ogMdQnZpGW1zMos2ls=;
+        s=default; t=1568380803;
+        bh=sr2XCigVkqfZkZe9dbtLNoBoufhc2mJe0AHK5OkchYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KXSoiu5UPfomDl2gp4/9IN7kk1yM1G0nLFtSOn+MVaa78nCSKosXgabOVw6NbsUyw
-         vOO8iBRZwJIh53JCnC3gTrpoG3CWlVnyQOuanbLLGNPu8s/NmyS4DYqMBZvCn1RoIQ
-         I6f3h9ACifnj8o6w2k/rtW7roWNevWfgpo8HLprU=
+        b=sDRRgk6Ytc0jDvihLanO4+etzs8gpnj1AUUNrLgwloEeqV2t5JQ5jXkhdLw2MwCjZ
+         3AEAIYxOgyP/tCPJwfw3PcyIq1u5NKDpTJV84rVZLISXj7dtxvVv+K4Ut5PMkbUSV4
+         LC6O5zzCmanpaKJ6D2xnHlD3t//BHCDHNPJ6hl2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        kbuild test robot <lkp@intel.com>
-Subject: [PATCH 4.19 179/190] bcache: fix race in btree_flush_write()
-Date:   Fri, 13 Sep 2019 14:07:14 +0100
-Message-Id: <20190913130614.091905416@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 182/190] drm/atomic_helper: Allow DPMS On<->Off changes for unregistered connectors
+Date:   Fri, 13 Sep 2019 14:07:17 +0100
+Message-Id: <20190913130614.395450204@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,189 +47,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 50a260e859964002dab162513a10f91ae9d3bcd3 ]
+[ Upstream commit 34ca26a98ad67edd6e4870fe2d4aa047d41a51dd ]
 
-There is a race between mca_reap(), btree_node_free() and journal code
-btree_flush_write(), which results very rare and strange deadlock or
-panic and are very hard to reproduce.
+It appears when testing my previous fix for some of the legacy
+modesetting issues with MST, I misattributed some kernel splats that
+started appearing on my machine after a rebase as being from upstream.
+But it appears they actually came from my patch series:
 
-Let me explain how the race happens. In btree_flush_write() one btree
-node with oldest journal pin is selected, then it is flushed to cache
-device, the select-and-flush is a two steps operation. Between these two
-steps, there are something may happen inside the race window,
-- The selected btree node was reaped by mca_reap() and allocated to
-  other requesters for other btree node.
-- The slected btree node was selected, flushed and released by mca
-  shrink callback bch_mca_scan().
-When btree_flush_write() tries to flush the selected btree node, firstly
-b->write_lock is held by mutex_lock(). If the race happens and the
-memory of selected btree node is allocated to other btree node, if that
-btree node's write_lock is held already, a deadlock very probably
-happens here. A worse case is the memory of the selected btree node is
-released, then all references to this btree node (e.g. b->write_lock)
-will trigger NULL pointer deference panic.
+[    2.980512] [drm:drm_atomic_helper_check_modeset [drm_kms_helper]] Updating routing for [CONNECTOR:65:eDP-1]
+[    2.980516] [drm:drm_atomic_helper_check_modeset [drm_kms_helper]] [CONNECTOR:65:eDP-1] is not registered
+[    2.980516] ------------[ cut here ]------------
+[    2.980519] Could not determine valid watermarks for inherited state
+[    2.980553] WARNING: CPU: 3 PID: 551 at drivers/gpu/drm/i915/intel_display.c:14983 intel_modeset_init+0x14d7/0x19f0 [i915]
+[    2.980556] Modules linked in: i915(O+) i2c_algo_bit drm_kms_helper(O) syscopyarea sysfillrect sysimgblt fb_sys_fops drm(O) intel_rapl x86_pkg_temp_thermal iTCO_wdt wmi_bmof coretemp crc32_pclmul psmouse i2c_i801 mei_me mei i2c_core lpc_ich mfd_core tpm_tis tpm_tis_core wmi tpm thinkpad_acpi pcc_cpufreq video ehci_pci crc32c_intel serio_raw ehci_hcd xhci_pci xhci_hcd
+[    2.980577] CPU: 3 PID: 551 Comm: systemd-udevd Tainted: G           O      4.19.0-rc7Lyude-Test+ #1
+[    2.980579] Hardware name: LENOVO 20BWS1KY00/20BWS1KY00, BIOS JBET63WW (1.27 ) 11/10/2016
+[    2.980605] RIP: 0010:intel_modeset_init+0x14d7/0x19f0 [i915]
+[    2.980607] Code: 89 df e8 ec 27 02 00 e9 24 f2 ff ff be 03 00 00 00 48 89 df e8 da 27 02 00 e9 26 f2 ff ff 48 c7 c7 c8 d1 34 a0 e8 23 cf dc e0 <0f> 0b e9 7c fd ff ff f6 c4 04 0f 85 37 f7 ff ff 48 8b 83 60 08 00
+[    2.980611] RSP: 0018:ffffc90000287988 EFLAGS: 00010282
+[    2.980614] RAX: 0000000000000000 RBX: ffff88031b488000 RCX: 0000000000000006
+[    2.980617] RDX: 0000000000000007 RSI: 0000000000000086 RDI: ffff880321ad54d0
+[    2.980620] RBP: ffffc90000287a10 R08: 000000000000040a R09: 0000000000000065
+[    2.980623] R10: ffff88030ebb8f00 R11: ffffffff81416590 R12: ffff88031b488000
+[    2.980626] R13: ffff88031b4883a0 R14: ffffc900002879a8 R15: ffff880319099800
+[    2.980630] FS:  00007f475620d180(0000) GS:ffff880321ac0000(0000) knlGS:0000000000000000
+[    2.980633] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    2.980636] CR2: 00007f9ef28018a0 CR3: 000000031b72c001 CR4: 00000000003606e0
+[    2.980639] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    2.980642] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    2.980645] Call Trace:
+[    2.980675]  i915_driver_load+0xb0e/0xdc0 [i915]
+[    2.980681]  ? kernfs_add_one+0xe7/0x130
+[    2.980709]  i915_pci_probe+0x46/0x60 [i915]
+[    2.980715]  pci_device_probe+0xd4/0x150
+[    2.980719]  really_probe+0x243/0x3b0
+[    2.980722]  driver_probe_device+0xba/0x100
+[    2.980726]  __driver_attach+0xe4/0x110
+[    2.980729]  ? driver_probe_device+0x100/0x100
+[    2.980733]  bus_for_each_dev+0x74/0xb0
+[    2.980736]  driver_attach+0x1e/0x20
+[    2.980739]  bus_add_driver+0x159/0x230
+[    2.980743]  ? 0xffffffffa0393000
+[    2.980746]  driver_register+0x70/0xc0
+[    2.980749]  ? 0xffffffffa0393000
+[    2.980753]  __pci_register_driver+0x57/0x60
+[    2.980780]  i915_init+0x55/0x58 [i915]
+[    2.980785]  do_one_initcall+0x4a/0x1c4
+[    2.980789]  ? do_init_module+0x27/0x210
+[    2.980793]  ? kmem_cache_alloc_trace+0x131/0x190
+[    2.980797]  do_init_module+0x60/0x210
+[    2.980800]  load_module+0x2063/0x22e0
+[    2.980804]  ? vfs_read+0x116/0x140
+[    2.980807]  ? vfs_read+0x116/0x140
+[    2.980811]  __do_sys_finit_module+0xbd/0x120
+[    2.980814]  ? __do_sys_finit_module+0xbd/0x120
+[    2.980818]  __x64_sys_finit_module+0x1a/0x20
+[    2.980821]  do_syscall_64+0x5a/0x110
+[    2.980824]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    2.980826] RIP: 0033:0x7f4754e32879
+[    2.980828] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d f7 45 2c 00 f7 d8 64 89 01 48
+[    2.980831] RSP: 002b:00007fff43fd97d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    2.980834] RAX: ffffffffffffffda RBX: 0000559a44ca64f0 RCX: 00007f4754e32879
+[    2.980836] RDX: 0000000000000000 RSI: 00007f475599f4cd RDI: 0000000000000018
+[    2.980838] RBP: 00007f475599f4cd R08: 0000000000000000 R09: 0000000000000000
+[    2.980839] R10: 0000000000000018 R11: 0000000000000246 R12: 0000000000000000
+[    2.980841] R13: 0000559a44c92fd0 R14: 0000000000020000 R15: 0000000000000000
+[    2.980881] WARNING: CPU: 3 PID: 551 at drivers/gpu/drm/i915/intel_display.c:14983 intel_modeset_init+0x14d7/0x19f0 [i915]
+[    2.980884] ---[ end trace 5eb47a76277d4731 ]---
 
-This race was introduced in commit cafe56359144 ("bcache: A block layer
-cache"), and enlarged by commit c4dc2497d50d ("bcache: fix high CPU
-occupancy during journal"), which selected 128 btree nodes and flushed
-them one-by-one in a quite long time period.
+The cause of this appears to be due to the fact that if there's
+pre-existing display state that was set by the BIOS when i915 loads, it
+will attempt to perform a modeset before the driver is registered with
+userspace. Since this happens before the driver's registered with
+userspace, it's connectors are also unregistered and thus-states which
+would turn on DPMS on a connector end up getting rejected since the
+connector isn't registered.
 
-Such race is not easy to reproduce before. On a Lenovo SR650 server with
-48 Xeon cores, and configure 1 NVMe SSD as cache device, a MD raid0
-device assembled by 3 NVMe SSDs as backing device, this race can be
-observed around every 10,000 times btree_flush_write() gets called. Both
-deadlock and kernel panic all happened as aftermath of the race.
+These bugs managed to get past Intel's CI partially due to the fact it
+never ran a full test on my patches for some reason, but also because
+all of the tests unload the GPU once before running. Since this bug is
+only really triggered when the drivers tries to perform a modeset before
+it's been fully registered with userspace when coming from whatever
+display configuration the firmware left us with, it likely would never
+have been picked up by CI in the first place.
 
-The idea of the fix is to add a btree flag BTREE_NODE_journal_flush. It
-is set when selecting btree nodes, and cleared after btree nodes
-flushed. Then when mca_reap() selects a btree node with this bit set,
-this btree node will be skipped. Since mca_reap() only reaps btree node
-without BTREE_NODE_journal_flush flag, such race is avoided.
+After some discussion with vsyrjala, we decided the best course of
+action would be to just move the unregistered connector checks out of
+update_connector_routing() and into drm_atomic_set_crtc_for_connector().
+The reason for this being that legacy modesetting isn't going to be
+expecting failures anywhere (at least this is the case with X), so
+ideally we want to ensure that any DPMS changes will still work even on
+unregistered connectors. Instead, we now only reject new modesets which
+would change the current CRTC assigned to an unregistered connector
+unless no new CRTC is being assigned to replace the connector's previous
+one.
 
-Once corner case should be noticed, that is btree_node_free(). It might
-be called in some error handling code path. For example the following
-code piece from btree_split(),
-        2149 err_free2:
-        2150         bkey_put(b->c, &n2->key);
-        2151         btree_node_free(n2);
-        2152         rw_unlock(true, n2);
-        2153 err_free1:
-        2154         bkey_put(b->c, &n1->key);
-        2155         btree_node_free(n1);
-        2156         rw_unlock(true, n1);
-At line 2151 and 2155, the btree node n2 and n1 are released without
-mac_reap(), so BTREE_NODE_journal_flush also needs to be checked here.
-If btree_node_free() is called directly in such error handling path,
-and the selected btree node has BTREE_NODE_journal_flush bit set, just
-delay for 1 us and retry again. In this case this btree node won't
-be skipped, just retry until the BTREE_NODE_journal_flush bit cleared,
-and free the btree node memory.
-
-Fixes: cafe56359144 ("bcache: A block layer cache")
-Signed-off-by: Coly Li <colyli@suse.de>
-Reported-and-tested-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Fixes: 4d80273976bf ("drm/atomic_helper: Disallow new modesets on unregistered connectors")
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181009204424.21462-1-lyude@redhat.com
+(cherry picked from commit b5d29843d8ef86d4cde4742e095b81b7fd41e688)
+Fixes: e96550956fbc ("drm/atomic_helper: Disallow new modesets on unregistered connectors")
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/btree.c   | 28 +++++++++++++++++++++++++++-
- drivers/md/bcache/btree.h   |  2 ++
- drivers/md/bcache/journal.c |  7 +++++++
- 3 files changed, 36 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_atomic.c        | 21 +++++++++++++++++++++
+ drivers/gpu/drm/drm_atomic_helper.c | 21 +--------------------
+ 2 files changed, 22 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index e0468fd41b6ea..45f684689c357 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -35,7 +35,7 @@
- #include <linux/rcupdate.h>
- #include <linux/sched/clock.h>
- #include <linux/rculist.h>
+diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
+index 281cf9cbb44c4..1a4b44923aeca 100644
+--- a/drivers/gpu/drm/drm_atomic.c
++++ b/drivers/gpu/drm/drm_atomic.c
+@@ -1702,6 +1702,27 @@ drm_atomic_set_crtc_for_connector(struct drm_connector_state *conn_state,
+ 	struct drm_connector *connector = conn_state->connector;
+ 	struct drm_crtc_state *crtc_state;
+ 
++	/*
++	 * For compatibility with legacy users, we want to make sure that
++	 * we allow DPMS On<->Off modesets on unregistered connectors, since
++	 * legacy modesetting users will not be expecting these to fail. We do
++	 * not however, want to allow legacy users to assign a connector
++	 * that's been unregistered from sysfs to another CRTC, since doing
++	 * this with a now non-existent connector could potentially leave us
++	 * in an invalid state.
++	 *
++	 * Since the connector can be unregistered at any point during an
++	 * atomic check or commit, this is racy. But that's OK: all we care
++	 * about is ensuring that userspace can't use this connector for new
++	 * configurations after it's been notified that the connector is no
++	 * longer present.
++	 */
++	if (!READ_ONCE(connector->registered) && crtc) {
++		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
++				 connector->base.id, connector->name);
++		return -EINVAL;
++	}
++
+ 	if (conn_state->crtc == crtc)
+ 		return 0;
+ 
+diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+index 71c70a031a043..c22062cc99923 100644
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -307,26 +307,6 @@ update_connector_routing(struct drm_atomic_state *state,
+ 		return 0;
+ 	}
+ 
+-	crtc_state = drm_atomic_get_new_crtc_state(state,
+-						   new_connector_state->crtc);
+-	/*
+-	 * For compatibility with legacy users, we want to make sure that
+-	 * we allow DPMS On->Off modesets on unregistered connectors. Modesets
+-	 * which would result in anything else must be considered invalid, to
+-	 * avoid turning on new displays on dead connectors.
+-	 *
+-	 * Since the connector can be unregistered at any point during an
+-	 * atomic check or commit, this is racy. But that's OK: all we care
+-	 * about is ensuring that userspace can't do anything but shut off the
+-	 * display on a connector that was destroyed after its been notified,
+-	 * not before.
+-	 */
+-	if (!READ_ONCE(connector->registered) && crtc_state->active) {
+-		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
+-				 connector->base.id, connector->name);
+-		return -EINVAL;
+-	}
 -
-+#include <linux/delay.h>
- #include <trace/events/bcache.h>
+ 	funcs = connector->helper_private;
  
- /*
-@@ -649,12 +649,25 @@ static int mca_reap(struct btree *b, unsigned int min_order, bool flush)
- 		up(&b->io_mutex);
- 	}
+ 	if (funcs->atomic_best_encoder)
+@@ -371,6 +351,7 @@ update_connector_routing(struct drm_atomic_state *state,
  
-+retry:
- 	/*
- 	 * BTREE_NODE_dirty might be cleared in btree_flush_btree() by
- 	 * __bch_btree_node_write(). To avoid an extra flush, acquire
- 	 * b->write_lock before checking BTREE_NODE_dirty bit.
- 	 */
- 	mutex_lock(&b->write_lock);
-+	/*
-+	 * If this btree node is selected in btree_flush_write() by journal
-+	 * code, delay and retry until the node is flushed by journal code
-+	 * and BTREE_NODE_journal_flush bit cleared by btree_flush_write().
-+	 */
-+	if (btree_node_journal_flush(b)) {
-+		pr_debug("bnode %p is flushing by journal, retry", b);
-+		mutex_unlock(&b->write_lock);
-+		udelay(1);
-+		goto retry;
-+	}
-+
- 	if (btree_node_dirty(b))
- 		__bch_btree_node_write(b, &cl);
- 	mutex_unlock(&b->write_lock);
-@@ -1071,7 +1084,20 @@ static void btree_node_free(struct btree *b)
+ 	set_best_encoder(state, new_connector_state, new_encoder);
  
- 	BUG_ON(b == b->c->root);
++	crtc_state = drm_atomic_get_new_crtc_state(state, new_connector_state->crtc);
+ 	crtc_state->connectors_changed = true;
  
-+retry:
- 	mutex_lock(&b->write_lock);
-+	/*
-+	 * If the btree node is selected and flushing in btree_flush_write(),
-+	 * delay and retry until the BTREE_NODE_journal_flush bit cleared,
-+	 * then it is safe to free the btree node here. Otherwise this btree
-+	 * node will be in race condition.
-+	 */
-+	if (btree_node_journal_flush(b)) {
-+		mutex_unlock(&b->write_lock);
-+		pr_debug("bnode %p journal_flush set, retry", b);
-+		udelay(1);
-+		goto retry;
-+	}
- 
- 	if (btree_node_dirty(b)) {
- 		btree_complete_write(b, btree_current_write(b));
-diff --git a/drivers/md/bcache/btree.h b/drivers/md/bcache/btree.h
-index a68d6c55783bd..4d0cca145f699 100644
---- a/drivers/md/bcache/btree.h
-+++ b/drivers/md/bcache/btree.h
-@@ -158,11 +158,13 @@ enum btree_flags {
- 	BTREE_NODE_io_error,
- 	BTREE_NODE_dirty,
- 	BTREE_NODE_write_idx,
-+	BTREE_NODE_journal_flush,
- };
- 
- BTREE_FLAG(io_error);
- BTREE_FLAG(dirty);
- BTREE_FLAG(write_idx);
-+BTREE_FLAG(journal_flush);
- 
- static inline struct btree_write *btree_current_write(struct btree *b)
- {
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index ec1e35a62934d..7bb15cddca5ec 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -404,6 +404,7 @@ static void btree_flush_write(struct cache_set *c)
- retry:
- 	best = NULL;
- 
-+	mutex_lock(&c->bucket_lock);
- 	for_each_cached_btree(b, c, i)
- 		if (btree_current_write(b)->journal) {
- 			if (!best)
-@@ -416,9 +417,14 @@ retry:
- 		}
- 
- 	b = best;
-+	if (b)
-+		set_btree_node_journal_flush(b);
-+	mutex_unlock(&c->bucket_lock);
-+
- 	if (b) {
- 		mutex_lock(&b->write_lock);
- 		if (!btree_current_write(b)->journal) {
-+			clear_bit(BTREE_NODE_journal_flush, &b->flags);
- 			mutex_unlock(&b->write_lock);
- 			/* We raced */
- 			atomic_long_inc(&c->retry_flush_write);
-@@ -426,6 +432,7 @@ retry:
- 		}
- 
- 		__bch_btree_node_write(b, NULL);
-+		clear_bit(BTREE_NODE_journal_flush, &b->flags);
- 		mutex_unlock(&b->write_lock);
- 	}
- }
+ 	DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] using [ENCODER:%d:%s] on [CRTC:%d:%s]\n",
 -- 
 2.20.1
 
