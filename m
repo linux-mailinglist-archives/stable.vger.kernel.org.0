@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB73B2675
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 22:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D01FB2676
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 22:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388826AbfIMUIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387528AbfIMUIz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 13 Sep 2019 16:08:55 -0400
-Received: from ma1-aaemail-dr-lapp01.apple.com ([17.171.2.60]:41996 "EHLO
+Received: from ma1-aaemail-dr-lapp01.apple.com ([17.171.2.60]:41994 "EHLO
         ma1-aaemail-dr-lapp01.apple.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387528AbfIMUIz (ORCPT
+        by vger.kernel.org with ESMTP id S2388418AbfIMUIz (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 16:08:55 -0400
 Received: from pps.filterd (ma1-aaemail-dr-lapp01.apple.com [127.0.0.1])
-        by ma1-aaemail-dr-lapp01.apple.com (8.16.0.27/8.16.0.27) with SMTP id x8DK7UGA025494;
-        Fri, 13 Sep 2019 13:08:47 -0700
+        by ma1-aaemail-dr-lapp01.apple.com (8.16.0.27/8.16.0.27) with SMTP id x8DK7UGB025494;
+        Fri, 13 Sep 2019 13:08:48 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=sender : from : to :
  cc : subject : date : message-id : in-reply-to : references : mime-version
  : content-transfer-encoding; s=20180706;
- bh=fmGciNFPXcHGE8BB8nZtj7nofklsFY8j4wWpROMqVf8=;
- b=r+6ckrthrHbbZMwygVwuYs0Yj1ZJN24JtbN0JhkUTK9MAlVWUQCjgNIkJAPMaipyM+sC
- HKIHNqNFEL2DRv66/vT5CecDFoCSbhlDo8cU6GsPVAbIjQ9hEG4DcR7EvXbuEvTWgeFA
- RAhbwhK6I4yxj43JoKRG3jlkqDht4vCsGgAHcoXSwNBT2fOtDh6z6Rxo349obAne/EVy
- S8EPze1/GLhSztYuU6braIFKwbCl4JbtFRCwtK4Lqeevw5EjasfhtSdjtiZ6NE4oNk94
- fBveKKB9FtfByki0ewOV4BBGD2a5G+UdUB2ZSPG3UUfPsASjL127ama5GR06mz+HB7e+ ag== 
+ bh=Cl0/9BEwqVTznNJHDXEMlsE95OlDBDfy6yu6tW5YZZo=;
+ b=PNkESUiZQd87Ss40VDO1l2do63+ZAN4MImExSevsqLUAzj0TVneCkoGU8QZ7o+xPoJg6
+ ji7iaKSO3nuzQ+GZgzznFbh3Ey22DGBwSWdp7wKU+mtOo/rW1TB4azcEiZlVxbqVjdsG
+ eCkw58a98PcMajddqE9eH7HqwVKaBrgRXISyww15wviObvkgG0KyZI28iwcfSuNsUpRt
+ fvJrfzAeo8sCJEMnNpDsfvDXPj4wzL9r2ApKW3LnpYxZQ9lOsXaNs7u6Sg/z4RqjC+uY
+ fD/zbp3B3xm8XSsKKEvCBB7ejqbk+5Np97AL43IoqoKIQl0fh3WcThmb0dudeYDqU98e 1Q== 
 Received: from mr2-mtap-s01.rno.apple.com (mr2-mtap-s01.rno.apple.com [17.179.226.133])
-        by ma1-aaemail-dr-lapp01.apple.com with ESMTP id 2uytc96atb-1
+        by ma1-aaemail-dr-lapp01.apple.com with ESMTP id 2uytc96atb-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
-        Fri, 13 Sep 2019 13:08:47 -0700
+        Fri, 13 Sep 2019 13:08:48 -0700
 Received: from nwk-mmpp-sz11.apple.com
  (nwk-mmpp-sz11.apple.com [17.128.115.155]) by mr2-mtap-s01.rno.apple.com
  (Oracle Communications Messaging Server 8.0.2.4.20190507 64bit (built May  7
@@ -36,25 +36,25 @@ Received: from process_milters-daemon.nwk-mmpp-sz11.apple.com by
  nwk-mmpp-sz11.apple.com
  (Oracle Communications Messaging Server 8.0.2.4.20190507 64bit (built May  7
  2019)) id <0PXS00600BUJM500@nwk-mmpp-sz11.apple.com>; Fri,
- 13 Sep 2019 13:08:45 -0700 (PDT)
+ 13 Sep 2019 13:08:46 -0700 (PDT)
 X-Va-A: 
 X-Va-T-CD: cef315c09824b9b3685831d03331f616
-X-Va-E-CD: d8561ddf52739a1990d7af6350dcaa40
-X-Va-R-CD: 7946abf6a727bfb48788ab678c68e53f
+X-Va-E-CD: e7f83a7b098f4522f40c6449b31c3dc4
+X-Va-R-CD: c332049a6b862975672135a329fd601c
 X-Va-CD: 0
-X-Va-ID: 5a35d23a-51ce-4d0d-90dd-2561279704f5
+X-Va-ID: d15336aa-db7c-4fcb-8f36-5c1bffb1fe84
 X-V-A:  
 X-V-T-CD: cef315c09824b9b3685831d03331f616
-X-V-E-CD: d8561ddf52739a1990d7af6350dcaa40
-X-V-R-CD: 7946abf6a727bfb48788ab678c68e53f
+X-V-E-CD: e7f83a7b098f4522f40c6449b31c3dc4
+X-V-R-CD: c332049a6b862975672135a329fd601c
 X-V-CD: 0
-X-V-ID: f4f72e15-46fd-4c25-9c70-a5cd3ece9712
+X-V-ID: f0affeb1-3a2d-4a91-91ba-87ce63d08ef4
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,,
  definitions=2019-09-13_09:,, signatures=0
 Received: from localhost ([17.192.155.217]) by nwk-mmpp-sz11.apple.com
  (Oracle Communications Messaging Server 8.0.2.4.20190507 64bit (built May  7
- 2019)) with ESMTPSA id <0PXS007SRDAKTY50@nwk-mmpp-sz11.apple.com>; Fri,
- 13 Sep 2019 13:08:44 -0700 (PDT)
+ 2019)) with ESMTPSA id <0PXS007SUDAMTY50@nwk-mmpp-sz11.apple.com>; Fri,
+ 13 Sep 2019 13:08:46 -0700 (PDT)
 From:   Christoph Paasch <cpaasch@apple.com>
 To:     stable@vger.kernel.org, netdev@vger.kernel.org,
         gregkh@linuxfoundation.org, Sasha Levin <sashal@kernel.org>
@@ -64,10 +64,10 @@ Cc:     David Miller <davem@davemloft.net>,
         Vladimir Rutsky <rutsky@google.com>,
         Soheil Hassas Yeganeh <soheil@google.com>,
         Neal Cardwell <ncardwell@google.com>
-Subject: [PATCH v4.14-stable 1/2] tcp: Reset send_head when removing skb from
+Subject: [PATCH v4.14-stable 2/2] tcp: Don't dequeue SYN/FIN-segments from
  write-queue
-Date:   Fri, 13 Sep 2019 13:08:18 -0700
-Message-id: <20190913200819.32686-2-cpaasch@apple.com>
+Date:   Fri, 13 Sep 2019 13:08:19 -0700
+Message-id: <20190913200819.32686-3-cpaasch@apple.com>
 X-Mailer: git-send-email 2.21.0
 In-reply-to: <20190913200819.32686-1-cpaasch@apple.com>
 References: <20190913200819.32686-1-cpaasch@apple.com>
@@ -80,36 +80,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-syzkaller is not happy since commit fdfc5c8594c2 ("tcp: remove empty skb
-from write queue in error cases"):
+If a SYN/FIN-segment is on the write-queue, skb->len is 0, but the
+segment actually has been transmitted. end_seq and seq of the tcp_skb_cb
+in that case will indicate this difference.
 
-CPU: 1 PID: 13814 Comm: syz-executor.4 Not tainted 4.14.143 #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.5.1 01/01/2011
-task: ffff888040105c00 task.stack: ffff8880649c0000
-RIP: 0010:tcp_sendmsg_locked+0x6b4/0x4390 net/ipv4/tcp.c:1350
-RSP: 0018:ffff8880649cf718 EFLAGS: 00010206
-RAX: 0000000000000014 RBX: 000000000000001e RCX: ffffc90000717000
-RDX: 0000000000000077 RSI: ffffffff82e760f7 RDI: 00000000000000a0
-RBP: ffff8880649cfaa8 R08: 1ffff1100c939e7a R09: ffff8880401063c8
-R10: 0000000000000003 R11: 0000000000000001 R12: dffffc0000000000
-R13: ffff888043d74750 R14: ffff888043d74500 R15: 000000000000001e
-FS:  00007f0afcb6d700(0000) GS:ffff88806cf00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2ca22000 CR3: 0000000040496004 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- tcp_sendmsg+0x2a/0x40 net/ipv4/tcp.c:1533
- inet_sendmsg+0x173/0x4e0 net/ipv4/af_inet.c:784
- sock_sendmsg_nosec net/socket.c:646 [inline]
- sock_sendmsg+0xc3/0x100 net/socket.c:656
- SYSC_sendto+0x35d/0x5e0 net/socket.c:1766
- do_syscall_64+0x241/0x680 arch/x86/entry/common.c:292
- entry_SYSCALL_64_after_hwframe+0x42/0xb7
+We should not remove such segments from the write-queue as we might be
+in SYN_SENT-state and a retransmission-timer is running. When that one
+fires, packets_out will be 1, but the write-queue would be empty,
+resulting in:
 
-The problem is that we are removing an skb from the write-queue that
-could have been referenced by the sk_send_head. Thus, we need to check
-for the send_head's sanity after removing it.
+[   61.280214] ------------[ cut here ]------------
+[   61.281307] WARNING: CPU: 0 PID: 0 at net/ipv4/tcp_timer.c:429 tcp_retransmit_timer+0x18f9/0x2660
+[   61.283498] Modules linked in:
+[   61.284084] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.14.142 #58
+[   61.285214] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.5.1 01/01/2011
+[   61.286644] task: ffffffff8401e1c0 task.stack: ffffffff84000000
+[   61.287758] RIP: 0010:tcp_retransmit_timer+0x18f9/0x2660
+[   61.288715] RSP: 0018:ffff88806ce07cb8 EFLAGS: 00010206
+[   61.289669] RAX: ffffffff8401e1c0 RBX: ffff88805c998b00 RCX: 0000000000000006
+[   61.290968] RDX: 0000000000000100 RSI: 0000000000000000 RDI: ffff88805c9994d8
+[   61.292314] RBP: ffff88805c99919a R08: ffff88807fff901c R09: ffff88807fff9008
+[   61.293547] R10: ffff88807fff9017 R11: ffff88807fff9010 R12: ffff88805c998b30
+[   61.294834] R13: ffffffff844b9380 R14: 0000000000000000 R15: ffff88805c99930c
+[   61.296086] FS:  0000000000000000(0000) GS:ffff88806ce00000(0000) knlGS:0000000000000000
+[   61.297523] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   61.298646] CR2: 00007f721da50ff8 CR3: 0000000004014002 CR4: 00000000001606f0
+[   61.299944] Call Trace:
+[   61.300403]  <IRQ>
+[   61.300806]  ? kvm_sched_clock_read+0x21/0x30
+[   61.301689]  ? sched_clock+0x5/0x10
+[   61.302433]  ? sched_clock_cpu+0x18/0x170
+[   61.303173]  tcp_write_timer_handler+0x2c1/0x7a0
+[   61.304038]  tcp_write_timer+0x13e/0x160
+[   61.304794]  call_timer_fn+0x14a/0x5f0
+[   61.305480]  ? tcp_write_timer_handler+0x7a0/0x7a0
+[   61.306364]  ? __next_timer_interrupt+0x140/0x140
+[   61.307229]  ? _raw_spin_unlock_irq+0x24/0x40
+[   61.308033]  ? tcp_write_timer_handler+0x7a0/0x7a0
+[   61.308887]  ? tcp_write_timer_handler+0x7a0/0x7a0
+[   61.309760]  run_timer_softirq+0xc41/0x1080
+[   61.310539]  ? trigger_dyntick_cpu.isra.33+0x180/0x180
+[   61.311506]  ? ktime_get+0x13f/0x1c0
+[   61.312232]  ? clockevents_program_event+0x10d/0x2f0
+[   61.313158]  __do_softirq+0x20b/0x96b
+[   61.313889]  irq_exit+0x1a7/0x1e0
+[   61.314513]  smp_apic_timer_interrupt+0xfc/0x4d0
+[   61.315386]  apic_timer_interrupt+0x8f/0xa0
+[   61.316129]  </IRQ>
+
+Followed by a panic.
+
+So, before removing an skb with skb->len == 0, let's make sure that the
+skb is really empty by checking the end_seq and seq.
 
 This patch needs to be backported only to 4.14 and older (among those
 that applied the backport of fdfc5c8594c2).
@@ -122,23 +144,23 @@ Cc: Soheil Hassas Yeganeh <soheil@google.com>
 Cc: Neal Cardwell <ncardwell@google.com>
 Signed-off-by: Christoph Paasch <cpaasch@apple.com>
 ---
- net/ipv4/tcp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/ipv4/tcp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 5ce069ce2a97..efe767e20d01 100644
+index efe767e20d01..c1f59a53f68f 100644
 --- a/net/ipv4/tcp.c
 +++ b/net/ipv4/tcp.c
-@@ -924,8 +924,7 @@ static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
+@@ -922,7 +922,8 @@ static int tcp_send_mss(struct sock *sk, int *size_goal, int flags)
+  */
+ static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
  {
- 	if (skb && !skb->len) {
+-	if (skb && !skb->len) {
++	if (skb && !skb->len &&
++	    TCP_SKB_CB(skb)->end_seq == TCP_SKB_CB(skb)->seq) {
  		tcp_unlink_write_queue(skb, sk);
--		if (tcp_write_queue_empty(sk))
--			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
-+		tcp_check_send_head(sk, skb);
+ 		tcp_check_send_head(sk, skb);
  		sk_wmem_free_skb(sk, skb);
- 	}
- }
 -- 
 2.21.0
 
