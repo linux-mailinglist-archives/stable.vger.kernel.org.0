@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CFBB2054
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC4FB2069
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390649AbfIMNUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
+        id S2390244AbfIMNVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390644AbfIMNUt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:20:49 -0400
+        id S2390847AbfIMNVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:21:38 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3089920CC7;
-        Fri, 13 Sep 2019 13:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12C44206BB;
+        Fri, 13 Sep 2019 13:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380848;
-        bh=qYVMk1Hx+6nEgYmyCC8RINbJ2qHv93AeLhQL+41kAmo=;
+        s=default; t=1568380897;
+        bh=Bm1BnlIDZUnwryajTE320S6bTasMDDIgTNO3VcEA5Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHyQdZPRaq+Yjnr5Ke2BwOih76zQZa5Qui8htFXBPtV2WRGLQeMb8xMyUL0e0yvuE
-         FfhJPiMD+syPJHQXQQ6u2q4/GDqDFs77T6nKvm5mdEp4hMw9JTk7WV/Lay8FoWKSiB
-         dq4tX7lqU8UTR1q1KjHn2HyBq7XRjWA5G7v/9q3c=
+        b=J0TEHSpt7IPdnwZzv/kFZz9TlYy6bxsnqdG1hjpMwMca4JxOnQGErBYQCQqfuxXcH
+         CDLCNeIznuq4JS0Rh7D+2ifcFR2m00x07ZCi0wT1ShbFcDuoCd8u38mYq93ieMI9/h
+         z3Glo/jQIkstwvA2OHHjvM6Mf8p72sPYmjPqGVdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 184/190] ext4: fix block validity checks for journal inodes using indirect blocks
+        Gustavo Romero <gromero@linux.vnet.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.2 14/37] powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
 Date:   Fri, 13 Sep 2019 14:07:19 +0100
-Message-Id: <20190913130614.571217202@linuxfoundation.org>
+Message-Id: <20190913130516.440597006@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
-References: <20190913130559.669563815@linuxfoundation.org>
+In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
+References: <20190913130510.727515099@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 170417c8c7bb2cbbdd949bf5c443c0c8f24a203b ]
+From: Gustavo Romero <gromero@linux.ibm.com>
 
-Commit 345c0dbf3a30 ("ext4: protect journal inode's blocks using
-block_validity") failed to add an exception for the journal inode in
-ext4_check_blockref(), which is the function used by ext4_get_branch()
-for indirect blocks.  This caused attempts to read from the ext3-style
-journals to fail with:
+commit 8205d5d98ef7f155de211f5e2eb6ca03d95a5a60 upstream.
 
-[  848.968550] EXT4-fs error (device sdb7): ext4_get_branch:171: inode #8: block 30343695: comm jbd2/sdb7-8: invalid block
+When we take an FP unavailable exception in a transaction we have to
+account for the hardware FP TM checkpointed registers being
+incorrect. In this case for this process we know the current and
+checkpointed FP registers must be the same (since FP wasn't used
+inside the transaction) hence in the thread_struct we copy the current
+FP registers to the checkpointed ones.
 
-Fix this by adding the missing exception check.
+This copy is done in tm_reclaim_thread(). We use thread->ckpt_regs.msr
+to determine if FP was on when in userspace. thread->ckpt_regs.msr
+represents the state of the MSR when exiting userspace. This is setup
+by check_if_tm_restore_required().
 
-Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunatley there is an optimisation in giveup_all() which returns
+early if tsk->thread.regs->msr (via local variable `usermsr`) has
+FP=VEC=VSX=SPE=0. This optimisation means that
+check_if_tm_restore_required() is not called and hence
+thread->ckpt_regs.msr is not updated and will contain an old value.
+
+This can happen if due to load_fp=255 we start a userspace process
+with MSR FP=1 and then we are context switched out. In this case
+thread->ckpt_regs.msr will contain FP=1. If that same process is then
+context switched in and load_fp overflows, MSR will have FP=0. If that
+process now enters a transaction and does an FP instruction, the FP
+unavailable will not update thread->ckpt_regs.msr (the bug) and MSR
+FP=1 will be retained in thread->ckpt_regs.msr.  tm_reclaim_thread()
+will then not perform the required memcpy and the checkpointed FP regs
+in the thread struct will contain the wrong values.
+
+The code path for this happening is:
+
+       Userspace:                      Kernel
+                   Start userspace
+                    with MSR FP/VEC/VSX/SPE=0 TM=1
+                      < -----
+       ...
+       tbegin
+       bne
+       fp instruction
+                   FP unavailable
+                       ---- >
+                                        fp_unavailable_tm()
+					  tm_reclaim_current()
+					    tm_reclaim_thread()
+					      giveup_all()
+					        return early since FP/VMX/VSX=0
+						/* ckpt MSR not updated (Incorrect) */
+					      tm_reclaim()
+					        /* thread_struct ckpt FP regs contain junk (OK) */
+                                              /* Sees ckpt MSR FP=1 (Incorrect) */
+					      no memcpy() performed
+					        /* thread_struct ckpt FP regs not fixed (Incorrect) */
+					  tm_recheckpoint()
+					     /* Put junk in hardware checkpoint FP regs */
+                                         ....
+                      < -----
+                   Return to userspace
+                     with MSR TM=1 FP=1
+                     with junk in the FP TM checkpoint
+       TM rollback
+       reads FP junk
+
+This is a data integrity problem for the current process as the FP
+registers are corrupted. It's also a security problem as the FP
+registers from one process may be leaked to another.
+
+This patch moves up check_if_tm_restore_required() in giveup_all() to
+ensure thread->ckpt_regs.msr is updated correctly.
+
+A simple testcase to replicate this will be posted to
+tools/testing/selftests/powerpc/tm/tm-poison.c
+
+Similarly for VMX.
+
+This fixes CVE-2019-15030.
+
+Fixes: f48e91e87e67 ("powerpc/tm: Fix FP and VMX register corruption")
+Cc: stable@vger.kernel.org # 4.12+
+Signed-off-by: Gustavo Romero <gromero@linux.vnet.ibm.com>
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190904045529.23002-1-gromero@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/block_validity.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kernel/process.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 9409b1e11a22e..cd7129b622f85 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -275,6 +275,11 @@ int ext4_check_blockref(const char *function, unsigned int line,
- 	__le32 *bref = p;
- 	unsigned int blk;
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -497,13 +497,14 @@ void giveup_all(struct task_struct *tsk)
+ 	if (!tsk->thread.regs)
+ 		return;
  
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
++	check_if_tm_restore_required(tsk);
 +
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
--- 
-2.20.1
-
+ 	usermsr = tsk->thread.regs->msr;
+ 
+ 	if ((usermsr & msr_all_available) == 0)
+ 		return;
+ 
+ 	msr_check_and_set(msr_all_available);
+-	check_if_tm_restore_required(tsk);
+ 
+ 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
+ 
 
 
