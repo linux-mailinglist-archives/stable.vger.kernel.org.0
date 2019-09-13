@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD8BB1FDC
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE17B1FD4
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388529AbfIMNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:09:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
+        id S2388395AbfIMNJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388524AbfIMNJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:09:30 -0400
+        id S2388393AbfIMNI7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:08:59 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBAA720CC7;
-        Fri, 13 Sep 2019 13:09:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7D6E20CC7;
+        Fri, 13 Sep 2019 13:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380169;
-        bh=p2OG/25OntIVnTzVIz2+SUyWxOBIql0bEaDlV5Vj7Nc=;
+        s=default; t=1568380139;
+        bh=xxcNvHAUzHqpe4b/uPFLBWmvx6l6ZoYVFfAIjThIUSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PN7aJngVSBVqykgBBLB7nzSkkOBrfdxf/ALhUEuo6tDPXaIZPUzka4ytnI0Wv6CHl
-         FJhiw4h22XJRA09CcEo2yHsh029bOQtvmh4Sow4A9K3lQ0icVcbsDb8X6tVCrFnHgm
-         j9DZz0odvb/Pe8L7GUuAflysL4qZoVeYs+CTM6vE=
+        b=LtoGSUkn9jr+SMUTRjFJg3tu2sBUCnjwzDdas20DtDWQyLvMEVIiKXCx0XVe+vY78
+         eDrOamobVi3jvNAIgTANsHOIT/CnLiZGQnUuRl/xI9zTOW8/P/LvC3vQ15iW5Nng0z
+         rWQb3cVBrrWvfq/oXLse37dSKq8npwviAcs7WqXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 4.9 04/14] drm/vmwgfx: Fix double free in vmw_recv_msg()
-Date:   Fri, 13 Sep 2019 14:06:57 +0100
-Message-Id: <20190913130443.808362056@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 8/9] af_packet: tone down the Tx-ring unsupported spew.
+Date:   Fri, 13 Sep 2019 14:06:58 +0100
+Message-Id: <20190913130431.515555493@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
-References: <20190913130440.264749443@linuxfoundation.org>
+In-Reply-To: <20190913130424.160808669@linuxfoundation.org>
+References: <20190913130424.160808669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+[ Upstream commit 6ae81ced378820c4c6434b1dedba14a7122df310 ]
 
-commit 08b0c891605acf727e43e3e03a25857d3e789b61 upstream.
+Trinity and other fuzzers can hit this WARN on far too easily,
+resulting in a tainted kernel that hinders automated fuzzing.
 
-We recently added a kfree() after the end of the loop:
+Replace it with a rate-limited printk.
 
-	if (retries == RETRIES) {
-		kfree(reply);
-		return -EINVAL;
-	}
-
-There are two problems.  First the test is wrong and because retries
-equals RETRIES if we succeed on the last iteration through the loop.
-Second if we fail on the last iteration through the loop then the kfree
-is a double free.
-
-When you're reading this code, please note the break statement at the
-end of the while loop.  This patch changes the loop so that if it's not
-successful then "reply" is NULL and we can test for that afterward.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 6b7c3b86f0b6 ("drm/vmwgfx: fix memory leak when too many retries have occurred")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dave Jones <davej@codemonkey.org.uk>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/packet/af_packet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -264,7 +264,7 @@ static int vmw_recv_msg(struct rpc_chann
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 5d8988185c591..0dd9fc3f57e87 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4176,7 +4176,7 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
  
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ebx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -288,7 +288,7 @@ static int vmw_recv_msg(struct rpc_chann
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ecx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -300,10 +300,8 @@ static int vmw_recv_msg(struct rpc_chann
- 		break;
+ 	/* Opening a Tx-ring is NOT supported in TPACKET_V3 */
+ 	if (!closing && tx_ring && (po->tp_version > TPACKET_V2)) {
+-		WARN(1, "Tx-ring is not supported.\n");
++		net_warn_ratelimited("Tx-ring is not supported.\n");
+ 		goto out;
  	}
  
--	if (retries == RETRIES) {
--		kfree(reply);
-+	if (!reply)
- 		return -EINVAL;
--	}
- 
- 	*msg_len = reply_len;
- 	*msg     = reply;
+-- 
+2.20.1
+
 
 
