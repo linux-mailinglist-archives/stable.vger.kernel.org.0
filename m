@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8E6B2031
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DB6B2024
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390122AbfIMNSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
+        id S2389957AbfIMNQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390142AbfIMNSC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:18:02 -0400
+        id S2389952AbfIMNQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:16:54 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00E14206BB;
-        Fri, 13 Sep 2019 13:18:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B19B4206BB;
+        Fri, 13 Sep 2019 13:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380681;
-        bh=27MRX826Pi+M9axRz0cHbmgXj6AyIpoE/Xg4HHm+8WM=;
+        s=default; t=1568380614;
+        bh=iWIUAy8DQM/b3AxXFY8RBNb9Cjp0usuQ9n2TI1b8FBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEF16Yh4Q2LaPccTSdZv5NXE27MH7DeXqKlAYDh99ol+l13P7kTNWs4gzDKwaGEvk
-         DBanhgle0LZFg69iMUFYer9TsyQHVs2NGm+J45Py3AMaph75jMc5XrxPJhfrv8n71R
-         /FHxrZbZrgFL+OfA23M8qKTe1pEg67ATSiismgaA=
+        b=z+EEGfQM2xiJ2bf5z2VG8+997mkjRGbcUX5aRzy43TONAMla5ToJEZF3b9IbR36M3
+         G2uTrsCp5s7qoPCuocs/bZlqh8HOcfq4RUz3/BWsOzn/84G/6p9FVlU67VGmbVp9O1
+         N1E1fbtv1oxKhzJWc31yGMrhcH3uCflUktYtcd3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
+        stable@vger.kernel.org,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Rob Herring <robh@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/190] ARM: dts: qcom: ipq4019: Fix MSI IRQ type
-Date:   Fri, 13 Sep 2019 14:06:15 +0100
-Message-Id: <20190913130609.412047637@linuxfoundation.org>
+Subject: [PATCH 4.19 122/190] dt-bindings: mmc: Add supports-cqe property
+Date:   Fri, 13 Sep 2019 14:06:17 +0100
+Message-Id: <20190913130609.582905678@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,42 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 97131f85c08e024df49480ed499aae8fb754067f ]
+[ Upstream commit c7fddbd5db5cffd10ed4d18efa20e36803d1899f ]
 
-The databook clearly states that the MSI IRQ (msi_ctrl_int) is a level
-triggered interrupt.
+Add supports-cqe optional property for MMC hosts.
 
-The msi_ctrl_int will be high for as long as any MSI status bit is set,
-thus the IRQ type should be set to IRQ_TYPE_LEVEL_HIGH, causing the
-IRQ handler to keep getting called, as long as any MSI status bit is set.
+This property is used to identify the specific host controller
+supporting command queue.
 
-A git grep shows that ipq4019 is the only SoC using snps,dw-pcie that has
-configured this IRQ incorrectly.
-
-Not having the correct IRQ type defined will cause us to lose interrupts,
-which in turn causes timeouts in the PCIe endpoint drivers.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq4019.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/mmc/mmc.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-index 2c3168d95a2d5..814ab7283228a 100644
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -389,7 +389,7 @@
- 			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000
- 				  0x82000000 0 0x40300000 0x40300000 0 0x400000>;
+diff --git a/Documentation/devicetree/bindings/mmc/mmc.txt b/Documentation/devicetree/bindings/mmc/mmc.txt
+index f5a0923b34ca1..cdbcfd3a4ff21 100644
+--- a/Documentation/devicetree/bindings/mmc/mmc.txt
++++ b/Documentation/devicetree/bindings/mmc/mmc.txt
+@@ -62,6 +62,8 @@ Optional properties:
+   be referred to mmc-pwrseq-simple.txt. But now it's reused as a tunable delay
+   waiting for I/O signalling and card power supply to be stable, regardless of
+   whether pwrseq-simple is used. Default to 10ms if no available.
++- supports-cqe : The presence of this property indicates that the corresponding
++  MMC host controller supports HW command queue feature.
  
--			interrupts = <GIC_SPI 141 IRQ_TYPE_EDGE_RISING>;
-+			interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "msi";
- 			#interrupt-cells = <1>;
- 			interrupt-map-mask = <0 0 0 0x7>;
+ *NOTE* on CD and WP polarity. To use common for all SD/MMC host controllers line
+ polarity properties, we have to fix the meaning of the "normal" and "inverted"
 -- 
 2.20.1
 
