@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E109B1F7B
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC21B1F85
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390471AbfIMNT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48378 "EHLO mail.kernel.org"
+        id S2389994AbfIMNUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:20:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390461AbfIMNTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:55 -0400
+        id S2389983AbfIMNUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:14 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E71B20CC7;
-        Fri, 13 Sep 2019 13:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D51E42171F;
+        Fri, 13 Sep 2019 13:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380794;
-        bh=Tp8MXWBSE552OhJPfHXEWhrl96I1Fed4vFY+aEga0Oo=;
+        s=default; t=1568380812;
+        bh=H6rv7gekM6TM7NVq6Lf4Z3odoSAzQlt/TcNxyRz5CRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyLozP8SrFJADOOV8tzEMU3PvF0zgxd4HsNbbZqgenRw6hESOaMnavdETusYL6JSN
-         T3SpseUwEwA0CEh1LNIeiUqJ2QSTNSmU2od4gyQB9ZMLB/1qWS4RrhVv06T3k+CtwJ
-         1ZBWCpKVz2cPtj5CoER+tz1Nrztfcaq1j4ctzfUE=
+        b=CYJURzFfW/+aDaE8qXqjkX834fDoUtiiYHnJRfaYME2OI4GIAfs3oP1nmqhzaKs4f
+         15MAxwRJNEf8zDFcEr1wlNdehrm8CCycpDvLyON8LIdyKNL6LHBo9F/NX0iJK24nh3
+         nzyqiVpvGuYVFGTKc4gBpaS0JA9wwapVLF4loAnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Brijesh Singh <brijesh.singh@amd.com>,
         Dan Williams <dan.j.williams@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Lianbo Jiang <lijiang@redhat.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Yaowei Bai <baiyaowei@cmss.chinamobile.com>, bhe@redhat.com,
-        dyoung@redhat.com, kexec@lists.infradead.org, mingo@redhat.com,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 162/190] resource: Include resource end in walk_*() interfaces
-Date:   Fri, 13 Sep 2019 14:06:57 +0100
-Message-Id: <20190913130612.849195474@linuxfoundation.org>
+        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 164/190] resource: fix locking in find_next_iomem_res()
+Date:   Fri, 13 Sep 2019 14:06:59 +0100
+Message-Id: <20190913130613.010643960@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -55,80 +51,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a98959fdbda1849a01b2150bb635ed559ec06700 ]
+[ Upstream commit 49f17c26c123b60fd1c74629eef077740d16ffc2 ]
 
-find_next_iomem_res() finds an iomem resource that covers part of a range
-described by "start, end".  All callers expect that range to be inclusive,
-i.e., both start and end are included, but find_next_iomem_res() doesn't
-handle the end address correctly.
+Since resources can be removed, locking should ensure that the resource
+is not removed while accessing it.  However, find_next_iomem_res() does
+not hold the lock while copying the data of the resource.
 
-If it finds an iomem resource that contains exactly the end address, it
-skips it, e.g., if "start, end" is [0x0-0x10000] and there happens to be an
-iomem resource [mem 0x10000-0x10000] (the single byte at 0x10000), we skip
-it:
+Keep holding the lock while the data is copied.  While at it, change the
+return value to a more informative value.  It is disregarded by the
+callers.
 
-  find_next_iomem_res(...)
-  {
-    start = 0x0;
-    end = 0x10000;
-    for (p = next_resource(...)) {
-      # p->start = 0x10000;
-      # p->end = 0x10000;
-      # we *should* return this resource, but this condition is false:
-      if ((p->end >= start) && (p->start < end))
-        break;
-
-Adjust find_next_iomem_res() so it allows a resource that includes the
-single byte at the end of the range.  This is a corner case that we
-probably don't see in practice.
-
-Fixes: 58c1b5b07907 ("[PATCH] memory hotadd fixes: find_next_system_ram catch range fix")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: Brijesh Singh <brijesh.singh@amd.com>
-CC: Dan Williams <dan.j.williams@intel.com>
-CC: H. Peter Anvin <hpa@zytor.com>
-CC: Lianbo Jiang <lijiang@redhat.com>
-CC: Takashi Iwai <tiwai@suse.de>
-CC: Thomas Gleixner <tglx@linutronix.de>
-CC: Tom Lendacky <thomas.lendacky@amd.com>
-CC: Vivek Goyal <vgoyal@redhat.com>
-CC: Yaowei Bai <baiyaowei@cmss.chinamobile.com>
-CC: bhe@redhat.com
-CC: dan.j.williams@intel.com
-CC: dyoung@redhat.com
-CC: kexec@lists.infradead.org
-CC: mingo@redhat.com
-CC: x86-ml <x86@kernel.org>
-Link: http://lkml.kernel.org/r/153805812254.1157.16736368485811773752.stgit@bhelgaas-glaptop.roam.corp.google.com
+[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
+Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
+Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/resource.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/resource.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/kernel/resource.c b/kernel/resource.c
-index 30e1bc68503b5..155ec873ea4d1 100644
+index 38b8d11c9eaf4..bce773cc5e416 100644
 --- a/kernel/resource.c
 +++ b/kernel/resource.c
-@@ -319,7 +319,7 @@ int release_resource(struct resource *old)
- EXPORT_SYMBOL(release_resource);
- 
- /*
-- * Finds the lowest iomem resource existing within [res->start.res->end).
-+ * Finds the lowest iomem resource existing within [res->start..res->end].
-  * The caller must specify res->start, res->end, res->flags, and optionally
-  * desc.  If found, returns 0, res is overwritten, if not found, returns -1.
-  * This function walks the whole tree and not just first level children until
-@@ -352,7 +352,7 @@ static int find_next_iomem_res(struct resource *res, unsigned long desc,
- 			p = NULL;
- 			break;
- 		}
--		if ((p->end >= start) && (p->start < end))
-+		if ((p->end >= start) && (p->start <= end))
+@@ -325,7 +325,7 @@ EXPORT_SYMBOL(release_resource);
+  *
+  * If a resource is found, returns 0 and *res is overwritten with the part
+  * of the resource that's within [start..end]; if none is found, returns
+- * -1.
++ * -ENODEV.  Returns -EINVAL for invalid parameters.
+  *
+  * This function walks the whole tree and not just first level children
+  * unless @first_level_children_only is true.
+@@ -359,16 +359,16 @@ static int find_next_iomem_res(resource_size_t start, resource_size_t end,
  			break;
  	}
  
++	if (p) {
++		/* copy data */
++		res->start = max(start, p->start);
++		res->end = min(end, p->end);
++		res->flags = p->flags;
++		res->desc = p->desc;
++	}
++
+ 	read_unlock(&resource_lock);
+-	if (!p)
+-		return -1;
+-
+-	/* copy data */
+-	res->start = max(start, p->start);
+-	res->end = min(end, p->end);
+-	res->flags = p->flags;
+-	res->desc = p->desc;
+-	return 0;
++	return p ? 0 : -ENODEV;
+ }
+ 
+ static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
 -- 
 2.20.1
 
