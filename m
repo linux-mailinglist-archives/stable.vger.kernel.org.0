@@ -2,83 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2BAB1C1F
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 13:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5338B1C87
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 13:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbfIML0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 07:26:55 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48837 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726266AbfIML0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 07:26:55 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1A286214CE;
-        Fri, 13 Sep 2019 07:26:54 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 13 Sep 2019 07:26:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=In/YNIpc3DZXREx/XYDI8Ln6GjB
-        Eu+GRYEMGDQchvXg=; b=Sf2koERNWg7rQPEMSrVpgkkHjDKXxoRxdWo+UudSOMX
-        Ri348RG0htNc9EHDslQU4gMejqD7Spb1OYaETuw3JTtmXwU7/FQorZlRjzro76sm
-        Up+/F2qQ1qYkGTs1Q9jDtnUQ7NY2wGh2yosazcodWcsT77rOTF1lJMDfYgUgWraL
-        JX1aK6A2/HrMtQ/QhONvhpl498OB1QJMFpQyNA2lTdWq1wZ4zlgggjkHrsIk90Mf
-        PRGLzGw6RZjhcup69xZl02QeacuWzmnNfmvOJhvOvqFLLofrSTEwe8daTnyp+mCJ
-        wc5Yu44nluTVhBnwQ/Xw7paVeTcw0pn3onfCRrH65qQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=In/YNI
-        pc3DZXREx/XYDI8Ln6GjBEu+GRYEMGDQchvXg=; b=OyD51lrz9Ld+YQ4+nAD5EB
-        u92oQtZ0xuhV6/0jei0YhrtussTRAvkGeFzFJvzYcsF8YC/nqO8GG8aCigCnPvXU
-        v8eMebHzXzpHGCJs3IPJFnOORMhqzTJ9Rnyd6N3+DuCrfO2E1GOLz5gp6Aj27pLq
-        SuhsU5kSNUwsGKgjBVqCUZ6Jk/9iap5Tibn8ELcY+I//PIGyKBQGWQouYEc/uemy
-        hALmUYjHnJ3LKHYXedS0SG8Gk5PPCPRnyQ5wAmJly5qnYIIa8B80vNcGK+sV8wFz
-        nVaTz1sfkUbeyer8oE9221ZxJbS1SqOxHtGDp0mt9+ZogBuN2WELDLkKwZi8+IFQ
-        ==
-X-ME-Sender: <xms:_Xx7XcK5kb2pJKqwrBrn37ujOFMBUmq__gcjf_ycPBE8loSfn3-gYQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrtdejgdeflecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepuddtgedrudefvddrgeehrd
-    elleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:_Xx7XX12YgnaskfbVcAFDmqxP7cqX66rjgg45g-tKC55ksBYbwSYPg>
-    <xmx:_Xx7XYWmCBuzd-CPz10MRyODNsmIK9J48qXKpfI1kZg2AOOgM2NRkw>
-    <xmx:_Xx7XVjDShD7GEneKK0tDkEf0faxgl9uOjK6mCFMHXIc6yKl6PUS0w>
-    <xmx:_nx7XYMLqL_ph3QlWuhOgMJdX0a6nU6BhicSKr7PKmXZDkn4SSjmYA>
-Received: from localhost (unknown [104.132.45.99])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D3BCDD60062;
-        Fri, 13 Sep 2019 07:26:52 -0400 (EDT)
-Date:   Fri, 13 Sep 2019 12:26:51 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Sterba <dsterba@suse.cz>
-Cc:     stable@vger.kernel.org
-Subject: Re: Please add 18dfa7117a3f37986 to 5.2.x tree
-Message-ID: <20190913112651.GA143003@kroah.com>
-References: <20190913110725.GN2850@twin.jikos.cz>
+        id S1729400AbfIMLtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 07:49:43 -0400
+Received: from 10.mo173.mail-out.ovh.net ([46.105.74.148]:50725 "EHLO
+        10.mo173.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726771AbfIMLtn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 07:49:43 -0400
+X-Greylist: delayed 2236 seconds by postgrey-1.27 at vger.kernel.org; Fri, 13 Sep 2019 07:49:43 EDT
+Received: from player738.ha.ovh.net (unknown [10.109.146.175])
+        by mo173.mail-out.ovh.net (Postfix) with ESMTP id 7E5A31196DA
+        for <stable@vger.kernel.org>; Fri, 13 Sep 2019 13:12:26 +0200 (CEST)
+Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
+        (Authenticated sender: groug@kaod.org)
+        by player738.ha.ovh.net (Postfix) with ESMTPSA id EF3859E61DD3;
+        Fri, 13 Sep 2019 11:12:22 +0000 (UTC)
+Date:   Fri, 13 Sep 2019 13:12:21 +0200
+From:   Greg Kurz <groug@kaod.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@ozlabs.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] powerpc/xive: Fix bogus error code returned by OPAL
+Message-ID: <20190913131221.3ea88b5a@bahia.lan>
+In-Reply-To: <20190912073049.CF36B20830@mail.kernel.org>
+References: <156821713818.1985334.14123187368108582810.stgit@bahia.lan>
+        <20190912073049.CF36B20830@mail.kernel.org>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190913110725.GN2850@twin.jikos.cz>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 8762316029017168339
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrtdejgdefiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 13, 2019 at 01:07:25PM +0200, David Sterba wrote:
+On Thu, 12 Sep 2019 07:30:49 +0000
+Sasha Levin <sashal@kernel.org> wrote:
+
 > Hi,
 > 
-> please add the commit
+> [This is an automated email]
 > 
->   18dfa7117a3f379862dcd3f67cadd678013bb9dd
->   Btrfs: fix unwritten extent buffers and hangs on future writeback attempts
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: 4.12+
 > 
-> to the 5.2.x tree. It fixes a regression introduced in 5.2 with a big
-> user impact.
+> The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143.
+> 
+> v5.2.14: Build OK!
+> v4.19.72: Failed to apply! Possible dependencies:
+>     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
+> 
 
-Now queued up, thanks.
+This is the only dependency indeed.
 
-greg k-h
+> v4.14.143: Failed to apply! Possible dependencies:
+>     104daea149c4 ("kconfig: reference environment variables directly and remove 'option env='")
+>     21c54b774744 ("kconfig: show compiler version text in the top comment")
+>     315bab4e972d ("kbuild: fix endless syncconfig in case arch Makefile sets CROSS_COMPILE")
+>     3298b690b21c ("kbuild: Add a cache for generated variables")
+>     4e56207130ed ("kbuild: Cache a few more calls to the compiler")
+>     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
+>     8f2133cc0e1f ("powerpc/pseries: hcall_exit tracepoint retval should be signed")
+>     9a234a2e3843 ("kbuild: create directory for make cache only when necessary")
+>     d677a4d60193 ("Makefile: support flag -fsanitizer-coverage=trace-cmp")
+>     e08d6de4e532 ("kbuild: remove kbuild cache")
+>     e17c400ae194 ("kbuild: shrink .cache.mk when it exceeds 1000 lines")
+>     e501ce957a78 ("x86: Force asm-goto")
+>     e9666d10a567 ("jump_label: move 'asm goto' support test to Kconfig")
+> 
+
+That's quite a lot of patches to workaround a hard to hit skiboot bug.
+As an alternative, the patch can be backported so that it applies the
+following change:
+
+-OPAL_CALL(opal_xive_allocate_irq,              OPAL_XIVE_ALLOCATE_IRQ);
++OPAL_CALL(opal_xive_allocate_irq_raw,          OPAL_XIVE_ALLOCATE_IRQ);
+
+to "arch/powerpc/platforms/powernv/opal-wrappers.S"
+instead of "arch/powerpc/platforms/powernv/opal-call.c" .
+
+BTW, this could also be done for 4.19.y .
+
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+
+Michael ?
+
+> --
+> Thanks,
+> Sasha
+
