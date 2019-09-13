@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A56B1F70
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48FEFB1F71
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730292AbfIMNTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47760 "EHLO mail.kernel.org"
+        id S1730329AbfIMNTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:19:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730276AbfIMNTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:33 -0400
+        id S1730276AbfIMNTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:19:36 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85EFF20CC7;
-        Fri, 13 Sep 2019 13:19:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B9F920717;
+        Fri, 13 Sep 2019 13:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380773;
-        bh=k4lrNev99SCZd1gywLiIvSW5LSq1aWXIApH9Ct40LUg=;
+        s=default; t=1568380775;
+        bh=6ju7qoV4XtxiOYiydTZ/xi21M3nC3WCFupiG3JE4sJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8K1Wos0uKOP76zgLTXDUQE4e//m90Dbs4RBF6xID1XVv3EYhz3xOE/WTfHncsQ5A
-         TzK6NJ3cPJF1La0WESwKFP9n+CywH5o3O8JumDd2xDluIh94frH2z53vGHOcShboKK
-         GZWIownF0Gx5lKQKWK+aLOPFbxg38RLuhpc54P9A=
+        b=cdiBhIoSsnx+2p+c6yJDy9FPIAuYZW3psvk6Od4zR1EG2p15Lr92vfjoqQpvE1msW
+         Z8oajTS5434TFB7XXDeKD1G7fdzqsHlhcir9DV4o4d1imAeCJ8SIohKDZtxcDJl4HM
+         GGzA9S2VybkR2E5KwBGvLJJvUlLUCp9L1D9n7B/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/190] mm/migrate.c: initialize pud_entry in migrate_vma()
-Date:   Fri, 13 Sep 2019 14:07:09 +0100
-Message-Id: <20190913130613.639793420@linuxfoundation.org>
+Subject: [PATCH 4.19 175/190] iio: adc: gyroadc: fix uninitialized return code
+Date:   Fri, 13 Sep 2019 14:07:10 +0100
+Message-Id: <20190913130613.727863726@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -48,56 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7b358c6f12dc82364f6d317f8c8f1d794adbc3f5 ]
+[ Upstream commit 90c6260c1905a68fb596844087f2223bd4657fee ]
 
-When CONFIG_MIGRATE_VMA_HELPER is enabled, migrate_vma() calls
-migrate_vma_collect() which initializes a struct mm_walk but didn't
-initialize mm_walk.pud_entry.  (Found by code inspection) Use a C
-structure initialization to make sure it is set to NULL.
+gcc-9 complains about a blatant uninitialized variable use that
+all earlier compiler versions missed:
 
-Link: http://lkml.kernel.org/r/20190719233225.12243-1-rcampbell@nvidia.com
-Fixes: 8763cb45ab967 ("mm/migrate: new memory migration helper for use with device memory")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Jérôme Glisse" <jglisse@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+drivers/iio/adc/rcar-gyroadc.c:510:5: warning: 'ret' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+Return -EINVAL instead here and a few lines above it where
+we accidentally return 0 on failure.
+
+Cc: stable@vger.kernel.org
+Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/migrate.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/iio/adc/rcar-gyroadc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index b2ea7d1e6f248..0c48191a90368 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2328,16 +2328,13 @@ next:
-  */
- static void migrate_vma_collect(struct migrate_vma *migrate)
- {
--	struct mm_walk mm_walk;
--
--	mm_walk.pmd_entry = migrate_vma_collect_pmd;
--	mm_walk.pte_entry = NULL;
--	mm_walk.pte_hole = migrate_vma_collect_hole;
--	mm_walk.hugetlb_entry = NULL;
--	mm_walk.test_walk = NULL;
--	mm_walk.vma = migrate->vma;
--	mm_walk.mm = migrate->vma->vm_mm;
--	mm_walk.private = migrate;
-+	struct mm_walk mm_walk = {
-+		.pmd_entry = migrate_vma_collect_pmd,
-+		.pte_hole = migrate_vma_collect_hole,
-+		.vma = migrate->vma,
-+		.mm = migrate->vma->vm_mm,
-+		.private = migrate,
-+	};
+diff --git a/drivers/iio/adc/rcar-gyroadc.c b/drivers/iio/adc/rcar-gyroadc.c
+index dcb50172186f4..f3a966ab35dcb 100644
+--- a/drivers/iio/adc/rcar-gyroadc.c
++++ b/drivers/iio/adc/rcar-gyroadc.c
+@@ -391,7 +391,7 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
+ 				dev_err(dev,
+ 					"Only %i channels supported with %s, but reg = <%i>.\n",
+ 					num_channels, child->name, reg);
+-				return ret;
++				return -EINVAL;
+ 			}
+ 		}
  
- 	mmu_notifier_invalidate_range_start(mm_walk.mm,
- 					    migrate->start,
+@@ -400,7 +400,7 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
+ 			dev_err(dev,
+ 				"Channel %i uses different ADC mode than the rest.\n",
+ 				reg);
+-			return ret;
++			return -EINVAL;
+ 		}
+ 
+ 		/* Channel is valid, grab the regulator. */
 -- 
 2.20.1
 
