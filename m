@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F0D8B2055
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984AEB1FE2
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390667AbfIMNUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:20:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
+        id S2388682AbfIMNKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389901AbfIMNUv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:20:51 -0400
+        id S2388665AbfIMNKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:09 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 876C5214AE;
-        Fri, 13 Sep 2019 13:20:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03892206BB;
+        Fri, 13 Sep 2019 13:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380851;
-        bh=V5ryNmRt/DI8n+3VX9CWi5D7HhqLdK0qwkg50RMMFtw=;
+        s=default; t=1568380208;
+        bh=eFOTFJwtAfNBqRCj+iWOaH/R8rthngrWfSDc49ovITY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NH0PXGCcmp+ehA8t4Fap+g4ijjX0W460jl6C4qOWE4sqB8L7VY/31sSm2uBozci4Y
-         L2i1jsDjbUnAb/r8PXEfIhDwdvT77GIoebAcbDaURVYanRnTno2h7LwNo9M1WUZSnw
-         ms4S/iWoAMhu316ZSMJqJPiuCWsbNznMTp/ruaVQ=
+        b=FEEUVhY2H3s4H5Tzi9DNwST7pkTUHKpxq/yd3RdyA7163qaZolVuc8YL7RKHK3lyL
+         kakEMM4PvpOxm4ZjCV7IjAMo9T1DiXLMUgPYn995lxhGWRpWhsmPRfEq8LVhA0kZRy
+         LFTDnyYWaHXOOMz9hS9Hkg/kbectH/mV3kYceWj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jander <david@protonic.nl>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.2 01/37] gpio: pca953x: correct type of reg_direction
-Date:   Fri, 13 Sep 2019 14:07:06 +0100
-Message-Id: <20190913130510.940562189@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Sunil Muthuswamy <sunilmut@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/21] hv_sock: Fix hang when a connection is closed
+Date:   Fri, 13 Sep 2019 14:07:07 +0100
+Message-Id: <20190913130507.116698849@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
-References: <20190913130510.727515099@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,51 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jander <david@protonic.nl>
+[ Upstream commit 685703b497bacea8765bb409d6b73455b73c540e ]
 
-commit bc624a06f0c5190bc37fec7d22cd82b43a579698 upstream.
+There is a race condition for an established connection that is being closed
+by the guest: the refcnt is 4 at the end of hvs_release() (Note: here the
+'remove_sock' is false):
 
-The type of reg_direction needs to match the type of the regmap, which
-is u8.
+1 for the initial value;
+1 for the sk being in the bound list;
+1 for the sk being in the connected list;
+1 for the delayed close_work.
 
-Fixes: 0f25fda840a9 ("gpio: pca953x: Zap ad-hoc reg_direction cache")
-Cc: Cc: <stable@vger.kernel.org>
-Signed-off-by: David Jander <david@protonic.nl>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After hvs_release() finishes, __vsock_release() -> sock_put(sk) *may*
+decrease the refcnt to 3.
 
+Concurrently, hvs_close_connection() runs in another thread:
+  calls vsock_remove_sock() to decrease the refcnt by 2;
+  call sock_put() to decrease the refcnt to 0, and free the sk;
+  next, the "release_sock(sk)" may hang due to use-after-free.
+
+In the above, after hvs_release() finishes, if hvs_close_connection() runs
+faster than "__vsock_release() -> sock_put(sk)", then there is not any issue,
+because at the beginning of hvs_close_connection(), the refcnt is still 4.
+
+The issue can be resolved if an extra reference is taken when the
+connection is established.
+
+Fixes: a9eeb998c28d ("hv_sock: Add support for delayed close")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca953x.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/vmw_vsock/hyperv_transport.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -604,7 +604,7 @@ static void pca953x_irq_bus_sync_unlock(
- 	u8 new_irqs;
- 	int level, i;
- 	u8 invert_irq_mask[MAX_BANK];
--	int reg_direction[MAX_BANK];
-+	u8 reg_direction[MAX_BANK];
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 52ac3e49c7efd..ec72a5edaa1b8 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -320,6 +320,11 @@ static void hvs_close_connection(struct vmbus_channel *chan)
+ 	lock_sock(sk);
+ 	hvs_do_close_lock_held(vsock_sk(sk), true);
+ 	release_sock(sk);
++
++	/* Release the refcnt for the channel that's opened in
++	 * hvs_open_connection().
++	 */
++	sock_put(sk);
+ }
  
- 	regmap_bulk_read(chip->regmap, chip->regs->direction, reg_direction,
- 			 NBANK(chip));
-@@ -679,7 +679,7 @@ static bool pca953x_irq_pending(struct p
- 	bool pending_seen = false;
- 	bool trigger_seen = false;
- 	u8 trigger[MAX_BANK];
--	int reg_direction[MAX_BANK];
-+	u8 reg_direction[MAX_BANK];
- 	int ret, i;
+ static void hvs_open_connection(struct vmbus_channel *chan)
+@@ -389,6 +394,9 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 	}
  
- 	if (chip->driver_data & PCA_PCAL) {
-@@ -768,7 +768,7 @@ static int pca953x_irq_setup(struct pca9
- {
- 	struct i2c_client *client = chip->client;
- 	struct irq_chip *irq_chip = &chip->irq_chip;
--	int reg_direction[MAX_BANK];
-+	u8 reg_direction[MAX_BANK];
- 	int ret, i;
+ 	set_per_channel_state(chan, conn_from_host ? new : sk);
++
++	/* This reference will be dropped by hvs_close_connection(). */
++	sock_hold(conn_from_host ? new : sk);
+ 	vmbus_set_chn_rescind_callback(chan, hvs_close_connection);
  
- 	if (!client->irq)
+ 	/* Set the pending send size to max packet size to always get
+-- 
+2.20.1
+
 
 
