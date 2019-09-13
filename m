@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D113B1EFC
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4D0B1EFE
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389563AbfIMNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:14:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40664 "EHLO mail.kernel.org"
+        id S2388983AbfIMNOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:14:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388983AbfIMNOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:14:40 -0400
+        id S2389568AbfIMNOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:14:43 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDFDD214AE;
-        Fri, 13 Sep 2019 13:14:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8E26214AF;
+        Fri, 13 Sep 2019 13:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380480;
-        bh=ZDkfIO33o/McqlV4/dQSVvDdcBktevj8xnFF6u9XYqY=;
+        s=default; t=1568380483;
+        bh=vbbHDpDslA+4zmqXCGAUncDj5cH7yhA6XMoT7JsesgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3zYDLmfhW14Km3B1H9kc723aqW4qTggDB5uYn89uefha0d5nbVu6+gdUOOIWxeFA
-         A78q/wGPokhPZg+mCIvhYa9noF30O1jE8zCHRwbC7SyEZq56oKFKF6wISe6OtpcL0v
-         e3ImgZ+GHrZKgVVT9nB6H3zFbx8H/z6UVMNocBQs=
+        b=LNZcfPT3j99TYwgttdJkyemLW1XxZLyWzoFdlecn3BsxsNShwhFemedHl2Z8y/JAE
+         BS37CE5No+arx0XiC1IyqJU0CqaygcZpX30oeaMobX89j6iM8JCxFL7MRdmMmNPxhf
+         MnvLEdUBkJ83fkGwchzm4GmVNYsQ/N92EUPJMwXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, stable@kernel.org
-Subject: [PATCH 4.19 079/190] crypto: ccree - fix resume race condition on init
-Date:   Fri, 13 Sep 2019 14:05:34 +0100
-Message-Id: <20190913130605.818055957@linuxfoundation.org>
+Subject: [PATCH 4.19 080/190] crypto: ccree - add missing inline qualifier
+Date:   Fri, 13 Sep 2019 14:05:35 +0100
+Message-Id: <20190913130605.895137622@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,115 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1358c13a48c43f5e4de0c1835291837a27b9720c ]
+[ Upstream commit f1071c3e2473ae19a7f5d892a187c4cab1a61f2e ]
 
-We were enabling autosuspend, which is using data set by the
-hash module, prior to the hash module being inited, casuing
-a crash on resume as part of the startup sequence if the race
-was lost.
+Commit 1358c13a48c4 ("crypto: ccree - fix resume race condition on init")
+was missing a "inline" qualifier for stub function used when CONFIG_PM
+is not set causing a build warning.
 
-This was never a real problem because the PM infra was using low
-res timers so we were always winning the race, until commit 8234f6734c5d
-("PM-runtime: Switch autosuspend over to using hrtimers") changed that :-)
-
-Fix this by seperating the PM setup and enablement and doing the
-latter only at the end of the init sequence.
-
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Fixes: 1358c13a48c4 ("crypto: ccree - fix resume race condition on init")
 Cc: stable@kernel.org # v4.20
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_driver.c |  7 ++++---
- drivers/crypto/ccree/cc_pm.c     | 13 ++++++-------
- drivers/crypto/ccree/cc_pm.h     |  3 +++
- 3 files changed, 13 insertions(+), 10 deletions(-)
+ drivers/crypto/ccree/cc_pm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_driver.c b/drivers/crypto/ccree/cc_driver.c
-index 1ff229c2aeab1..186a2536fb8b9 100644
---- a/drivers/crypto/ccree/cc_driver.c
-+++ b/drivers/crypto/ccree/cc_driver.c
-@@ -364,7 +364,7 @@ static int init_cc_resources(struct platform_device *plat_dev)
- 	rc = cc_ivgen_init(new_drvdata);
- 	if (rc) {
- 		dev_err(dev, "cc_ivgen_init failed\n");
--		goto post_power_mgr_err;
-+		goto post_buf_mgr_err;
- 	}
- 
- 	/* Allocate crypto algs */
-@@ -387,6 +387,9 @@ static int init_cc_resources(struct platform_device *plat_dev)
- 		goto post_hash_err;
- 	}
- 
-+	/* All set, we can allow autosuspend */
-+	cc_pm_go(new_drvdata);
-+
- 	/* If we got here and FIPS mode is enabled
- 	 * it means all FIPS test passed, so let TEE
- 	 * know we're good.
-@@ -401,8 +404,6 @@ post_cipher_err:
- 	cc_cipher_free(new_drvdata);
- post_ivgen_err:
- 	cc_ivgen_fini(new_drvdata);
--post_power_mgr_err:
--	cc_pm_fini(new_drvdata);
- post_buf_mgr_err:
- 	 cc_buffer_mgr_fini(new_drvdata);
- post_req_mgr_err:
-diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
-index 79fc0a37ba6e4..638082dff183a 100644
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -103,20 +103,19 @@ int cc_pm_put_suspend(struct device *dev)
- 
- int cc_pm_init(struct cc_drvdata *drvdata)
- {
--	int rc = 0;
- 	struct device *dev = drvdata_to_dev(drvdata);
- 
- 	/* must be before the enabling to avoid resdundent suspending */
- 	pm_runtime_set_autosuspend_delay(dev, CC_SUSPEND_TIMEOUT);
- 	pm_runtime_use_autosuspend(dev);
- 	/* activate the PM module */
--	rc = pm_runtime_set_active(dev);
--	if (rc)
--		return rc;
--	/* enable the PM module*/
--	pm_runtime_enable(dev);
-+	return pm_runtime_set_active(dev);
-+}
- 
--	return rc;
-+/* enable the PM module*/
-+void cc_pm_go(struct cc_drvdata *drvdata)
-+{
-+	pm_runtime_enable(drvdata_to_dev(drvdata));
- }
- 
- void cc_pm_fini(struct cc_drvdata *drvdata)
 diff --git a/drivers/crypto/ccree/cc_pm.h b/drivers/crypto/ccree/cc_pm.h
-index 020a5403c58ba..f626243570209 100644
+index f626243570209..907a6db4d6c03 100644
 --- a/drivers/crypto/ccree/cc_pm.h
 +++ b/drivers/crypto/ccree/cc_pm.h
-@@ -16,6 +16,7 @@
- extern const struct dev_pm_ops ccree_pm;
- 
- int cc_pm_init(struct cc_drvdata *drvdata);
-+void cc_pm_go(struct cc_drvdata *drvdata);
- void cc_pm_fini(struct cc_drvdata *drvdata);
- int cc_pm_suspend(struct device *dev);
- int cc_pm_resume(struct device *dev);
-@@ -29,6 +30,8 @@ static inline int cc_pm_init(struct cc_drvdata *drvdata)
+@@ -30,7 +30,7 @@ static inline int cc_pm_init(struct cc_drvdata *drvdata)
  	return 0;
  }
  
-+static void cc_pm_go(struct cc_drvdata *drvdata) {}
-+
+-static void cc_pm_go(struct cc_drvdata *drvdata) {}
++static inline void cc_pm_go(struct cc_drvdata *drvdata) {}
+ 
  static inline void cc_pm_fini(struct cc_drvdata *drvdata) {}
  
- static inline int cc_pm_suspend(struct device *dev)
 -- 
 2.20.1
 
