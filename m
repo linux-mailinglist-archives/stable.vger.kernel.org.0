@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B06EFB205B
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E62B2049
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390696AbfIMNVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:21:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50336 "EHLO mail.kernel.org"
+        id S2388257AbfIMNTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:19:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390714AbfIMNVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:21:01 -0400
+        id S2390414AbfIMNTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:19:23 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF22920CC7;
-        Fri, 13 Sep 2019 13:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBFE1206A5;
+        Fri, 13 Sep 2019 13:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380860;
-        bh=ww+gVDIXtSAvjhRKsGbFxasDZ5cA5jpz7i8WP2lR2w0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rY3NQZWR5N4w8YY6m+scbo27NHY01wKHMDjnSuAq0YL9deYVVN3ZSE1rz0LlEEXQb
-         i2Uvfd8dmdNcVKS8Da4HgNYM2GRKNwV8z1aIBnU1MHwflcHamCpFwVqvtDpcnLngB+
-         fLP/CSZryW2ZvppJjuH46WIDTXle0GcUf4uBO368=
+        s=default; t=1568380762;
+        bh=KxUOp7ijc9eGbcBZe+sogtDTqJXqY+JCETG+3nA4NxE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dBwrw3b+Nmu7mPBn2M08riPGtLFXW4Nuj0/ZHTXDB7qohINf+3WBEPRvZzXHH/gMK
+         6vJmkRDHOZrEDUW4MjV+ARf/ySUQ4vNHGbhMmPnhpeMLiqNLZrP/KrsAv/IGibCb9B
+         O5Esi5Xo9vmiMgzL5MRpJ9hkeKAo91vtnRB8LITo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.2 00/37] 5.2.15-stable review
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Joerg Roedel <joro@8bytes.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 170/190] iommu/iova: Remove stale cached32_node
 Date:   Fri, 13 Sep 2019 14:07:05 +0100
-Message-Id: <20190913130510.727515099@linuxfoundation.org>
+Message-Id: <20190913130613.384700649@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-MIME-Version: 1.0
+In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
+References: <20190913130559.669563815@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.2.15-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.2.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.2.15-rc1
-X-KernelTest-Deadline: 2019-09-15T13:05+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,186 +45,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.2.15 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+[ Upstream commit 9eed17d37c77171cf5ffb95c4257f87df3cd4c8f ]
 
-Responses should be made by Sun 15 Sep 2019 01:03:32 PM UTC.
-Anything received after that time might be too late.
+Since the cached32_node is allowed to be advanced above dma_32bit_pfn
+(to provide a shortcut into the limited range), we need to be careful to
+remove the to be freed node if it is the cached32_node.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.15-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-and the diffstat can be found below.
+[   48.477773] BUG: KASAN: use-after-free in __cached_rbnode_delete_update+0x68/0x110
+[   48.477812] Read of size 8 at addr ffff88870fc19020 by task kworker/u8:1/37
+[   48.477843]
+[   48.477879] CPU: 1 PID: 37 Comm: kworker/u8:1 Tainted: G     U            5.2.0+ #735
+[   48.477915] Hardware name: Intel Corporation NUC7i5BNK/NUC7i5BNB, BIOS BNKBL357.86A.0052.2017.0918.1346 09/18/2017
+[   48.478047] Workqueue: i915 __i915_gem_free_work [i915]
+[   48.478075] Call Trace:
+[   48.478111]  dump_stack+0x5b/0x90
+[   48.478137]  print_address_description+0x67/0x237
+[   48.478178]  ? __cached_rbnode_delete_update+0x68/0x110
+[   48.478212]  __kasan_report.cold.3+0x1c/0x38
+[   48.478240]  ? __cached_rbnode_delete_update+0x68/0x110
+[   48.478280]  ? __cached_rbnode_delete_update+0x68/0x110
+[   48.478308]  __cached_rbnode_delete_update+0x68/0x110
+[   48.478344]  private_free_iova+0x2b/0x60
+[   48.478378]  iova_magazine_free_pfns+0x46/0xa0
+[   48.478403]  free_iova_fast+0x277/0x340
+[   48.478443]  fq_ring_free+0x15a/0x1a0
+[   48.478473]  queue_iova+0x19c/0x1f0
+[   48.478597]  cleanup_page_dma.isra.64+0x62/0xb0 [i915]
+[   48.478712]  __gen8_ppgtt_cleanup+0x63/0x80 [i915]
+[   48.478826]  __gen8_ppgtt_cleanup+0x42/0x80 [i915]
+[   48.478940]  __gen8_ppgtt_clear+0x433/0x4b0 [i915]
+[   48.479053]  __gen8_ppgtt_clear+0x462/0x4b0 [i915]
+[   48.479081]  ? __sg_free_table+0x9e/0xf0
+[   48.479116]  ? kfree+0x7f/0x150
+[   48.479234]  i915_vma_unbind+0x1e2/0x240 [i915]
+[   48.479352]  i915_vma_destroy+0x3a/0x280 [i915]
+[   48.479465]  __i915_gem_free_objects+0xf0/0x2d0 [i915]
+[   48.479579]  __i915_gem_free_work+0x41/0xa0 [i915]
+[   48.479607]  process_one_work+0x495/0x710
+[   48.479642]  worker_thread+0x4c7/0x6f0
+[   48.479687]  ? process_one_work+0x710/0x710
+[   48.479724]  kthread+0x1b2/0x1d0
+[   48.479774]  ? kthread_create_worker_on_cpu+0xa0/0xa0
+[   48.479820]  ret_from_fork+0x1f/0x30
+[   48.479864]
+[   48.479907] Allocated by task 631:
+[   48.479944]  save_stack+0x19/0x80
+[   48.479994]  __kasan_kmalloc.constprop.6+0xc1/0xd0
+[   48.480038]  kmem_cache_alloc+0x91/0xf0
+[   48.480082]  alloc_iova+0x2b/0x1e0
+[   48.480125]  alloc_iova_fast+0x58/0x376
+[   48.480166]  intel_alloc_iova+0x90/0xc0
+[   48.480214]  intel_map_sg+0xde/0x1f0
+[   48.480343]  i915_gem_gtt_prepare_pages+0xb8/0x170 [i915]
+[   48.480465]  huge_get_pages+0x232/0x2b0 [i915]
+[   48.480590]  ____i915_gem_object_get_pages+0x40/0xb0 [i915]
+[   48.480712]  __i915_gem_object_get_pages+0x90/0xa0 [i915]
+[   48.480834]  i915_gem_object_prepare_write+0x2d6/0x330 [i915]
+[   48.480955]  create_test_object.isra.54+0x1a9/0x3e0 [i915]
+[   48.481075]  igt_shared_ctx_exec+0x365/0x3c0 [i915]
+[   48.481210]  __i915_subtests.cold.4+0x30/0x92 [i915]
+[   48.481341]  __run_selftests.cold.3+0xa9/0x119 [i915]
+[   48.481466]  i915_live_selftests+0x3c/0x70 [i915]
+[   48.481583]  i915_pci_probe+0xe7/0x220 [i915]
+[   48.481620]  pci_device_probe+0xe0/0x180
+[   48.481665]  really_probe+0x163/0x4e0
+[   48.481710]  device_driver_attach+0x85/0x90
+[   48.481750]  __driver_attach+0xa5/0x180
+[   48.481796]  bus_for_each_dev+0xda/0x130
+[   48.481831]  bus_add_driver+0x205/0x2e0
+[   48.481882]  driver_register+0xca/0x140
+[   48.481927]  do_one_initcall+0x6c/0x1af
+[   48.481970]  do_init_module+0x106/0x350
+[   48.482010]  load_module+0x3d2c/0x3ea0
+[   48.482058]  __do_sys_finit_module+0x110/0x180
+[   48.482102]  do_syscall_64+0x62/0x1f0
+[   48.482147]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   48.482190]
+[   48.482224] Freed by task 37:
+[   48.482273]  save_stack+0x19/0x80
+[   48.482318]  __kasan_slab_free+0x12e/0x180
+[   48.482363]  kmem_cache_free+0x70/0x140
+[   48.482406]  __free_iova+0x1d/0x30
+[   48.482445]  fq_ring_free+0x15a/0x1a0
+[   48.482490]  queue_iova+0x19c/0x1f0
+[   48.482624]  cleanup_page_dma.isra.64+0x62/0xb0 [i915]
+[   48.482749]  __gen8_ppgtt_cleanup+0x63/0x80 [i915]
+[   48.482873]  __gen8_ppgtt_cleanup+0x42/0x80 [i915]
+[   48.482999]  __gen8_ppgtt_clear+0x433/0x4b0 [i915]
+[   48.483123]  __gen8_ppgtt_clear+0x462/0x4b0 [i915]
+[   48.483250]  i915_vma_unbind+0x1e2/0x240 [i915]
+[   48.483378]  i915_vma_destroy+0x3a/0x280 [i915]
+[   48.483500]  __i915_gem_free_objects+0xf0/0x2d0 [i915]
+[   48.483622]  __i915_gem_free_work+0x41/0xa0 [i915]
+[   48.483659]  process_one_work+0x495/0x710
+[   48.483704]  worker_thread+0x4c7/0x6f0
+[   48.483748]  kthread+0x1b2/0x1d0
+[   48.483787]  ret_from_fork+0x1f/0x30
+[   48.483831]
+[   48.483868] The buggy address belongs to the object at ffff88870fc19000
+[   48.483868]  which belongs to the cache iommu_iova of size 40
+[   48.483920] The buggy address is located 32 bytes inside of
+[   48.483920]  40-byte region [ffff88870fc19000, ffff88870fc19028)
+[   48.483964] The buggy address belongs to the page:
+[   48.484006] page:ffffea001c3f0600 refcount:1 mapcount:0 mapping:ffff8888181a91c0 index:0x0 compound_mapcount: 0
+[   48.484045] flags: 0x8000000000010200(slab|head)
+[   48.484096] raw: 8000000000010200 ffffea001c421a08 ffffea001c447e88 ffff8888181a91c0
+[   48.484141] raw: 0000000000000000 0000000000120012 00000001ffffffff 0000000000000000
+[   48.484188] page dumped because: kasan: bad access detected
+[   48.484230]
+[   48.484265] Memory state around the buggy address:
+[   48.484314]  ffff88870fc18f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   48.484361]  ffff88870fc18f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   48.484406] >ffff88870fc19000: fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc
+[   48.484451]                                ^
+[   48.484494]  ffff88870fc19080: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   48.484530]  ffff88870fc19100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
 
-thanks,
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108602
+Fixes: e60aa7b53845 ("iommu/iova: Extend rbtree node caching")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: <stable@vger.kernel.org> # v4.15+
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/iommu/iova.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-greg k-h
+diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+index 60348d707b993..9a576ae837dcb 100644
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -148,8 +148,9 @@ __cached_rbnode_delete_update(struct iova_domain *iovad, struct iova *free)
+ 	struct iova *cached_iova;
+ 
+ 	cached_iova = rb_entry(iovad->cached32_node, struct iova, node);
+-	if (free->pfn_hi < iovad->dma_32bit_pfn &&
+-	    free->pfn_lo >= cached_iova->pfn_lo)
++	if (free == cached_iova ||
++	    (free->pfn_hi < iovad->dma_32bit_pfn &&
++	     free->pfn_lo >= cached_iova->pfn_lo))
+ 		iovad->cached32_node = rb_next(&free->node);
+ 
+ 	cached_iova = rb_entry(iovad->cached_node, struct iova, node);
+-- 
+2.20.1
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.2.15-rc1
-
-yongduan <yongduan@tencent.com>
-    vhost: make sure log_num < in_num
-
-Michael S. Tsirkin <mst@redhat.com>
-    vhost: block speculation of translated descriptors
-
-Filipe Manana <fdmanana@suse.com>
-    Btrfs: fix unwritten extent buffers and hangs on future writeback attempts
-
-Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-    drm/i915/icl: whitelist PS_(DEPTH|INVOCATION)_COUNT
-
-John Harrison <John.C.Harrison@Intel.com>
-    drm/i915: Add whitelist workarounds for ICL
-
-Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-    drm/i915: whitelist PS_(DEPTH|INVOCATION)_COUNT
-
-John Harrison <John.C.Harrison@Intel.com>
-    drm/i915: Support whitelist workarounds on all engines
-
-John Harrison <John.C.Harrison@Intel.com>
-    drm/i915: Support flags in whitlist WAs
-
-Halil Pasic <pasic@linux.ibm.com>
-    virtio/s390: fix race on airq_areas[]
-
-André Draszik <git@andred.net>
-    usb: chipidea: imx: fix EPROBE_DEFER support during driver probe
-
-Peter Chen <peter.chen@nxp.com>
-    usb: chipidea: imx: add imx7ulp support
-
-Baolin Wang <baolin.wang@linaro.org>
-    mmc: sdhci-sprd: Fix the incorrect soft reset operation when runtime resuming
-
-Ville Syrjälä <ville.syrjala@linux.intel.com>
-    drm/i915: Make sure cdclk is high enough for DP audio on VLV/CHV
-
-Kenneth Graunke <kenneth@whitecape.org>
-    drm/i915: Disable SAMPLER_STATE prefetching on all Gen11 steppings.
-
-Kaike Wan <kaike.wan@intel.com>
-    IB/hfi1: Unreserve a flushed OPFN request
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/{rdmavt, qib, hfi1}: Convert to new completion API
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/rdmavt: Add new completion inline
-
-Coly Li <colyli@suse.de>
-    bcache: fix race in btree_flush_write()
-
-Coly Li <colyli@suse.de>
-    bcache: add comments for mutex_lock(&b->write_lock)
-
-Coly Li <colyli@suse.de>
-    bcache: only clear BTREE_NODE_dirty bit when it is set
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Only read OGM tvlv_len after buffer len check
-
-Eric Dumazet <edumazet@google.com>
-    batman-adv: fix uninit-value in batadv_netlink_get_ifindex()
-
-Gustavo Romero <gromero@linux.ibm.com>
-    powerpc/tm: Fix restoring FP/VMX facility incorrectly on interrupts
-
-Gustavo Romero <gromero@linux.ibm.com>
-    powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
-
-Christophe Leroy <christophe.leroy@c-s.fr>
-    powerpc/64e: Drop stale call to smp_processor_id() which hangs SMP startup
-
-Tiwei Bie <tiwei.bie@intel.com>
-    vhost/test: fix build for vhost test - again
-
-Tiwei Bie <tiwei.bie@intel.com>
-    vhost/test: fix build for vhost test
-
-Ben Skeggs <bskeggs@redhat.com>
-    drm/nouveau/sec2/gp102: add missing MODULE_FIRMWAREs
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    drm/vmwgfx: Fix double free in vmw_recv_msg()
-
-Liangyan <liangyan.peng@linux.alibaba.com>
-    sched/fair: Don't assign runtime for throttled cfs_rq
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/realtek - Fix the problem of two front mics on a ThinkCentre
-
-Jian-Hong Pan <jian-hong@endlessm.com>
-    ALSA: hda/realtek - Enable internal speaker & headset mic of ASUS UX431FL
-
-Sam Bazley <sambazley@fastmail.com>
-    ALSA: hda/realtek - Add quirk for HP Pavilion 15
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/realtek - Fix overridden device-specific initialization
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda - Fix potential endless loop at applying quirks
-
-David Jander <david@protonic.nl>
-    gpio: pca953x: use pca953x_read_regs instead of regmap_bulk_read
-
-David Jander <david@protonic.nl>
-    gpio: pca953x: correct type of reg_direction
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/powerpc/kernel/process.c                      |  21 +---
- arch/powerpc/mm/nohash/tlb.c                       |   1 -
- drivers/gpio/gpio-pca953x.c                        |  15 +--
- drivers/gpu/drm/i915/i915_reg.h                    |   7 ++
- drivers/gpu/drm/i915/intel_cdclk.c                 |  11 ++
- drivers/gpu/drm/i915/intel_workarounds.c           | 136 +++++++++++++++++----
- .../gpu/drm/nouveau/nvkm/subdev/secboot/gp102.c    |  12 ++
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c                |   8 +-
- drivers/infiniband/hw/hfi1/rc.c                    |  28 +----
- drivers/infiniband/hw/qib/qib_rc.c                 |  26 +---
- drivers/infiniband/sw/rdmavt/qp.c                  |  31 ++---
- drivers/md/bcache/btree.c                          |  49 +++++++-
- drivers/md/bcache/btree.h                          |   2 +
- drivers/md/bcache/journal.c                        |   7 ++
- drivers/mmc/host/sdhci-acpi.c                      |   2 +-
- drivers/mmc/host/sdhci-esdhc-imx.c                 |   2 +-
- drivers/mmc/host/sdhci-of-at91.c                   |   2 +-
- drivers/mmc/host/sdhci-pci-core.c                  |   4 +-
- drivers/mmc/host/sdhci-pxav3.c                     |   2 +-
- drivers/mmc/host/sdhci-s3c.c                       |   2 +-
- drivers/mmc/host/sdhci-sprd.c                      |   2 +-
- drivers/mmc/host/sdhci-xenon.c                     |   2 +-
- drivers/mmc/host/sdhci.c                           |   4 +-
- drivers/mmc/host/sdhci.h                           |   2 +-
- drivers/s390/virtio/virtio_ccw.c                   |   3 +
- drivers/usb/chipidea/ci_hdrc_imx.c                 |  43 ++++++-
- drivers/usb/chipidea/usbmisc_imx.c                 |   4 +
- drivers/vhost/test.c                               |  13 +-
- drivers/vhost/vhost.c                              |  10 +-
- fs/btrfs/extent_io.c                               |  35 ++++--
- include/linux/usb/chipidea.h                       |   1 +
- include/rdma/rdmavt_qp.h                           | 117 +++++++++++-------
- kernel/sched/fair.c                                |   5 +
- net/batman-adv/bat_iv_ogm.c                        |  20 +--
- net/batman-adv/netlink.c                           |   2 +-
- sound/pci/hda/hda_auto_parser.c                    |   4 +-
- sound/pci/hda/hda_generic.c                        |   3 +-
- sound/pci/hda/hda_generic.h                        |   1 +
- sound/pci/hda/patch_realtek.c                      |  17 +++
- 40 files changed, 439 insertions(+), 221 deletions(-)
 
 
