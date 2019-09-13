@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8B4B1F1E
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5771B1F21
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389785AbfIMNQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:16:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42514 "EHLO mail.kernel.org"
+        id S2389799AbfIMNQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389198AbfIMNQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:16:01 -0400
+        id S2389787AbfIMNQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:16:10 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10746208C0;
-        Fri, 13 Sep 2019 13:15:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12F40206A5;
+        Fri, 13 Sep 2019 13:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380560;
-        bh=xfLMvEAb89BJvZFgrnyHbHexMVIDN8oo/7auQHJhcME=;
+        s=default; t=1568380569;
+        bh=2MotSDzYBMQnVbaO4Ad5yPeQ1EQWWXr5aIP3vatel6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICpxHzXJyvaCuE4tVNMD5vP5t0OOsK+zsA0VGcINDgp5CX/S1B4PA8o2tioCWxd8f
-         RVgeTc0aHuM2jWjQQ3eZVNdftvZQqbpYKin/wLYQAcZL63mC+iZlUDO/lXRjqj0PjX
-         h3G1tbnSOUseDil1crN/qGV3vbZgn3BOKNXNCYFc=
+        b=oC3NMZqRztwqB+6/DJVplgH+kemDq0lF16RPUS7eHsdoLRfRdpkA0aiGe0Gud1YJO
+         0Y/WsdeoRp5IK0v8+qrVCsx0V1pyrtyQ2MrEqwqPPD00Wdgiv8bMHR3wwwZUKXgY0V
+         8T2Jytg6IRgDt6zc3J99hVczmywUbs75Xub+KHug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/190] PCI: qcom: Dont deassert reset GPIO during probe
-Date:   Fri, 13 Sep 2019 14:05:59 +0100
-Message-Id: <20190913130607.956163583@linuxfoundation.org>
+Subject: [PATCH 4.19 107/190] CIFS: Fix leaking locked VFS cache pages in writeback retry
+Date:   Fri, 13 Sep 2019 14:06:02 +0100
+Message-Id: <20190913130608.245039576@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -46,45 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 02b485e31d98265189b91f3e69c43df2ed50610c ]
+[ Upstream commit 165df9a080b6863ae286fa01780c13d87cd81076 ]
 
-Acquiring the reset GPIO low means that reset is being deasserted, this
-is followed almost immediately with qcom_pcie_host_init() asserting it,
-initializing it and then finally deasserting it again, for the link to
-come up.
+If we don't find a writable file handle when retrying writepages
+we break of the loop and do not unlock and put pages neither from
+wdata2 nor from the original wdata. Fix this by walking through
+all the remaining pages and cleanup them properly.
 
-Some PCIe devices requires a minimum time between the initial deassert
-and subsequent reset cycles. In a platform that boots with the reset
-GPIO asserted this requirement is being violated by this deassert/assert
-pulse.
-
-Acquire the reset GPIO high to prevent this situation by matching the
-state to the subsequent asserted state.
-
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-[lorenzo.pieralisi@arm.com: updated commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifssmb.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index 79f06c76ae071..e292801fff7fd 100644
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1230,7 +1230,7 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index a5cb7b2d1ac5d..86a54b809c484 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -2033,12 +2033,13 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
  
- 	pcie->ops = of_device_get_match_data(dev);
+ 		wdata2->cfile = find_writable_file(CIFS_I(inode), false);
+ 		if (!wdata2->cfile) {
+-			cifs_dbg(VFS, "No writable handles for inode\n");
++			cifs_dbg(VFS, "No writable handle to retry writepages\n");
+ 			rc = -EBADF;
+-			break;
++		} else {
++			wdata2->pid = wdata2->cfile->pid;
++			rc = server->ops->async_writev(wdata2,
++						       cifs_writedata_release);
+ 		}
+-		wdata2->pid = wdata2->cfile->pid;
+-		rc = server->ops->async_writev(wdata2, cifs_writedata_release);
  
--	pcie->reset = devm_gpiod_get_optional(dev, "perst", GPIOD_OUT_LOW);
-+	pcie->reset = devm_gpiod_get_optional(dev, "perst", GPIOD_OUT_HIGH);
- 	if (IS_ERR(pcie->reset)) {
- 		ret = PTR_ERR(pcie->reset);
- 		goto err_pm_runtime_put;
+ 		for (j = 0; j < nr_pages; j++) {
+ 			unlock_page(wdata2->pages[j]);
+@@ -2053,6 +2054,7 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
+ 			kref_put(&wdata2->refcount, cifs_writedata_release);
+ 			if (is_retryable_error(rc))
+ 				continue;
++			i += nr_pages;
+ 			break;
+ 		}
+ 
+@@ -2060,6 +2062,13 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
+ 		i += nr_pages;
+ 	} while (i < wdata->nr_pages);
+ 
++	/* cleanup remaining pages from the original wdata */
++	for (; i < wdata->nr_pages; i++) {
++		SetPageError(wdata->pages[i]);
++		end_page_writeback(wdata->pages[i]);
++		put_page(wdata->pages[i]);
++	}
++
+ 	if (rc != 0 && !is_retryable_error(rc))
+ 		mapping_set_error(inode->i_mapping, rc);
+ 	kref_put(&wdata->refcount, cifs_writedata_release);
 -- 
 2.20.1
 
