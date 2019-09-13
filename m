@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB52B1F48
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E389CB1F4B
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389538AbfIMNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:17:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45084 "EHLO mail.kernel.org"
+        id S2389548AbfIMNR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:17:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390087AbfIMNRr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:17:47 -0400
+        id S2390122AbfIMNRx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:17:53 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B8D20640;
-        Fri, 13 Sep 2019 13:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8EAF20717;
+        Fri, 13 Sep 2019 13:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380666;
-        bh=Nh5kPSd3dyIsTNaacKWoqDfsF4hitShmVmt6iD81iiw=;
+        s=default; t=1568380672;
+        bh=OoFd6LHIGfcy+8FuV5qUsgVRuSFH1j4po4DWiHEIOVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLzgQGUNsBxnfoeMNxDPdx7+a+T3w1i9KaV5voGzN3l2xZf/u8JG/8WcAP1/ucW5g
-         zgv4TQid1CQzonYq3XfkUV5kEtPueLHcv6seFO+w/ekKyQ3FRgwEfpomBpi1HynP6l
-         g1At0qZHTaz2HcI7nydpeaTPQYQDA8EfBBkqleRQ=
+        b=vaK14gbPyH+5XpmIWxfKar1ky+R1Nnr+EON9PRBjWIE3EhgCFmywi5mGV6XksBQV3
+         c6sIgvQmfHNKhl2Yik8A1blYsrS7GlDZ5Mh5znCyhfP7lyGdFrcoOJRrKYhsdGJPEA
+         AQBUTz7xzCPuHtoaxYy7ND6jHw8+INbtHNdKL1KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        Koen Vandeputte <koen.vandeputte@ncentric.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/190] KVM: x86: Always use 32-bit SMRAM save state for 32-bit kernels
-Date:   Fri, 13 Sep 2019 14:06:10 +0100
-Message-Id: <20190913130608.987637164@linuxfoundation.org>
+Subject: [PATCH 4.19 117/190] media: i2c: tda1997x: select V4L2_FWNODE
+Date:   Fri, 13 Sep 2019 14:06:12 +0100
+Message-Id: <20190913130609.164200975@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,156 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b68f3cc7d978943fcf85148165b00594c38db776 ]
+[ Upstream commit 5f2efda71c09b12012053f457fac7692f268b72c ]
 
-Invoking the 64-bit variation on a 32-bit kenrel will crash the guest,
-trigger a WARN, and/or lead to a buffer overrun in the host, e.g.
-rsm_load_state_64() writes r8-r15 unconditionally, but enum kvm_reg and
-thus x86_emulate_ctxt._regs only define r8-r15 for CONFIG_X86_64.
+Building tda1997x fails now unless V4L2_FWNODE is selected:
 
-KVM allows userspace to report long mode support via CPUID, even though
-the guest is all but guaranteed to crash if it actually tries to enable
-long mode.  But, a pure 32-bit guest that is ignorant of long mode will
-happily plod along.
+drivers/media/i2c/tda1997x.o: in function `tda1997x_parse_dt'
+undefined reference to `v4l2_fwnode_endpoint_parse'
 
-SMM complicates things as 64-bit CPUs use a different SMRAM save state
-area.  KVM handles this correctly for 64-bit kernels, e.g. uses the
-legacy save state map if userspace has hid long mode from the guest,
-but doesn't fare well when userspace reports long mode support on a
-32-bit host kernel (32-bit KVM doesn't support 64-bit guests).
+While at it, also sort the selections alphabetically
 
-Since the alternative is to crash the guest, e.g. by not loading state
-or explicitly requesting shutdown, unconditionally use the legacy SMRAM
-save state map for 32-bit KVM.  If a guest has managed to get far enough
-to handle SMIs when running under a weird/buggy userspace hypervisor,
-then don't deliberately crash the guest since there are no downsides
-(from KVM's perspective) to allow it to continue running.
+Fixes: 9ac0038db9a7 ("media: i2c: Add TDA1997x HDMI receiver driver")
 
-Fixes: 660a5d517aaab ("KVM: x86: save/load state on SMM switch")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
+Cc: stable@vger.kernel.org # v4.17+
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c | 10 ++++++++++
- arch/x86/kvm/x86.c     | 10 ++++++----
- 2 files changed, 16 insertions(+), 4 deletions(-)
+ drivers/media/i2c/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 4a688ef9e4481..429728b35bca1 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2331,12 +2331,16 @@ static int em_lseg(struct x86_emulate_ctxt *ctxt)
+diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+index 63c9ac2c6a5ff..8b1ae1d6680b7 100644
+--- a/drivers/media/i2c/Kconfig
++++ b/drivers/media/i2c/Kconfig
+@@ -60,8 +60,9 @@ config VIDEO_TDA1997X
+ 	tristate "NXP TDA1997x HDMI receiver"
+ 	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
+ 	depends on SND_SOC
+-	select SND_PCM
+ 	select HDMI
++	select SND_PCM
++	select V4L2_FWNODE
+ 	---help---
+ 	  V4L2 subdevice driver for the NXP TDA1997x HDMI receivers.
  
- static int emulator_has_longmode(struct x86_emulate_ctxt *ctxt)
- {
-+#ifdef CONFIG_X86_64
- 	u32 eax, ebx, ecx, edx;
- 
- 	eax = 0x80000001;
- 	ecx = 0;
- 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
- 	return edx & bit(X86_FEATURE_LM);
-+#else
-+	return false;
-+#endif
- }
- 
- #define GET_SMSTATE(type, smbase, offset)				  \
-@@ -2381,6 +2385,7 @@ static int rsm_load_seg_32(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
- 	return X86EMUL_CONTINUE;
- }
- 
-+#ifdef CONFIG_X86_64
- static int rsm_load_seg_64(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
- {
- 	struct desc_struct desc;
-@@ -2399,6 +2404,7 @@ static int rsm_load_seg_64(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
- 	ctxt->ops->set_segment(ctxt, selector, &desc, base3, n);
- 	return X86EMUL_CONTINUE;
- }
-+#endif
- 
- static int rsm_enter_protected_mode(struct x86_emulate_ctxt *ctxt,
- 				    u64 cr0, u64 cr3, u64 cr4)
-@@ -2499,6 +2505,7 @@ static int rsm_load_state_32(struct x86_emulate_ctxt *ctxt, u64 smbase)
- 	return rsm_enter_protected_mode(ctxt, cr0, cr3, cr4);
- }
- 
-+#ifdef CONFIG_X86_64
- static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
- {
- 	struct desc_struct desc;
-@@ -2560,6 +2567,7 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
- 
- 	return X86EMUL_CONTINUE;
- }
-+#endif
- 
- static int em_rsm(struct x86_emulate_ctxt *ctxt)
- {
-@@ -2616,9 +2624,11 @@ static int em_rsm(struct x86_emulate_ctxt *ctxt)
- 	if (ctxt->ops->pre_leave_smm(ctxt, smbase))
- 		return X86EMUL_UNHANDLEABLE;
- 
-+#ifdef CONFIG_X86_64
- 	if (emulator_has_longmode(ctxt))
- 		ret = rsm_load_state_64(ctxt, smbase + 0x8000);
- 	else
-+#endif
- 		ret = rsm_load_state_32(ctxt, smbase + 0x8000);
- 
- 	if (ret != X86EMUL_CONTINUE) {
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index a846ed13ba53c..cbc39751f36bc 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7227,9 +7227,9 @@ static void enter_smm_save_state_32(struct kvm_vcpu *vcpu, char *buf)
- 	put_smstate(u32, buf, 0x7ef8, vcpu->arch.smbase);
- }
- 
-+#ifdef CONFIG_X86_64
- static void enter_smm_save_state_64(struct kvm_vcpu *vcpu, char *buf)
- {
--#ifdef CONFIG_X86_64
- 	struct desc_ptr dt;
- 	struct kvm_segment seg;
- 	unsigned long val;
-@@ -7279,10 +7279,8 @@ static void enter_smm_save_state_64(struct kvm_vcpu *vcpu, char *buf)
- 
- 	for (i = 0; i < 6; i++)
- 		enter_smm_save_seg_64(vcpu, buf, i);
--#else
--	WARN_ON_ONCE(1);
--#endif
- }
-+#endif
- 
- static void enter_smm(struct kvm_vcpu *vcpu)
- {
-@@ -7293,9 +7291,11 @@ static void enter_smm(struct kvm_vcpu *vcpu)
- 
- 	trace_kvm_enter_smm(vcpu->vcpu_id, vcpu->arch.smbase, true);
- 	memset(buf, 0, 512);
-+#ifdef CONFIG_X86_64
- 	if (guest_cpuid_has(vcpu, X86_FEATURE_LM))
- 		enter_smm_save_state_64(vcpu, buf);
- 	else
-+#endif
- 		enter_smm_save_state_32(vcpu, buf);
- 
- 	/*
-@@ -7353,8 +7353,10 @@ static void enter_smm(struct kvm_vcpu *vcpu)
- 	kvm_set_segment(vcpu, &ds, VCPU_SREG_GS);
- 	kvm_set_segment(vcpu, &ds, VCPU_SREG_SS);
- 
-+#ifdef CONFIG_X86_64
- 	if (guest_cpuid_has(vcpu, X86_FEATURE_LM))
- 		kvm_x86_ops->set_efer(vcpu, 0);
-+#endif
- 
- 	kvm_update_cpuid(vcpu);
- 	kvm_mmu_reset_context(vcpu);
 -- 
 2.20.1
 
