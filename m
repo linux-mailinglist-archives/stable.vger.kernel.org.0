@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A4FB1F3E
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD3DB1F42
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389354AbfIMNRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44562 "EHLO mail.kernel.org"
+        id S2390073AbfIMNRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:17:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389067AbfIMNRV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:17:21 -0400
+        id S2390065AbfIMNRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:17:30 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16714206A5;
-        Fri, 13 Sep 2019 13:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C9A9206A5;
+        Fri, 13 Sep 2019 13:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380640;
-        bh=tyz9EDC0TzptZ+ClxDdX/l0wChzdsOy41JFyVkHDeqU=;
+        s=default; t=1568380649;
+        bh=6ILFhvEXDEnSURpR9RZAmjptUv5yCKrkEql3WkcJjys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjTTqmIAAcfmXucD1pVGoGgEtGOzYEoIQX5aNRvfA+vJ0d0piBlsGXGsRvh3wfUcN
-         94RiSLZD8DxQ7SxfEpqGTCxD4zKr11tWKt28u92QzLBaVImVbHtzWoN/2cEjKxIY2M
-         zaKkEdBqir89CNeXWJnTIPn4LcIkucuBxrrYr11s=
+        b=ms2rfjVD3X7acwphQLEx22Mw0bxDCFKXWuqoByQuLPqgtPgvcOQuZMIxT+20cbxX2
+         6IIOPdwZjSuXjp9JdC80XiSlPd4Vs7QZpn6i0RA0nokbrWnfKVEpU/lX9HfIGvd2Y2
+         jOWNyMyY3X0VGWgfDkdeuQur0PrZNcW4WS3OPp7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 131/190] dm crypt: move detailed message into debug level
-Date:   Fri, 13 Sep 2019 14:06:26 +0100
-Message-Id: <20190913130610.418799348@linuxfoundation.org>
+Subject: [PATCH 4.19 133/190] ARC: mm: fix uninitialised signal code in do_page_fault
+Date:   Fri, 13 Sep 2019 14:06:28 +0100
+Message-Id: <20190913130610.582710456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,55 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7a1cd7238fde6ab367384a4a2998cba48330c398 ]
+[ Upstream commit 121e38e5acdc8e1e4cdb750fcdcc72f94e420968 ]
 
-The information about tag size should not be printed without debug info
-set. Also print device major:minor in the error message to identify the
-device instance.
+Commit 15773ae938d8 ("signal/arc: Use force_sig_fault where
+appropriate") introduced undefined behaviour by leaving si_code
+unitiailized and leaking random kernel values to user space.
 
-Also use rate limiting and debug level for info about used crypto API
-implementaton.  This is important because during online reencryption
-the existing message saturates syslog (because we are moving hotzone
-across the whole device).
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 15773ae938d8 ("signal/arc: Use force_sig_fault where appropriate")
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-crypt.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arc/mm/fault.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-index f3dcc7640319e..34f5de13a93d1 100644
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -949,6 +949,7 @@ static int crypt_integrity_ctr(struct crypt_config *cc, struct dm_target *ti)
- {
- #ifdef CONFIG_BLK_DEV_INTEGRITY
- 	struct blk_integrity *bi = blk_get_integrity(cc->dev->bdev->bd_disk);
-+	struct mapped_device *md = dm_table_get_md(ti->table);
- 
- 	/* From now we require underlying device with our integrity profile */
- 	if (!bi || strcasecmp(bi->profile->name, "DM-DIF-EXT-TAG")) {
-@@ -968,7 +969,7 @@ static int crypt_integrity_ctr(struct crypt_config *cc, struct dm_target *ti)
- 
- 	if (crypt_integrity_aead(cc)) {
- 		cc->integrity_tag_size = cc->on_disk_tag_size - cc->integrity_iv_size;
--		DMINFO("Integrity AEAD, tag size %u, IV size %u.",
-+		DMDEBUG("%s: Integrity AEAD, tag size %u, IV size %u.", dm_device_name(md),
- 		       cc->integrity_tag_size, cc->integrity_iv_size);
- 
- 		if (crypto_aead_setauthsize(any_tfm_aead(cc), cc->integrity_tag_size)) {
-@@ -976,7 +977,7 @@ static int crypt_integrity_ctr(struct crypt_config *cc, struct dm_target *ti)
- 			return -EINVAL;
- 		}
- 	} else if (cc->integrity_iv_size)
--		DMINFO("Additional per-sector space %u bytes for IV.",
-+		DMDEBUG("%s: Additional per-sector space %u bytes for IV.", dm_device_name(md),
- 		       cc->integrity_iv_size);
- 
- 	if ((cc->integrity_tag_size + cc->integrity_iv_size) != bi->tag_size) {
+diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
+index a0366f9dca051..535cf18e8bf2c 100644
+--- a/arch/arc/mm/fault.c
++++ b/arch/arc/mm/fault.c
+@@ -66,7 +66,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ 	struct vm_area_struct *vma = NULL;
+ 	struct task_struct *tsk = current;
+ 	struct mm_struct *mm = tsk->mm;
+-	int si_code;
++	int si_code = 0;
+ 	int ret;
+ 	vm_fault_t fault;
+ 	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
 -- 
 2.20.1
 
