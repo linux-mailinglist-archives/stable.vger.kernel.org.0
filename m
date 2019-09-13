@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35FA8B1EAC
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90794B1EAF
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388444AbfIMNLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37026 "EHLO mail.kernel.org"
+        id S2389057AbfIMNLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388096AbfIMNLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:47 -0400
+        id S2389035AbfIMNLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:11:53 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66645214AE;
-        Fri, 13 Sep 2019 13:11:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7037E206A5;
+        Fri, 13 Sep 2019 13:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380307;
-        bh=VD0f0+ab+C+4GW+EAuXTuKN+g/TJz9sfwB1E3e6vQIs=;
+        s=default; t=1568380313;
+        bh=/u4erf792tzOJqlpKbVrkMu2X3XVufsaWCH5312aUHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZD4ykgWbKxsDBbfTJReFXrXrAAd9KaNmrpUWO0BJH/+44o75AupMsA+p6HVCAXlh
-         P2pXXodCvpsDJo9lPPaXrtCQVo0CM91t4NGlOXvZkmJxn4Dsz16asbMKxCFDOIKG8a
-         2PC8W1/5xPzpZV7hAKjGrpyFZUGYU7CetK7DuZNM=
+        b=DNe+c23RZ+C03SFr7td1Twpy/qKtjr9iuYLn0IvytF3QWMIl9Z0LK07y9PivxkGtr
+         tJwWb4G4izNvMsHu/toYtCFPtNrW1yNc88rz2KK4LfxsD9Iy45ImO+okK+xKDHMcw/
+         QvNEKHCHCPtH45rFizPLQZhkFfF8CN5PSsnWc4rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 4.19 007/190] drm/vmwgfx: Fix double free in vmw_recv_msg()
-Date:   Fri, 13 Sep 2019 14:04:22 +0100
-Message-Id: <20190913130600.230044997@linuxfoundation.org>
+        stable@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 4.19 009/190] vhost/test: fix build for vhost test - again
+Date:   Fri, 13 Sep 2019 14:04:24 +0100
+Message-Id: <20190913130600.371763800@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -43,68 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
 
-commit 08b0c891605acf727e43e3e03a25857d3e789b61 upstream.
+commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
 
-We recently added a kfree() after the end of the loop:
+Since vhost_exceeds_weight() was introduced, callers need to specify
+the packet weight and byte weight in vhost_dev_init(). Note that, the
+packet weight isn't counted in this patch to keep the original behavior
+unchanged.
 
-	if (retries == RETRIES) {
-		kfree(reply);
-		return -EINVAL;
-	}
-
-There are two problems.  First the test is wrong and because retries
-equals RETRIES if we succeed on the last iteration through the loop.
-Second if we fail on the last iteration through the loop then the kfree
-is a double free.
-
-When you're reading this code, please note the break statement at the
-end of the while loop.  This patch changes the loop so that if it's not
-successful then "reply" is NULL and we can test for that afterward.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 6b7c3b86f0b6 ("drm/vmwgfx: fix memory leak when too many retries have occurred")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/vhost/test.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -353,7 +353,7 @@ static int vmw_recv_msg(struct rpc_chann
- 				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ebx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -377,7 +377,7 @@ static int vmw_recv_msg(struct rpc_chann
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -23,6 +23,12 @@
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_TEST_WEIGHT 0x80000
  
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ecx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -389,10 +389,8 @@ static int vmw_recv_msg(struct rpc_chann
- 		break;
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving others with
++ * pkts.
++ */
++#define VHOST_TEST_PKT_WEIGHT 256
++
+ enum {
+ 	VHOST_TEST_VQ = 0,
+ 	VHOST_TEST_VQ_MAX = 1,
+@@ -81,10 +87,8 @@ static void handle_vq(struct vhost_test
+ 		}
+ 		vhost_add_used_and_signal(&n->dev, vq, head, 0);
+ 		total_len += len;
+-		if (unlikely(total_len >= VHOST_TEST_WEIGHT)) {
+-			vhost_poll_queue(&vq->poll);
++		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
+ 			break;
+-		}
  	}
  
--	if (retries == RETRIES) {
--		kfree(reply);
-+	if (!reply)
- 		return -EINVAL;
--	}
+ 	mutex_unlock(&vq->mutex);
+@@ -116,7 +120,8 @@ static int vhost_test_open(struct inode
+ 	dev = &n->dev;
+ 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+ 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+-	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV);
++	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
++		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
  
- 	*msg_len = reply_len;
- 	*msg     = reply;
+ 	f->private_data = n;
+ 
 
 
