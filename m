@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E84EB1E78
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7585B1E7B
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388778AbfIMNKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35356 "EHLO mail.kernel.org"
+        id S2388777AbfIMNKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388773AbfIMNKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:10:30 -0400
+        id S2388773AbfIMNKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:33 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DCEA208C0;
-        Fri, 13 Sep 2019 13:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 764EE206A5;
+        Fri, 13 Sep 2019 13:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380230;
-        bh=t7lhY3uoey2pv2XPZ+VGGKmYEYqcQkcrF/ccCBqj/dw=;
+        s=default; t=1568380233;
+        bh=yXwm8MgEmEID84fx8p8QR4M7wBqVOGT2lkZ6Iq9uT+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUT/35CXt1mFqIhhJkacjyfoAohcMeALImB1MuVsl2z09AroeX+VQ3M2UmB0X/ZV0
-         5qwsR8PGXS/Y5TY1DE4lDfdgRqJCColfNXu6BiOf57k7MTO7Y2ZOUmYAKrPNBibSRc
-         CzaSai0uo9EjYNS+Y2XEz5Hl40+kWA8WBmfE9PpY=
+        b=2Q+SWp3PPBDFNMHY6jumDBFtGoUSEv7Uwyya36QI1EB3JVgN9qWeBT0fDd4Z+FPsV
+         BG3u/c/KISWuXWJKtNuFmijQqkbl4y0Zs0PCJKlP6J0xw9AEU0xxBy+5ymoOROM0ZS
+         CFomT+zHW8UE1bNMUSB1y+9UhABItb6orFnSiUVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 4.14 20/21] vhost: block speculation of translated descriptors
-Date:   Fri, 13 Sep 2019 14:07:13 +0100
-Message-Id: <20190913130509.381176459@linuxfoundation.org>
+        stable@vger.kernel.org, Lidong Chen <lidongchen@tencent.com>,
+        ruippan <ruippan@tencent.com>, yongduan <yongduan@tencent.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 4.14 21/21] vhost: make sure log_num < in_num
+Date:   Fri, 13 Sep 2019 14:07:14 +0100
+Message-Id: <20190913130509.533214384@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
 References: <20190913130501.285837292@linuxfoundation.org>
@@ -43,46 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: yongduan <yongduan@tencent.com>
 
-commit a89db445fbd7f1f8457b03759aa7343fa530ef6b upstream.
+commit 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4 upstream.
 
-iovec addresses coming from vhost are assumed to be
-pre-validated, but in fact can be speculated to a value
-out of range.
+The code assumes log_num < in_num everywhere, and that is true as long as
+in_num is incremented by descriptor iov count, and log_num by 1. However
+this breaks if there's a zero sized descriptor.
 
-Userspace address are later validated with array_index_nospec so we can
-be sure kernel info does not leak through these addresses, but vhost
-must also not leak userspace info outside the allowed memory table to
-guests.
+As a result, if a malicious guest creates a vring desc with desc.len = 0,
+it may cause the host kernel to crash by overflowing the log array. This
+bug can be triggered during the VM migration.
 
-Following the defence in depth principle, make sure
-the address is not validated out of node range.
+There's no need to log when desc.len = 0, so just don't increment log_num
+in this case.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 3a4d5c94e959 ("vhost_net: a kernel-level virtio server")
 Cc: stable@vger.kernel.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Tested-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: ruippan <ruippan@tencent.com>
+Signed-off-by: yongduan <yongduan@tencent.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vhost/vhost.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/vhost/vhost.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -1954,8 +1954,10 @@ static int translate_desc(struct vhost_v
- 		_iov = iov + ret;
- 		size = node->size - addr + node->start;
- 		_iov->iov_len = min((u64)len - s, size);
--		_iov->iov_base = (void __user *)(unsigned long)
--			(node->userspace_addr + addr - node->start);
-+		_iov->iov_base = (void __user *)
-+			((unsigned long)node->userspace_addr +
-+			 array_index_nospec((unsigned long)(addr - node->start),
-+					    node->size));
- 		s += size;
- 		addr += size;
- 		++ret;
+@@ -2068,7 +2068,7 @@ static int get_indirect(struct vhost_vir
+ 		/* If this is an input descriptor, increment that count. */
+ 		if (access == VHOST_ACCESS_WO) {
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
+@@ -2211,7 +2211,7 @@ int vhost_get_vq_desc(struct vhost_virtq
+ 			/* If this is an input descriptor,
+ 			 * increment that count. */
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
 
 
