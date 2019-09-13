@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6563AB1E81
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9D9B1E62
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388825AbfIMNKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        id S2388560AbfIMNJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388817AbfIMNKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:10:47 -0400
+        id S2388533AbfIMNJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:39 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64902206BB;
-        Fri, 13 Sep 2019 13:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E75F1206A5;
+        Fri, 13 Sep 2019 13:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380247;
-        bh=p2OG/25OntIVnTzVIz2+SUyWxOBIql0bEaDlV5Vj7Nc=;
+        s=default; t=1568380178;
+        bh=ztAw2WI8XHTgR5UIIm3S9StiBL4Qf7ooKL7SmAatFEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yb3ti1xl1QQtrFStmVEwBZiK/07T43LeaiufwktavLA0ALXXMclbCV7D+mwbBb0ba
-         NluT1Nx44EXDdfoj1NmaQfUusqxJlBM52t/r/Bcs52fo8rXLyu6tu3Y86HPcwZVQnZ
-         jYZlfb6GX3eln6TP+HkApa8188elLkbHXKp0XCjk=
+        b=JyImmD+83g/0Dpk0Jlz4l5Lox4AKnBqMDVGaNnQwhICjByvD6IDuLjDoqPuu8ExJu
+         9I4rzrewCwRD1HRRPX5DcOrSQLnFNb20TounpfKZtU33ZnxYWeE9l3u0rNS9pDPOiz
+         +1dHLJbAPvOhewuuMhS0RVSC5SFxJ+Xv7bhm3Z8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 4.14 05/21] drm/vmwgfx: Fix double free in vmw_recv_msg()
-Date:   Fri, 13 Sep 2019 14:06:58 +0100
-Message-Id: <20190913130503.441739156@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Stefan Bader <stefan.bader@canonical.com>,
+        Peter Oskolkov <posk@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Baolin Wang <baolin.wang@linaro.org>
+Subject: [PATCH 4.9 07/14] ip6: fix skb leak in ip6frag_expire_frag_queue()
+Date:   Fri, 13 Sep 2019 14:07:00 +0100
+Message-Id: <20190913130444.894079575@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
-References: <20190913130501.285837292@linuxfoundation.org>
+In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
+References: <20190913130440.264749443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 08b0c891605acf727e43e3e03a25857d3e789b61 upstream.
+commit 47d3d7fdb10a21c223036b58bd70ffdc24a472c4 upstream.
 
-We recently added a kfree() after the end of the loop:
+Since ip6frag_expire_frag_queue() now pulls the head skb
+from frag queue, we should no longer use skb_get(), since
+this leads to an skb leak.
 
-	if (retries == RETRIES) {
-		kfree(reply);
-		return -EINVAL;
-	}
+Stefan Bader initially reported a problem in 4.4.stable [1] caused
+by the skb_get(), so this patch should also fix this issue.
 
-There are two problems.  First the test is wrong and because retries
-equals RETRIES if we succeed on the last iteration through the loop.
-Second if we fail on the last iteration through the loop then the kfree
-is a double free.
+296583.091021] kernel BUG at /build/linux-6VmqmP/linux-4.4.0/net/core/skbuff.c:1207!
+[296583.091734] Call Trace:
+[296583.091749]  [<ffffffff81740e50>] __pskb_pull_tail+0x50/0x350
+[296583.091764]  [<ffffffff8183939a>] _decode_session6+0x26a/0x400
+[296583.091779]  [<ffffffff817ec719>] __xfrm_decode_session+0x39/0x50
+[296583.091795]  [<ffffffff818239d0>] icmpv6_route_lookup+0xf0/0x1c0
+[296583.091809]  [<ffffffff81824421>] icmp6_send+0x5e1/0x940
+[296583.091823]  [<ffffffff81753238>] ? __netif_receive_skb+0x18/0x60
+[296583.091838]  [<ffffffff817532b2>] ? netif_receive_skb_internal+0x32/0xa0
+[296583.091858]  [<ffffffffc0199f74>] ? ixgbe_clean_rx_irq+0x594/0xac0 [ixgbe]
+[296583.091876]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091893]  [<ffffffff8183d431>] icmpv6_send+0x21/0x30
+[296583.091906]  [<ffffffff8182b500>] ip6_expire_frag_queue+0xe0/0x120
+[296583.091921]  [<ffffffffc04eb27f>] nf_ct_frag6_expire+0x1f/0x30 [nf_defrag_ipv6]
+[296583.091938]  [<ffffffff810f3b57>] call_timer_fn+0x37/0x140
+[296583.091951]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091968]  [<ffffffff810f5464>] run_timer_softirq+0x234/0x330
+[296583.091982]  [<ffffffff8108a339>] __do_softirq+0x109/0x2b0
 
-When you're reading this code, please note the break statement at the
-end of the while loop.  This patch changes the loop so that if it's not
-successful then "reply" is NULL and we can test for that afterward.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 6b7c3b86f0b6 ("drm/vmwgfx: fix memory leak when too many retries have occurred")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Fixes: d4289fcc9b16 ("net: IP6 defrag: use rbtrees for IPv6 defrag")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+Cc: Peter Oskolkov <posk@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ include/net/ipv6_frag.h |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -264,7 +264,7 @@ static int vmw_recv_msg(struct rpc_chann
+--- a/include/net/ipv6_frag.h
++++ b/include/net/ipv6_frag.h
+@@ -94,7 +94,6 @@ ip6frag_expire_frag_queue(struct net *ne
+ 		goto out;
  
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ebx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -288,7 +288,7 @@ static int vmw_recv_msg(struct rpc_chann
+ 	head->dev = dev;
+-	skb_get(head);
+ 	spin_unlock(&fq->q.lock);
  
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ecx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -300,10 +300,8 @@ static int vmw_recv_msg(struct rpc_chann
- 		break;
- 	}
- 
--	if (retries == RETRIES) {
--		kfree(reply);
-+	if (!reply)
- 		return -EINVAL;
--	}
- 
- 	*msg_len = reply_len;
- 	*msg     = reply;
+ 	icmpv6_send(head, ICMPV6_TIME_EXCEED, ICMPV6_EXC_FRAGTIME, 0);
 
 
