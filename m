@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E389CB1F4B
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E8CFB1F4F
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389548AbfIMNR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:17:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45256 "EHLO mail.kernel.org"
+        id S2389557AbfIMNSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390122AbfIMNRx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:17:53 -0400
+        id S2390142AbfIMNSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:18:06 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8EAF20717;
-        Fri, 13 Sep 2019 13:17:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3DCE206BB;
+        Fri, 13 Sep 2019 13:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380672;
-        bh=OoFd6LHIGfcy+8FuV5qUsgVRuSFH1j4po4DWiHEIOVQ=;
+        s=default; t=1568380685;
+        bh=S+I5g/s2MoEk2IMxrV43PfJlXGEod35XkM67UhGBAzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vaK14gbPyH+5XpmIWxfKar1ky+R1Nnr+EON9PRBjWIE3EhgCFmywi5mGV6XksBQV3
-         c6sIgvQmfHNKhl2Yik8A1blYsrS7GlDZ5Mh5znCyhfP7lyGdFrcoOJRrKYhsdGJPEA
-         AQBUTz7xzCPuHtoaxYy7ND6jHw8+INbtHNdKL1KU=
+        b=vjKPT2TM9di+cNS3VUd/Fq4ZxUhKCVb/x/oH+FM6lff0p7YyZYL9nyLNxJszRHxt7
+         Vz9qzwY7eNap2YRGqmL9ycwfhvhOBSsaCM0mfew63roQvxsvlhBEcuqvcPzeAyjWFa
+         sLlJVRfd7AfYm2TllNgSfMLNmlygYdpmUXGgtZ3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Koen Vandeputte <koen.vandeputte@ncentric.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/190] media: i2c: tda1997x: select V4L2_FWNODE
-Date:   Fri, 13 Sep 2019 14:06:12 +0100
-Message-Id: <20190913130609.164200975@linuxfoundation.org>
+        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Andy Gross <agross@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 121/190] ARM: dts: qcom: ipq4019: enlarge PCIe BAR range
+Date:   Fri, 13 Sep 2019 14:06:16 +0100
+Message-Id: <20190913130609.497224824@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -47,42 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5f2efda71c09b12012053f457fac7692f268b72c ]
+[ Upstream commit f3e35357cd460a8aeb48b8113dc4b761a7d5c828 ]
 
-Building tda1997x fails now unless V4L2_FWNODE is selected:
+David Bauer reported that the VDSL modem (attached via PCIe)
+on his AVM Fritz!Box 7530 was complaining about not having
+enough space in the BAR. A closer inspection of the old
+qcom-ipq40xx.dtsi pulled from the GL-iNet repository listed:
 
-drivers/media/i2c/tda1997x.o: in function `tda1997x_parse_dt'
-undefined reference to `v4l2_fwnode_endpoint_parse'
+| qcom,pcie@80000 {
+|	compatible = "qcom,msm_pcie";
+|	reg = <0x80000 0x2000>,
+|	      <0x99000 0x800>,
+|	      <0x40000000 0xf1d>,
+|	      <0x40000f20 0xa8>,
+|	      <0x40100000 0x1000>,
+|	      <0x40200000 0x100000>,
+|	      <0x40300000 0xd00000>;
+|	reg-names = "parf", "phy", "dm_core", "elbi",
+|			"conf", "io", "bars";
 
-While at it, also sort the selections alphabetically
+Matching the reg-names with the listed reg leads to
+<0xd00000> as the size for the "bars".
 
-Fixes: 9ac0038db9a7 ("media: i2c: Add TDA1997x HDMI receiver driver")
-
-Signed-off-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
-Cc: stable@vger.kernel.org # v4.17+
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: stable@vger.kernel.org
+BugLink: https://www.mail-archive.com/openwrt-devel@lists.openwrt.org/msg45212.html
+Reported-by: David Bauer <mail@david-bauer.net>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Andy Gross <agross@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 63c9ac2c6a5ff..8b1ae1d6680b7 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -60,8 +60,9 @@ config VIDEO_TDA1997X
- 	tristate "NXP TDA1997x HDMI receiver"
- 	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
- 	depends on SND_SOC
--	select SND_PCM
- 	select HDMI
-+	select SND_PCM
-+	select V4L2_FWNODE
- 	---help---
- 	  V4L2 subdevice driver for the NXP TDA1997x HDMI receivers.
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index 814ab7283228a..54d056b01bb51 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -386,8 +386,8 @@
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
  
+-			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000
+-				  0x82000000 0 0x40300000 0x40300000 0 0x400000>;
++			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000>,
++				 <0x82000000 0 0x40300000 0x40300000 0 0x00d00000>;
+ 
+ 			interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
 -- 
 2.20.1
 
