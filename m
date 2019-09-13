@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FEFB1F71
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB8EB1F73
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730329AbfIMNTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47836 "EHLO mail.kernel.org"
+        id S2389869AbfIMNTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:19:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730276AbfIMNTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:36 -0400
+        id S2390422AbfIMNTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:19:39 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B9F920717;
-        Fri, 13 Sep 2019 13:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1B5B20640;
+        Fri, 13 Sep 2019 13:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380775;
-        bh=6ju7qoV4XtxiOYiydTZ/xi21M3nC3WCFupiG3JE4sJM=;
+        s=default; t=1568380778;
+        bh=nbvMh1RIRXXzZ6TclUPYbZSby/FBqYy/SvJruTPaJuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdiBhIoSsnx+2p+c6yJDy9FPIAuYZW3psvk6Od4zR1EG2p15Lr92vfjoqQpvE1msW
-         Z8oajTS5434TFB7XXDeKD1G7fdzqsHlhcir9DV4o4d1imAeCJ8SIohKDZtxcDJl4HM
-         GGzA9S2VybkR2E5KwBGvLJJvUlLUCp9L1D9n7B/g=
+        b=QvrLUhoADIz19eq0r0qA1oDEFkJaWLWK4D3jtdIGf9KOwHv4JUVnFJJdqPz/XPlJc
+         sChdAtZlQD4A0GidJFWh2T0t1gGBhA62bmEKpETLhZsHyZImsycf7v5JphGZAaCJ0+
+         mxFV8X1Ij4Jfe1R5UbZea2C1Afo+H4LeKkR/jDWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 175/190] iio: adc: gyroadc: fix uninitialized return code
-Date:   Fri, 13 Sep 2019 14:07:10 +0100
-Message-Id: <20190913130613.727863726@linuxfoundation.org>
+Subject: [PATCH 4.19 176/190] NFSv4: Fix delegation state recovery
+Date:   Fri, 13 Sep 2019 14:07:11 +0100
+Message-Id: <20190913130613.814058908@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,48 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 90c6260c1905a68fb596844087f2223bd4657fee ]
+[ Upstream commit 5eb8d18ca0e001c6055da2b7f30d8f6dca23a44f ]
 
-gcc-9 complains about a blatant uninitialized variable use that
-all earlier compiler versions missed:
+Once we clear the NFS_DELEGATED_STATE flag, we're telling
+nfs_delegation_claim_opens() that we're done recovering all open state
+for that stateid, so we really need to ensure that we test for all
+open modes that are currently cached and recover them before exiting
+nfs4_open_delegation_recall().
 
-drivers/iio/adc/rcar-gyroadc.c:510:5: warning: 'ret' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
-Return -EINVAL instead here and a few lines above it where
-we accidentally return 0 on failure.
-
-Cc: stable@vger.kernel.org
-Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 24311f884189d ("NFSv4: Recovery of recalled read delegations...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: stable@vger.kernel.org # v4.3+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/rcar-gyroadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/delegation.c |  2 +-
+ fs/nfs/delegation.h |  2 +-
+ fs/nfs/nfs4proc.c   | 25 ++++++++++++-------------
+ 3 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/iio/adc/rcar-gyroadc.c b/drivers/iio/adc/rcar-gyroadc.c
-index dcb50172186f4..f3a966ab35dcb 100644
---- a/drivers/iio/adc/rcar-gyroadc.c
-+++ b/drivers/iio/adc/rcar-gyroadc.c
-@@ -391,7 +391,7 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
- 				dev_err(dev,
- 					"Only %i channels supported with %s, but reg = <%i>.\n",
- 					num_channels, child->name, reg);
--				return ret;
-+				return -EINVAL;
- 			}
- 		}
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 75fe92eaa6818..1624618c2bc72 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -153,7 +153,7 @@ again:
+ 		/* Block nfs4_proc_unlck */
+ 		mutex_lock(&sp->so_delegreturn_mutex);
+ 		seq = raw_seqcount_begin(&sp->so_reclaim_seqcount);
+-		err = nfs4_open_delegation_recall(ctx, state, stateid, type);
++		err = nfs4_open_delegation_recall(ctx, state, stateid);
+ 		if (!err)
+ 			err = nfs_delegation_claim_locks(ctx, state, stateid);
+ 		if (!err && read_seqcount_retry(&sp->so_reclaim_seqcount, seq))
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index bb1ef8c37af42..c95477823fa6b 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -61,7 +61,7 @@ void nfs_reap_expired_delegations(struct nfs_client *clp);
  
-@@ -400,7 +400,7 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
- 			dev_err(dev,
- 				"Channel %i uses different ADC mode than the rest.\n",
- 				reg);
--			return ret;
-+			return -EINVAL;
- 		}
+ /* NFSv4 delegation-related procedures */
+ int nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, const nfs4_stateid *stateid, int issync);
+-int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state *state, const nfs4_stateid *stateid, fmode_t type);
++int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state *state, const nfs4_stateid *stateid);
+ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
+ bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, struct rpc_cred **cred);
+ bool nfs4_refresh_delegation_stateid(nfs4_stateid *dst, struct inode *inode);
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 31ae3bd5d9d20..621e3cf90f4eb 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -2113,12 +2113,10 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
+ 		case -NFS4ERR_BAD_HIGH_SLOT:
+ 		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
+ 		case -NFS4ERR_DEADSESSION:
+-			set_bit(NFS_DELEGATED_STATE, &state->flags);
+ 			nfs4_schedule_session_recovery(server->nfs_client->cl_session, err);
+ 			return -EAGAIN;
+ 		case -NFS4ERR_STALE_CLIENTID:
+ 		case -NFS4ERR_STALE_STATEID:
+-			set_bit(NFS_DELEGATED_STATE, &state->flags);
+ 			/* Don't recall a delegation if it was lost */
+ 			nfs4_schedule_lease_recovery(server->nfs_client);
+ 			return -EAGAIN;
+@@ -2139,7 +2137,6 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
+ 			return -EAGAIN;
+ 		case -NFS4ERR_DELAY:
+ 		case -NFS4ERR_GRACE:
+-			set_bit(NFS_DELEGATED_STATE, &state->flags);
+ 			ssleep(1);
+ 			return -EAGAIN;
+ 		case -ENOMEM:
+@@ -2155,8 +2152,7 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
+ }
  
- 		/* Channel is valid, grab the regulator. */
+ int nfs4_open_delegation_recall(struct nfs_open_context *ctx,
+-		struct nfs4_state *state, const nfs4_stateid *stateid,
+-		fmode_t type)
++		struct nfs4_state *state, const nfs4_stateid *stateid)
+ {
+ 	struct nfs_server *server = NFS_SERVER(state->inode);
+ 	struct nfs4_opendata *opendata;
+@@ -2167,20 +2163,23 @@ int nfs4_open_delegation_recall(struct nfs_open_context *ctx,
+ 	if (IS_ERR(opendata))
+ 		return PTR_ERR(opendata);
+ 	nfs4_stateid_copy(&opendata->o_arg.u.delegation, stateid);
+-	nfs_state_clear_delegation(state);
+-	switch (type & (FMODE_READ|FMODE_WRITE)) {
+-	case FMODE_READ|FMODE_WRITE:
+-	case FMODE_WRITE:
++	if (!test_bit(NFS_O_RDWR_STATE, &state->flags)) {
+ 		err = nfs4_open_recover_helper(opendata, FMODE_READ|FMODE_WRITE);
+ 		if (err)
+-			break;
++			goto out;
++	}
++	if (!test_bit(NFS_O_WRONLY_STATE, &state->flags)) {
+ 		err = nfs4_open_recover_helper(opendata, FMODE_WRITE);
+ 		if (err)
+-			break;
+-		/* Fall through */
+-	case FMODE_READ:
++			goto out;
++	}
++	if (!test_bit(NFS_O_RDONLY_STATE, &state->flags)) {
+ 		err = nfs4_open_recover_helper(opendata, FMODE_READ);
++		if (err)
++			goto out;
+ 	}
++	nfs_state_clear_delegation(state);
++out:
+ 	nfs4_opendata_put(opendata);
+ 	return nfs4_handle_delegation_recall_error(server, state, stateid, NULL, err);
+ }
 -- 
 2.20.1
 
