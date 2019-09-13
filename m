@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AF4B1F64
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 872ECB1F58
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390367AbfIMNTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46970 "EHLO mail.kernel.org"
+        id S2389690AbfIMNSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390356AbfIMNTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:05 -0400
+        id S2389668AbfIMNSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:18:32 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4613C20640;
-        Fri, 13 Sep 2019 13:19:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E27CB206A5;
+        Fri, 13 Sep 2019 13:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380744;
-        bh=Rsf/Khn2abksNM7glqVkUKryyHY9WwZ/3izWFKCXi04=;
+        s=default; t=1568380712;
+        bh=hbgZ6giQbwqTm1/yWXdAQoI7w9rLN26p2P7hlsx9MXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgk6kqZZN8ZVPT6+gOOpy254aFaSJ2LDlUqi8QNIL06dJD+21ErfAdWTNfySbeLr8
-         jOd9EGJ5PEm0n1TpyszBmjUCFzF6wNAxXAqAI/jDzx4pmdWm79Qk637QTRS9SGcpUf
-         hxDQ6/mHP//1sRx+CmJ3ank38vzBbMRP7c0hVj+o=
+        b=W/p4do2pBcakueacYuHjZxmR6WRfBCAnru9mOwrm+Z8Yu5MDyC8FbmdzPmSgaJHHy
+         RjL9t7s9DXWZpyGUoFXNaoZMB8hzFXMfgGgCzxSoe7fCW7Sr1b/qY0UM+3ZWyRGpVV
+         KyiL2dH5u4ZKioC56goZXOJAodiAB9uksuu+vJfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/190] IB/hfi1: Avoid hardlockup with flushlist_lock
-Date:   Fri, 13 Sep 2019 14:06:38 +0100
-Message-Id: <20190913130611.424105762@linuxfoundation.org>
+Subject: [PATCH 4.19 153/190] KVM: VMX: Always signal #GP on WRMSR to MSR_IA32_CR_PAT with bad value
+Date:   Fri, 13 Sep 2019 14:06:48 +0100
+Message-Id: <20190913130612.141351420@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -46,60 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cf131a81967583ae737df6383a0893b9fee75b4e ]
+[ Upstream commit d28f4290b53a157191ed9991ad05dffe9e8c0c89 ]
 
-Heavy contention of the sde flushlist_lock can cause hard lockups at
-extreme scale when the flushing logic is under stress.
+The behavior of WRMSR is in no way dependent on whether or not KVM
+consumes the value.
 
-Mitigate by replacing the item at a time copy to the local list with
-an O(1) list_splice_init() and using the high priority work queue to
-do the flushes.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Fixes: 4566654bb9be9 ("KVM: vmx: Inject #GP on invalid PAT CR")
+Cc: stable@vger.kernel.org
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ arch/x86/kvm/vmx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 88e326d6cc494..d648a4167832c 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -410,10 +410,7 @@ static void sdma_flush(struct sdma_engine *sde)
- 	sdma_flush_descq(sde);
- 	spin_lock_irqsave(&sde->flushlist_lock, flags);
- 	/* copy flush list */
--	list_for_each_entry_safe(txp, txp_next, &sde->flushlist, list) {
--		list_del_init(&txp->list);
--		list_add_tail(&txp->list, &flushlist);
--	}
-+	list_splice_init(&sde->flushlist, &flushlist);
- 	spin_unlock_irqrestore(&sde->flushlist_lock, flags);
- 	/* flush from flush list */
- 	list_for_each_entry_safe(txp, txp_next, &flushlist, list)
-@@ -2426,7 +2423,7 @@ unlock_noconn:
- 		wait->tx_count++;
- 		wait->count += tx->num_desc;
- 	}
--	schedule_work(&sde->flush_worker);
-+	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
- 	ret = -ECOMM;
- 	goto unlock;
- nodesc:
-@@ -2526,7 +2523,7 @@ unlock_noconn:
- 		}
- 	}
- 	spin_unlock(&sde->flushlist_lock);
--	schedule_work(&sde->flush_worker);
-+	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
- 	ret = -ECOMM;
- 	goto update_tail;
- nodesc:
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index feff7ed44a2bb..e4bba840a0708 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -4265,9 +4265,10 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 					      MSR_TYPE_W);
+ 		break;
+ 	case MSR_IA32_CR_PAT:
++		if (!kvm_pat_valid(data))
++			return 1;
++
+ 		if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT) {
+-			if (!kvm_pat_valid(data))
+-				return 1;
+ 			vmcs_write64(GUEST_IA32_PAT, data);
+ 			vcpu->arch.pat = data;
+ 			break;
 -- 
 2.20.1
 
