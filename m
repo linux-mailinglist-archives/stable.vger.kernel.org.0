@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D99C3B1F26
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F40B1F28
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388480AbfIMNQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:16:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
+        id S2388198AbfIMNQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:16:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388932AbfIMNQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:16:19 -0400
+        id S2388921AbfIMNQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:16:22 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 165F8206A5;
-        Fri, 13 Sep 2019 13:16:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 274FC20717;
+        Fri, 13 Sep 2019 13:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380578;
-        bh=kQb2lO5SeC/552C3y6/UkLfJlBEviMXtrHmh+PN1ors=;
+        s=default; t=1568380581;
+        bh=ska6GvcMvDccfwAgcRVlSXG3/h/lqthHXrPwemOftNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Q9p+9piCSU+U0ian/02WO7q8Y7lNOxlKfKrDSPZa1j1n99SJXwzpFy65/cDsL1GD
-         O3D/1fLy3Z8odN8KtjCqNm0iS7IPkwiuPNZLznNGxGf5hrOmPrILP5SMKRgN6B25bh
-         oGw7PTPMX16gjTA+4RsoN7CZGv1fL2gWNxB2hTX4=
+        b=MIzPkQHCLewdRK+2DjIRsQHAiji9eBjrlWawdkGgrGx9uS41Rj07/wDx0AeVdcM1X
+         EKJ6/0o31EJNOOhpg/DN1qzK9XxCCx5Zm5ED+n6IoblW+rpvYdwSYR8dirb8tvIydp
+         k2QTlLoGG+ieRP+GpIoS+1DMvuk+4HI9Ah/VcOyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Argenziano <antonio.argenziano@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/190] drm/i915: Sanity check mmap length against object size
-Date:   Fri, 13 Sep 2019 14:06:04 +0100
-Message-Id: <20190913130608.433465428@linuxfoundation.org>
+Subject: [PATCH 4.19 110/190] usb: typec: tcpm: Try PD-2.0 if sink does not respond to 3.0 source-caps
+Date:   Fri, 13 Sep 2019 14:06:05 +0100
+Message-Id: <20190913130608.527985720@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -48,77 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 000c4f90e3f0194eef218ff2c6a8fd8ca1de4313 ]
+[ Upstream commit 976daf9d1199932df80e7b04546d1a1bd4ed5ece ]
 
-We assumed that vm_mmap() would reject an attempt to mmap past the end of
-the filp (our object), but we were wrong.
+PD 2.0 sinks are supposed to accept src-capabilities with a 3.0 header and
+simply ignore any src PDOs which the sink does not understand such as PPS
+but some 2.0 sinks instead ignore the entire PD_DATA_SOURCE_CAP message,
+causing contract negotiation to fail.
 
-Applications that tried to use the mmap beyond the end of the object
-would be greeted by a SIGBUS. After this patch, those applications will
-be told about the error on creating the mmap, rather than at a random
-moment on later access.
+This commit fixes such sinks not working by re-trying the contract
+negotiation with PD-2.0 source-caps messages if we don't have a contract
+after PD_N_HARD_RESET_COUNT hard-reset attempts.
 
-Reported-by: Antonio Argenziano <antonio.argenziano@intel.com>
-Testcase: igt/gem_mmap/bad-size
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Antonio Argenziano <antonio.argenziano@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190314075829.16838-1-chris@chris-wilson.co.uk
-(cherry picked from commit 794a11cb67201ad1bb61af510bb8460280feb3f3)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+The problem fixed by this commit was noticed with a Type-C to VGA dongle.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_gem.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/usb/typec/tcpm.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index 9634d3adb8d01..9372877100420 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -1874,8 +1874,13 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
- 	 * pages from.
- 	 */
- 	if (!obj->base.filp) {
--		i915_gem_object_put(obj);
--		return -ENXIO;
-+		addr = -ENXIO;
-+		goto err;
-+	}
-+
-+	if (range_overflows(args->offset, args->size, (u64)obj->base.size)) {
-+		addr = -EINVAL;
-+		goto err;
- 	}
- 
- 	addr = vm_mmap(obj->base.filp, 0, args->size,
-@@ -1889,8 +1894,8 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
- 		struct vm_area_struct *vma;
- 
- 		if (down_write_killable(&mm->mmap_sem)) {
--			i915_gem_object_put(obj);
--			return -EINTR;
-+			addr = -EINTR;
-+			goto err;
+diff --git a/drivers/usb/typec/tcpm.c b/drivers/usb/typec/tcpm.c
+index fb20aa974ae12..819ae3b2bd7e8 100644
+--- a/drivers/usb/typec/tcpm.c
++++ b/drivers/usb/typec/tcpm.c
+@@ -37,6 +37,7 @@
+ 	S(SRC_ATTACHED),			\
+ 	S(SRC_STARTUP),				\
+ 	S(SRC_SEND_CAPABILITIES),		\
++	S(SRC_SEND_CAPABILITIES_TIMEOUT),	\
+ 	S(SRC_NEGOTIATE_CAPABILITIES),		\
+ 	S(SRC_TRANSITION_SUPPLY),		\
+ 	S(SRC_READY),				\
+@@ -2987,10 +2988,34 @@ static void run_state_machine(struct tcpm_port *port)
+ 			/* port->hard_reset_count = 0; */
+ 			port->caps_count = 0;
+ 			port->pd_capable = true;
+-			tcpm_set_state_cond(port, hard_reset_state(port),
++			tcpm_set_state_cond(port, SRC_SEND_CAPABILITIES_TIMEOUT,
+ 					    PD_T_SEND_SOURCE_CAP);
  		}
- 		vma = find_vma(mm, addr);
- 		if (vma && __vma_matches(vma, obj->base.filp, addr, args->size))
-@@ -1908,12 +1913,10 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
- 	i915_gem_object_put(obj);
- 
- 	args->addr_ptr = (uint64_t) addr;
--
- 	return 0;
- 
- err:
- 	i915_gem_object_put(obj);
--
- 	return addr;
- }
- 
+ 		break;
++	case SRC_SEND_CAPABILITIES_TIMEOUT:
++		/*
++		 * Error recovery for a PD_DATA_SOURCE_CAP reply timeout.
++		 *
++		 * PD 2.0 sinks are supposed to accept src-capabilities with a
++		 * 3.0 header and simply ignore any src PDOs which the sink does
++		 * not understand such as PPS but some 2.0 sinks instead ignore
++		 * the entire PD_DATA_SOURCE_CAP message, causing contract
++		 * negotiation to fail.
++		 *
++		 * After PD_N_HARD_RESET_COUNT hard-reset attempts, we try
++		 * sending src-capabilities with a lower PD revision to
++		 * make these broken sinks work.
++		 */
++		if (port->hard_reset_count < PD_N_HARD_RESET_COUNT) {
++			tcpm_set_state(port, HARD_RESET_SEND, 0);
++		} else if (port->negotiated_rev > PD_REV20) {
++			port->negotiated_rev--;
++			port->hard_reset_count = 0;
++			tcpm_set_state(port, SRC_SEND_CAPABILITIES, 0);
++		} else {
++			tcpm_set_state(port, hard_reset_state(port), 0);
++		}
++		break;
+ 	case SRC_NEGOTIATE_CAPABILITIES:
+ 		ret = tcpm_pd_check_request(port);
+ 		if (ret < 0) {
 -- 
 2.20.1
 
