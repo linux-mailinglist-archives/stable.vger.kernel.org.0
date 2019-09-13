@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E60B200E
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5CEB200F
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389609AbfIMNOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40922 "EHLO mail.kernel.org"
+        id S2389030AbfIMNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:14:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389600AbfIMNOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:14:53 -0400
+        id S2389612AbfIMNO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:14:56 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1C2B206BB;
-        Fri, 13 Sep 2019 13:14:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C43E208C2;
+        Fri, 13 Sep 2019 13:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380492;
-        bh=Ro1LNBFMViZiVBWiUqekWd88mjd50CtgzABBkEWYXUw=;
+        s=default; t=1568380495;
+        bh=phdMjRRH9fyWnwUJ9B/USK4+DRu5KncK54P2H1Ot7CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZD4/Y83KZt/TgqnlxMnw1ivg9p29KzHSP9Pz+C7tiHb4w/0wHIhDT4xKN0c96K+DF
-         2WowM93UVkUOXrfGWCluXLa9sFhiP17TAeGuDEH5ttoSyFj1Ld8jHNAvBDeP4tZBz0
-         XYc7ge6ZDAa6wZE3X2xQhXmyQOhiQYUuntpfhqqQ=
+        b=iEgXkkCk9CPJdv+5ldV2cTVY/xh1AEaC/Sx2HewJHiwotJ2TsJotdlcnBmXJSS6Sn
+         6mrOwl7Si6Zh5vF1VGNqnYZuK/pbmn3FcQo2hVZkRMsHVQEsuonmwNbKiGF76xIS/i
+         kf5TG9jhdH5LuI+fmWfVUZdtygL3U+PF628ZKFQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 083/190] mfd: Kconfig: Fix I2C_DESIGNWARE_PLATFORM dependencies
-Date:   Fri, 13 Sep 2019 14:05:38 +0100
-Message-Id: <20190913130606.162655922@linuxfoundation.org>
+Subject: [PATCH 4.19 084/190] tpm: Fix some name collisions with drivers/char/tpm.h
+Date:   Fri, 13 Sep 2019 14:05:39 +0100
+Message-Id: <20190913130606.252890561@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,83 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 09fdc98577120d4f47601c3127efde726a2300c6 ]
+[ Upstream commit 8ab547a2dcfac6ec184a5e036e1093eb3f7a215c ]
 
-INTEL_SOC_PMIC, INTEL_SOC_PMIC_CHTWC and MFD_TPS68470 select the
-I2C_DESIGNWARE_PLATFORM without its dependencies making it possible to see
-warning and build error like below:
+* Rename TPM_BUFSIZE defined in drivers/char/tpm/st33zp24/st33zp24.h to
+  ST33ZP24_BUFSIZE.
+* Rename TPM_BUFSIZE defined in drivers/char/tpm/tpm_i2c_infineon.c to
+  TPM_I2C_INFINEON_BUFSIZE.
+* Rename TPM_RETRY in tpm_i2c_nuvoton to TPM_I2C_RETRIES.
+* Remove TPM_HEADER_SIZE from tpm_i2c_nuvoton.
 
-WARNING: unmet direct dependencies detected for I2C_DESIGNWARE_PLATFORM
-  Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && (ACPI [=y] && COMMON_CLK [=n] || !ACPI [=y])
-  Selected by [y]:
-  - MFD_TPS68470 [=y] && HAS_IOMEM [=y] && ACPI [=y] && I2C [=y]=y
-
-/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_resume':
-i2c-designware-platdrv.c:(.text+0x62): undefined reference to `i2c_dw_prepare_clk'
-/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_suspend':
-i2c-designware-platdrv.c:(.text+0x9a): undefined reference to `i2c_dw_prepare_clk'
-/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_probe':
-i2c-designware-platdrv.c:(.text+0x41c): undefined reference to `i2c_dw_prepare_clk'
-/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x438): undefined reference to `i2c_dw_read_comp_param'
-/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x545): undefined reference to `i2c_dw_probe'
-/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x727): undefined reference to `i2c_dw_probe_slave'
-
-Fix this by making above options to depend on I2C_DESIGNWARE_PLATFORM
-being built-in. I2C_DESIGNWARE_PLATFORM is a visible symbol with
-dependencies so in general the select should be avoided.
-
-Fixes: acebcff9eda8 ("mfd: intel_soc_pmic: Select designware i2c-bus driver")
-Fixes: de85d79f4aab ("mfd: Add Cherry Trail Whiskey Cove PMIC driver")
-Fixes: 9bbf6a15ce19 ("mfd: Add support for TPS68470 device")
-Cc: Stable <stable@vger.kernel.org> # v4.14+
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: bf38b8710892 ("tpm/tpm_i2c_stm_st33: Split tpm_i2c_tpm_st33 in 2 layers (core + phy)")
+Fixes: aad628c1d91a ("char/tpm: Add new driver for Infineon I2C TIS TPM")
+Fixes: 32d33b29ba07 ("TPM: Retry SaveState command in suspend path")
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/Kconfig | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/tpm/st33zp24/i2c.c      |  2 +-
+ drivers/char/tpm/st33zp24/spi.c      |  2 +-
+ drivers/char/tpm/st33zp24/st33zp24.h |  4 ++--
+ drivers/char/tpm/tpm_i2c_infineon.c  | 15 ++++++++-------
+ drivers/char/tpm/tpm_i2c_nuvoton.c   | 16 +++++++---------
+ 5 files changed, 19 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 11841f4b7b2ba..dd938a5d04094 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -509,10 +509,10 @@ config INTEL_SOC_PMIC
- 	bool "Support for Crystal Cove PMIC"
- 	depends on ACPI && HAS_IOMEM && I2C=y && GPIOLIB && COMMON_CLK
- 	depends on X86 || COMPILE_TEST
-+	depends on I2C_DESIGNWARE_PLATFORM=y
- 	select MFD_CORE
- 	select REGMAP_I2C
- 	select REGMAP_IRQ
--	select I2C_DESIGNWARE_PLATFORM
- 	help
- 	  Select this option to enable support for Crystal Cove PMIC
- 	  on some Intel SoC systems. The PMIC provides ADC, GPIO,
-@@ -538,10 +538,10 @@ config INTEL_SOC_PMIC_CHTWC
- 	bool "Support for Intel Cherry Trail Whiskey Cove PMIC"
- 	depends on ACPI && HAS_IOMEM && I2C=y && COMMON_CLK
- 	depends on X86 || COMPILE_TEST
-+	depends on I2C_DESIGNWARE_PLATFORM=y
- 	select MFD_CORE
- 	select REGMAP_I2C
- 	select REGMAP_IRQ
--	select I2C_DESIGNWARE_PLATFORM
- 	help
- 	  Select this option to enable support for the Intel Cherry Trail
- 	  Whiskey Cove PMIC found on some Intel Cherry Trail systems.
-@@ -1403,9 +1403,9 @@ config MFD_TPS65217
- config MFD_TPS68470
- 	bool "TI TPS68470 Power Management / LED chips"
- 	depends on ACPI && I2C=y
-+	depends on I2C_DESIGNWARE_PLATFORM=y
- 	select MFD_CORE
- 	select REGMAP_I2C
--	select I2C_DESIGNWARE_PLATFORM
- 	help
- 	  If you say yes here you get support for the TPS68470 series of
- 	  Power Management / LED chips.
+diff --git a/drivers/char/tpm/st33zp24/i2c.c b/drivers/char/tpm/st33zp24/i2c.c
+index be5d1abd3e8ef..8390c5b54c3be 100644
+--- a/drivers/char/tpm/st33zp24/i2c.c
++++ b/drivers/char/tpm/st33zp24/i2c.c
+@@ -33,7 +33,7 @@
+ 
+ struct st33zp24_i2c_phy {
+ 	struct i2c_client *client;
+-	u8 buf[TPM_BUFSIZE + 1];
++	u8 buf[ST33ZP24_BUFSIZE + 1];
+ 	int io_lpcpd;
+ };
+ 
+diff --git a/drivers/char/tpm/st33zp24/spi.c b/drivers/char/tpm/st33zp24/spi.c
+index d7909ab287a85..ff019a1e3c68f 100644
+--- a/drivers/char/tpm/st33zp24/spi.c
++++ b/drivers/char/tpm/st33zp24/spi.c
+@@ -63,7 +63,7 @@
+  * some latency byte before the answer is available (max 15).
+  * We have 2048 + 1024 + 15.
+  */
+-#define ST33ZP24_SPI_BUFFER_SIZE (TPM_BUFSIZE + (TPM_BUFSIZE / 2) +\
++#define ST33ZP24_SPI_BUFFER_SIZE (ST33ZP24_BUFSIZE + (ST33ZP24_BUFSIZE / 2) +\
+ 				  MAX_SPI_LATENCY)
+ 
+ 
+diff --git a/drivers/char/tpm/st33zp24/st33zp24.h b/drivers/char/tpm/st33zp24/st33zp24.h
+index 6f4a4198af6aa..20da0a84988d6 100644
+--- a/drivers/char/tpm/st33zp24/st33zp24.h
++++ b/drivers/char/tpm/st33zp24/st33zp24.h
+@@ -18,8 +18,8 @@
+ #ifndef __LOCAL_ST33ZP24_H__
+ #define __LOCAL_ST33ZP24_H__
+ 
+-#define TPM_WRITE_DIRECTION             0x80
+-#define TPM_BUFSIZE                     2048
++#define TPM_WRITE_DIRECTION	0x80
++#define ST33ZP24_BUFSIZE	2048
+ 
+ struct st33zp24_dev {
+ 	struct tpm_chip *chip;
+diff --git a/drivers/char/tpm/tpm_i2c_infineon.c b/drivers/char/tpm/tpm_i2c_infineon.c
+index 977fd42daa1b1..3b4e9672ff6cd 100644
+--- a/drivers/char/tpm/tpm_i2c_infineon.c
++++ b/drivers/char/tpm/tpm_i2c_infineon.c
+@@ -26,8 +26,7 @@
+ #include <linux/wait.h>
+ #include "tpm.h"
+ 
+-/* max. buffer size supported by our TPM */
+-#define TPM_BUFSIZE 1260
++#define TPM_I2C_INFINEON_BUFSIZE 1260
+ 
+ /* max. number of iterations after I2C NAK */
+ #define MAX_COUNT 3
+@@ -63,11 +62,13 @@ enum i2c_chip_type {
+ 	UNKNOWN,
+ };
+ 
+-/* Structure to store I2C TPM specific stuff */
+ struct tpm_inf_dev {
+ 	struct i2c_client *client;
+ 	int locality;
+-	u8 buf[TPM_BUFSIZE + sizeof(u8)]; /* max. buffer size + addr */
++	/* In addition to the data itself, the buffer must fit the 7-bit I2C
++	 * address and the direction bit.
++	 */
++	u8 buf[TPM_I2C_INFINEON_BUFSIZE + 1];
+ 	struct tpm_chip *chip;
+ 	enum i2c_chip_type chip_type;
+ 	unsigned int adapterlimit;
+@@ -219,7 +220,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
+ 		.buf = tpm_dev.buf
+ 	};
+ 
+-	if (len > TPM_BUFSIZE)
++	if (len > TPM_I2C_INFINEON_BUFSIZE)
+ 		return -EINVAL;
+ 
+ 	if (!tpm_dev.client->adapter->algo->master_xfer)
+@@ -527,8 +528,8 @@ static int tpm_tis_i2c_send(struct tpm_chip *chip, u8 *buf, size_t len)
+ 	u8 retries = 0;
+ 	u8 sts = TPM_STS_GO;
+ 
+-	if (len > TPM_BUFSIZE)
+-		return -E2BIG;	/* command is too long for our tpm, sorry */
++	if (len > TPM_I2C_INFINEON_BUFSIZE)
++		return -E2BIG;
+ 
+ 	if (request_locality(chip, 0) < 0)
+ 		return -EBUSY;
+diff --git a/drivers/char/tpm/tpm_i2c_nuvoton.c b/drivers/char/tpm/tpm_i2c_nuvoton.c
+index b8defdfdf2dc6..2803080097841 100644
+--- a/drivers/char/tpm/tpm_i2c_nuvoton.c
++++ b/drivers/char/tpm/tpm_i2c_nuvoton.c
+@@ -35,14 +35,12 @@
+ #include "tpm.h"
+ 
+ /* I2C interface offsets */
+-#define TPM_STS                0x00
+-#define TPM_BURST_COUNT        0x01
+-#define TPM_DATA_FIFO_W        0x20
+-#define TPM_DATA_FIFO_R        0x40
+-#define TPM_VID_DID_RID        0x60
+-/* TPM command header size */
+-#define TPM_HEADER_SIZE        10
+-#define TPM_RETRY      5
++#define TPM_STS			0x00
++#define TPM_BURST_COUNT		0x01
++#define TPM_DATA_FIFO_W		0x20
++#define TPM_DATA_FIFO_R		0x40
++#define TPM_VID_DID_RID		0x60
++#define TPM_I2C_RETRIES		5
+ /*
+  * I2C bus device maximum buffer size w/o counting I2C address or command
+  * i.e. max size required for I2C write is 34 = addr, command, 32 bytes data
+@@ -292,7 +290,7 @@ static int i2c_nuvoton_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ 		dev_err(dev, "%s() count < header size\n", __func__);
+ 		return -EIO;
+ 	}
+-	for (retries = 0; retries < TPM_RETRY; retries++) {
++	for (retries = 0; retries < TPM_I2C_RETRIES; retries++) {
+ 		if (retries > 0) {
+ 			/* if this is not the first trial, set responseRetry */
+ 			i2c_nuvoton_write_status(client,
 -- 
 2.20.1
 
