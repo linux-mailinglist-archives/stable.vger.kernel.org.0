@@ -2,104 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9926B230A
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 17:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D58BB2315
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 17:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390581AbfIMPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 11:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390046AbfIMPKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 11:10:54 -0400
-Received: from localhost (unknown [104.132.45.99])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D4620640;
-        Fri, 13 Sep 2019 15:10:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568387454;
-        bh=mlOuDQQnvN+0T53mUIADRJSv6FqN9GNg5U8ukgfoLYU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=onxugGw0+FvpKFku4WKZrbIlbGYrWkXA+zSq8pMPrkT4Zms2Ird03beT05J2Mnwyd
-         ulhJV2LK1wFf7IPUqO6TL3N6lYuvtTORYx6hC+4Bx2bnaSh+Qf6bIfCeRnDXUfBoM0
-         s+FSQWC4H793K2MM7LDjPgnhJJUccucswMqVYxrQ=
-Date:   Fri, 13 Sep 2019 16:10:51 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Ilia Mirkin <imirkin@alum.mit.edu>,
-        LKML <linux-kernel@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        nouveau <nouveau@lists.freedesktop.org>,
-        "# 3.9+" <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.19 092/190] drm/nouveau: Dont WARN_ON VCPI allocation
- failures
-Message-ID: <20190913151051.GB458191@kroah.com>
-References: <20190913130559.669563815@linuxfoundation.org>
- <20190913130606.981926197@linuxfoundation.org>
- <CAKb7UviY0sjFUc6QqjU4eKxm2b-osKoJNO2CSP9HmQ5AdORgkw@mail.gmail.com>
- <20190913144627.GH1546@sasha-vm>
- <20190913145456.GA456842@kroah.com>
- <20190913150111.GI1546@sasha-vm>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190913150111.GI1546@sasha-vm>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S2390952AbfIMPM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 11:12:26 -0400
+Received: from mail.efficios.com ([167.114.142.138]:52478 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388211AbfIMPM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 11:12:26 -0400
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id 12D3C2D10CF;
+        Fri, 13 Sep 2019 11:12:25 -0400 (EDT)
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
+        with ESMTP id 9kApdPTo4PfC; Fri, 13 Sep 2019 11:12:24 -0400 (EDT)
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id 9F11E2D10C3;
+        Fri, 13 Sep 2019 11:12:24 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 9F11E2D10C3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1568387544;
+        bh=CF30skzmeT+OHOZpIIX+JRHGYZLBT9tYk5qDUQF0abw=;
+        h=From:To:Date:Message-Id;
+        b=nLRy5vzItmeyU9fB8/JrQPYtOpwgoVRNIf2mTFNczbPJezOhX4D0oELdgy41RaCBd
+         n6b/elsAxflYzrhtkPvjKH9B34k8ploVl+IeibQKC4aTSk0rBvgDt6XaEZ9dukvHO5
+         p5Y8/sr77BYPC0Mve53jffjmcMfWJ81ISWkfd7S7DgvyNpdppoDOKFGikKfFgoVkAF
+         mqPc/V/EXI+w6RCDdF1Cr2wLEVq8I3dj+FBBjVEDRWnGB1tJDelgw0oFxLubwMnn7x
+         l4oo5AiVjXyq5RIaKNMKmElPoCnOF2EjYWIJxra9GISWaTAwbu/pcjmRwgkou4zEYN
+         I0eRysGinwWKA==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id k4IJtem76veo; Fri, 13 Sep 2019 11:12:24 -0400 (EDT)
+Received: from localhost.localdomain (192-222-181-218.qc.cable.ebox.net [192.222.181.218])
+        by mail.efficios.com (Postfix) with ESMTPSA id 630762D10BD;
+        Fri, 13 Sep 2019 11:12:24 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        linux-api@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH for 5.3 1/3] rseq: Fix: Reject unknown flags on rseq unregister
+Date:   Fri, 13 Sep 2019 11:12:18 -0400
+Message-Id: <20190913151220.3105-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 13, 2019 at 11:01:11AM -0400, Sasha Levin wrote:
-> On Fri, Sep 13, 2019 at 03:54:56PM +0100, Greg Kroah-Hartman wrote:
-> > On Fri, Sep 13, 2019 at 10:46:27AM -0400, Sasha Levin wrote:
-> > > On Fri, Sep 13, 2019 at 09:33:36AM -0400, Ilia Mirkin wrote:
-> > > > Hi Greg,
-> > > >
-> > > > This feels like it's missing a From: line.
-> > > >
-> > > > commit b513a18cf1d705bd04efd91c417e79e4938be093
-> > > > Author: Lyude Paul <lyude@redhat.com>
-> > > > Date:   Mon Jan 28 16:03:50 2019 -0500
-> > > >
-> > > >    drm/nouveau: Don't WARN_ON VCPI allocation failures
-> > > >
-> > > > Is this an artifact of your notification-of-patches process and I
-> > > > never noticed before, or was the patch ingested incorrectly?
-> > > 
-> > > It was always like this for patches that came through me. Greg's script
-> > > generates an explicit "From:" line in the patch, but I never saw the
-> > > value in that since git does the right thing by looking at the "From:"
-> > > line in the mail header.
-> > > 
-> > > The right thing is being done in stable-rc and for the releases. For
-> > > your example here, this is how it looks like in the stable-rc tree:
-> > > 
-> > > commit bdcc885be68289a37d0d063cd94390da81fd8178
-> > > Author:     Lyude Paul <lyude@redhat.com>
-> > > AuthorDate: Mon Jan 28 16:03:50 2019 -0500
-> > > Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > CommitDate: Fri Sep 13 14:05:29 2019 +0100
-> > > 
-> > >    drm/nouveau: Don't WARN_ON VCPI allocation failures
-> > 
-> > Yeah, we should fix your scripts to put the explicit From: line in here
-> > as we are dealing with patches in this format and it causes confusion at
-> > times (like now.)  It's not the first time and that's why I added those
-> > lines to the patches.
-> 
-> Heh, didn't think anyone cared about this scenario for the stable-rc
-> patches.
-> 
-> I'll go add it.
-> 
-> But... why do you actually care?
+It is preferrable to reject unknown flags within rseq unregistration
+rather than to ignore them. It is an oversight caused by the fact that
+the check for unknown flags is after the rseq unregister flag check.
 
-On the emails we send out, it has inproper author information which can
-cause confusion that the sender of the email (i.e. me) is somehow saying
-that they are the author of the patch.
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: linux-api@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+---
+ kernel/rseq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-thanks,
+diff --git a/kernel/rseq.c b/kernel/rseq.c
+index 27c48eb7de40..a4f86a9d6937 100644
+--- a/kernel/rseq.c
++++ b/kernel/rseq.c
+@@ -310,6 +310,8 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32, rseq_len,
+ 	int ret;
+ 
+ 	if (flags & RSEQ_FLAG_UNREGISTER) {
++		if (flags & ~RSEQ_FLAG_UNREGISTER)
++			return -EINVAL;
+ 		/* Unregister rseq for current thread. */
+ 		if (current->rseq != rseq || !current->rseq)
+ 			return -EINVAL;
+-- 
+2.17.1
 
-greg k-h
