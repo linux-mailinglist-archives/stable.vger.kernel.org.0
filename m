@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2486DB1E4E
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 917CCB1E7D
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388355AbfIMNIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33376 "EHLO mail.kernel.org"
+        id S2388773AbfIMNKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388354AbfIMNIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:08:53 -0400
+        id S2387443AbfIMNKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:41 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BC54206BB;
-        Fri, 13 Sep 2019 13:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74237206BB;
+        Fri, 13 Sep 2019 13:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380133;
-        bh=5N/0yJj/nhkLQbwGS5Lg+IMvkme1kib95I/XYZhO2vY=;
+        s=default; t=1568380241;
+        bh=tkJcgBZW8JC4MFQC4qLn5EjHybwkphxctT5vZCfwBnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blHtXbkxBJAdNC5+1lZPO55qMdXl2mJugkfpelCMRv1vlpl47/rG/eaFxHnI86k+f
-         YoQvG1sTEWfvSFVi6rHjLi7m29BppeNIYtV9VSa8tzsnPIoizMF1w74WYOGjgjrEei
-         T4j1aP6DnAtU4zV3uk5YHMrIXwm8BkX5IZvRvlEg=
+        b=2F0sva9DBcnYhLG0gdxwvn02kEDij+37prWBavWP871Fe7CmdO/qXpD8ximNBsMvx
+         MXEWeB9tyRHEif54v2GK6cco45lJDDtjhS/zxB3DL6uG1Xm9WVBFjKi1JK8ds1DI8G
+         vz9w1SNgjPaTQv/qZKul4SrNgStjDSMnoWfY2Q2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 6/9] clk: s2mps11: Add used attribute to s2mps11_dt_match
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 03/21] ALSA: hda/realtek - Fix the problem of two front mics on a ThinkCentre
 Date:   Fri, 13 Sep 2019 14:06:56 +0100
-Message-Id: <20190913130429.728754074@linuxfoundation.org>
+Message-Id: <20190913130503.004205289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130424.160808669@linuxfoundation.org>
-References: <20190913130424.160808669@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9c940bbe2bb47e03ca5e937d30b6a50bf9c0e671 ]
+From: Hui Wang <hui.wang@canonical.com>
 
-Clang warns after commit 8985167ecf57 ("clk: s2mps11: Fix matching when
-built as module and DT node contains compatible"):
+commit 2a36c16efab254dd6017efeb35ad88ecc96f2328 upstream.
 
-drivers/clk/clk-s2mps11.c:242:34: warning: variable 's2mps11_dt_match'
-is not needed and will not be emitted [-Wunneeded-internal-declaration]
-static const struct of_device_id s2mps11_dt_match[] = {
-                                 ^
-1 warning generated.
+This ThinkCentre machine has a new realtek codec alc222, it is not
+in the support list, we add it in the realtek.c then this machine
+can apply FIXUPs for the realtek codec.
 
-This warning happens when a variable is used in some construct that
-doesn't require a reference to that variable to be emitted in the symbol
-table; in this case, it's MODULE_DEVICE_TABLE, which only needs to hold
-the data of the variable, not the variable itself.
+And this machine has two front mics which can't be handled
+by PA so far, it uses the pin 0x18 and 0x19 as the front mics, as
+a result the existing FIXUP ALC294_FIXUP_LENOVO_MIC_LOCATION doesn't
+work on this machine. Fortunately another FIXUP
+ALC283_FIXUP_HEADSET_MIC also can change the location for one of the
+two mics on this machine.
 
-$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_dt_match
-00000078 000003d4 R __mod_of__s2mps11_dt_match_device_table
+Link: https://lore.kernel.org/r/20190904055327.9883-1-hui.wang@canonical.com
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Normally, with device ID table variables, it means that the variable
-just needs to be tied to the device declaration at the bottom of the
-file, like s2mps11_clk_id:
-
-$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_clk_id
-00000000 00000078 R __mod_platform__s2mps11_clk_id_device_table
-00000000 00000078 r s2mps11_clk_id
-
-However, because the comment above this deliberately doesn't want this
-variable added to .of_match_table, we need to mark s2mps11_dt_match as
-__used to silence this warning. This makes it clear to Clang that the
-variable is used for something, even if a reference to it isn't being
-emitted.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Fixes: 8985167ecf57 ("clk: s2mps11: Fix matching when built as module and DT node contains compatible")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-s2mps11.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index 785864893f9a6..14af5c916c9ca 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -307,7 +307,7 @@ MODULE_DEVICE_TABLE(platform, s2mps11_clk_id);
-  * This requires of_device_id table.  In the same time this will not change the
-  * actual *device* matching so do not add .of_match_table.
-  */
--static const struct of_device_id s2mps11_dt_match[] = {
-+static const struct of_device_id s2mps11_dt_match[] __used = {
- 	{
- 		.compatible = "samsung,s2mps11-clk",
- 		.data = (void *)S2MPS11X,
--- 
-2.20.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6588,6 +6588,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x312a, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x312f, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
++	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+@@ -8289,6 +8290,7 @@ static int patch_alc680(struct hda_codec
+ static const struct hda_device_id snd_hda_id_realtek[] = {
+ 	HDA_CODEC_ENTRY(0x10ec0215, "ALC215", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0221, "ALC221", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0222, "ALC222", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0225, "ALC225", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0231, "ALC231", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0233, "ALC233", patch_alc269),
 
 
