@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC21B1F85
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBE5B1F87
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389994AbfIMNUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
+        id S2389984AbfIMNUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389983AbfIMNUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:20:14 -0400
+        id S2390543AbfIMNUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:16 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D51E42171F;
-        Fri, 13 Sep 2019 13:20:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD61B206BB;
+        Fri, 13 Sep 2019 13:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380812;
-        bh=H6rv7gekM6TM7NVq6Lf4Z3odoSAzQlt/TcNxyRz5CRU=;
+        s=default; t=1568380815;
+        bh=Xxk4RLqt7BKr2pJedTsaxPAep1BOj8v/siZqBOdY76M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYJURzFfW/+aDaE8qXqjkX834fDoUtiiYHnJRfaYME2OI4GIAfs3oP1nmqhzaKs4f
-         15MAxwRJNEf8zDFcEr1wlNdehrm8CCycpDvLyON8LIdyKNL6LHBo9F/NX0iJK24nh3
-         nzyqiVpvGuYVFGTKc4gBpaS0JA9wwapVLF4loAnk=
+        b=amJB/XgJWhpy9JmytbCzMWeFP0LB8CvSvtmtN15rnCcc4j1IPvzHqdplCKIjCmfgo
+         yWWb3ctKUjLf4l5XUspZRfTJE1QXHdYRvKGao/5WTquozuJAUXA2jIEk+kBdNEWo7F
+         nd6gnyXoRGw330qb7sK2wGuYlDzNVeqg974bZM+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Norbert Manthey <nmanthey@amazon.de>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/190] resource: fix locking in find_next_iomem_res()
-Date:   Fri, 13 Sep 2019 14:06:59 +0100
-Message-Id: <20190913130613.010643960@linuxfoundation.org>
+Subject: [PATCH 4.19 165/190] pstore: Fix double-free in pstore_mkfile() failure path
+Date:   Fri, 13 Sep 2019 14:07:00 +0100
+Message-Id: <20190913130613.086119385@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -51,75 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 49f17c26c123b60fd1c74629eef077740d16ffc2 ]
+[ Upstream commit 4c6d80e1144bdf48cae6b602ae30d41f3e5c76a9 ]
 
-Since resources can be removed, locking should ensure that the resource
-is not removed while accessing it.  However, find_next_iomem_res() does
-not hold the lock while copying the data of the resource.
+The pstore_mkfile() function is passed a pointer to a struct
+pstore_record. On success it consumes this 'record' pointer and
+references it from the created inode.
 
-Keep holding the lock while the data is copied.  While at it, change the
-return value to a more informative value.  It is disregarded by the
-callers.
+On failure, however, it may or may not free the record. There are even
+two different code paths which return -ENOMEM -- one of which does and
+the other doesn't free the record.
 
-[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
-Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
-Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Make the behaviour deterministic by never consuming and freeing the
+record when returning failure, allowing the caller to do the cleanup
+consistently.
+
+Signed-off-by: Norbert Manthey <nmanthey@amazon.de>
+Link: https://lore.kernel.org/r/1562331960-26198-1-git-send-email-nmanthey@amazon.de
+Fixes: 83f70f0769ddd ("pstore: Do not duplicate record metadata")
+Fixes: 1dfff7dd67d1a ("pstore: Pass record contents instead of copying")
+Cc: stable@vger.kernel.org
+[kees: also move "private" allocation location, rename inode cleanup label]
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/resource.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ fs/pstore/inode.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 38b8d11c9eaf4..bce773cc5e416 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -325,7 +325,7 @@ EXPORT_SYMBOL(release_resource);
-  *
-  * If a resource is found, returns 0 and *res is overwritten with the part
-  * of the resource that's within [start..end]; if none is found, returns
-- * -1.
-+ * -ENODEV.  Returns -EINVAL for invalid parameters.
-  *
-  * This function walks the whole tree and not just first level children
-  * unless @first_level_children_only is true.
-@@ -359,16 +359,16 @@ static int find_next_iomem_res(resource_size_t start, resource_size_t end,
- 			break;
+diff --git a/fs/pstore/inode.c b/fs/pstore/inode.c
+index 8cf2218b46a75..6f90d91a8733a 100644
+--- a/fs/pstore/inode.c
++++ b/fs/pstore/inode.c
+@@ -330,10 +330,6 @@ int pstore_mkfile(struct dentry *root, struct pstore_record *record)
+ 		goto fail;
+ 	inode->i_mode = S_IFREG | 0444;
+ 	inode->i_fop = &pstore_file_operations;
+-	private = kzalloc(sizeof(*private), GFP_KERNEL);
+-	if (!private)
+-		goto fail_alloc;
+-	private->record = record;
+ 
+ 	switch (record->type) {
+ 	case PSTORE_TYPE_DMESG:
+@@ -383,12 +379,16 @@ int pstore_mkfile(struct dentry *root, struct pstore_record *record)
+ 		break;
  	}
  
-+	if (p) {
-+		/* copy data */
-+		res->start = max(start, p->start);
-+		res->end = min(end, p->end);
-+		res->flags = p->flags;
-+		res->desc = p->desc;
-+	}
++	private = kzalloc(sizeof(*private), GFP_KERNEL);
++	if (!private)
++		goto fail_inode;
 +
- 	read_unlock(&resource_lock);
--	if (!p)
--		return -1;
--
--	/* copy data */
--	res->start = max(start, p->start);
--	res->end = min(end, p->end);
--	res->flags = p->flags;
--	res->desc = p->desc;
--	return 0;
-+	return p ? 0 : -ENODEV;
- }
+ 	dentry = d_alloc_name(root, name);
+ 	if (!dentry)
+ 		goto fail_private;
  
- static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
++	private->record = record;
+ 	inode->i_size = private->total_size = size;
+-
+ 	inode->i_private = private;
+ 
+ 	if (record->time.tv_sec)
+@@ -404,7 +404,7 @@ int pstore_mkfile(struct dentry *root, struct pstore_record *record)
+ 
+ fail_private:
+ 	free_pstore_private(private);
+-fail_alloc:
++fail_inode:
+ 	iput(inode);
+ 
+ fail:
 -- 
 2.20.1
 
