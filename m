@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1F6B1FED
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47679B2118
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388368AbfIMNLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36404 "EHLO mail.kernel.org"
+        id S2390059AbfIMNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388914AbfIMNLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:20 -0400
+        id S2388969AbfIMNLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:11:32 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9006621479;
-        Fri, 13 Sep 2019 13:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 727ED214AE;
+        Fri, 13 Sep 2019 13:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380280;
-        bh=pwSlJlVAaArsZDQaRtxNND4APc/w3WH7PbZa6DaoKQM=;
+        s=default; t=1568380292;
+        bh=cf4/Pn3VPpv71AShPSQTZtULPy31ou4jN9H2NFSvnO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8G1AHH/W6LG1Op5wLsmYh3K9IVEiTKY45fUoQ9ZPYlKv1sIdwsgGwy+/rZW8vDur
-         CxJAUrZlNbilG9I7YYO770kH4REvXo/nznHHUY8sUIGUfxjeGsll3SfA0YJAqFMIfg
-         MEtE22T4MfW219O1oZShsY6tAaCHlgNLwqNS3BvU=
+        b=XgLkM3fECiasueB8zYMzM3hp0xHQeS3e/BAd7g6u9C+Jp7wckmHiIO0EOlEiIxv+W
+         y/l2/78kWFXwJoPFqZqHnkmCJO20zjFVVTkwZWBqWvt+kmP67I/c+0rBpUltR00W+w
+         TUJ9tN5dJPsUDxD4mOKBaM8c6pZdXcOqO4AFrKgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Bo <bo.liu@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 014/190] Blk-iolatency: warn on negative inflight IO counter
-Date:   Fri, 13 Sep 2019 14:04:29 +0100
-Message-Id: <20190913130600.727296818@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 018/190] selftests: fib_rule_tests: use pre-defined DEV_ADDR
+Date:   Fri, 13 Sep 2019 14:04:33 +0100
+Message-Id: <20190913130601.015815111@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -43,39 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 391f552af213985d3d324c60004475759a7030c5 ]
+[ Upstream commit 34632975cafdd07ce80e85c2eda4e9c16b5f2faa ]
 
-This is to catch any unexpected negative value of inflight IO counter.
+DEV_ADDR is defined but not used. Use it in address setting.
+Do the same with IPv6 for consistency.
 
-Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: David Ahern <dsahern@gmail.com>
+Fixes: fc82d93e57e3 ("selftests: fib_rule_tests: fix local IPv4 address typo")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iolatency.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/net/fib_rule_tests.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index f4f7c73fb8284..84ecdab41b691 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -560,6 +560,7 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 	u64 now = ktime_to_ns(ktime_get());
- 	bool issue_as_root = bio_issue_as_root_blkg(bio);
- 	bool enabled = false;
-+	int inflight = 0;
+diff --git a/tools/testing/selftests/net/fib_rule_tests.sh b/tools/testing/selftests/net/fib_rule_tests.sh
+index 1ba069967fa2b..ba2d9fab28d0f 100755
+--- a/tools/testing/selftests/net/fib_rule_tests.sh
++++ b/tools/testing/selftests/net/fib_rule_tests.sh
+@@ -15,6 +15,7 @@ GW_IP6=2001:db8:1::2
+ SRC_IP6=2001:db8:1::3
  
- 	blkg = bio->bi_blkg;
- 	if (!blkg)
-@@ -585,7 +586,8 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 		}
- 		rqw = &iolat->rq_wait;
+ DEV_ADDR=192.51.100.1
++DEV_ADDR6=2001:db8:1::1
+ DEV=dummy0
  
--		atomic_dec(&rqw->inflight);
-+		inflight = atomic_dec_return(&rqw->inflight);
-+		WARN_ON_ONCE(inflight < 0);
- 		if (iolat->min_lat_nsec == 0)
- 			goto next;
- 		iolatency_record_time(iolat, &bio->bi_issue, now,
+ log_test()
+@@ -55,8 +56,8 @@ setup()
+ 
+ 	$IP link add dummy0 type dummy
+ 	$IP link set dev dummy0 up
+-	$IP address add 192.51.100.1/24 dev dummy0
+-	$IP -6 address add 2001:db8:1::1/64 dev dummy0
++	$IP address add $DEV_ADDR/24 dev dummy0
++	$IP -6 address add $DEV_ADDR6/64 dev dummy0
+ 
+ 	set +e
+ }
 -- 
 2.20.1
 
