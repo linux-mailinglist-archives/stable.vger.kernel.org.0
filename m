@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DFEB2008
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B47B2010
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389423AbfIMNN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39790 "EHLO mail.kernel.org"
+        id S2389646AbfIMNPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388309AbfIMNN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:13:59 -0400
+        id S2389612AbfIMNPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:15:04 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9175120CC7;
-        Fri, 13 Sep 2019 13:13:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D1BA208C2;
+        Fri, 13 Sep 2019 13:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380438;
-        bh=KmeSFAnkxuACv75RkUKZMaeouCltjKXcCuUZlpk6AKk=;
+        s=default; t=1568380504;
+        bh=nGYHI6LlHQJXqXhAx49Lr4q1RWH0aq7nAU5YsjvZ58Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYfOaKA47GZtL6ZcE5h1h4uQtEODoThlOqdnAytjwqpsSU/IeCHsu6oKSDQ5UoQzb
-         Z6dhbidSKOQyWzzyK3KqtAfn0/JCST6zuVEYsLt78MRHsreYX8amfXzTdEmdyw7hG4
-         Xz6Y8FEmzvrOe8ooXenk4vsGfDgznYMcfeDmaMzI=
+        b=NWohwD+HO7TiGxweYrarb5WIzM0+mx09eUoISsqkNpBLygnKMZslJFyZBzJbn4UEd
+         2WD6vDsBu+2FaJytHcIXllMbN4bA6ya1CbnnpmfgmN9v4iL94Lnk9jNq76UNbygO4c
+         sTUk93X0u5Ma/CaB5xH5TVbydsc/04ak0Mus1U7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/190] KVM: PPC: Book3S HV: Fix race between kvm_unmap_hva_range and MMU mode switch
-Date:   Fri, 13 Sep 2019 14:05:19 +0100
-Message-Id: <20190913130604.871833303@linuxfoundation.org>
+Subject: [PATCH 4.19 069/190] scsi: megaraid_sas: Fix combined reply queue mode detection
+Date:   Fri, 13 Sep 2019 14:05:24 +0100
+Message-Id: <20190913130605.179406535@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -43,98 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 234ff0b729ad882d20f7996591a964965647addf ]
+[ Upstream commit e29c322133472628c6de85efb99ccd3b3df5571e ]
 
-Testing has revealed an occasional crash which appears to be caused
-by a race between kvmppc_switch_mmu_to_hpt and kvm_unmap_hva_range_hv.
-The symptom is a NULL pointer dereference in __find_linux_pte() called
-from kvm_unmap_radix() with kvm->arch.pgtable == NULL.
+For Invader series, if FW supports more than 8 MSI-x vectors, driver needs
+to enable combined reply queue mode. For Ventura series, driver enables
+combined reply queue mode in case of more than 16 MSI-x vectors.
 
-Looking at kvmppc_switch_mmu_to_hpt(), it does indeed clear
-kvm->arch.pgtable (via kvmppc_free_radix()) before setting
-kvm->arch.radix to NULL, and there is nothing to prevent
-kvm_unmap_hva_range_hv() or the other MMU callback functions from
-being called concurrently with kvmppc_switch_mmu_to_hpt() or
-kvmppc_switch_mmu_to_radix().
-
-This patch therefore adds calls to spin_lock/unlock on the kvm->mmu_lock
-around the assignments to kvm->arch.radix, and makes sure that the
-partition-scoped radix tree or HPT is only freed after changing
-kvm->arch.radix.
-
-This also takes the kvm->mmu_lock in kvmppc_rmap_reset() to make sure
-that the clearing of each rmap array (one per memslot) doesn't happen
-concurrently with use of the array in the kvm_unmap_hva_range_hv()
-or the other MMU callbacks.
-
-Fixes: 18c3640cefc7 ("KVM: PPC: Book3S HV: Add infrastructure for running HPT guests on radix host")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_64_mmu_hv.c |  3 +++
- arch/powerpc/kvm/book3s_hv.c        | 15 +++++++++++----
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_mmu_hv.c b/arch/powerpc/kvm/book3s_64_mmu_hv.c
-index 68e14afecac85..a488c105b9234 100644
---- a/arch/powerpc/kvm/book3s_64_mmu_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_mmu_hv.c
-@@ -744,12 +744,15 @@ void kvmppc_rmap_reset(struct kvm *kvm)
- 	srcu_idx = srcu_read_lock(&kvm->srcu);
- 	slots = kvm_memslots(kvm);
- 	kvm_for_each_memslot(memslot, slots) {
-+		/* Mutual exclusion with kvm_unmap_hva_range etc. */
-+		spin_lock(&kvm->mmu_lock);
- 		/*
- 		 * This assumes it is acceptable to lose reference and
- 		 * change bits across a reset.
- 		 */
- 		memset(memslot->arch.rmap, 0,
- 		       memslot->npages * sizeof(*memslot->arch.rmap));
-+		spin_unlock(&kvm->mmu_lock);
- 	}
- 	srcu_read_unlock(&kvm->srcu, srcu_idx);
- }
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 083dcedba11ce..9595db30e6b87 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3813,12 +3813,15 @@ static int kvmppc_hv_setup_htab_rma(struct kvm_vcpu *vcpu)
- /* Must be called with kvm->lock held and mmu_ready = 0 and no vcpus running */
- int kvmppc_switch_mmu_to_hpt(struct kvm *kvm)
- {
-+	kvmppc_rmap_reset(kvm);
-+	kvm->arch.process_table = 0;
-+	/* Mutual exclusion with kvm_unmap_hva_range etc. */
-+	spin_lock(&kvm->mmu_lock);
-+	kvm->arch.radix = 0;
-+	spin_unlock(&kvm->mmu_lock);
- 	kvmppc_free_radix(kvm);
- 	kvmppc_update_lpcr(kvm, LPCR_VPM1,
- 			   LPCR_VPM1 | LPCR_UPRT | LPCR_GTSE | LPCR_HR);
--	kvmppc_rmap_reset(kvm);
--	kvm->arch.radix = 0;
--	kvm->arch.process_table = 0;
- 	return 0;
- }
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 806ceabcabc3f..b6fc7c6337610 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5325,12 +5325,29 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 				instance->msix_vectors = (scratch_pad_2
+ 					& MR_MAX_REPLY_QUEUES_OFFSET) + 1;
+ 				fw_msix_count = instance->msix_vectors;
+-			} else { /* Invader series supports more than 8 MSI-x vectors*/
++			} else {
+ 				instance->msix_vectors = ((scratch_pad_2
+ 					& MR_MAX_REPLY_QUEUES_EXT_OFFSET)
+ 					>> MR_MAX_REPLY_QUEUES_EXT_OFFSET_SHIFT) + 1;
+-				if (instance->msix_vectors > 16)
+-					instance->msix_combined = true;
++
++				/*
++				 * For Invader series, > 8 MSI-x vectors
++				 * supported by FW/HW implies combined
++				 * reply queue mode is enabled.
++				 * For Ventura series, > 16 MSI-x vectors
++				 * supported by FW/HW implies combined
++				 * reply queue mode is enabled.
++				 */
++				switch (instance->adapter_type) {
++				case INVADER_SERIES:
++					if (instance->msix_vectors > 8)
++						instance->msix_combined = true;
++					break;
++				case VENTURA_SERIES:
++					if (instance->msix_vectors > 16)
++						instance->msix_combined = true;
++					break;
++				}
  
-@@ -3831,10 +3834,14 @@ int kvmppc_switch_mmu_to_radix(struct kvm *kvm)
- 	if (err)
- 		return err;
- 
-+	kvmppc_rmap_reset(kvm);
-+	/* Mutual exclusion with kvm_unmap_hva_range etc. */
-+	spin_lock(&kvm->mmu_lock);
-+	kvm->arch.radix = 1;
-+	spin_unlock(&kvm->mmu_lock);
- 	kvmppc_free_hpt(&kvm->arch.hpt);
- 	kvmppc_update_lpcr(kvm, LPCR_UPRT | LPCR_GTSE | LPCR_HR,
- 			   LPCR_VPM1 | LPCR_UPRT | LPCR_GTSE | LPCR_HR);
--	kvm->arch.radix = 1;
- 	return 0;
- }
- 
+ 				if (rdpq_enable)
+ 					instance->is_rdpq = (scratch_pad_2 & MR_RDPQ_MODE_OFFSET) ?
 -- 
 2.20.1
 
