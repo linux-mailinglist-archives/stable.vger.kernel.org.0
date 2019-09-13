@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E6FB1FFD
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08492B1FFE
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388679AbfIMNNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38682 "EHLO mail.kernel.org"
+        id S2389278AbfIMNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:13:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388645AbfIMNNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:13:04 -0400
+        id S2388696AbfIMNNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:13:07 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE94C217D6;
-        Fri, 13 Sep 2019 13:13:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F066D208C0;
+        Fri, 13 Sep 2019 13:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380383;
-        bh=wGnVJVECeZwwfGaCkjL9W2Zddl6CZD5KF6azrXZMvJM=;
+        s=default; t=1568380386;
+        bh=/tMcsQLJXwZCavsk4/LHrnvm30ckf20vWoFTw+/AAVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVzGM45oLZ+FtVS1NZmRkTUnlo1ny+TefQn9zGP48tUyKRCfD/K9Sdh1K38m2LADV
-         Nr9JFHyest3su8ACDOpHVZOVaUv0Liyn71x13odNmVLpDNVJ6Mnqbr4JuQCZW4cinU
-         ymq1eKaJ2Ci64uWbCb9PUzN1EzhIe9CWDTHLIK14=
+        b=YUQ8OCdMz0ngyQGIOuVf6zBqQC3jUk0qpcJRBUvojZqKc6etWmunucllU+skDEqcQ
+         2UlL9UAuE3z/wASx38cjyhzg4NtovVWMRXPQzzNvPzkBK5/lkJfVH4p16crsET9h05
+         uGkov+f0kDYm7SMcAv76YewYWeF1uMJOErtSvVRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        YueHaibing <yuehaibing@huawei.com>, Jessica Yu <jeyu@kernel.org>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Jan-Marek Glogowski <glogow@fbihome.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/190] kernel/module: Fix mem leak in module_add_modinfo_attrs
-Date:   Fri, 13 Sep 2019 14:04:44 +0100
-Message-Id: <20190913130601.966396917@linuxfoundation.org>
+Subject: [PATCH 4.19 030/190] drm/i915: Re-apply "Perform link quality check, unconditionally during long pulse"
+Date:   Fri, 13 Sep 2019 14:04:45 +0100
+Message-Id: <20190913130602.044100904@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,98 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bc6f2a757d525e001268c3658bd88822e768f8db ]
+[ Upstream commit 3cf71bc9904d7ee4a25a822c5dcb54c7804ea388 ]
 
-In module_add_modinfo_attrs if sysfs_create_file
-fails, we forget to free allocated modinfo_attrs
-and roll back the sysfs files.
+This re-applies the workaround for "some DP sinks, [which] are a
+little nuts" from commit 1a36147bb939 ("drm/i915: Perform link
+quality check unconditionally during long pulse").
+It makes the secondary AOC E2460P monitor connected via DP to an
+acer Veriton N4640G usable again.
 
-Fixes: 03e88ae1b13d ("[PATCH] fix module sysfs files reference counting")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+This hunk was dropped in commit c85d200e8321 ("drm/i915: Move SST
+DP link retraining into the ->post_hotplug() hook")
+
+Fixes: c85d200e8321 ("drm/i915: Move SST DP link retraining into the ->post_hotplug() hook")
+[Cleaned up commit message, added stable cc]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20180825191035.3945-1-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/intel_dp.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 2dec3d4a9b627..0d86fc73d63d1 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1694,6 +1694,8 @@ static int add_usage_links(struct module *mod)
- 	return ret;
- }
- 
-+static void module_remove_modinfo_attrs(struct module *mod, int end);
+diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
+index f92079e19de8d..20cd4c8acecc3 100644
+--- a/drivers/gpu/drm/i915/intel_dp.c
++++ b/drivers/gpu/drm/i915/intel_dp.c
+@@ -4739,6 +4739,22 @@ intel_dp_long_pulse(struct intel_connector *connector,
+ 		 */
+ 		status = connector_status_disconnected;
+ 		goto out;
++	} else {
++		/*
++		 * If display is now connected check links status,
++		 * there has been known issues of link loss triggering
++		 * long pulse.
++		 *
++		 * Some sinks (eg. ASUS PB287Q) seem to perform some
++		 * weird HPD ping pong during modesets. So we can apparently
++		 * end up with HPD going low during a modeset, and then
++		 * going back up soon after. And once that happens we must
++		 * retrain the link to get a picture. That's in case no
++		 * userspace component reacted to intermittent HPD dip.
++		 */
++		struct intel_encoder *encoder = &dp_to_dig_port(intel_dp)->base;
 +
- static int module_add_modinfo_attrs(struct module *mod)
- {
- 	struct module_attribute *attr;
-@@ -1708,24 +1710,34 @@ static int module_add_modinfo_attrs(struct module *mod)
- 		return -ENOMEM;
- 
- 	temp_attr = mod->modinfo_attrs;
--	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
-+	for (i = 0; (attr = modinfo_attrs[i]); i++) {
- 		if (!attr->test || attr->test(mod)) {
- 			memcpy(temp_attr, attr, sizeof(*temp_attr));
- 			sysfs_attr_init(&temp_attr->attr);
- 			error = sysfs_create_file(&mod->mkobj.kobj,
- 					&temp_attr->attr);
-+			if (error)
-+				goto error_out;
- 			++temp_attr;
- 		}
++		intel_dp_retrain_link(encoder, ctx);
  	}
-+
-+	return 0;
-+
-+error_out:
-+	if (i > 0)
-+		module_remove_modinfo_attrs(mod, --i);
- 	return error;
- }
  
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- 	struct module_attribute *attr;
- 	int i;
- 
- 	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
-+		if (end >= 0 && i > end)
-+			break;
- 		/* pick a field to test for end of list */
- 		if (!attr->attr.name)
- 			break;
-@@ -1813,7 +1825,7 @@ static int mod_sysfs_setup(struct module *mod,
- 	return 0;
- 
- out_unreg_modinfo_attrs:
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- out_unreg_param:
- 	module_param_sysfs_remove(mod);
- out_unreg_holders:
-@@ -1849,7 +1861,7 @@ static void mod_sysfs_fini(struct module *mod)
- {
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- }
- 
-@@ -1865,7 +1877,7 @@ static void init_param_lock(struct module *mod)
- static void mod_sysfs_teardown(struct module *mod)
- {
- 	del_usage_links(mod);
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- 	module_param_sysfs_remove(mod);
- 	kobject_put(mod->mkobj.drivers_dir);
- 	kobject_put(mod->holders_dir);
+ 	/*
 -- 
 2.20.1
 
