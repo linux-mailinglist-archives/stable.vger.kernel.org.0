@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CEFB1E57
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CF6B1E6D
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388479AbfIMNJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:09:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33854 "EHLO mail.kernel.org"
+        id S2388650AbfIMNKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388472AbfIMNJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:09:18 -0400
+        id S2388579AbfIMNKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:03 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03AC7208C0;
-        Fri, 13 Sep 2019 13:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11762208C0;
+        Fri, 13 Sep 2019 13:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380157;
-        bh=S089siSzkWik0/nefmawD6CYI0z6SyrQGP6BHrVof68=;
+        s=default; t=1568380202;
+        bh=xHGKZYRYZZCmv8FBlLbE77wCZ22V4FAgpkrLIjJPL7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1DW4VwyzjkVY8otPirTLLpWeiEnJvKSkL1KV91dY1/hQqAfnY8WLKxMo9R8hAK3X
-         KBHPL6FDgD8wTdujSSoVcBzB5PjaQlGfXhH7y8gkt8ZWigsSTfDTXrhineXtvEZE6i
-         ulUEO05ZbafXx61WjVigTzjhqqASYAJgst5xftkg=
+        b=lVwZYwsEBbXMF46PmZoZFph82RxuZv4o8nUFh+JoPe9XOnCapvAzR9VyfyrY7XuuA
+         4irvWP2bwsAluxcrppQqnpg7esQZ8dOatVWGyy5sMXxI/QpLRA7HMPbdDPLU/vymBN
+         p/zjX2eYtGyulBDJMvGf3f1HyuaSHxW7MWJZaIbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/14] clk: s2mps11: Add used attribute to s2mps11_dt_match
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 12/21] batman-adv: fix uninit-value in batadv_netlink_get_ifindex()
 Date:   Fri, 13 Sep 2019 14:07:05 +0100
-Message-Id: <20190913130446.319966223@linuxfoundation.org>
+Message-Id: <20190913130506.581710560@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
-References: <20190913130440.264749443@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9c940bbe2bb47e03ca5e937d30b6a50bf9c0e671 ]
+From: Eric Dumazet <edumazet@google.com>
 
-Clang warns after commit 8985167ecf57 ("clk: s2mps11: Fix matching when
-built as module and DT node contains compatible"):
+commit 3ee1bb7aae97324ec9078da1f00cb2176919563f upstream.
 
-drivers/clk/clk-s2mps11.c:242:34: warning: variable 's2mps11_dt_match'
-is not needed and will not be emitted [-Wunneeded-internal-declaration]
-static const struct of_device_id s2mps11_dt_match[] = {
-                                 ^
-1 warning generated.
+batadv_netlink_get_ifindex() needs to make sure user passed
+a correct u32 attribute.
 
-This warning happens when a variable is used in some construct that
-doesn't require a reference to that variable to be emitted in the symbol
-table; in this case, it's MODULE_DEVICE_TABLE, which only needs to hold
-the data of the variable, not the variable itself.
+syzbot reported :
+BUG: KMSAN: uninit-value in batadv_netlink_dump_hardif+0x70d/0x880 net/batman-adv/netlink.c:968
+CPU: 1 PID: 11705 Comm: syz-executor888 Not tainted 5.1.0+ #1
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+ kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
+ __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
+ batadv_netlink_dump_hardif+0x70d/0x880 net/batman-adv/netlink.c:968
+ genl_lock_dumpit+0xc6/0x130 net/netlink/genetlink.c:482
+ netlink_dump+0xa84/0x1ab0 net/netlink/af_netlink.c:2253
+ __netlink_dump_start+0xa3a/0xb30 net/netlink/af_netlink.c:2361
+ genl_family_rcv_msg net/netlink/genetlink.c:550 [inline]
+ genl_rcv_msg+0xfc1/0x1a40 net/netlink/genetlink.c:627
+ netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2486
+ genl_rcv+0x63/0x80 net/netlink/genetlink.c:638
+ netlink_unicast_kernel net/netlink/af_netlink.c:1311 [inline]
+ netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1337
+ netlink_sendmsg+0x127e/0x12f0 net/netlink/af_netlink.c:1926
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:661 [inline]
+ ___sys_sendmsg+0xcc6/0x1200 net/socket.c:2260
+ __sys_sendmsg net/socket.c:2298 [inline]
+ __do_sys_sendmsg net/socket.c:2307 [inline]
+ __se_sys_sendmsg+0x305/0x460 net/socket.c:2305
+ __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2305
+ do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x63/0xe7
+RIP: 0033:0x440209
 
-$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_dt_match
-00000078 000003d4 R __mod_of__s2mps11_dt_match_device_table
+Fixes: b60620cf567b ("batman-adv: netlink: hardif query")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Normally, with device ID table variables, it means that the variable
-just needs to be tied to the device declaration at the bottom of the
-file, like s2mps11_clk_id:
-
-$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_clk_id
-00000000 00000078 R __mod_platform__s2mps11_clk_id_device_table
-00000000 00000078 r s2mps11_clk_id
-
-However, because the comment above this deliberately doesn't want this
-variable added to .of_match_table, we need to mark s2mps11_dt_match as
-__used to silence this warning. This makes it clear to Clang that the
-variable is used for something, even if a reference to it isn't being
-emitted.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Fixes: 8985167ecf57 ("clk: s2mps11: Fix matching when built as module and DT node contains compatible")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-s2mps11.c | 2 +-
+ net/batman-adv/netlink.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index 14071a57c9262..f5d74e8db4327 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -255,7 +255,7 @@ MODULE_DEVICE_TABLE(platform, s2mps11_clk_id);
-  * This requires of_device_id table.  In the same time this will not change the
-  * actual *device* matching so do not add .of_match_table.
-  */
--static const struct of_device_id s2mps11_dt_match[] = {
-+static const struct of_device_id s2mps11_dt_match[] __used = {
- 	{
- 		.compatible = "samsung,s2mps11-clk",
- 		.data = (void *)S2MPS11X,
--- 
-2.20.1
-
+--- a/net/batman-adv/netlink.c
++++ b/net/batman-adv/netlink.c
+@@ -110,7 +110,7 @@ batadv_netlink_get_ifindex(const struct
+ {
+ 	struct nlattr *attr = nlmsg_find_attr(nlh, GENL_HDRLEN, attrtype);
+ 
+-	return attr ? nla_get_u32(attr) : 0;
++	return (attr && nla_len(attr) == sizeof(u32)) ? nla_get_u32(attr) : 0;
+ }
+ 
+ /**
 
 
