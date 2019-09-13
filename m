@@ -2,84 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53948B1BC6
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 12:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5F6B1BDE
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 12:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387512AbfIMKxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 06:53:44 -0400
-Received: from 162-144-78-174.unifiedlayer.com ([162.144.78.174]:41244 "EHLO
-        162-144-78-174.ipage.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387523AbfIMKxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 06:53:44 -0400
-Received: from uofejiro85554 by 162-144-78-174.ipage.com with local (Exim 4.92)
-        (envelope-from <uofejiro85554@162-144-78-174.ipage.com>)
-        id 1i8j3T-0007kK-PI; Fri, 13 Sep 2019 10:43:56 +0000
-To:     stats@sisterisles.kn
-Subject: SCRIPT PROOFREADING
-X-PHP-Script: scripteditsam12.org/mail5/send.php for 129.205.113.81
-X-PHP-Originating-Script: 500:send.php
-From:   scriptediting23@pub45.org
-Reply-To: modernacademicedit@gmail.com
-Message-Id: <E1i8j3T-0007kK-PI@162-144-78-174.ipage.com>
-Date:   Fri, 13 Sep 2019 10:43:55 +0000
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 162-144-78-174.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [500 500] / [47 12]
-X-AntiAbuse: Sender Address Domain - 162-144-78-174.ipage.com
-X-Get-Message-Sender-Via: 162-144-78-174.ipage.com: authenticated_id: uofejiro85554/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 162-144-78-174.ipage.com: uofejiro85554
-X-Source: /opt/cpanel/ea-php70/root/usr/bin/php-cgi
-X-Source-Args: /opt/cpanel/ea-php70/root/usr/bin/php-cgi /home/uofejiro85554/public_html/mail5/send.php 
-X-Source-Dir: scripteditsam12.org:/public_html/mail5
+        id S2387980AbfIMK7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 06:59:41 -0400
+Received: from mail-wr1-f47.google.com ([209.85.221.47]:42062 "EHLO
+        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387712AbfIMK7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 06:59:41 -0400
+Received: by mail-wr1-f47.google.com with SMTP id q14so31603208wrm.9
+        for <stable@vger.kernel.org>; Fri, 13 Sep 2019 03:59:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VwUHPPSTGiSQBKDwFBi8SG1k5Ek2C3s2B72gCgXWMVo=;
+        b=hE7QV10NGVtnEGXvlCPUZyeatkGs/+KcuucZDZSBU95r7bOvR9sCksXOZKG2W0peNx
+         R1C2B7M6kvD7XJH9qq2R3uVK6T11gh/1v1hPLgM82TRxRSf0iB+ThH6jlXQPZi2xNL81
+         mH7lnCL5slHLtKgvamwpPidr7B/FLRhHcLeYGIk/5Rb5TyrAY41UNWMQ6hVesY622q9N
+         0Zx9zu0oJI8jysUa3aMMGrDtaYTy2TYIXZN4z7iR5+RoFiXZx1sGVhIpqSNsAKEKqmFv
+         kBGmeVQvZmMgpW/eJyDTpgZN4iMFMW8OfrqUB/RHjBSBon1MLXDsyanTji4CcTfoEpOk
+         +c0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VwUHPPSTGiSQBKDwFBi8SG1k5Ek2C3s2B72gCgXWMVo=;
+        b=SK8SU4diG4Xq9jv6M3Dx/GHvjV3gmGdLjUa2a2PvsxQG/+FyeiCv7JggZh7A/pOLRr
+         E2uywtty4LIoF+9F3ZOBePO9Do4X2Lt0RmYhSwwg6XRdWKV44wiUyqw6nNkOk4b45u0W
+         KlKGoDEG1KKgBi1cB08EFn4rYlKF/on31fOd1a17Rr+Z4wui4MBasKligK/YUitX97ui
+         FVzIj9aFiMv7fE1TrwFbR8czCfk9114hK4uLbJ9ChuGs4yO1etVzfA1GrO8s7cMUP4l6
+         vHk3SrFCtnLW7vMCaPPxcHK5dYEz4eno1cIw/PoT6gEmBoTzXdio2nBjeSGijJtpYrQg
+         jMSQ==
+X-Gm-Message-State: APjAAAXemJOMIqN1WjzVq//cM9rM2YPRqwuBbX/us2pp8i1sXK0RSlXm
+        4vXpgnU4L6FMtPg6BEJel9zgC5i1uV8=
+X-Google-Smtp-Source: APXvYqxreYrCWTL9hdTnWVEzwmkI1J4JwHou+G33IUQmzDQbXRFtXekMAYFZaLb95WK7vojFpNp9uw==
+X-Received: by 2002:adf:e607:: with SMTP id p7mr3777134wrm.230.1568372377626;
+        Fri, 13 Sep 2019 03:59:37 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q66sm2965996wme.39.2019.09.13.03.59.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 13 Sep 2019 03:59:36 -0700 (PDT)
+Message-ID: <5d7b7698.1c69fb81.e926.dec7@mx.google.com>
+Date:   Fri, 13 Sep 2019 03:59:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.72-189-g464c8ea4cd98
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 134 boots: 0 failed,
+ 125 passed with 9 offline (v4.19.72-189-g464c8ea4cd98)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN ACADEMIC EDITING
-www.modernacademicedit.com
+stable-rc/linux-4.19.y boot: 134 boots: 0 failed, 125 passed with 9 offline=
+ (v4.19.72-189-g464c8ea4cd98)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.72-189-g464c8ea4cd98/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.72-189-g464c8ea4cd98/
 
-Don't allow poor spelling or poor formatting in a target journal deny your manuscript(s) of publication in high-quality journals
-Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling errors, grammatical errors, typographical errors or punctuation errors.
-Hence, what Are You Waiting For?
-Modern Academic Editing is the most trusted academic proofreading and editing services for you.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.72-189-g464c8ea4cd98
+Git Commit: 464c8ea4cd98f1cec8eec0b1d3ea6ef923150c22
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 25 SoC families, 15 builds out of 206
 
-Dear Colleague,
-MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking professionals, authors, and individuals from around the globe in ensuring the highest-possible quality of editing and making sure that their ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services — now it’s your turn! Therefore, we call on writers/authors in all fields of academics to submit their manuscripts for proofreading/editing. We also observed that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to your manuscript from reviewers, and using an online grammar correction service will not always highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
+Offline Platforms:
 
-We invite you to submit your articles and theses (MS-Word document) as e-mail attachment to the Editorial Office at: articles@modernacademicedit.com or modernacademicedit@gmail.com. Articles are expected to be in double line spacing (Still depends on the journal's format). Upon receipt of the Manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
+arm64:
 
-Our charges are as follows:
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-WORD COUNT	STANDARD
-3 days	EXPRESS
-2 days	URGENT**
-24 hrs
-Up to 1,000	$25	$35	$50
-1,001 to 2,000	$50	$70	$100
-2,001 to 3,000	$75	$105	$150
-3,001 to 4,000	$100	$140	$200
-4,001 to 5,000	$125	$175	$250
-5,001 to 6,000	$150	$210	$300
-6,001 to 7,000	$175	$240	$350
-8,001 to 9,000	$200	$275	$400
-9,001 to 10,000	$225	$310	$450
-10,001 to 11,000	$250	$345	$500
-11,001 to 12,000	$275	$380	$550
-12,001 to 13,000	$300	$415	$600
-Over 13,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
+arm:
 
-Payments are made through Western Union, bank wire or via credit card online (instant payment). Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-Best regards,
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-Dr. Chris Tom
-Editor
-Modern Academic Editing
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-To unsubscribe, kindly send a mail to unsubscribe.modernacademicedit@gmail.com
-
+---
+For more info write to <info@kernelci.org>
