@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8F3B1ECA
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E1BB1ECC
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388226AbfIMNMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38408 "EHLO mail.kernel.org"
+        id S2388592AbfIMNM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:12:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387856AbfIMNMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:12:52 -0400
+        id S2387856AbfIMNMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:12:55 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3575214D8;
-        Fri, 13 Sep 2019 13:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 010DF20CC7;
+        Fri, 13 Sep 2019 13:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380371;
-        bh=wh/MLTV3QqwFulXPXlplMTyakqKCFqEjiQSNB6j8eRc=;
+        s=default; t=1568380374;
+        bh=6w9Y8Wdm6uNkdjroH4dt4NB5n3RKWzEZ5vnlWREowNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7qrcjnhtgelb/pqTfHf7ljRa78vibuk3qPceH79E1/rX9ga3KbfsnNdm4JVOVc5z
-         bnGftsMvYncki9JZfRweiqdrzWR7b5gPIz44PUfvfARchA8CLbs8wq0jTKP5L6wCZx
-         oqAP4onpTfiN0Fk/M/gTVYOVggX1Exh/pUJzD4Mg=
+        b=avWA5GMb9FSGlN5UL25sNWe0B6jIoMEEUGSimwCzodG4mS2pEChN6ciswRHJQk0Xz
+         YXTFfwunEiZcUdS4k1XE3/9i4DdZYL2UZ+edwHh7pgc1lmykv7i6ogdJKVdxU7AQF9
+         EENNfYuPPS9v0KNUZXgX+0B/+2iTHV3FPNgn4MyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        James Smart <james.smart@broadcom.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/190] nvme-fc: use separate work queue to avoid warning
-Date:   Fri, 13 Sep 2019 14:04:40 +0100
-Message-Id: <20190913130601.646522551@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 026/190] clk: s2mps11: Add used attribute to s2mps11_dt_match
+Date:   Fri, 13 Sep 2019 14:04:41 +0100
+Message-Id: <20190913130601.726300719@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,88 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8730c1ddb69bdeeb10c1f613a4e15e95862b1981 ]
+[ Upstream commit 9c940bbe2bb47e03ca5e937d30b6a50bf9c0e671 ]
 
-When tearing down a controller the following warning is issued:
+Clang warns after commit 8985167ecf57 ("clk: s2mps11: Fix matching when
+built as module and DT node contains compatible"):
 
-WARNING: CPU: 0 PID: 30681 at ../kernel/workqueue.c:2418 check_flush_dependency
+drivers/clk/clk-s2mps11.c:242:34: warning: variable 's2mps11_dt_match'
+is not needed and will not be emitted [-Wunneeded-internal-declaration]
+static const struct of_device_id s2mps11_dt_match[] = {
+                                 ^
+1 warning generated.
 
-This happens as the err_work workqueue item is scheduled on the
-system workqueue (which has WQ_MEM_RECLAIM not set), but is flushed
-from a workqueue which has WQ_MEM_RECLAIM set.
+This warning happens when a variable is used in some construct that
+doesn't require a reference to that variable to be emitted in the symbol
+table; in this case, it's MODULE_DEVICE_TABLE, which only needs to hold
+the data of the variable, not the variable itself.
 
-Fix this by providing an FC-NVMe specific workqueue.
+$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_dt_match
+00000078 000003d4 R __mod_of__s2mps11_dt_match_device_table
 
-Fixes: 4cff280a5fcc ("nvme-fc: resolve io failures during connect")
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Normally, with device ID table variables, it means that the variable
+just needs to be tied to the device declaration at the bottom of the
+file, like s2mps11_clk_id:
+
+$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_clk_id
+00000000 00000078 R __mod_platform__s2mps11_clk_id_device_table
+00000000 00000078 r s2mps11_clk_id
+
+However, because the comment above this deliberately doesn't want this
+variable added to .of_match_table, we need to mark s2mps11_dt_match as
+__used to silence this warning. This makes it clear to Clang that the
+variable is used for something, even if a reference to it isn't being
+emitted.
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: 8985167ecf57 ("clk: s2mps11: Fix matching when built as module and DT node contains compatible")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/clk/clk-s2mps11.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 67dec8860bf3c..565bddcfd130d 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -206,7 +206,7 @@ static LIST_HEAD(nvme_fc_lport_list);
- static DEFINE_IDA(nvme_fc_local_port_cnt);
- static DEFINE_IDA(nvme_fc_ctrl_cnt);
- 
--
-+static struct workqueue_struct *nvme_fc_wq;
- 
- /*
-  * These items are short-term. They will eventually be moved into
-@@ -2053,7 +2053,7 @@ nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg)
- 	 */
- 	if (ctrl->ctrl.state == NVME_CTRL_CONNECTING) {
- 		active = atomic_xchg(&ctrl->err_work_active, 1);
--		if (!active && !schedule_work(&ctrl->err_work)) {
-+		if (!active && !queue_work(nvme_fc_wq, &ctrl->err_work)) {
- 			atomic_set(&ctrl->err_work_active, 0);
- 			WARN_ON(1);
- 		}
-@@ -3321,6 +3321,10 @@ static int __init nvme_fc_init_module(void)
- {
- 	int ret;
- 
-+	nvme_fc_wq = alloc_workqueue("nvme_fc_wq", WQ_MEM_RECLAIM, 0);
-+	if (!nvme_fc_wq)
-+		return -ENOMEM;
-+
- 	/*
- 	 * NOTE:
- 	 * It is expected that in the future the kernel will combine
-@@ -3338,7 +3342,8 @@ static int __init nvme_fc_init_module(void)
- 	fc_class = class_create(THIS_MODULE, "fc");
- 	if (IS_ERR(fc_class)) {
- 		pr_err("couldn't register class fc\n");
--		return PTR_ERR(fc_class);
-+		ret = PTR_ERR(fc_class);
-+		goto out_destroy_wq;
- 	}
- 
- 	/*
-@@ -3362,6 +3367,9 @@ out_destroy_device:
- 	device_destroy(fc_class, MKDEV(0, 0));
- out_destroy_class:
- 	class_destroy(fc_class);
-+out_destroy_wq:
-+	destroy_workqueue(nvme_fc_wq);
-+
- 	return ret;
- }
- 
-@@ -3378,6 +3386,7 @@ static void __exit nvme_fc_exit_module(void)
- 
- 	device_destroy(fc_class, MKDEV(0, 0));
- 	class_destroy(fc_class);
-+	destroy_workqueue(nvme_fc_wq);
- }
- 
- module_init(nvme_fc_init_module);
+diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+index 0934d3724495a..4080d4e78e8e4 100644
+--- a/drivers/clk/clk-s2mps11.c
++++ b/drivers/clk/clk-s2mps11.c
+@@ -255,7 +255,7 @@ MODULE_DEVICE_TABLE(platform, s2mps11_clk_id);
+  * This requires of_device_id table.  In the same time this will not change the
+  * actual *device* matching so do not add .of_match_table.
+  */
+-static const struct of_device_id s2mps11_dt_match[] = {
++static const struct of_device_id s2mps11_dt_match[] __used = {
+ 	{
+ 		.compatible = "samsung,s2mps11-clk",
+ 		.data = (void *)S2MPS11X,
 -- 
 2.20.1
 
