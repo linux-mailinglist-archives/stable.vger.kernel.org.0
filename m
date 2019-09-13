@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3240AB1EC2
+	by mail.lfdr.de (Postfix) with ESMTP id 9C41AB1EC3
 	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389178AbfIMNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:12:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38078 "EHLO mail.kernel.org"
+        id S2389182AbfIMNMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389173AbfIMNMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:12:34 -0400
+        id S2389181AbfIMNMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:12:37 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E9B3214AF;
-        Fri, 13 Sep 2019 13:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14729214AE;
+        Fri, 13 Sep 2019 13:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380353;
-        bh=npITvHoRuo/dc7q/atfoPZwYGNwMxYGXtDpExq3wcWE=;
+        s=default; t=1568380356;
+        bh=tlurUDQpLrxIRuvo7CF7EwGJyLs1m4wtRyGj3x1MzW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymyzn/7oWeQKIvsiISpx3ATNr9m7unCwLxQTNnrlc4BGC5a4RGgj48hTNRjy82IkK
-         z1D671XGVzzqPmBMZjqNCEADD5zDAIZqfjmwDTcSZOp9CSWWzRN+NcEjDLWoS/ZmOB
-         grBlOfTEzivIBPH6gSHDC680fw1u+c+t7wJygwiU=
+        b=S5VuzAhpf/8lk0GQIGm0WTvZOgBJjJc5eo1APzyI5BYLuyDvtx4LY9Vo9UTGYJkNg
+         iIUy1kcoLUeOgEMtIw/wSnj4DyR1gWOtqAg9R03lSPmIZtSb8g1XckQafFQDhsQkr8
+         W7vQwdqmTC0BNrE/G/Ah1h4zUtT/o0MTMDdePf0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Feifei Xu <Feifei.Xu@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 037/190] remoteproc: qcom: q6v5-mss: add SCM probe dependency
-Date:   Fri, 13 Sep 2019 14:04:52 +0100
-Message-Id: <20190913130602.656270150@linuxfoundation.org>
+Subject: [PATCH 4.19 038/190] drm/amdgpu/gfx9: Update gfx9 golden settings.
+Date:   Fri, 13 Sep 2019 14:04:53 +0100
+Message-Id: <20190913130602.749716900@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,36 +46,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbcda30271752bb7490f2e2aef5411dbcae69116 ]
+[ Upstream commit 54d682d9a5b357eb711994fa94ef1bc44d7ce9d9 ]
 
-The memory ownership transfer request is performed using SCM, ensure
-that SCM is available before we probe the driver if memory protection is
-needed by the subsystem.
+Update the goldensettings for vega20.
 
-Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
-Cc: stable@vger.kernel.org
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-[bjorn: Added condition for need_mem_protection, updated commit message]
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Feifei Xu <Feifei.Xu@amd.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_pil.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_pil.c b/drivers/remoteproc/qcom_q6v5_pil.c
-index d7a4b9eca5d25..6a84b6372897d 100644
---- a/drivers/remoteproc/qcom_q6v5_pil.c
-+++ b/drivers/remoteproc/qcom_q6v5_pil.c
-@@ -1132,6 +1132,9 @@ static int q6v5_probe(struct platform_device *pdev)
- 	if (!desc)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 46568497ef181..f040ec10eecf6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -82,7 +82,7 @@ MODULE_FIRMWARE("amdgpu/raven_rlc.bin");
  
-+	if (desc->need_mem_protection && !qcom_scm_is_available())
-+		return -EPROBE_DEFER;
-+
- 	rproc = rproc_alloc(&pdev->dev, pdev->name, &q6v5_ops,
- 			    desc->hexagon_mba_image, sizeof(*qproc));
- 	if (!rproc) {
+ static const struct soc15_reg_golden golden_settings_gc_9_0[] =
+ {
+-	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xf00fffff, 0x00000420),
++	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xf00fffff, 0x00000400),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGB_GPU_ID, 0x0000000f, 0x00000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_BINNER_EVENT_CNTL_3, 0x00000003, 0x82400024),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_ENHANCE, 0x3fffffff, 0x00000001),
 -- 
 2.20.1
 
