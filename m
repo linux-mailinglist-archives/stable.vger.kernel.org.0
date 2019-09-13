@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E40B1FE8
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC09BB2050
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388855AbfIMNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35880 "EHLO mail.kernel.org"
+        id S2390027AbfIMNUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388852AbfIMNK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:10:59 -0400
+        id S2390004AbfIMNUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:23 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46B5020CC7;
-        Fri, 13 Sep 2019 13:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7564206BB;
+        Fri, 13 Sep 2019 13:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380258;
-        bh=SjPkWZcBWn0D1WC3gIwVHSRDQdoNIdR8pd86m7TBVv8=;
+        s=default; t=1568380821;
+        bh=GKnfwEze/EKWNvYHf5ttos1pfYiQrzdGMKsqzNQSfvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjOv4dfJfUm47Q4LAzXGNXr1c5l3n4PXgxmvRsI8YLUeTaop+3r4xXUvGON21cbkw
-         HvuZx/cQmduvUQ+S7Ap72Pw9z2Pqh7E2e5sNpjXb99nwJCOlWSbE2sHI7w+rqhknys
-         9Yog+VRq8Uavp3Dn786b5LW2E0svk5D7gHn+aqks=
+        b=bmRx9rsm6EX05l6dAfbdoaROp9FDCa4GZUShN91tZaHZK8zNSK9u6OqtD3QfpF7aJ
+         xxCBnAy64p9xFz3LptOPNTXGuqBtoltPvAVqYjCUPoqWiYO8vWExfz+c5VtNY+DW9c
+         kap5ZDNVAoruUppsQmCaxyfRv6udQaIZmCErsjas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@axis.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 09/21] PCI: designware-ep: Fix find_first_zero_bit() usage
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 167/190] drm/panel: Add support for Armadeus ST0700 Adapt
 Date:   Fri, 13 Sep 2019 14:07:02 +0100
-Message-Id: <20190913130504.516843119@linuxfoundation.org>
+Message-Id: <20190913130613.205709423@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
-References: <20190913130501.285837292@linuxfoundation.org>
+In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
+References: <20190913130559.669563815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,151 +46,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@axis.com>
+[ Upstream commit c479450f61c7f1f248c9a54aedacd2a6ca521ff8 ]
 
-commit ad4a5becc689c3f32bbbc2b37eff89efe19dc2f9 upstream.
+This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+that it can be connected on the TFT header of Armadeus Dev boards.
 
-find_first_zero_bit()'s parameter 'size' is defined in bits,
-not in bytes.
-
-find_first_zero_bit() is called with size in bytes rather than bits,
-which thus defines a too low upper limit, causing
-dw_pcie_ep_inbound_atu() to assign iatu index #4 to both bar 4
-and bar 5, which makes bar 5 overwrite the settings set by bar 4.
-
-Since the sizes of the bitmaps are known, dynamically allocate the
-bitmaps, and use the correct size when calling find_first_zero_bit().
-
-Additionally, make sure that ep->num_ob_windows and ep->num_ib_windows,
-which are obtained from device tree, are smaller than the maximum number
-of iATUs (MAX_IATU_IN/MAX_IATU_OUT).
-
-Fixes: f8aed6ec624f ("PCI: dwc: designware: Add EP mode support")
-Signed-off-by: Niklas Cassel <niklas.cassel@axis.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org # v4.19
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190507152713.27494-1-sebastien.szymanski@armadeus.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/dwc/pcie-designware-ep.c |   34 ++++++++++++++++++++++++++--------
- drivers/pci/dwc/pcie-designware.h    |    8 ++++++--
- 2 files changed, 32 insertions(+), 10 deletions(-)
+ .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
+ drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
+ 2 files changed, 38 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
 
---- a/drivers/pci/dwc/pcie-designware-ep.c
-+++ b/drivers/pci/dwc/pcie-designware-ep.c
-@@ -74,8 +74,7 @@ static int dw_pcie_ep_inbound_atu(struct
- 	u32 free_win;
- 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
- 
--	free_win = find_first_zero_bit(&ep->ib_window_map,
--				       sizeof(ep->ib_window_map));
-+	free_win = find_first_zero_bit(ep->ib_window_map, ep->num_ib_windows);
- 	if (free_win >= ep->num_ib_windows) {
- 		dev_err(pci->dev, "no free inbound window\n");
- 		return -EINVAL;
-@@ -89,7 +88,7 @@ static int dw_pcie_ep_inbound_atu(struct
- 	}
- 
- 	ep->bar_to_atu[bar] = free_win;
--	set_bit(free_win, &ep->ib_window_map);
-+	set_bit(free_win, ep->ib_window_map);
- 
- 	return 0;
- }
-@@ -100,8 +99,7 @@ static int dw_pcie_ep_outbound_atu(struc
- 	u32 free_win;
- 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
- 
--	free_win = find_first_zero_bit(&ep->ob_window_map,
--				       sizeof(ep->ob_window_map));
-+	free_win = find_first_zero_bit(ep->ob_window_map, ep->num_ob_windows);
- 	if (free_win >= ep->num_ob_windows) {
- 		dev_err(pci->dev, "no free outbound window\n");
- 		return -EINVAL;
-@@ -110,7 +108,7 @@ static int dw_pcie_ep_outbound_atu(struc
- 	dw_pcie_prog_outbound_atu(pci, free_win, PCIE_ATU_TYPE_MEM,
- 				  phys_addr, pci_addr, size);
- 
--	set_bit(free_win, &ep->ob_window_map);
-+	set_bit(free_win, ep->ob_window_map);
- 	ep->outbound_addr[free_win] = phys_addr;
- 
- 	return 0;
-@@ -125,7 +123,7 @@ static void dw_pcie_ep_clear_bar(struct
- 	dw_pcie_ep_reset_bar(pci, bar);
- 
- 	dw_pcie_disable_atu(pci, atu_index, DW_PCIE_REGION_INBOUND);
--	clear_bit(atu_index, &ep->ib_window_map);
-+	clear_bit(atu_index, ep->ib_window_map);
- }
- 
- static int dw_pcie_ep_set_bar(struct pci_epc *epc, enum pci_barno bar,
-@@ -181,7 +179,7 @@ static void dw_pcie_ep_unmap_addr(struct
- 		return;
- 
- 	dw_pcie_disable_atu(pci, atu_index, DW_PCIE_REGION_OUTBOUND);
--	clear_bit(atu_index, &ep->ob_window_map);
-+	clear_bit(atu_index, ep->ob_window_map);
- }
- 
- static int dw_pcie_ep_map_addr(struct pci_epc *epc, phys_addr_t addr,
-@@ -302,12 +300,32 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
- 		dev_err(dev, "unable to read *num-ib-windows* property\n");
- 		return ret;
- 	}
-+	if (ep->num_ib_windows > MAX_IATU_IN) {
-+		dev_err(dev, "invalid *num-ib-windows*\n");
-+		return -EINVAL;
-+	}
- 
- 	ret = of_property_read_u32(np, "num-ob-windows", &ep->num_ob_windows);
- 	if (ret < 0) {
- 		dev_err(dev, "unable to read *num-ob-windows* property\n");
- 		return ret;
- 	}
-+	if (ep->num_ob_windows > MAX_IATU_OUT) {
-+		dev_err(dev, "invalid *num-ob-windows*\n");
-+		return -EINVAL;
-+	}
+diff --git a/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+new file mode 100644
+index 0000000000000..a30d63db3c8f7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+@@ -0,0 +1,9 @@
++Armadeus ST0700 Adapt. A Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT with
++an adapter board.
 +
-+	ep->ib_window_map = devm_kzalloc(dev, sizeof(long) *
-+					 BITS_TO_LONGS(ep->num_ib_windows),
-+					 GFP_KERNEL);
-+	if (!ep->ib_window_map)
-+		return -ENOMEM;
++Required properties:
++- compatible: "armadeus,st0700-adapt"
++- power-supply: see panel-common.txt
 +
-+	ep->ob_window_map = devm_kzalloc(dev, sizeof(long) *
-+					 BITS_TO_LONGS(ep->num_ob_windows),
-+					 GFP_KERNEL);
-+	if (!ep->ob_window_map)
-+		return -ENOMEM;
- 
- 	addr = devm_kzalloc(dev, sizeof(phys_addr_t) * ep->num_ob_windows,
- 			    GFP_KERNEL);
---- a/drivers/pci/dwc/pcie-designware.h
-+++ b/drivers/pci/dwc/pcie-designware.h
-@@ -114,6 +114,10 @@
- #define MAX_MSI_IRQS			32
- #define MAX_MSI_CTRLS			(MAX_MSI_IRQS / 32)
- 
-+/* Maximum number of inbound/outbound iATUs */
-+#define MAX_IATU_IN			256
-+#define MAX_IATU_OUT			256
-+
- struct pcie_port;
- struct dw_pcie;
- struct dw_pcie_ep;
-@@ -193,8 +197,8 @@ struct dw_pcie_ep {
- 	size_t			page_size;
- 	u8			bar_to_atu[6];
- 	phys_addr_t		*outbound_addr;
--	unsigned long		ib_window_map;
--	unsigned long		ob_window_map;
-+	unsigned long		*ib_window_map;
-+	unsigned long		*ob_window_map;
- 	u32			num_ib_windows;
- 	u32			num_ob_windows;
++Optional properties:
++- backlight: see panel-common.txt
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index b1d41c4921dd5..5fd94e2060297 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -436,6 +436,32 @@ static const struct panel_desc ampire_am800480r3tmqwa1h = {
+ 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
  };
+ 
++static const struct display_timing santek_st0700i5y_rbslw_f_timing = {
++	.pixelclock = { 26400000, 33300000, 46800000 },
++	.hactive = { 800, 800, 800 },
++	.hfront_porch = { 16, 210, 354 },
++	.hback_porch = { 45, 36, 6 },
++	.hsync_len = { 1, 10, 40 },
++	.vactive = { 480, 480, 480 },
++	.vfront_porch = { 7, 22, 147 },
++	.vback_porch = { 22, 13, 3 },
++	.vsync_len = { 1, 10, 20 },
++	.flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
++		DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
++};
++
++static const struct panel_desc armadeus_st0700_adapt = {
++	.timings = &santek_st0700i5y_rbslw_f_timing,
++	.num_timings = 1,
++	.bpc = 6,
++	.size = {
++		.width = 154,
++		.height = 86,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_POSEDGE,
++};
++
+ static const struct drm_display_mode auo_b101aw03_mode = {
+ 	.clock = 51450,
+ 	.hdisplay = 1024,
+@@ -2330,6 +2356,9 @@ static const struct of_device_id platform_of_match[] = {
+ 	}, {
+ 		.compatible = "ampire,am800480r3tmqwa1h",
+ 		.data = &ampire_am800480r3tmqwa1h,
++	}, {
++		.compatible = "armadeus,st0700-adapt",
++		.data = &armadeus_st0700_adapt,
+ 	}, {
+ 		.compatible = "auo,b101aw03",
+ 		.data = &auo_b101aw03,
+-- 
+2.20.1
+
 
 
