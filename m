@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6033B2022
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84866B2014
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389928AbfIMNQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:16:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43762 "EHLO mail.kernel.org"
+        id S2389151AbfIMNPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:15:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389926AbfIMNQt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:16:49 -0400
+        id S2389726AbfIMNPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:15:38 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8CEA206BB;
-        Fri, 13 Sep 2019 13:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0524214AE;
+        Fri, 13 Sep 2019 13:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380608;
-        bh=TcpwchD6dBf0DR2A9BZK7u2CjChcJJSGqK8BGq6GDjk=;
+        s=default; t=1568380537;
+        bh=glaAkWpahE1sgKI34qcF2w15f41BDvcFRLMcHeDjOR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eT7ww3gHvZXT425mv671VGdGByJumTG7veonQT2NLxEudQzjctyzuHKFjsDzeM2wj
-         N1QwYFcx5szwlZ/TNdqOj62/VL5i0HRxRajvnufANjfmcX5+RMuPe8xPiX+CpFADds
-         SMJC9a40aW4aG0iLpg9YYGUpYgaP/hqXy38UXKNw=
+        b=kUgCROXY4v5K0rVtIKawwwOB8IHvjCq9aLaibZKj86DcLowA3A5sPhcO0IIBlGP/T
+         XHyi3wCmIPO0Nexq8KWdwFPPvg3yklfVJoI7csMLGt304W77aHk+lDuQFAimaxc512
+         OWGRbaddec4ZaFYuQn/PJhezL6i8bSPVgWoooZ7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/190] dt-bindings: iio: adc: exynos-adc: Add S5PV210 variant
-Date:   Fri, 13 Sep 2019 14:05:44 +0100
-Message-Id: <20190913130606.713673756@linuxfoundation.org>
+Subject: [PATCH 4.19 090/190] iio: adc: exynos-adc: Use proper number of channels for Exynos4x12
+Date:   Fri, 13 Sep 2019 14:05:45 +0100
+Message-Id: <20190913130606.807045201@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,40 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9b0a2a7c19316588421b94946c8e2e5a84ac14e ]
+[ Upstream commit 103cda6a3b8d2c10d5f8cd7abad118e9db8f4776 ]
 
-Add information about new compatible for S5PV210
+Exynos4212 and Exynos4412 have only four ADC channels so using
+"samsung,exynos-adc-v1" compatible (for eight channels ADCv1) on them is
+wrong.  Add a new compatible for Exynos4x12.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/iio/adc/samsung,exynos-adc.txt        | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../bindings/iio/adc/samsung,exynos-adc.txt     |  4 +++-
+ drivers/iio/adc/exynos_adc.c                    | 17 +++++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.txt b/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.txt
-index 6c49db7f8ad25..a10c1f89037de 100644
+index a10c1f89037de..e1fe02f3e3e9c 100644
 --- a/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.txt
 +++ b/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.txt
-@@ -11,7 +11,7 @@ New driver handles the following
+@@ -11,11 +11,13 @@ New driver handles the following
  
  Required properties:
  - compatible:		Must be "samsung,exynos-adc-v1"
--				for exynos4412/5250 and s5pv210 controllers.
-+				for exynos4412/5250 controllers.
+-				for exynos4412/5250 controllers.
++				for Exynos5250 controllers.
  			Must be "samsung,exynos-adc-v2" for
  				future controllers.
  			Must be "samsung,exynos3250-adc" for
-@@ -28,6 +28,8 @@ Required properties:
- 				the ADC in s3c2443 and compatibles
- 			Must be "samsung,s3c6410-adc" for
- 				the ADC in s3c6410 and compatibles
-+			Must be "samsung,s5pv210-adc" for
-+				the ADC in s5pv210 and compatibles
- - reg:			List of ADC register address range
- 			- The base address and range of ADC register
- 			- The base address and range of ADC_PHY register (every
+ 				controllers compatible with ADC of Exynos3250.
++			Must be "samsung,exynos4212-adc" for
++				controllers compatible with ADC of Exynos4212 and Exynos4412.
+ 			Must be "samsung,exynos7-adc" for
+ 				the ADC in Exynos7 and compatibles
+ 			Must be "samsung,s3c2410-adc" for
+diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_adc.c
+index 41da522fc6735..1ca2c4d39f878 100644
+--- a/drivers/iio/adc/exynos_adc.c
++++ b/drivers/iio/adc/exynos_adc.c
+@@ -115,6 +115,7 @@
+ #define MAX_ADC_V2_CHANNELS		10
+ #define MAX_ADC_V1_CHANNELS		8
+ #define MAX_EXYNOS3250_ADC_CHANNELS	2
++#define MAX_EXYNOS4212_ADC_CHANNELS	4
+ #define MAX_S5PV210_ADC_CHANNELS	10
+ 
+ /* Bit definitions common for ADC_V1 and ADC_V2 */
+@@ -271,6 +272,19 @@ static void exynos_adc_v1_start_conv(struct exynos_adc *info,
+ 	writel(con1 | ADC_CON_EN_START, ADC_V1_CON(info->regs));
+ }
+ 
++/* Exynos4212 and 4412 is like ADCv1 but with four channels only */
++static const struct exynos_adc_data exynos4212_adc_data = {
++	.num_channels	= MAX_EXYNOS4212_ADC_CHANNELS,
++	.mask		= ADC_DATX_MASK,	/* 12 bit ADC resolution */
++	.needs_adc_phy	= true,
++	.phy_offset	= EXYNOS_ADCV1_PHY_OFFSET,
++
++	.init_hw	= exynos_adc_v1_init_hw,
++	.exit_hw	= exynos_adc_v1_exit_hw,
++	.clear_irq	= exynos_adc_v1_clear_irq,
++	.start_conv	= exynos_adc_v1_start_conv,
++};
++
+ static const struct exynos_adc_data exynos_adc_v1_data = {
+ 	.num_channels	= MAX_ADC_V1_CHANNELS,
+ 	.mask		= ADC_DATX_MASK,	/* 12 bit ADC resolution */
+@@ -492,6 +506,9 @@ static const struct of_device_id exynos_adc_match[] = {
+ 	}, {
+ 		.compatible = "samsung,s5pv210-adc",
+ 		.data = &exynos_adc_s5pv210_data,
++	}, {
++		.compatible = "samsung,exynos4212-adc",
++		.data = &exynos4212_adc_data,
+ 	}, {
+ 		.compatible = "samsung,exynos-adc-v1",
+ 		.data = &exynos_adc_v1_data,
 -- 
 2.20.1
 
