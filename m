@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCC4B1E6B
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CEFB1E57
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388637AbfIMNKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:10:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34736 "EHLO mail.kernel.org"
+        id S2388479AbfIMNJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388579AbfIMNKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:10:00 -0400
+        id S2388472AbfIMNJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:18 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18EB4206BB;
-        Fri, 13 Sep 2019 13:09:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03AC7208C0;
+        Fri, 13 Sep 2019 13:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380199;
-        bh=qmIDS1RUIUlk4PqP13Ji4FuXvckwkFyjkjtsRyDYu4Y=;
+        s=default; t=1568380157;
+        bh=S089siSzkWik0/nefmawD6CYI0z6SyrQGP6BHrVof68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6jwXCxYsaSB8fdaR9LZg/QQQqyI5lfRrq862E95HrV33yLfUpH65Y8W0dvz0o5AH
-         YjGX0DUIqSzCeuaOo/D/PFnQMy7VUiNpkvJLSv36wZhwAK6y/fIRrTYxJQ1JK0Rd2Z
-         baZeRpCs9rfOlt75F5JauuU1gfI5xxhBSkJ+lhuM=
+        b=y1DW4VwyzjkVY8otPirTLLpWeiEnJvKSkL1KV91dY1/hQqAfnY8WLKxMo9R8hAK3X
+         KBHPL6FDgD8wTdujSSoVcBzB5PjaQlGfXhH7y8gkt8ZWigsSTfDTXrhineXtvEZE6i
+         ulUEO05ZbafXx61WjVigTzjhqqASYAJgst5xftkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 4.14 11/21] vhost/test: fix build for vhost test
-Date:   Fri, 13 Sep 2019 14:07:04 +0100
-Message-Id: <20190913130505.580067115@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 12/14] clk: s2mps11: Add used attribute to s2mps11_dt_match
+Date:   Fri, 13 Sep 2019 14:07:05 +0100
+Message-Id: <20190913130446.319966223@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
-References: <20190913130501.285837292@linuxfoundation.org>
+In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
+References: <20190913130440.264749443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiwei Bie <tiwei.bie@intel.com>
+[ Upstream commit 9c940bbe2bb47e03ca5e937d30b6a50bf9c0e671 ]
 
-commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
+Clang warns after commit 8985167ecf57 ("clk: s2mps11: Fix matching when
+built as module and DT node contains compatible"):
 
-Since vhost_exceeds_weight() was introduced, callers need to specify
-the packet weight and byte weight in vhost_dev_init(). Note that, the
-packet weight isn't counted in this patch to keep the original behavior
-unchanged.
+drivers/clk/clk-s2mps11.c:242:34: warning: variable 's2mps11_dt_match'
+is not needed and will not be emitted [-Wunneeded-internal-declaration]
+static const struct of_device_id s2mps11_dt_match[] = {
+                                 ^
+1 warning generated.
 
-Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This warning happens when a variable is used in some construct that
+doesn't require a reference to that variable to be emitted in the symbol
+table; in this case, it's MODULE_DEVICE_TABLE, which only needs to hold
+the data of the variable, not the variable itself.
 
+$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_dt_match
+00000078 000003d4 R __mod_of__s2mps11_dt_match_device_table
+
+Normally, with device ID table variables, it means that the variable
+just needs to be tied to the device declaration at the bottom of the
+file, like s2mps11_clk_id:
+
+$ nm -S drivers/clk/clk-s2mps11.o | rg s2mps11_clk_id
+00000000 00000078 R __mod_platform__s2mps11_clk_id_device_table
+00000000 00000078 r s2mps11_clk_id
+
+However, because the comment above this deliberately doesn't want this
+variable added to .of_match_table, we need to mark s2mps11_dt_match as
+__used to silence this warning. This makes it clear to Clang that the
+variable is used for something, even if a reference to it isn't being
+emitted.
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: 8985167ecf57 ("clk: s2mps11: Fix matching when built as module and DT node contains compatible")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/test.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/clk/clk-s2mps11.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -23,6 +23,12 @@
-  * Using this limit prevents one virtqueue from starving others. */
- #define VHOST_TEST_WEIGHT 0x80000
- 
-+/* Max number of packets transferred before requeueing the job.
-+ * Using this limit prevents one virtqueue from starving others with
-+ * pkts.
-+ */
-+#define VHOST_TEST_PKT_WEIGHT 256
-+
- enum {
- 	VHOST_TEST_VQ = 0,
- 	VHOST_TEST_VQ_MAX = 1,
-@@ -81,10 +87,8 @@ static void handle_vq(struct vhost_test
- 		}
- 		vhost_add_used_and_signal(&n->dev, vq, head, 0);
- 		total_len += len;
--		if (unlikely(total_len >= VHOST_TEST_WEIGHT)) {
--			vhost_poll_queue(&vq->poll);
-+		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
- 			break;
--		}
- 	}
- 
- 	mutex_unlock(&vq->mutex);
-@@ -116,7 +120,8 @@ static int vhost_test_open(struct inode
- 	dev = &n->dev;
- 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
- 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
--	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
-+	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX,
-+		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
- 
- 	f->private_data = n;
- 
+diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
+index 14071a57c9262..f5d74e8db4327 100644
+--- a/drivers/clk/clk-s2mps11.c
++++ b/drivers/clk/clk-s2mps11.c
+@@ -255,7 +255,7 @@ MODULE_DEVICE_TABLE(platform, s2mps11_clk_id);
+  * This requires of_device_id table.  In the same time this will not change the
+  * actual *device* matching so do not add .of_match_table.
+  */
+-static const struct of_device_id s2mps11_dt_match[] = {
++static const struct of_device_id s2mps11_dt_match[] __used = {
+ 	{
+ 		.compatible = "samsung,s2mps11-clk",
+ 		.data = (void *)S2MPS11X,
+-- 
+2.20.1
+
 
 
