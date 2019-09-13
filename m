@@ -2,73 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D49DCB1DD4
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 14:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3605B1E30
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729965AbfIMMnq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 13 Sep 2019 08:43:46 -0400
-Received: from mga14.intel.com ([192.55.52.115]:34090 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726771AbfIMMnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 08:43:45 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Sep 2019 05:43:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,492,1559545200"; 
-   d="scan'208";a="187805348"
-Received: from fmsmsx105.amr.corp.intel.com ([10.18.124.203])
-  by orsmga003.jf.intel.com with ESMTP; 13 Sep 2019 05:43:44 -0700
-Received: from fmsmsx162.amr.corp.intel.com (10.18.125.71) by
- FMSMSX105.amr.corp.intel.com (10.18.124.203) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Fri, 13 Sep 2019 05:43:44 -0700
-Received: from fmsmsx120.amr.corp.intel.com ([169.254.15.9]) by
- fmsmsx162.amr.corp.intel.com ([169.254.5.238]) with mapi id 14.03.0439.000;
- Fri, 13 Sep 2019 05:43:43 -0700
-From:   "Marciniszyn, Mike" <mike.marciniszyn@intel.com>
-To:     Jason Gunthorpe <jgg@mellanox.com>,
-        "Dalessandro, Dennis" <dennis.dalessandro@intel.com>
-CC:     "dledford@redhat.com" <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "Weiny, Ira" <ira.weiny@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Wan, Kaike" <kaike.wan@intel.com>
-Subject: RE: [PATCH for-next 3/3] IB/hfi1: Define variables as unsigned long
- to fix KASAN warning
-Thread-Topic: [PATCH for-next 3/3] IB/hfi1: Define variables as unsigned
- long to fix KASAN warning
-Thread-Index: AQHVaJRhDW39fYtHH0mWXMwbuDsZn6cp+x8A//+U3/A=
-Date:   Fri, 13 Sep 2019 12:43:43 +0000
-Message-ID: <32E1700B9017364D9B60AED9960492BC70EB553C@fmsmsx120.amr.corp.intel.com>
-References: <20190911112912.126040.72184.stgit@awfm-01.aw.intel.com>
- <20190911113053.126040.47327.stgit@awfm-01.aw.intel.com>
- <20190912161219.GA15092@mellanox.com>
-In-Reply-To: <20190912161219.GA15092@mellanox.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiZmY0YTY5NWItMjQxMS00OTNjLTg4Y2ItMjIzNTUzMDhmNGQzIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoidmMwM1d1U3dRQnl0Zlc4YmhOd1wvUDU5Z0lCcERwbEI5eFpRTzBoMEdQb3hVWVwvYnhDb3ExTjBnUU5Zbk5NRmlUIn0=
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.1.200.107]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S2387784AbfIMNGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:06:52 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:59877 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387443AbfIMNGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 09:06:51 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 9668F497;
+        Fri, 13 Sep 2019 09:06:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 13 Sep 2019 09:06:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=kctfxVA8o8ay9amERd1+UDzk1oH
+        GgByJTGaMoSxGwZM=; b=QtfAJeIzi32ERHcHNzYMcM18vhFff/Y2qrPmtxoZWYA
+        1evBf25JjaAok+Ghjl9ZCh3xJsfVEd3uzNU6j2hHuPGCOK9SkejTY9Qmv54SGpU5
+        YlFgjyM+Qyd3Hf/aptvYvZOrl1ZayGMy52n0jYDaqwq5zmSO8jzXBny8nE7i5OZD
+        AAfTfOyDROb0KBpd/v38IgP3ShEF4pU+ZQZMlT/evGyBotwbHm/zxhgJFNXuzebn
+        7jt/aQBhleyfhgY1FbujRSJfikiFLonYGUV1KB9kOzWZWR7oXKfX8Pb9VureYgJL
+        2nI6ivORoKtphv4fg3jB1Y7orBPSNenZImor0caxE/w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kctfxV
+        A8o8ay9amERd1+UDzk1oHGgByJTGaMoSxGwZM=; b=NNr+3LcnjOOzp/187es/Zw
+        0QXOqrhBkgrRRO+pqPJ2Uf7v2ef4/bJsXLW3DEzkBnRsblX2yai+D7ocdbW1oxBo
+        FaGGbqCXGpZ8P30bXSrzG1WMvPFC9P41uRFxmwLWo9jlsE6fMTCn2Z4sPtZTv+WX
+        l3ZvVmsxNlmf81uRlqQ/NCZ9GqtHGyx+CkQACYksJoHRo9idipJUpdIyrDQiCB39
+        kFbHFqotYYR4W8XVfOR1az5LVcjF+skOwAni1dVTfpaQ9L4nBHCA9B/OTTazCLhO
+        yppZZ0yaHv40s4xH/ayuoBDhsm6xw1DbpHKPtwAPFXjc+sgV3EqYZdupuA8xq6tQ
+        ==
+X-ME-Sender: <xms:aZR7XajT3M_aD6cM6T4EvSQAmd5EcTAg8QEPjgiAVe_tZ7G4EQjkhw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrtdejgdehlecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepuddtgedrudefvddrgeehrd
+    elleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:aZR7XVoBoRawfplob42ncZM4GbRxBJxR6c7OHwJDGkh047WuF4AMfg>
+    <xmx:aZR7XeH7DnywiB3lvkGPQWjCXaF08fVkbz9MuIeZJ0ZPJWuVHJV_DA>
+    <xmx:aZR7XTgy1Gyz1Hl6mPoCfFr-BRMFndqee3axEfvblAFrU1lyIHigVg>
+    <xmx:apR7XQT9Vse1PeQqSdw_HGIlnlw_IsaJh2UdGl_Na51Xu2lCj9noxg>
+Received: from localhost (unknown [104.132.45.99])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8EF5D8006D;
+        Fri, 13 Sep 2019 09:06:49 -0400 (EDT)
+Date:   Fri, 13 Sep 2019 13:59:14 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Johannes Thumshirn <jthumshirn@suse.de>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Linux BTRFS Mailinglist <linux-btrfs@vger.kernel.org>
+Subject: Re: [PATCH for-4.19.x ] btrfs: correctly validate compression type
+Message-ID: <20190913125914.GA403359@kroah.com>
+References: <20190912100259.7784-1-jthumshirn@suse.de>
+ <20190912105215.GC1546@sasha-vm>
+ <20190913115305.GA292815@kroah.com>
+ <995a104d-3854-5b77-f25d-e058eeb900cc@suse.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <995a104d-3854-5b77-f25d-e058eeb900cc@suse.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> > Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+On Fri, Sep 13, 2019 at 01:55:08PM +0200, Johannes Thumshirn wrote:
+> On 13/09/2019 13:53, Greg KH wrote:
+> [...]
+> > We also need this for 4.14.y, let me see if it is easy to backport...
 > 
-> This needs a fixes line, can you tell me what it is?
+> Haven't had a look at it. If you need help just ping me (or tell me
+> right away I should do the backport).
 
-This is day 1 bug:
+I need help with the backport as it is not "obvious".  I think there's a
+prerequesite patch that is needed and I don't have the time at the
+moment to dig it up :(
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+So yes, sending this fixed up as a patch series would be great, thanks!
 
-Mike
+greg k-h
