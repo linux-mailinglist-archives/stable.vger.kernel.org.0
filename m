@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58974B1F15
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 371B3B1EF7
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389724AbfIMNPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
+        id S2388977AbfIMNOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:14:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389717AbfIMNPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:15:35 -0400
+        id S2388983AbfIMNOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:14:32 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DF5F208C2;
-        Fri, 13 Sep 2019 13:15:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC9E2208C0;
+        Fri, 13 Sep 2019 13:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380534;
-        bh=ZsgX5z2lSOe2LRzc3NcDZczs7jYpydFb/XsB3NhNePk=;
+        s=default; t=1568380471;
+        bh=PKfSZ84nsJ5I2rmMY3QuJCA9lr7zMYLUW9zcMh8N70g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GS22UJ1NtSv97f8AVseWHZYas9mRLnViHftFlMw1qciEbHHrCBPHhrIuRBiJj/6HK
-         bEwa36dAIqxx5QGUJcE4Y453eYbZEAmCDFh1iv03Cre+j8jOiEr2n6nSKymD8w8jcp
-         eHv4xWYmEhoSHZUuObIsP9MMmJOAQL7XkMkMyhM0=
+        b=wnyPhEJqSOSmjqQT4EJVnvpwbEH5/IZ6hTEwbw4BV4WI/WLAfEg0GEFf7Zlh12WCm
+         DR7qQRh8CFiES3YDfXFljDdixZ1X+AzSRJdn8I3N6MZ7VL7jhsdrLmRogoevkUpJwj
+         +GuMMSr+9nxJsemLMZtN4KjdE/gXXS6nh06DDAsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nikolay Borisov <nborisov@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/190] btrfs: Remove extent_io_ops::fill_delalloc
-Date:   Fri, 13 Sep 2019 14:05:22 +0100
-Message-Id: <20190913130605.056342077@linuxfoundation.org>
+Subject: [PATCH 4.19 068/190] btrfs: Fix error handling in btrfs_cleanup_ordered_extents
+Date:   Fri, 13 Sep 2019 14:05:23 +0100
+Message-Id: <20190913130605.118534456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,146 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5eaad97af8aeff38debe7d3c69ec3a0d71f8350f ]
+[ Upstream commit d1051d6ebf8ef3517a5a3cf82bba8436d190f1c2 ]
 
-This callback is called only from writepage_delalloc which in turn is
-guaranteed to be called from the data page writeout path. In the end
-there is no reason to have the call to this function to be indrected via
-the extent_io_ops structure. This patch removes the callback definition,
-exports the function and calls it directly. No functional changes.
+Running btrfs/124 in a loop hung up on me sporadically with the
+following call trace:
 
+	btrfs           D    0  5760   5324 0x00000000
+	Call Trace:
+	 ? __schedule+0x243/0x800
+	 schedule+0x33/0x90
+	 btrfs_start_ordered_extent+0x10c/0x1b0 [btrfs]
+	 ? wait_woken+0xa0/0xa0
+	 btrfs_wait_ordered_range+0xbb/0x100 [btrfs]
+	 btrfs_relocate_block_group+0x1ff/0x230 [btrfs]
+	 btrfs_relocate_chunk+0x49/0x100 [btrfs]
+	 btrfs_balance+0xbeb/0x1740 [btrfs]
+	 btrfs_ioctl_balance+0x2ee/0x380 [btrfs]
+	 btrfs_ioctl+0x1691/0x3110 [btrfs]
+	 ? lockdep_hardirqs_on+0xed/0x180
+	 ? __handle_mm_fault+0x8e7/0xfb0
+	 ? _raw_spin_unlock+0x24/0x30
+	 ? __handle_mm_fault+0x8e7/0xfb0
+	 ? do_vfs_ioctl+0xa5/0x6e0
+	 ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
+	 do_vfs_ioctl+0xa5/0x6e0
+	 ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
+	 ksys_ioctl+0x3a/0x70
+	 __x64_sys_ioctl+0x16/0x20
+	 do_syscall_64+0x60/0x1b0
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+This happens because during page writeback it's valid for
+writepage_delalloc to instantiate a delalloc range which doesn't belong
+to the page currently being written back.
+
+The reason this case is valid is due to find_lock_delalloc_range
+returning any available range after the passed delalloc_start and
+ignoring whether the page under writeback is within that range.
+
+In turn ordered extents (OE) are always created for the returned range
+from find_lock_delalloc_range. If, however, a failure occurs while OE
+are being created then the clean up code in btrfs_cleanup_ordered_extents
+will be called.
+
+Unfortunately the code in btrfs_cleanup_ordered_extents doesn't consider
+the case of such 'foreign' range being processed and instead it always
+assumes that the range OE are created for belongs to the page. This
+leads to the first page of such foregin range to not be cleaned up since
+it's deliberately missed and skipped by the current cleaning up code.
+
+Fix this by correctly checking whether the current page belongs to the
+range being instantiated and if so adjsut the range parameters passed
+for cleaning up. If it doesn't, then just clean the whole OE range
+directly.
+
+Fixes: 524272607e88 ("btrfs: Handle delalloc error correctly to avoid ordered extent hang")
+CC: stable@vger.kernel.org # 4.14+
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ rename to btrfs_run_delalloc_range ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h     |  3 +++
- fs/btrfs/extent_io.c | 20 +++++++++-----------
- fs/btrfs/extent_io.h |  5 -----
- fs/btrfs/inode.c     | 15 +++++++--------
- 4 files changed, 19 insertions(+), 24 deletions(-)
+ fs/btrfs/inode.c | 29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 82682da5a40dd..4644f9b629a53 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3200,6 +3200,9 @@ int btrfs_prealloc_file_range_trans(struct inode *inode,
- 				    struct btrfs_trans_handle *trans, int mode,
- 				    u64 start, u64 num_bytes, u64 min_size,
- 				    loff_t actual_len, u64 *alloc_hint);
-+int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
-+		u64 start, u64 end, int *page_started, unsigned long *nr_written,
-+		struct writeback_control *wbc);
- extern const struct dentry_operations btrfs_dentry_operations;
- #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
- void btrfs_test_inode_set_ops(struct inode *inode);
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 90b0a6eff5350..cb598eb4f3bd1 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3199,7 +3199,7 @@ static void update_nr_written(struct writeback_control *wbc,
- /*
-  * helper for __extent_writepage, doing all of the delayed allocation setup.
-  *
-- * This returns 1 if our fill_delalloc function did all the work required
-+ * This returns 1 if btrfs_run_delalloc_range function did all the work required
-  * to write the page (copy into inline extent).  In this case the IO has
-  * been started and the page is already unlocked.
-  *
-@@ -3220,7 +3220,7 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
- 	int ret;
- 	int page_started = 0;
- 
--	if (epd->extent_locked || !tree->ops || !tree->ops->fill_delalloc)
-+	if (epd->extent_locked)
- 		return 0;
- 
- 	while (delalloc_end < page_end) {
-@@ -3233,18 +3233,16 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
- 			delalloc_start = delalloc_end + 1;
- 			continue;
- 		}
--		ret = tree->ops->fill_delalloc(inode, page,
--					       delalloc_start,
--					       delalloc_end,
--					       &page_started,
--					       nr_written, wbc);
-+		ret = btrfs_run_delalloc_range(inode, page, delalloc_start,
-+				delalloc_end, &page_started, nr_written, wbc);
- 		/* File system has been set read-only */
- 		if (ret) {
- 			SetPageError(page);
--			/* fill_delalloc should be return < 0 for error
--			 * but just in case, we use > 0 here meaning the
--			 * IO is started, so we don't want to return > 0
--			 * unless things are going well.
-+			/*
-+			 * btrfs_run_delalloc_range should return < 0 for error
-+			 * but just in case, we use > 0 here meaning the IO is
-+			 * started, so we don't want to return > 0 unless
-+			 * things are going well.
- 			 */
- 			ret = ret < 0 ? ret : -EIO;
- 			goto done;
-diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
-index b4d03e677e1d7..ed27becd963c5 100644
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -106,11 +106,6 @@ struct extent_io_ops {
- 	/*
- 	 * Optional hooks, called if the pointer is not NULL
- 	 */
--	int (*fill_delalloc)(void *private_data, struct page *locked_page,
--			     u64 start, u64 end, int *page_started,
--			     unsigned long *nr_written,
--			     struct writeback_control *wbc);
--
- 	int (*writepage_start_hook)(struct page *page, u64 start, u64 end);
- 	void (*writepage_end_io_hook)(struct page *page, u64 start, u64 end,
- 				      struct extent_state *state, int uptodate);
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 355ff08e9d44e..bfacce295ef1e 100644
+index bfacce295ef1e..98c535ae038da 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -110,8 +110,8 @@ static void __endio_write_update_ordered(struct inode *inode,
+@@ -110,17 +110,17 @@ static void __endio_write_update_ordered(struct inode *inode,
   * extent_clear_unlock_delalloc() to clear both the bits EXTENT_DO_ACCOUNTING
   * and EXTENT_DELALLOC simultaneously, because that causes the reserved metadata
   * to be released, which we want to happen only when finishing the ordered
-- * extent (btrfs_finish_ordered_io()). Also note that the caller of the
-- * fill_delalloc() callback already does proper cleanup for the first page of
-+ * extent (btrfs_finish_ordered_io()). Also note that the caller of
-+ * btrfs_run_delalloc_range already does proper cleanup for the first page of
-  * the range, that is, it invokes the callback writepage_end_io_hook() for the
-  * range of the first page.
+- * extent (btrfs_finish_ordered_io()). Also note that the caller of
+- * btrfs_run_delalloc_range already does proper cleanup for the first page of
+- * the range, that is, it invokes the callback writepage_end_io_hook() for the
+- * range of the first page.
++ * extent (btrfs_finish_ordered_io()).
   */
-@@ -1599,12 +1599,12 @@ static inline int need_force_cow(struct inode *inode, u64 start, u64 end)
+ static inline void btrfs_cleanup_ordered_extents(struct inode *inode,
+-						 const u64 offset,
+-						 const u64 bytes)
++						 struct page *locked_page,
++						 u64 offset, u64 bytes)
+ {
+ 	unsigned long index = offset >> PAGE_SHIFT;
+ 	unsigned long end_index = (offset + bytes - 1) >> PAGE_SHIFT;
++	u64 page_start = page_offset(locked_page);
++	u64 page_end = page_start + PAGE_SIZE - 1;
++
+ 	struct page *page;
+ 
+ 	while (index <= end_index) {
+@@ -131,8 +131,18 @@ static inline void btrfs_cleanup_ordered_extents(struct inode *inode,
+ 		ClearPagePrivate2(page);
+ 		put_page(page);
+ 	}
+-	return __endio_write_update_ordered(inode, offset + PAGE_SIZE,
+-					    bytes - PAGE_SIZE, false);
++
++	/*
++	 * In case this page belongs to the delalloc range being instantiated
++	 * then skip it, since the first page of a range is going to be
++	 * properly cleaned up by the caller of run_delalloc_range
++	 */
++	if (page_start >= offset && page_end <= (offset + bytes - 1)) {
++		offset += PAGE_SIZE;
++		bytes -= PAGE_SIZE;
++	}
++
++	return __endio_write_update_ordered(inode, offset, bytes, false);
  }
  
- /*
-- * extent_io.c call back to do delayed allocation processing
-+ * Function to process delayed allocation (create CoW) for ranges which are
-+ * being touched for the first time.
-  */
--static int run_delalloc_range(void *private_data, struct page *locked_page,
--			      u64 start, u64 end, int *page_started,
--			      unsigned long *nr_written,
--			      struct writeback_control *wbc)
-+int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
-+		u64 start, u64 end, int *page_started, unsigned long *nr_written,
-+		struct writeback_control *wbc)
- {
- 	struct inode *inode = private_data;
- 	int ret;
-@@ -10598,7 +10598,6 @@ static const struct extent_io_ops btrfs_extent_io_ops = {
- 	.readpage_io_failed_hook = btrfs_readpage_io_failed_hook,
+ static int btrfs_dirty_inode(struct inode *inode);
+@@ -1629,7 +1639,8 @@ int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
+ 					   write_flags);
+ 	}
+ 	if (ret)
+-		btrfs_cleanup_ordered_extents(inode, start, end - start + 1);
++		btrfs_cleanup_ordered_extents(inode, locked_page, start,
++					      end - start + 1);
+ 	return ret;
+ }
  
- 	/* optional callbacks */
--	.fill_delalloc = run_delalloc_range,
- 	.writepage_end_io_hook = btrfs_writepage_end_io_hook,
- 	.writepage_start_hook = btrfs_writepage_start_hook,
- 	.set_bit_hook = btrfs_set_bit_hook,
 -- 
 2.20.1
 
