@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F9ACB1E89
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E75B1EB8
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388901AbfIMNLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36140 "EHLO mail.kernel.org"
+        id S2389101AbfIMNMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:12:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388155AbfIMNLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:08 -0400
+        id S2388457AbfIMNMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:12:05 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6290820CC7;
-        Fri, 13 Sep 2019 13:11:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52C5D206BB;
+        Fri, 13 Sep 2019 13:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380268;
-        bh=vFb8oPaK1xgVyrzWYiq1+5cdaw7DxdgvLTnk6o4vJ1E=;
+        s=default; t=1568380324;
+        bh=0k5O7VON44L9hsu/jY0q6sNazzv90kRRiAhdVStY9A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3/vBVauQEJbo1Ju0yuhjRyLMmbwg3hczvKaXRPr2lYmXJYW+sh/TEuNOE4+R7LAn
-         u64Erl2eYTGoIEoxanHy7vrMHsz6rWKtft2rI5PYH3qBfgkRZs7DCkc0A6kW+e2mt8
-         0VqR5xO3XX0dDYKKYXXHOp+au4HMMAAFC8n6/FUY=
+        b=xam+o+rYURlrV5yyDxmfDMgCB9/CHe5+Xtfe7Hi2zAo4/YpE7FM+vG9KUBePu0KBu
+         57gv7yomNi+0/JRH6xi1wlXONPrRaApbbPP/wzS5QstJdOjVoZglymzgWEpsqEUtFR
+         IKNvvLFCmzlMm/ZyW4+HlCfcxP6jOrxgnbTckpJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 002/190] ALSA: hda/realtek - Fix overridden device-specific initialization
-Date:   Fri, 13 Sep 2019 14:04:17 +0100
-Message-Id: <20190913130559.859089919@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Bazley <sambazley@fastmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 003/190] ALSA: hda/realtek - Add quirk for HP Pavilion 15
+Date:   Fri, 13 Sep 2019 14:04:18 +0100
+Message-Id: <20190913130559.930952833@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -42,69 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sam Bazley <sambazley@fastmail.com>
 
-commit 89781d0806c2c4f29072d3f00cb2dd4274aabc3d upstream.
+commit d33cd42d86671bed870827aa399aeb9f1da74119 upstream.
 
-The recent change to shuffle the codec initialization procedure for
-Realtek via commit 607ca3bd220f ("ALSA: hda/realtek - EAPD turn on
-later") caused the silent output on some machines.  This change was
-supposed to be safe, but it isn't actually; some devices have quirk
-setups to override the EAPD via COEF or BTL in the additional verb
-table, which is applied at the beginning of snd_hda_gen_init().  And
-this EAPD setup is again overridden in alc_auto_init_amp().
+HP Pavilion 15 (AMD Ryzen-based model) with 103c:84e7 needs the same
+quirk like HP Envy/Spectre x360 for enabling the mute LED over Mic3 pin.
 
-For recovering from the regression, tell snd_hda_gen_init() not to
-apply the verbs there by a new flag, then apply the verbs in
-alc_init().
+[ rearranged in the SSID number order by tiwai ]
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204727
-Fixes: 607ca3bd220f ("ALSA: hda/realtek - EAPD turn on later")
+Signed-off-by: Sam Bazley <sambazley@fastmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_generic.c   |    3 ++-
- sound/pci/hda/hda_generic.h   |    1 +
- sound/pci/hda/patch_realtek.c |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -5991,7 +5991,8 @@ int snd_hda_gen_init(struct hda_codec *c
- 	if (spec->init_hook)
- 		spec->init_hook(codec);
- 
--	snd_hda_apply_verbs(codec);
-+	if (!spec->skip_verbs)
-+		snd_hda_apply_verbs(codec);
- 
- 	init_multi_out(codec);
- 	init_extra_out(codec);
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -247,6 +247,7 @@ struct hda_gen_spec {
- 	unsigned int indep_hp_enabled:1; /* independent HP enabled */
- 	unsigned int have_aamix_ctl:1;
- 	unsigned int hp_mic_jack_modes:1;
-+	unsigned int skip_verbs:1; /* don't apply verbs at snd_hda_gen_init() */
- 
- 	/* additional mute flags (only effective with auto_mute_via_amp=1) */
- 	u64 mute_bits;
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -836,9 +836,11 @@ static int alc_init(struct hda_codec *co
- 	if (spec->init_hook)
- 		spec->init_hook(codec);
- 
-+	spec->gen.skip_verbs = 1; /* applied in below */
- 	snd_hda_gen_init(codec);
- 	alc_fix_pll(codec);
- 	alc_auto_init_amp(codec, spec->init_amp);
-+	snd_hda_apply_verbs(codec); /* apply verbs here after own init */
- 
- 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_INIT);
- 
+@@ -6845,6 +6845,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x82c0, "HP G3 mini premium", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 
 
