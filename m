@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E1DDB205F
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6152AB2051
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390744AbfIMNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:21:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50644 "EHLO mail.kernel.org"
+        id S2390617AbfIMNUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:20:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390755AbfIMNVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:21:10 -0400
+        id S2390608AbfIMNUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:40 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C930214DA;
-        Fri, 13 Sep 2019 13:21:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9253920717;
+        Fri, 13 Sep 2019 13:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380869;
-        bh=Zop4+s4luVAimXt+InNTc/XmzvttpS21f21hxI/OF6I=;
+        s=default; t=1568380839;
+        bh=kN2w/kcq9mBzaqs9yTiVeTulm8bkDRJ/dgotKQjrnuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2fiHs07SZOusPQUubc9hgC+uyrAEVNAa5nUkrZxwPB31IOAOSSMMxrIoNc3rqZ4T
-         ZepcUCWeKN4WD0VbNRK+VXQ88C0qNOg6ib3Kwo+y8inrh49df+W75k0Sbo1JzBhdeO
-         mDOIbXORkzRdef3+9wwP3svqmcU1/v6WYZmE4kZI=
+        b=U6/A6XkRMvsyiF7wVOU5oL4Cfuudmz9RBU8GaNNUTxzFme++YRb4sODI7ty0NPQti
+         a69FTKu/Tzdj7ZKH7VO0e46Mmp6yttB/mknXYur14+tLS0/27ZgHKVjZMFrn/+a44A
+         MedaEP5cJx+up/IHI9seIZAnh3mGPiNozCVf1BKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com,
-        Sven Eckelmann <sven@narfation.org>,
-        Antonio Quartulli <a@unstable.cc>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.2 17/37] batman-adv: Only read OGM tvlv_len after buffer len check
+        stable@vger.kernel.org, Breno Leitao <leitao@debian.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 187/190] powerpc/tm: Remove msr_tm_active()
 Date:   Fri, 13 Sep 2019 14:07:22 +0100
-Message-Id: <20190913130518.242128562@linuxfoundation.org>
+Message-Id: <20190913130614.853366270@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
-References: <20190913130510.727515099@linuxfoundation.org>
+In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
+References: <20190913130559.669563815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+[ Upstream commit 5c784c8414fba11b62e12439f11e109fb5751f38 ]
 
-commit a15d56a60760aa9dbe26343b9a0ac5228f35d445 upstream.
+Currently msr_tm_active() is a wrapper around MSR_TM_ACTIVE() if
+CONFIG_PPC_TRANSACTIONAL_MEM is set, or it is just a function that
+returns false if CONFIG_PPC_TRANSACTIONAL_MEM is not set.
 
-Multiple batadv_ogm_packet can be stored in an skbuff. The functions
-batadv_iv_ogm_send_to_if()/batadv_iv_ogm_receive() use
-batadv_iv_ogm_aggr_packet() to check if there is another additional
-batadv_ogm_packet in the skb or not before they continue processing the
-packet.
+This function is not necessary, since MSR_TM_ACTIVE() just do the same and
+could be used, removing the dualism and simplifying the code.
 
-The length for such an OGM is BATADV_OGM_HLEN +
-batadv_ogm_packet->tvlv_len. The check must first check that at least
-BATADV_OGM_HLEN bytes are available before it accesses tvlv_len (which is
-part of the header. Otherwise it might try read outside of the currently
-available skbuff to get the content of tvlv_len.
+This patchset remove every instance of msr_tm_active() and replaced it
+by MSR_TM_ACTIVE().
 
-Fixes: ef26157747d4 ("batman-adv: tvlv - basic infrastructure")
-Reported-by: syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/reg.h |  7 ++++++-
+ arch/powerpc/kernel/process.c  | 21 +++++++++------------
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -277,17 +277,23 @@ static u8 batadv_hop_penalty(u8 tq, cons
-  * batadv_iv_ogm_aggr_packet() - checks if there is another OGM attached
-  * @buff_pos: current position in the skb
-  * @packet_len: total length of the skb
-- * @tvlv_len: tvlv length of the previously considered OGM
-+ * @ogm_packet: potential OGM in buffer
-  *
-  * Return: true if there is enough space for another OGM, false otherwise.
-  */
--static bool batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
--				      __be16 tvlv_len)
-+static bool
-+batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
-+			  const struct batadv_ogm_packet *ogm_packet)
- {
- 	int next_buff_pos = 0;
+diff --git a/arch/powerpc/include/asm/reg.h b/arch/powerpc/include/asm/reg.h
+index e5b314ed054e0..640a4d818772a 100644
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -118,11 +118,16 @@
+ #define MSR_TS_S	__MASK(MSR_TS_S_LG)	/*  Transaction Suspended */
+ #define MSR_TS_T	__MASK(MSR_TS_T_LG)	/*  Transaction Transactional */
+ #define MSR_TS_MASK	(MSR_TS_T | MSR_TS_S)   /* Transaction State bits */
+-#define MSR_TM_ACTIVE(x) (((x) & MSR_TS_MASK) != 0) /* Transaction active? */
+ #define MSR_TM_RESV(x) (((x) & MSR_TS_MASK) == MSR_TS_MASK) /* Reserved */
+ #define MSR_TM_TRANSACTIONAL(x)	(((x) & MSR_TS_MASK) == MSR_TS_T)
+ #define MSR_TM_SUSPENDED(x)	(((x) & MSR_TS_MASK) == MSR_TS_S)
  
--	next_buff_pos += buff_pos + BATADV_OGM_HLEN;
--	next_buff_pos += ntohs(tvlv_len);
-+	/* check if there is enough space for the header */
-+	next_buff_pos += buff_pos + sizeof(*ogm_packet);
-+	if (next_buff_pos > packet_len)
-+		return false;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++#define MSR_TM_ACTIVE(x) (((x) & MSR_TS_MASK) != 0) /* Transaction active? */
++#else
++#define MSR_TM_ACTIVE(x) 0
++#endif
 +
-+	/* check if there is enough space for the optional TVLV */
-+	next_buff_pos += ntohs(ogm_packet->tvlv_len);
+ #if defined(CONFIG_PPC_BOOK3S_64)
+ #define MSR_64BIT	MSR_SF
  
- 	return (next_buff_pos <= packet_len) &&
- 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
-@@ -315,7 +321,7 @@ static void batadv_iv_ogm_send_to_if(str
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 967c044036718..49c6d474eb5ac 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -102,24 +102,18 @@ static void check_if_tm_restore_required(struct task_struct *tsk)
+ 	}
+ }
  
- 	/* adjust all flags and log packets */
- 	while (batadv_iv_ogm_aggr_packet(buff_pos, forw_packet->packet_len,
--					 batadv_ogm_packet->tvlv_len)) {
-+					 batadv_ogm_packet)) {
- 		/* we might have aggregated direct link packets with an
- 		 * ordinary base packet
+-static inline bool msr_tm_active(unsigned long msr)
+-{
+-	return MSR_TM_ACTIVE(msr);
+-}
+-
+ static bool tm_active_with_fp(struct task_struct *tsk)
+ {
+-	return msr_tm_active(tsk->thread.regs->msr) &&
++	return MSR_TM_ACTIVE(tsk->thread.regs->msr) &&
+ 		(tsk->thread.ckpt_regs.msr & MSR_FP);
+ }
+ 
+ static bool tm_active_with_altivec(struct task_struct *tsk)
+ {
+-	return msr_tm_active(tsk->thread.regs->msr) &&
++	return MSR_TM_ACTIVE(tsk->thread.regs->msr) &&
+ 		(tsk->thread.ckpt_regs.msr & MSR_VEC);
+ }
+ #else
+-static inline bool msr_tm_active(unsigned long msr) { return false; }
+ static inline void check_if_tm_restore_required(struct task_struct *tsk) { }
+ static inline bool tm_active_with_fp(struct task_struct *tsk) { return false; }
+ static inline bool tm_active_with_altivec(struct task_struct *tsk) { return false; }
+@@ -247,7 +241,8 @@ void enable_kernel_fp(void)
+ 		 * giveup as this would save  to the 'live' structure not the
+ 		 * checkpointed structure.
  		 */
-@@ -1704,7 +1710,7 @@ static int batadv_iv_ogm_receive(struct
+-		if(!msr_tm_active(cpumsr) && msr_tm_active(current->thread.regs->msr))
++		if (!MSR_TM_ACTIVE(cpumsr) &&
++		     MSR_TM_ACTIVE(current->thread.regs->msr))
+ 			return;
+ 		__giveup_fpu(current);
+ 	}
+@@ -311,7 +306,8 @@ void enable_kernel_altivec(void)
+ 		 * giveup as this would save  to the 'live' structure not the
+ 		 * checkpointed structure.
+ 		 */
+-		if(!msr_tm_active(cpumsr) && msr_tm_active(current->thread.regs->msr))
++		if (!MSR_TM_ACTIVE(cpumsr) &&
++		     MSR_TM_ACTIVE(current->thread.regs->msr))
+ 			return;
+ 		__giveup_altivec(current);
+ 	}
+@@ -397,7 +393,8 @@ void enable_kernel_vsx(void)
+ 		 * giveup as this would save  to the 'live' structure not the
+ 		 * checkpointed structure.
+ 		 */
+-		if(!msr_tm_active(cpumsr) && msr_tm_active(current->thread.regs->msr))
++		if (!MSR_TM_ACTIVE(cpumsr) &&
++		     MSR_TM_ACTIVE(current->thread.regs->msr))
+ 			return;
+ 		__giveup_vsx(current);
+ 	}
+@@ -531,7 +528,7 @@ void restore_math(struct pt_regs *regs)
+ {
+ 	unsigned long msr;
  
- 	/* unpack the aggregated packets and process them one by one */
- 	while (batadv_iv_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
--					 ogm_packet->tvlv_len)) {
-+					 ogm_packet)) {
- 		batadv_iv_ogm_process(skb, ogm_offset, if_incoming);
+-	if (!msr_tm_active(regs->msr) &&
++	if (!MSR_TM_ACTIVE(regs->msr) &&
+ 		!current->thread.load_fp && !loadvec(current->thread))
+ 		return;
  
- 		ogm_offset += BATADV_OGM_HLEN;
+-- 
+2.20.1
+
 
 
