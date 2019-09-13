@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC09BB2050
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04DFAB211C
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390027AbfIMNUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49232 "EHLO mail.kernel.org"
+        id S2387788AbfIMNdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390004AbfIMNUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:20:23 -0400
+        id S2388571AbfIMNJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:48 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7564206BB;
-        Fri, 13 Sep 2019 13:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E05B720CC7;
+        Fri, 13 Sep 2019 13:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380821;
-        bh=GKnfwEze/EKWNvYHf5ttos1pfYiQrzdGMKsqzNQSfvU=;
+        s=default; t=1568380187;
+        bh=jORffADQrPKKT9/36UIdxIvAdJ5omm4N1b2CQf7U4JQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmRx9rsm6EX05l6dAfbdoaROp9FDCa4GZUShN91tZaHZK8zNSK9u6OqtD3QfpF7aJ
-         xxCBnAy64p9xFz3LptOPNTXGuqBtoltPvAVqYjCUPoqWiYO8vWExfz+c5VtNY+DW9c
-         kap5ZDNVAoruUppsQmCaxyfRv6udQaIZmCErsjas=
+        b=1UbAJjCm0SQRf/INI5nwBM57sgImd5iqI2qlaPL996FC7lBonhgJFBpyJu7BeG4FI
+         V28K0ALoi3Jkn/H/sOnQAqdcMKRrf/j0k0e2/zV7YQzfH3Dksa5BvxIRjuMugwqsum
+         AfC8FKu4xtRKrP1oHXOyODiJujA3Ahl+u8UdNqME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 167/190] drm/panel: Add support for Armadeus ST0700 Adapt
-Date:   Fri, 13 Sep 2019 14:07:02 +0100
-Message-Id: <20190913130613.205709423@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com,
+        Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 10/14] batman-adv: Only read OGM tvlv_len after buffer len check
+Date:   Fri, 13 Sep 2019 14:07:03 +0100
+Message-Id: <20190913130445.741374686@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
-References: <20190913130559.669563815@linuxfoundation.org>
+In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
+References: <20190913130440.264749443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c479450f61c7f1f248c9a54aedacd2a6ca521ff8 ]
+From: Sven Eckelmann <sven@narfation.org>
 
-This patch adds support for the Armadeus ST0700 Adapt. It comes with a
-Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
-that it can be connected on the TFT header of Armadeus Dev boards.
+commit a15d56a60760aa9dbe26343b9a0ac5228f35d445 upstream.
 
-Cc: stable@vger.kernel.org # v4.19
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190507152713.27494-1-sebastien.szymanski@armadeus.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Multiple batadv_ogm_packet can be stored in an skbuff. The functions
+batadv_iv_ogm_send_to_if()/batadv_iv_ogm_receive() use
+batadv_iv_ogm_aggr_packet() to check if there is another additional
+batadv_ogm_packet in the skb or not before they continue processing the
+packet.
+
+The length for such an OGM is BATADV_OGM_HLEN +
+batadv_ogm_packet->tvlv_len. The check must first check that at least
+BATADV_OGM_HLEN bytes are available before it accesses tvlv_len (which is
+part of the header. Otherwise it might try read outside of the currently
+available skbuff to get the content of tvlv_len.
+
+Fixes: ef26157747d4 ("batman-adv: tvlv - basic infrastructure")
+Reported-by: syzbot+355cab184197dbbfa384@syzkaller.appspotmail.com
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
- drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
- 2 files changed, 38 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+ net/batman-adv/bat_iv_ogm.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
-new file mode 100644
-index 0000000000000..a30d63db3c8f7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
-@@ -0,0 +1,9 @@
-+Armadeus ST0700 Adapt. A Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT with
-+an adapter board.
-+
-+Required properties:
-+- compatible: "armadeus,st0700-adapt"
-+- power-supply: see panel-common.txt
-+
-+Optional properties:
-+- backlight: see panel-common.txt
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index b1d41c4921dd5..5fd94e2060297 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -436,6 +436,32 @@ static const struct panel_desc ampire_am800480r3tmqwa1h = {
- 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
- };
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -450,17 +450,23 @@ static u8 batadv_hop_penalty(u8 tq, cons
+  * batadv_iv_ogm_aggr_packet - checks if there is another OGM attached
+  * @buff_pos: current position in the skb
+  * @packet_len: total length of the skb
+- * @tvlv_len: tvlv length of the previously considered OGM
++ * @ogm_packet: potential OGM in buffer
+  *
+  * Return: true if there is enough space for another OGM, false otherwise.
+  */
+-static bool batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
+-				      __be16 tvlv_len)
++static bool
++batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
++			  const struct batadv_ogm_packet *ogm_packet)
+ {
+ 	int next_buff_pos = 0;
  
-+static const struct display_timing santek_st0700i5y_rbslw_f_timing = {
-+	.pixelclock = { 26400000, 33300000, 46800000 },
-+	.hactive = { 800, 800, 800 },
-+	.hfront_porch = { 16, 210, 354 },
-+	.hback_porch = { 45, 36, 6 },
-+	.hsync_len = { 1, 10, 40 },
-+	.vactive = { 480, 480, 480 },
-+	.vfront_porch = { 7, 22, 147 },
-+	.vback_porch = { 22, 13, 3 },
-+	.vsync_len = { 1, 10, 20 },
-+	.flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
-+		DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
-+};
+-	next_buff_pos += buff_pos + BATADV_OGM_HLEN;
+-	next_buff_pos += ntohs(tvlv_len);
++	/* check if there is enough space for the header */
++	next_buff_pos += buff_pos + sizeof(*ogm_packet);
++	if (next_buff_pos > packet_len)
++		return false;
 +
-+static const struct panel_desc armadeus_st0700_adapt = {
-+	.timings = &santek_st0700i5y_rbslw_f_timing,
-+	.num_timings = 1,
-+	.bpc = 6,
-+	.size = {
-+		.width = 154,
-+		.height = 86,
-+	},
-+	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
-+	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_POSEDGE,
-+};
-+
- static const struct drm_display_mode auo_b101aw03_mode = {
- 	.clock = 51450,
- 	.hdisplay = 1024,
-@@ -2330,6 +2356,9 @@ static const struct of_device_id platform_of_match[] = {
- 	}, {
- 		.compatible = "ampire,am800480r3tmqwa1h",
- 		.data = &ampire_am800480r3tmqwa1h,
-+	}, {
-+		.compatible = "armadeus,st0700-adapt",
-+		.data = &armadeus_st0700_adapt,
- 	}, {
- 		.compatible = "auo,b101aw03",
- 		.data = &auo_b101aw03,
--- 
-2.20.1
-
++	/* check if there is enough space for the optional TVLV */
++	next_buff_pos += ntohs(ogm_packet->tvlv_len);
+ 
+ 	return (next_buff_pos <= packet_len) &&
+ 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
+@@ -488,7 +494,7 @@ static void batadv_iv_ogm_send_to_if(str
+ 
+ 	/* adjust all flags and log packets */
+ 	while (batadv_iv_ogm_aggr_packet(buff_pos, forw_packet->packet_len,
+-					 batadv_ogm_packet->tvlv_len)) {
++					 batadv_ogm_packet)) {
+ 		/* we might have aggregated direct link packets with an
+ 		 * ordinary base packet
+ 		 */
+@@ -1841,7 +1847,7 @@ static int batadv_iv_ogm_receive(struct
+ 
+ 	/* unpack the aggregated packets and process them one by one */
+ 	while (batadv_iv_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
+-					 ogm_packet->tvlv_len)) {
++					 ogm_packet)) {
+ 		batadv_iv_ogm_process(skb, ogm_offset, if_incoming);
+ 
+ 		ogm_offset += BATADV_OGM_HLEN;
 
 
