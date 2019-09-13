@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B989B202F
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 990F0B20F2
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389549AbfIMNRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
+        id S2391655AbfIMNaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:30:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390112AbfIMNRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:17:50 -0400
+        id S2389218AbfIMNR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:17:56 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C81C3206BB;
-        Fri, 13 Sep 2019 13:17:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB4CF214AE;
+        Fri, 13 Sep 2019 13:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380669;
-        bh=X1WLh8m5qUM/4GsLtFFx8PoxJ0mo2dnLrxq/Zk8hGoY=;
+        s=default; t=1568380675;
+        bh=lnJVnALC+xXmKEp6Di4Baj2+s1u4pjqDGx/Y+jtrYPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaMfd7b3tdmSNNnM1adIj1+WlYiN41PWglED86nWuSePYcaMzMeWmqC3OztULMB0g
-         ZirGP6zxT9frxFwcWB7sy1FKAhek7zsEOau9dEmqwtl+nzkrv55zjo8P+vjC9sfQtz
-         J8rMx9zdJWMTFVUz/pEAOZHwmzA0JcigMQQ6r3/E=
+        b=AdWx7okdkVlhmVOSaW2tJtq3PH+jHu6hfhAsoSfiMdZFeecYd5vDYFR6Ui2iM40j5
+         n0T0IFoutS/rI0jqmBsK6EoS0U5nGAHbXKiGTxJ+VH0oAZkLbaTtvbLUtWRdNLv1pK
+         qR60GbBp6aHNYWTlvjI+LDNXgLKKTz1widk9fuWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 116/190] cifs: Fix lease buffer length error
-Date:   Fri, 13 Sep 2019 14:06:11 +0100
-Message-Id: <20190913130609.066285882@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 118/190] ext4: protect journal inodes blocks using block_validity
+Date:   Fri, 13 Sep 2019 14:06:13 +0100
+Message-Id: <20190913130609.260876778@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,85 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b57a55e2200ede754e4dc9cce4ba9402544b9365 ]
+[ Upstream commit 345c0dbf3a30872d9b204db96b5857cd00808cae ]
 
-There is a KASAN slab-out-of-bounds:
-BUG: KASAN: slab-out-of-bounds in _copy_from_iter_full+0x783/0xaa0
-Read of size 80 at addr ffff88810c35e180 by task mount.cifs/539
+Add the blocks which belong to the journal inode to block_validity's
+system zone so attempts to deallocate or overwrite the journal due a
+corrupted file system where the journal blocks are also claimed by
+another inode.
 
-CPU: 1 PID: 539 Comm: mount.cifs Not tainted 4.19 #10
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-            rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-Call Trace:
- dump_stack+0xdd/0x12a
- print_address_description+0xa7/0x540
- kasan_report+0x1ff/0x550
- check_memory_region+0x2f1/0x310
- memcpy+0x2f/0x80
- _copy_from_iter_full+0x783/0xaa0
- tcp_sendmsg_locked+0x1840/0x4140
- tcp_sendmsg+0x37/0x60
- inet_sendmsg+0x18c/0x490
- sock_sendmsg+0xae/0x130
- smb_send_kvec+0x29c/0x520
- __smb_send_rqst+0x3ef/0xc60
- smb_send_rqst+0x25a/0x2e0
- compound_send_recv+0x9e8/0x2af0
- cifs_send_recv+0x24/0x30
- SMB2_open+0x35e/0x1620
- open_shroot+0x27b/0x490
- smb2_open_op_close+0x4e1/0x590
- smb2_query_path_info+0x2ac/0x650
- cifs_get_inode_info+0x1058/0x28f0
- cifs_root_iget+0x3bb/0xf80
- cifs_smb3_do_mount+0xe00/0x14c0
- cifs_do_mount+0x15/0x20
- mount_fs+0x5e/0x290
- vfs_kern_mount+0x88/0x460
- do_mount+0x398/0x31e0
- ksys_mount+0xc6/0x150
- __x64_sys_mount+0xea/0x190
- do_syscall_64+0x122/0x590
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-It can be reproduced by the following step:
-  1. samba configured with: server max protocol = SMB2_10
-  2. mount -o vers=default
-
-When parse the mount version parameter, the 'ops' and 'vals'
-was setted to smb30,  if negotiate result is smb21, just
-update the 'ops' to smb21, but the 'vals' is still smb30.
-When add lease context, the iov_base is allocated with smb21
-ops, but the iov_len is initiallited with the smb30. Because
-the iov_len is longer than iov_base, when send the message,
-copy array out of bounds.
-
-we need to keep the 'ops' and 'vals' consistent.
-
-Fixes: 9764c02fcbad ("SMB3: Add support for multidialect negotiate (SMB2.1 and later)")
-Fixes: d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-
-Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/block_validity.c | 48 ++++++++++++++++++++++++++++++++++++++++
+ fs/ext4/inode.c          |  4 ++++
+ 2 files changed, 52 insertions(+)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 2bc47eb6215e2..cbe633f1840a2 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -712,6 +712,7 @@ SMB2_negotiate(const unsigned int xid, struct cifs_ses *ses)
- 		} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
- 			/* ops set to 3.0 by default for default so update */
- 			ses->server->ops = &smb21_operations;
-+			ses->server->vals = &smb21_values;
- 		}
- 	} else if (le16_to_cpu(rsp->DialectRevision) !=
- 				ses->server->vals->protocol_id) {
+diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
+index 913061c0de1b3..9409b1e11a22e 100644
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
+ 	printk(KERN_CONT "\n");
+ }
+ 
++static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
++{
++	struct inode *inode;
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	struct ext4_map_blocks map;
++	u32 i = 0, err = 0, num, n;
++
++	if ((ino < EXT4_ROOT_INO) ||
++	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
++		return -EINVAL;
++	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
++	if (IS_ERR(inode))
++		return PTR_ERR(inode);
++	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
++	while (i < num) {
++		map.m_lblk = i;
++		map.m_len = num - i;
++		n = ext4_map_blocks(NULL, inode, &map, 0);
++		if (n < 0) {
++			err = n;
++			break;
++		}
++		if (n == 0) {
++			i++;
++		} else {
++			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
++				ext4_error(sb, "blocks %llu-%llu from inode %u "
++					   "overlap system zone", map.m_pblk,
++					   map.m_pblk + map.m_len - 1, ino);
++				err = -EFSCORRUPTED;
++				break;
++			}
++			err = add_system_zone(sbi, map.m_pblk, n);
++			if (err < 0)
++				break;
++			i += n;
++		}
++	}
++	iput(inode);
++	return err;
++}
++
+ int ext4_setup_system_zone(struct super_block *sb)
+ {
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_block *sb)
+ 		if (ret)
+ 			return ret;
+ 	}
++	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
++		ret = ext4_protect_reserved_inode(sb,
++				le32_to_cpu(sbi->s_es->s_journal_inum));
++		if (ret)
++			return ret;
++	}
+ 
+ 	if (test_opt(sb, DEBUG))
+ 		debug_print_tree(sbi);
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index e65559bf77281..cff6277f7a9ff 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -399,6 +399,10 @@ static int __check_block_validity(struct inode *inode, const char *func,
+ 				unsigned int line,
+ 				struct ext4_map_blocks *map)
+ {
++	if (ext4_has_feature_journal(inode->i_sb) &&
++	    (inode->i_ino ==
++	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
++		return 0;
+ 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
+ 				   map->m_len)) {
+ 		ext4_error_inode(inode, func, line, map->m_pblk,
 -- 
 2.20.1
 
