@@ -2,102 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5338B1C87
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 13:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1318EB1CA6
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 13:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729400AbfIMLtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 07:49:43 -0400
-Received: from 10.mo173.mail-out.ovh.net ([46.105.74.148]:50725 "EHLO
-        10.mo173.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726771AbfIMLtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 07:49:43 -0400
-X-Greylist: delayed 2236 seconds by postgrey-1.27 at vger.kernel.org; Fri, 13 Sep 2019 07:49:43 EDT
-Received: from player738.ha.ovh.net (unknown [10.109.146.175])
-        by mo173.mail-out.ovh.net (Postfix) with ESMTP id 7E5A31196DA
-        for <stable@vger.kernel.org>; Fri, 13 Sep 2019 13:12:26 +0200 (CEST)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player738.ha.ovh.net (Postfix) with ESMTPSA id EF3859E61DD3;
-        Fri, 13 Sep 2019 11:12:22 +0000 (UTC)
-Date:   Fri, 13 Sep 2019 13:12:21 +0200
-From:   Greg Kurz <groug@kaod.org>
+        id S1727848AbfIMLxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 07:53:10 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:47139 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727540AbfIMLxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Sep 2019 07:53:09 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 5D59C21236;
+        Fri, 13 Sep 2019 07:53:08 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 13 Sep 2019 07:53:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=kkdg3QNRaVwWkDr3MP+jAn87bWt
+        COl2T6KzNWH6YBO0=; b=aOcbbhakeev7AgJHcgSOuTwBoUGPqCzf2TxoMZNP8m6
+        OMuL46Bros0Rrc4YiobOCbL2SvjXzAtb5ZSnyQ0zxnLP+nmXxF5fZkpjgdOjj85o
+        yo4Sn9xCgGTOa0AaZWzRILImQky0y68wtC66bNI4D4EVC1lrnZncZqdYOn8iEG6C
+        wm2PiRn7VbLhgFSY3wpsIARAlSVgG1MRCV41yerWM60XBnmN74BZLkCSyY3ZThNT
+        sPoXyAqo1eZ/DxOmckw3Db43o18XM7fhNF1ImhOLzd2a+3M1A9NlEmBCHghrwUXB
+        eBfJJxl7+JdrQiNKiNvpfXAbCRQ6C1A6/fdZBMbxucQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kkdg3Q
+        NRaVwWkDr3MP+jAn87bWtCOl2T6KzNWH6YBO0=; b=rQyT1Y91u716HdreK3B9a0
+        kMrye+yQQxn91ef2dgx428AVPOdTcIeEYrJgpBw7jkCbXqQnA0GF98LeieDXlFux
+        7cjVh8ST21dpxlxbVk4AlIsNS5ukzIw4OFQKy/nvAhu71titdTXU4ZKu9/tUrTyM
+        2SoH93Cgx2ILwRN+9cLeLD1KY9BVnN1biwhcRsF/0xaE+cxLOsRhNnt90q6q9BvQ
+        VMB0B2vKP2JziKF1zReOLo93JvQSVbrP+DO1fNBuzeyl7N+H/sT0t+ddOpumPGRJ
+        lG57JBapffpd56BBI9rTEIUSw50PicWRthUdxweucRVU0yiUFoA9ND7fUNn294tw
+        ==
+X-ME-Sender: <xms:I4N7XR0sJ6J0zfrpjOO28UF5dLY8uvNMKs6TsbE2iZtSyNhsYcWuYQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrtdejgdeghecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeelrddvtdehrddufeekrd
+    ejvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:JIN7XULpIA-7nxOuNQlEs47CLLjDQrEqYFlCDs_4n3NLbyVRHQl8rQ>
+    <xmx:JIN7XbSjCXXGS2V4ZNja81ccyrNi8VcwKAaI28_LFl0rnuxS4DtZSQ>
+    <xmx:JIN7XXBCtkNWW9NbIF4Ulvb2rop7eGymLaJ5KXQPn1BSqpi4H0xYWw>
+    <xmx:JIN7XbsM27JFYYMd99Q065VU5qgTm21pWS5BmDzfC_GvoApzK_ul6g>
+Received: from localhost (unknown [89.205.138.72])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 853E6D6005D;
+        Fri, 13 Sep 2019 07:53:07 -0400 (EDT)
+Date:   Fri, 13 Sep 2019 12:53:05 +0100
+From:   Greg KH <greg@kroah.com>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@ozlabs.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] powerpc/xive: Fix bogus error code returned by OPAL
-Message-ID: <20190913131221.3ea88b5a@bahia.lan>
-In-Reply-To: <20190912073049.CF36B20830@mail.kernel.org>
-References: <156821713818.1985334.14123187368108582810.stgit@bahia.lan>
-        <20190912073049.CF36B20830@mail.kernel.org>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Cc:     Johannes Thumshirn <jthumshirn@suse.de>, stable@vger.kernel.org,
+        Linux BTRFS Mailinglist <linux-btrfs@vger.kernel.org>
+Subject: Re: [PATCH for-4.19.x ] btrfs: correctly validate compression type
+Message-ID: <20190913115305.GA292815@kroah.com>
+References: <20190912100259.7784-1-jthumshirn@suse.de>
+ <20190912105215.GC1546@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Ovh-Tracer-Id: 8762316029017168339
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrtdejgdefiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190912105215.GC1546@sasha-vm>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Sep 2019 07:30:49 +0000
-Sasha Levin <sashal@kernel.org> wrote:
-
-> Hi,
+On Thu, Sep 12, 2019 at 06:52:15AM -0400, Sasha Levin wrote:
+> On Thu, Sep 12, 2019 at 12:02:59PM +0200, Johannes Thumshirn wrote:
+> > [ Upstream commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e ]
+> > 
+> > Nikolay reported the following KASAN splat when running btrfs/048:
+> > 
+> > [ 1843.470920] ==================================================================
+> > [ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+> > [ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
+> > 
+> > [ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+> > [ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+> > [ 1843.476322] Call Trace:
+> > [ 1843.476674]  dump_stack+0x7c/0xbb
+> > [ 1843.477132]  ? strncmp+0x66/0xb0
+> > [ 1843.477587]  print_address_description+0x114/0x320
+> > [ 1843.478256]  ? strncmp+0x66/0xb0
+> > [ 1843.478740]  ? strncmp+0x66/0xb0
+> > [ 1843.479185]  __kasan_report+0x14e/0x192
+> > [ 1843.479759]  ? strncmp+0x66/0xb0
+> > [ 1843.480209]  kasan_report+0xe/0x20
+> > [ 1843.480679]  strncmp+0x66/0xb0
+> > [ 1843.481105]  prop_compression_validate+0x24/0x70
+> > [ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+> > [ 1843.482509]  __vfs_setxattr+0x71/0x90
+> > [ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+> > [ 1843.483606]  vfs_setxattr+0xac/0xb0
+> > [ 1843.484085]  setxattr+0x18c/0x230
+> > [ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+> > [ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+> > [ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+> > [ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+> > [ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+> > [ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+> > [ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+> > [ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+> > [ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+> > [ 1843.489707]  ? __sb_start_write+0x158/0x200
+> > [ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+> > [ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+> > [ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+> > [ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+> > [ 1843.493201]  do_syscall_64+0x6c/0x230
+> > [ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > [ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+> > [ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+> > [ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+> > [ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+> > [ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+> > [ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+> > [ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+> > [ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
+> > 
+> > [ 1843.505268] Allocated by task 3979:
+> > [ 1843.505771]  save_stack+0x19/0x80
+> > [ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+> > [ 1843.506836]  setxattr+0xeb/0x230
+> > [ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+> > [ 1843.507886]  do_syscall_64+0x6c/0x230
+> > [ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > 
+> > [ 1843.509558] Freed by task 0:
+> > [ 1843.510188] (stack is not available)
+> > 
+> > [ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+> >                which belongs to the cache kmalloc-8 of size 8
+> > [ 1843.514095] The buggy address is located 2 bytes inside of
+> >                8-byte region [ffff888111e369e0, ffff888111e369e8)
+> > [ 1843.516524] The buggy address belongs to the page:
+> > [ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+> > [ 1843.519993] flags: 0x4404000010200(slab|head)
+> > [ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+> > [ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+> > [ 1843.524281] page dumped because: kasan: bad access detected
+> > 
+> > [ 1843.525936] Memory state around the buggy address:
+> > [ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> > [ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> > [ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+> > [ 1843.531877]                                                        ^
+> > [ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> > [ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> > [ 1843.536468] ==================================================================
+> > 
+> > This is caused by supplying a too short compression value ('lz') in the
+> > test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+> > strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+> > out-of-bounds read.
+> > 
+> > Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+> > checks the user-supplied value against known compression types, but also
+> > employs checks for too short values.
+> > 
+> > Reported-by: Nikolay Borisov <nborisov@suse.com>
+> > Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+> > CC: stable@vger.kernel.org # 5.1+
+> > Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+> > Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+> > Reviewed-by: David Sterba <dsterba@suse.com>
+> > Signed-off-by: David Sterba <dsterba@suse.com>
 > 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: 4.12+
-> 
-> The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143.
-> 
-> v5.2.14: Build OK!
-> v4.19.72: Failed to apply! Possible dependencies:
->     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
-> 
+> It's already sitting in the queue, thank you :)
 
-This is the only dependency indeed.
-
-> v4.14.143: Failed to apply! Possible dependencies:
->     104daea149c4 ("kconfig: reference environment variables directly and remove 'option env='")
->     21c54b774744 ("kconfig: show compiler version text in the top comment")
->     315bab4e972d ("kbuild: fix endless syncconfig in case arch Makefile sets CROSS_COMPILE")
->     3298b690b21c ("kbuild: Add a cache for generated variables")
->     4e56207130ed ("kbuild: Cache a few more calls to the compiler")
->     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
->     8f2133cc0e1f ("powerpc/pseries: hcall_exit tracepoint retval should be signed")
->     9a234a2e3843 ("kbuild: create directory for make cache only when necessary")
->     d677a4d60193 ("Makefile: support flag -fsanitizer-coverage=trace-cmp")
->     e08d6de4e532 ("kbuild: remove kbuild cache")
->     e17c400ae194 ("kbuild: shrink .cache.mk when it exceeds 1000 lines")
->     e501ce957a78 ("x86: Force asm-goto")
->     e9666d10a567 ("jump_label: move 'asm goto' support test to Kconfig")
-> 
-
-That's quite a lot of patches to workaround a hard to hit skiboot bug.
-As an alternative, the patch can be backported so that it applies the
-following change:
-
--OPAL_CALL(opal_xive_allocate_irq,              OPAL_XIVE_ALLOCATE_IRQ);
-+OPAL_CALL(opal_xive_allocate_irq_raw,          OPAL_XIVE_ALLOCATE_IRQ);
-
-to "arch/powerpc/platforms/powernv/opal-wrappers.S"
-instead of "arch/powerpc/platforms/powernv/opal-call.c" .
-
-BTW, this could also be done for 4.19.y .
-
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-> 
-
-Michael ?
-
-> --
-> Thanks,
-> Sasha
-
+We also need this for 4.14.y, let me see if it is easy to backport...
