@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 797F6B2048
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE3BB203D
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389810AbfIMNTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47284 "EHLO mail.kernel.org"
+        id S2390282AbfIMNSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390356AbfIMNTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:17 -0400
+        id S2390277AbfIMNSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:18:45 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E26CA206A5;
-        Fri, 13 Sep 2019 13:19:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E79A7214AE;
+        Fri, 13 Sep 2019 13:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380756;
-        bh=PerjJq8RtcCHS4m1Bz+YroaFuFXujxQwpgh+O0P6CYE=;
+        s=default; t=1568380724;
+        bh=JI+LlexCq46LzQAHXI7seTKP9mBxXLQ00wYXThj9wTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRskDQvWZfGC9pbDXbH/Vv0rda1Ddspu4zqiYUqxSvEd/HWemVC8Ir+m1WzKKI8uu
-         IixIruIyO2EsZ+Vumi0Dmk6GloO1HExpEof8i7tjcejjot0zq9iY59v5rVtSMD1eNx
-         3L6EyajUywV01OxYzElv079IuLxiTAhVKvAbwkKA=
+        b=RPyCn26k0anIv8qDuDz8d9POWq0hIuagxUj2+kP+ol8mxD15dVtg5GGuh+x4kad3V
+         B3mXgF7C4IrFVjvPFOBbxIe1bImkKJWPulY/0PNGs9+ZFF3sUgYEb/nAyd59TC0raE
+         oBeOlXB7wQF9KMyQZBiItola79OtdlPwLSu5piMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Li <Ching-shih.Li@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 137/190] drm/amdgpu: fix ring test failure issue during s3 in vce 3.0 (V2)
-Date:   Fri, 13 Sep 2019 14:06:32 +0100
-Message-Id: <20190913130610.950072079@linuxfoundation.org>
+Subject: [PATCH 4.19 139/190] Btrfs: fix race between block group removal and block group allocation
+Date:   Fri, 13 Sep 2019 14:06:34 +0100
+Message-Id: <20190913130611.111985374@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,58 +44,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce0e22f5d886d1b56c7ab4347c45b9ac5fcc058d ]
+[ Upstream commit 8eaf40c0e24e98899a0f3ac9d25a33aafe13822a ]
 
-[What]
-vce ring test fails consistently during resume in s3 cycle, due to
-mismatch read & write pointers.
-On debug/analysis its found that rptr to be compared is not being
-correctly updated/read, which leads to this failure.
-Below is the failure signature:
-	[drm:amdgpu_vce_ring_test_ring] *ERROR* amdgpu: ring 12 test failed
-	[drm:amdgpu_device_ip_resume_phase2] *ERROR* resume of IP block <vce_v3_0> failed -110
-	[drm:amdgpu_device_resume] *ERROR* amdgpu_device_ip_resume failed (-110).
+If a task is removing the block group that currently has the highest start
+offset amongst all existing block groups, there is a short time window
+where it races with a concurrent block group allocation, resulting in a
+transaction abort with an error code of EEXIST.
 
-[How]
-fetch rptr appropriately, meaning move its read location further down
-in the code flow.
-With this patch applied the s3 failure is no more seen for >5k s3 cycles,
-which otherwise is pretty consistent.
+The following diagram explains the race in detail:
 
-V2: remove reduntant fetch of rptr
+      Task A                                                        Task B
 
-Signed-off-by: Louis Li <Ching-shih.Li@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+ btrfs_remove_block_group(bg offset X)
+
+   remove_extent_mapping(em offset X)
+     -> removes extent map X from the
+        tree of extent maps
+        (fs_info->mapping_tree), so the
+        next call to find_next_chunk()
+        will return offset X
+
+                                                   btrfs_alloc_chunk()
+                                                     find_next_chunk()
+                                                       --> returns offset X
+
+                                                     __btrfs_alloc_chunk(offset X)
+                                                       btrfs_make_block_group()
+                                                         btrfs_create_block_group_cache()
+                                                           --> creates btrfs_block_group_cache
+                                                               object with a key corresponding
+                                                               to the block group item in the
+                                                               extent, the key is:
+                                                               (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+
+                                                         --> adds the btrfs_block_group_cache object
+                                                             to the list new_bgs of the transaction
+                                                             handle
+
+                                                   btrfs_end_transaction(trans handle)
+                                                     __btrfs_end_transaction()
+                                                       btrfs_create_pending_block_groups()
+                                                         --> sees the new btrfs_block_group_cache
+                                                             in the new_bgs list of the transaction
+                                                             handle
+                                                         --> its call to btrfs_insert_item() fails
+                                                             with -EEXIST when attempting to insert
+                                                             the block group item key
+                                                             (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+                                                             because task A has not removed that key yet
+                                                         --> aborts the running transaction with
+                                                             error -EEXIST
+
+   btrfs_del_item()
+     -> removes the block group's key from
+        the extent tree, key is
+        (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+
+A sample transaction abort trace:
+
+  [78912.403537] ------------[ cut here ]------------
+  [78912.403811] BTRFS: Transaction aborted (error -17)
+  [78912.404082] WARNING: CPU: 2 PID: 20465 at fs/btrfs/extent-tree.c:10551 btrfs_create_pending_block_groups+0x196/0x250 [btrfs]
+  (...)
+  [78912.405642] CPU: 2 PID: 20465 Comm: btrfs Tainted: G        W         5.0.0-btrfs-next-46 #1
+  [78912.405941] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
+  [78912.406586] RIP: 0010:btrfs_create_pending_block_groups+0x196/0x250 [btrfs]
+  (...)
+  [78912.407636] RSP: 0018:ffff9d3d4b7e3b08 EFLAGS: 00010282
+  [78912.407997] RAX: 0000000000000000 RBX: ffff90959a3796f0 RCX: 0000000000000006
+  [78912.408369] RDX: 0000000000000007 RSI: 0000000000000001 RDI: ffff909636b16860
+  [78912.408746] RBP: ffff909626758a58 R08: 0000000000000000 R09: 0000000000000000
+  [78912.409144] R10: ffff9095ff462400 R11: 0000000000000000 R12: ffff90959a379588
+  [78912.409521] R13: ffff909626758ab0 R14: ffff9095036c0000 R15: ffff9095299e1158
+  [78912.409899] FS:  00007f387f16f700(0000) GS:ffff909636b00000(0000) knlGS:0000000000000000
+  [78912.410285] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [78912.410673] CR2: 00007f429fc87cbc CR3: 000000014440a004 CR4: 00000000003606e0
+  [78912.411095] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [78912.411496] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [78912.411898] Call Trace:
+  [78912.412318]  __btrfs_end_transaction+0x5b/0x1c0 [btrfs]
+  [78912.412746]  btrfs_inc_block_group_ro+0xcf/0x160 [btrfs]
+  [78912.413179]  scrub_enumerate_chunks+0x188/0x5b0 [btrfs]
+  [78912.413622]  ? __mutex_unlock_slowpath+0x100/0x2a0
+  [78912.414078]  btrfs_scrub_dev+0x2ef/0x720 [btrfs]
+  [78912.414535]  ? __sb_start_write+0xd4/0x1c0
+  [78912.414963]  ? mnt_want_write_file+0x24/0x50
+  [78912.415403]  btrfs_ioctl+0x17fb/0x3120 [btrfs]
+  [78912.415832]  ? lock_acquire+0xa6/0x190
+  [78912.416256]  ? do_vfs_ioctl+0xa2/0x6f0
+  [78912.416685]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
+  [78912.417116]  do_vfs_ioctl+0xa2/0x6f0
+  [78912.417534]  ? __fget+0x113/0x200
+  [78912.417954]  ksys_ioctl+0x70/0x80
+  [78912.418369]  __x64_sys_ioctl+0x16/0x20
+  [78912.418812]  do_syscall_64+0x60/0x1b0
+  [78912.419231]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [78912.419644] RIP: 0033:0x7f3880252dd7
+  (...)
+  [78912.420957] RSP: 002b:00007f387f16ed68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [78912.421426] RAX: ffffffffffffffda RBX: 000055f5becc1df0 RCX: 00007f3880252dd7
+  [78912.421889] RDX: 000055f5becc1df0 RSI: 00000000c400941b RDI: 0000000000000003
+  [78912.422354] RBP: 0000000000000000 R08: 00007f387f16f700 R09: 0000000000000000
+  [78912.422790] R10: 00007f387f16f700 R11: 0000000000000246 R12: 0000000000000000
+  [78912.423202] R13: 00007ffda49c266f R14: 0000000000000000 R15: 00007f388145e040
+  [78912.425505] ---[ end trace eb9bfe7c426fc4d3 ]---
+
+Fix this by calling remove_extent_mapping(), at btrfs_remove_block_group(),
+only at the very end, after removing the block group item key from the
+extent tree (and removing the free space tree entry if we are using the
+free space tree feature).
+
+Fixes: 04216820fe83d5 ("Btrfs: fix race between fs trimming and block group remove/allocation")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/btrfs/extent-tree.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c
-index 5f3f540738187..17862b9ecccd7 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c
-@@ -1070,7 +1070,7 @@ void amdgpu_vce_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 seq,
- int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
- {
- 	struct amdgpu_device *adev = ring->adev;
--	uint32_t rptr = amdgpu_ring_get_rptr(ring);
-+	uint32_t rptr;
- 	unsigned i;
- 	int r, timeout = adev->usec_timeout;
- 
-@@ -1084,6 +1084,9 @@ int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
- 			  ring->idx, r);
- 		return r;
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 0cc800d22a081..88c939f7aad96 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10478,22 +10478,6 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
  	}
-+
-+	rptr = amdgpu_ring_get_rptr(ring);
-+
- 	amdgpu_ring_write(ring, VCE_CMD_END);
- 	amdgpu_ring_commit(ring);
+ 	spin_unlock(&block_group->lock);
  
+-	if (remove_em) {
+-		struct extent_map_tree *em_tree;
+-
+-		em_tree = &fs_info->mapping_tree.map_tree;
+-		write_lock(&em_tree->lock);
+-		/*
+-		 * The em might be in the pending_chunks list, so make sure the
+-		 * chunk mutex is locked, since remove_extent_mapping() will
+-		 * delete us from that list.
+-		 */
+-		remove_extent_mapping(em_tree, em);
+-		write_unlock(&em_tree->lock);
+-		/* once for the tree */
+-		free_extent_map(em);
+-	}
+-
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
+ 	ret = remove_block_group_free_space(trans, block_group);
+@@ -10510,6 +10494,24 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		goto out;
+ 
+ 	ret = btrfs_del_item(trans, root, path);
++	if (ret)
++		goto out;
++
++	if (remove_em) {
++		struct extent_map_tree *em_tree;
++
++		em_tree = &fs_info->mapping_tree.map_tree;
++		write_lock(&em_tree->lock);
++		/*
++		 * The em might be in the pending_chunks list, so make sure the
++		 * chunk mutex is locked, since remove_extent_mapping() will
++		 * delete us from that list.
++		 */
++		remove_extent_mapping(em_tree, em);
++		write_unlock(&em_tree->lock);
++		/* once for the tree */
++		free_extent_map(em);
++	}
+ out:
+ 	btrfs_free_path(path);
+ 	return ret;
 -- 
 2.20.1
 
