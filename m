@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 207D0B1F90
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 421A3B1F68
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390585AbfIMNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:20:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
+        id S2389821AbfIMNTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389666AbfIMNUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:20:31 -0400
+        id S2389826AbfIMNTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:19:20 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA0F3214D8;
-        Fri, 13 Sep 2019 13:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA1E5206A5;
+        Fri, 13 Sep 2019 13:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380830;
-        bh=VoqOr//yZFOicsBULwh4G3FSgIQORcRzufwM9JsAIrg=;
+        s=default; t=1568380759;
+        bh=sQbqaxrii2zY1QYbohis0YsDCiUuRlcV6xj55GfCo4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYIuSF2hziHE7vZWwEOZbl/pMIJ6Z8ync+jbiNVGix9VDGn4xtFwMJ7PiP7APsD5c
-         OAqV/BqUh21v8t0KI+C/v3FXQ1ntCf5IQpd94L9b0BVWAa0CQk7wOWz31ci0G3SIPO
-         D+Gxnta0KsQvnAqoZaGlb5AN4Y9OPNTdlzXDCNTE=
+        b=oOBkrFVLUSSAuky0B9JFr+CNNJo8IGgLyMme2seu7OwpQ+wcuQqTmNCa0Br3ScUvp
+         H8gJuyZRbPSr94shK+/8hjf4AtYe/5R8TJl5WxOuB4lQ831iO0LlsrwDjUy7g+TmID
+         Hm+aNh8pOvsbJWFpgj/1/Pg+NnkDlUpiy5Ucxtkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 160/190] RDMA/srp: Accept again source addresses that do not have a port number
-Date:   Fri, 13 Sep 2019 14:06:55 +0100
-Message-Id: <20190913130612.699690892@linuxfoundation.org>
+Subject: [PATCH 4.19 161/190] btrfs: correctly validate compression type
+Date:   Fri, 13 Sep 2019 14:06:56 +0100
+Message-Id: <20190913130612.773751935@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,89 +45,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bcef5b7215681250c4bf8961dfe15e9e4fef97d0 ]
+[ Upstream commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e ]
 
-The function srp_parse_in() is used both for parsing source address
-specifications and for target address specifications. Target addresses
-must have a port number. Having to specify a port number for source
-addresses is inconvenient. Make sure that srp_parse_in() supports again
-parsing addresses with no port number.
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-Cc: <stable@vger.kernel.org>
-Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
+
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
+
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
+
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
+
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ fs/btrfs/compression.c | 16 ++++++++++++++++
+ fs/btrfs/compression.h |  1 +
+ fs/btrfs/props.c       |  6 +-----
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 9da30d88a615e..bc6a44a16445c 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3404,13 +3404,14 @@ static const match_table_t srp_opt_tokens = {
-  * @net:	   [in]  Network namespace.
-  * @sa:		   [out] Address family, IP address and port number.
-  * @addr_port_str: [in]  IP address and port number.
-+ * @has_port:	   [out] Whether or not @addr_port_str includes a port number.
-  *
-  * Parse the following address formats:
-  * - IPv4: <ip_address>:<port>, e.g. 1.2.3.4:5.
-  * - IPv6: \[<ipv6_address>\]:<port>, e.g. [1::2:3%4]:5.
-  */
- static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
--			const char *addr_port_str)
-+			const char *addr_port_str, bool *has_port)
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 9bfa66592aa7b..c71e534ca7ef6 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -42,6 +42,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
+ 	return NULL;
+ }
+ 
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
+ 
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
+index ddda9b80bf204..f97d90a1fa531 100644
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -127,6 +127,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+index 61d22a56c0ba4..6980a0e13f18e 100644
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -366,11 +366,7 @@ int btrfs_subvol_inherit_props(struct btrfs_trans_handle *trans,
+ 
+ static int prop_compression_validate(const char *value, size_t len)
  {
- 	char *addr_end, *addr = kstrdup(addr_port_str, GFP_KERNEL);
- 	char *port_str;
-@@ -3419,9 +3420,12 @@ static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
- 	if (!addr)
- 		return -ENOMEM;
- 	port_str = strrchr(addr, ':');
--	if (!port_str)
--		return -EINVAL;
--	*port_str++ = '\0';
-+	if (port_str && strchr(port_str, ']'))
-+		port_str = NULL;
-+	if (port_str)
-+		*port_str++ = '\0';
-+	if (has_port)
-+		*has_port = port_str != NULL;
- 	ret = inet_pton_with_scope(net, AF_INET, addr, port_str, sa);
- 	if (ret && addr[0]) {
- 		addr_end = addr + strlen(addr) - 1;
-@@ -3443,6 +3447,7 @@ static int srp_parse_options(struct net *net, const char *buf,
- 	char *p;
- 	substring_t args[MAX_OPT_ARGS];
- 	unsigned long long ull;
-+	bool has_port;
- 	int opt_mask = 0;
- 	int token;
- 	int ret = -EINVAL;
-@@ -3541,7 +3546,8 @@ static int srp_parse_options(struct net *net, const char *buf,
- 				ret = -ENOMEM;
- 				goto out;
- 			}
--			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p);
-+			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p,
-+					   NULL);
- 			if (ret < 0) {
- 				pr_warn("bad source parameter '%s'\n", p);
- 				kfree(p);
-@@ -3557,7 +3563,10 @@ static int srp_parse_options(struct net *net, const char *buf,
- 				ret = -ENOMEM;
- 				goto out;
- 			}
--			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p);
-+			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p,
-+					   &has_port);
-+			if (!has_port)
-+				ret = -EINVAL;
- 			if (ret < 0) {
- 				pr_warn("bad dest parameter '%s'\n", p);
- 				kfree(p);
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
 -- 
 2.20.1
 
