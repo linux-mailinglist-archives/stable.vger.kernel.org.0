@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 833D2B1EB1
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6108FB1EB3
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389035AbfIMNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37250 "EHLO mail.kernel.org"
+        id S2389078AbfIMNMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388275AbfIMNL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:56 -0400
+        id S2388457AbfIMNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:12:00 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82498206A5;
-        Fri, 13 Sep 2019 13:11:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9378B206BB;
+        Fri, 13 Sep 2019 13:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380316;
-        bh=rWq9dbJOliJC9eAxxuxrMW85FKDse6h5PODqVGBt9q4=;
+        s=default; t=1568380319;
+        bh=srZhNKNNBpVpenYfFhfUaEbBGz0HLCDaaFStLNRLECU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxsivXR3YaoaGScDsJqwaUW5fRwiLsg5HUkd0MpYMb6wPuR99ElT3QUKF0zj14NWF
-         Mq5CW6eyDbXZRqj2OOmivtHZLCjtc3nHwdq+5P+5BxPXweVamzato/fDbebH0k4LCS
-         fiCTpcI+o1qykIe7GMuwe1i3WDdNEkAPAFpxUg+M=
+        b=rpfVa0HJ++3pw6fRU72A6fHo/DfmIjYow34V62hI8xXA15rZryhvpeecFzxOdkZb6
+         P5Ns8xWkNAPcPFm3t+f08TTWqs0CwNRRWQBcF0uRuaosltL4BOi1idvES+xYlXFaRT
+         vx59ynM5iXtJpVc4CYHuqSSwjwxRjzgfyZs2dMms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gustavo Romero <gromero@linux.vnet.ibm.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 010/190] powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
-Date:   Fri, 13 Sep 2019 14:04:25 +0100
-Message-Id: <20190913130600.440045913@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.19 011/190] batman-adv: fix uninit-value in batadv_netlink_get_ifindex()
+Date:   Fri, 13 Sep 2019 14:04:26 +0100
+Message-Id: <20190913130600.509083714@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,114 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo Romero <gromero@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 8205d5d98ef7f155de211f5e2eb6ca03d95a5a60 upstream.
+commit 3ee1bb7aae97324ec9078da1f00cb2176919563f upstream.
 
-When we take an FP unavailable exception in a transaction we have to
-account for the hardware FP TM checkpointed registers being
-incorrect. In this case for this process we know the current and
-checkpointed FP registers must be the same (since FP wasn't used
-inside the transaction) hence in the thread_struct we copy the current
-FP registers to the checkpointed ones.
+batadv_netlink_get_ifindex() needs to make sure user passed
+a correct u32 attribute.
 
-This copy is done in tm_reclaim_thread(). We use thread->ckpt_regs.msr
-to determine if FP was on when in userspace. thread->ckpt_regs.msr
-represents the state of the MSR when exiting userspace. This is setup
-by check_if_tm_restore_required().
+syzbot reported :
+BUG: KMSAN: uninit-value in batadv_netlink_dump_hardif+0x70d/0x880 net/batman-adv/netlink.c:968
+CPU: 1 PID: 11705 Comm: syz-executor888 Not tainted 5.1.0+ #1
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+ kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
+ __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
+ batadv_netlink_dump_hardif+0x70d/0x880 net/batman-adv/netlink.c:968
+ genl_lock_dumpit+0xc6/0x130 net/netlink/genetlink.c:482
+ netlink_dump+0xa84/0x1ab0 net/netlink/af_netlink.c:2253
+ __netlink_dump_start+0xa3a/0xb30 net/netlink/af_netlink.c:2361
+ genl_family_rcv_msg net/netlink/genetlink.c:550 [inline]
+ genl_rcv_msg+0xfc1/0x1a40 net/netlink/genetlink.c:627
+ netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2486
+ genl_rcv+0x63/0x80 net/netlink/genetlink.c:638
+ netlink_unicast_kernel net/netlink/af_netlink.c:1311 [inline]
+ netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1337
+ netlink_sendmsg+0x127e/0x12f0 net/netlink/af_netlink.c:1926
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:661 [inline]
+ ___sys_sendmsg+0xcc6/0x1200 net/socket.c:2260
+ __sys_sendmsg net/socket.c:2298 [inline]
+ __do_sys_sendmsg net/socket.c:2307 [inline]
+ __se_sys_sendmsg+0x305/0x460 net/socket.c:2305
+ __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2305
+ do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x63/0xe7
+RIP: 0033:0x440209
 
-Unfortunatley there is an optimisation in giveup_all() which returns
-early if tsk->thread.regs->msr (via local variable `usermsr`) has
-FP=VEC=VSX=SPE=0. This optimisation means that
-check_if_tm_restore_required() is not called and hence
-thread->ckpt_regs.msr is not updated and will contain an old value.
-
-This can happen if due to load_fp=255 we start a userspace process
-with MSR FP=1 and then we are context switched out. In this case
-thread->ckpt_regs.msr will contain FP=1. If that same process is then
-context switched in and load_fp overflows, MSR will have FP=0. If that
-process now enters a transaction and does an FP instruction, the FP
-unavailable will not update thread->ckpt_regs.msr (the bug) and MSR
-FP=1 will be retained in thread->ckpt_regs.msr.  tm_reclaim_thread()
-will then not perform the required memcpy and the checkpointed FP regs
-in the thread struct will contain the wrong values.
-
-The code path for this happening is:
-
-       Userspace:                      Kernel
-                   Start userspace
-                    with MSR FP/VEC/VSX/SPE=0 TM=1
-                      < -----
-       ...
-       tbegin
-       bne
-       fp instruction
-                   FP unavailable
-                       ---- >
-                                        fp_unavailable_tm()
-					  tm_reclaim_current()
-					    tm_reclaim_thread()
-					      giveup_all()
-					        return early since FP/VMX/VSX=0
-						/* ckpt MSR not updated (Incorrect) */
-					      tm_reclaim()
-					        /* thread_struct ckpt FP regs contain junk (OK) */
-                                              /* Sees ckpt MSR FP=1 (Incorrect) */
-					      no memcpy() performed
-					        /* thread_struct ckpt FP regs not fixed (Incorrect) */
-					  tm_recheckpoint()
-					     /* Put junk in hardware checkpoint FP regs */
-                                         ....
-                      < -----
-                   Return to userspace
-                     with MSR TM=1 FP=1
-                     with junk in the FP TM checkpoint
-       TM rollback
-       reads FP junk
-
-This is a data integrity problem for the current process as the FP
-registers are corrupted. It's also a security problem as the FP
-registers from one process may be leaked to another.
-
-This patch moves up check_if_tm_restore_required() in giveup_all() to
-ensure thread->ckpt_regs.msr is updated correctly.
-
-A simple testcase to replicate this will be posted to
-tools/testing/selftests/powerpc/tm/tm-poison.c
-
-Similarly for VMX.
-
-This fixes CVE-2019-15030.
-
-Fixes: f48e91e87e67 ("powerpc/tm: Fix FP and VMX register corruption")
-Cc: stable@vger.kernel.org # 4.12+
-Signed-off-by: Gustavo Romero <gromero@linux.vnet.ibm.com>
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190904045529.23002-1-gromero@linux.vnet.ibm.com
+Fixes: b60620cf567b ("batman-adv: netlink: hardif query")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/process.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/batman-adv/netlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -499,13 +499,14 @@ void giveup_all(struct task_struct *tsk)
- 	if (!tsk->thread.regs)
- 		return;
+--- a/net/batman-adv/netlink.c
++++ b/net/batman-adv/netlink.c
+@@ -118,7 +118,7 @@ batadv_netlink_get_ifindex(const struct
+ {
+ 	struct nlattr *attr = nlmsg_find_attr(nlh, GENL_HDRLEN, attrtype);
  
-+	check_if_tm_restore_required(tsk);
-+
- 	usermsr = tsk->thread.regs->msr;
+-	return attr ? nla_get_u32(attr) : 0;
++	return (attr && nla_len(attr) == sizeof(u32)) ? nla_get_u32(attr) : 0;
+ }
  
- 	if ((usermsr & msr_all_available) == 0)
- 		return;
- 
- 	msr_check_and_set(msr_all_available);
--	check_if_tm_restore_required(tsk);
- 
- 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
- 
+ /**
 
 
