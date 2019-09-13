@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D00B1FEC
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF70B1FF1
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388343AbfIMNLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36284 "EHLO mail.kernel.org"
+        id S2389039AbfIMNLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:11:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388914AbfIMNLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:14 -0400
+        id S2389035AbfIMNLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:11:50 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7AB2208C2;
-        Fri, 13 Sep 2019 13:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7854E214D8;
+        Fri, 13 Sep 2019 13:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380274;
-        bh=MTNL6nhSdOp7dGb8vTIunHyXGJuj/4o6vJnlfXBfLHk=;
+        s=default; t=1568380310;
+        bh=VqNzzUOuKwTukUd28y7P1lYA35/hn2Tp0oQEZy8nl/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwJKu1dfhzg+/9+lv04X03CFkcYTLZV6mCsbstso/D5OyWJznEW/yU3xpe+Kkgr7P
-         LlKha9CAPC7u4w2keN3w3wM7zphUnjO7nOnaKiF4O76nLC5MS9CWffvrzQDsbCcVQ8
-         SrhZp8Hy2lxN7W2n0sp2tpWA72yzyHMKRLn4j2sc=
+        b=e9OHFR0Xca514RMA1A4PoWaZu6jIeV+Fsoi1X5Tl5iet0y4Ks9VxIN9ruQvprFjo3
+         J2rmPFeW3hkM51ieNjMFP8blRiB19txiqSlveoRA+a1QZj52F2m4tocDBP+ABySAIv
+         /IfipXXRh5FgtzFPxiWzIzh/1biPUq4AMZJoo4G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 004/190] ALSA: hda/realtek - Enable internal speaker & headset mic of ASUS UX431FL
-Date:   Fri, 13 Sep 2019 14:04:19 +0100
-Message-Id: <20190913130600.008000927@linuxfoundation.org>
+        stable@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 4.19 008/190] vhost/test: fix build for vhost test
+Date:   Fri, 13 Sep 2019 14:04:23 +0100
+Message-Id: <20190913130600.303904103@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -43,79 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
 
-commit 60083f9e94b2f28047d71ed778adf89357c1a8fb upstream.
+commit 93d2c4de8d8129b97ee1e1a222aedb0719d2fcd9 upstream.
 
-Original pin node values of ASUS UX431FL with ALC294:
+Since below commit, callers need to specify the iov_limit in
+vhost_dev_init() explicitly.
 
-0x12 0xb7a60140
-0x13 0x40000000
-0x14 0x90170110
-0x15 0x411111f0
-0x16 0x411111f0
-0x17 0x90170111
-0x18 0x411111f0
-0x19 0x411111f0
-0x1a 0x411111f0
-0x1b 0x411111f0
-0x1d 0x4066852d
-0x1e 0x411111f0
-0x1f 0x411111f0
-0x21 0x04211020
-
-1. Has duplicated internal speakers (0x14 & 0x17) which makes the output
-   route become confused. So, the output volume cannot be changed by
-   setting.
-2. Misses the headset mic pin node.
-
-This patch disables the confusing speaker (NID 0x14) and enables the
-headset mic (NID 0x19).
-
-Link: https://lore.kernel.org/r/20190902100054.6941-1-jian-hong@endlessm.com
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: b46a0bf78ad7 ("vhost: fix OOB in get_rx_bufs()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/vhost/test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5675,6 +5675,7 @@ enum {
- 	ALC286_FIXUP_ACER_AIO_HEADSET_MIC,
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
-+	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
- };
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -116,7 +116,7 @@ static int vhost_test_open(struct inode
+ 	dev = &n->dev;
+ 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+ 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+-	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
++	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV);
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -6703,6 +6704,16 @@ static const struct hda_fixup alc269_fix
- 			{ }
- 		}
- 	},
-+	[ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x14, 0x411111f0 }, /* disable confusing internal speaker */
-+			{ 0x19, 0x04a11150 }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
-+	},
- };
+ 	f->private_data = n;
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -6862,6 +6873,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
-+	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
 
 
