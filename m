@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E68B1FDA
+	by mail.lfdr.de (Postfix) with ESMTP id DCD8BB1FDC
 	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388512AbfIMNJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34030 "EHLO mail.kernel.org"
+        id S2388529AbfIMNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388508AbfIMNJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:09:27 -0400
+        id S2388524AbfIMNJa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:30 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9433208C0;
-        Fri, 13 Sep 2019 13:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBAA720CC7;
+        Fri, 13 Sep 2019 13:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380166;
-        bh=euFMXqA2+BIPRSYbvpi8iG+WO6A/bv97e1ShTSuKX8w=;
+        s=default; t=1568380169;
+        bh=p2OG/25OntIVnTzVIz2+SUyWxOBIql0bEaDlV5Vj7Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6I10AoqSbOeG88Rae7sdyiTEOc8ISGtYsVKKaTzLVm/C3cutZxDPyJaSR/kt1Sdf
-         i7qTZzEvMhiMsVjtMBzhmpLvkBSbuViL6CXTURfv4H6ei9BOSBWIHdknSU6VTMG338
-         B+zs1VlhOxj1aLWFsnps93JjZ4yiCBxMwgHNNV9k=
+        b=PN7aJngVSBVqykgBBLB7nzSkkOBrfdxf/ALhUEuo6tDPXaIZPUzka4ytnI0Wv6CHl
+         FJhiw4h22XJRA09CcEo2yHsh029bOQtvmh4Sow4A9K3lQ0icVcbsDb8X6tVCrFnHgm
+         j9DZz0odvb/Pe8L7GUuAflysL4qZoVeYs+CTM6vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liangyan <liangyan.peng@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Ben Segall <bsegall@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        shanpeic@linux.alibaba.com, xlpang@linux.alibaba.com,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 03/14] sched/fair: Dont assign runtime for throttled cfs_rq
-Date:   Fri, 13 Sep 2019 14:06:56 +0100
-Message-Id: <20190913130443.326301688@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>
+Subject: [PATCH 4.9 04/14] drm/vmwgfx: Fix double free in vmw_recv_msg()
+Date:   Fri, 13 Sep 2019 14:06:57 +0100
+Message-Id: <20190913130443.808362056@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
 References: <20190913130440.264749443@linuxfoundation.org>
@@ -49,73 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liangyan <liangyan.peng@linux.alibaba.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5e2d2cc2588bd3307ce3937acbc2ed03c830a861 upstream.
+commit 08b0c891605acf727e43e3e03a25857d3e789b61 upstream.
 
-do_sched_cfs_period_timer() will refill cfs_b runtime and call
-distribute_cfs_runtime to unthrottle cfs_rq, sometimes cfs_b->runtime
-will allocate all quota to one cfs_rq incorrectly, then other cfs_rqs
-attached to this cfs_b can't get runtime and will be throttled.
+We recently added a kfree() after the end of the loop:
 
-We find that one throttled cfs_rq has non-negative
-cfs_rq->runtime_remaining and cause an unexpetced cast from s64 to u64
-in snippet:
+	if (retries == RETRIES) {
+		kfree(reply);
+		return -EINVAL;
+	}
 
-  distribute_cfs_runtime() {
-    runtime = -cfs_rq->runtime_remaining + 1;
-  }
+There are two problems.  First the test is wrong and because retries
+equals RETRIES if we succeed on the last iteration through the loop.
+Second if we fail on the last iteration through the loop then the kfree
+is a double free.
 
-The runtime here will change to a large number and consume all
-cfs_b->runtime in this cfs_b period.
+When you're reading this code, please note the break statement at the
+end of the while loop.  This patch changes the loop so that if it's not
+successful then "reply" is NULL and we can test for that afterward.
 
-According to Ben Segall, the throttled cfs_rq can have
-account_cfs_rq_runtime called on it because it is throttled before
-idle_balance, and the idle_balance calls update_rq_clock to add time
-that is accounted to the task.
-
-This commit prevents cfs_rq to be assgined new runtime if it has been
-throttled until that distribute_cfs_runtime is called.
-
-Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: shanpeic@linux.alibaba.com
-Cc: stable@vger.kernel.org
-Cc: xlpang@linux.alibaba.com
-Fixes: d3d9dc330236 ("sched: Throttle entities exceeding their allowed bandwidth")
-Link: https://lkml.kernel.org/r/20190826121633.6538-1-liangyan.peng@linux.alibaba.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 6b7c3b86f0b6 ("drm/vmwgfx: fix memory leak when too many retries have occurred")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/fair.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3882,6 +3882,8 @@ static void __account_cfs_rq_runtime(str
- 	if (likely(cfs_rq->runtime_remaining > 0))
- 		return;
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -264,7 +264,7 @@ static int vmw_recv_msg(struct rpc_chann
  
-+	if (cfs_rq->throttled)
-+		return;
- 	/*
- 	 * if we're unable to extend our runtime we resched so that the active
- 	 * hierarchy can be throttled
-@@ -4077,6 +4079,9 @@ static u64 distribute_cfs_runtime(struct
- 		if (!cfs_rq_throttled(cfs_rq))
- 			goto next;
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			kfree(reply);
+-
++			reply = NULL;
+ 			if ((HIGH_WORD(ebx) & MESSAGE_STATUS_CPT) != 0) {
+ 				/* A checkpoint occurred. Retry. */
+ 				continue;
+@@ -288,7 +288,7 @@ static int vmw_recv_msg(struct rpc_chann
  
-+		/* By the above check, this should never be true */
-+		SCHED_WARN_ON(cfs_rq->runtime_remaining > 0);
-+
- 		runtime = -cfs_rq->runtime_remaining + 1;
- 		if (runtime > remaining)
- 			runtime = remaining;
+ 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			kfree(reply);
+-
++			reply = NULL;
+ 			if ((HIGH_WORD(ecx) & MESSAGE_STATUS_CPT) != 0) {
+ 				/* A checkpoint occurred. Retry. */
+ 				continue;
+@@ -300,10 +300,8 @@ static int vmw_recv_msg(struct rpc_chann
+ 		break;
+ 	}
+ 
+-	if (retries == RETRIES) {
+-		kfree(reply);
++	if (!reply)
+ 		return -EINVAL;
+-	}
+ 
+ 	*msg_len = reply_len;
+ 	*msg     = reply;
 
 
