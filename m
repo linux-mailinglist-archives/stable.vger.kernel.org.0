@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFB35B1FE7
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38167B1FD6
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388834AbfIMNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
+        id S2388419AbfIMNJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388191AbfIMNKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:10:51 -0400
+        id S2388393AbfIMNJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:03 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7603520CC7;
-        Fri, 13 Sep 2019 13:10:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8A1A214D8;
+        Fri, 13 Sep 2019 13:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380250;
-        bh=FZzabBO5Oz6BzfbFqqZaE47YsPJpQelb9ln172BMCLI=;
+        s=default; t=1568380142;
+        bh=hdZ1chB3WzXr0Y4hQLXkjIe8ePHY8MGeUnpJmhc0/3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4d1+4JZbEfXi4vavVDJTooL4FzJkOfTH/cTOtoTUnOeljlg/H3Ld1hB16cpG/hQT
-         5Ybhc0b2sZirQkVXI9hnYSfwwJHQZs7426b38trFh60t/Owtw+2mn93y1XhHxxA276
-         A78m0vcl4oQuEbm3wXoUX+9xneAuw5O1ZmkQ9P6k=
+        b=aB4DUq8TGJllvpmWDx9kddnjsas89Yyt8cZLoTsABAkX/+aOk14bmcbpVRhxlXoat
+         evrNrs/w4g8CXsHXXK/3l8GC66+K18jYJgsk2I90EYXL4eLAlg8IN49PNcS81Xpd/T
+         V5LDUKfmyXsMXDZjVXOZR3OZgm41W2kl6Ldd75fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gustavo Romero <gromero@linux.vnet.ibm.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 06/21] powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
+        stable@vger.kernel.org, Lidong Chen <lidongchen@tencent.com>,
+        ruippan <ruippan@tencent.com>, yongduan <yongduan@tencent.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 4.4 9/9] vhost: make sure log_num < in_num
 Date:   Fri, 13 Sep 2019 14:06:59 +0100
-Message-Id: <20190913130503.671977770@linuxfoundation.org>
+Message-Id: <20190913130432.563420115@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
-References: <20190913130501.285837292@linuxfoundation.org>
+In-Reply-To: <20190913130424.160808669@linuxfoundation.org>
+References: <20190913130424.160808669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,114 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo Romero <gromero@linux.ibm.com>
+From: yongduan <yongduan@tencent.com>
 
-commit 8205d5d98ef7f155de211f5e2eb6ca03d95a5a60 upstream.
+commit 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4 upstream.
 
-When we take an FP unavailable exception in a transaction we have to
-account for the hardware FP TM checkpointed registers being
-incorrect. In this case for this process we know the current and
-checkpointed FP registers must be the same (since FP wasn't used
-inside the transaction) hence in the thread_struct we copy the current
-FP registers to the checkpointed ones.
+The code assumes log_num < in_num everywhere, and that is true as long as
+in_num is incremented by descriptor iov count, and log_num by 1. However
+this breaks if there's a zero sized descriptor.
 
-This copy is done in tm_reclaim_thread(). We use thread->ckpt_regs.msr
-to determine if FP was on when in userspace. thread->ckpt_regs.msr
-represents the state of the MSR when exiting userspace. This is setup
-by check_if_tm_restore_required().
+As a result, if a malicious guest creates a vring desc with desc.len = 0,
+it may cause the host kernel to crash by overflowing the log array. This
+bug can be triggered during the VM migration.
 
-Unfortunatley there is an optimisation in giveup_all() which returns
-early if tsk->thread.regs->msr (via local variable `usermsr`) has
-FP=VEC=VSX=SPE=0. This optimisation means that
-check_if_tm_restore_required() is not called and hence
-thread->ckpt_regs.msr is not updated and will contain an old value.
+There's no need to log when desc.len = 0, so just don't increment log_num
+in this case.
 
-This can happen if due to load_fp=255 we start a userspace process
-with MSR FP=1 and then we are context switched out. In this case
-thread->ckpt_regs.msr will contain FP=1. If that same process is then
-context switched in and load_fp overflows, MSR will have FP=0. If that
-process now enters a transaction and does an FP instruction, the FP
-unavailable will not update thread->ckpt_regs.msr (the bug) and MSR
-FP=1 will be retained in thread->ckpt_regs.msr.  tm_reclaim_thread()
-will then not perform the required memcpy and the checkpointed FP regs
-in the thread struct will contain the wrong values.
-
-The code path for this happening is:
-
-       Userspace:                      Kernel
-                   Start userspace
-                    with MSR FP/VEC/VSX/SPE=0 TM=1
-                      < -----
-       ...
-       tbegin
-       bne
-       fp instruction
-                   FP unavailable
-                       ---- >
-                                        fp_unavailable_tm()
-					  tm_reclaim_current()
-					    tm_reclaim_thread()
-					      giveup_all()
-					        return early since FP/VMX/VSX=0
-						/* ckpt MSR not updated (Incorrect) */
-					      tm_reclaim()
-					        /* thread_struct ckpt FP regs contain junk (OK) */
-                                              /* Sees ckpt MSR FP=1 (Incorrect) */
-					      no memcpy() performed
-					        /* thread_struct ckpt FP regs not fixed (Incorrect) */
-					  tm_recheckpoint()
-					     /* Put junk in hardware checkpoint FP regs */
-                                         ....
-                      < -----
-                   Return to userspace
-                     with MSR TM=1 FP=1
-                     with junk in the FP TM checkpoint
-       TM rollback
-       reads FP junk
-
-This is a data integrity problem for the current process as the FP
-registers are corrupted. It's also a security problem as the FP
-registers from one process may be leaked to another.
-
-This patch moves up check_if_tm_restore_required() in giveup_all() to
-ensure thread->ckpt_regs.msr is updated correctly.
-
-A simple testcase to replicate this will be posted to
-tools/testing/selftests/powerpc/tm/tm-poison.c
-
-Similarly for VMX.
-
-This fixes CVE-2019-15030.
-
-Fixes: f48e91e87e67 ("powerpc/tm: Fix FP and VMX register corruption")
-Cc: stable@vger.kernel.org # 4.12+
-Signed-off-by: Gustavo Romero <gromero@linux.vnet.ibm.com>
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190904045529.23002-1-gromero@linux.vnet.ibm.com
+Fixes: 3a4d5c94e959 ("vhost_net: a kernel-level virtio server")
+Cc: stable@vger.kernel.org
+Reviewed-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: ruippan <ruippan@tencent.com>
+Signed-off-by: yongduan <yongduan@tencent.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/process.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vhost/vhost.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -475,13 +475,14 @@ void giveup_all(struct task_struct *tsk)
- 	if (!tsk->thread.regs)
- 		return;
- 
-+	check_if_tm_restore_required(tsk);
-+
- 	usermsr = tsk->thread.regs->msr;
- 
- 	if ((usermsr & msr_all_available) == 0)
- 		return;
- 
- 	msr_check_and_set(msr_all_available);
--	check_if_tm_restore_required(tsk);
- 
- 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
- 
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1324,7 +1324,7 @@ static int get_indirect(struct vhost_vir
+ 		/* If this is an input descriptor, increment that count. */
+ 		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_WRITE)) {
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
+@@ -1453,7 +1453,7 @@ int vhost_get_vq_desc(struct vhost_virtq
+ 			/* If this is an input descriptor,
+ 			 * increment that count. */
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
 
 
