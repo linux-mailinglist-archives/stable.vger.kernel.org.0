@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B535B204A
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31791B208F
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389530AbfIMNTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48104 "EHLO mail.kernel.org"
+        id S2390187AbfIMNXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389523AbfIMNTq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:46 -0400
+        id S2390808AbfIMNVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:21:24 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34190217D9;
-        Fri, 13 Sep 2019 13:19:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4B03206BB;
+        Fri, 13 Sep 2019 13:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380785;
-        bh=GeeGoXmgFglJsk6I7cGROrXWmwp5JSc3JSOtqYVHnTg=;
+        s=default; t=1568380883;
+        bh=1KYHGBqfweu0I1NPQIQ0A4U12D3zB+VEp+7ZzFnXOwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiTCl0ERJzu8oxUtMjYZvgJsRQwh8RvLSbMlr+gaPzLGQno5hZmqM68pzxitibvXn
-         /ndBxI7C1AWyKB3WrBFxdK5+wGh0WzrtDDHYhK9ybaTs5t2ksJXge6XH22Cp3Ei515
-         gyqDB5Cf/bzLYkYxkb6fejwj3/BoajbrbcrfyAws=
+        b=okc85UCwLXL2tuwj1SKLUME/nE9LosYJqZOt1xxaOwPhn/32qgfDNCkmVgZ946YtO
+         Oa6SXU6GgyAKGqr7B6PZT1xGORidUHWFQJDzMFvVXy/44K124M+f1PrdLUxkl2I6hX
+         TkFIhq/aS69/B6929ZPD4wOzmtOQNkCFz2IT/+SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 177/190] bcache: only clear BTREE_NODE_dirty bit when it is set
-Date:   Fri, 13 Sep 2019 14:07:12 +0100
-Message-Id: <20190913130613.907781026@linuxfoundation.org>
+        stable@vger.kernel.org, Liangyan <liangyan.peng@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Ben Segall <bsegall@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        shanpeic@linux.alibaba.com, xlpang@linux.alibaba.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.2 08/37] sched/fair: Dont assign runtime for throttled cfs_rq
+Date:   Fri, 13 Sep 2019 14:07:13 +0100
+Message-Id: <20190913130513.061588463@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
-References: <20190913130559.669563815@linuxfoundation.org>
+In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
+References: <20190913130510.727515099@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e5ec5f4765ada9c75fb3eee93a6e72f0e50599d5 ]
+From: Liangyan <liangyan.peng@linux.alibaba.com>
 
-In bch_btree_cache_free() and btree_node_free(), BTREE_NODE_dirty is
-always set no matter btree node is dirty or not. The code looks like
-this,
-	if (btree_node_dirty(b))
-		btree_complete_write(b, btree_current_write(b));
-	clear_bit(BTREE_NODE_dirty, &b->flags);
+commit 5e2d2cc2588bd3307ce3937acbc2ed03c830a861 upstream.
 
-Indeed if btree_node_dirty(b) returns false, it means BTREE_NODE_dirty
-bit is cleared, then it is unnecessary to clear the bit again.
+do_sched_cfs_period_timer() will refill cfs_b runtime and call
+distribute_cfs_runtime to unthrottle cfs_rq, sometimes cfs_b->runtime
+will allocate all quota to one cfs_rq incorrectly, then other cfs_rqs
+attached to this cfs_b can't get runtime and will be throttled.
 
-This patch only clears BTREE_NODE_dirty when btree_node_dirty(b) is
-true (the bit is set), to save a few CPU cycles.
+We find that one throttled cfs_rq has non-negative
+cfs_rq->runtime_remaining and cause an unexpetced cast from s64 to u64
+in snippet:
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  distribute_cfs_runtime() {
+    runtime = -cfs_rq->runtime_remaining + 1;
+  }
+
+The runtime here will change to a large number and consume all
+cfs_b->runtime in this cfs_b period.
+
+According to Ben Segall, the throttled cfs_rq can have
+account_cfs_rq_runtime called on it because it is throttled before
+idle_balance, and the idle_balance calls update_rq_clock to add time
+that is accounted to the task.
+
+This commit prevents cfs_rq to be assgined new runtime if it has been
+throttled until that distribute_cfs_runtime is called.
+
+Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: shanpeic@linux.alibaba.com
+Cc: stable@vger.kernel.org
+Cc: xlpang@linux.alibaba.com
+Fixes: d3d9dc330236 ("sched: Throttle entities exceeding their allowed bandwidth")
+Link: https://lkml.kernel.org/r/20190826121633.6538-1-liangyan.peng@linux.alibaba.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/bcache/btree.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ kernel/sched/fair.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 3f4211b5cd334..8c80833e73a9a 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -772,10 +772,10 @@ void bch_btree_cache_free(struct cache_set *c)
- 	while (!list_empty(&c->btree_cache)) {
- 		b = list_first_entry(&c->btree_cache, struct btree, list);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4449,6 +4449,8 @@ static void __account_cfs_rq_runtime(str
+ 	if (likely(cfs_rq->runtime_remaining > 0))
+ 		return;
  
--		if (btree_node_dirty(b))
-+		if (btree_node_dirty(b)) {
- 			btree_complete_write(b, btree_current_write(b));
--		clear_bit(BTREE_NODE_dirty, &b->flags);
--
-+			clear_bit(BTREE_NODE_dirty, &b->flags);
-+		}
- 		mca_data_free(b);
- 	}
++	if (cfs_rq->throttled)
++		return;
+ 	/*
+ 	 * if we're unable to extend our runtime we resched so that the active
+ 	 * hierarchy can be throttled
+@@ -4652,6 +4654,9 @@ static u64 distribute_cfs_runtime(struct
+ 		if (!cfs_rq_throttled(cfs_rq))
+ 			goto next;
  
-@@ -1063,9 +1063,10 @@ static void btree_node_free(struct btree *b)
- 
- 	mutex_lock(&b->write_lock);
- 
--	if (btree_node_dirty(b))
-+	if (btree_node_dirty(b)) {
- 		btree_complete_write(b, btree_current_write(b));
--	clear_bit(BTREE_NODE_dirty, &b->flags);
-+		clear_bit(BTREE_NODE_dirty, &b->flags);
-+	}
- 
- 	mutex_unlock(&b->write_lock);
- 
--- 
-2.20.1
-
++		/* By the above check, this should never be true */
++		SCHED_WARN_ON(cfs_rq->runtime_remaining > 0);
++
+ 		runtime = -cfs_rq->runtime_remaining + 1;
+ 		if (runtime > remaining)
+ 			runtime = remaining;
 
 
