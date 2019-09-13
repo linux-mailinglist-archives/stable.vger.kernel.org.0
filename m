@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F75B1FEF
+	by mail.lfdr.de (Postfix) with ESMTP id AA86BB1FF0
 	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388408AbfIMNLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:11:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
+        id S2389003AbfIMNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388968AbfIMNLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:11:35 -0400
+        id S2388968AbfIMNLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:11:38 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84080208C0;
-        Fri, 13 Sep 2019 13:11:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C58C214AE;
+        Fri, 13 Sep 2019 13:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380295;
-        bh=r7cLoDktyovYgaOgT8Ie3in9jqttJSNsJN4fs8+l2ws=;
+        s=default; t=1568380298;
+        bh=fnklbgzgvFBnb/NQeX2JR8VGGnefvxq8JcceyaWMSVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySOAeNotMNEEIaPlb4d9FgFZUgTirujstnHP8nAzwBfEJC7CTIRO4kVBDufTCxkP+
-         BGZ/ta7VpI/XaXqXVY0BaqJycjUrCGc8XobIqF+04SrYzvF0zAgNZuv3ZvgNNxhgiD
-         Ysz6UmllV1zoKWjV0ggWQc4N7barVSdNjkIqW184=
+        b=ArY4Xg/cZeU02zI44v2WyREm2wFTjy4boZqoJ8qhbVR9twQbdU4tTjs6kz1DTX2Ha
+         NdwEF7B8HUFPMzz/dfAqwtwD+E+qj980X7cJWqPlX1CULM9OKNdchpUNU/4yJ+Wec8
+         8GT7wDg9Z+Fokf7FGiDZjTnLJezdGe/hsfb9artg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 019/190] x86/ftrace: Fix warning and considate ftrace_jmp_replace() and ftrace_call_replace()
-Date:   Fri, 13 Sep 2019 14:04:34 +0100
-Message-Id: <20190913130601.090972965@linuxfoundation.org>
+Subject: [PATCH 4.19 020/190] powerpc/64: mark start_here_multiplatform as __ref
+Date:   Fri, 13 Sep 2019 14:04:35 +0100
+Message-Id: <20190913130601.185759697@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,122 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 745cfeaac09ce359130a5451d90cb0bd4094c290 ]
+[ Upstream commit 9c4e4c90ec24652921e31e9551fcaedc26eec86d ]
 
-Arnd reported the following compiler warning:
+Otherwise, the following warning is encountered:
 
-arch/x86/kernel/ftrace.c:669:23: error: 'ftrace_jmp_replace' defined but not used [-Werror=unused-function]
+WARNING: vmlinux.o(.text+0x3dc6): Section mismatch in reference from the variable start_here_multiplatform to the function .init.text:.early_setup()
+The function start_here_multiplatform() references
+the function __init .early_setup().
+This is often because start_here_multiplatform lacks a __init
+annotation or the annotation of .early_setup is wrong.
 
-The ftrace_jmp_replace() function now only has a single user and should be
-simply moved by that user. But looking at the code, it shows that
-ftrace_jmp_replace() is similar to ftrace_call_replace() except that instead
-of using the opcode of 0xe8 it uses 0xe9. It makes more sense to consolidate
-that function into one implementation that both ftrace_jmp_replace() and
-ftrace_call_replace() use by passing in the op code separate.
-
-The structure in ftrace_code_union is also modified to replace the "e8"
-field with the more appropriate name "op".
-
-Cc: stable@vger.kernel.org
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: http://lkml.kernel.org/r/20190304200748.1418790-1-arnd@arndb.de
-Fixes: d2a68c4effd8 ("x86/ftrace: Do not call function graph from dynamic trampolines")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 56c46bba9bbf ("powerpc/64: Fix booting large kernels with STRICT_KERNEL_RWX")
+Cc: Russell Currey <ruscur@russell.cc>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c | 42 ++++++++++++++++------------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ arch/powerpc/kernel/head_64.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 50d309662d78c..5790671857e55 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -53,7 +53,7 @@ int ftrace_arch_code_modify_post_process(void)
- union ftrace_code_union {
- 	char code[MCOUNT_INSN_SIZE];
- 	struct {
--		unsigned char e8;
-+		unsigned char op;
- 		int offset;
- 	} __attribute__((packed));
- };
-@@ -63,20 +63,23 @@ static int ftrace_calc_offset(long ip, long addr)
- 	return (int)(addr - ip);
- }
+diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
+index 9168a247e24ff..3fb564f3e8874 100644
+--- a/arch/powerpc/kernel/head_64.S
++++ b/arch/powerpc/kernel/head_64.S
+@@ -906,6 +906,7 @@ p_toc:	.8byte	__toc_start + 0x8000 - 0b
+ /*
+  * This is where the main kernel code starts.
+  */
++__REF
+ start_here_multiplatform:
+ 	/* set up the TOC */
+ 	bl      relative_toc
+@@ -981,6 +982,7 @@ start_here_multiplatform:
+ 	RFI
+ 	b	.	/* prevent speculative execution */
  
--static unsigned char *ftrace_call_replace(unsigned long ip, unsigned long addr)
-+static unsigned char *
-+ftrace_text_replace(unsigned char op, unsigned long ip, unsigned long addr)
- {
- 	static union ftrace_code_union calc;
++	.previous
+ 	/* This is where all platforms converge execution */
  
--	calc.e8		= 0xe8;
-+	calc.op		= op;
- 	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
- 
--	/*
--	 * No locking needed, this must be called via kstop_machine
--	 * which in essence is like running on a uniprocessor machine.
--	 */
- 	return calc.code;
- }
- 
-+static unsigned char *
-+ftrace_call_replace(unsigned long ip, unsigned long addr)
-+{
-+	return ftrace_text_replace(0xe8, ip, addr);
-+}
-+
- static inline int
- within(unsigned long addr, unsigned long start, unsigned long end)
- {
-@@ -686,22 +689,6 @@ int __init ftrace_dyn_arch_init(void)
- 	return 0;
- }
- 
--#if defined(CONFIG_X86_64) || defined(CONFIG_FUNCTION_GRAPH_TRACER)
--static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
--{
--	static union ftrace_code_union calc;
--
--	/* Jmp not a call (ignore the .e8) */
--	calc.e8		= 0xe9;
--	calc.offset	= ftrace_calc_offset(ip + MCOUNT_INSN_SIZE, addr);
--
--	/*
--	 * ftrace external locks synchronize the access to the static variable.
--	 */
--	return calc.code;
--}
--#endif
--
- /* Currently only x86_64 supports dynamic trampolines */
- #ifdef CONFIG_X86_64
- 
-@@ -923,8 +910,8 @@ static void *addr_from_call(void *ptr)
- 		return NULL;
- 
- 	/* Make sure this is a call */
--	if (WARN_ON_ONCE(calc.e8 != 0xe8)) {
--		pr_warn("Expected e8, got %x\n", calc.e8);
-+	if (WARN_ON_ONCE(calc.op != 0xe8)) {
-+		pr_warn("Expected e8, got %x\n", calc.op);
- 		return NULL;
- 	}
- 
-@@ -995,6 +982,11 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
- #ifdef CONFIG_DYNAMIC_FTRACE
- extern void ftrace_graph_call(void);
- 
-+static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
-+{
-+	return ftrace_text_replace(0xe9, ip, addr);
-+}
-+
- static int ftrace_mod_jmp(unsigned long ip, void *func)
- {
- 	unsigned char *new;
+ start_here_common:
 -- 
 2.20.1
 
