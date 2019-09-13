@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB084B1E56
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCC4B1E6B
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388450AbfIMNJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33772 "EHLO mail.kernel.org"
+        id S2388637AbfIMNKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388463AbfIMNJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:09:15 -0400
+        id S2388579AbfIMNKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:00 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7D6B208C0;
-        Fri, 13 Sep 2019 13:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18EB4206BB;
+        Fri, 13 Sep 2019 13:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380154;
-        bh=SJB/SZBZ512Lz00RrXmy++B4RO1M66TXhT5Mr0YbSBU=;
+        s=default; t=1568380199;
+        bh=qmIDS1RUIUlk4PqP13Ji4FuXvckwkFyjkjtsRyDYu4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KWx41ZYnN5jLrquE7zn4D8rku17SmQ8nxBoKPP+P85j/2LfPfsB91ofQJgL0994E
-         nrA4hqOCSRSFEYAMC7cMHnCTtzA9rOtZYbqdFId17FspSU7N/0eoLUqtGo+jG1+M6Z
-         RTcVuoLw3QpF1iJfpEiSnFszkNLJl72BbI59TkuE=
+        b=V6jwXCxYsaSB8fdaR9LZg/QQQqyI5lfRrq862E95HrV33yLfUpH65Y8W0dvz0o5AH
+         YjGX0DUIqSzCeuaOo/D/PFnQMy7VUiNpkvJLSv36wZhwAK6y/fIRrTYxJQ1JK0Rd2Z
+         baZeRpCs9rfOlt75F5JauuU1gfI5xxhBSkJ+lhuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/14] scripts/decode_stacktrace: match basepath using shell prefix operator, not regex
+        stable@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 4.14 11/21] vhost/test: fix build for vhost test
 Date:   Fri, 13 Sep 2019 14:07:04 +0100
-Message-Id: <20190913130446.021198073@linuxfoundation.org>
+Message-Id: <20190913130505.580067115@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130440.264749443@linuxfoundation.org>
-References: <20190913130440.264749443@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 31013836a71e07751a6827f9d2ad41ef502ddaff ]
+From: Tiwei Bie <tiwei.bie@intel.com>
 
-The basepath may contain special characters, which would confuse the regex
-matcher.  ${var#prefix} does the right thing.
+commit 264b563b8675771834419057cbe076c1a41fb666 upstream.
 
-Link: http://lkml.kernel.org/r/20190518055946.181563-1-drinkcat@chromium.org
-Fixes: 67a28de47faa8358 ("scripts/decode_stacktrace: only strip base path when a prefix of the path")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since vhost_exceeds_weight() was introduced, callers need to specify
+the packet weight and byte weight in vhost_dev_init(). Note that, the
+packet weight isn't counted in this patch to keep the original behavior
+unchanged.
+
+Fixes: e82b9b0727ff ("vhost: introduce vhost_exceeds_weight()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- scripts/decode_stacktrace.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/test.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index 381acfc4c59dd..98cf6343afcd7 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -77,7 +77,7 @@ parse_symbol() {
- 	fi
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -23,6 +23,12 @@
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_TEST_WEIGHT 0x80000
  
- 	# Strip out the base of the path
--	code=${code//^$basepath/""}
-+	code=${code#$basepath/}
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving others with
++ * pkts.
++ */
++#define VHOST_TEST_PKT_WEIGHT 256
++
+ enum {
+ 	VHOST_TEST_VQ = 0,
+ 	VHOST_TEST_VQ_MAX = 1,
+@@ -81,10 +87,8 @@ static void handle_vq(struct vhost_test
+ 		}
+ 		vhost_add_used_and_signal(&n->dev, vq, head, 0);
+ 		total_len += len;
+-		if (unlikely(total_len >= VHOST_TEST_WEIGHT)) {
+-			vhost_poll_queue(&vq->poll);
++		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
+ 			break;
+-		}
+ 	}
  
- 	# In the case of inlines, move everything to same line
- 	code=${code//$'\n'/' '}
--- 
-2.20.1
-
+ 	mutex_unlock(&vq->mutex);
+@@ -116,7 +120,8 @@ static int vhost_test_open(struct inode
+ 	dev = &n->dev;
+ 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+ 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+-	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
++	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX,
++		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
+ 
+ 	f->private_data = n;
+ 
 
 
