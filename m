@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF51B2046
+	by mail.lfdr.de (Postfix) with ESMTP id 31923B2045
 	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389430AbfIMNTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:19:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47036 "EHLO mail.kernel.org"
+        id S2389236AbfIMNTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:19:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390356AbfIMNTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:19:08 -0400
+        id S2389143AbfIMNTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:19:11 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CEC820640;
-        Fri, 13 Sep 2019 13:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DE49214AF;
+        Fri, 13 Sep 2019 13:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380747;
-        bh=HAmmkIcp7no0uC3WdtdrKjJJZWCoxqdHRWx5eZr7dXk=;
+        s=default; t=1568380750;
+        bh=joqP4UPsxJsKY/fSN5L/+qTrTQya/sOM+fIw1lI6Sb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHHnwz+7LUz+A+8gK95fnUCcsF+1SkLkjHS3pa2WENKjYq8beBXyzJh4vRUKi0G3E
-         6NejthWzxwByL5oBqEcu0sYiGY5WEb9nLDE0ULJdjjogAM4wxRUgjHVlnxUOlIj9ZV
-         y7ZFHlc47PaCj4StApQoZMnhnEWHw4ijuI2+F8gU=
+        b=See6shaCzQ8a7tL/b+GzOUpqwZG8dmjpkSicBpntBXnWTxuBJ8Pu7Bi4YSJ8f6tWw
+         8MjWDJ79FkHxDmAaJfdnE/PT4vA8KlnM8eVhjz8db6tT5jpeP8Rtai+mi6NcuxdxCf
+         /1WyhHibxSgu4EYNnYrcoIPx1k0pPDeU20HlbTx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Salvatore <mike.salvatore@canonical.com>,
-        John Johansen <john.johansen@canonical.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Nicholas Bellinger <nab@linux-iscsi.org>,
+        Mike Christie <mchristi@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/190] apparmor: reset pos on failure to unpack for various functions
-Date:   Fri, 13 Sep 2019 14:06:39 +0100
-Message-Id: <20190913130611.488999485@linuxfoundation.org>
+Subject: [PATCH 4.19 145/190] scsi: target/core: Use the SECTOR_SHIFT constant
+Date:   Fri, 13 Sep 2019 14:06:40 +0100
+Message-Id: <20190913130611.554063064@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,148 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 156e42996bd84eccb6acf319f19ce0cb140d00e3 ]
+[ Upstream commit 80b045b385cfef10939c913fbfeb19ce5491c1f2 ]
 
-Each function that manipulates the aa_ext struct should reset it's "pos"
-member on failure. This ensures that, on failure, no changes are made to
-the state of the aa_ext struct.
+Instead of duplicating the SECTOR_SHIFT definition from <linux/blkdev.h>,
+use it. This patch does not change any functionality.
 
-There are paths were elements are optional and the error path is
-used to indicate the optional element is not present. This means
-instead of just aborting on error the unpack stream can become
-unsynchronized on optional elements, if using one of the affected
-functions.
-
-Cc: stable@vger.kernel.org
-Fixes: 736ec752d95e ("AppArmor: policy routines for loading and unpacking policy")
-Signed-off-by: Mike Salvatore <mike.salvatore@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: Mike Christie <mchristi@redhat.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_unpack.c | 40 +++++++++++++++++++++++++------
- 1 file changed, 33 insertions(+), 7 deletions(-)
+ drivers/target/target_core_iblock.c | 4 ++--
+ drivers/target/target_core_iblock.h | 1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
-index 088ea2ac85706..612f737cee836 100644
---- a/security/apparmor/policy_unpack.c
-+++ b/security/apparmor/policy_unpack.c
-@@ -223,16 +223,21 @@ static void *kvmemdup(const void *src, size_t len)
- static size_t unpack_u16_chunk(struct aa_ext *e, char **chunk)
- {
- 	size_t size = 0;
-+	void *pos = e->pos;
- 
- 	if (!inbounds(e, sizeof(u16)))
--		return 0;
-+		goto fail;
- 	size = le16_to_cpu(get_unaligned((__le16 *) e->pos));
- 	e->pos += sizeof(__le16);
- 	if (!inbounds(e, size))
--		return 0;
-+		goto fail;
- 	*chunk = e->pos;
- 	e->pos += size;
- 	return size;
-+
-+fail:
-+	e->pos = pos;
-+	return 0;
- }
- 
- /* unpack control byte */
-@@ -294,49 +299,66 @@ fail:
- 
- static bool unpack_u32(struct aa_ext *e, u32 *data, const char *name)
- {
-+	void *pos = e->pos;
-+
- 	if (unpack_nameX(e, AA_U32, name)) {
- 		if (!inbounds(e, sizeof(u32)))
--			return 0;
-+			goto fail;
- 		if (data)
- 			*data = le32_to_cpu(get_unaligned((__le32 *) e->pos));
- 		e->pos += sizeof(u32);
- 		return 1;
- 	}
-+
-+fail:
-+	e->pos = pos;
- 	return 0;
- }
- 
- static bool unpack_u64(struct aa_ext *e, u64 *data, const char *name)
- {
-+	void *pos = e->pos;
-+
- 	if (unpack_nameX(e, AA_U64, name)) {
- 		if (!inbounds(e, sizeof(u64)))
--			return 0;
-+			goto fail;
- 		if (data)
- 			*data = le64_to_cpu(get_unaligned((__le64 *) e->pos));
- 		e->pos += sizeof(u64);
- 		return 1;
- 	}
-+
-+fail:
-+	e->pos = pos;
- 	return 0;
- }
- 
- static size_t unpack_array(struct aa_ext *e, const char *name)
- {
-+	void *pos = e->pos;
-+
- 	if (unpack_nameX(e, AA_ARRAY, name)) {
- 		int size;
- 		if (!inbounds(e, sizeof(u16)))
--			return 0;
-+			goto fail;
- 		size = (int)le16_to_cpu(get_unaligned((__le16 *) e->pos));
- 		e->pos += sizeof(u16);
- 		return size;
- 	}
-+
-+fail:
-+	e->pos = pos;
- 	return 0;
- }
- 
- static size_t unpack_blob(struct aa_ext *e, char **blob, const char *name)
- {
-+	void *pos = e->pos;
-+
- 	if (unpack_nameX(e, AA_BLOB, name)) {
- 		u32 size;
- 		if (!inbounds(e, sizeof(u32)))
--			return 0;
-+			goto fail;
- 		size = le32_to_cpu(get_unaligned((__le32 *) e->pos));
- 		e->pos += sizeof(u32);
- 		if (inbounds(e, (size_t) size)) {
-@@ -345,6 +367,9 @@ static size_t unpack_blob(struct aa_ext *e, char **blob, const char *name)
- 			return size;
+diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
+index ce1321a5cb7bf..1bc9b14236d8b 100644
+--- a/drivers/target/target_core_iblock.c
++++ b/drivers/target/target_core_iblock.c
+@@ -514,7 +514,7 @@ iblock_execute_write_same(struct se_cmd *cmd)
  		}
- 	}
-+
-+fail:
-+	e->pos = pos;
- 	return 0;
- }
  
-@@ -361,9 +386,10 @@ static int unpack_str(struct aa_ext *e, const char **string, const char *name)
- 			if (src_str[size - 1] != 0)
- 				goto fail;
- 			*string = src_str;
-+
-+			return size;
+ 		/* Always in 512 byte units for Linux/Block */
+-		block_lba += sg->length >> IBLOCK_LBA_SHIFT;
++		block_lba += sg->length >> SECTOR_SHIFT;
+ 		sectors -= 1;
+ 	}
+ 
+@@ -757,7 +757,7 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
  		}
- 	}
--	return size;
  
- fail:
- 	e->pos = pos;
+ 		/* Always in 512 byte units for Linux/Block */
+-		block_lba += sg->length >> IBLOCK_LBA_SHIFT;
++		block_lba += sg->length >> SECTOR_SHIFT;
+ 		sg_num--;
+ 	}
+ 
+diff --git a/drivers/target/target_core_iblock.h b/drivers/target/target_core_iblock.h
+index 9cc3843404d44..cefc641145b3b 100644
+--- a/drivers/target/target_core_iblock.h
++++ b/drivers/target/target_core_iblock.h
+@@ -9,7 +9,6 @@
+ #define IBLOCK_VERSION		"4.0"
+ 
+ #define IBLOCK_MAX_CDBS		16
+-#define IBLOCK_LBA_SHIFT	9
+ 
+ struct iblock_req {
+ 	refcount_t pending;
 -- 
 2.20.1
 
