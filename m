@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F79B1EF9
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D113B1EFC
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388978AbfIMNOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40534 "EHLO mail.kernel.org"
+        id S2389563AbfIMNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388983AbfIMNOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:14:35 -0400
+        id S2388983AbfIMNOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:14:40 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B539E21734;
-        Fri, 13 Sep 2019 13:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDFDD214AE;
+        Fri, 13 Sep 2019 13:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380474;
-        bh=UDR+5hImiLzYx7LmLJEvKFLTLIW+pBVxrLeNRlnantY=;
+        s=default; t=1568380480;
+        bh=ZDkfIO33o/McqlV4/dQSVvDdcBktevj8xnFF6u9XYqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wp4pWSbGeQRQLNNTjuVral8rt1vd9Or8TuyiFIgtQB2XMNmxCQ9mjATu240zXZx/d
-         VqyvYKOv7LqJKBv2KHs6IfvFHsT43vfBRBuc4dk1t5m1xX3kR11OYiSusi900MIHyU
-         P7V/+E2+jnjRSOvvESLJV/0H0FRI8jXKLWRjI1xM=
+        b=L3zYDLmfhW14Km3B1H9kc723aqW4qTggDB5uYn89uefha0d5nbVu6+gdUOOIWxeFA
+         A78q/wGPokhPZg+mCIvhYa9noF30O1jE8zCHRwbC7SyEZq56oKFKF6wISe6OtpcL0v
+         e3ImgZ+GHrZKgVVT9nB6H3zFbx8H/z6UVMNocBQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/190] ARC: mm: do_page_fault fixes #1: relinquish mmap_sem if signal arrives while handle_mm_fault
-Date:   Fri, 13 Sep 2019 14:05:32 +0100
-Message-Id: <20190913130605.678955806@linuxfoundation.org>
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, stable@kernel.org
+Subject: [PATCH 4.19 079/190] crypto: ccree - fix resume race condition on init
+Date:   Fri, 13 Sep 2019 14:05:34 +0100
+Message-Id: <20190913130605.818055957@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -43,104 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4d447455e73b47c43dd35fcc38ed823d3182a474 ]
+[ Upstream commit 1358c13a48c43f5e4de0c1835291837a27b9720c ]
 
-do_page_fault() forgot to relinquish mmap_sem if a signal came while
-handling handle_mm_fault() - due to say a ctl+c or oom etc.
-This would later cause a deadlock by acquiring it twice.
+We were enabling autosuspend, which is using data set by the
+hash module, prior to the hash module being inited, casuing
+a crash on resume as part of the startup sequence if the race
+was lost.
 
-This came to light when running libc testsuite tst-tls3-malloc test but
-is likely also the cause for prior seen LTP failures. Using lockdep
-clearly showed what the issue was.
+This was never a real problem because the PM infra was using low
+res timers so we were always winning the race, until commit 8234f6734c5d
+("PM-runtime: Switch autosuspend over to using hrtimers") changed that :-)
 
-| # while true; do ./tst-tls3-malloc ; done
-| Didn't expect signal from child: got `Segmentation fault'
-| ^C
-| ============================================
-| WARNING: possible recursive locking detected
-| 4.17.0+ #25 Not tainted
-| --------------------------------------------
-| tst-tls3-malloc/510 is trying to acquire lock:
-| 606c7728 (&mm->mmap_sem){++++}, at: __might_fault+0x28/0x5c
-|
-|but task is already holding lock:
-|606c7728 (&mm->mmap_sem){++++}, at: do_page_fault+0x9c/0x2a0
-|
-| other info that might help us debug this:
-|  Possible unsafe locking scenario:
-|
-|       CPU0
-|       ----
-|  lock(&mm->mmap_sem);
-|  lock(&mm->mmap_sem);
-|
-| *** DEADLOCK ***
-|
+Fix this by seperating the PM setup and enablement and doing the
+latter only at the end of the init sequence.
 
-------------------------------------------------------------
-What the change does is not obvious (note to myself)
-
-prior code was
-
-| do_page_fault
-|
-|   down_read()		<-- lock taken
-|   handle_mm_fault	<-- signal pending as this runs
-|   if fatal_signal_pending
-|       if VM_FAULT_ERROR
-|           up_read
-|       if user_mode
-|          return	<-- lock still held, this was the BUG
-
-New code
-
-| do_page_fault
-|
-|   down_read()		<-- lock taken
-|   handle_mm_fault	<-- signal pending as this runs
-|   if fatal_signal_pending
-|       if VM_FAULT_RETRY
-|          return       <-- not same case as above, but still OK since
-|                           core mm already relinq lock for FAULT_RETRY
-|    ...
-|
-|   < Now falls through for bug case above >
-|
-|   up_read()		<-- lock relinquished
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: stable@kernel.org # v4.20
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/mm/fault.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/crypto/ccree/cc_driver.c |  7 ++++---
+ drivers/crypto/ccree/cc_pm.c     | 13 ++++++-------
+ drivers/crypto/ccree/cc_pm.h     |  3 +++
+ 3 files changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
-index db6913094be3c..f28db0b112a30 100644
---- a/arch/arc/mm/fault.c
-+++ b/arch/arc/mm/fault.c
-@@ -143,12 +143,17 @@ good_area:
- 	 */
- 	fault = handle_mm_fault(vma, address, flags);
- 
--	/* If Pagefault was interrupted by SIGKILL, exit page fault "early" */
- 	if (unlikely(fatal_signal_pending(current))) {
--		if ((fault & VM_FAULT_ERROR) && !(fault & VM_FAULT_RETRY))
--			up_read(&mm->mmap_sem);
--		if (user_mode(regs))
-+
-+		/*
-+		 * if fault retry, mmap_sem already relinquished by core mm
-+		 * so OK to return to user mode (with signal handled first)
-+		 */
-+		if (fault & VM_FAULT_RETRY) {
-+			if (!user_mode(regs))
-+				goto no_context;
- 			return;
-+		}
+diff --git a/drivers/crypto/ccree/cc_driver.c b/drivers/crypto/ccree/cc_driver.c
+index 1ff229c2aeab1..186a2536fb8b9 100644
+--- a/drivers/crypto/ccree/cc_driver.c
++++ b/drivers/crypto/ccree/cc_driver.c
+@@ -364,7 +364,7 @@ static int init_cc_resources(struct platform_device *plat_dev)
+ 	rc = cc_ivgen_init(new_drvdata);
+ 	if (rc) {
+ 		dev_err(dev, "cc_ivgen_init failed\n");
+-		goto post_power_mgr_err;
++		goto post_buf_mgr_err;
  	}
  
- 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+ 	/* Allocate crypto algs */
+@@ -387,6 +387,9 @@ static int init_cc_resources(struct platform_device *plat_dev)
+ 		goto post_hash_err;
+ 	}
+ 
++	/* All set, we can allow autosuspend */
++	cc_pm_go(new_drvdata);
++
+ 	/* If we got here and FIPS mode is enabled
+ 	 * it means all FIPS test passed, so let TEE
+ 	 * know we're good.
+@@ -401,8 +404,6 @@ post_cipher_err:
+ 	cc_cipher_free(new_drvdata);
+ post_ivgen_err:
+ 	cc_ivgen_fini(new_drvdata);
+-post_power_mgr_err:
+-	cc_pm_fini(new_drvdata);
+ post_buf_mgr_err:
+ 	 cc_buffer_mgr_fini(new_drvdata);
+ post_req_mgr_err:
+diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
+index 79fc0a37ba6e4..638082dff183a 100644
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -103,20 +103,19 @@ int cc_pm_put_suspend(struct device *dev)
+ 
+ int cc_pm_init(struct cc_drvdata *drvdata)
+ {
+-	int rc = 0;
+ 	struct device *dev = drvdata_to_dev(drvdata);
+ 
+ 	/* must be before the enabling to avoid resdundent suspending */
+ 	pm_runtime_set_autosuspend_delay(dev, CC_SUSPEND_TIMEOUT);
+ 	pm_runtime_use_autosuspend(dev);
+ 	/* activate the PM module */
+-	rc = pm_runtime_set_active(dev);
+-	if (rc)
+-		return rc;
+-	/* enable the PM module*/
+-	pm_runtime_enable(dev);
++	return pm_runtime_set_active(dev);
++}
+ 
+-	return rc;
++/* enable the PM module*/
++void cc_pm_go(struct cc_drvdata *drvdata)
++{
++	pm_runtime_enable(drvdata_to_dev(drvdata));
+ }
+ 
+ void cc_pm_fini(struct cc_drvdata *drvdata)
+diff --git a/drivers/crypto/ccree/cc_pm.h b/drivers/crypto/ccree/cc_pm.h
+index 020a5403c58ba..f626243570209 100644
+--- a/drivers/crypto/ccree/cc_pm.h
++++ b/drivers/crypto/ccree/cc_pm.h
+@@ -16,6 +16,7 @@
+ extern const struct dev_pm_ops ccree_pm;
+ 
+ int cc_pm_init(struct cc_drvdata *drvdata);
++void cc_pm_go(struct cc_drvdata *drvdata);
+ void cc_pm_fini(struct cc_drvdata *drvdata);
+ int cc_pm_suspend(struct device *dev);
+ int cc_pm_resume(struct device *dev);
+@@ -29,6 +30,8 @@ static inline int cc_pm_init(struct cc_drvdata *drvdata)
+ 	return 0;
+ }
+ 
++static void cc_pm_go(struct cc_drvdata *drvdata) {}
++
+ static inline void cc_pm_fini(struct cc_drvdata *drvdata) {}
+ 
+ static inline int cc_pm_suspend(struct device *dev)
 -- 
 2.20.1
 
