@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0570DB203E
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DD0B1FDF
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390309AbfIMNSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:18:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46696 "EHLO mail.kernel.org"
+        id S2388279AbfIMNJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:09:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390291AbfIMNSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:18:54 -0400
+        id S2388579AbfIMNJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:09:54 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF405206A5;
-        Fri, 13 Sep 2019 13:18:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA1BB206BB;
+        Fri, 13 Sep 2019 13:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380733;
-        bh=l3+xhIZ4Qtoji4jU2cv1PVfYcIhXQZ+s11XP5hq4HRo=;
+        s=default; t=1568380193;
+        bh=P7jsQZzraoazkhJaduXNW6gku7OXXwlFf3f1jFYb+9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6zj2aNGgGyjHSAbibAgAwAFIb5AszRb5EoDYnsaqKs3x9HneJLbPn2lSc3LZDYyf
-         /3D82C3UojFkK3fz5tjkMEFdMJe5n0npr0wdU0fcWHW/UFjHRGvnBgUJYxc1yekuql
-         Rv7HBnME5e4yWr6t+y0chtXtQ2KK0C/Rf4pgglr0=
+        b=JjISDUGjV/eX5WMZs0h8I29ma06BESD+NMRwfLTtkXIotD7nErZfma3aTkUqQAADe
+         xx6Hs8o9THqHo36WFdBl8YRrpLoDhVb0xdXoWU/qvKlwaLpefJsCB6f3M+9W+9d29I
+         o3evgV7mF6/N4+I12h2lQh1GPtFd4UoAzjmJJHUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Gorenko <sergeygo@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/190] RDMA/srp: Document srp_parse_in() arguments
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 01/21] ALSA: hda - Fix potential endless loop at applying quirks
 Date:   Fri, 13 Sep 2019 14:06:54 +0100
-Message-Id: <20190913130612.619070952@linuxfoundation.org>
+Message-Id: <20190913130502.425859767@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
-References: <20190913130559.669563815@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,36 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e37df2d5b569390e3b80ebed9a73fd5b9dcda010 ]
+From: Takashi Iwai <tiwai@suse.de>
 
-This patch avoids that a warning is reported when building with W=1.
+commit 333f31436d3db19f4286f8862a00ea1d8d8420a1 upstream.
 
-Cc: Sergey Gorenko <sergeygo@mellanox.com>
-Cc: Max Gurtovoy <maxg@mellanox.com>
-Cc: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since the chained quirks via chained_before flag is applied before the
+depth check, it may lead to the endless recursive calls, when the
+chain were set up incorrectly.  Fix it by moving the depth check at
+the beginning of the loop.
+
+Fixes: 1f57825077dc ("ALSA: hda - Add chained_before flag to the fixup entry")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/hda_auto_parser.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 2c1114ee0c6da..9da30d88a615e 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3401,6 +3401,9 @@ static const match_table_t srp_opt_tokens = {
+--- a/sound/pci/hda/hda_auto_parser.c
++++ b/sound/pci/hda/hda_auto_parser.c
+@@ -828,6 +828,8 @@ static void apply_fixup(struct hda_codec
+ 	while (id >= 0) {
+ 		const struct hda_fixup *fix = codec->fixup_list + id;
  
- /**
-  * srp_parse_in - parse an IP address and port number combination
-+ * @net:	   [in]  Network namespace.
-+ * @sa:		   [out] Address family, IP address and port number.
-+ * @addr_port_str: [in]  IP address and port number.
-  *
-  * Parse the following address formats:
-  * - IPv4: <ip_address>:<port>, e.g. 1.2.3.4:5.
--- 
-2.20.1
-
++		if (++depth > 10)
++			break;
+ 		if (fix->chained_before)
+ 			apply_fixup(codec, fix->chain_id, action, depth + 1);
+ 
+@@ -867,8 +869,6 @@ static void apply_fixup(struct hda_codec
+ 		}
+ 		if (!fix->chained || fix->chained_before)
+ 			break;
+-		if (++depth > 10)
+-			break;
+ 		id = fix->chain_id;
+ 	}
+ }
 
 
