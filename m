@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B66F7B2062
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11166B2091
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388925AbfIMNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
+        id S2388463AbfIMNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389614AbfIMNVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:21:15 -0400
+        id S2389729AbfIMNUq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:20:46 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7C41206A5;
-        Fri, 13 Sep 2019 13:21:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F9DB206BB;
+        Fri, 13 Sep 2019 13:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380874;
-        bh=a87RG2IfDm8y/jeALS+aChFaTmKn6VxACxCU8UBvCG0=;
+        s=default; t=1568380846;
+        bh=RBHFNmoq0KwigmFolI7aqoLzBVjy9tx5BTawnJLct2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwDvPbNvFCH7jKxgIBGWZ4CHfVv5EVdLphSG2eRzxJBerwFECeBbGqnCEjaYtJHTq
-         k2Z5JVZbfhMbnFmHtPezUqvNIjQ84gBOokIi1ejlyeixb++XP0Daga6ysW3v+3Rry3
-         YDlHmKKQGcTmfLFWr3Zqu3enhVNZVEv86eHWoHDk=
+        b=DeCbafoAabDdpgN0fmsaqN1EW6sVl4Uo8bqBrWqlkwzKJsF7+W8BvbCqgcyzoVD1H
+         wYNbQ9Pfx9EkkYEh7eRvqvdazmZAYu3CdyAdadUtedKQcNfcqjWpWLJr/qDnrCWmZ0
+         7sJsAkHu7TviEuVKUbaF+Jy70t4/6bBrFZMpSAcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 19/37] bcache: add comments for mutex_lock(&b->write_lock)
-Date:   Fri, 13 Sep 2019 14:07:24 +0100
-Message-Id: <20190913130518.607029021@linuxfoundation.org>
+        stable@vger.kernel.org, Lidong Chen <lidongchen@tencent.com>,
+        ruippan <ruippan@tencent.com>, yongduan <yongduan@tencent.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 4.19 190/190] vhost: make sure log_num < in_num
+Date:   Fri, 13 Sep 2019 14:07:25 +0100
+Message-Id: <20190913130615.118340191@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130510.727515099@linuxfoundation.org>
-References: <20190913130510.727515099@linuxfoundation.org>
+In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
+References: <20190913130559.669563815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When accessing or modifying BTREE_NODE_dirty bit, it is not always
-necessary to acquire b->write_lock. In bch_btree_cache_free() and
-mca_reap() acquiring b->write_lock is necessary, and this patch adds
-comments to explain why mutex_lock(&b->write_lock) is necessary for
-checking or clearing BTREE_NODE_dirty bit there.
+From: yongduan <yongduan@tencent.com>
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+commit 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4 upstream.
+
+The code assumes log_num < in_num everywhere, and that is true as long as
+in_num is incremented by descriptor iov count, and log_num by 1. However
+this breaks if there's a zero sized descriptor.
+
+As a result, if a malicious guest creates a vring desc with desc.len = 0,
+it may cause the host kernel to crash by overflowing the log array. This
+bug can be triggered during the VM migration.
+
+There's no need to log when desc.len = 0, so just don't increment log_num
+in this case.
+
+Fixes: 3a4d5c94e959 ("vhost_net: a kernel-level virtio server")
+Cc: stable@vger.kernel.org
+Reviewed-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: ruippan <ruippan@tencent.com>
+Signed-off-by: yongduan <yongduan@tencent.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/bcache/btree.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/vhost/vhost.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 3fbadf2058a65..9788b2ee6638f 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -655,6 +655,11 @@ static int mca_reap(struct btree *b, unsigned int min_order, bool flush)
- 		up(&b->io_mutex);
- 	}
- 
-+	/*
-+	 * BTREE_NODE_dirty might be cleared in btree_flush_btree() by
-+	 * __bch_btree_node_write(). To avoid an extra flush, acquire
-+	 * b->write_lock before checking BTREE_NODE_dirty bit.
-+	 */
- 	mutex_lock(&b->write_lock);
- 	if (btree_node_dirty(b))
- 		__bch_btree_node_write(b, &cl);
-@@ -778,6 +783,11 @@ void bch_btree_cache_free(struct cache_set *c)
- 	while (!list_empty(&c->btree_cache)) {
- 		b = list_first_entry(&c->btree_cache, struct btree, list);
- 
-+		/*
-+		 * This function is called by cache_set_free(), no I/O
-+		 * request on cache now, it is unnecessary to acquire
-+		 * b->write_lock before clearing BTREE_NODE_dirty anymore.
-+		 */
- 		if (btree_node_dirty(b)) {
- 			btree_complete_write(b, btree_current_write(b));
- 			clear_bit(BTREE_NODE_dirty, &b->flags);
--- 
-2.20.1
-
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2075,7 +2075,7 @@ static int get_indirect(struct vhost_vir
+ 		/* If this is an input descriptor, increment that count. */
+ 		if (access == VHOST_ACCESS_WO) {
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
+@@ -2218,7 +2218,7 @@ int vhost_get_vq_desc(struct vhost_virtq
+ 			/* If this is an input descriptor,
+ 			 * increment that count. */
+ 			*in_num += ret;
+-			if (unlikely(log)) {
++			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
+ 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
+ 				++*log_num;
 
 
