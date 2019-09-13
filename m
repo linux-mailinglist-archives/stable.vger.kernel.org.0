@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2D4B202D
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E84FB20F3
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390058AbfIMNR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44704 "EHLO mail.kernel.org"
+        id S2389218AbfIMNaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:30:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390055AbfIMNR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:17:27 -0400
+        id S2390071AbfIMNRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:17:32 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E09420640;
-        Fri, 13 Sep 2019 13:17:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E38D820717;
+        Fri, 13 Sep 2019 13:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380646;
-        bh=IT8anIXwAAlvWguL7JjPrf9nZyFyfDwRObJTzAXZfuQ=;
+        s=default; t=1568380652;
+        bh=HkYZv90sZN7NQyNcuQLg+7POxv5e7uxidSp5VsrL/dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/q+sjvWKiAZ25lF1GQVWYV9c8FM8k2uBEsgTbCXK5mIKbnQh46voK7T3hAsTh98G
-         bNsG/M3KsG6WYml9ihrR4DIkMxVBZyJ7kJA78eGipWkrXk3+OPT9J1kF7owKctWVH9
-         dsaq7y8w3wAPZpu0X9vIZS5mqpuTxd1L1citxcSo=
+        b=FN9hfDnqxEpXt+kA1R6XGtErq/yiPZJNPrBpB8paSI9RvYSk6wJPBTa0P2TZzfUbH
+         Oi0kdGch+DnwCro/neyaHIq5nlrz5+vV55I5xVJMHRe/5we6HJc3gv1ovftZJHBw0u
+         OOpZiYpeaWObYp2f6UyPxRX62vcAKAl0OceRLazI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/190] signal/arc: Use force_sig_fault where appropriate
-Date:   Fri, 13 Sep 2019 14:06:27 +0100
-Message-Id: <20190913130610.504920773@linuxfoundation.org>
+Subject: [PATCH 4.19 134/190] ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
+Date:   Fri, 13 Sep 2019 14:06:29 +0100
+Message-Id: <20190913130610.668515923@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -44,77 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15773ae938d8d93d982461990bebad6e1d7a1830 ]
+[ Upstream commit a8c715b4dd73c26a81a9cc8dc792aa715d8b4bb2 ]
 
-Acked-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+As of today if userspace process tries to access a kernel virtual addres
+(0x7000_0000 to 0x7ffff_ffff) such that a legit kernel mapping already
+exists, that process hangs instead of being killed with SIGSEGV
+
+Fix that by ensuring that do_page_fault() handles kenrel vaddr only if
+in kernel mode.
+
+And given this, we can also simplify the code a bit. Now a vmalloc fault
+implies kernel mode so its failure (for some reason) can reuse the
+@no_context label and we can remove @bad_area_nosemaphore.
+
+Reproduce user test for original problem:
+
+------------------------>8-----------------
+ #include <stdlib.h>
+ #include <stdint.h>
+
+ int main(int argc, char *argv[])
+ {
+ 	volatile uint32_t temp;
+
+ 	temp = *(uint32_t *)(0x70000000);
+ }
+------------------------>8-----------------
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/mm/fault.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ arch/arc/mm/fault.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
-index f28db0b112a30..a0366f9dca051 100644
+index 535cf18e8bf2c..4e8143de32e70 100644
 --- a/arch/arc/mm/fault.c
 +++ b/arch/arc/mm/fault.c
-@@ -66,14 +66,12 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+@@ -66,7 +66,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
  	struct vm_area_struct *vma = NULL;
  	struct task_struct *tsk = current;
  	struct mm_struct *mm = tsk->mm;
--	siginfo_t info;
-+	int si_code;
+-	int si_code = 0;
++	int si_code = SEGV_MAPERR;
  	int ret;
  	vm_fault_t fault;
  	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
- 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
- 
--	clear_siginfo(&info);
--
- 	/*
- 	 * We fault-in kernel-space virtual memory on-demand. The
- 	 * 'reference' page table is init_mm.pgd.
-@@ -91,7 +89,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+@@ -81,16 +81,14 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ 	 * only copy the information from the master page table,
+ 	 * nothing more.
+ 	 */
+-	if (address >= VMALLOC_START) {
++	if (address >= VMALLOC_START && !user_mode(regs)) {
+ 		ret = handle_kernel_vaddr_fault(address);
+ 		if (unlikely(ret))
+-			goto bad_area_nosemaphore;
++			goto no_context;
+ 		else
  			return;
  	}
  
--	info.si_code = SEGV_MAPERR;
-+	si_code = SEGV_MAPERR;
- 
+-	si_code = SEGV_MAPERR;
+-
  	/*
  	 * If we're in an interrupt or have no user
-@@ -119,7 +117,7 @@ retry:
- 	 * we can handle it..
- 	 */
- good_area:
--	info.si_code = SEGV_ACCERR;
-+	si_code = SEGV_ACCERR;
+ 	 * context, we must not take the fault..
+@@ -198,7 +196,6 @@ good_area:
+ bad_area:
+ 	up_read(&mm->mmap_sem);
  
- 	/* Handle protection violation, execute on heap or stack */
- 
-@@ -204,11 +202,7 @@ bad_area_nosemaphore:
+-bad_area_nosemaphore:
  	/* User mode accesses just cause a SIGSEGV */
  	if (user_mode(regs)) {
  		tsk->thread.fault_address = address;
--		info.si_signo = SIGSEGV;
--		info.si_errno = 0;
--		/* info.si_code has been set above */
--		info.si_addr = (void __user *)address;
--		force_sig_info(SIGSEGV, &info, tsk);
-+		force_sig_fault(SIGSEGV, si_code, (void __user *)address, tsk);
- 		return;
- 	}
- 
-@@ -243,9 +237,5 @@ do_sigbus:
- 		goto no_context;
- 
- 	tsk->thread.fault_address = address;
--	info.si_signo = SIGBUS;
--	info.si_errno = 0;
--	info.si_code = BUS_ADRERR;
--	info.si_addr = (void __user *)address;
--	force_sig_info(SIGBUS, &info, tsk);
-+	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address, tsk);
- }
 -- 
 2.20.1
 
