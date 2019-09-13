@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 371B3B1EF7
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F31AB1F0B
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388977AbfIMNOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:14:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40450 "EHLO mail.kernel.org"
+        id S2389662AbfIMNPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388983AbfIMNOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:14:32 -0400
+        id S2389117AbfIMNPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:15:14 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC9E2208C0;
-        Fri, 13 Sep 2019 13:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC2D206A5;
+        Fri, 13 Sep 2019 13:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380471;
-        bh=PKfSZ84nsJ5I2rmMY3QuJCA9lr7zMYLUW9zcMh8N70g=;
+        s=default; t=1568380513;
+        bh=hDXZxdUzWyqTKIdZ2791Z/I7MoEzBAlqJFqS5zPZdZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnyPhEJqSOSmjqQT4EJVnvpwbEH5/IZ6hTEwbw4BV4WI/WLAfEg0GEFf7Zlh12WCm
-         DR7qQRh8CFiES3YDfXFljDdixZ1X+AzSRJdn8I3N6MZ7VL7jhsdrLmRogoevkUpJwj
-         +GuMMSr+9nxJsemLMZtN4KjdE/gXXS6nh06DDAsw=
+        b=CmruDVPxxpu7K5G0xaxXK02uccXZn0naxHyjbCV/vye1HMGhuwsc6t5/H9bWYJOw9
+         if0vb/qXwfyOrc8IIsy6TCHfbcBGMaRjJ4bt3rNTXYw1qFaQ2MEUi/JqTwkTMA+xQ0
+         yA4OiLjPJcoD+zcijO1H107OE42sIUAbiwEkXPzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 068/190] btrfs: Fix error handling in btrfs_cleanup_ordered_extents
-Date:   Fri, 13 Sep 2019 14:05:23 +0100
-Message-Id: <20190913130605.118534456@linuxfoundation.org>
+Subject: [PATCH 4.19 070/190] scsi: megaraid_sas: Add check for reset adapter bit
+Date:   Fri, 13 Sep 2019 14:05:25 +0100
+Message-Id: <20190913130605.240075835@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190913130559.669563815@linuxfoundation.org>
 References: <20190913130559.669563815@linuxfoundation.org>
@@ -45,129 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d1051d6ebf8ef3517a5a3cf82bba8436d190f1c2 ]
+[ Upstream commit de93b40d98ead27ee2f7f7df93fdd4914a6c8d8d ]
 
-Running btrfs/124 in a loop hung up on me sporadically with the
-following call trace:
+For SAS3 and later controllers, FW sets the reset adapter bit indicating
+the driver to perform a controller reset.  Driver needs to check if this
+bit is set before doing a reset.  This reduces the driver probe failure
+time to 180seconds in case there is a faulty controller connected.
 
-	btrfs           D    0  5760   5324 0x00000000
-	Call Trace:
-	 ? __schedule+0x243/0x800
-	 schedule+0x33/0x90
-	 btrfs_start_ordered_extent+0x10c/0x1b0 [btrfs]
-	 ? wait_woken+0xa0/0xa0
-	 btrfs_wait_ordered_range+0xbb/0x100 [btrfs]
-	 btrfs_relocate_block_group+0x1ff/0x230 [btrfs]
-	 btrfs_relocate_chunk+0x49/0x100 [btrfs]
-	 btrfs_balance+0xbeb/0x1740 [btrfs]
-	 btrfs_ioctl_balance+0x2ee/0x380 [btrfs]
-	 btrfs_ioctl+0x1691/0x3110 [btrfs]
-	 ? lockdep_hardirqs_on+0xed/0x180
-	 ? __handle_mm_fault+0x8e7/0xfb0
-	 ? _raw_spin_unlock+0x24/0x30
-	 ? __handle_mm_fault+0x8e7/0xfb0
-	 ? do_vfs_ioctl+0xa5/0x6e0
-	 ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
-	 do_vfs_ioctl+0xa5/0x6e0
-	 ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
-	 ksys_ioctl+0x3a/0x70
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x60/0x1b0
-	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-This happens because during page writeback it's valid for
-writepage_delalloc to instantiate a delalloc range which doesn't belong
-to the page currently being written back.
-
-The reason this case is valid is due to find_lock_delalloc_range
-returning any available range after the passed delalloc_start and
-ignoring whether the page under writeback is within that range.
-
-In turn ordered extents (OE) are always created for the returned range
-from find_lock_delalloc_range. If, however, a failure occurs while OE
-are being created then the clean up code in btrfs_cleanup_ordered_extents
-will be called.
-
-Unfortunately the code in btrfs_cleanup_ordered_extents doesn't consider
-the case of such 'foreign' range being processed and instead it always
-assumes that the range OE are created for belongs to the page. This
-leads to the first page of such foregin range to not be cleaned up since
-it's deliberately missed and skipped by the current cleaning up code.
-
-Fix this by correctly checking whether the current page belongs to the
-range being instantiated and if so adjsut the range parameters passed
-for cleaning up. If it doesn't, then just clean the whole OE range
-directly.
-
-Fixes: 524272607e88 ("btrfs: Handle delalloc error correctly to avoid ordered extent hang")
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 33 +++++++++++++++--------
+ 1 file changed, 22 insertions(+), 11 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index bfacce295ef1e..98c535ae038da 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -110,17 +110,17 @@ static void __endio_write_update_ordered(struct inode *inode,
-  * extent_clear_unlock_delalloc() to clear both the bits EXTENT_DO_ACCOUNTING
-  * and EXTENT_DELALLOC simultaneously, because that causes the reserved metadata
-  * to be released, which we want to happen only when finishing the ordered
-- * extent (btrfs_finish_ordered_io()). Also note that the caller of
-- * btrfs_run_delalloc_range already does proper cleanup for the first page of
-- * the range, that is, it invokes the callback writepage_end_io_hook() for the
-- * range of the first page.
-+ * extent (btrfs_finish_ordered_io()).
-  */
- static inline void btrfs_cleanup_ordered_extents(struct inode *inode,
--						 const u64 offset,
--						 const u64 bytes)
-+						 struct page *locked_page,
-+						 u64 offset, u64 bytes)
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index b6fc7c6337610..749f10146f630 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5218,7 +5218,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
  {
- 	unsigned long index = offset >> PAGE_SHIFT;
- 	unsigned long end_index = (offset + bytes - 1) >> PAGE_SHIFT;
-+	u64 page_start = page_offset(locked_page);
-+	u64 page_end = page_start + PAGE_SIZE - 1;
-+
- 	struct page *page;
+ 	u32 max_sectors_1;
+ 	u32 max_sectors_2, tmp_sectors, msix_enable;
+-	u32 scratch_pad_2, scratch_pad_3, scratch_pad_4;
++	u32 scratch_pad_2, scratch_pad_3, scratch_pad_4, status_reg;
+ 	resource_size_t base_addr;
+ 	struct megasas_register_set __iomem *reg_set;
+ 	struct megasas_ctrl_info *ctrl_info = NULL;
+@@ -5226,6 +5226,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 	int i, j, loop, fw_msix_count = 0;
+ 	struct IOV_111 *iovPtr;
+ 	struct fusion_context *fusion;
++	bool do_adp_reset = true;
  
- 	while (index <= end_index) {
-@@ -131,8 +131,18 @@ static inline void btrfs_cleanup_ordered_extents(struct inode *inode,
- 		ClearPagePrivate2(page);
- 		put_page(page);
+ 	fusion = instance->ctrl_context;
+ 
+@@ -5274,19 +5275,29 @@ static int megasas_init_fw(struct megasas_instance *instance)
  	}
--	return __endio_write_update_ordered(inode, offset + PAGE_SIZE,
--					    bytes - PAGE_SIZE, false);
-+
-+	/*
-+	 * In case this page belongs to the delalloc range being instantiated
-+	 * then skip it, since the first page of a range is going to be
-+	 * properly cleaned up by the caller of run_delalloc_range
-+	 */
-+	if (page_start >= offset && page_end <= (offset + bytes - 1)) {
-+		offset += PAGE_SIZE;
-+		bytes -= PAGE_SIZE;
-+	}
-+
-+	return __endio_write_update_ordered(inode, offset, bytes, false);
- }
  
- static int btrfs_dirty_inode(struct inode *inode);
-@@ -1629,7 +1639,8 @@ int btrfs_run_delalloc_range(void *private_data, struct page *locked_page,
- 					   write_flags);
+ 	if (megasas_transition_to_ready(instance, 0)) {
+-		atomic_set(&instance->fw_reset_no_pci_access, 1);
+-		instance->instancet->adp_reset
+-			(instance, instance->reg_set);
+-		atomic_set(&instance->fw_reset_no_pci_access, 0);
+-		dev_info(&instance->pdev->dev,
+-			"FW restarted successfully from %s!\n",
+-			__func__);
++		if (instance->adapter_type >= INVADER_SERIES) {
++			status_reg = instance->instancet->read_fw_status_reg(
++					instance->reg_set);
++			do_adp_reset = status_reg & MFI_RESET_ADAPTER;
++		}
+ 
+-		/*waitting for about 30 second before retry*/
+-		ssleep(30);
++		if (do_adp_reset) {
++			atomic_set(&instance->fw_reset_no_pci_access, 1);
++			instance->instancet->adp_reset
++				(instance, instance->reg_set);
++			atomic_set(&instance->fw_reset_no_pci_access, 0);
++			dev_info(&instance->pdev->dev,
++				 "FW restarted successfully from %s!\n",
++				 __func__);
++
++			/*waiting for about 30 second before retry*/
++			ssleep(30);
+ 
+-		if (megasas_transition_to_ready(instance, 0))
++			if (megasas_transition_to_ready(instance, 0))
++				goto fail_ready_state;
++		} else {
+ 			goto fail_ready_state;
++		}
  	}
- 	if (ret)
--		btrfs_cleanup_ordered_extents(inode, start, end - start + 1);
-+		btrfs_cleanup_ordered_extents(inode, locked_page, start,
-+					      end - start + 1);
- 	return ret;
- }
  
+ 	megasas_init_ctrl_params(instance);
 -- 
 2.20.1
 
