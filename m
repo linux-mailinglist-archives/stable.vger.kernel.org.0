@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE17B1FD4
-	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB35B1FE7
+	for <lists+stable@lfdr.de>; Fri, 13 Sep 2019 15:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388395AbfIMNJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Sep 2019 09:09:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
+        id S2388834AbfIMNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Sep 2019 09:10:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388393AbfIMNI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Sep 2019 09:08:59 -0400
+        id S2388191AbfIMNKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Sep 2019 09:10:51 -0400
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7D6E20CC7;
-        Fri, 13 Sep 2019 13:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7603520CC7;
+        Fri, 13 Sep 2019 13:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568380139;
-        bh=xxcNvHAUzHqpe4b/uPFLBWmvx6l6ZoYVFfAIjThIUSk=;
+        s=default; t=1568380250;
+        bh=FZzabBO5Oz6BzfbFqqZaE47YsPJpQelb9ln172BMCLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtoGSUkn9jr+SMUTRjFJg3tu2sBUCnjwzDdas20DtDWQyLvMEVIiKXCx0XVe+vY78
-         eDrOamobVi3jvNAIgTANsHOIT/CnLiZGQnUuRl/xI9zTOW8/P/LvC3vQ15iW5Nng0z
-         rWQb3cVBrrWvfq/oXLse37dSKq8npwviAcs7WqXI=
+        b=y4d1+4JZbEfXi4vavVDJTooL4FzJkOfTH/cTOtoTUnOeljlg/H3Ld1hB16cpG/hQT
+         5Ybhc0b2sZirQkVXI9hnYSfwwJHQZs7426b38trFh60t/Owtw+2mn93y1XhHxxA276
+         A78m0vcl4oQuEbm3wXoUX+9xneAuw5O1ZmkQ9P6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 8/9] af_packet: tone down the Tx-ring unsupported spew.
-Date:   Fri, 13 Sep 2019 14:06:58 +0100
-Message-Id: <20190913130431.515555493@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Gustavo Romero <gromero@linux.vnet.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 06/21] powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
+Date:   Fri, 13 Sep 2019 14:06:59 +0100
+Message-Id: <20190913130503.671977770@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190913130424.160808669@linuxfoundation.org>
-References: <20190913130424.160808669@linuxfoundation.org>
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+References: <20190913130501.285837292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6ae81ced378820c4c6434b1dedba14a7122df310 ]
+From: Gustavo Romero <gromero@linux.ibm.com>
 
-Trinity and other fuzzers can hit this WARN on far too easily,
-resulting in a tainted kernel that hinders automated fuzzing.
+commit 8205d5d98ef7f155de211f5e2eb6ca03d95a5a60 upstream.
 
-Replace it with a rate-limited printk.
+When we take an FP unavailable exception in a transaction we have to
+account for the hardware FP TM checkpointed registers being
+incorrect. In this case for this process we know the current and
+checkpointed FP registers must be the same (since FP wasn't used
+inside the transaction) hence in the thread_struct we copy the current
+FP registers to the checkpointed ones.
 
-Signed-off-by: Dave Jones <davej@codemonkey.org.uk>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This copy is done in tm_reclaim_thread(). We use thread->ckpt_regs.msr
+to determine if FP was on when in userspace. thread->ckpt_regs.msr
+represents the state of the MSR when exiting userspace. This is setup
+by check_if_tm_restore_required().
+
+Unfortunatley there is an optimisation in giveup_all() which returns
+early if tsk->thread.regs->msr (via local variable `usermsr`) has
+FP=VEC=VSX=SPE=0. This optimisation means that
+check_if_tm_restore_required() is not called and hence
+thread->ckpt_regs.msr is not updated and will contain an old value.
+
+This can happen if due to load_fp=255 we start a userspace process
+with MSR FP=1 and then we are context switched out. In this case
+thread->ckpt_regs.msr will contain FP=1. If that same process is then
+context switched in and load_fp overflows, MSR will have FP=0. If that
+process now enters a transaction and does an FP instruction, the FP
+unavailable will not update thread->ckpt_regs.msr (the bug) and MSR
+FP=1 will be retained in thread->ckpt_regs.msr.  tm_reclaim_thread()
+will then not perform the required memcpy and the checkpointed FP regs
+in the thread struct will contain the wrong values.
+
+The code path for this happening is:
+
+       Userspace:                      Kernel
+                   Start userspace
+                    with MSR FP/VEC/VSX/SPE=0 TM=1
+                      < -----
+       ...
+       tbegin
+       bne
+       fp instruction
+                   FP unavailable
+                       ---- >
+                                        fp_unavailable_tm()
+					  tm_reclaim_current()
+					    tm_reclaim_thread()
+					      giveup_all()
+					        return early since FP/VMX/VSX=0
+						/* ckpt MSR not updated (Incorrect) */
+					      tm_reclaim()
+					        /* thread_struct ckpt FP regs contain junk (OK) */
+                                              /* Sees ckpt MSR FP=1 (Incorrect) */
+					      no memcpy() performed
+					        /* thread_struct ckpt FP regs not fixed (Incorrect) */
+					  tm_recheckpoint()
+					     /* Put junk in hardware checkpoint FP regs */
+                                         ....
+                      < -----
+                   Return to userspace
+                     with MSR TM=1 FP=1
+                     with junk in the FP TM checkpoint
+       TM rollback
+       reads FP junk
+
+This is a data integrity problem for the current process as the FP
+registers are corrupted. It's also a security problem as the FP
+registers from one process may be leaked to another.
+
+This patch moves up check_if_tm_restore_required() in giveup_all() to
+ensure thread->ckpt_regs.msr is updated correctly.
+
+A simple testcase to replicate this will be posted to
+tools/testing/selftests/powerpc/tm/tm-poison.c
+
+Similarly for VMX.
+
+This fixes CVE-2019-15030.
+
+Fixes: f48e91e87e67 ("powerpc/tm: Fix FP and VMX register corruption")
+Cc: stable@vger.kernel.org # 4.12+
+Signed-off-by: Gustavo Romero <gromero@linux.vnet.ibm.com>
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190904045529.23002-1-gromero@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/packet/af_packet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/process.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 5d8988185c591..0dd9fc3f57e87 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -4176,7 +4176,7 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -475,13 +475,14 @@ void giveup_all(struct task_struct *tsk)
+ 	if (!tsk->thread.regs)
+ 		return;
  
- 	/* Opening a Tx-ring is NOT supported in TPACKET_V3 */
- 	if (!closing && tx_ring && (po->tp_version > TPACKET_V2)) {
--		WARN(1, "Tx-ring is not supported.\n");
-+		net_warn_ratelimited("Tx-ring is not supported.\n");
- 		goto out;
- 	}
++	check_if_tm_restore_required(tsk);
++
+ 	usermsr = tsk->thread.regs->msr;
  
--- 
-2.20.1
-
+ 	if ((usermsr & msr_all_available) == 0)
+ 		return;
+ 
+ 	msr_check_and_set(msr_all_available);
+-	check_if_tm_restore_required(tsk);
+ 
+ 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
+ 
 
 
