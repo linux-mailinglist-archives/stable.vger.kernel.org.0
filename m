@@ -2,136 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D526B2B98
-	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 16:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8A4B2CBD
+	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 21:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388534AbfINOVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Sep 2019 10:21:32 -0400
-Received: from mail.efficios.com ([167.114.142.138]:55114 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387786AbfINOVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Sep 2019 10:21:32 -0400
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 5ADDB2B9B77;
-        Sat, 14 Sep 2019 10:21:30 -0400 (EDT)
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
-        with ESMTP id cVHedDvBx6U9; Sat, 14 Sep 2019 10:21:29 -0400 (EDT)
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id A942C2B9B73;
-        Sat, 14 Sep 2019 10:21:29 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com A942C2B9B73
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1568470889;
-        bh=M10BlrTXAj0G5y7uqqZ+tCLOJeUIc+aRdoN/am4d8Qs=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=OrM9XPiIjv9+zo4an4UrG/+X9Ag8E8VsyGp9CSouhtbLgQHQW1q7RLxo2SzHPtUsB
-         soLryC4pEL0QcFbWbUOekyDq1723FMIAjRpx3mHjDtlCYAo0BAlR7uNPHtaxST/BXc
-         MbqYnsqaNRG0VOWwuAFAudaN6ntE/sNMq7rjrDe98AsXNaSwyiq/U24TRTww60ik2s
-         vzdUrsQCuYuzvoF2S4LRxtgphBO34e1Vz3tW7L6tp8axudzkOnLZLDDRVWe/Bnw603
-         RxEbD/XB4OWilZUjwXNJ0mCQ443ugi0gnon4+XT/qiSTYIOVj4VDpd06+nxHDqAvVk
-         1ElusDH4V3glg==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
-        with ESMTP id 4BJ5TKhxbPjp; Sat, 14 Sep 2019 10:21:29 -0400 (EDT)
-Received: from mail02.efficios.com (mail02.efficios.com [167.114.142.138])
-        by mail.efficios.com (Postfix) with ESMTP id 8FD772B9B69;
-        Sat, 14 Sep 2019 10:21:29 -0400 (EDT)
-Date:   Sat, 14 Sep 2019 10:21:29 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Neel Natu <neelnatu@google.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        paulmck <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        linux-api <linux-api@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <819646407.3304.1568470889470.JavaMail.zimbra@efficios.com>
-In-Reply-To: <20190913151220.3105-2-mathieu.desnoyers@efficios.com>
-References: <20190913151220.3105-1-mathieu.desnoyers@efficios.com> <20190913151220.3105-2-mathieu.desnoyers@efficios.com>
-Subject: Re: [PATCH for 5.3 2/3] rseq: Fix: Unregister rseq for CLONE_SETTLS
+        id S1731315AbfINTjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Sep 2019 15:39:05 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60648 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730142AbfINTjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Sep 2019 15:39:05 -0400
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 3CD8D46673
+        for <stable@vger.kernel.org>; Sat, 14 Sep 2019 19:39:05 +0000 (UTC)
+Received: by mail-qk1-f198.google.com with SMTP id x186so17258336qke.13
+        for <stable@vger.kernel.org>; Sat, 14 Sep 2019 12:39:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=vaylEgrlIg+lPjH544xVFYytAlsLACbCpY321J/9g4E=;
+        b=Low4hFT4mNCToVYRopOYZan8vOOWF5jLXfmBxGArrKk0HiKHMZmqr8haXRfzAw1zJN
+         MtmFK3m2OTrDEzIUJzGXftroCF0a2DsfHbJEh4Otk/DGpOQ5UcVHx43NBV1T1E8eCfz1
+         xfbw0P22wzSJC3R4/Ib1PZmF0v/OZi1JWzfTAwgyVuECr+sOcfYU+dDyfVhY+nzmM6D3
+         CyDLMFBluzcUsjveC3Mpsn/XqsFLtpsOytz5hunYeaDGnpVTC67XLglbEj+7DzN069Pe
+         UY3tmtP2c/2+Ep2nxvxPfTVWwQhfA288to5fU+XcEfs/97CH7Q7iDb2vgK7wB4S/6vd1
+         iTdw==
+X-Gm-Message-State: APjAAAVDriCL1PbpplyA2vhQ5vOk1UU+ZCj/qDEAqEnV9AfzpwLlwt5W
+        SDitFA4gIeSMhRVMk0bd7TF2sxxvUhLtWBdLYLfzSHF76Saq3evB6k4bwc23v6ggSfcf6ATWVZm
+        m0Oze3NqAvLF2XQh7
+X-Received: by 2002:a37:4b97:: with SMTP id y145mr53500326qka.310.1568489944598;
+        Sat, 14 Sep 2019 12:39:04 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqwD6rz0Xz1EID/JFGdbYv8ZxwisBunlJJE5csAnnPdoREA9Pde8LY2vagubbz6rBIS1caMDgg==
+X-Received: by 2002:a37:4b97:: with SMTP id y145mr53500312qka.310.1568489944423;
+        Sat, 14 Sep 2019 12:39:04 -0700 (PDT)
+Received: from redhat.com (bzq-79-176-40-226.red.bezeqint.net. [79.176.40.226])
+        by smtp.gmail.com with ESMTPSA id y17sm17211975qtb.82.2019.09.14.12.39.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Sep 2019 12:39:03 -0700 (PDT)
+Date:   Sat, 14 Sep 2019 15:38:59 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, mst@redhat.com
+Subject: [PULL] vhost: a last minute revert
+Message-ID: <20190914153859-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.142.138]
-X-Mailer: Zimbra 8.8.15_GA_3847 (ZimbraWebClient - FF69 (Linux)/8.8.15_GA_3847)
-Thread-Topic: rseq: Fix: Unregister rseq for CLONE_SETTLS
-Thread-Index: o9eZqvAOKmXphmxsJKc8X5whD/BREg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mutt-Fcc: =sent
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is an ongoing discussion on the choice of flag we want to care
-about here. Therefore, please don't pull this patch until we reach an
-agreement.
+So I made a mess of it. Sent a pull before making sure it works on 32
+bit too. Hope it's not too late to revert. Will teach me to be way more
+careful in the near future.
 
-Thanks,
+The following changes since commit 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4:
 
-Mathieu
+  vhost: make sure log_num < in_num (2019-09-11 15:15:26 -0400)
 
------ On Sep 13, 2019, at 11:12 AM, Mathieu Desnoyers mathieu.desnoyers@efficios.com wrote:
+are available in the Git repository at:
 
-> It has been reported by Google that rseq is not behaving properly
-> with respect to clone when CLONE_VM is used without CLONE_THREAD.
-> It keeps the prior thread's rseq TLS registered when the TLS of the
-> thread has moved, so the kernel deals with the wrong TLS.
-> 
-> The approach of clearing the per task-struct rseq registration
-> on clone with CLONE_THREAD flag is incomplete. It does not cover
-> the use-case of clone with CLONE_VM set, but without CLONE_THREAD.
-> 
-> Looking more closely at each of the clone flags:
-> 
-> - CLONE_THREAD,
-> - CLONE_VM,
-> - CLONE_SETTLS.
-> 
-> It appears that the flag we really want to track is CLONE_SETTLS, which
-> moves the location of the TLS for the child, making the rseq
-> registration point to the wrong TLS.
-> 
-> Suggested-by: "H . Peter Anvin" <hpa@zytor.com>
-> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-> Cc: Boqun Feng <boqun.feng@gmail.com>
-> Cc: "H . Peter Anvin" <hpa@zytor.com>
-> Cc: Paul Turner <pjt@google.com>
-> Cc: Dmitry Vyukov <dvyukov@google.com>
-> Cc: linux-api@vger.kernel.org
-> Cc: <stable@vger.kernel.org>
-> ---
-> include/linux/sched.h | 4 ++--
-> 1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index 9f51932bd543..76bf55b5cccf 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -1919,11 +1919,11 @@ static inline void rseq_migrate(struct task_struct *t)
-> 
-> /*
->  * If parent process has a registered restartable sequences area, the
-> - * child inherits. Only applies when forking a process, not a thread.
-> + * child inherits. Unregister rseq for a clone with CLONE_SETTLS set.
->  */
-> static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
-> {
-> -	if (clone_flags & CLONE_THREAD) {
-> +	if (clone_flags & CLONE_SETTLS) {
-> 		t->rseq = NULL;
-> 		t->rseq_sig = 0;
-> 		t->rseq_event_mask = 0;
-> --
-> 2.17.1
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+for you to fetch changes up to 0d4a3f2abbef73b9e5bb5f12213c275565473588:
+
+  Revert "vhost: block speculation of translated descriptors" (2019-09-14 15:21:51 -0400)
+
+----------------------------------------------------------------
+virtio: a last minute revert
+
+32 bit build got broken by the latest defence in depth patch.
+Revert and we'll try again in the next cycle.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (1):
+      Revert "vhost: block speculation of translated descriptors"
+
+ drivers/vhost/vhost.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
