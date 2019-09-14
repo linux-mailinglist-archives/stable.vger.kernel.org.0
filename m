@@ -2,46 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5033CB2AD8
-	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 11:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C4DB2B1C
+	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 13:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727617AbfINJoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Sep 2019 05:44:13 -0400
-Received: from manchmal.in-ulm.de ([217.10.9.201]:33476 "EHLO
-        manchmal.in-ulm.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726622AbfINJoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Sep 2019 05:44:12 -0400
-X-Greylist: delayed 393 seconds by postgrey-1.27 at vger.kernel.org; Sat, 14 Sep 2019 05:44:12 EDT
-Date:   Sat, 14 Sep 2019 11:37:36 +0200
-From:   Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/14] 4.9.193-stable review
-Message-ID: <1568453554@msgid.manchmal.in-ulm.de>
-References: <20190913130440.264749443@linuxfoundation.org>
- <aefa6832-073e-493c-8576-5b2f06e714fb@roeck-us.net>
+        id S1729986AbfINLjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Sep 2019 07:39:32 -0400
+Received: from [157.230.123.2] ([157.230.123.2]:53256 "EHLO TEST.localdomain"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729982AbfINLjc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Sep 2019 07:39:32 -0400
+Received: from 127.0.0.1 (TEST [127.0.0.1])
+        by TEST.localdomain (Postfix) with SMTP id A40A83F195C
+        for <stable@vger.kernel.org>; Sat, 14 Sep 2019 11:22:59 +0000 (UTC)
+From:   stable@vger.kernel.org
+Reply-To: prodawez@cuvox.de
+To:     stable@vger.kernel.org
+Subject: =?utf-8?B?0JfQtNGA0LDQstGB0YLQstGD0LnRgtC1ISDQktCw0YEg?=
+        =?utf-8?B?0LjQvdGC0LXRgNC10YHRg9GO0YIg0LrQu9C40LXQvdGC?=
+        =?utf-8?B?0YHQutC40LUg0LHQsNC30Ysg0LTQsNC90L3Ri9GFPw==?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aefa6832-073e-493c-8576-5b2f06e714fb@roeck-us.net>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Type: text/plain; charset="utf-8";
+Content-Transfer-Encoding: base64
+Message-Id: <20190914112259.A40A83F195C@TEST.localdomain>
+Date:   Sat, 14 Sep 2019 11:22:59 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Guenter Roeck wrote...
-
-> Is it really only me seeing this ?
->
-> drivers/vhost/vhost.c: In function 'translate_desc':
-> include/linux/compiler.h:549:38: error: call to '__compiletime_assert_1879' declared with attribute error: BUILD_BUG_ON failed: sizeof(_s) > sizeof(long)
-
-No :)  I ran into this as well, but only in a some of my configurations,
-and now I stumbled over your message while preparing a report. But it's
-also in the kernelci.org logs.
-
-Good to see you're working on this.
-
-    Christoph
-
+0JfQtNGA0LDQstGB0YLQstGD0LnRgtC1ISDQktCw0YEg0LjQvdGC0LXRgNC10YHRg9GO0YIg0LrQ
+u9C40LXQvdGC0YHQutC40LUg0LHQsNC30Ysg0LTQsNC90L3Ri9GFPw0K
