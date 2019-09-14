@@ -2,220 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D12C9B29D9
-	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 06:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4641EB29FF
+	for <lists+stable@lfdr.de>; Sat, 14 Sep 2019 07:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726257AbfINE24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Sep 2019 00:28:56 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:33131 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726138AbfINE2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Sep 2019 00:28:55 -0400
-Received: by mail-lj1-f195.google.com with SMTP id a22so28964704ljd.0
-        for <stable@vger.kernel.org>; Fri, 13 Sep 2019 21:28:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=6fqgx63VOqDYCNdvOw0tw59tN2HQTbk3mErF+HxzwU8=;
-        b=VpuTZYFJzG6MbOAORz/s1yxi3NnDLYSris0eK+rofPmTPPQTg52hT/M6oE7ZIMOlNO
-         H8w5rT0DPq5FftFCrFjvYiWUbDfV4jDqvGY0NMh3ow9zk2q75tYVpioUdf/YNta+Q1d4
-         p6ka+Ieop3hDxjqB9RrTuhGO03FpD/7Oy2SqIK/r78Xi6cinUNpZK1lmrPbS0SWl/JJa
-         TXkNsn5Jt1dB8q+YYwRJNDINOdlmZUFwqFbQrfrmCW6tGRhPHZg0Wy44kl34mjRtUiJQ
-         2CnvD1m8X6FSdh8mqGd79+A/Px8ikpMr0xNRTIu1xW6f2E/rGEwQVKtSwYnY2vzVCywc
-         RoIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6fqgx63VOqDYCNdvOw0tw59tN2HQTbk3mErF+HxzwU8=;
-        b=Fa4msLBgjh6BBIkrhSznr1X9Bo6RgAjJqb6yJqND/02s8sbE+EMO8tAJ8BbNfDPU0i
-         5D5gk2kIyMPqBAN3OxePzcnt2sjanIWHFU0pBQXDQrqocHjkGk/nuS5oFA4s84NNPo6b
-         WAEW98hPgl0Op+DpMu018+NIf9FINZJCXuZizZ8wOhxXuC5dsxV19ygc3iVmvpxC0/8k
-         +geAF1FbgpRsr7AIy6Sop2kJznyl9Iu89xGPjSHHalPRkdQfqy+S4WwH3bSVHFPO2JDU
-         mRQ/5jWb/6i5JGIoGLjCHa+pie2T4CfOSuqxF3ioQbcFjl/c5tCy0kwxtdrAl9ZsPlVd
-         swVw==
-X-Gm-Message-State: APjAAAWt86uyodL9RKoNP/f/XfVI9tf0fIvmATQ65EjpSIkDEvr6lw5O
-        kXfafTNNIluz5Ld/rDuj0fPeKmzIU4inMjlPn/eJxA==
-X-Google-Smtp-Source: APXvYqxrtkzpc4NinDTqSSBWPcIIn2YwZLFpA9GSCrkT+j3zh43YT4NaLVb72vbrHk+mkhdKQvQOCRNnuCHCw2oZFpQ=
-X-Received: by 2002:a2e:a17a:: with SMTP id u26mr31856397ljl.137.1568435333893;
- Fri, 13 Sep 2019 21:28:53 -0700 (PDT)
+        id S1726229AbfINFu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Sep 2019 01:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60922 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726193AbfINFu4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Sep 2019 01:50:56 -0400
+Received: from localhost (unknown [149.255.125.221])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C49B20692;
+        Sat, 14 Sep 2019 05:50:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568440253;
+        bh=gDz5GcBMkefNQSnH9m842qIEB3JN0kGNiMfmU1mmtFU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ken7HgcBY6/mJ12GILUKKYsz8MeJ+9OocufJ1QvOJm22jSd6mxAy6PTtnk7cMhEhD
+         FyY06d/6gBE/P/gRkMjaGtsPUbW3tbwCd0OcBDQrtL5qrhflm7+0b3a4u7Y3fhEgWe
+         67Ba1OuPEXK7n9BGeBBKsYuFc81gaNGbfAtlxSQo=
+Date:   Sat, 14 Sep 2019 06:50:50 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Stefan Lippers-Hollmann <s.l-h@gmx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 5.2 36/37] vhost: block speculation of translated
+ descriptors
+Message-ID: <20190914055050.GA489003@kroah.com>
+References: <20190913130510.727515099@linuxfoundation.org>
+ <20190913130522.155505270@linuxfoundation.org>
+ <20190914025411.3016e3d9@mir>
 MIME-Version: 1.0
-References: <20190913130424.160808669@linuxfoundation.org>
-In-Reply-To: <20190913130424.160808669@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 14 Sep 2019 00:28:42 -0400
-Message-ID: <CA+G9fYsj_eTiMSmj-Dsw16hOG9o7DHDbkwuo8V-AToAj1=2_zA@mail.gmail.com>
-Subject: Re: [PATCH 4.4 0/9] 4.4.193-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190914025411.3016e3d9@mir>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 13 Sep 2019 at 09:08, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.193 release.
-> There are 9 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun 15 Sep 2019 01:03:32 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.193-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Sat, Sep 14, 2019 at 02:54:11AM +0200, Stefan Lippers-Hollmann wrote:
+> Hi
+> 
+> On 2019-09-13, Greg Kroah-Hartman wrote:
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> >
+> > commit a89db445fbd7f1f8457b03759aa7343fa530ef6b upstream.
+> >
+> > iovec addresses coming from vhost are assumed to be
+> > pre-validated, but in fact can be speculated to a value
+> > out of range.
+> >
+> > Userspace address are later validated with array_index_nospec so we can
+> > be sure kernel info does not leak through these addresses, but vhost
+> > must also not leak userspace info outside the allowed memory table to
+> > guests.
+> >
+> > Following the defence in depth principle, make sure
+> > the address is not validated out of node range.
+> [...]
+> 
+> This fails to compile as part of 5.2.15-rc1 on i386 (amd64 is fine), using
+> gcc 9.2.1. Reverting just this patch results in a successful build again.
+> 
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -1965,8 +1965,10 @@ static int translate_desc(struct vhost_v
+> >  		_iov = iov + ret;
+> >  		size = node->size - addr + node->start;
+> >  		_iov->iov_len = min((u64)len - s, size);
+> > -		_iov->iov_base = (void __user *)(unsigned long)
+> > -			(node->userspace_addr + addr - node->start);
+> > +		_iov->iov_base = (void __user *)
+> > +			((unsigned long)node->userspace_addr +
+> > +			 array_index_nospec((unsigned long)(addr - node->start),
+> > +					    node->size));
+> >  		s += size;
+> >  		addr += size;
+> >  		++ret;
+> >
+> >
+> 
+>   CC [M]  drivers/vhost/vhost.o
+> In file included from /build/linux-5.2/include/linux/export.h:45,
+>                  from /build/linux-5.2/include/linux/linkage.h:7,
+>                  from /build/linux-5.2/include/linux/kernel.h:8,
+>                  from /build/linux-5.2/include/linux/list.h:9,
+>                  from /build/linux-5.2/include/linux/wait.h:7,
+>                  from /build/linux-5.2/include/linux/eventfd.h:13,
+>                  from /build/linux-5.2/drivers/vhost/vhost.c:13:
+> /build/linux-5.2/drivers/vhost/vhost.c: In function 'translate_desc':
+> /build/linux-5.2/include/linux/compiler.h:345:38: error: call to '__compiletime_assert_1970' declared with attribute error: BUILD_BUG_ON failed: sizeof(_s) > sizeof(long)
+>   345 |  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+>       |                                      ^
+> /build/linux-5.2/include/linux/compiler.h:326:4: note: in definition of macro '__compiletime_assert'
+>   326 |    prefix ## suffix();    \
+>       |    ^~~~~~
+> /build/linux-5.2/include/linux/compiler.h:345:2: note: in expansion of macro '_compiletime_assert'
+>   345 |  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+>       |  ^~~~~~~~~~~~~~~~~~~
+> /build/linux-5.2/include/linux/build_bug.h:39:37: note: in expansion of macro 'compiletime_assert'
+>    39 | #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+>       |                                     ^~~~~~~~~~~~~~~~~~
+> /build/linux-5.2/include/linux/build_bug.h:50:2: note: in expansion of macro 'BUILD_BUG_ON_MSG'
+>    50 |  BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+>       |  ^~~~~~~~~~~~~~~~
+> /build/linux-5.2/include/linux/nospec.h:56:2: note: in expansion of macro 'BUILD_BUG_ON'
+>    56 |  BUILD_BUG_ON(sizeof(_s) > sizeof(long));   \
+>       |  ^~~~~~~~~~~~
+> /build/linux-5.2/drivers/vhost/vhost.c:1970:5: note: in expansion of macro 'array_index_nospec'
+>  1970 |     array_index_nospec((unsigned long)(addr - node->start),
+>       |     ^~~~~~~~~~~~~~~~~~
+> make[3]: *** [/build/linux-5.2/scripts/Makefile.build:285: drivers/vhost/vhost.o] Error 1
+> make[2]: *** [/build/linux-5.2/scripts/Makefile.build:489: drivers/vhost] Error 2
+> make[1]: *** [/build/linux-5.2/Makefile:1072: drivers] Error 2
+> make: *** [/build/linux-5.2/Makefile:179: sub-make] Error 2
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Do you have the same problem with Linus's tree right now?
 
-Summary
-------------------------------------------------------------------------
+thanks,
 
-kernel: 4.4.193-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 0a1ee44c69166b2750a62fdb079320a396dff30c
-git describe: v4.4.192-10-g0a1ee44c6916
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.192-10-g0a1ee44c6916
-
-
-No regressions (compared to build v4.4.192)
-
-No fixes (compared to build v4.4.192)
-
-Ran 20018 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-pty-tests
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* prep-tmp-disk
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.193-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.193-rc1-hikey-20190913-557
-git commit: e289b20abbc0882c0710519376b654c0df71b784
-git describe: 4.4.193-rc1-hikey-20190913-557
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.193-rc1-hikey-20190913-557
-
-
-No regressions (compared to build 4.4.193-rc1-hikey-20190913-556)
-
-
-No fixes (compared to build 4.4.193-rc1-hikey-20190913-556)
-
-Ran 1536 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
