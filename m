@@ -2,119 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A46BEB3176
-	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 20:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71049B317D
+	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 20:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726954AbfIOSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Sep 2019 14:50:28 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:37930 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726595AbfIOSu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Sep 2019 14:50:28 -0400
-Received: by mail-wm1-f67.google.com with SMTP id o184so7761286wme.3
-        for <stable@vger.kernel.org>; Sun, 15 Sep 2019 11:50:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uMZ3zlE67H1xJyjQXnFG+Ey02SH/DzZoKeRWABYZWy0=;
-        b=uKHDUhltqKdsopx39cW3Ghn1z24OjBUJMtqnhlXEyJu89oKJsNudHRBS4ha2c6V310
-         +rZMYXU07VnTEFUHRVndSk2I5tdo+QSy02KsxuC8qUZd+B1TxzbfWxATi39XKhbPJq+Y
-         PPF0y2FnDvH3FqVbdpLWBNtnDxO9AR2yLqUfvy2HIYfXQ4dXRUeLDWtwmc8D3EVCQGOo
-         8WQ4nRV0qFBksI+sBAfaO1Mms3jLmrz4qJXMmeVUMrayCaVmbYRhPiF1iIZ81roQllqz
-         bBwRGX484nqpSL2dZLJvYI8OXhupLPAxMXoL6BxxIItSx+DnHqjhH6KMMBE5CfpFwiTl
-         oD0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uMZ3zlE67H1xJyjQXnFG+Ey02SH/DzZoKeRWABYZWy0=;
-        b=R+HK0SqiEGCd003lvfgqmOfrEOoVYch38sbxCUbOngKwqJomhsuvu19fnFzQoHptGZ
-         82KhSjhVJOKhPEM2FFHl+AqfaG39kOi3RUMPwjOUvwetGHoABJxg1ks8XLbsfe42QZWG
-         1Kv19uFlFgLNR1tHuEnbI7cO8PBrQ1ykWmmNH3Hn10riY3fDUN0wEl1ANRWdxvQ16dPz
-         mhpu0XYSdWjY0/JUaEVE3WEwi6/mgN2NHeMj72jvcxYXxhdSNKSKb9HZvvpp8TEXRjms
-         UnraWpP/XCu6hvWARX2cQbnN1SMK92c/Jh/sT2xZCYbvrq1G12UuOk0hZ+VsvkzyqNUa
-         DFTQ==
-X-Gm-Message-State: APjAAAUN1Vydhzt3lIGMLI+YmYtGuJRAk+TBuFX9LWAFAj59fMKRQMHg
-        Axo40nSF+mtXI50cxbHjlHwdcRQom4k=
-X-Google-Smtp-Source: APXvYqx0uI+K6xggTvw/uuswwdTBnd0rlgoZtwgtlGSCdC7Oq6LcR/eZj0BuK25RSxeveSHlzSTJ+w==
-X-Received: by 2002:a1c:d10b:: with SMTP id i11mr11345666wmg.8.1568573424874;
-        Sun, 15 Sep 2019 11:50:24 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z4sm7440173wrh.93.2019.09.15.11.50.23
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 15 Sep 2019 11:50:24 -0700 (PDT)
-Message-ID: <5d7e87f0.1c69fb81.c7e75.f1f6@mx.google.com>
-Date:   Sun, 15 Sep 2019 11:50:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727044AbfIOSxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Sep 2019 14:53:47 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50378 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727039AbfIOSxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Sep 2019 14:53:47 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 25D6B18C8933;
+        Sun, 15 Sep 2019 18:53:46 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-29.ams2.redhat.com [10.36.116.29])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1C3785C1D6;
+        Sun, 15 Sep 2019 18:53:43 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Chen-Yu Tsai <wens@csie.org>, linux-iio@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] iio: adc: axp288: Override TS pin bias current for some models
+Date:   Sun, 15 Sep 2019 20:53:42 +0200
+Message-Id: <20190915185342.235354-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.2.14-37-g4a69042627aa
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.2.y
-Subject: stable-rc/linux-5.2.y boot: 150 boots: 1 failed,
- 140 passed with 9 offline (v5.2.14-37-g4a69042627aa)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.70]); Sun, 15 Sep 2019 18:53:46 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 150 boots: 1 failed, 140 passed with 9 offline =
-(v5.2.14-37-g4a69042627aa)
+Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
+preserve the bias current set by the firmware at boot.  This fixes issues
+we were seeing on various models, but it seems our old hardcoded 80ųA bias
+current was working around a firmware bug on at least one model laptop.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.14-37-g4a69042627aa/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.14-37-g4a69042627aa/
+In order to both have our cake and eat it, this commit adds a dmi based
+list of models where we need to override the firmware set bias current and
+adds the one model we now know needs this to it: The Lenovo Ideapad 100S
+(11 inch version).
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.14-37-g4a69042627aa
-Git Commit: 4a69042627aa0ea1a4ba10ed63abefff2f334d24
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 85 unique boards, 28 SoC families, 17 builds out of 209
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s905d-p230: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
+Cc: stable@vger.kernel.org
+Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203829
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/iio/adc/axp288_adc.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/drivers/iio/adc/axp288_adc.c b/drivers/iio/adc/axp288_adc.c
+index 31d51bcc5f2c..85d08e68b34f 100644
+--- a/drivers/iio/adc/axp288_adc.c
++++ b/drivers/iio/adc/axp288_adc.c
+@@ -7,6 +7,7 @@
+  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  */
+ 
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -25,6 +26,11 @@
+ #define AXP288_ADC_EN_MASK				0xF0
+ #define AXP288_ADC_TS_ENABLE				0x01
+ 
++#define AXP288_ADC_TS_BIAS_MASK				GENMASK(5, 4)
++#define AXP288_ADC_TS_BIAS_20UA				(0 << 4)
++#define AXP288_ADC_TS_BIAS_40UA				(1 << 4)
++#define AXP288_ADC_TS_BIAS_60UA				(2 << 4)
++#define AXP288_ADC_TS_BIAS_80UA				(3 << 4)
+ #define AXP288_ADC_TS_CURRENT_ON_OFF_MASK		GENMASK(1, 0)
+ #define AXP288_ADC_TS_CURRENT_OFF			(0 << 0)
+ #define AXP288_ADC_TS_CURRENT_ON_WHEN_CHARGING		(1 << 0)
+@@ -177,10 +183,36 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+ 	return ret;
+ }
+ 
++/*
++ * We rely on the machine's firmware to correctly setup the TS pin bias current
++ * at boot. This lists systems with broken fw where we need to set it ourselves.
++ */
++static const struct dmi_system_id axp288_adc_ts_bias_override[] = {
++	{
++		/* Lenovo Ideapad 100S (11 inch) */
++		.matches = {
++		  DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		  DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad 100S-11IBY"),
++		},
++		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
++	},
++	{}
++};
++
+ static int axp288_adc_initialize(struct axp288_adc_info *info)
+ {
++	const struct dmi_system_id *bias_override;
+ 	int ret, adc_enable_val;
+ 
++	bias_override = dmi_first_match(axp288_adc_ts_bias_override);
++	if (bias_override) {
++		ret = regmap_update_bits(info->regmap, AXP288_ADC_TS_PIN_CTRL,
++					 AXP288_ADC_TS_BIAS_MASK,
++					 (uintptr_t)bias_override->driver_data);
++		if (ret)
++			return ret;
++	}
++
+ 	/*
+ 	 * Determine if the TS pin is enabled and set the TS current-source
+ 	 * accordingly.
+-- 
+2.23.0
+
