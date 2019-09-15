@@ -2,96 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD421B3187
-	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 21:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E59B318A
+	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 21:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbfIOTBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Sep 2019 15:01:32 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:57466 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726406AbfIOTBc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Sep 2019 15:01:32 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id C100081DBB; Sun, 15 Sep 2019 21:01:16 +0200 (CEST)
-Date:   Sun, 15 Sep 2019 21:01:30 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ladi Prosek <lprosek@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Liran Alon <liran.alon@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 043/190] KVM: hyperv: define VP assist page helpers
-Message-ID: <20190915190130.GA18580@amd>
-References: <20190913130559.669563815@linuxfoundation.org>
- <20190913130603.202370862@linuxfoundation.org>
+        id S1726965AbfIOTF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Sep 2019 15:05:29 -0400
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:36341 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726595AbfIOTF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Sep 2019 15:05:28 -0400
+Received: by mail-wm1-f45.google.com with SMTP id t3so7803036wmj.1
+        for <stable@vger.kernel.org>; Sun, 15 Sep 2019 12:05:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UcQqOkMbf16vo9Ls50tuEuJ3waV3wJ3p3+zNilpQR/c=;
+        b=tz8GwPfhJSW+DQMOf15yymu4TWyr8ks1ImxmVygdaXyzPbZ9gWs3P3RQqGn4zx4c45
+         3KyTCpfXN/2tL0ML41nMeujaivAk2fJcR2IFFzRU4xWieQATK0vqJC6H/O+sfKkyIePg
+         Lmdv6LzLBqBoonN0KtMbfTuoXBmLmUZberWYhXuaqEW0Vrw/meRxBy5WgPUhZmAfm7vC
+         Oi7AmiMDS/g02wJSdp8QV2QalSZ88vUBf752IIR/R0suXPQVBe61sqs+5y+iARaei+JD
+         evfjOBMdQJ+OMy91+GHBE+mCzsyaXnb8BSGO/w6jCDxKRvRFzAamCMGFHGYSEaW38+x2
+         x3lA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UcQqOkMbf16vo9Ls50tuEuJ3waV3wJ3p3+zNilpQR/c=;
+        b=nT9qF4UYOJmqGsqC/4uG/1xRSX7uM/tuQxxd4qq+lD15RxkVeEi+oN1XMxCRYvB8U7
+         bUz8Fk07pQoyaTHXiXPu3bVTYz1pAhLmNy8I2yHlM+hJUUhBNcRefMhFUuXUTO8UOI0n
+         itZZghkn+eNjEvHsvEeAhQUBC2BoB5WorLbrOy35nkP7woL/Yq0wlEk2ik12KfzrffnG
+         o6o8xXZFqqLNvQpI1bbE1FZfwBJEcY7k1+WgwXRkT5koj4G7mKHNVgJEAo85cuZ4z1Fy
+         XecQCXWK9PYIdYDkBuoXKEfaFe4KQtL4SwoC0bxYaOsL9Zfgwuh889oIVVl+TPMQAeIW
+         oRSg==
+X-Gm-Message-State: APjAAAUMm0zzweoa7MKeG30GEczyoVY0O7gcNg/IMJ5PKNCiXCg5LZoy
+        8Up5fiuXWkLnFPHRK7XgIh6RJkslkCI=
+X-Google-Smtp-Source: APXvYqx41t90JnhG3wUrSn1aOZL8+T55MUFhh1I9R5/Nh92ytjF7u341isSKBZ38jsIkPdkZnAWyJQ==
+X-Received: by 2002:a1c:f515:: with SMTP id t21mr10298029wmh.74.1568574325290;
+        Sun, 15 Sep 2019 12:05:25 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u68sm20129132wmu.12.2019.09.15.12.05.23
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 15 Sep 2019 12:05:24 -0700 (PDT)
+Message-ID: <5d7e8b74.1c69fb81.5dfbf.822e@mx.google.com>
+Date:   Sun, 15 Sep 2019 12:05:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-In-Reply-To: <20190913130603.202370862@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.192-14-g61edd63129ae
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 119 boots: 0 failed,
+ 111 passed with 8 offline (v4.9.192-14-g61edd63129ae)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 119 boots: 0 failed, 111 passed with 8 offline =
+(v4.9.192-14-g61edd63129ae)
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.192-14-g61edd63129ae/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.192-14-g61edd63129ae/
 
-On Fri 2019-09-13 14:04:58, Greg Kroah-Hartman wrote:
-> [ Upstream commit 72bbf9358c3676bd89dc4bd8fb0b1f2a11c288fc ]
->=20
-> The state related to the VP assist page is still managed by the LAPIC
-> code in the pv_eoi field.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.192-14-g61edd63129ae
+Git Commit: 61edd63129aea7800898aec66b9a420f765883c4
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 57 unique boards, 22 SoC families, 14 builds out of 197
 
-I don't get it.
+Offline Platforms:
 
-> =20
-> +bool kvm_hv_assist_page_enabled(struct kvm_vcpu *vcpu)
-> +{
-> +	if (!(vcpu->arch.hyperv.hv_vapic & HV_X64_MSR_VP_ASSIST_PAGE_ENABLE))
-> +		return false;
-> +	return vcpu->arch.pv_eoi.msr_val & KVM_MSR_ENABLED;
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_hv_assist_page_enabled);
-> +
-> +bool kvm_hv_get_assist_page(struct kvm_vcpu *vcpu,
-> +			    struct hv_vp_assist_page *assist_page)
-> +{
-> +	if (!kvm_hv_assist_page_enabled(vcpu))
-> +		return false;
-> +	return !kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.pv_eoi.data,
-> +				      assist_page, sizeof(*assist_page));
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_hv_get_assist_page);
-> +
+arm64:
 
-This adds two functions, but not their users. What bug is it fixing? I
-don't see any users in the next patch, either.
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-									Pavel
+arm:
 
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-iEYEARECAAYFAl1+iooACgkQMOfwapXb+vI8ngCfXco/aA0VMJBsbUO38fe/wpPJ
-cBoAoK6tWg+FgybP5rJY1suLqWYyQu53
-=nMqr
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--
+---
+For more info write to <info@kernelci.org>
