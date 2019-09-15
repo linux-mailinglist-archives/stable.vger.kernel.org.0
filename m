@@ -2,83 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF18B31F3
-	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 22:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2CA3B31F8
+	for <lists+stable@lfdr.de>; Sun, 15 Sep 2019 22:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727766AbfIOUQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Sep 2019 16:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
+        id S1727156AbfIOUTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Sep 2019 16:19:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727666AbfIOUQv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Sep 2019 16:16:51 -0400
-Received: from sol.localdomain (c-24-5-143-220.hsd1.ca.comcast.net [24.5.143.220])
+        id S1726477AbfIOUTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Sep 2019 16:19:50 -0400
+Received: from localhost (159.35.136.95.rev.vodafone.pt [95.136.35.159])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F5D214AF;
-        Sun, 15 Sep 2019 20:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37949214AF;
+        Sun, 15 Sep 2019 20:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568578610;
-        bh=d/HrE/iGcEqOEmCdLte6zzmoLMwAvKRRiPAXELWKn3c=;
+        s=default; t=1568578790;
+        bh=jCkVYwV6zbKgIt0Fdzu/rRWlWNH8bz+rGXp5+C0d2XQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RPq2joGQ2Try6Oplud7Geb+58heA5O9WPpaFV+TgsTLEdLYxZJtAWLKcnE5WvUcgY
-         51KdN4G0BdcTMn14Z9pd/5PzdnnYrnnj2ZYSQecLJdj/ECyqpPSRa2m6rBwH22i8jU
-         od3ywG3yXgqXps+9ze5whibROFPS8x+liH1IgW64=
-Date:   Sun, 15 Sep 2019 13:16:48 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Corentin Labbe <clabbe.montjoie@gmail.com>
-Cc:     davem@davemloft.net, herbert@gondor.apana.org.au,
-        mripard@kernel.org, wens@csie.org,
-        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: sun4i-ss: erase key after use
-Message-ID: <20190915201648.GA1704@sol.localdomain>
-Mail-Followup-To: Corentin Labbe <clabbe.montjoie@gmail.com>,
-        davem@davemloft.net, herbert@gondor.apana.org.au,
-        mripard@kernel.org, wens@csie.org,
-        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        stable@vger.kernel.org
-References: <20190915183536.3835-1-clabbe.montjoie@gmail.com>
+        b=FoFGRvIZFA1XkjcABtIPLpBTkKqEp/JFLlrWIz6VMyvY3RWzCWwug1FLfJ+DFDVGH
+         62JTuavOMoj8mRlmvw9fIeRHlOatVU+Gzj2M3I6EijrqQNCacrtvAuHMxyVSX+SBLd
+         pFKTkPeBV0vr5NuCx+0tUHWroj5+uRT9zoN+bjYg=
+Date:   Sun, 15 Sep 2019 16:19:43 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ladi Prosek <lprosek@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 4.19 043/190] KVM: hyperv: define VP assist page helpers
+Message-ID: <20190915201943.GQ1546@sasha-vm>
+References: <20190913130559.669563815@linuxfoundation.org>
+ <20190913130603.202370862@linuxfoundation.org>
+ <20190915190130.GA18580@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190915183536.3835-1-clabbe.montjoie@gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190915190130.GA18580@amd>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 15, 2019 at 08:35:36PM +0200, Corentin Labbe wrote:
-> When a TFM is unregistered, the sun4i-ss driver does not clean the key used,
-> leaking it in memory.
-> This patch adds this absent key cleaning.
-> 
-> Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-> Cc: <stable@vger.kernel.org> # 4.3+
-> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> ---
->  drivers/crypto/sunxi-ss/sun4i-ss-cipher.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-> index fa4b1b47822e..60d99370a4ec 100644
-> --- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-> +++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-> @@ -503,6 +503,8 @@ int sun4i_ss_cipher_init(struct crypto_tfm *tfm)
->  void sun4i_ss_cipher_exit(struct crypto_tfm *tfm)
->  {
->  	struct sun4i_tfm_ctx *op = crypto_tfm_ctx(tfm);
-> +
-> +	memzero_explicit(op->key, op->keylen);
->  	crypto_free_sync_skcipher(op->fallback_tfm);
->  }
->  
-> -- 
-> 2.21.0
-> 
+On Sun, Sep 15, 2019 at 09:01:30PM +0200, Pavel Machek wrote:
+>On Fri 2019-09-13 14:04:58, Greg Kroah-Hartman wrote:
+>> [ Upstream commit 72bbf9358c3676bd89dc4bd8fb0b1f2a11c288fc ]
+>>
+>> The state related to the VP assist page is still managed by the LAPIC
+>> code in the pv_eoi field.
+>
+>I don't get it.
+>
+>>
+>> +bool kvm_hv_assist_page_enabled(struct kvm_vcpu *vcpu)
+>> +{
+>> +	if (!(vcpu->arch.hyperv.hv_vapic & HV_X64_MSR_VP_ASSIST_PAGE_ENABLE))
+>> +		return false;
+>> +	return vcpu->arch.pv_eoi.msr_val & KVM_MSR_ENABLED;
+>> +}
+>> +EXPORT_SYMBOL_GPL(kvm_hv_assist_page_enabled);
+>> +
+>> +bool kvm_hv_get_assist_page(struct kvm_vcpu *vcpu,
+>> +			    struct hv_vp_assist_page *assist_page)
+>> +{
+>> +	if (!kvm_hv_assist_page_enabled(vcpu))
+>> +		return false;
+>> +	return !kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.pv_eoi.data,
+>> +				      assist_page, sizeof(*assist_page));
+>> +}
+>> +EXPORT_SYMBOL_GPL(kvm_hv_get_assist_page);
+>> +
+>
+>This adds two functions, but not their users. What bug is it fixing? I
+>don't see any users in the next patch, either.
 
-It's already zeroed by the kzfree() in crypto_destroy_tfm().
+Look closer at the following patch.
 
-- Eric
+--
+Thanks,
+Sasha
