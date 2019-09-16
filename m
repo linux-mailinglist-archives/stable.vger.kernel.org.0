@@ -2,170 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C66B41C1
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 22:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56BDB42AD
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 23:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733222AbfIPU03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 16:26:29 -0400
-Received: from mail.efficios.com ([167.114.142.138]:38586 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733177AbfIPU02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 16:26:28 -0400
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 349762D2E16;
-        Mon, 16 Sep 2019 16:26:27 -0400 (EDT)
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
-        with ESMTP id cqKT6pE8k2Yk; Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id AF3532D2E03;
-        Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com AF3532D2E03
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1568665586;
-        bh=Edl2EwdVavNOhnVKCHzg8QRXPTO+dPykDxXdhG5Kbbc=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=m0tE5l9LMLlF2Sua8CV4PLOLb53pG7G5dTI9jDdRvc9J4asazqFuUjOKoWVeZcx4N
-         SQVNrGBYb7zHwImO+a0H81bMfF9OEMH4CliHb+3UdYKlXhARJRyUGC2aMFpGfhz2Nr
-         HGFzvfbJsoFJkOVaBdo8Lj8uSpir7Tl/kr7xGH5fC10XnzY+miDlfQnziDj8+vMwvK
-         y4vp2MO0WnuJxwEqPqv68vu4kQLkU9dVnN58+EgJYcGzbiOLv4fysBvnh9I3DkGO1H
-         8fMwnskjjDpd1eiA3PZt3dcv7yzsu1BLBMJCVK10yS5IkWAbrv/PriOb5jWfDt0w34
-         d6k/qOzah4XPg==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
-        with ESMTP id vzadUWW5ct8D; Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
-Received: from mail02.efficios.com (mail02.efficios.com [167.114.142.138])
-        by mail.efficios.com (Postfix) with ESMTP id 970982D2DF9;
-        Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
-Date:   Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Neel Natu <neelnatu@google.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        paulmck <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        linux-api <linux-api@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <1809268320.7843.1568665586487.JavaMail.zimbra@efficios.com>
-In-Reply-To: <819646407.3304.1568470889470.JavaMail.zimbra@efficios.com>
-References: <20190913151220.3105-1-mathieu.desnoyers@efficios.com> <20190913151220.3105-2-mathieu.desnoyers@efficios.com> <819646407.3304.1568470889470.JavaMail.zimbra@efficios.com>
-Subject: Re: [PATCH for 5.3 2/3] rseq: Fix: Unregister rseq for CLONE_SETTLS
+        id S2388906AbfIPVJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 17:09:48 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23847 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730662AbfIPVJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 17:09:48 -0400
+X-Greylist: delayed 304 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Sep 2019 17:09:47 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1568668186;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Yoztt8L8+kYQRxMPtC85ya3BagHgDeduD2h1ZIAKqTc=;
+        b=Jk9Y1WCaCa4EBxw/el6C1QiaLQQubcga+Z5QLFkkJEL2Lhx9VeIpr1ufHMnUHuen3uO90n
+        0E7Tci5saHdIOeGWpo3WcZEEVLrVSoFan8lk1SZfoTBwaD0dvk4faVFwcYoKqYtTn+q1E7
+        D2/INrBp4iv/XiVGPEjz3u5NTgmnDRM=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-189-O6MkToLUMhWb6WtFGEHlVQ-1; Mon, 16 Sep 2019 17:03:34 -0400
+Received: by mail-qk1-f199.google.com with SMTP id s14so1544115qkg.12
+        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 14:03:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to:user-agent;
+        bh=BKNnujlsu7uye1NQvdtsoIEI5OprfE1Gweft1aGgxzQ=;
+        b=Smmi9JELGOeaaeeerF1D9zEm4394ILcXI/HRk9/NE2eK5VZR3JxaaZEOq2KHrS27Xw
+         13CF9Ho8ZUaM1awO6gfNBryIJwj/9NyAA5r3+AD1NlbY6MMI1zIcXjui/4AelXBlxSwJ
+         dua+38cdb2ppAfTwWXqdgiFKAepVEFnVmOKrAoVpjT33TtffQ4PBf5Rjt2kaQRqHyxeM
+         vIi/ocUQu/DebPD4HDI+fXwNkQf/44oWCxdDDDZx4yP1Di1Tmxh/Yv3GIJft7yTkqnf3
+         HmJ+G3lwNzo6kqxLYcF9gTQFb/bnFaf7IRG0ev3xmPMwUgKaD94Xmt4+v4ns2SeIEMWi
+         AMGQ==
+X-Gm-Message-State: APjAAAV2rRT+oZl/BTq1XUVgUvZbL6A/9av1PNXTAfziXIGjbp6WffYg
+        jLHGD8i8hw6roBgGstCL34SgqIdY7eDagipwLGYvfF6Zrd+xxSnfYt4r/15A+NmWPgjZwUrek0O
+        uWkkWBIw+Qj0i85T5
+X-Received: by 2002:ac8:33c3:: with SMTP id d3mr393359qtb.41.1568667813948;
+        Mon, 16 Sep 2019 14:03:33 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxpQBB0hj2oaAzIGQjzBEgm3XQZHAPhewba41ewLeoppALXlTPdv580wJU2vy2IMPPQEnjBkg==
+X-Received: by 2002:ac8:33c3:: with SMTP id d3mr393327qtb.41.1568667813686;
+        Mon, 16 Sep 2019 14:03:33 -0700 (PDT)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id k17sm176571qtk.7.2019.09.16.14.03.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Sep 2019 14:03:32 -0700 (PDT)
+Date:   Mon, 16 Sep 2019 14:03:31 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm: Wrap the buffer from the caller to tpm_buf in
+ tpm_send()
+Message-ID: <20190916210331.l6enypnafk2cwako@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20190916085008.22239-1-jarkko.sakkinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.142.138]
-X-Mailer: Zimbra 8.8.15_GA_3847 (ZimbraWebClient - FF69 (Linux)/8.8.15_GA_3847)
-Thread-Topic: rseq: Fix: Unregister rseq for CLONE_SETTLS
-Thread-Index: o9eZqvAOKmXphmxsJKc8X5whD/BREsteql3R
+In-Reply-To: <20190916085008.22239-1-jarkko.sakkinen@linux.intel.com>
+User-Agent: NeoMutt/20180716
+X-MC-Unique: O6MkToLUMhWb6WtFGEHlVQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Sep 14, 2019, at 10:21 AM, Mathieu Desnoyers mathieu.desnoyers@efficios.com wrote:
+On Mon Sep 16 19, Jarkko Sakkinen wrote:
+>tpm_send() does not give anymore the result back to the caller. This
+>would require another memcpy(), which kind of tells that the whole
+>approach is somewhat broken. Instead, as Mimi suggested, this commit
+>just wraps the data to the tpm_buf, and thus the result will not go to
+>the garbage.
+>
+>Obviously this assumes from the caller that it passes large enough
+>buffer, which makes the whole API somewhat broken because it could be
+>different size than @buflen but since trusted keys is the only module
+>using this API right now I think that this fix is sufficient for the
+>moment.
+>
+>In the near future the plan is to replace the parameters with a tpm_buf
+>created by the caller.
+>
+>Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+>Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+>Cc: stable@vger.kernel.org
+>Fixes: 412eb585587a ("use tpm_buf in tpm_transmit_cmd() as the IO paramete=
+r")
+>Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>---
+> drivers/char/tpm/tpm-interface.c | 8 ++------
+> 1 file changed, 2 insertions(+), 6 deletions(-)
+>
+>diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-inter=
+face.c
+>index d9ace5480665..2459d36dd8cc 100644
+>--- a/drivers/char/tpm/tpm-interface.c
+>+++ b/drivers/char/tpm/tpm-interface.c
+>@@ -358,13 +358,9 @@ int tpm_send(struct tpm_chip *chip, void *cmd, size_t=
+ buflen)
+> =09if (!chip)
+> =09=09return -ENODEV;
+>
+>-=09rc =3D tpm_buf_init(&buf, 0, 0);
+>-=09if (rc)
+>-=09=09goto out;
+>-
+>-=09memcpy(buf.data, cmd, buflen);
+>+=09buf.data =3D cmd;
+> =09rc =3D tpm_transmit_cmd(chip, &buf, 0, "attempting to a send a command=
+");
+>-=09tpm_buf_destroy(&buf);
+>+
+> out:
+> =09tpm_put_ops(chip);
+> =09return rc;
+>--=20
+>2.20.1
+>
 
-> There is an ongoing discussion on the choice of flag we want to care
-> about here. Therefore, please don't pull this patch until we reach an
-> agreement.
+Nothing uses the out label any longer so it should be dropped as well, but =
+other than that...
 
-Following discussion with Neel Natu (Google) and Paul Turner (Google),
-I plan to modify this patch, and unregister RSEQ on clone CLONE_VM for the
-following reasons:
+Acked-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
-1) CLONE_THREAD requires CLONE_SIGHAND, which requires CLONE_VM to be
-   set. Therefore, just checking for CLONE_VM covers all CLONE_THREAD uses,
-
-2) There is the possibility of an unlikely scenario where CLONE_SETTLS is used
-   without CLONE_VM. In order to be an issue, it would require that the rseq
-   TLS is in a shared memory area.
-
-   I do not plan on adding CLONE_SETTLS to the set of clone flags which
-   unregister RSEQ, because it would require that we also unregister RSEQ
-   on set_thread_area(2) and arch_prctl(2) ARCH_SET_FS for completeness.
-   So rather than doing a partial solution, it appears better to let user-space
-   explicitly perform rseq unregistration across clone if needed in scenarios
-   where CLONE_VM is not set.
-
-Thoughts ?
-
-Thanks,
-
-Mathieu
-
-
-> 
-> Thanks,
-> 
-> Mathieu
-> 
-> ----- On Sep 13, 2019, at 11:12 AM, Mathieu Desnoyers
-> mathieu.desnoyers@efficios.com wrote:
-> 
->> It has been reported by Google that rseq is not behaving properly
->> with respect to clone when CLONE_VM is used without CLONE_THREAD.
->> It keeps the prior thread's rseq TLS registered when the TLS of the
->> thread has moved, so the kernel deals with the wrong TLS.
->> 
->> The approach of clearing the per task-struct rseq registration
->> on clone with CLONE_THREAD flag is incomplete. It does not cover
->> the use-case of clone with CLONE_VM set, but without CLONE_THREAD.
->> 
->> Looking more closely at each of the clone flags:
->> 
->> - CLONE_THREAD,
->> - CLONE_VM,
->> - CLONE_SETTLS.
->> 
->> It appears that the flag we really want to track is CLONE_SETTLS, which
->> moves the location of the TLS for the child, making the rseq
->> registration point to the wrong TLS.
->> 
->> Suggested-by: "H . Peter Anvin" <hpa@zytor.com>
->> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
->> Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
->> Cc: Boqun Feng <boqun.feng@gmail.com>
->> Cc: "H . Peter Anvin" <hpa@zytor.com>
->> Cc: Paul Turner <pjt@google.com>
->> Cc: Dmitry Vyukov <dvyukov@google.com>
->> Cc: linux-api@vger.kernel.org
->> Cc: <stable@vger.kernel.org>
->> ---
->> include/linux/sched.h | 4 ++--
->> 1 file changed, 2 insertions(+), 2 deletions(-)
->> 
->> diff --git a/include/linux/sched.h b/include/linux/sched.h
->> index 9f51932bd543..76bf55b5cccf 100644
->> --- a/include/linux/sched.h
->> +++ b/include/linux/sched.h
->> @@ -1919,11 +1919,11 @@ static inline void rseq_migrate(struct task_struct *t)
->> 
->> /*
->>  * If parent process has a registered restartable sequences area, the
->> - * child inherits. Only applies when forking a process, not a thread.
->> + * child inherits. Unregister rseq for a clone with CLONE_SETTLS set.
->>  */
->> static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
->> {
->> -	if (clone_flags & CLONE_THREAD) {
->> +	if (clone_flags & CLONE_SETTLS) {
->> 		t->rseq = NULL;
->> 		t->rseq_sig = 0;
->> 		t->rseq_event_mask = 0;
->> --
->> 2.17.1
-> 
-> --
-> Mathieu Desnoyers
-> EfficiOS Inc.
-> http://www.efficios.com
-
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
