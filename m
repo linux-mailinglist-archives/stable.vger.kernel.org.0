@@ -2,81 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1266BB3889
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 12:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C56B38C4
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 12:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732374AbfIPKqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 06:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732373AbfIPKqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Sep 2019 06:46:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBE0421670;
-        Mon, 16 Sep 2019 10:46:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568630764;
-        bh=AXw8+RZeBdtERZpVbW8BlA9b3DHynmerk4QaOR0J1VM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jqQZjordVWeTCxGJBNm+DRhanE4743w06mP2IM637pLwopsYqtJ8M74TJ6Pd9Qhhs
-         plIKfupzoYSPYcpAdNFK0WmzltqJsMziVtkgplZDOuxknUCZuxoooEVhb28XEPSLBj
-         7qqtBDY5ewi1moP4rTpnPkf0+vpIKixfhp7VbiSw=
-Date:   Mon, 16 Sep 2019 12:45:50 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.9 00/14] 4.9.193-stable review
-Message-ID: <20190916104550.GA1412477@kroah.com>
-References: <20190913130440.264749443@linuxfoundation.org>
- <20190915133553.GD552182@kroah.com>
- <CA+G9fYu5b-zyttOx1Wxu-bi+hopRvYNQ1otS7qujx+xuLrA8xA@mail.gmail.com>
+        id S1732261AbfIPKzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 06:55:10 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:19358 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729112AbfIPKzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 06:55:10 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d7f6a130000>; Mon, 16 Sep 2019 03:55:15 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Mon, 16 Sep 2019 03:55:09 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Mon, 16 Sep 2019 03:55:09 -0700
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 16 Sep
+ 2019 10:55:09 +0000
+Received: from [10.21.132.148] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 16 Sep
+ 2019 10:55:06 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH 4.14 00/21] 4.14.144-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190913130501.285837292@linuxfoundation.org>
+Message-ID: <c7186e08-3faa-5a4a-8c96-957592667199@nvidia.com>
+Date:   Mon, 16 Sep 2019 11:55:04 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYu5b-zyttOx1Wxu-bi+hopRvYNQ1otS7qujx+xuLrA8xA@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190913130501.285837292@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1568631315; bh=XtBvUo7ErPWpwywlPIBPO8hsGed2vWoZb2aISH+/vxk=;
+        h=X-PGP-Universal:From:Subject:To:CC:References:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Kyfsw2UiYrJb3rNsHHBCZuRrbvb7YyV/8tSyxi1IREXX8H0UD3OkMOJfkll8lWE8p
+         x1RtdoMdmTuk5JbVCexvX+8yoMQYt5dwaO/OtQpaOZi5nTgE94n4sl2dM//d8Qmyay
+         P2gToeK+q8s7+UiEY3MAzK6TvoYjoEHWUPrzJDzMLf7JAyW4lot7SMPitqOJ6QMmfm
+         KOSXlwMnCo4Z0pR54pRA0jMPBZDYfmeih8sYmYGN3dQssfYq10OookQ5gvd+2Ape1Y
+         P/eNwSND87q5DTzR52xod2/s8HKVdg1m2nofuzpvDju22Ja1oUHPCMTdnzojA+pUUy
+         GsOf7p3N/a4Ww==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 16, 2019 at 06:44:34AM -0400, Naresh Kamboju wrote:
-> On Sun, 15 Sep 2019 at 09:35, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Sep 13, 2019 at 02:06:53PM +0100, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.9.193 release.
-> > > There are 14 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Sun 15 Sep 2019 01:03:32 PM UTC.
-> > > Anything received after that time might be too late.
-> > >
-> > > The whole patch series can be found in one patch at:
-> > >       https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.193-rc1.gz
-> > > or in the git tree and branch at:
-> > >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> > > and the diffstat can be found below.
-> >
-> > I have released -rc2 to resolve a reported build issue:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.193-rc2.gz
-> 
-> -rc2 looks good.
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
 
-Wonderful, thanks for testing!
+On 13/09/2019 14:06, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.144 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun 15 Sep 2019 01:03:32 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.144-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-greg k-h
+
+All tests passing for Tegra ...
+
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
+
+Linux version:	4.14.144-rc2-ga0bf0c3c56ab
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
