@@ -2,77 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6225BB392D
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 13:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D7AB392E
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 13:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbfIPLNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 07:13:37 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:48813 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725826AbfIPLNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 07:13:37 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 4D4D3723;
-        Mon, 16 Sep 2019 07:13:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 16 Sep 2019 07:13:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=hRigFTwphf1qy+sgPmQeqeUX4se
-        TEa9X3v1YEI5zFPk=; b=bN02mj7XSCgqfbikYIYuw1/IFIyW1R8vBdKSl1hQZGi
-        MIW7bfrzFWrjaBsvLA3nERihcziphcHivuqDjmHcM2ilHft6Lfy5OPFITZsbcufO
-        Ug17Up235O3Z8azk5DAK23lYiBxMXO1NkRrYLOnSRgjWSwj7bkoNr5+q7upO17MM
-        xjT5Fa3iGJnafroefMbkGshgKd6psiPztAevCcltw38XBSgL7J9V/ugBvIyWTgr9
-        6J8ojAzT2917gb1R0j/OPoHZkxCUgOJQC0H7RtyopUmMJahxOoxvqG234KpSTqwR
-        txTgwhNIhlz1A4LVonQpA7CmoFL9SIziAVk11EOMcpw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hRigFT
-        wphf1qy+sgPmQeqeUX4seTEa9X3v1YEI5zFPk=; b=s6PCn2htbj5kfEjHZym+eI
-        a4Y7IANljG+r7eTUWAgcfNDISnHFiggO6HEYVc/rx/UvKbBAlT5wHZQYzctXl1Ps
-        tpSHzEgWRAFz330jBFnKY2bp3kRZXB7KTPPmU19tSXBCCDMr3JIUqH+kX+LBorlQ
-        rTwP/WCMf0jdU6nUOgLpzC9YULSExKUA4p78mo8AUJyAEZ0ueV9Kc8xTOSCmFF+n
-        TzdCgauJ46Vf534e1oQUJsP3dwf+7kUrVFeKQL2jTmOk6NrfBZpVzMM8a2a9sttR
-        z3dWL4xKZKTiEzSqWN4ch03/aRm3NYSlDWxRc3//rjUGCmWeqaH/yRN/sPDDDr6A
-        ==
-X-ME-Sender: <xms:X25_XWjGhJKOeIJmi1509fe0ukKRfLAHTQcNE-srsPq_5KerNFWHZw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefgdefkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:X25_XYgUS0rduG0Udz_3wBKh22Y69BkB3uluB-iK0Ha3vmvRAzPSlA>
-    <xmx:X25_XeKq3ygqJ92p7duajHO7COHhq2LnFuUIoHGoUD5NKbxERs5llw>
-    <xmx:X25_XfEnF-PAk8kBYdMRA6LjPjd1VrnhYKQ0X6HsDnw7DYhXjlb7iw>
-    <xmx:X25_XVflGLDAukI5Ou7okP0K48E3DTP_cRr3HEPTqWCjd737bc20IQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1DA7280063;
-        Mon, 16 Sep 2019 07:13:35 -0400 (EDT)
-Date:   Mon, 16 Sep 2019 13:05:20 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20190916110520.GA1485033@kroah.com>
-References: <20190915.203722.1417237812508740544.davem@davemloft.net>
+        id S1726369AbfIPLOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 07:14:41 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:38077 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725826AbfIPLOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 07:14:40 -0400
+Received: by mail-wr1-f67.google.com with SMTP id l11so38382069wrx.5
+        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 04:14:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mZKi60I4PeU3CnxWjU2uZVuyVnYJX5nxXuqjGAItFPo=;
+        b=qc7Te1W9KK2r9dPGTEWQVmplXlnSasPz9wm7hoyN+5QPaupko5XpkW/R74JVdGhrAd
+         kaiw6+fPosLyPR6KKhJ5cL+4S1rUb55JiTeO2xOYy3Ej/757TivNFAmDvfqi985j6Q6c
+         J8fD/ASVkIbE7SsrLp2OOT5d7BxDkNhzQuC3S6fTq5B1IkuLcJOBPCXrM/z0f1JQZdcE
+         8n3ToJHSXHzUvEvWVIeDa11hrFSAUSpB/wW2KLDe9WiPr42MfUieDrG8ib2mdIUkPNfu
+         kpX8WLGJDPjRO4+QqUcfMzk4O7PFryxGrdY3OPwKKlEfZp7iuUaJmCzqT9Q/5475spJE
+         V61g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mZKi60I4PeU3CnxWjU2uZVuyVnYJX5nxXuqjGAItFPo=;
+        b=LdwMgH3dIrxYZ1OwzN6IpSbEjo8mVGiP8gKut9FqS/UzQsBtVpzlbQjW6u4OcO68P8
+         I8AV03wPTgY/CKRplp9vcdqb9VVqsYC/9MYgZn5Bxt62PI9MG5Kv0HMqdugEW6GQxQYK
+         YWyQr+tFJV11RkKSJBhPJ1/kjtj5w+zzHTOC9s9DbM0WU9G5W0xOXs52JGvxDtyKxTQU
+         VAl01MX6h4+BTOFDnK/VCvHQDoCGVwhfYI/gCiLuc0n+o3U99nCyi6jv6Qrj6AoibH7W
+         9v24ZTBbaJI+Ccle1T06tSGRc6J8GfaLpMQIvW0+gom78Z4j6Gz19XL3lyPUDz1LHPm2
+         +WqQ==
+X-Gm-Message-State: APjAAAUzzvaSHEFCl9xikrvxBb/Nc/N5TDy+bX36STfqwWqGKgx9Zu3Y
+        k2RZacu7NaI5vdIXarUbGyCSYh92yNI=
+X-Google-Smtp-Source: APXvYqym7/ChaiIif2S7vLA5X6ApIYeQZE7Bi1muoUgi6uK1nbIRzqjOZFogEY67zSkSZeKYNlaWzg==
+X-Received: by 2002:a5d:5450:: with SMTP id w16mr28518471wrv.55.1568632478587;
+        Mon, 16 Sep 2019 04:14:38 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 33sm47185112wra.41.2019.09.16.04.14.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 16 Sep 2019 04:14:37 -0700 (PDT)
+Message-ID: <5d7f6e9d.1c69fb81.91aff.937c@mx.google.com>
+Date:   Mon, 16 Sep 2019 04:14:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190915.203722.1417237812508740544.davem@davemloft.net>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.193
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y boot: 71 boots: 0 failed, 71 passed (v4.9.193)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 15, 2019 at 08:37:22PM +0100, David Miller wrote:
-> 
-> Please queue up the following networking bug fixes for v4.19
-> and v5.2 -stable, respectively.
+stable/linux-4.9.y boot: 71 boots: 0 failed, 71 passed (v4.9.193)
 
-All queued up, thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.193/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.193/
 
-greg k-h
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.193
+Git Commit: 779cde69dcc0c1d3c992c902a9d07bf7ec7b729b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 15 SoC families, 11 builds out of 197
+
+---
+For more info write to <info@kernelci.org>
