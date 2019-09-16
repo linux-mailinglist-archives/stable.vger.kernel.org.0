@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF64B3D80
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 17:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60FFB3D81
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 17:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388974AbfIPPSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 11:18:31 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:43481 "EHLO
+        id S2388977AbfIPPSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 11:18:33 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55093 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388505AbfIPPSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 11:18:31 -0400
+        by vger.kernel.org with ESMTP id S2388505AbfIPPSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 11:18:32 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2EF296E6;
-        Mon, 16 Sep 2019 11:18:30 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 16 Sep 2019 11:18:30 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 8F8776F2;
+        Mon, 16 Sep 2019 11:18:31 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 16 Sep 2019 11:18:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YJ+xwe
-        sCB66tARjyPwGZFD5H/ZzHja5GOk3elh651zg=; b=tFe/JvaAoF5x8qqxOvOJwn
-        iILUnUCVzdIgBX/hYZvroeM9qnGW9/Pgkji9hCBMUmeUPS+ezqU6nboppkj2WM4W
-        jpepuNrKThcQBPW/C8Ftj0PDoG8oRb6ecFRb5CauopEml5EWJFBPsbqS/YlIqLkI
-        WOVznYt5qf5ma/c8uR+99nq7ppFHPWPP77KSK1/vPlZOpx7Wix3anZ0t0f3VbC3q
-        FurSfswzZV8ZSTzDShw0vyRNvZBjfGRe3JtD/hVaRRm9FtKa7V/PUR8F0Q3XqQxj
-        fI+rtDEff+VXrfh8YzZmvy6YB5MvGGb2CwybKoF26+kJ6F2EVUoW8m4vg0LQ0iUA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FzAOtI
+        HyX40UeKN0PU+hks+/dsWQ1TmIylbt3eEOto0=; b=Uq3ClEIEklkbLywmpRvGQ6
+        iW/KUMrlRr+nbivMYSEb4Vtb9I1dWOLEbjM4RF2tCkTOfdxzyyfZIBrsV1STf5cu
+        qCVuvHj+Xv69YyDk/Fz4zUiueK/eGvka6pd3fleiDsATMR75h7v/gL84oKzoK6ms
+        Gsq7JvKAu+NK3gfA9g/GWB4Kw/h4yWUPK8/p04XQSLRNnDB8+tFkEdQj3O5E5s6g
+        YnyXRp79M8N4IYjSJNJpL6ksx4iWzfHA4NkH5Tw36JOQm4Y4DcdQBsi/k6+iANQ9
+        RF7gx65mgG09UD+oT5QPUr0zBYVPXwX8DV3a9MeUcdviVpRSjLwLTTb5Vfm5nA4w
         ==
-X-ME-Sender: <xms:xad_XYgA3MF50UjSpZPLarhtn-Gpjs9XU9L2hGRMQQxvlSj4PqDBgA>
+X-ME-Sender: <xms:x6d_XfcnkfywupuEZejWCDZHQe67H1bWlIzt6s1PYGpj5H6THAk85A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefgdekjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,21 +35,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefgdekjecutefuodetggdote
     qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
     drkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
     tghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:xad_XV5d16LsaeaRoZSi9sbPgLacaRC8vHlYQPbE8209F0L8cnwZ9g>
-    <xmx:xad_XdpFacKFs6AL8ru7tksyO53NKHDPO-irA5CDdJD7apCniQltpA>
-    <xmx:xad_XbVpL9m6mPP1jkXXhFNqPkep8OiHDvKNYqt3Gr7hq9w0jifocA>
-    <xmx:xad_XQBebuVLh9qmkx6JJnBVjUCtzBFkqpG5jcoG8eT4W5Gwy6hj5Q>
+X-ME-Proxy: <xmx:x6d_XYjc-_NccFXl-7IIt9rTO7XHZ412ISVwlK_czV_U8RxmdbLOQg>
+    <xmx:x6d_Xcm_9nV8QmcvlKr55AjLR0p2FZosrjGTEmNnTwj1e7XdhcarZA>
+    <xmx:x6d_XXWIeTpjxuwK2yEXlcOebYTmk0GgovbrJf7htDaMiLOeAWlT4Q>
+    <xmx:x6d_XUCNiq6qBWtpnWEJxGJ28kc6t6Q0yT9Suemcn7t4yZt9ooMrHA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 774E0D60062;
-        Mon, 16 Sep 2019 11:18:29 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Restore relaxed padding (OCL_OOB_SUPPRES_ENABLE)" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B016080061;
+        Mon, 16 Sep 2019 11:18:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Restore relaxed padding (OCL_OOB_SUPPRES_ENABLE)" failed to apply to 4.9-stable tree
 To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
         jason@jlekstrand.net, mika.kuoppala@linux.intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Sep 2019 17:18:26 +0200
-Message-ID: <15686471069344@kroah.com>
+Date:   Mon, 16 Sep 2019 17:18:27 +0200
+Message-ID: <1568647107167228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
