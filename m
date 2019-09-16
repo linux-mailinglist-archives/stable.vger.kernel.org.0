@@ -2,119 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3255CB41B2
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 22:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C66B41C1
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 22:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391325AbfIPUWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 16:22:41 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:36998 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727770AbfIPUWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 16:22:41 -0400
-Received: by mail-wr1-f65.google.com with SMTP id i1so792945wro.4
-        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 13:22:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XGBwC1LLr3XkN/SNJ7vwcspwxMveVCR8HY1dtgNLoW4=;
-        b=gYioHUuav7RJ7c7qoBnzcPtdluWu9SMwd9SuHMTxMThIejV37fxqGv901EivRnLWI3
-         11ATWdEHAGN60X78edgJkm8Zqem7WGAvwGV7gpmzLZruJQlZlygZKfDXXWJ0D9P+a/q9
-         feuOewc4PocvpeK0uu+RfCzQ2r7B0rMBMoJWKfgvn8nl3jRIp0fGs9hiXyENoOtdLjX2
-         KLjqARcpSRh7N1+ZMeq8Ntz+JRDiDroIgV/8iyNaXlcZOGoeW3APcHH4lzpQzxbFCYeo
-         X0FDZtpWQeYeLeV325WUAtznIjpYZAwtIq5lIPA2fmZJTaCaFO9V7GhEqgj71Jur94Ci
-         770Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XGBwC1LLr3XkN/SNJ7vwcspwxMveVCR8HY1dtgNLoW4=;
-        b=OpWN5GseboPSdIJGs1lOoe+AldUBNIC7N6T0Rqpcyb8yzK/P25+y7DdFUaYKFUjdjC
-         i5UlHfC6Midft/R2FN52ttFqThwYHgmiZxNztIkSIz1Ur5/SkJrmXqlWuo/ymuIhQfAs
-         hQYaYXDg/U83ua2biZ8KELDx+mi6mcKgZKVrWFfgowzmTQULocnSeI7jySmYcuE8IG81
-         xJqvGlR5C4Id94kzquFrZwEUCb1TH03TTz5xv6UvZqRvFL9SPl6T40BGitgOz1Ue+zQO
-         O1atooWpQqjVfXxT0c+aXlogi+9FVsvutHDMvfzXa+MH2LWVFN4Vyhth60z/NCnXPgRr
-         v25Q==
-X-Gm-Message-State: APjAAAULcVAkW+Tb1fZM24eCiNcLfSxVgV5FZDX2gHI5hZG011Ws90yC
-        mhiZyuQTWqDanha6p/ImOWJBtjmjdVaC9w==
-X-Google-Smtp-Source: APXvYqxFNyDE2kX9JkdpBb/33lj19VzYdqAYzP5tAblGI26D/qghhpUI+SwyWsJPKyHBUhDclbvvfA==
-X-Received: by 2002:adf:e7c2:: with SMTP id e2mr107664wrn.319.1568665358384;
-        Mon, 16 Sep 2019 13:22:38 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k9sm31823wrd.7.2019.09.16.13.22.37
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 16 Sep 2019 13:22:37 -0700 (PDT)
-Message-ID: <5d7fef0d.1c69fb81.8f9c9.028f@mx.google.com>
-Date:   Mon, 16 Sep 2019 13:22:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1733222AbfIPU03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 16:26:29 -0400
+Received: from mail.efficios.com ([167.114.142.138]:38586 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733177AbfIPU02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 16:26:28 -0400
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id 349762D2E16;
+        Mon, 16 Sep 2019 16:26:27 -0400 (EDT)
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
+        with ESMTP id cqKT6pE8k2Yk; Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id AF3532D2E03;
+        Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com AF3532D2E03
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1568665586;
+        bh=Edl2EwdVavNOhnVKCHzg8QRXPTO+dPykDxXdhG5Kbbc=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=m0tE5l9LMLlF2Sua8CV4PLOLb53pG7G5dTI9jDdRvc9J4asazqFuUjOKoWVeZcx4N
+         SQVNrGBYb7zHwImO+a0H81bMfF9OEMH4CliHb+3UdYKlXhARJRyUGC2aMFpGfhz2Nr
+         HGFzvfbJsoFJkOVaBdo8Lj8uSpir7Tl/kr7xGH5fC10XnzY+miDlfQnziDj8+vMwvK
+         y4vp2MO0WnuJxwEqPqv68vu4kQLkU9dVnN58+EgJYcGzbiOLv4fysBvnh9I3DkGO1H
+         8fMwnskjjDpd1eiA3PZt3dcv7yzsu1BLBMJCVK10yS5IkWAbrv/PriOb5jWfDt0w34
+         d6k/qOzah4XPg==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id vzadUWW5ct8D; Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
+Received: from mail02.efficios.com (mail02.efficios.com [167.114.142.138])
+        by mail.efficios.com (Postfix) with ESMTP id 970982D2DF9;
+        Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
+Date:   Mon, 16 Sep 2019 16:26:26 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Neel Natu <neelnatu@google.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        paulmck <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        linux-api <linux-api@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <1809268320.7843.1568665586487.JavaMail.zimbra@efficios.com>
+In-Reply-To: <819646407.3304.1568470889470.JavaMail.zimbra@efficios.com>
+References: <20190913151220.3105-1-mathieu.desnoyers@efficios.com> <20190913151220.3105-2-mathieu.desnoyers@efficios.com> <819646407.3304.1568470889470.JavaMail.zimbra@efficios.com>
+Subject: Re: [PATCH for 5.3 2/3] rseq: Fix: Unregister rseq for CLONE_SETTLS
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.193
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 111 boots: 1 failed,
- 101 passed with 9 offline (v4.9.193)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.142.138]
+X-Mailer: Zimbra 8.8.15_GA_3847 (ZimbraWebClient - FF69 (Linux)/8.8.15_GA_3847)
+Thread-Topic: rseq: Fix: Unregister rseq for CLONE_SETTLS
+Thread-Index: o9eZqvAOKmXphmxsJKc8X5whD/BREsteql3R
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 111 boots: 1 failed, 101 passed with 9 offline =
-(v4.9.193)
+----- On Sep 14, 2019, at 10:21 AM, Mathieu Desnoyers mathieu.desnoyers@efficios.com wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.193/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.193/
+> There is an ongoing discussion on the choice of flag we want to care
+> about here. Therefore, please don't pull this patch until we reach an
+> agreement.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.193
-Git Commit: 779cde69dcc0c1d3c992c902a9d07bf7ec7b729b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 58 unique boards, 22 SoC families, 14 builds out of 197
+Following discussion with Neel Natu (Google) and Paul Turner (Google),
+I plan to modify this patch, and unregister RSEQ on clone CLONE_VM for the
+following reasons:
 
-Boot Failure Detected:
+1) CLONE_THREAD requires CLONE_SIGHAND, which requires CLONE_VM to be
+   set. Therefore, just checking for CLONE_VM covers all CLONE_THREAD uses,
 
-arm:
-    exynos_defconfig:
-        gcc-8:
-            exynos5250-snow: 1 failed lab
+2) There is the possibility of an unlikely scenario where CLONE_SETTLS is used
+   without CLONE_VM. In order to be an issue, it would require that the rseq
+   TLS is in a shared memory area.
 
-Offline Platforms:
+   I do not plan on adding CLONE_SETTLS to the set of clone flags which
+   unregister RSEQ, because it would require that we also unregister RSEQ
+   on set_thread_area(2) and arch_prctl(2) ARCH_SET_FS for completeness.
+   So rather than doing a partial solution, it appears better to let user-space
+   explicitly perform rseq unregistration across clone if needed in scenarios
+   where CLONE_VM is not set.
 
-arm64:
+Thoughts ?
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
+Thanks,
 
-arm:
+Mathieu
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+> 
+> Thanks,
+> 
+> Mathieu
+> 
+> ----- On Sep 13, 2019, at 11:12 AM, Mathieu Desnoyers
+> mathieu.desnoyers@efficios.com wrote:
+> 
+>> It has been reported by Google that rseq is not behaving properly
+>> with respect to clone when CLONE_VM is used without CLONE_THREAD.
+>> It keeps the prior thread's rseq TLS registered when the TLS of the
+>> thread has moved, so the kernel deals with the wrong TLS.
+>> 
+>> The approach of clearing the per task-struct rseq registration
+>> on clone with CLONE_THREAD flag is incomplete. It does not cover
+>> the use-case of clone with CLONE_VM set, but without CLONE_THREAD.
+>> 
+>> Looking more closely at each of the clone flags:
+>> 
+>> - CLONE_THREAD,
+>> - CLONE_VM,
+>> - CLONE_SETTLS.
+>> 
+>> It appears that the flag we really want to track is CLONE_SETTLS, which
+>> moves the location of the TLS for the child, making the rseq
+>> registration point to the wrong TLS.
+>> 
+>> Suggested-by: "H . Peter Anvin" <hpa@zytor.com>
+>> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+>> Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+>> Cc: Boqun Feng <boqun.feng@gmail.com>
+>> Cc: "H . Peter Anvin" <hpa@zytor.com>
+>> Cc: Paul Turner <pjt@google.com>
+>> Cc: Dmitry Vyukov <dvyukov@google.com>
+>> Cc: linux-api@vger.kernel.org
+>> Cc: <stable@vger.kernel.org>
+>> ---
+>> include/linux/sched.h | 4 ++--
+>> 1 file changed, 2 insertions(+), 2 deletions(-)
+>> 
+>> diff --git a/include/linux/sched.h b/include/linux/sched.h
+>> index 9f51932bd543..76bf55b5cccf 100644
+>> --- a/include/linux/sched.h
+>> +++ b/include/linux/sched.h
+>> @@ -1919,11 +1919,11 @@ static inline void rseq_migrate(struct task_struct *t)
+>> 
+>> /*
+>>  * If parent process has a registered restartable sequences area, the
+>> - * child inherits. Only applies when forking a process, not a thread.
+>> + * child inherits. Unregister rseq for a clone with CLONE_SETTLS set.
+>>  */
+>> static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
+>> {
+>> -	if (clone_flags & CLONE_THREAD) {
+>> +	if (clone_flags & CLONE_SETTLS) {
+>> 		t->rseq = NULL;
+>> 		t->rseq_sig = 0;
+>> 		t->rseq_event_mask = 0;
+>> --
+>> 2.17.1
+> 
+> --
+> Mathieu Desnoyers
+> EfficiOS Inc.
+> http://www.efficios.com
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
