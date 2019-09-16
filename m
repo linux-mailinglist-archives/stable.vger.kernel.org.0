@@ -2,118 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 895C4B38F0
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 12:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6225BB392D
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 13:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726604AbfIPK72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 06:59:28 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.53]:32054 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726055AbfIPK71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 06:59:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1568631562;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=8qBwnSrBAY6WABqgn1MijqgXdh4BqWoFPcRi7n52+qc=;
-        b=fV4Bdm1MBqOybpORSj0ui39/Qw+yJN7x/6Y+fX2NFMLLNLQzbW+Ylqii7n8yN5D021
-        +4mgis08kH87STWqeUOz0uxYHZllHJINsL3EwkU+13vbubYBBJXkWlTMEW5ikNN8ss3Y
-        B7Xe2HdJ47ypYzg8kE/FbPROOmR6TXcrHrhy695cZUI5/od27EZADuthE/pnoaKZMibA
-        ldb1BJ5wRDGoq9y2TOJAmy0Tecf4i6AkgfKKYXtTR4Z9VV8TVHFGlFi+OWO+8Z4MNn87
-        rr8QRZdl8OvNe/79lg+kLZmPXKi4XWHqPPWYdeVJUluGdsrI3Aq7QxWToRvDPA0PK5Xc
-        tadA==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj4Qpw9iZeHmAgw43rXTg="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 44.27.0 DYNA|AUTH)
-        with ESMTPSA id u036f9v8GAxJPvu
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
-        (Client did not present a certificate);
-        Mon, 16 Sep 2019 12:59:19 +0200 (CEST)
+        id S1729541AbfIPLNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 07:13:37 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:48813 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725826AbfIPLNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 07:13:37 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 4D4D3723;
+        Mon, 16 Sep 2019 07:13:36 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 16 Sep 2019 07:13:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=hRigFTwphf1qy+sgPmQeqeUX4se
+        TEa9X3v1YEI5zFPk=; b=bN02mj7XSCgqfbikYIYuw1/IFIyW1R8vBdKSl1hQZGi
+        MIW7bfrzFWrjaBsvLA3nERihcziphcHivuqDjmHcM2ilHft6Lfy5OPFITZsbcufO
+        Ug17Up235O3Z8azk5DAK23lYiBxMXO1NkRrYLOnSRgjWSwj7bkoNr5+q7upO17MM
+        xjT5Fa3iGJnafroefMbkGshgKd6psiPztAevCcltw38XBSgL7J9V/ugBvIyWTgr9
+        6J8ojAzT2917gb1R0j/OPoHZkxCUgOJQC0H7RtyopUmMJahxOoxvqG234KpSTqwR
+        txTgwhNIhlz1A4LVonQpA7CmoFL9SIziAVk11EOMcpw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hRigFT
+        wphf1qy+sgPmQeqeUX4seTEa9X3v1YEI5zFPk=; b=s6PCn2htbj5kfEjHZym+eI
+        a4Y7IANljG+r7eTUWAgcfNDISnHFiggO6HEYVc/rx/UvKbBAlT5wHZQYzctXl1Ps
+        tpSHzEgWRAFz330jBFnKY2bp3kRZXB7KTPPmU19tSXBCCDMr3JIUqH+kX+LBorlQ
+        rTwP/WCMf0jdU6nUOgLpzC9YULSExKUA4p78mo8AUJyAEZ0ueV9Kc8xTOSCmFF+n
+        TzdCgauJ46Vf534e1oQUJsP3dwf+7kUrVFeKQL2jTmOk6NrfBZpVzMM8a2a9sttR
+        z3dWL4xKZKTiEzSqWN4ch03/aRm3NYSlDWxRc3//rjUGCmWeqaH/yRN/sPDDDr6A
+        ==
+X-ME-Sender: <xms:X25_XWjGhJKOeIJmi1509fe0ukKRfLAHTQcNE-srsPq_5KerNFWHZw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefgdefkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:X25_XYgUS0rduG0Udz_3wBKh22Y69BkB3uluB-iK0Ha3vmvRAzPSlA>
+    <xmx:X25_XeKq3ygqJ92p7duajHO7COHhq2LnFuUIoHGoUD5NKbxERs5llw>
+    <xmx:X25_XfEnF-PAk8kBYdMRA6LjPjd1VrnhYKQ0X6HsDnw7DYhXjlb7iw>
+    <xmx:X25_XVflGLDAukI5Ou7okP0K48E3DTP_cRr3HEPTqWCjd737bc20IQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1DA7280063;
+        Mon, 16 Sep 2019 07:13:35 -0400 (EDT)
+Date:   Mon, 16 Sep 2019 13:05:20 +0200
+From:   Greg KH <greg@kroah.com>
+To:     David Miller <davem@davemloft.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCHES] Networking
+Message-ID: <20190916110520.GA1485033@kroah.com>
+References: <20190915.203722.1417237812508740544.davem@davemloft.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <20190831084852.5e726cfa@aktux>
-Date:   Mon, 16 Sep 2019 12:59:19 +0200
-Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>,
-        Rob Herring <robh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com>
-References: <cover.1562597164.git.hns@goldelico.com> <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com> <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com> <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com> <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com> <20190831084852.5e726cfa@aktux>
-To:     Linus Walleij <linus.walleij@linaro.org>
-X-Mailer: Apple Mail (2.3124)
+Content-Disposition: inline
+In-Reply-To: <20190915.203722.1417237812508740544.davem@davemloft.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ping.
+On Sun, Sep 15, 2019 at 08:37:22PM +0100, David Miller wrote:
+> 
+> Please queue up the following networking bug fixes for v4.19
+> and v5.2 -stable, respectively.
 
-Device omap3-gta04 is neither working with v5.3 nor linux-next quite a =
-while and we need a solution.
+All queued up, thanks!
 
-> Am 31.08.2019 um 08:48 schrieb Andreas Kemnade <andreas@kemnade.info>:
->=20
-> Hi,
->=20
-> On Mon, 5 Aug 2019 12:29:19 +0200
-> Linus Walleij <linus.walleij@linaro.org> wrote:
->=20
->> On Fri, Jul 26, 2019 at 12:43 AM Rob Herring <robh@kernel.org> wrote:
->>> On Thu, Jul 25, 2019 at 12:23 AM H. Nikolaus Schaller =
-<hns@goldelico.com> wrote: =20
->>=20
->>>> I tried to convince Linus that this is the right way but he =
-convinced
->>>> me that a fix that handles all cases does not exist.
->>>>=20
->>>> There seem to be embedded devices with older DTB (potentially in =
-ROM)
->>>> which provide a plain 0 value for a gpios definition. And either =
-with
->>>> or without spi-cs-high.
->>>>=20
->>>> Since "0" is the same as "GPIO_ACTIVE_HIGH", the absence of
->>>> spi-cs-high was and must be interpreted as active low for these
->>>> devices. This leads to the inversion logic in code.
->>>>=20
->>>> AFAIR it boils down to the question if gpiolib and the bindings
->>>> should still support such legacy devices with out-of tree DTB,
->>>> but force in-tree DTS to add the legacy spi-cs-high property.
->>>>=20
->>>> Or if we should fix the 2 or 3 cases of in-tree legacy cases
->>>> and potentially break out-of tree DTBs. =20
->>>=20
->>> If it is small number of platforms, then the kernel could handle =
-those
->>> cases explicitly as needed.
->>>=20
->>>> IMHO it is more general to keep the out-of-tree DTBs working
->>>> and "fix" what we can control (in-tree DTS). =20
-
->>>=20
->>> If we do this, then we need to not call spi-cs-high legacy because
->>> we're stuck with it forever. =20
->>=20
->> I agree. The background on it is here:
->> https://lkml.org/lkml/2019/4/2/4
->>=20
->> Not using the negatively defined (i.e. if it is no there, the line is
->> by default active low) spi-cs-high would break
->> PowerPC, who were AFAICT using this to ship devices.
->>=20
-> is this thing now just waiting for someone to do a s/legacy//?
->=20
-> Regards,
-> Andreas
-
+greg k-h
