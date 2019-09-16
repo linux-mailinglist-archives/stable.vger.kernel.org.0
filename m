@@ -2,116 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BE4B3F11
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 18:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D89FB3F37
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 18:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731852AbfIPQgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 12:36:05 -0400
-Received: from mail-pl1-f176.google.com ([209.85.214.176]:39614 "EHLO
-        mail-pl1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727950AbfIPQgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 12:36:05 -0400
-Received: by mail-pl1-f176.google.com with SMTP id bd8so127967plb.6
-        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 09:36:04 -0700 (PDT)
+        id S1729057AbfIPQsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 12:48:42 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:39521 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390140AbfIPQsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Sep 2019 12:48:41 -0400
+Received: by mail-wm1-f66.google.com with SMTP id v17so87618wml.4
+        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 09:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=PI3pxRC+GZHeQL82Z+jOShZWy9ITmZi+dui65RciUWo=;
-        b=cNcZqgla2hApmVJpNhYsmcFIWXeiYUNRkgo01zHIMzCwbTSVxmtyUYiq8qCA+DqXYH
-         8zCYVYj1QVUGzkDl/ucjhozvp9q8WzRUwwdGyc7o5lW68Ls5fXSEZvEZvo2WOzmpIY3V
-         TOjNcYg2e0iRuqpqOPncia9U7clEt15cIcC5Itw/jpdnxiYzAtROH5BlhfoRzhGc1Vhq
-         COTRDhcS9uhLUsTlhtS0Y5fn012eARwqBZf3pfk0rQDd2enfQXH77pLH/gw+wMzVrpgJ
-         r9nLYUbDzgehYTVcbzmFdzLa/KFXnhkdrvmTprcC3t3RYCbK5RBdZTjy45AVkADi/hZX
-         bG0Q==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TxsiRtqlZxXJxEjh0Vyv7B1mmGnVTP7fThp1xdwmH68=;
+        b=PVd5WcS+LONmnhmFXSy9viHGBE27lHUscMNX8i36Fzz6JksGDceHDP8rtdWO2d7LSz
+         kYvVsLuTXh69mwC+AY4F1aEtPyJDUMsByt1fBx/u5FBmVLpqnGgWTd7KBtU/GRYy/2bo
+         xPlQUcq27cN/DMFM2EmPfGcWHxrnbf20l+Ob8A9SUA0hxWWiJAbBcJB4nE9wShj8BEox
+         VmrFDQscGmsYuRIGH3lsnjh03hnQq15W9QqfpVqjAD/8mBWwDeXCKZeV78qxrySajEke
+         E5s2czSPQuHOGKDpOilq36MAYVI4ARbhuwUJZ1qGpbWxnI0uDSXF6+YxLvnSWUbEEH3R
+         89tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=PI3pxRC+GZHeQL82Z+jOShZWy9ITmZi+dui65RciUWo=;
-        b=bWZfdUCPgk//ULigmHBuPwZEnK4GWH6Q2JYNHWTl8KBV3dNnyBxDz0leiRoBF6wof7
-         ewXMSrbHvTQKJM8IxIID0O8iaD+2R0Q4/JNrKaEUzWMY454Wt8U+3Ht2vAFs6EDGt261
-         f2wdeSOAsWncVlnB8MlSsAl7cAFkLsd07gnEVSH4JSHd3xjFAYRJtVseJlMl6rjOTCQb
-         1S9FUBzGjIFKRBStfvYt4eFc+B2WsKAhsyLooMac073sm/YFk9TIUX3JNzkXhqDMwChe
-         gAMGgGQatcO0MVG5fCHX6kxjKzcg1FbWBNmXWoJByLzUjqkFA4IxxeNiKwoY2g6NiV8C
-         eM0A==
-X-Gm-Message-State: APjAAAXc7cl29y4LUENVWl3WkD/oUAB1uFkjMeVe0PUBLhVyDCTIncpt
-        u6nls8cMF+0OBpgxaSkb5QrIDouF8nER9g==
-X-Google-Smtp-Source: APXvYqwowmn+FXo70UFPpClW0eYqbScScnze869NecVhu4hR/B2ONnCt3hM8Hyy/gqXrINBSWf7psA==
-X-Received: by 2002:a17:902:ff08:: with SMTP id f8mr648798plj.309.1568651763985;
-        Mon, 16 Sep 2019 09:36:03 -0700 (PDT)
-Received: from omlet.jf.intel.com ([2605:6000:1026:c030::cf8])
-        by smtp.gmail.com with ESMTPSA id 71sm72256782pfw.147.2019.09.16.09.36.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Sep 2019 09:36:03 -0700 (PDT)
-From:   Jason Ekstrand <jason@jlekstrand.net>
-To:     stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Jason Ekstrand <jason@jlekstrand.net>,
-        denys.kostin@globallogic.com,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH] drm/i915: Restore relaxed padding (OCL_OOB_SUPPRES_ENABLE) for skl+
-Date:   Mon, 16 Sep 2019 11:35:54 -0500
-Message-Id: <20190916163554.25287-1-jason@jlekstrand.net>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <156864710545220@kroah.com>
-References: <156864710545220@kroah.com>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TxsiRtqlZxXJxEjh0Vyv7B1mmGnVTP7fThp1xdwmH68=;
+        b=moECMHf5ItII+CDSzKGzO3ZFvNTPMYssZJcqVb45MA7DLQQLwoBQzzFR5NuK3+WFqy
+         KDsdePy2zwwjPlbsFZVsQpHAStdF8nVpsiZ7mSTVVQgqnos908w/2IHw7Ekcryfk2JRw
+         /YKJ+JhsoZbPyEP799eJWB/ejCn2rpxnOTvdOT1PR9SBPuOO7eyQdqwud8IIn2TXJcyS
+         OSYNmJilgcH7P5ZkwltxneLak8pm/CRai8Tt+pCu2fKOj4tjd/lt60pPkhNLMQ4paBwB
+         zUsMgdovyTJGC4ImeLnAh77oNdUD63ssCF/jP8jyDTmOfilfxPB7OZWzupSfw+hr4h1p
+         t4kw==
+X-Gm-Message-State: APjAAAWlb+eszlAhC21sY8BYluV2T4SABkif3KpilJXi0Y1nWEJyFPpl
+        JC3sIlfys0mAMbvxN9nzwXQqspX3+9Noew==
+X-Google-Smtp-Source: APXvYqwJufQXhb9JsR6ga2EA9sxZfzN0WEfFAvZKx2x9BXqL0JFrCs+gVkWfBuVyL4EI6jNRf5JZ7A==
+X-Received: by 2002:a1c:d183:: with SMTP id i125mr100690wmg.1.1568652517972;
+        Mon, 16 Sep 2019 09:48:37 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x2sm10005357wrn.81.2019.09.16.09.48.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 16 Sep 2019 09:48:36 -0700 (PDT)
+Message-ID: <5d7fbce4.1c69fb81.50305.be13@mx.google.com>
+Date:   Mon, 16 Sep 2019 09:48:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y boot: 153 boots: 4 failed,
+ 139 passed with 10 offline (v5.2.15)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+stable-rc/linux-5.2.y boot: 153 boots: 4 failed, 139 passed with 10 offline=
+ (v5.2.15)
 
-This bit was fliped on for "syncing dependencies between camera and
-graphics". BSpec has no recollection why, and it is causing
-unrecoverable GPU hangs with Vulkan compute workloads.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.15/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.15/
 
-From BSpec, setting bit5 to 0 enables relaxed padding requirements for
-buffers, 1D and 2D non-array, non-MSAA, non-mip-mapped linear surfaces;
-and *must* be set to 0h on skl+ to ensure "Out of Bounds" case is
-suppressed.
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.15
+Git Commit: 6e282ba6ff6bb52afa545d4a29a45bd2eb8a7f4c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 87 unique boards, 28 SoC families, 17 builds out of 209
 
-Back-ported from 2eb0964eec5f1d99f9eaf4963eee267acc72b615 to 4.19.72 by
-Jason Ekstrand
+Boot Regressions Detected:
 
-Reported-by: Jason Ekstrand <jason@jlekstrand.net>
-Suggested-by: Jason Ekstrand <jason@jlekstrand.net>
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110998
-Fixes: 8424171e135c ("drm/i915/gen9: h/w w/a: syncing dependencies between camera and graphics")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Tested-by: denys.kostin@globallogic.com
-Cc: Jason Ekstrand <jason@jlekstrand.net>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v4.1+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190904100707.7377-1-chris@chris-wilson.co.uk
-(cherry picked from commit 9d7b01e93526efe79dbf75b69cc5972b5a4f7b37)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          tegra124-nyan-big:
+              lab-collabora: new failure (last pass: v5.2.14-37-g4a69042627=
+aa)
+
+    tegra_defconfig:
+        gcc-8:
+          tegra124-nyan-big:
+              lab-collabora: new failure (last pass: v5.2.14-37-g4a69042627=
+aa)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+arm:
+    tegra_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
+
+    exynos_defconfig:
+        gcc-8:
+            exynos5250-snow: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- drivers/gpu/drm/i915/intel_workarounds.c | 5 -----
- 1 file changed, 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/intel_workarounds.c b/drivers/gpu/drm/i915/intel_workarounds.c
-index c44bb37e434c..bbb7411fc11b 100644
---- a/drivers/gpu/drm/i915/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/intel_workarounds.c
-@@ -227,11 +227,6 @@ static int gen9_ctx_workarounds_init(struct drm_i915_private *dev_priv)
- 			  FLOW_CONTROL_ENABLE |
- 			  PARTIAL_INSTRUCTION_SHOOTDOWN_DISABLE);
- 
--	/* Syncing dependencies between camera and graphics:skl,bxt,kbl */
--	if (!IS_COFFEELAKE(dev_priv))
--		WA_SET_BIT_MASKED(HALF_SLICE_CHICKEN3,
--				  GEN9_DISABLE_OCL_OOB_SUPPRESS_LOGIC);
--
- 	/* WaEnableYV12BugFixInHalfSliceChicken7:skl,bxt,kbl,glk,cfl */
- 	/* WaEnableSamplerGPGPUPreemptionSupport:skl,bxt,kbl,cfl */
- 	WA_SET_BIT_MASKED(GEN9_HALF_SLICE_CHICKEN7,
--- 
-2.21.0
-
+For more info write to <info@kernelci.org>
