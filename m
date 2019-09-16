@@ -2,119 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CD9B33B6
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 05:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19BCFB3439
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 06:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725788AbfIPD0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Sep 2019 23:26:11 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2088 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728770AbfIPD0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Sep 2019 23:26:11 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8G3NA1s148816
-        for <stable@vger.kernel.org>; Sun, 15 Sep 2019 23:26:09 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v1ss197ay-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Sun, 15 Sep 2019 23:26:09 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
-        Mon, 16 Sep 2019 04:26:07 +0100
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
-        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 16 Sep 2019 04:26:02 +0100
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8G3Q1Yx50462912
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 Sep 2019 03:26:01 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B08311C04A;
-        Mon, 16 Sep 2019 03:26:01 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DB9E411C04C;
-        Mon, 16 Sep 2019 03:26:00 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 Sep 2019 03:26:00 +0000 (GMT)
-Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-        (using TLSv1.2 with cipher AES256-GCM-SHA384 (256/256 bits))
+        id S1728019AbfIPEwc convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 16 Sep 2019 00:52:32 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59662 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727051AbfIPEwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Sep 2019 00:52:32 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id E0E33A01B5;
-        Mon, 16 Sep 2019 13:25:57 +1000 (AEST)
-From:   "Alastair D'Silva" <alastair@au1.ibm.com>
-To:     Christophe Leroy <christophe.leroy@c-s.fr>
-Cc:     stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, Qian Cai <cai@lca.pw>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Date:   Mon, 16 Sep 2019 13:25:57 +1000
-In-Reply-To: <c4760639-68e8-6969-d0eb-97f12f814109@c-s.fr>
-References: <20190903052407.16638-1-alastair@au1.ibm.com>
-         <20190903052407.16638-2-alastair@au1.ibm.com>
-         <c4760639-68e8-6969-d0eb-97f12f814109@c-s.fr>
-Organization: IBM Australia
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        by mx1.redhat.com (Postfix) with ESMTPS id CCE833B738
+        for <stable@vger.kernel.org>; Mon, 16 Sep 2019 04:52:31 +0000 (UTC)
+Received: from [172.54.70.177] (cpt-1030.paas.prod.upshift.rdu2.redhat.com [10.0.19.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4FDA6608C2;
+        Mon, 16 Sep 2019 04:52:27 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19091603-0028-0000-0000-0000039D501E
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19091603-0029-0000-0000-0000245FC33D
-Message-Id: <ed2fb3e4f4f6710f97178acef8f3ee8966cc9641.camel@au1.ibm.com>
-Subject: RE: [PATCH v2 1/6] powerpc: Allow flush_icache_range to work across ranges
- >4GB
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-16_02:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=831 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1909160034
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
+Message-ID: <cki.61601B30BD.2A0SX1HYNJ@redhat.com>
+X-Gitlab-Pipeline-ID: 166424
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/166424
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Mon, 16 Sep 2019 04:52:31 +0000 (UTC)
+Date:   Mon, 16 Sep 2019 00:52:32 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2019-09-14 at 09:46 +0200, Christophe Leroy wrote:
-> 
-> Le 03/09/2019 à 07:23, Alastair D'Silva a écrit :
-> > From: Alastair D'Silva <alastair@d-silva.org>
-> > 
-> > When calling flush_icache_range with a size >4GB, we were masking
-> > off the upper 32 bits, so we would incorrectly flush a range
-> > smaller
-> > than intended.
-> > 
-> > This patch replaces the 32 bit shifts with 64 bit ones, so that
-> > the full size is accounted for.
-> 
-> Isn't there the same issue in arch/powerpc/kernel/vdso64/cacheflush.S
-> ?
-> 
-> Christophe
 
-Yes, there is. I'll fix it, but I wonder whether anything calls it? I
-asked Google, and every mention of it was in the kernel source or
-mailing list.
+Hello,
 
-Maybe BenH can chime in?
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
--- 
-Alastair D'Silva
-Open Source Developer
-Linux Technology Centre, IBM Australia
-mob: 0423 762 819
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 997fee5473ce - Linux 5.2.14
 
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/166424
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 997fee5473ce - Linux 5.2.14
+
+
+We grabbed the 652de59d50b1 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  gpio-pca953x-correct-type-of-reg_direction.patch
+  gpio-pca953x-use-pca953x_read_regs-instead-of-regmap_bulk_read.patch
+  alsa-hda-fix-potential-endless-loop-at-applying-quirks.patch
+  alsa-hda-realtek-fix-overridden-device-specific-initialization.patch
+  alsa-hda-realtek-add-quirk-for-hp-pavilion-15.patch
+  alsa-hda-realtek-enable-internal-speaker-headset-mic-of-asus-ux431fl.patch
+  alsa-hda-realtek-fix-the-problem-of-two-front-mics-on-a-thinkcentre.patch
+  sched-fair-don-t-assign-runtime-for-throttled-cfs_rq.patch
+  drm-vmwgfx-fix-double-free-in-vmw_recv_msg.patch
+  drm-nouveau-sec2-gp102-add-missing-module_firmwares.patch
+  vhost-test-fix-build-for-vhost-test.patch
+  vhost-test-fix-build-for-vhost-test-again.patch
+  powerpc-64e-drop-stale-call-to-smp_processor_id-which-hangs-smp-startup.patch
+  powerpc-tm-fix-fp-vmx-unavailable-exceptions-inside-a-transaction.patch
+  powerpc-tm-fix-restoring-fp-vmx-facility-incorrectly-on-interrupts.patch
+  batman-adv-fix-uninit-value-in-batadv_netlink_get_ifindex.patch
+  batman-adv-only-read-ogm-tvlv_len-after-buffer-len-check.patch
+  bcache-only-clear-btree_node_dirty-bit-when-it-is-se.patch
+  bcache-add-comments-for-mutex_lock-b-write_lock.patch
+  bcache-fix-race-in-btree_flush_write.patch
+  ib-rdmavt-add-new-completion-inline.patch
+  ib-rdmavt-qib-hfi1-convert-to-new-completion-api.patch
+  ib-hfi1-unreserve-a-flushed-opfn-request.patch
+  drm-i915-disable-sampler_state-prefetching-on-all-ge.patch
+  drm-i915-make-sure-cdclk-is-high-enough-for-dp-audio.patch
+  mmc-sdhci-sprd-fix-the-incorrect-soft-reset-operatio.patch
+  usb-chipidea-imx-add-imx7ulp-support.patch
+  usb-chipidea-imx-fix-eprobe_defer-support-during-dri.patch
+  virtio-s390-fix-race-on-airq_areas.patch
+  drm-i915-support-flags-in-whitlist-was.patch
+  drm-i915-support-whitelist-workarounds-on-all-engine.patch
+  drm-i915-whitelist-ps_-depth-invocation-_count.patch
+  drm-i915-add-whitelist-workarounds-for-icl.patch
+  drm-i915-icl-whitelist-ps_-depth-invocation-_count.patch
+  btrfs-fix-unwritten-extent-buffers-and-hangs-on-future-writeback-attempts.patch
+  vhost-make-sure-log_num-in_num.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    s390x:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ⚡⚡⚡ Loopdev Sanity [4]
+         ✅ jvm test suite [5]
+         ✅ AMTU (Abstract Machine Test Utility) [6]
+         ✅ LTP: openposix test suite [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         ✅ stress: stress-ng [14]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ ALSA PCM loopback test [16]
+         🚧 ✅ ALSA Control (mixer) Userspace Element test [17]
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ⚡⚡⚡ Loopdev Sanity [4]
+         ✅ jvm test suite [5]
+         ✅ AMTU (Abstract Machine Test Utility) [6]
+         ✅ LTP: openposix test suite [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ Usex - version 1.9-29 [13]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ ALSA PCM loopback test [16]
+         🚧 ✅ ALSA Control (mixer) Userspace Element test [17]
+
+  s390x:
+
+    ⚡ Internal infrastructure issues prevented one or more tests (marked
+    with ⚡⚡⚡) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [1]
+         ✅ storage: software RAID testing [2]
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [3]
+         ✅ Podman system integration test (as user) [3]
+         ⚡⚡⚡ Loopdev Sanity [4]
+         ✅ jvm test suite [5]
+         ✅ AMTU (Abstract Machine Test Utility) [6]
+         ✅ LTP: openposix test suite [7]
+         ✅ Networking socket: fuzz [8]
+         ✅ audit: audit testsuite test [9]
+         ✅ httpd: mod_ssl smoke sanity [10]
+         ✅ iotop: sanity [11]
+         ✅ tuned: tune-processes-through-perf [12]
+         ✅ pciutils: sanity smoke test [18]
+         ✅ Usex - version 1.9-29 [13]
+         ✅ stress: stress-ng [14]
+         🚧 ✅ LTP lite [15]
+         🚧 ✅ ALSA PCM loopback test [16]
+         🚧 ✅ ALSA Control (mixer) Userspace Element test [17]
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/aloop
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/sound/user-ctl-elem
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
