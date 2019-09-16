@@ -2,742 +2,1001 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18535B3873
-	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 12:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 705BAB3875
+	for <lists+stable@lfdr.de>; Mon, 16 Sep 2019 12:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbfIPKmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Sep 2019 06:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58960 "EHLO mail.kernel.org"
+        id S1729535AbfIPKnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Sep 2019 06:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726055AbfIPKmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Sep 2019 06:42:42 -0400
+        id S1726055AbfIPKnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Sep 2019 06:43:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E66F6214AF;
-        Mon, 16 Sep 2019 10:42:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BB23214AF;
+        Mon, 16 Sep 2019 10:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568630560;
-        bh=KEO7GFqhSxeZv4MUK6u2NJH/lE+vS6w9g3Ll3GFmZSk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bmo2Qzbl7oUe/7Flf/hj1yQ9/TAs7QvkFVGqO2oN3LPsCwuNyyIpwoYzZaM2JEOaI
-         DoGXprA7HP77ALLa3wOzXhwtb9W8t7FjbvXl4qm/d/d3eQcnp4qOcCaHJE9VRMr5XK
-         4nbYWH42xiuRUCjHIp5YlqP0douBGCqM2VMoQORI=
-Date:   Mon, 16 Sep 2019 12:42:38 +0200
+        s=default; t=1568630578;
+        bh=n4r5IyKuLQRESockPpnPmr7IYQxtbGO7jJzem4fcKIw=;
+        h=Date:From:To:Cc:Subject:From;
+        b=rAPBZPvGzgU33aTmhn7aOLlmyeMnsH/b/oeP5Z9nWMzPuGb/Ywv6lkEyJ6/xW3j6G
+         E+Y6izk6cvbRQg2Bj+r0JG1Nx8QNeTB442qFFH5w8c06LDJ9pm+P8ZZrRzj+NwPxRn
+         L8RG9RvPvD2pfbu9LXSsQVeCwItxho7Ap5yEEGeU=
+Date:   Mon, 16 Sep 2019 12:42:55 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 4.14.144
-Message-ID: <20190916104238.GB1386818@kroah.com>
-References: <20190916104232.GA1386818@kroah.com>
+Subject: Linux 4.19.73
+Message-ID: <20190916104255.GA1386960@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
 Content-Disposition: inline
-In-Reply-To: <20190916104232.GA1386818@kroah.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index caa2fba089a5..4aa0dfec9b9b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 143
-+SUBLEVEL = 144
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
-index e720f40bbd5d..3f8f528099a8 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
-@@ -77,6 +77,7 @@
- 		pinctrl-0 = <&usb30_host_drv>;
- 		regulator-name = "vcc_host_5v";
- 		regulator-always-on;
-+		regulator-boot-on;
- 		vin-supply = <&vcc_sys>;
- 	};
- 
-@@ -87,6 +88,7 @@
- 		pinctrl-0 = <&usb20_host_drv>;
- 		regulator-name = "vcc_host1_5v";
- 		regulator-always-on;
-+		regulator-boot-on;
- 		vin-supply = <&vcc_sys>;
- 	};
- 
-diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
-index 4f2e18266e34..8c04c51a6e14 100644
---- a/arch/powerpc/kernel/head_64.S
-+++ b/arch/powerpc/kernel/head_64.S
-@@ -897,6 +897,7 @@ p_toc:	.8byte	__toc_start + 0x8000 - 0b
- /*
-  * This is where the main kernel code starts.
-  */
-+__REF
- start_here_multiplatform:
- 	/* set up the TOC */
- 	bl      relative_toc
-@@ -972,6 +973,7 @@ start_here_multiplatform:
- 	RFI
- 	b	.	/* prevent speculative execution */
- 
-+	.previous
- 	/* This is where all platforms converge execution */
- 
- start_here_common:
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index b10531372d7f..5e5da2073fdf 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -475,13 +475,14 @@ void giveup_all(struct task_struct *tsk)
- 	if (!tsk->thread.regs)
- 		return;
- 
-+	check_if_tm_restore_required(tsk);
-+
- 	usermsr = tsk->thread.regs->msr;
- 
- 	if ((usermsr & msr_all_available) == 0)
- 		return;
- 
- 	msr_check_and_set(msr_all_available);
--	check_if_tm_restore_required(tsk);
- 
- 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
- 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index 14071a57c926..f5d74e8db432 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -255,7 +255,7 @@ MODULE_DEVICE_TABLE(platform, s2mps11_clk_id);
-  * This requires of_device_id table.  In the same time this will not change the
-  * actual *device* matching so do not add .of_match_table.
-  */
--static const struct of_device_id s2mps11_dt_match[] = {
-+static const struct of_device_id s2mps11_dt_match[] __used = {
- 	{
- 		.compatible = "samsung,s2mps11-clk",
- 		.data = (void *)S2MPS11X,
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-index 50cc060cc552..4394c209cb2b 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -264,7 +264,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ebx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -288,7 +288,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 
- 		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
--
-+			reply = NULL;
- 			if ((HIGH_WORD(ecx) & MESSAGE_STATUS_CPT) != 0) {
- 				/* A checkpoint occurred. Retry. */
- 				continue;
-@@ -300,10 +300,8 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 		break;
- 	}
- 
--	if (retries == RETRIES) {
--		kfree(reply);
-+	if (!reply)
- 		return -EINVAL;
--	}
- 
- 	*msg_len = reply_len;
- 	*msg     = reply;
-diff --git a/drivers/pci/dwc/pci-dra7xx.c b/drivers/pci/dwc/pci-dra7xx.c
-index 63052c5e5f82..7f5dfa169d0f 100644
---- a/drivers/pci/dwc/pci-dra7xx.c
-+++ b/drivers/pci/dwc/pci-dra7xx.c
-@@ -227,6 +227,7 @@ static int dra7xx_pcie_intx_map(struct irq_domain *domain, unsigned int irq,
- 
- static const struct irq_domain_ops intx_domain_ops = {
- 	.map = dra7xx_pcie_intx_map,
-+	.xlate = pci_irqd_intx_xlate,
- };
- 
- static int dra7xx_pcie_init_irq_domain(struct pcie_port *pp)
-@@ -270,7 +271,7 @@ static irqreturn_t dra7xx_pcie_msi_irq_handler(int irq, void *arg)
- 	case INTC:
- 	case INTD:
- 		generic_handle_irq(irq_find_mapping(dra7xx->irq_domain,
--						    ffs(reg)));
-+						    ffs(reg) - 1));
- 		break;
- 	}
- 
-diff --git a/drivers/pci/dwc/pcie-designware-ep.c b/drivers/pci/dwc/pcie-designware-ep.c
-index abcbf0770358..71795db41261 100644
---- a/drivers/pci/dwc/pcie-designware-ep.c
-+++ b/drivers/pci/dwc/pcie-designware-ep.c
-@@ -74,8 +74,7 @@ static int dw_pcie_ep_inbound_atu(struct dw_pcie_ep *ep, enum pci_barno bar,
- 	u32 free_win;
- 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
- 
--	free_win = find_first_zero_bit(&ep->ib_window_map,
--				       sizeof(ep->ib_window_map));
-+	free_win = find_first_zero_bit(ep->ib_window_map, ep->num_ib_windows);
- 	if (free_win >= ep->num_ib_windows) {
- 		dev_err(pci->dev, "no free inbound window\n");
- 		return -EINVAL;
-@@ -89,7 +88,7 @@ static int dw_pcie_ep_inbound_atu(struct dw_pcie_ep *ep, enum pci_barno bar,
- 	}
- 
- 	ep->bar_to_atu[bar] = free_win;
--	set_bit(free_win, &ep->ib_window_map);
-+	set_bit(free_win, ep->ib_window_map);
- 
- 	return 0;
- }
-@@ -100,8 +99,7 @@ static int dw_pcie_ep_outbound_atu(struct dw_pcie_ep *ep, phys_addr_t phys_addr,
- 	u32 free_win;
- 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
- 
--	free_win = find_first_zero_bit(&ep->ob_window_map,
--				       sizeof(ep->ob_window_map));
-+	free_win = find_first_zero_bit(ep->ob_window_map, ep->num_ob_windows);
- 	if (free_win >= ep->num_ob_windows) {
- 		dev_err(pci->dev, "no free outbound window\n");
- 		return -EINVAL;
-@@ -110,7 +108,7 @@ static int dw_pcie_ep_outbound_atu(struct dw_pcie_ep *ep, phys_addr_t phys_addr,
- 	dw_pcie_prog_outbound_atu(pci, free_win, PCIE_ATU_TYPE_MEM,
- 				  phys_addr, pci_addr, size);
- 
--	set_bit(free_win, &ep->ob_window_map);
-+	set_bit(free_win, ep->ob_window_map);
- 	ep->outbound_addr[free_win] = phys_addr;
- 
- 	return 0;
-@@ -125,7 +123,7 @@ static void dw_pcie_ep_clear_bar(struct pci_epc *epc, enum pci_barno bar)
- 	dw_pcie_ep_reset_bar(pci, bar);
- 
- 	dw_pcie_disable_atu(pci, atu_index, DW_PCIE_REGION_INBOUND);
--	clear_bit(atu_index, &ep->ib_window_map);
-+	clear_bit(atu_index, ep->ib_window_map);
- }
- 
- static int dw_pcie_ep_set_bar(struct pci_epc *epc, enum pci_barno bar,
-@@ -181,7 +179,7 @@ static void dw_pcie_ep_unmap_addr(struct pci_epc *epc, phys_addr_t addr)
- 		return;
- 
- 	dw_pcie_disable_atu(pci, atu_index, DW_PCIE_REGION_OUTBOUND);
--	clear_bit(atu_index, &ep->ob_window_map);
-+	clear_bit(atu_index, ep->ob_window_map);
- }
- 
- static int dw_pcie_ep_map_addr(struct pci_epc *epc, phys_addr_t addr,
-@@ -302,12 +300,32 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
- 		dev_err(dev, "unable to read *num-ib-windows* property\n");
- 		return ret;
- 	}
-+	if (ep->num_ib_windows > MAX_IATU_IN) {
-+		dev_err(dev, "invalid *num-ib-windows*\n");
-+		return -EINVAL;
-+	}
- 
- 	ret = of_property_read_u32(np, "num-ob-windows", &ep->num_ob_windows);
- 	if (ret < 0) {
- 		dev_err(dev, "unable to read *num-ob-windows* property\n");
- 		return ret;
- 	}
-+	if (ep->num_ob_windows > MAX_IATU_OUT) {
-+		dev_err(dev, "invalid *num-ob-windows*\n");
-+		return -EINVAL;
-+	}
-+
-+	ep->ib_window_map = devm_kzalloc(dev, sizeof(long) *
-+					 BITS_TO_LONGS(ep->num_ib_windows),
-+					 GFP_KERNEL);
-+	if (!ep->ib_window_map)
-+		return -ENOMEM;
-+
-+	ep->ob_window_map = devm_kzalloc(dev, sizeof(long) *
-+					 BITS_TO_LONGS(ep->num_ob_windows),
-+					 GFP_KERNEL);
-+	if (!ep->ob_window_map)
-+		return -ENOMEM;
- 
- 	addr = devm_kzalloc(dev, sizeof(phys_addr_t) * ep->num_ob_windows,
- 			    GFP_KERNEL);
-diff --git a/drivers/pci/dwc/pcie-designware.h b/drivers/pci/dwc/pcie-designware.h
-index 5af29d125c7e..ba9dedc31bfa 100644
---- a/drivers/pci/dwc/pcie-designware.h
-+++ b/drivers/pci/dwc/pcie-designware.h
-@@ -114,6 +114,10 @@
- #define MAX_MSI_IRQS			32
- #define MAX_MSI_CTRLS			(MAX_MSI_IRQS / 32)
- 
-+/* Maximum number of inbound/outbound iATUs */
-+#define MAX_IATU_IN			256
-+#define MAX_IATU_OUT			256
-+
- struct pcie_port;
- struct dw_pcie;
- struct dw_pcie_ep;
-@@ -193,8 +197,8 @@ struct dw_pcie_ep {
- 	size_t			page_size;
- 	u8			bar_to_atu[6];
- 	phys_addr_t		*outbound_addr;
--	unsigned long		ib_window_map;
--	unsigned long		ob_window_map;
-+	unsigned long		*ib_window_map;
-+	unsigned long		*ob_window_map;
- 	u32			num_ib_windows;
- 	u32			num_ob_windows;
- };
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 3cc98c07dcd3..682fc58e1f75 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -23,6 +23,12 @@
-  * Using this limit prevents one virtqueue from starving others. */
- #define VHOST_TEST_WEIGHT 0x80000
- 
-+/* Max number of packets transferred before requeueing the job.
-+ * Using this limit prevents one virtqueue from starving others with
-+ * pkts.
-+ */
-+#define VHOST_TEST_PKT_WEIGHT 256
-+
- enum {
- 	VHOST_TEST_VQ = 0,
- 	VHOST_TEST_VQ_MAX = 1,
-@@ -81,10 +87,8 @@ static void handle_vq(struct vhost_test *n)
- 		}
- 		vhost_add_used_and_signal(&n->dev, vq, head, 0);
- 		total_len += len;
--		if (unlikely(total_len >= VHOST_TEST_WEIGHT)) {
--			vhost_poll_queue(&vq->poll);
-+		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
- 			break;
--		}
- 	}
- 
- 	mutex_unlock(&vq->mutex);
-@@ -116,7 +120,8 @@ static int vhost_test_open(struct inode *inode, struct file *f)
- 	dev = &n->dev;
- 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
- 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
--	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
-+	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX,
-+		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
- 
- 	f->private_data = n;
- 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 88fa81c482e8..3d7bea15c57b 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2066,7 +2066,7 @@ static int get_indirect(struct vhost_virtqueue *vq,
- 		/* If this is an input descriptor, increment that count. */
- 		if (access == VHOST_ACCESS_WO) {
- 			*in_num += ret;
--			if (unlikely(log)) {
-+			if (unlikely(log && ret)) {
- 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
- 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
- 				++*log_num;
-@@ -2209,7 +2209,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 			/* If this is an input descriptor,
- 			 * increment that count. */
- 			*in_num += ret;
--			if (unlikely(log)) {
-+			if (unlikely(log && ret)) {
- 				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
- 				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
- 				++*log_num;
-diff --git a/include/net/ipv6_frag.h b/include/net/ipv6_frag.h
-index 28aa9b30aece..1f77fb4dc79d 100644
---- a/include/net/ipv6_frag.h
-+++ b/include/net/ipv6_frag.h
-@@ -94,7 +94,6 @@ ip6frag_expire_frag_queue(struct net *net, struct frag_queue *fq)
- 		goto out;
- 
- 	head->dev = dev;
--	skb_get(head);
- 	spin_unlock(&fq->q.lock);
- 
- 	icmpv6_send(head, ICMPV6_TIME_EXCEED, ICMPV6_EXC_FRAGTIME, 0);
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index bdf185ae93db..57b8b11cf7d4 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1366,6 +1366,23 @@ static inline int xfrm_state_kern(const struct xfrm_state *x)
- 	return atomic_read(&x->tunnel_users);
- }
- 
-+static inline bool xfrm_id_proto_valid(u8 proto)
-+{
-+	switch (proto) {
-+	case IPPROTO_AH:
-+	case IPPROTO_ESP:
-+	case IPPROTO_COMP:
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case IPPROTO_ROUTING:
-+	case IPPROTO_DSTOPTS:
-+#endif
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
-+/* IPSEC_PROTO_ANY only matches 3 IPsec protocols, 0 could match all. */
- static inline int xfrm_id_proto_match(u8 proto, u8 userproto)
- {
- 	return (!userproto || proto == userproto ||
-diff --git a/kernel/module.c b/kernel/module.c
-index 4b372c14d9a1..468567591241 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1695,6 +1695,8 @@ static int add_usage_links(struct module *mod)
- 	return ret;
- }
- 
-+static void module_remove_modinfo_attrs(struct module *mod, int end);
-+
- static int module_add_modinfo_attrs(struct module *mod)
- {
- 	struct module_attribute *attr;
-@@ -1709,24 +1711,34 @@ static int module_add_modinfo_attrs(struct module *mod)
- 		return -ENOMEM;
- 
- 	temp_attr = mod->modinfo_attrs;
--	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
-+	for (i = 0; (attr = modinfo_attrs[i]); i++) {
- 		if (!attr->test || attr->test(mod)) {
- 			memcpy(temp_attr, attr, sizeof(*temp_attr));
- 			sysfs_attr_init(&temp_attr->attr);
- 			error = sysfs_create_file(&mod->mkobj.kobj,
- 					&temp_attr->attr);
-+			if (error)
-+				goto error_out;
- 			++temp_attr;
- 		}
- 	}
-+
-+	return 0;
-+
-+error_out:
-+	if (i > 0)
-+		module_remove_modinfo_attrs(mod, --i);
- 	return error;
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- 	struct module_attribute *attr;
- 	int i;
- 
- 	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
-+		if (end >= 0 && i > end)
-+			break;
- 		/* pick a field to test for end of list */
- 		if (!attr->attr.name)
- 			break;
-@@ -1814,7 +1826,7 @@ static int mod_sysfs_setup(struct module *mod,
- 	return 0;
- 
- out_unreg_modinfo_attrs:
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- out_unreg_param:
- 	module_param_sysfs_remove(mod);
- out_unreg_holders:
-@@ -1850,7 +1862,7 @@ static void mod_sysfs_fini(struct module *mod)
- {
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- }
- 
-@@ -1866,7 +1878,7 @@ static void init_param_lock(struct module *mod)
- static void mod_sysfs_teardown(struct module *mod)
- {
- 	del_usage_links(mod);
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- 	module_param_sysfs_remove(mod);
- 	kobject_put(mod->mkobj.drivers_dir);
- 	kobject_put(mod->holders_dir);
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 0a4e882d4308..c298d47888ed 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4206,6 +4206,8 @@ static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
- 	if (likely(cfs_rq->runtime_remaining > 0))
- 		return;
- 
-+	if (cfs_rq->throttled)
-+		return;
- 	/*
- 	 * if we're unable to extend our runtime we resched so that the active
- 	 * hierarchy can be throttled
-@@ -4402,6 +4404,9 @@ static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b,
- 		if (!cfs_rq_throttled(cfs_rq))
- 			goto next;
- 
-+		/* By the above check, this should never be true */
-+		SCHED_WARN_ON(cfs_rq->runtime_remaining > 0);
-+
- 		runtime = -cfs_rq->runtime_remaining + 1;
- 		if (runtime > remaining)
- 			runtime = remaining;
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index 5bd9b389f8c9..8b3f9441b3a0 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -450,17 +450,23 @@ static u8 batadv_hop_penalty(u8 tq, const struct batadv_priv *bat_priv)
-  * batadv_iv_ogm_aggr_packet - checks if there is another OGM attached
-  * @buff_pos: current position in the skb
-  * @packet_len: total length of the skb
-- * @tvlv_len: tvlv length of the previously considered OGM
-+ * @ogm_packet: potential OGM in buffer
-  *
-  * Return: true if there is enough space for another OGM, false otherwise.
-  */
--static bool batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
--				      __be16 tvlv_len)
-+static bool
-+batadv_iv_ogm_aggr_packet(int buff_pos, int packet_len,
-+			  const struct batadv_ogm_packet *ogm_packet)
- {
- 	int next_buff_pos = 0;
- 
--	next_buff_pos += buff_pos + BATADV_OGM_HLEN;
--	next_buff_pos += ntohs(tvlv_len);
-+	/* check if there is enough space for the header */
-+	next_buff_pos += buff_pos + sizeof(*ogm_packet);
-+	if (next_buff_pos > packet_len)
-+		return false;
-+
-+	/* check if there is enough space for the optional TVLV */
-+	next_buff_pos += ntohs(ogm_packet->tvlv_len);
- 
- 	return (next_buff_pos <= packet_len) &&
- 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
-@@ -488,7 +494,7 @@ static void batadv_iv_ogm_send_to_if(struct batadv_forw_packet *forw_packet,
- 
- 	/* adjust all flags and log packets */
- 	while (batadv_iv_ogm_aggr_packet(buff_pos, forw_packet->packet_len,
--					 batadv_ogm_packet->tvlv_len)) {
-+					 batadv_ogm_packet)) {
- 		/* we might have aggregated direct link packets with an
- 		 * ordinary base packet
- 		 */
-@@ -1838,7 +1844,7 @@ static int batadv_iv_ogm_receive(struct sk_buff *skb,
- 
- 	/* unpack the aggregated packets and process them one by one */
- 	while (batadv_iv_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
--					 ogm_packet->tvlv_len)) {
-+					 ogm_packet)) {
- 		batadv_iv_ogm_process(skb, ogm_offset, if_incoming);
- 
- 		ogm_offset += BATADV_OGM_HLEN;
-diff --git a/net/batman-adv/netlink.c b/net/batman-adv/netlink.c
-index ab13b4d58733..edb35bcc046d 100644
---- a/net/batman-adv/netlink.c
-+++ b/net/batman-adv/netlink.c
-@@ -110,7 +110,7 @@ batadv_netlink_get_ifindex(const struct nlmsghdr *nlh, int attrtype)
- {
- 	struct nlattr *attr = nlmsg_find_attr(nlh, GENL_HDRLEN, attrtype);
- 
--	return attr ? nla_get_u32(attr) : 0;
-+	return (attr && nla_len(attr) == sizeof(u32)) ? nla_get_u32(attr) : 0;
- }
- 
- /**
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index ac38b47e9f86..f8f7065f7b62 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1951,8 +1951,10 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
- 
- 	if (rq->sadb_x_ipsecrequest_mode == 0)
- 		return -EINVAL;
-+	if (!xfrm_id_proto_valid(rq->sadb_x_ipsecrequest_proto))
-+		return -EINVAL;
- 
--	t->id.proto = rq->sadb_x_ipsecrequest_proto; /* XXX check proto */
-+	t->id.proto = rq->sadb_x_ipsecrequest_proto;
- 	if ((mode = pfkey_mode_to_xfrm(rq->sadb_x_ipsecrequest_mode)) < 0)
- 		return -EINVAL;
- 	t->mode = mode;
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 52ac3e49c7ef..ec72a5edaa1b 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -320,6 +320,11 @@ static void hvs_close_connection(struct vmbus_channel *chan)
- 	lock_sock(sk);
- 	hvs_do_close_lock_held(vsock_sk(sk), true);
- 	release_sock(sk);
-+
-+	/* Release the refcnt for the channel that's opened in
-+	 * hvs_open_connection().
-+	 */
-+	sock_put(sk);
- }
- 
- static void hvs_open_connection(struct vmbus_channel *chan)
-@@ -389,6 +394,9 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 	}
- 
- 	set_per_channel_state(chan, conn_from_host ? new : sk);
-+
-+	/* This reference will be dropped by hvs_close_connection(). */
-+	sock_hold(conn_from_host ? new : sk);
- 	vmbus_set_chn_rescind_callback(chan, hvs_close_connection);
- 
- 	/* Set the pending send size to max packet size to always get
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 7c093de68780..bd16e6882017 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2330,7 +2330,7 @@ void xfrm_state_fini(struct net *net)
- 	unsigned int sz;
- 
- 	flush_work(&net->xfrm.state_hash_work);
--	xfrm_state_flush(net, IPSEC_PROTO_ANY, false);
-+	xfrm_state_flush(net, 0, false);
- 	flush_work(&xfrm_state_gc_work);
- 
- 	WARN_ON(!list_empty(&net->xfrm.state_all));
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 150c58dc8a7b..339a070da597 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -1489,20 +1489,8 @@ static int validate_tmpl(int nr, struct xfrm_user_tmpl *ut, u16 family)
- 			return -EINVAL;
- 		}
- 
--		switch (ut[i].id.proto) {
--		case IPPROTO_AH:
--		case IPPROTO_ESP:
--		case IPPROTO_COMP:
--#if IS_ENABLED(CONFIG_IPV6)
--		case IPPROTO_ROUTING:
--		case IPPROTO_DSTOPTS:
--#endif
--		case IPSEC_PROTO_ANY:
--			break;
--		default:
-+		if (!xfrm_id_proto_valid(ut[i].id.proto))
- 			return -EINVAL;
--		}
--
- 	}
- 
- 	return 0;
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index c4a9ddb174bc..5aa75a0a1ced 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -78,7 +78,7 @@ parse_symbol() {
- 	fi
- 
- 	# Strip out the base of the path
--	code=${code//^$basepath/""}
-+	code=${code#$basepath/}
- 
- 	# In the case of inlines, move everything to same line
- 	code=${code//$'\n'/' '}
-diff --git a/sound/pci/hda/hda_auto_parser.c b/sound/pci/hda/hda_auto_parser.c
-index d3ea73171a3d..8b1cf237b96e 100644
---- a/sound/pci/hda/hda_auto_parser.c
-+++ b/sound/pci/hda/hda_auto_parser.c
-@@ -828,6 +828,8 @@ static void apply_fixup(struct hda_codec *codec, int id, int action, int depth)
- 	while (id >= 0) {
- 		const struct hda_fixup *fix = codec->fixup_list + id;
- 
-+		if (++depth > 10)
-+			break;
- 		if (fix->chained_before)
- 			apply_fixup(codec, fix->chain_id, action, depth + 1);
- 
-@@ -867,8 +869,6 @@ static void apply_fixup(struct hda_codec *codec, int id, int action, int depth)
- 		}
- 		if (!fix->chained || fix->chained_before)
- 			break;
--		if (++depth > 10)
--			break;
- 		id = fix->chain_id;
- 	}
- }
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index ec9dda536d89..28ef409a9e6a 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -5854,7 +5854,8 @@ int snd_hda_gen_init(struct hda_codec *codec)
- 	if (spec->init_hook)
- 		spec->init_hook(codec);
- 
--	snd_hda_apply_verbs(codec);
-+	if (!spec->skip_verbs)
-+		snd_hda_apply_verbs(codec);
- 
- 	init_multi_out(codec);
- 	init_extra_out(codec);
-diff --git a/sound/pci/hda/hda_generic.h b/sound/pci/hda/hda_generic.h
-index d82c09db0276..17a6bff8e94e 100644
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -237,6 +237,7 @@ struct hda_gen_spec {
- 	unsigned int indep_hp_enabled:1; /* independent HP enabled */
- 	unsigned int have_aamix_ctl:1;
- 	unsigned int hp_mic_jack_modes:1;
-+	unsigned int skip_verbs:1; /* don't apply verbs at snd_hda_gen_init() */
- 
- 	/* additional mute flags (only effective with auto_mute_via_amp=1) */
- 	u64 mute_bits;
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 32115e0b26c9..6deb96a301d3 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -781,9 +781,11 @@ static int alc_init(struct hda_codec *codec)
- 	if (spec->init_hook)
- 		spec->init_hook(codec);
- 
-+	spec->gen.skip_verbs = 1; /* applied in below */
- 	snd_hda_gen_init(codec);
- 	alc_fix_pll(codec);
- 	alc_auto_init_amp(codec, spec->init_amp);
-+	snd_hda_apply_verbs(codec); /* apply verbs here after own init */
- 
- 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_INIT);
- 
-@@ -6586,6 +6588,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x17aa, 0x312a, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
- 	SND_PCI_QUIRK(0x17aa, 0x312f, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
- 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
-+	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
-@@ -8287,6 +8290,7 @@ static int patch_alc680(struct hda_codec *codec)
- static const struct hda_device_id snd_hda_id_realtek[] = {
- 	HDA_CODEC_ENTRY(0x10ec0215, "ALC215", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0221, "ALC221", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0222, "ALC222", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0225, "ALC225", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0231, "ALC231", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0233, "ALC233", patch_alc269),
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 4.19.73 kernel.
+
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt =
+|    9=20
+ Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.txt          =
+|    6=20
+ Documentation/devicetree/bindings/mmc/mmc.txt                             =
+|    4=20
+ Makefile                                                                  =
+|    2=20
+ arch/arc/kernel/troubleshoot.c                                            =
+|    8=20
+ arch/arc/mm/fault.c                                                       =
+|   38 --
+ arch/arm/boot/dts/gemini-dlink-dir-685.dts                                =
+|    2=20
+ arch/arm/boot/dts/qcom-ipq4019.dtsi                                       =
+|    6=20
+ arch/arm/mach-davinci/devices-da8xx.c                                     =
+|   40 ++
+ arch/arm/mach-davinci/dm355.c                                             =
+|   30 +
+ arch/arm/mach-davinci/dm365.c                                             =
+|   35 ++
+ arch/arm/mach-davinci/dm644x.c                                            =
+|   20 +
+ arch/arm/mach-davinci/dm646x.c                                            =
+|   10=20
+ arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi                         =
+|    3=20
+ arch/arm64/boot/dts/rockchip/rk3328-rock64.dts                            =
+|    2=20
+ arch/powerpc/include/asm/kvm_book3s.h                                     =
+|    4=20
+ arch/powerpc/include/asm/kvm_book3s_64.h                                  =
+|    4=20
+ arch/powerpc/include/asm/kvm_booke.h                                      =
+|    4=20
+ arch/powerpc/include/asm/kvm_host.h                                       =
+|    2=20
+ arch/powerpc/include/asm/mmu_context.h                                    =
+|   15=20
+ arch/powerpc/include/asm/reg.h                                            =
+|    7=20
+ arch/powerpc/kernel/asm-offsets.c                                         =
+|    4=20
+ arch/powerpc/kernel/head_64.S                                             =
+|    2=20
+ arch/powerpc/kernel/process.c                                             =
+|   38 --
+ arch/powerpc/kvm/book3s_64_mmu_hv.c                                       =
+|    3=20
+ arch/powerpc/kvm/book3s_emulate.c                                         =
+|   12=20
+ arch/powerpc/kvm/book3s_hv.c                                              =
+|   19 -
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S                                   =
+|   30 +
+ arch/powerpc/kvm/book3s_hv_tm.c                                           =
+|   12=20
+ arch/powerpc/kvm/book3s_hv_tm_builtin.c                                   =
+|    5=20
+ arch/powerpc/kvm/book3s_pr.c                                              =
+|    4=20
+ arch/powerpc/kvm/bookehv_interrupts.S                                     =
+|    8=20
+ arch/powerpc/kvm/emulate_loadstore.c                                      =
+|    1=20
+ arch/powerpc/mm/hash_utils_64.c                                           =
+|    9=20
+ arch/powerpc/mm/pkeys.c                                                   =
+|   10=20
+ arch/riscv/kernel/ftrace.c                                                =
+|    1=20
+ arch/x86/include/asm/kvm_host.h                                           =
+|   15=20
+ arch/x86/kernel/ftrace.c                                                  =
+|   42 +-
+ arch/x86/kernel/kvmclock.c                                                =
+|    6=20
+ arch/x86/kernel/setup.c                                                   =
+|    2=20
+ arch/x86/kvm/emulate.c                                                    =
+|   10=20
+ arch/x86/kvm/hyperv.c                                                     =
+|   71 +++-
+ arch/x86/kvm/hyperv.h                                                     =
+|    4=20
+ arch/x86/kvm/irq.c                                                        =
+|    7=20
+ arch/x86/kvm/irq.h                                                        =
+|    1=20
+ arch/x86/kvm/lapic.c                                                      =
+|   14=20
+ arch/x86/kvm/lapic.h                                                      =
+|    2=20
+ arch/x86/kvm/mmu.c                                                        =
+|   13=20
+ arch/x86/kvm/mmu.h                                                        =
+|    2=20
+ arch/x86/kvm/mtrr.c                                                       =
+|   10=20
+ arch/x86/kvm/svm.c                                                        =
+|    2=20
+ arch/x86/kvm/vmx.c                                                        =
+|   41 +-
+ arch/x86/kvm/x86.c                                                        =
+|   26 -
+ arch/x86/kvm/x86.h                                                        =
+|   12=20
+ block/blk-core.c                                                          =
+|    3=20
+ block/blk-iolatency.c                                                     =
+|   55 +--
+ block/blk-mq-sysfs.c                                                      =
+|    6=20
+ block/blk-mq.c                                                            =
+|    8=20
+ block/blk-mq.h                                                            =
+|    2=20
+ drivers/char/tpm/st33zp24/i2c.c                                           =
+|    2=20
+ drivers/char/tpm/st33zp24/spi.c                                           =
+|    2=20
+ drivers/char/tpm/st33zp24/st33zp24.h                                      =
+|    4=20
+ drivers/char/tpm/tpm_i2c_infineon.c                                       =
+|   15=20
+ drivers/char/tpm/tpm_i2c_nuvoton.c                                        =
+|   16 -
+ drivers/clk/clk-s2mps11.c                                                 =
+|    2=20
+ drivers/clk/tegra/clk-audio-sync.c                                        =
+|    3=20
+ drivers/clk/tegra/clk-tegra-audio.c                                       =
+|    7=20
+ drivers/clk/tegra/clk-tegra114.c                                          =
+|    9=20
+ drivers/clk/tegra/clk-tegra124.c                                          =
+|    9=20
+ drivers/clk/tegra/clk-tegra210.c                                          =
+|   11=20
+ drivers/clk/tegra/clk-tegra30.c                                           =
+|    9=20
+ drivers/clk/tegra/clk.h                                                   =
+|    4=20
+ drivers/crypto/ccree/cc_driver.c                                          =
+|    7=20
+ drivers/crypto/ccree/cc_pm.c                                              =
+|   13=20
+ drivers/crypto/ccree/cc_pm.h                                              =
+|    3=20
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c                                   =
+|    5=20
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c                                   =
+|    5=20
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c                                     =
+|    3=20
+ drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c                                     =
+|    5=20
+ drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c                                     =
+|    5=20
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c                                   =
+|    1=20
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c               =
+|    3=20
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c                          =
+|   32 +-
+ drivers/gpu/drm/drm_atomic.c                                              =
+|   21 +
+ drivers/gpu/drm/drm_ioc32.c                                               =
+|    6=20
+ drivers/gpu/drm/drm_vblank.c                                              =
+|   45 ++
+ drivers/gpu/drm/i915/i915_debugfs.c                                       =
+|    4=20
+ drivers/gpu/drm/i915/i915_gem.c                                           =
+|   39 ++
+ drivers/gpu/drm/i915/i915_reg.h                                           =
+|    2=20
+ drivers/gpu/drm/i915/intel_cdclk.c                                        =
+|   11=20
+ drivers/gpu/drm/i915/intel_display.c                                      =
+|   37 +-
+ drivers/gpu/drm/i915/intel_dp.c                                           =
+|   16 +
+ drivers/gpu/drm/i915/intel_dp_mst.c                                       =
+|    2=20
+ drivers/gpu/drm/nouveau/dispnv50/disp.c                                   =
+|    3=20
+ drivers/gpu/drm/panel/panel-simple.c                                      =
+|   29 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c                                       =
+|    8=20
+ drivers/hv/hv_kvp.c                                                       =
+|   32 +-
+ drivers/i2c/busses/i2c-at91.c                                             =
+|   11=20
+ drivers/iio/adc/exynos_adc.c                                              =
+|   31 ++
+ drivers/iio/adc/rcar-gyroadc.c                                            =
+|    4=20
+ drivers/infiniband/core/uverbs_main.c                                     =
+|    7=20
+ drivers/infiniband/hw/hfi1/sdma.c                                         =
+|    9=20
+ drivers/infiniband/hw/mlx5/odp.c                                          =
+|    3=20
+ drivers/infiniband/ulp/srp/ib_srp.c                                       =
+|   24 +
+ drivers/iommu/iova.c                                                      =
+|    5=20
+ drivers/md/bcache/btree.c                                                 =
+|   49 ++-
+ drivers/md/bcache/btree.h                                                 =
+|    2=20
+ drivers/md/bcache/extents.c                                               =
+|   15=20
+ drivers/md/bcache/journal.c                                               =
+|    7=20
+ drivers/md/dm-crypt.c                                                     =
+|    5=20
+ drivers/md/dm-mpath.c                                                     =
+|   17 +
+ drivers/md/dm-rq.c                                                        =
+|    8=20
+ drivers/md/dm-target.c                                                    =
+|    3=20
+ drivers/md/dm-thin-metadata.c                                             =
+|    7=20
+ drivers/media/cec/Makefile                                                =
+|    2=20
+ drivers/media/cec/cec-adap.c                                              =
+|   13=20
+ drivers/media/cec/cec-edid.c                                              =
+|   95 ------
+ drivers/media/i2c/Kconfig                                                 =
+|    3=20
+ drivers/media/i2c/adv7604.c                                               =
+|    4=20
+ drivers/media/i2c/adv7842.c                                               =
+|    4=20
+ drivers/media/i2c/tc358743.c                                              =
+|    2=20
+ drivers/media/platform/stm32/stm32-dcmi.c                                 =
+|    2=20
+ drivers/media/platform/vim2m.c                                            =
+|   28 -
+ drivers/media/platform/vivid/vivid-vid-cap.c                              =
+|    4=20
+ drivers/media/platform/vivid/vivid-vid-common.c                           =
+|    2=20
+ drivers/media/v4l2-core/v4l2-dv-timings.c                                 =
+|  151 ++++++++++
+ drivers/mfd/Kconfig                                                       =
+|    6=20
+ drivers/mmc/host/renesas_sdhi_core.c                                      =
+|   11=20
+ drivers/mmc/host/sdhci-pci-core.c                                         =
+|    2=20
+ drivers/mmc/host/sdhci-pci.h                                              =
+|    2=20
+ drivers/net/wireless/intel/iwlwifi/cfg/22000.c                            =
+|   65 ++++
+ drivers/net/wireless/intel/iwlwifi/iwl-config.h                           =
+|    9=20
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c                             =
+|   56 +--
+ drivers/net/wireless/mediatek/mt76/mt76x2_mac_common.c                    =
+|    2=20
+ drivers/nvme/host/fc.c                                                    =
+|   15=20
+ drivers/pci/controller/dwc/pcie-designware-host.c                         =
+|   21 -
+ drivers/pci/controller/dwc/pcie-qcom.c                                    =
+|   58 ++-
+ drivers/pci/quirks.c                                                      =
+|  148 ++++++---
+ drivers/remoteproc/qcom_q6v5.c                                            =
+|   44 ++
+ drivers/remoteproc/qcom_q6v5_pil.c                                        =
+|    3=20
+ drivers/s390/crypto/ap_bus.c                                              =
+|    8=20
+ drivers/s390/crypto/ap_bus.h                                              =
+|    1=20
+ drivers/s390/crypto/ap_queue.c                                            =
+|   15=20
+ drivers/s390/crypto/zcrypt_cex2a.c                                        =
+|    1=20
+ drivers/s390/crypto/zcrypt_cex4.c                                         =
+|    1=20
+ drivers/s390/crypto/zcrypt_pcixcc.c                                       =
+|    1=20
+ drivers/s390/scsi/zfcp_fsf.c                                              =
+|   10=20
+ drivers/s390/virtio/virtio_ccw.c                                          =
+|    3=20
+ drivers/scsi/megaraid/megaraid_sas_base.c                                 =
+|   76 +++--
+ drivers/scsi/qla2xxx/qla_gs.c                                             =
+|   15=20
+ drivers/scsi/qla2xxx/qla_init.c                                           =
+|   48 +--
+ drivers/spi/spi-gpio.c                                                    =
+|    3=20
+ drivers/staging/wilc1000/linux_wlan.c                                     =
+|   12=20
+ drivers/target/target_core_iblock.c                                       =
+|    6=20
+ drivers/target/target_core_iblock.h                                       =
+|    1=20
+ drivers/usb/typec/tcpm.c                                                  =
+|   27 +
+ drivers/vhost/test.c                                                      =
+|   13=20
+ drivers/vhost/vhost.c                                                     =
+|    4=20
+ fs/btrfs/compression.c                                                    =
+|   16 +
+ fs/btrfs/compression.h                                                    =
+|    1=20
+ fs/btrfs/ctree.h                                                          =
+|    3=20
+ fs/btrfs/extent-tree.c                                                    =
+|   34 +-
+ fs/btrfs/extent_io.c                                                      =
+|   20 -
+ fs/btrfs/extent_io.h                                                      =
+|    5=20
+ fs/btrfs/inode.c                                                          =
+|   40 +-
+ fs/btrfs/props.c                                                          =
+|    6=20
+ fs/btrfs/scrub.c                                                          =
+|  119 +++++--
+ fs/btrfs/volumes.c                                                        =
+|   29 +
+ fs/ceph/inode.c                                                           =
+|    7=20
+ fs/ceph/super.c                                                           =
+|    2=20
+ fs/ceph/super.h                                                           =
+|    2=20
+ fs/cifs/cifs_fs_sb.h                                                      =
+|    5=20
+ fs/cifs/cifsfs.c                                                          =
+|    1=20
+ fs/cifs/cifsglob.h                                                        =
+|   24 +
+ fs/cifs/cifssmb.c                                                         =
+|   24 +
+ fs/cifs/connect.c                                                         =
+|    8=20
+ fs/cifs/file.c                                                            =
+|   37 +-
+ fs/cifs/inode.c                                                           =
+|   10=20
+ fs/cifs/misc.c                                                            =
+|    1=20
+ fs/cifs/smb2pdu.c                                                         =
+|    1=20
+ fs/cifs/smbdirect.c                                                       =
+|   55 +--
+ fs/cifs/smbdirect.h                                                       =
+|    5=20
+ fs/cifs/transport.c                                                       =
+|    2=20
+ fs/ext4/block_validity.c                                                  =
+|   54 +++
+ fs/ext4/extents.c                                                         =
+|   12=20
+ fs/ext4/inode.c                                                           =
+|    4=20
+ fs/nfs/delegation.c                                                       =
+|    2=20
+ fs/nfs/delegation.h                                                       =
+|    2=20
+ fs/nfs/nfs4proc.c                                                         =
+|   25 -
+ fs/pstore/inode.c                                                         =
+|   12=20
+ include/drm/drm_device.h                                                  =
+|    8=20
+ include/drm/drm_vblank.h                                                  =
+|   22 +
+ include/linux/device-mapper.h                                             =
+|    3=20
+ include/linux/gpio/consumer.h                                             =
+|   62 ++--
+ include/media/cec.h                                                       =
+|   80 -----
+ include/media/v4l2-dv-timings.h                                           =
+|    6=20
+ include/net/cfg80211.h                                                    =
+|   15=20
+ include/uapi/linux/keyctl.h                                               =
+|    7=20
+ kernel/module.c                                                           =
+|   29 +
+ kernel/resource.c                                                         =
+|  110 +++----
+ kernel/sched/fair.c                                                       =
+|    5=20
+ kernel/time/timekeeping.c                                                 =
+|    2=20
+ mm/migrate.c                                                              =
+|   17 -
+ net/batman-adv/bat_iv_ogm.c                                               =
+|   20 -
+ net/batman-adv/netlink.c                                                  =
+|    2=20
+ net/mac80211/util.c                                                       =
+|    7=20
+ net/vmw_vsock/hyperv_transport.c                                          =
+|    8=20
+ net/wireless/core.c                                                       =
+|    6=20
+ net/wireless/nl80211.c                                                    =
+|    4=20
+ net/wireless/util.c                                                       =
+|   27 +
+ scripts/decode_stacktrace.sh                                              =
+|    2=20
+ security/apparmor/policy_unpack.c                                         =
+|   40 ++
+ sound/pci/hda/hda_auto_parser.c                                           =
+|    4=20
+ sound/pci/hda/hda_codec.c                                                 =
+|    8=20
+ sound/pci/hda/hda_codec.h                                                 =
+|    2=20
+ sound/pci/hda/hda_generic.c                                               =
+|    3=20
+ sound/pci/hda/hda_generic.h                                               =
+|    1=20
+ sound/pci/hda/hda_intel.c                                                 =
+|    6=20
+ sound/pci/hda/patch_hdmi.c                                                =
+|    6=20
+ sound/pci/hda/patch_realtek.c                                             =
+|   17 +
+ tools/testing/selftests/net/fib_rule_tests.sh                             =
+|    5=20
+ virt/kvm/eventfd.c                                                        =
+|    9=20
+ 222 files changed, 2341 insertions(+), 1167 deletions(-)
+
+Adrian Hunter (1):
+      mmc: sdhci-pci: Add support for Intel CML
+
+Ajay Singh (1):
+      staging: wilc1000: fix error path cleanup in wilc_wlan_initialize()
+
+Anand Jain (1):
+      btrfs: scrub: fix circular locking dependency warning
+
+Arnd Bergmann (1):
+      iio: adc: gyroadc: fix uninitialized return code
+
+Bart Van Assche (3):
+      scsi: target/core: Use the SECTOR_SHIFT constant
+      RDMA/srp: Document srp_parse_in() arguments
+      RDMA/srp: Accept again source addresses that do not have a port number
+
+Bartosz Golaszewski (6):
+      ARM: davinci: da8xx: define gpio interrupts as separate resources
+      ARM: davinci: dm365: define gpio interrupts as separate resources
+      ARM: davinci: dm646x: define gpio interrupts as separate resources
+      ARM: davinci: dm355: define gpio interrupts as separate resources
+      ARM: davinci: dm644x: define gpio interrupts as separate resources
+      gpio: don't WARN() on NULL descs if gpiolib is disabled
+
+Ben Dooks (1):
+      drm: add __user attribute to ptr_to_compat()
+
+Ben Gardon (1):
+      kvm: mmu: Fix overflow on kvm mmu page limit calculation
+
+Benjamin Block (1):
+      scsi: zfcp: fix request object use-after-free in send path causing wr=
+ong traces
+
+Bjorn Andersson (2):
+      PCI: qcom: Fix error handling in runtime PM support
+      PCI: qcom: Don't deassert reset GPIO during probe
+
+Bjorn Helgaas (2):
+      resource: Include resource end in walk_*() interfaces
+      resource: Fix find_next_iomem_res() iteration issue
+
+Breno Leitao (1):
+      powerpc/tm: Remove msr_tm_active()
+
+Brian Norris (2):
+      remoteproc: qcom: q6v5: shore up resource probe handling
+      remoteproc: qcom: q6v5-mss: add SCM probe dependency
+
+Chris Wilson (4):
+      drm/i915: Restore sane defaults for KMS on GEM error load
+      drm/i915: Cleanup gt powerstate from gem
+      drm/i915: Sanity check mmap length against object size
+      iommu/iova: Remove stale cached32_node
+
+Christian Lamparter (1):
+      ARM: dts: qcom: ipq4019: enlarge PCIe BAR range
+
+Christoph Muellner (1):
+      dt-bindings: mmc: Add disable-cqe-dcmd property.
+
+Christophe Leroy (1):
+      powerpc/64: mark start_here_multiplatform as __ref
+
+Colin Ian King (1):
+      ext4: unsigned int compared against zero
+
+Coly Li (4):
+      bcache: replace hard coded number with BUCKET_GC_GEN_MAX
+      bcache: only clear BTREE_NODE_dirty bit when it is set
+      bcache: add comments for mutex_lock(&b->write_lock)
+      bcache: fix race in btree_flush_write()
+
+Dan Carpenter (1):
+      drm/vmwgfx: Fix double free in vmw_recv_msg()
+
+Dan Robertson (1):
+      btrfs: init csum_list before possible free
+
+David Abdurachmanov (1):
+      riscv: remove unused variable in ftrace
+
+David Francis (1):
+      powerplay: Respect units on max dcfclk watermark
+
+David Howells (1):
+      keys: Fix the use of the C++ keyword "private" in uapi/linux/keyctl.h
+
+David Sterba (2):
+      btrfs: scrub: pass fs_info to scrub_setup_ctx
+      btrfs: scrub: move scrub_setup_ctx allocation out of device_list_mutex
+
+Dennis Zhou (1):
+      blk-iolatency: fix STS_AGAIN handling
+
+Dexuan Cui (4):
+      hv_sock: Fix hang when a connection is closed
+      Drivers: hv: kvp: Fix two "this statement may fall through" warnings
+      Drivers: hv: kvp: Fix the indentation of some "break" statements
+      Drivers: hv: kvp: Fix the recent regression caused by incorrect clean=
+-up
+
+Dhinakaran Pandiyan (1):
+      drm/i915: Rename PLANE_CTL_DECOMPRESSION_ENABLE
+
+Dinh Nguyen (1):
+      arm64: dts: stratix10: add the sysmgr-syscon property from the gmac's
+
+Dmitry Voytik (1):
+      arm64: dts: rockchip: enable usb-host regulators at boot on rk3328-ro=
+ck64
+
+Eric Dumazet (1):
+      batman-adv: fix uninit-value in batadv_netlink_get_ifindex()
+
+Eric W. Biederman (1):
+      signal/arc: Use force_sig_fault where appropriate
+
+Eugeniy Paltsev (2):
+      ARC: mm: fix uninitialised signal code in do_page_fault
+      ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
+
+Fabien Dessenne (1):
+      media: stm32-dcmi: fix irq =3D 0 case
+
+Feifei Xu (2):
+      drm/amdgpu/gfx9: Update gfx9 golden settings.
+      drm/amdgpu: Update gc_9_0 golden settings.
+
+Felix Fietkau (1):
+      mt76: fix corrupted software generated tx CCMP PN
+
+Filipe Manana (2):
+      Btrfs: fix deadlock with memory reclaim during scrub
+      Btrfs: fix race between block group removal and block group allocation
+
+Gilad Ben-Yossef (2):
+      crypto: ccree - fix resume race condition on init
+      crypto: ccree - add missing inline qualifier
+
+Giridhar Malavali (1):
+      scsi: qla2xxx: Move log messages before issuing command to firmware
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.73
+
+Gustavo Romero (2):
+      powerpc/tm: Fix FP/VMX unavailable exceptions inside a transaction
+      powerpc/tm: Fix restoring FP/VMX facility incorrectly on interrupts
+
+Halil Pasic (1):
+      virtio/s390: fix race on airq_areas[]
+
+Hangbin Liu (1):
+      selftests: fib_rule_tests: use pre-defined DEV_ADDR
+
+Hannes Reinecke (1):
+      nvme-fc: use separate work queue to avoid warning
+
+Hans Verkuil (5):
+      media: cec/v4l2: move V4L2 specific CEC functions to V4L2
+      media: cec: remove cec-edid.c
+      media: vim2m: use workqueue
+      media: vim2m: use cancel_delayed_work_sync instead of flush_schedule_=
+work
+      media: vim2m: only cancel work if it is for right context
+
+Hans de Goede (1):
+      usb: typec: tcpm: Try PD-2.0 if sink does not respond to 3.0 source-c=
+aps
+
+Harald Freudenberger (1):
+      s390/zcrypt: reinit ap queue state machine during device probe
+
+Hui Wang (1):
+      ALSA: hda/realtek - Fix the problem of two front mics on a ThinkCentre
+
+Ihab Zhaika (1):
+      iwlwifi: add new card for 9260 series
+
+Imre Deak (1):
+      drm/i915/gen9+: Fix initial readout for Y tiled framebuffers
+
+Jan-Marek Glogowski (1):
+      drm/i915: Re-apply "Perform link quality check, unconditionally durin=
+g long pulse"
+
+Jarkko Nikula (1):
+      mfd: Kconfig: Fix I2C_DESIGNWARE_PLATFORM dependencies
+
+Jarkko Sakkinen (1):
+      tpm: Fix some name collisions with drivers/char/tpm.h
+
+Jason A. Donenfeld (1):
+      timekeeping: Use proper ktime_add when adding nsecs in coarse offset
+
+Jessica Yu (1):
+      modules: always page-align module section allocations
+
+Jian-Hong Pan (1):
+      ALSA: hda/realtek - Enable internal speaker & headset mic of ASUS UX4=
+31FL
+
+Jisheng Zhang (1):
+      PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code
+
+Johannes Thumshirn (1):
+      btrfs: correctly validate compression type
+
+Jon Hunter (2):
+      clk: tegra: Fix maximum audio sync clock for Tegra124/210
+      clk: tegra210: Fix default rates for HDA clocks
+
+Jonathan Bakker (2):
+      iio: adc: exynos-adc: Add S5PV210 variant
+      dt-bindings: iio: adc: exynos-adc: Add S5PV210 variant
+
+Joonas Lahtinen (1):
+      drm/i915: Handle vm_mmap error during I915_GEM_MMAP ioctl with WC set
+
+Jos=C3=A9 Roberto de Souza (1):
+      drm/i915/ilk: Fix warning when reading emon_status with no output
+
+Kent Russell (1):
+      drm/amdkfd: Add missing Polaris10 ID
+
+Koen Vandeputte (1):
+      media: i2c: tda1997x: select V4L2_FWNODE
+
+Krzysztof Kozlowski (1):
+      iio: adc: exynos-adc: Use proper number of channels for Exynos4x12
+
+Ladi Prosek (1):
+      KVM: hyperv: define VP assist page helpers
+
+Liangyan (1):
+      sched/fair: Don't assign runtime for throttled cfs_rq
+
+Linus Walleij (1):
+      ARM: dts: gemini: Set DIR-685 SPI CS as active low
+
+Liu Bo (1):
+      Blk-iolatency: warn on negative inflight IO counter
+
+Logan Gunthorpe (1):
+      PCI: Add macro for Switchtec quirk declarations
+
+Long Li (1):
+      cifs: smbd: take an array of reqeusts when sending upper layer data
+
+Louis Li (1):
+      drm/amdgpu: fix ring test failure issue during s3 in vce 3.0 (V2)
+
+Luca Coelho (1):
+      iwlwifi: fix devices with PCI Device ID 0x34F0 and 11ac RF modules
+
+Lyude Paul (7):
+      drm/i915: Fix intel_dp_mst_best_encoder()
+      drm/atomic_helper: Disallow new modesets on unregistered connectors
+      drm/amd/dm: Understand why attaching path/tile properties are needed
+      drm/nouveau: Don't WARN_ON VCPI allocation failures
+      PCI: Reset Lenovo ThinkPad P50 nvgpu at boot if necessary
+      drm/atomic_helper: Allow DPMS On<->Off changes for unregistered conne=
+ctors
+      PCI: Reset both NVIDIA GPU and HDA in ThinkPad P50 workaround
+
+Manikanta Pubbisetty (1):
+      {nl,mac}80211: fix interface combinations on crypto controlled devices
+
+Mathias Kresin (1):
+      ARM: dts: qcom: ipq4019: fix PCI range
+
+Michael Ellerman (1):
+      powerpc/kvm: Save and restore host AMR/IAMR/UAMOR
+
+Michael Neuling (1):
+      KVM: PPC: Book3S HV: Fix CR0 setting in TM emulation
+
+Micha=C5=82 Miros=C5=82aw (2):
+      i2c: at91: disable TXRDY interrupt after sending data
+      i2c: at91: fix clk_offset for sama5d2
+
+Mike Marciniszyn (1):
+      IB/hfi1: Avoid hardlockup with flushlist_lock
+
+Mike Salvatore (1):
+      apparmor: reset pos on failure to unpack for various functions
+
+Mike Snitzer (1):
+      dm thin metadata: check if in fail_io mode when setting needs_check
+
+Milan Broz (1):
+      dm crypt: move detailed message into debug level
+
+Ming Lei (1):
+      blk-mq: free hw queue's resource in hctx's release handler
+
+Moni Shoua (1):
+      IB/mlx5: Reset access mask when looping inside page fault handler
+
+Nadav Amit (1):
+      resource: fix locking in find_next_iomem_res()
+
+Nathan Chancellor (1):
+      clk: s2mps11: Add used attribute to s2mps11_dt_match
+
+Nicolas Boichat (1):
+      scripts/decode_stacktrace: match basepath using shell prefix operator=
+, not regex
+
+Niklas Cassel (1):
+      ARM: dts: qcom: ipq4019: Fix MSI IRQ type
+
+Nikolay Borisov (2):
+      btrfs: Remove extent_io_ops::fill_delalloc
+      btrfs: Fix error handling in btrfs_cleanup_ordered_extents
+
+Norbert Manthey (1):
+      pstore: Fix double-free in pstore_mkfile() failure path
+
+Omar Sandoval (1):
+      Btrfs: clean up scrub is_dev_replace parameter
+
+Paolo Bonzini (1):
+      KVM: x86: optimize check for valid PAT value
+
+Paul Mackerras (2):
+      KVM: PPC: Book3S HV: Fix race between kvm_unmap_hva_range and MMU mod=
+e switch
+      KVM: PPC: Use ccr field in pt_regs struct embedded in vcpu struct
+
+Paulo Alcantara (SUSE) (1):
+      cifs: Properly handle auto disabling of serverino option
+
+Pavel Shilovsky (2):
+      CIFS: Fix error paths in writeback code
+      CIFS: Fix leaking locked VFS cache pages in writeback retry
+
+Pavel Tatashin (1):
+      x86/kvmclock: set offset for kvm unstable clock
+
+Peter Xu (1):
+      kvm: Check irqchip mode before assign irqfd
+
+Qu Wenruo (2):
+      btrfs: volumes: Make sure no dev extent is beyond device boundary
+      btrfs: Use real device structure to verify dev extent
+
+Ralph Campbell (1):
+      mm/migrate.c: initialize pud_entry in migrate_vma()
+
+Ram Pai (1):
+      powerpc/pkeys: Fix handling of pkey state across fork()
+
+Rex Zhu (1):
+      drm/amd/pp: Fix truncated clock value when set watermark
+
+Roman Bolshakov (1):
+      scsi: target/iblock: Fix overrun in WRITE SAME emulation
+
+Ronnie Sahlberg (1):
+      cifs: add spinlock for the openFileList to cifsInodeInfo
+
+Russell King (1):
+      spi: spi-gpio: fix SPI_CS_HIGH capability
+
+Sam Bazley (1):
+      ALSA: hda/realtek - Add quirk for HP Pavilion 15
+
+Sean Christopherson (4):
+      KVM: VMX: Compare only a single byte for VMCS' "launched" in vCPU-run
+      KVM: x86: Always use 32-bit SMRAM save state for 32-bit kernels
+      KVM: VMX: Always signal #GP on WRMSR to MSR_IA32_CR_PAT with bad value
+      KVM: VMX: Fix handling of #MC that occurs during VM-Entry
+
+Shirish S (1):
+      drm/amdgpu/{uvd,vcn}: fetch ring's read_ptr after alloc
+
+Shivasharan S (3):
+      scsi: megaraid_sas: Fix combined reply queue mode detection
+      scsi: megaraid_sas: Add check for reset adapter bit
+      scsi: megaraid_sas: Use 63-bit DMA addressing
+
+Sowjanya Komatineni (1):
+      dt-bindings: mmc: Add supports-cqe property
+
+Steven Rostedt (VMware) (1):
+      x86/ftrace: Fix warning and considate ftrace_jmp_replace() and ftrace=
+_call_replace()
+
+Suraj Jitindar Singh (1):
+      powerpc/mm: Limit rma_size to 1TB when running without HV mode
+
+Sven Eckelmann (1):
+      batman-adv: Only read OGM tvlv_len after buffer len check
+
+S=C3=A9bastien Szymanski (1):
+      drm/panel: Add support for Armadeus ST0700 Adapt
+
+Takashi Iwai (4):
+      ALSA: hda - Fix potential endless loop at applying quirks
+      ALSA: hda/realtek - Fix overridden device-specific initialization
+      ALSA: hda - Don't resume forcibly i915 HDMI/DP codec
+      ALSA: hda - Fix intermittent CORB/RIRB stall on Intel chips
+
+Takeshi Saito (1):
+      mmc: renesas_sdhi: Fix card initialization failure in high speed mode
+
+Tang Junhui (1):
+      bcache: treat stale && dirty keys as bad keys
+
+Theodore Ts'o (3):
+      ext4: protect journal inode's blocks using block_validity
+      ext4: don't perform block validity checks on the journal inode
+      ext4: fix block validity checks for journal inodes using indirect blo=
+cks
+
+Tiwei Bie (2):
+      vhost/test: fix build for vhost test
+      vhost/test: fix build for vhost test - again
+
+Trond Myklebust (1):
+      NFSv4: Fix delegation state recovery
+
+Ville Syrj=C3=A4l=C3=A4 (2):
+      drm/vblank: Allow dynamic per-crtc max_vblank_count
+      drm/i915: Make sure cdclk is high enough for DP audio on VLV/CHV
+
+Vineet Gupta (2):
+      ARC: show_regs: lockdep: re-enable preemption
+      ARC: mm: do_page_fault fixes #1: relinquish mmap_sem if signal arrive=
+s while handle_mm_fault
+
+Vitaly Kuznetsov (4):
+      KVM: x86: hyperv: enforce vp_index < KVM_MAX_VCPUS
+      KVM: x86: hyperv: consistently use 'hv_vcpu' for 'struct kvm_vcpu_hv'=
+ variables
+      KVM: x86: hyperv: keep track of mismatched VP indexes
+      x86/kvm/lapic: preserve gfn_to_hva_cache len on cache reinit
+
+WANG Chao (1):
+      x86/kvm: move kvm_load/put_guest_xcr0 into atomic context
+
+Wanpeng Li (1):
+      KVM: VMX: check CPUID before allowing read/write of IA32_XSS
+
+Yan, Zheng (1):
+      ceph: use ceph_evict_inode to cleanup inode's resource
+
+Yishai Hadas (1):
+      IB/uverbs: Fix OOPs upon device disassociation
+
+YueHaibing (1):
+      kernel/module: Fix mem leak in module_add_modinfo_attrs
+
+Yufen Yu (1):
+      dm mpath: fix missing call of path selector type->end_io
+
+ZhangXiaoxu (1):
+      cifs: Fix lease buffer length error
+
+Zhimin Gu (1):
+      x86, hibernate: Fix nosave_regions setup for hibernation
+
+yongduan (1):
+      vhost: make sure log_num < in_num
+
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl1/Zy8ACgkQONu9yGCS
+aT7dFQ//U7l+AXiNDss5uc0Lo8XI32VZgXRSRvNYj54JNy3PQHExDeJCYeJonMf9
+wQEa9rGQPY37VWbyb1NQ3CLfJU/XMtd06hwLSH/13aM7D7wtBpocZXOo3yRl/uiA
+0O7eW6PIBmI2Gi2NeDbnVDorToneYJhtBAWPDgpSFexwlrGQhSRH+BWUcBlnXT7h
+9ypQrB8XZofzciF3Sl2HhT8wYRmHDTPv6LInooK/hdRtrXOrQI3A1tpn4UlNnV4M
+SHIOfUbwcuVSivKdmYw/iF4cyttpms2lrHfX+sVf7wuX465/4zxDyLQokknzewhS
+NTGC2fIZCIpoCyFwQlQlI7LPpSVVk0e+EhI4L9XuqORz0F4dIPg03J+Jih8MvlxU
+uXFpNQCZSLVYD1t1Xv37A+fbIWMRvqlGAddGf5LC7w419JPQ7e8pj+OCZgRCwgND
+ZXGkEzh6OFXjD4HBZEKle7Znjhv854nAbQGI+rRc3rR8gIwLKuMk/51dWsbO/lDf
+TITFyhYbVzE9WNf/QqQqjn18iOVF4+w2/TkB8rmXEMvKoF+NPAnqHSX6DzxYtgR1
+CB8tSgeSJ9MKxoHjJciz+mMoHk5rakr6AM814+Ou+UMP2KXcG6S8cWSVv5WNnalP
+dw+BQ4ODHBUt1gbLT6dN4sBAoQuRVPXdAYTYgyOdS9dAklbArZ4=
+=qRdT
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
