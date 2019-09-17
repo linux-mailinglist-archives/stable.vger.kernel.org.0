@@ -2,110 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6990B4DD7
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 14:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D685B4FD6
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 16:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725901AbfIQMcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 08:32:39 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:36983 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726626AbfIQMcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 08:32:39 -0400
-Received: by mail-wr1-f68.google.com with SMTP id i1so2979936wro.4;
-        Tue, 17 Sep 2019 05:32:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XIJSysNlvx4lB2C+QWOSQFkpZ/vA967E/7zPmqCFNH0=;
-        b=AJXg3jTVlPRSxCmfbKgU0PaGOMOWE944KTCDf6D8DO7FCemXrPrI7sB6vgtZFNBrkR
-         sCp0zkm7y/oF9053v/PEFEG5S2EFa6vQC+0ug17oopmvLOVTpVkdim9JSTjAUDMgLrTE
-         snM7+fWjTbpxYRplNKzbYov2rb9lcCj0XcDqQIH5Gh3ZsVtlKnfZQpFpIBq80EvuG9/s
-         bZxDR9XN99JhGRq3ebg0/UW+olqKFyYYwszHiYC1g6PWIcBMSbyNvfGUxa7XFC4oFBB8
-         RypuRNN6eae1FXSV6naFz3V9Eu3sDwZPRMkvpdQMP1EyFg3S2MjF3k7kNrdsT3hbE/ox
-         zWTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XIJSysNlvx4lB2C+QWOSQFkpZ/vA967E/7zPmqCFNH0=;
-        b=P+DPmhNJRcPBag4rm+21zOwfzUP+iCHUT004tkIVBtwdpQD0U6FbR1eeLm18/xlFLU
-         iVZvIZklB8TVs9lp+eVWdynpEz9ljm5fnniR6vsSvvrtCxvVz0437FGyqeXUfNIJI6Qu
-         7M3h2UqA/01hmVnD9CDVxyrw4MaFU2OXvJFRYi53cj/4ZnMkW7hVK7ZabI5fMKKEAkrZ
-         k2etgcHFFQYoFM89BNkp5CyjMFAFPBtpScjgRS/dfFXCSDFAl0o0QEpChKj4qKjUW63o
-         zwgyBVpewqLGXxhrlkbo9zRRlk/t1hHMT0rF4LT3NWfvhYszNkbjpRuZQkGDaGknO0bd
-         EFiQ==
-X-Gm-Message-State: APjAAAUgOSo29xwH3OuVpLgf5pJjTREHi4cptXzfqpts7W/x6V7Y/BeW
-        a/i8GjwfNc5tYaxJtSWfrurPQfJfTlYyoPVz2ZfJbg==
-X-Google-Smtp-Source: APXvYqwb7RLesNvB8SdDalTsDttczeMsHIhMlAGPlZuyAJ6ipirh590VYQVix7b4O8BmviIoaUljgm5PcIRYSd183HE=
-X-Received: by 2002:a5d:5185:: with SMTP id k5mr2118421wrv.341.1568723556626;
- Tue, 17 Sep 2019 05:32:36 -0700 (PDT)
+        id S1726521AbfIQODo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 10:03:44 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:45750 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726467AbfIQODo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 10:03:44 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id D11AF61576; Tue, 17 Sep 2019 14:03:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1568729023;
+        bh=z5NkcZ1ALVg0VMSVQaQZtgQ5NF7xi3wRIZFmstI/iR0=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=lHZdxjg2FqLYr6alImg+/DyYa6PRazOBXVd/8JUhbltu+hxDRZIDzy/L5XXjqo97I
+         ehmzC1bvtwQkd6m6qlTre41CXB2Fa87HR+abQI40+FYNnQMnMUp1ROdsAtqcBnH+Ye
+         uEoHvOjy5PO5xAHcDNrJm38qrDsYnLb/3yHzVIEA=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
+        autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 1075061544;
+        Tue, 17 Sep 2019 14:03:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1568729020;
+        bh=z5NkcZ1ALVg0VMSVQaQZtgQ5NF7xi3wRIZFmstI/iR0=;
+        h=Subject:From:In-Reply-To:References:To:Cc:From;
+        b=jeJJCXHihlrr3GhJk2NSJZIDcKcDp/aKDu/n/iGSyjRoQBvdz5fOMU5maZZ+Muqdd
+         jwWtd3qtswR3UwRjeSWJaFTM/inXnIsU5ssyiVPHpn3dFcIOi8BBaROieQMr4fPxi6
+         qlI1rSaOgDVs04aGiRmipWdauCiGkPTHZsIYggC8=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 1075061544
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190902083342.27393-1-kai.heng.feng@canonical.com>
-In-Reply-To: <20190902083342.27393-1-kai.heng.feng@canonical.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Tue, 17 Sep 2019 08:32:23 -0400
-Message-ID: <CADnq5_NtPXA-87MU-nmnT4t4+cjgJfR7VbyRxYCpSH9YXE4RUA@mail.gmail.com>
-Subject: Re: [PATCH] drm/amd/display: Restore backlight brightness after
- system resume
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc:     "Wentland, Harry" <harry.wentland@amd.com>,
-        "Leo (Sunpeng) Li" <sunpeng.li@amd.com>,
-        "Deucher, Alexander" <alexander.deucher@amd.com>,
-        Christian Koenig <christian.koenig@amd.com>,
-        Chunming Zhou <David1.Zhou@amd.com>,
-        "for 3.8" <stable@vger.kernel.org>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] ath10k: Fix HOST capability QMI incompatibility
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20190725063108.15790-1-bjorn.andersson@linaro.org>
+References: <20190725063108.15790-1-bjorn.andersson@linaro.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ath10k@lists.infradead.org, stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20190917140342.D11AF61576@smtp.codeaurora.org>
+Date:   Tue, 17 Sep 2019 14:03:41 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Applied.  Thanks!
+Bjorn Andersson <bjorn.andersson@linaro.org> wrote:
 
-Alex
+> The introduction of 768ec4c012ac ("ath10k: update HOST capability QMI
+> message") served the purpose of supporting the new and extended HOST
+> capability QMI message.
+> 
+> But while the new message adds a slew of optional members it changes the
+> data type of the "daemon_support" member, which means that older
+> versions of the firmware will fail to decode the incoming request
+> message.
+> 
+> There is no way to detect this breakage from Linux and there's no way to
+> recover from sending the wrong message (i.e. we can't just try one
+> format and then fallback to the other), so a quirk is introduced in
+> DeviceTree to indicate to the driver that the firmware requires the 8bit
+> version of this message.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 768ec4c012ac ("ath10k: update HOST capability qmi message")
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-On Mon, Sep 2, 2019 at 4:16 PM Kai-Heng Feng
-<kai.heng.feng@canonical.com> wrote:
->
-> Laptops with AMD APU doesn't restore display backlight brightness after
-> system resume.
->
-> This issue started when DC was introduced.
->
-> Let's use BL_CORE_SUSPENDRESUME so the backlight core calls
-> update_status callback after system resume to restore the backlight
-> level.
->
-> Tested on Dell Inspiron 3180 (Stoney Ridge) and Dell Latitude 5495
-> (Raven Ridge).
->
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> ---
->  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> index 1b0949dd7808..183ef18ac6f3 100644
-> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> @@ -2111,6 +2111,7 @@ static int amdgpu_dm_backlight_get_brightness(struct backlight_device *bd)
->  }
->
->  static const struct backlight_ops amdgpu_dm_backlight_ops = {
-> +       .options = BL_CORE_SUSPENDRESUME,
->         .get_brightness = amdgpu_dm_backlight_get_brightness,
->         .update_status  = amdgpu_dm_backlight_update_status,
->  };
-> --
-> 2.17.1
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Patch applied to ath-next branch of ath.git, thanks.
+
+7165ef890a4c ath10k: Fix HOST capability QMI incompatibility
+
+-- 
+https://patchwork.kernel.org/patch/11058005/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+
