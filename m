@@ -2,87 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB61B505D
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 16:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88AFBB5067
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 16:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726118AbfIQO3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 10:29:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56078 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727898AbfIQO3w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 10:29:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0EAABB035;
-        Tue, 17 Sep 2019 14:29:51 +0000 (UTC)
-Date:   Tue, 17 Sep 2019 16:30:01 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     stable@vger.kernel.org
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [BACKPORT] nvmem: Use the same permissions for eeprom as for nvmem
-Message-ID: <20190917163001.5c775b61@endymion>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1728132AbfIQOcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 10:32:23 -0400
+Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.165]:36124 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727258AbfIQOcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 10:32:23 -0400
+X-Greylist: delayed 349 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Sep 2019 10:32:22 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1568730741;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=8Hka5X/r+hzmoKvFtI6p5MPdNGRJa/0fGujvCNAxwys=;
+        b=ig33aYS1MWLoQZvoVOCX0BYRSFX02obBTAQx0+kamBv8YdlIBr34yyfqe5Z/q7A5rr
+        Z55qIt14/mlmmGqd5ZPCHyo5Ptesxm8RRueazSAQJ1hts3pYUQc+p53CeOUmDhz2E0ss
+        5mYKY3IUuubJFKZbqmSBjPKHSzX8Lp3pvNnPi4/IJQtAkeqlzJySqPYGhdZQuUU3qah1
+        W98qKLoXI2NeZ5nkdFytER7ih8HXwatmQm436fBlvR75nUHsuLcSO13GA/x8DTfl8SlJ
+        w4sUViQpuCQOZ7NyNxS9N9jne9ZJWEn+utB6qL3dP0T2nkpNFm8hQlk2huT7P6Cb0B7S
+        z84A==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBp5hRw/qOxWRk4dCyjDPUnsm74p9Jk5n8FSUKszBBBGbD3SfhNo/8="
+X-RZG-CLASS-ID: mo00
+Received: from [IPv6:2001:16b8:266f:d200:a80b:f72:f57a:c422]
+        by smtp.strato.de (RZmta 44.27.0 AUTH)
+        with ESMTPSA id u036f9v8HEQGXMX
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
+        (Client did not present a certificate);
+        Tue, 17 Sep 2019 16:26:16 +0200 (CEST)
+Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=us-ascii
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com>
+Date:   Tue, 17 Sep 2019 16:26:15 +0200
+Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>,
+        Rob Herring <robh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com>
+References: <cover.1562597164.git.hns@goldelico.com> <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com> <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com> <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com> <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com> <20190831084852.5e726cfa@aktux> <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com> <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com>
+To:     Linus Walleij <linus.walleij@linaro.org>
+X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e70d8b287301eb6d7c7761c6171c56af62110ea3 ]
+Hi Lunus,
 
-The compatibility "eeprom" attribute is currently root-only no
-matter what the configuration says. The "nvmem" attribute does
-respect the setting of the root_only configuration bit, so do the
-same for "eeprom".
+> Am 17.09.2019 um 00:52 schrieb Linus Walleij =
+<linus.walleij@linaro.org>:
+>=20
+> On Mon, Sep 16, 2019 at 12:59 PM H. Nikolaus Schaller =
+<hns@goldelico.com> wrote:
+>=20
+>> ping.
+>>=20
+>> Device omap3-gta04 is neither working with v5.3 nor linux-next quite =
+a while and we need a solution.
+>=20
+> Can't we just apply the last part of the patch in this thread:
+>=20
+> diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi
+> b/arch/arm/boot/dts/omap3-gta04.dtsi
+> index 9a9a29fe88ec..47bab8e1040e 100644
+> --- a/arch/arm/boot/dts/omap3-gta04.dtsi
+> +++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+> @@ -124,6 +124,7 @@
+>                        spi-max-frequency =3D <100000>;
+>                        spi-cpol;
+>                        spi-cpha;
+> +                       spi-cs-high;
+>=20
+>                        backlight=3D <&backlight>;
+>                        label =3D "lcd";
+>=20
+>=20
+> Surely this fixes the problem?
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Fixes: b6c217ab9be6 ("nvmem: Add backwards compatibility support for older EEPROM drivers.")
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190728184255.563332e6@endymion
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
-This is the backport of commit e70d8b287301 "nvmem: Use the same
-permissions for eeprom as for nvmem" for stable kernel branches 4.19,
-4.14 and 4.9. Thanks.
+yes, it is a workaround, but appears to violate some policies.
+E.g. the spi-cs-high; is undocumented but DT bindings maintainer
+seems to be against documenting it as I had proposed in my
+other patch.
 
- drivers/nvmem/core.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+Rather he seems to have proposed a white-list in the driver code.
+So that the legacy mode is only becoming active for those systems
+which really need the legacy mode instead of everyone.
 
---- linux-4.19.orig/drivers/nvmem/core.c	2019-09-17 11:34:16.250719885 +0200
-+++ linux-4.19/drivers/nvmem/core.c	2019-09-17 16:09:45.146604199 +0200
-@@ -415,10 +415,17 @@ static int nvmem_setup_compat(struct nvm
- 	if (!config->base_dev)
- 		return -EINVAL;
- 
--	if (nvmem->read_only)
--		nvmem->eeprom = bin_attr_ro_root_nvmem;
--	else
--		nvmem->eeprom = bin_attr_rw_root_nvmem;
-+	if (nvmem->read_only) {
-+		if (config->root_only)
-+			nvmem->eeprom = bin_attr_ro_root_nvmem;
-+		else
-+			nvmem->eeprom = bin_attr_ro_nvmem;
-+	} else {
-+		if (config->root_only)
-+			nvmem->eeprom = bin_attr_rw_root_nvmem;
-+		else
-+			nvmem->eeprom = bin_attr_rw_nvmem;
-+	}
- 	nvmem->eeprom.attr.name = "eeprom";
- 	nvmem->eeprom.size = nvmem->size;
- #ifdef CONFIG_DEBUG_LOCK_ALLOC
+Then, we do not need this patch for GTA04.
 
+So its up to you to decide which way to go. We are happy with
+any one that makes mainline work again asap...
 
--- 
-Jean Delvare
-SUSE L3 Support
+BR and thanks,
+Nikolaus
+
