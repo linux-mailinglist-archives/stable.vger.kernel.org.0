@@ -2,87 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C8C1B4A97
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 11:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64368B4A9D
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 11:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbfIQJev convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 05:34:51 -0400
-Received: from smtpbgeu1.qq.com ([52.59.177.22]:54182 "EHLO smtpbgeu1.qq.com"
+        id S1727843AbfIQJfT convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 05:35:19 -0400
+Received: from smtpbgau1.qq.com ([54.206.16.166]:43271 "EHLO smtpbgau1.qq.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727539AbfIQJeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 05:34:50 -0400
-X-QQ-mid: bizesmtp18t1568712881txwjnsga
+        id S1727170AbfIQJfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Sep 2019 05:35:18 -0400
+X-QQ-mid: bizesmtp18t1568712900t2s9u62c
 Received: from [192.168.142.168] (unknown [218.76.23.26])
         by esmtp6.qq.com (ESMTP) with 
-        id ; Tue, 17 Sep 2019 17:34:27 +0800 (CST)
+        id ; Tue, 17 Sep 2019 17:34:51 +0800 (CST)
 X-QQ-SSF: 00400000000000R0YS90000D0000000
-X-QQ-FEAT: 8B8Qf6pKBE4LQyqDf+4LV1Lt7vh3J4kB5d3e0/bdRHOxz2dJwLYtEgX6ijcP4
-        vL2FwiSXHfKtA4wq2JdIut/KDa6xzpQnIHRek0G7+tuzhKvWeaXHrKNgmXiZMm049VtTSjR
-        Ore9O5WSUlf4WuBdC89Unvs3C+V9fvCm+sV7MzG+ZjPL5TZcxRld15k0rjl978uzE3UDyg7
-        TmdZqci7bLUBG3JNnQz+t/6WibNEY5grGc3R34p9rWu6k0jDXsQeOYamIPfOR/Jo5ZtZsNi
-        ztnLWdKk7y5YTsJUQe8i1hSmo2snZHqbZd5A6I2bY3WgjjbFVganIVP08emyvgv2jwxyAQB
-        4wI1BndUOHOtFz57bRO/q73yC2YSjcGy1UEd3sx
+X-QQ-FEAT: ZmU9OHAnTA5MBXbG9/WWta4vwBriVHsos/qMFc5rIYhhPuwQEEp1WEIn3rtIi
+        QFEOssH2D6TVJ2at9N3QrGrD/6EPc6RDOxvYJiZhE7+TCqKufTU3UdWz2o6n4o+QzpXEQkm
+        Sk2Utaexicx8WX4r+EfoL4uKvxwMpQuGv8zH/qyeNzKCcRFCelZbv5dP8kst0hoEROSAlTm
+        C1xaiH0vmHUDkmGzaNt1YzmVt8Uo6KgrB468F/ntXmBeVLtNDqa4NV6hooAimbX78hGHxYc
+        8zvHVhGj/W05yj8eDvvWywZRDG2n/WWnXCcFNwB23F2SPEsBepL7W2KdA7dyYRb2OzX4C7I
+        Lrd/MAdH8ZRCEhht4EqjiMnBefmCl3/UXWL/EwC
 X-QQ-GoodBg: 2
 Content-Type: text/plain;
-        charset=gb2312
+        charset=utf-8
 Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH 3/4] CVE-2018-20855: IB/mlx5: Fix leaking stack memory to
- userspace
+Subject: Re: [PATCH 2/4] CVE-2016-9777: KVM: x86: fix out-of-bounds accesses
+ of rtc_eoi map
 From:   Jackie Liu <liuyun01@kylinos.cn>
-In-Reply-To: <1568712761-11089-3-git-send-email-liuyun01@kylinos.cn>
-Date:   Tue, 17 Sep 2019 17:34:40 +0800
-Cc:     nh <nh@kylinos.cn>, Jason Gunthorpe <jgg@mellanox.com>,
+In-Reply-To: <1568712761-11089-2-git-send-email-liuyun01@kylinos.cn>
+Date:   Tue, 17 Sep 2019 17:34:59 +0800
+Cc:     nh@kylinos.cn,
+        =?utf-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
         stable@vger.kernel.org
 Content-Transfer-Encoding: 8BIT
-Message-Id: <025DCFF3-79C4-43F0-9041-B05EE4E2958A@kylinos.cn>
+Message-Id: <7272467C-4017-4597-8767-A273C40627BA@kylinos.cn>
 References: <1568712761-11089-1-git-send-email-liuyun01@kylinos.cn>
- <1568712761-11089-3-git-send-email-liuyun01@kylinos.cn>
+ <1568712761-11089-2-git-send-email-liuyun01@kylinos.cn>
 To:     =?gb2312?B?zfXn+Q==?= <wangqi@kylinos.cn>
 X-Mailer: Apple Mail (2.3445.104.11)
 X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign1
+Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign4
 X-QQ-Bgrelay: 1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Sorry for noise, please ignore.
 
-
-> ‘⁄ 2019ƒÍ9‘¬17»’£¨17:32£¨Jackie Liu <liuyun01@kylinos.cn> –¥µ¿£∫
+> Âú® 2019Âπ¥9Êúà17Êó•Ôºå17:32ÔºåJackie Liu <liuyun01@kylinos.cn> ÂÜôÈÅìÔºö
 > 
-> From: Jason Gunthorpe <jgg@mellanox.com>
+> From: Radim Krƒçm√°≈ô <rkrcmar@redhat.com>
 > 
-> mlx5_ib_create_qp_resp was never initialized and only the first 4 bytes
-> were written.
+> KVM was using arrays of size KVM_MAX_VCPUS with vcpu_id, but ID can be
+> bigger that the maximal number of VCPUs, resulting in out-of-bounds
+> access.
 > 
-> Fixes: 41d902cb7c32 ("RDMA/mlx5: Fix definition of mlx5_ib_create_qp_resp")
-> Cc: <stable@vger.kernel.org>
-> Acked-by: Leon Romanovsky <leonro@mellanox.com>
-> Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+> Found by syzkaller:
+> 
+>  BUG: KASAN: slab-out-of-bounds in __apic_accept_irq+0xb33/0xb50 at addr [...]
+>  Write of size 1 by task a.out/27101
+>  CPU: 1 PID: 27101 Comm: a.out Not tainted 4.9.0-rc5+ #49
+>  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+>   [...]
+>  Call Trace:
+>   [...] __apic_accept_irq+0xb33/0xb50 arch/x86/kvm/lapic.c:905
+>   [...] kvm_apic_set_irq+0x10e/0x180 arch/x86/kvm/lapic.c:495
+>   [...] kvm_irq_delivery_to_apic+0x732/0xc10 arch/x86/kvm/irq_comm.c:86
+>   [...] ioapic_service+0x41d/0x760 arch/x86/kvm/ioapic.c:360
+>   [...] ioapic_set_irq+0x275/0x6c0 arch/x86/kvm/ioapic.c:222
+>   [...] kvm_ioapic_inject_all arch/x86/kvm/ioapic.c:235
+>   [...] kvm_set_ioapic+0x223/0x310 arch/x86/kvm/ioapic.c:670
+>   [...] kvm_vm_ioctl_set_irqchip arch/x86/kvm/x86.c:3668
+>   [...] kvm_arch_vm_ioctl+0x1a08/0x23c0 arch/x86/kvm/x86.c:3999
+>   [...] kvm_vm_ioctl+0x1fa/0x1a70 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3099
+> 
+> Reported-by: Dmitry Vyukov <dvyukov@google.com>
+> Cc: stable@vger.kernel.org
+> Fixes: af1bae5497b9 ("KVM: x86: bump KVM_MAX_VCPU_ID to 1023")
+> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Radim Krƒçm√°≈ô <rkrcmar@redhat.com>
 > Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
 > ---
-> drivers/infiniband/hw/mlx5/qp.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
+> arch/x86/kvm/ioapic.c | 2 +-
+> arch/x86/kvm/ioapic.h | 4 ++--
+> 2 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-> index cfcfbb6..359d41e 100644
-> --- a/drivers/infiniband/hw/mlx5/qp.c
-> +++ b/drivers/infiniband/hw/mlx5/qp.c
-> @@ -861,7 +861,7 @@ static int create_qp_common(struct mlx5_ib_dev *dev, struct ib_pd *pd,
+> diff --git a/arch/x86/kvm/ioapic.c b/arch/x86/kvm/ioapic.c
+> index ec62df3..d25cbac 100644
+> --- a/arch/x86/kvm/ioapic.c
+> +++ b/arch/x86/kvm/ioapic.c
+> @@ -94,7 +94,7 @@ static unsigned long ioapic_read_indirect(struct kvm_ioapic *ioapic,
+> static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
 > {
-> 	struct mlx5_ib_resources *devr = &dev->devr;
-> 	struct mlx5_core_dev *mdev = dev->mdev;
-> -	struct mlx5_ib_create_qp_resp resp;
-> +	struct mlx5_ib_create_qp_resp resp = {};
-> 	struct mlx5_create_qp_mbox_in *in;
-> 	struct mlx5_ib_create_qp ucmd;
-> 	int inlen = sizeof(*in);
+> 	ioapic->rtc_status.pending_eoi = 0;
+> -	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPUS);
+> +	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
+> }
+> 
+> static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
+> diff --git a/arch/x86/kvm/ioapic.h b/arch/x86/kvm/ioapic.h
+> index 7d2692a..1cc6e54 100644
+> --- a/arch/x86/kvm/ioapic.h
+> +++ b/arch/x86/kvm/ioapic.h
+> @@ -42,13 +42,13 @@ struct kvm_vcpu;
+> 
+> struct dest_map {
+> 	/* vcpu bitmap where IRQ has been sent */
+> -	DECLARE_BITMAP(map, KVM_MAX_VCPUS);
+> +	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
+> 
+> 	/*
+> 	 * Vector sent to a given vcpu, only valid when
+> 	 * the vcpu's bit in map is set
+> 	 */
+> -	u8 vectors[KVM_MAX_VCPUS];
+> +	u8 vectors[KVM_MAX_VCPU_ID];
+> };
+> 
+> 
 > -- 
 > 2.7.4
 > 
 
-Sorry for noise, please ignore.
 
 --
 BR, Jackie Liu
