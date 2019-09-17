@@ -2,58 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B23CB48B2
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 10:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F154B48F2
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 10:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404583AbfIQIAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 04:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54148 "EHLO mail.kernel.org"
+        id S2404733AbfIQINc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 04:13:32 -0400
+Received: from gloria.sntech.de ([185.11.138.130]:46318 "EHLO gloria.sntech.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbfIQIAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 04:00:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E9182189D;
-        Tue, 17 Sep 2019 08:00:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568707216;
-        bh=+lR0jnNqxv9Byr7EwMkc589pkTQrcw710KzCgsC1f/g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Z9fzlFM7Hd8deUn211VrQ7F/UhBs6BfYp4IY2GWTBKi1R8M1Z+rwH1VL/tVUjj2e8
-         Aqx6aT36mZGfq91+bGJkwr6HV1U9GNiQAH5sJCXf0NPCTLiw2BXP3/7p/bnlQaynfZ
-         yZiDGjzY6H3AFEjQcY/61RrOqPeFXT2g9X6s/t78=
-Date:   Tue, 17 Sep 2019 10:00:10 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Paul Burton <paul.burton@mips.com>
-Subject: Re: mips patches for v4.4.y, v4.9.y, and v4.14.y
-Message-ID: <20190917080010.GB2075173@kroah.com>
-References: <d1030b70-e919-a082-837c-8ac4bb5aaa96@roeck-us.net>
+        id S1728986AbfIQINc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Sep 2019 04:13:32 -0400
+Received: from ip5f5a6266.dynamic.kabel-deutschland.de ([95.90.98.102] helo=phil.fritz.box)
+        by gloria.sntech.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.89)
+        (envelope-from <heiko@sntech.de>)
+        id 1iA8bz-0005RU-WA; Tue, 17 Sep 2019 10:13:24 +0200
+From:   Heiko Stuebner <heiko@sntech.de>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org, d.schultz@phytec.de,
+        linux-rockchip@lists.infradead.org,
+        christoph.muellner@theobroma-systems.com, tony.xie@rock-chips.com,
+        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
+        Joseph Chen <chenjh@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 1/4] mfd: rk808: fix rk818 ID template
+Date:   Tue, 17 Sep 2019 10:12:53 +0200
+Message-Id: <20190917081256.24919-1-heiko@sntech.de>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1030b70-e919-a082-837c-8ac4bb5aaa96@roeck-us.net>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 16, 2019 at 06:27:03PM -0700, Guenter Roeck wrote:
-> Hi Greg,
-> 
-> please apply the following patches to v4.4.y, v4.9.y, and v4.14.y.
-> 
-> 351fdddd3662 ("MIPS: VDSO: Prevent use of smp_processor_id()")
-> 0648e50e548d ("MIPS: VDSO: Use same -m%-float cflag as the kernel proper")
-> 
-> The second patch fixes the build error reported for decstation_defconfig and others
-> by kernelci, and the first patch is needed to avoid a merge conflict (and it doesn't
-> hurt to have it in the branch).
+From: Daniel Schultz <d.schultz@phytec.de>
 
-Now queued up, thanks!
+The Rockchip PMIC driver can automatically detect connected component
+versions by reading the ID_MSB and ID_LSB registers. The probe function
+will always fail with RK818 PMICs because the ID_MSK is 0xFFF0 and the
+RK818 template ID is 0x8181.
 
-greg k-h
+This patch changes this value to 0x8180.
+
+Fixes: 9d6105e19f61 ("mfd: rk808: Fix up the chip id get failed")
+Cc: stable@vger.kernel.org
+Cc: Elaine Zhang <zhangqing@rock-chips.com>
+Cc: Joseph Chen <chenjh@rock-chips.com>
+Signed-off-by: Daniel Schultz <d.schultz@phytec.de>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+[resend as it seems to have dropped on the floor]
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ include/linux/mfd/rk808.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
+index 7cfd2b0504df..a59bf323f713 100644
+--- a/include/linux/mfd/rk808.h
++++ b/include/linux/mfd/rk808.h
+@@ -610,7 +610,7 @@ enum {
+ 	RK808_ID = 0x0000,
+ 	RK809_ID = 0x8090,
+ 	RK817_ID = 0x8170,
+-	RK818_ID = 0x8181,
++	RK818_ID = 0x8180,
+ };
+ 
+ struct rk808 {
+-- 
+2.20.1
+
