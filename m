@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 187B0B54A3
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 19:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3ACB54D8
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 20:03:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbfIQRye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 13:54:34 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:40259 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbfIQRye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 13:54:34 -0400
-Received: by mail-pf1-f193.google.com with SMTP id x127so2588023pfb.7
-        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 10:54:34 -0700 (PDT)
+        id S1726118AbfIQSD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 14:03:29 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:46795 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725976AbfIQSD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 14:03:29 -0400
+Received: by mail-pf1-f195.google.com with SMTP id q5so2586076pfg.13
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 11:03:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id;
-        bh=onUVZCBtscC5yuxfoy+zsVbxl2PIwO0NVQMjTwxZqeg=;
-        b=nfc3aLnN69+bt1y7/dIbf8WtiUmT8BJWb6cOUZfM2bUV+P8QZK+rf4wGlI2YtZ7IhQ
-         cK0BLdUdjK/IsJ5hgiQSGju1p6RwgSJOKrHvlv4ycGYnOHAdXigp8fhCauhtEr9tZujS
-         hSqIlp1a3iAgN0Ryxrhb4ta6H6UqSUEyZr/9uGHhFnnwHGwQf2GtpIHHJAzxHSLBE2Lw
-         lv3oWObg1w8Skp/YyCwikjpPtWWgQFyFAVRuNNnKGefFxNfZ9lNB7JNcCwvSe5wjJViB
-         D6b8UtUO1YQ+pTlrxMDkk5qEfzGqTCgNI+mp9TSSVsfohv0huMDTTnB6NmyK0PE1opeZ
-         xGAQ==
+        bh=lck7mJNvhKtQlB0h0ewSM2EoFMfluPJ28+Anr3sILgs=;
+        b=AXPOOXRiahRLh0n4wb+BMFwCNIu8a2q6yIEkwRKSlxWTJ/ipdJaGLAC/O9dbqLboLx
+         rLeZrq4pbed/54OcZ2PU1K5Zo5H7RPgdt68jhVA7kjmfrP4A2662Uo7pGmXDsiERjegL
+         a2EMqj0bmM5/Fa6ltItqE6VuijD4RoiXuyU1YNGwfhnCiVIlh82W/r//vZhXkhM5/bAN
+         fKNnRcGimNdt6omp6PS8Pv8lXDHz0wGwwDB3qqhka5mYnFDrApxBZFsIiH+lp0XCOqPH
+         t0bFUuX2SZpgdZfzeTw2fLhO8TmeP/hA/A9YL7a3I9FtDuZjYaEwWuzTui2rustwdaMB
+         WZLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=onUVZCBtscC5yuxfoy+zsVbxl2PIwO0NVQMjTwxZqeg=;
-        b=ft5LxMPACWKVZ80QJsZFWUgNmBkzu/iyymoq7u7oVOpqg2By5t8B40z2rw1Fmg0T2e
-         8FraBSyYtl5pN11XX84dfbfiZGffkK3RASp0YaZ/yzsZDB+voDShzWgqPD3jss8lpiLr
-         f5fLjmLiCjASSBp4bEAyIkAF2shBHvzvWROfyEWWMAKUzHPJ5+OSwlJpPHHdTPL31qeK
-         Jj0C/4/JRaH9WDrxyJnEu6Z90OUzLiaeIJhRFZm+60J89dG7ZtKkVA+GiuqE9KyOdpGQ
-         m1d7SHYkFz90bLoBqP2ga1ex2aKDsjGgULCTeoqdRS/CueUlnqCxBxK31lBfIqv+KwRL
-         c2sA==
-X-Gm-Message-State: APjAAAW9u+6FgxLE16A6Jjr/sUhFmmNY9ECkxJDbSCobXR3IbHo2xvf7
-        e8v1d7vK4plcT/8wtM0STGE=
-X-Google-Smtp-Source: APXvYqzlYXc6UcokK2JRSKaWgD2ZROhMynTr0wgcSaUXVcWjEVFlHEcPokkxvP9YPg1EscUh8Aj16Q==
-X-Received: by 2002:a63:4e44:: with SMTP id o4mr53303pgl.103.1568742873677;
-        Tue, 17 Sep 2019 10:54:33 -0700 (PDT)
+        bh=lck7mJNvhKtQlB0h0ewSM2EoFMfluPJ28+Anr3sILgs=;
+        b=Laif1Kw3otAZl2I8UksRP5lyqYxRDAxackazrLSbwhrLbc3hmT7QevKc3kPDCW29wh
+         IAFScTiQMDCaNSK4BDZVyDEupcEwXQtu0spQEU7uiwYjKbrHlcpn/FW2Q+ZStyLSwgFa
+         jvowLqnHidkVKrLxlI6SP937CDyE2XYEeXdHWj6/lwB9BcxByXtxtTFE4Fhiq9TAGH1I
+         BrJuxAuKvH/sxxN+TKj+vCn460DEz3kO95OruS4SPg2I/HN4HKGG44x6GnWovYSYImlU
+         XJCqbeQFqwJ8myCiQlkhCMmFIYj0IFediOlwfhevzpj3DNkuURSIiNYqCRdn7Jvbnrpz
+         /07g==
+X-Gm-Message-State: APjAAAUtdmWluPjwn3EgIb53wtqunpulUxDPjRlzs8yKs0J2sPNuGmZn
+        nAm87jH9gCqpvg/wEXRB9xQ=
+X-Google-Smtp-Source: APXvYqxRpV95thKlVBJdPEV34NQ17fE+SwXG9FMXOQQVSEzi3Cb6JKc8N7ErQlLnLae0y6mriszPWw==
+X-Received: by 2002:a65:5188:: with SMTP id h8mr106707pgq.294.1568743408670;
+        Tue, 17 Sep 2019 11:03:28 -0700 (PDT)
 Received: from localhost.localdomain (M106072039032.v4.enabler.ne.jp. [106.72.39.32])
-        by smtp.gmail.com with ESMTPSA id l124sm2841929pgl.54.2019.09.17.10.54.31
+        by smtp.gmail.com with ESMTPSA id o9sm2505263pgv.19.2019.09.17.11.03.25
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Sep 2019 10:54:33 -0700 (PDT)
+        Tue, 17 Sep 2019 11:03:28 -0700 (PDT)
 From:   Tokunori Ikegami <ikegami.t@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
@@ -51,9 +51,9 @@ Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
         Felix Fietkau <nbd@nbd.name>,
         Hauke Mehrtens <hauke@hauke-m.de>,
         Vignesh Raghavendra <vigneshr@ti.com>
-Subject: [PATCH for 4.9.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
-Date:   Wed, 18 Sep 2019 02:54:25 +0900
-Message-Id: <20190917175425.20141-1-ikegami.t@gmail.com>
+Subject: [PATCH for 4.4.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
+Date:   Wed, 18 Sep 2019 02:54:52 +0900
+Message-Id: <20190917175452.20891-1-ikegami.t@gmail.com>
 X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -94,10 +94,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
 old mode 100644
 new mode 100755
-index de35a2a362f9..8725e406a9eb
+index fb5a3052f144..7589d891b311
 --- a/drivers/mtd/chips/cfi_cmdset_0002.c
 +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1624,29 +1624,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
+@@ -1626,29 +1626,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
  			continue;
  		}
  
