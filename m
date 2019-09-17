@@ -2,128 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9448B5804
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 00:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE796B582A
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 00:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725865AbfIQWco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 18:32:44 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:37396 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726738AbfIQWcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 18:32:43 -0400
-Received: by mail-pl1-f194.google.com with SMTP id b10so2159127plr.4
-        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 15:32:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=dmHKlC95wEkb+HENLwm0wnzogMC58TL2IKPX+eVUAOk=;
-        b=rdYlYU4iWu37JaHMYZYnsFvPb4IVU+ujYbjqRjhooffq05DM3nAh3j6bzbFqnl+Z+m
-         u9ZAKZlglBUOYenB/3BrqhJ3tLmlHyZCLaO3E/Uya10zG0S2a7lm8L0FYkuj/hWdLa93
-         4iShr/m6wuZq3U7YBdeXaA74t2uDX31eoste1s5rVd8Hm6zeO6vifII9CTxcFrqfmY/y
-         frUpAk8OmB38+keSHKuVEZKnZRV3DHkXPFHewW+TK4X5qpWno7yju2r+e22NP8NAlFQc
-         t0q/kHRZ2rZWLYq0mEi1eGiRbcw4+Iltb8k661e/Zg0AJwXBqcaJCA/7S9I5vvDxsGHl
-         QT1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=dmHKlC95wEkb+HENLwm0wnzogMC58TL2IKPX+eVUAOk=;
-        b=OxvTljUQlvc5Q+khU8E38uLfazUf7cs+jeZVaeChX+kvcXK4ASsrLwMotcCqatXTKw
-         Gjymd5vVshsMnUM6a7dWnCAIOWF6hWuXXHxU/Fg8/XwvJWugG7l8vUTmpczlW3ezPOSe
-         K1cPQDbG8JlTUSgHzRK/Qn7+CFeRHVYA/p5ti/nFmyRUn3N/reW/+OMQ0hIDAJPISEXH
-         FQQh3HvLnD8CoD1gUii4gBdtPuSC4ccSZiQ2C7jNFfEfktf6eZ6k/R/zpe00Djt6i9Mz
-         Rq++30FqEOXSW1ZWuga+FVWN5P0ewCZw5Z4TGMK0in9iWdzpUqlsVQ08fpAZwbvhVpPj
-         jYOg==
-X-Gm-Message-State: APjAAAUNm2ZpKvsKvO3MuiaR2/rOKtv6eQROArUjruQDhw1OBmLW8Bgr
-        iGfV2puZj9kQJ2epFrrJvAALPnV6Eh4=
-X-Google-Smtp-Source: APXvYqz2kwMiV3IzxK9Tf5xKPsp4eqjTJDvh2n17maZJlAv70QrBj7iUZdXyac4Xthx4D2Em5ItjLA==
-X-Received: by 2002:a17:902:9b86:: with SMTP id y6mr1010494plp.217.1568759563045;
-        Tue, 17 Sep 2019 15:32:43 -0700 (PDT)
-Received: from ?IPv6:240b:10:2720:5510:a182:288:3ffa:432a? ([240b:10:2720:5510:a182:288:3ffa:432a])
-        by smtp.gmail.com with ESMTPSA id v5sm5003146pfv.76.2019.09.17.15.32.40
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Sep 2019 15:32:42 -0700 (PDT)
-Subject: Re: [PATCH for 5.2.y] mtd: cfi_cmdset_0002: Use chip_good() to retry
- in do_write_oneword()
-To:     Greg KH <greg@kroah.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        Felix Fietkau <nbd@nbd.name>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-References: <20190917175048.12895-1-ikegami.t@gmail.com>
- <20190917181127.GD1570310@kroah.com>
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-Message-ID: <7c0113e0-d455-e3e6-86fc-45429be196fb@gmail.com>
-Date:   Wed, 18 Sep 2019 07:32:39 +0900
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1728049AbfIQWnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 18:43:00 -0400
+Received: from minerva.fahce.unlp.edu.ar ([163.10.30.2]:35463 "EHLO
+        mail.fahce.unlp.edu.ar" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726649AbfIQWnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 18:43:00 -0400
+X-Greylist: delayed 624 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Sep 2019 18:42:58 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id A525442214;
+        Tue, 17 Sep 2019 19:29:24 -0300 (-03)
+Received: from mail.fahce.unlp.edu.ar ([127.0.0.1])
+        by localhost (mail.fahce.unlp.edu.ar [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id Gae0X4AX2cnO; Tue, 17 Sep 2019 19:29:24 -0300 (-03)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id 68CE441CD5;
+        Tue, 17 Sep 2019 19:29:23 -0300 (-03)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.fahce.unlp.edu.ar 68CE441CD5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fahce.unlp.edu.ar;
+        s=E73B5B28-DB89-11E8-B546-F4937DA551BC; t=1568759363;
+        bh=VMP0RSwhsca5ygCfjHx68zuRWpSW8i/8ShL5g18iFTc=;
+        h=Date:From:Message-ID:MIME-Version;
+        b=ttDQTDvW200v1nnvU3qQIfJ0jGR9NKzYz5gOmLubWMde/IsVsOEAljvympWXQqQ5y
+         uDOr3XFTDM2F70bG/efO5je5FVuj4vOwgwZX+3rD19lgrDFEpnpo2MxWDl0FgYTrcG
+         +xa5DK5DGJF04VnSIZ/ZpMmyWrJ0pFIdyM6NXD6ecLlXp4rq0b9aLxTfq8MtuHvBjr
+         k4TogM4KYGPAanaHR25kcKArP4yqdDaWo/WFzfMWh4DQMp1z2aQdetNst63S5ECC1A
+         BXcp/u6id03orGk9UTf7yt6sAnwm4Zyw1bEffGx9qGr2hlGA5wIttuphyLbTvG+7Q7
+         Suw2JN9gCQz5g==
+X-Virus-Scanned: amavisd-new at mail.fahce.unlp.edu.ar
+Received: from mail.fahce.unlp.edu.ar ([127.0.0.1])
+        by localhost (mail.fahce.unlp.edu.ar [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id pmy-LEx8gWPV; Tue, 17 Sep 2019 19:29:23 -0300 (-03)
+Received: from mailbox01.fahce.unlp.edu.ar (mailbox01.fahce.unlp.edu.ar [163.10.30.17])
+        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id 324B1420EC;
+        Tue, 17 Sep 2019 19:29:20 -0300 (-03)
+Date:   Tue, 17 Sep 2019 19:29:19 -0300 (ART)
+From:   Mr Mikhail Fridman <gdarrigran@fahce.unlp.edu.ar>
+Reply-To: "mikhail_fridman111@126.com" <mikhail_fridman111@126.com>
+Message-ID: <1027104687.625791.1568759359927.JavaMail.zimbra@fahce.unlp.edu.ar>
+Subject: Charity Gift
 MIME-Version: 1.0
-In-Reply-To: <20190917181127.GD1570310@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+X-Originating-IP: [163.10.30.19]
+X-Mailer: Zimbra 8.7.11_GA_3800 (zclient/8.7.11_GA_3800)
+Thread-Index: YOM+ekPzbaKkAA2LLr1NCX5+GcSIzw==
+Thread-Topic: Charity Gift
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 2019/09/18 3:11, Greg KH wrote:
-> On Wed, Sep 18, 2019 at 02:50:48AM +0900, Tokunori Ikegami wrote:
->> As reported by the OpenWRT team, write requests sometimes fail on some
->> platforms.
->> Currently to check the state chip_ready() is used correctly as described by
->> the flash memory S29GL256P11TFI01 datasheet.
->> Also chip_good() is used to check if the write is succeeded and it was
->> implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
->> checking").
->> But actually the write failure is caused on some platforms and also it can
->> be fixed by using chip_good() to check the state and retry instead.
->> Also it seems that it is caused after repeated about 1,000 times to retry
->> the write one word with the reset command.
->> By using chip_good() to check the state to be done it can be reduced the
->> retry with reset.
->> It is depended on the actual flash chip behavior so the root cause is
->> unknown.
->>
->> Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
->> Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
->> Cc: linux-mtd@lists.infradead.org
->> Cc: stable@vger.kernel.org
->> Reported-by: Fabio Bettoni <fbettoni@gmail.com>
->> Signed-off-by: Felix Fietkau <nbd@nbd.name>
->> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
->> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
->> [vigneshr@ti.com: Fix a checkpatch warning]
->> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
->> ---
->>   drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
->>   1 file changed, 12 insertions(+), 6 deletions(-)
->>   mode change 100644 => 100755 drivers/mtd/chips/cfi_cmdset_0002.c
-> You changed the file to be executable???  That's not ok :(
 
-Very sorry for this.
-I missed it to fix to not be executable since it was changed to be 
-executable on my local environment.
-Anyway I will do fix it.
-
->
-> Also, what is the git commit id of this patch in Linus's tree?  I can't
-> seem to find it there.
-
-Actually it has not been pulled in Linus's tree.
-But it has been merged into 
-git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git mtd/next for 
-v5.4-rc1 as the git commit id 37c673ade35c.
-So I thought as that it is okay to send the patches for the stable trees.
-But should I wait to be pulled the patch in Linus's tree at first?
-
->
-> thanks,
->
-> greg k-h
+I, Mikhail Fridman have selected you specifically as one of my beneficiaries for my Charitable Donation of $5 Million Dollars, Check the link below for confirmation:https://www.rt.com/business/343781-mikhail-fridman-will-charity/I await your earliest response.Best Regards,
