@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ADEB56D9
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 22:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38BF0B56FC
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 22:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726283AbfIQUX4 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 16:23:56 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:28729 "EHLO mx1.redhat.com"
+        id S1726663AbfIQU3Y convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 16:29:24 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38706 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726285AbfIQUXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 16:23:55 -0400
+        id S1726285AbfIQU3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Sep 2019 16:29:24 -0400
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7A74E18C426E
-        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 20:23:55 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 765A83084032
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 20:29:23 +0000 (UTC)
 Received: from [172.54.124.190] (cpt-1056.paas.prod.upshift.rdu2.redhat.com [10.0.19.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D1B2A600C4;
-        Tue, 17 Sep 2019 20:23:52 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A0573600C4;
+        Tue, 17 Sep 2019 20:29:19 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.428D409B22.KWSWR5ESO2@redhat.com>
-X-Gitlab-Pipeline-ID: 170508
+Message-ID: <cki.32B9EA864A.1R3ZUH80U7@redhat.com>
+X-Gitlab-Pipeline-ID: 170447
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/170508
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/170447
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.62]); Tue, 17 Sep 2019 20:23:55 +0000 (UTC)
-Date:   Tue, 17 Sep 2019 16:23:55 -0400
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 17 Sep 2019 20:29:23 +0000 (UTC)
+Date:   Tue, 17 Sep 2019 16:29:24 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -55,7 +55,7 @@ The results of these automated tests are provided below.
 
 All kernel binaries, config files, and logs are available for download here:
 
-  https://artifacts.cki-project.org/pipelines/170508
+  https://artifacts.cki-project.org/pipelines/170447
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -76,7 +76,7 @@ We cloned this repository and checked out the following commit:
   Commit: 6e282ba6ff6b - Linux 5.2.15
 
 
-We grabbed the 5f932ae10f6f commit of the stable queue repository.
+We grabbed the 3b5734c567ce commit of the stable queue repository.
 
 We then merged the patchset with `git am`:
 
@@ -142,13 +142,6 @@ We then merged the patchset with `git am`:
   pci-always-allow-probing-with-driver_override.patch
   ubifs-correctly-use-tnc_next-in-search_dh_cookie.patch
   driver-core-fix-use-after-free-and-double-free-on-glue-directory.patch
-  crypto-talitos-check-aes-key-size.patch
-  crypto-talitos-fix-ctr-alg-blocksize.patch
-  crypto-talitos-check-data-blocksize-in-ablkcipher.patch
-  crypto-talitos-fix-ecb-algs-ivsize.patch
-  crypto-talitos-do-not-modify-req-cryptlen-on-decryption.patch
-  crypto-talitos-hmac-snoop-no-afeu-mode-requires-sw-icv-checking.patch
-  firmware-ti_sci-always-request-response-from-firmware.patch
 
 Compile testing
 ---------------
@@ -205,6 +198,10 @@ We booted each kernel and ran the following tests:
   ppc64le:
       Host 1:
          ✅ Boot test [0]
+         ✅ selinux-policy: serge-testsuite [21]
+
+      Host 2:
+         ✅ Boot test [0]
          ✅ Podman system integration test (as root) [1]
          ✅ Podman system integration test (as user) [1]
          ✅ Loopdev Sanity [2]
@@ -227,10 +224,6 @@ We booted each kernel and ran the following tests:
          🚧 ✅ Networking route_func: local [20]
          🚧 ✅ Networking route_func: forward [20]
 
-      Host 2:
-         ✅ Boot test [0]
-         ✅ selinux-policy: serge-testsuite [21]
-
   s390x:
 
     ⚡ Internal infrastructure issues prevented one or more tests (marked
@@ -239,11 +232,6 @@ We booted each kernel and ran the following tests:
 
   x86_64:
       Host 1:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
          ✅ Boot test [0]
          ✅ Podman system integration test (as root) [1]
          ✅ Podman system integration test (as user) [1]
@@ -262,7 +250,7 @@ We booted each kernel and ran the following tests:
          ✅ pciutils: sanity smoke test [22]
          ✅ Usex - version 1.9-29 [14]
          ✅ stress: stress-ng [15]
-         🚧 ⚡⚡⚡ LTP lite [16]
+         🚧 ✅ LTP lite [16]
          🚧 ✅ Memory function: kaslr [17]
          🚧 ✅ Networking bridge: sanity [18]
          🚧 ✅ Networking route: pmtu [19]
