@@ -2,156 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C248DB554C
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 20:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8153AB55FB
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 21:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729224AbfIQSaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 14:30:15 -0400
-Received: from mail.efficios.com ([167.114.142.138]:37512 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729277AbfIQSaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 14:30:12 -0400
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 6E67B1D4E13;
-        Tue, 17 Sep 2019 14:30:11 -0400 (EDT)
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
-        with ESMTP id cC-ngBrkweCl; Tue, 17 Sep 2019 14:30:11 -0400 (EDT)
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 0AE0B1D4E0F;
-        Tue, 17 Sep 2019 14:30:11 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 0AE0B1D4E0F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1568745011;
-        bh=bsQbUCGG+66P6uaoaenq7Ys0bJ2R9XxktPLL9tZTcj4=;
-        h=From:To:Date:Message-Id;
-        b=kOocle93YMUW6RJIUFX50Gb33i9DsLfrZo0YA2TKHKcmS2wpAn0NzVmvMa5mMVCTQ
-         5CxU5jGnn8XQjRYqCqPebd7UdVvxLrbF0SonvnePRwi7E9IAaMwECq0pF8ZpONqOhh
-         /48LVnj8LeG8gaNOBicOdf9Gg/RFcHnTDPtwRG110e3vF+YwEsDS7RwFuUarrIGplY
-         MaihncqTqKSPWsjCsks/57+wrGntUZsYXQT2BH4FgMeU5tCYpGrEHAJ0Ku7mNkK7KL
-         bHIZ/8D+punyNkHbc83c0cMNmntY3biax/YDAzAU1zF7BJIl/vwPqXgskKWXxK6IwB
-         DF1mv0scILPMQ==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
-        with ESMTP id 3720i6ynFqVc; Tue, 17 Sep 2019 14:30:10 -0400 (EDT)
-Received: from localhost.localdomain (192-222-181-218.qc.cable.ebox.net [192.222.181.218])
-        by mail.efficios.com (Postfix) with ESMTPSA id 80ED11D4DE6;
-        Tue, 17 Sep 2019 14:30:10 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        linux-api@vger.kernel.org, stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        "Tommi T . Rantala" <tommi.t.rantala@nokia.com>,
-        Dmitry Vyukov <dvyukov@google.com>
-Subject: [PATCH for 5.4 3/3] rseq/selftests: Fix: Namespace gettid() for compatibility with glibc 2.30
-Date:   Tue, 17 Sep 2019 14:29:59 -0400
-Message-Id: <20190917182959.16333-4-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190917182959.16333-1-mathieu.desnoyers@efficios.com>
-References: <20190917182959.16333-1-mathieu.desnoyers@efficios.com>
+        id S1729947AbfIQTNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 15:13:14 -0400
+Received: from mga09.intel.com ([134.134.136.24]:31049 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726523AbfIQTNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Sep 2019 15:13:14 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Sep 2019 12:13:13 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,517,1559545200"; 
+   d="scan'208";a="198791424"
+Received: from vcazacux-wtg.ger.corp.intel.com (HELO localhost) ([10.252.38.72])
+  by orsmga002.jf.intel.com with ESMTP; 17 Sep 2019 12:13:09 -0700
+Date:   Tue, 17 Sep 2019 22:13:07 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm: Wrap the buffer from the caller to tpm_buf in
+ tpm_send()
+Message-ID: <20190917191307.GH10244@linux.intel.com>
+References: <20190916085008.22239-1-jarkko.sakkinen@linux.intel.com>
+ <20190916210331.l6enypnafk2cwako@cantor>
+ <20190916210454.mq3g2m6s5a2syaxp@cantor>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190916210454.mq3g2m6s5a2syaxp@cantor>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-glibc 2.30 introduces gettid() in public headers, which clashes with
-the internal static definition within rseq selftests.
+On Mon, Sep 16, 2019 at 02:04:54PM -0700, Jerry Snitselaar wrote:
+> On Mon Sep 16 19, Jerry Snitselaar wrote:
+> > On Mon Sep 16 19, Jarkko Sakkinen wrote:
+> > > tpm_send() does not give anymore the result back to the caller. This
+> > > would require another memcpy(), which kind of tells that the whole
+> > > approach is somewhat broken. Instead, as Mimi suggested, this commit
+> > > just wraps the data to the tpm_buf, and thus the result will not go to
+> > > the garbage.
+> > > 
+> > > Obviously this assumes from the caller that it passes large enough
+> > > buffer, which makes the whole API somewhat broken because it could be
+> > > different size than @buflen but since trusted keys is the only module
+> > > using this API right now I think that this fix is sufficient for the
+> > > moment.
+> > > 
+> > > In the near future the plan is to replace the parameters with a tpm_buf
+> > > created by the caller.
+> > > 
+> > > Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+> > > Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: 412eb585587a ("use tpm_buf in tpm_transmit_cmd() as the IO parameter")
+> > > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > > ---
+> > > drivers/char/tpm/tpm-interface.c | 8 ++------
+> > > 1 file changed, 2 insertions(+), 6 deletions(-)
+> > > 
+> > > diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+> > > index d9ace5480665..2459d36dd8cc 100644
+> > > --- a/drivers/char/tpm/tpm-interface.c
+> > > +++ b/drivers/char/tpm/tpm-interface.c
+> > > @@ -358,13 +358,9 @@ int tpm_send(struct tpm_chip *chip, void *cmd, size_t buflen)
+> > > 	if (!chip)
+> > > 		return -ENODEV;
+> > > 
+> > > -	rc = tpm_buf_init(&buf, 0, 0);
+> > > -	if (rc)
+> > > -		goto out;
+> > > -
+> > > -	memcpy(buf.data, cmd, buflen);
+> > > +	buf.data = cmd;
+> > > 	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to a send a command");
+> > > -	tpm_buf_destroy(&buf);
+> > > +
+> > > out:
+> > > 	tpm_put_ops(chip);
+> > > 	return rc;
+> > > -- 
+> > > 2.20.1
+> > > 
+> > 
+> > Nothing uses the out label any longer so it should be dropped as well, but other than that...
+> > 
+> > Acked-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> 
+> sigh (wrong emacs macro hit), that should be:
+> 
+> Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
-Rename gettid() to rseq_gettid() to eliminate this symbol name clash.
+Thank you! I pushed the commit to master/next.
 
-Reported-by: Tommi T. Rantala <tommi.t.rantala@nokia.com>
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Tommi T. Rantala <tommi.t.rantala@nokia.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@vger.kernel.org>	# v4.18+
----
- tools/testing/selftests/rseq/param_test.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
-
-diff --git a/tools/testing/selftests/rseq/param_test.c b/tools/testing/selftests/rseq/param_test.c
-index eec2663261f2..e8a657a5f48a 100644
---- a/tools/testing/selftests/rseq/param_test.c
-+++ b/tools/testing/selftests/rseq/param_test.c
-@@ -15,7 +15,7 @@
- #include <errno.h>
- #include <stddef.h>
- 
--static inline pid_t gettid(void)
-+static inline pid_t rseq_gettid(void)
- {
- 	return syscall(__NR_gettid);
- }
-@@ -373,11 +373,12 @@ void *test_percpu_spinlock_thread(void *arg)
- 		rseq_percpu_unlock(&data->lock, cpu);
- #ifndef BENCHMARK
- 		if (i != 0 && !(i % (reps / 10)))
--			printf_verbose("tid %d: count %lld\n", (int) gettid(), i);
-+			printf_verbose("tid %d: count %lld\n",
-+				       (int) rseq_gettid(), i);
- #endif
- 	}
- 	printf_verbose("tid %d: number of rseq abort: %d, signals delivered: %u\n",
--		       (int) gettid(), nr_abort, signals_delivered);
-+		       (int) rseq_gettid(), nr_abort, signals_delivered);
- 	if (!opt_disable_rseq && thread_data->reg &&
- 	    rseq_unregister_current_thread())
- 		abort();
-@@ -454,11 +455,12 @@ void *test_percpu_inc_thread(void *arg)
- 		} while (rseq_unlikely(ret));
- #ifndef BENCHMARK
- 		if (i != 0 && !(i % (reps / 10)))
--			printf_verbose("tid %d: count %lld\n", (int) gettid(), i);
-+			printf_verbose("tid %d: count %lld\n",
-+				       (int) rseq_gettid(), i);
- #endif
- 	}
- 	printf_verbose("tid %d: number of rseq abort: %d, signals delivered: %u\n",
--		       (int) gettid(), nr_abort, signals_delivered);
-+		       (int) rseq_gettid(), nr_abort, signals_delivered);
- 	if (!opt_disable_rseq && thread_data->reg &&
- 	    rseq_unregister_current_thread())
- 		abort();
-@@ -605,7 +607,7 @@ void *test_percpu_list_thread(void *arg)
- 	}
- 
- 	printf_verbose("tid %d: number of rseq abort: %d, signals delivered: %u\n",
--		       (int) gettid(), nr_abort, signals_delivered);
-+		       (int) rseq_gettid(), nr_abort, signals_delivered);
- 	if (!opt_disable_rseq && rseq_unregister_current_thread())
- 		abort();
- 
-@@ -796,7 +798,7 @@ void *test_percpu_buffer_thread(void *arg)
- 	}
- 
- 	printf_verbose("tid %d: number of rseq abort: %d, signals delivered: %u\n",
--		       (int) gettid(), nr_abort, signals_delivered);
-+		       (int) rseq_gettid(), nr_abort, signals_delivered);
- 	if (!opt_disable_rseq && rseq_unregister_current_thread())
- 		abort();
- 
-@@ -1011,7 +1013,7 @@ void *test_percpu_memcpy_buffer_thread(void *arg)
- 	}
- 
- 	printf_verbose("tid %d: number of rseq abort: %d, signals delivered: %u\n",
--		       (int) gettid(), nr_abort, signals_delivered);
-+		       (int) rseq_gettid(), nr_abort, signals_delivered);
- 	if (!opt_disable_rseq && rseq_unregister_current_thread())
- 		abort();
- 
--- 
-2.17.1
-
+/Jarkko
