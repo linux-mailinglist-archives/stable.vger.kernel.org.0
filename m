@@ -2,108 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8153AB55FB
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 21:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7A9B56B4
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 22:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729947AbfIQTNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 15:13:14 -0400
-Received: from mga09.intel.com ([134.134.136.24]:31049 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726523AbfIQTNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 15:13:14 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Sep 2019 12:13:13 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,517,1559545200"; 
-   d="scan'208";a="198791424"
-Received: from vcazacux-wtg.ger.corp.intel.com (HELO localhost) ([10.252.38.72])
-  by orsmga002.jf.intel.com with ESMTP; 17 Sep 2019 12:13:09 -0700
-Date:   Tue, 17 Sep 2019 22:13:07 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tpm: Wrap the buffer from the caller to tpm_buf in
- tpm_send()
-Message-ID: <20190917191307.GH10244@linux.intel.com>
-References: <20190916085008.22239-1-jarkko.sakkinen@linux.intel.com>
- <20190916210331.l6enypnafk2cwako@cantor>
- <20190916210454.mq3g2m6s5a2syaxp@cantor>
+        id S1726194AbfIQUJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 16:09:46 -0400
+Received: from sonic311-14.consmr.mail.bf2.yahoo.com ([74.6.131.124]:44571
+        "EHLO sonic311-14.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726404AbfIQUJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 16:09:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1568750984; bh=zPC9p8T5S06DA73PD5F75wViZ/EpBpeYylTS7OqjCU4=; h=Date:From:Reply-To:Subject:From:Subject; b=NaXpheSwXMKmcwRzgSXJmUdYilChewQp/K4B0rBgxYtVJypEXq+0atsXlcdIauWWcn52FI30r6F9rJWBMfrga+woGN9fL9wVv/vBlbVK6k5KioTrNO7MHwPLWDym61wxp6Y7eEND6QrOP3QHERYueuD8of3G4tzo/ZpA5kd+pZvINmiTnBJivCV2/3ZMcIna+Vpa39CiPACPbHJX1zUwWECATsfOzAFm3ZkS8gxZDSFgxhFVVvovifmN0B3bbd2+z9oKfYwNImTflJCCm+nZqWJP47Ob+okNDnzGvc5i2r8lFZ2ETAcjsxmpFfusU9d9WYT6qnyXSGhM3yhAn5zM5A==
+X-YMail-OSG: roMQr9UVM1keC6uahDtjgY109R4UODMxCKlNVYJzo61V39Xwh0BtS1fFKisPqRK
+ wDaMzbnL.F7oQBQq7Rj.hixL8j7EJYHpQyxXGcLmb4fDgw011a.M2n8lFZZSynBs7L8rQnShOYLX
+ eFBzRM.GTYvb843009JY4ZHt_F9bcZ9OnDG0MkajrmtApKYg04U5gdAYxprKvjyMLLvdPOcL4q5r
+ viJZTp4sZnw4I0.ltrpygUNI.XMVmQLu0saLYVXSrfeL1IEWr5PhVhdfEpIBujU26obUI8xmGtWM
+ cZh99zTFp27QCgy6YaGLZtQBi.yFW5GBR5KGV82LrtibAB2WLFR65olTn1csh26GaXd13XkmPv5o
+ BJ8ZPnt0Xv0oaJhYc1qqNHmg8dYUsoo8PW.O5KabJpBQLquYlyNVLrX5ZtRTnppn4E06SqGmlARa
+ 1BK4LsYIAHyCjXj0FnXp2Vny0p4eQ7r1EzSSdIjgKxDpZ4wmbl8vPtBmUbyle6AjqFjEsHaofYCm
+ XaPHoPENN_R08MoRR4R_vAdW7Rm0nySBuXKrKx0fYROYfYkXAHGpWu728iO2GdUZwhUJF0fzE3M0
+ 7U_xfaVtB7vKuHn93fNP8yk.XVnMwAl2u4gOxIQoRylDEOUU5ACuIuVDLd56Ycj6B2LD7_9GFT8K
+ thvzmIJIQq30sV4n2PtLy.BqBkhzF1wclqpMzly8550ThVwPmbHgz4zJOByXV1uwuZacVsoDTjfr
+ pigiwWvie.65iD7YwiCewME21cpZ2GOjLi3_Pesepa8D5JGz7UEMq5NxXzGUkaqySPas095umPWb
+ 7OJI31E6cvKI2k5b6mrZun30g9yGVvgIR9BOeP0LTJB5YhPj0taAo0xgeX9n90NO8bDM11Hzy7f5
+ gi48fv0f0ALzgCyppTfXzJluJiNn564YePtMgDWxTK1EJqeqcpJJNFok5p596yIaMsVwYBqDYY4_
+ J5vVU8SMLw1ZeKGncjfr_nFG1qBejVpfpVJEmRxg2dSrKXhXAkd55Fnu_n2k.PTwE_ZMcTCBUygx
+ _DbiIIxCAUVS3Gqq67b3Rn2JYi89V4DcFI9XF46K4rC3j8MBNoH8OV5r0o2FBIILT0ufHJXw1Y8l
+ eatv6AYUjHWyc.xUMcqBcfxIa.0OqmroJ1hc5yy6C_FscRN6_EF3gWSQH9GMtJSbGGBGmdVPwTt9
+ PE.6OquYwUwkKlWtLOS3G7QDmEy1NnD6CqTz8ph0_Nn4WlyLOBLP4_TNWMS17rcnZfBmPonZCROb
+ tivUaW7AavlPeA1rNbfFcrZ7.3N4VvQ--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.bf2.yahoo.com with HTTP; Tue, 17 Sep 2019 20:09:44 +0000
+Date:   Tue, 17 Sep 2019 20:09:40 +0000 (UTC)
+From:   Ms Lisa Hugh <lisa.hugh101@gmail.com>
+Reply-To: ms.lisahugh000@gmail.com
+Message-ID: <359899449.5899392.1568750980803@mail.yahoo.com>
+Subject: CONFIDENTIAL FROM MS LISA HUGH(BUSINESS)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190916210454.mq3g2m6s5a2syaxp@cantor>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 16, 2019 at 02:04:54PM -0700, Jerry Snitselaar wrote:
-> On Mon Sep 16 19, Jerry Snitselaar wrote:
-> > On Mon Sep 16 19, Jarkko Sakkinen wrote:
-> > > tpm_send() does not give anymore the result back to the caller. This
-> > > would require another memcpy(), which kind of tells that the whole
-> > > approach is somewhat broken. Instead, as Mimi suggested, this commit
-> > > just wraps the data to the tpm_buf, and thus the result will not go to
-> > > the garbage.
-> > > 
-> > > Obviously this assumes from the caller that it passes large enough
-> > > buffer, which makes the whole API somewhat broken because it could be
-> > > different size than @buflen but since trusted keys is the only module
-> > > using this API right now I think that this fix is sufficient for the
-> > > moment.
-> > > 
-> > > In the near future the plan is to replace the parameters with a tpm_buf
-> > > created by the caller.
-> > > 
-> > > Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-> > > Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
-> > > Cc: stable@vger.kernel.org
-> > > Fixes: 412eb585587a ("use tpm_buf in tpm_transmit_cmd() as the IO parameter")
-> > > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > ---
-> > > drivers/char/tpm/tpm-interface.c | 8 ++------
-> > > 1 file changed, 2 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-> > > index d9ace5480665..2459d36dd8cc 100644
-> > > --- a/drivers/char/tpm/tpm-interface.c
-> > > +++ b/drivers/char/tpm/tpm-interface.c
-> > > @@ -358,13 +358,9 @@ int tpm_send(struct tpm_chip *chip, void *cmd, size_t buflen)
-> > > 	if (!chip)
-> > > 		return -ENODEV;
-> > > 
-> > > -	rc = tpm_buf_init(&buf, 0, 0);
-> > > -	if (rc)
-> > > -		goto out;
-> > > -
-> > > -	memcpy(buf.data, cmd, buflen);
-> > > +	buf.data = cmd;
-> > > 	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to a send a command");
-> > > -	tpm_buf_destroy(&buf);
-> > > +
-> > > out:
-> > > 	tpm_put_ops(chip);
-> > > 	return rc;
-> > > -- 
-> > > 2.20.1
-> > > 
-> > 
-> > Nothing uses the out label any longer so it should be dropped as well, but other than that...
-> > 
-> > Acked-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> 
-> sigh (wrong emacs macro hit), that should be:
-> 
-> Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
-Thank you! I pushed the commit to master/next.
 
-/Jarkko
+Dear Friend,
+
+I am Ms Lisa Hugh work with the department of Audit and accounting manager here in the Bank(B.O.A).
+
+Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
+
+I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me forsuccess.
+
+Note/ 50% for you why 50% for me after success of the transfer to your bank
+account.
+
+Below information is what i need from you so will can be reaching each
+other
+
+1)Full name ...
+2)Private telephone number...
+3)Age...
+4)Nationality...
+5)Occupation ...
+
+
+Thanks.
+
+Ms Lisa Hugh
