@@ -2,294 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38BF0B56FC
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 22:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9448B5804
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 00:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbfIQU3Y convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 16:29:24 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38706 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726285AbfIQU3Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 16:29:24 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 765A83084032
-        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 20:29:23 +0000 (UTC)
-Received: from [172.54.124.190] (cpt-1056.paas.prod.upshift.rdu2.redhat.com [10.0.19.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A0573600C4;
-        Tue, 17 Sep 2019 20:29:19 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1725865AbfIQWco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 18:32:44 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:37396 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726738AbfIQWcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 18:32:43 -0400
+Received: by mail-pl1-f194.google.com with SMTP id b10so2159127plr.4
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 15:32:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=dmHKlC95wEkb+HENLwm0wnzogMC58TL2IKPX+eVUAOk=;
+        b=rdYlYU4iWu37JaHMYZYnsFvPb4IVU+ujYbjqRjhooffq05DM3nAh3j6bzbFqnl+Z+m
+         u9ZAKZlglBUOYenB/3BrqhJ3tLmlHyZCLaO3E/Uya10zG0S2a7lm8L0FYkuj/hWdLa93
+         4iShr/m6wuZq3U7YBdeXaA74t2uDX31eoste1s5rVd8Hm6zeO6vifII9CTxcFrqfmY/y
+         frUpAk8OmB38+keSHKuVEZKnZRV3DHkXPFHewW+TK4X5qpWno7yju2r+e22NP8NAlFQc
+         t0q/kHRZ2rZWLYq0mEi1eGiRbcw4+Iltb8k661e/Zg0AJwXBqcaJCA/7S9I5vvDxsGHl
+         QT1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=dmHKlC95wEkb+HENLwm0wnzogMC58TL2IKPX+eVUAOk=;
+        b=OxvTljUQlvc5Q+khU8E38uLfazUf7cs+jeZVaeChX+kvcXK4ASsrLwMotcCqatXTKw
+         Gjymd5vVshsMnUM6a7dWnCAIOWF6hWuXXHxU/Fg8/XwvJWugG7l8vUTmpczlW3ezPOSe
+         K1cPQDbG8JlTUSgHzRK/Qn7+CFeRHVYA/p5ti/nFmyRUn3N/reW/+OMQ0hIDAJPISEXH
+         FQQh3HvLnD8CoD1gUii4gBdtPuSC4ccSZiQ2C7jNFfEfktf6eZ6k/R/zpe00Djt6i9Mz
+         Rq++30FqEOXSW1ZWuga+FVWN5P0ewCZw5Z4TGMK0in9iWdzpUqlsVQ08fpAZwbvhVpPj
+         jYOg==
+X-Gm-Message-State: APjAAAUNm2ZpKvsKvO3MuiaR2/rOKtv6eQROArUjruQDhw1OBmLW8Bgr
+        iGfV2puZj9kQJ2epFrrJvAALPnV6Eh4=
+X-Google-Smtp-Source: APXvYqz2kwMiV3IzxK9Tf5xKPsp4eqjTJDvh2n17maZJlAv70QrBj7iUZdXyac4Xthx4D2Em5ItjLA==
+X-Received: by 2002:a17:902:9b86:: with SMTP id y6mr1010494plp.217.1568759563045;
+        Tue, 17 Sep 2019 15:32:43 -0700 (PDT)
+Received: from ?IPv6:240b:10:2720:5510:a182:288:3ffa:432a? ([240b:10:2720:5510:a182:288:3ffa:432a])
+        by smtp.gmail.com with ESMTPSA id v5sm5003146pfv.76.2019.09.17.15.32.40
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 17 Sep 2019 15:32:42 -0700 (PDT)
+Subject: Re: [PATCH for 5.2.y] mtd: cfi_cmdset_0002: Use chip_good() to retry
+ in do_write_oneword()
+To:     Greg KH <greg@kroah.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
+        Felix Fietkau <nbd@nbd.name>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+References: <20190917175048.12895-1-ikegami.t@gmail.com>
+ <20190917181127.GD1570310@kroah.com>
+From:   Tokunori Ikegami <ikegami.t@gmail.com>
+Message-ID: <7c0113e0-d455-e3e6-86fc-45429be196fb@gmail.com>
+Date:   Wed, 18 Sep 2019 07:32:39 +0900
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.32B9EA864A.1R3ZUH80U7@redhat.com>
-X-Gitlab-Pipeline-ID: 170447
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/170447
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 17 Sep 2019 20:29:23 +0000 (UTC)
-Date:   Tue, 17 Sep 2019 16:29:24 -0400
+In-Reply-To: <20190917181127.GD1570310@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+On 2019/09/18 3:11, Greg KH wrote:
+> On Wed, Sep 18, 2019 at 02:50:48AM +0900, Tokunori Ikegami wrote:
+>> As reported by the OpenWRT team, write requests sometimes fail on some
+>> platforms.
+>> Currently to check the state chip_ready() is used correctly as described by
+>> the flash memory S29GL256P11TFI01 datasheet.
+>> Also chip_good() is used to check if the write is succeeded and it was
+>> implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
+>> checking").
+>> But actually the write failure is caused on some platforms and also it can
+>> be fixed by using chip_good() to check the state and retry instead.
+>> Also it seems that it is caused after repeated about 1,000 times to retry
+>> the write one word with the reset command.
+>> By using chip_good() to check the state to be done it can be reduced the
+>> retry with reset.
+>> It is depended on the actual flash chip behavior so the root cause is
+>> unknown.
+>>
+>> Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+>> Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+>> Cc: linux-mtd@lists.infradead.org
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Fabio Bettoni <fbettoni@gmail.com>
+>> Signed-off-by: Felix Fietkau <nbd@nbd.name>
+>> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+>> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+>> [vigneshr@ti.com: Fix a checkpatch warning]
+>> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+>> ---
+>>   drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
+>>   1 file changed, 12 insertions(+), 6 deletions(-)
+>>   mode change 100644 => 100755 drivers/mtd/chips/cfi_cmdset_0002.c
+> You changed the file to be executable???  That's not ok :(
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Very sorry for this.
+I missed it to fix to not be executable since it was changed to be 
+executable on my local environment.
+Anyway I will do fix it.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 6e282ba6ff6b - Linux 5.2.15
+>
+> Also, what is the git commit id of this patch in Linus's tree?  I can't
+> seem to find it there.
 
-The results of these automated tests are provided below.
+Actually it has not been pulled in Linus's tree.
+But it has been merged into 
+git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git mtd/next for 
+v5.4-rc1 as the git commit id 37c673ade35c.
+So I thought as that it is okay to send the patches for the stable trees.
+But should I wait to be pulled the patch in Linus's tree at first?
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/170447
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 6e282ba6ff6b - Linux 5.2.15
-
-
-We grabbed the 3b5734c567ce commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  bridge-mdb-remove-wrong-use-of-nlm_f_multi.patch
-  cdc_ether-fix-rndis-support-for-mediatek-based-smartphones.patch
-  ipv6-fix-the-link-time-qualifier-of-ping_v6_proc_exit_net.patch
-  isdn-capi-check-message-length-in-capi_write.patch
-  ixgbe-fix-secpath-usage-for-ipsec-tx-offload.patch
-  ixgbevf-fix-secpath-usage-for-ipsec-tx-offload.patch
-  net-fix-null-de-reference-of-device-refcount.patch
-  net-gso-fix-skb_segment-splat-when-splitting-gso_size-mangled-skb-having-linear-headed-frag_list.patch
-  net-phylink-fix-flow-control-resolution.patch
-  net-sched-fix-reordering-issues.patch
-  sch_hhf-ensure-quantum-and-hhf_non_hh_weight-are-non-zero.patch
-  sctp-fix-the-link-time-qualifier-of-sctp_ctrlsock_exit.patch
-  sctp-use-transport-pf_retrans-in-sctp_do_8_2_transport_strike.patch
-  tcp-fix-tcp_ecn_withdraw_cwr-to-clear-tcp_ecn_queue_cwr.patch
-  tipc-add-null-pointer-check-before-calling-kfree_rcu.patch
-  tun-fix-use-after-free-when-register-netdev-failed.patch
-  net-ipv6-fix-excessive-rtf_addrconf-flag-on-1-128-local-route-and-others.patch
-  ipv6-addrconf_f6i_alloc-fix-non-null-pointer-check-to-is_err.patch
-  net-fixed_phy-add-forward-declaration-for-struct-gpio_desc.patch
-  sctp-fix-the-missing-put_user-when-dumping-transport-thresholds.patch
-  net-sock_map-fix-missing-ulp-check-in-sock-hash-case.patch
-  gpiolib-acpi-add-gpiolib_acpi_run_edge_events_on_boot-option-and-blacklist.patch
-  gpio-mockup-add-missing-single_release.patch
-  gpio-fix-line-flag-validation-in-linehandle_create.patch
-  gpio-fix-line-flag-validation-in-lineevent_create.patch
-  btrfs-fix-assertion-failure-during-fsync-and-use-of-stale-transaction.patch
-  cgroup-freezer-fix-frozen-state-inheritance.patch
-  revert-mmc-bcm2835-terminate-timeout-work-synchronously.patch
-  revert-mmc-sdhci-remove-unneeded-quirk2-flag-of-o2-sd-host-controller.patch
-  mmc-tmio-fixup-runtime-pm-management-during-probe.patch
-  mmc-tmio-fixup-runtime-pm-management-during-remove.patch
-  drm-lima-fix-lima_gem_wait-return-value.patch
-  drm-i915-limit-mst-to-8bpc-once-again.patch
-  drm-i915-restore-relaxed-padding-ocl_oob_suppres_enable-for-skl.patch
-  ipc-fix-semtimedop-for-generic-32-bit-architectures.patch
-  ipc-fix-sparc64-ipc-wrapper.patch
-  ixgbe-fix-double-clean-of-tx-descriptors-with-xdp.patch
-  ixgbe-prevent-u8-wrapping-of-itr-value-to-something-less-than-10us.patch
-  revert-rt2800-enable-tx_pin_cfg_lna_pe_-bits-per-band.patch
-  mt76-mt76x0e-disable-5ghz-band-for-mt7630e.patch
-  genirq-prevent-null-pointer-dereference-in-resend_irqs.patch
-  regulator-twl-voltage-lists-for-vdd1-2-on-twl4030.patch
-  kvm-s390-kvm_s390_vm_start_migration-check-dirty_bitmap-before-using-it-as-target-for-memset.patch
-  kvm-s390-do-not-leak-kernel-stack-data-in-the-kvm_s390_interrupt-ioctl.patch
-  kvm-x86-work-around-leak-of-uninitialized-stack-contents.patch
-  kvm-x86-mmu-reintroduce-fast-invalidate-zap-for-flushing-memslot.patch
-  kvm-nvmx-handle-page-fault-in-vmread.patch
-  x86-purgatory-change-compiler-flags-from-mcmodel-kernel-to-mcmodel-large-to-fix-kexec-relocation-errors.patch
-  powerpc-add-barrier_nospec-to-raw_copy_in_user.patch
-  kernel-module-fix-mem-leak-in-module_add_modinfo_attrs.patch
-  x86-boot-use-efi_setup_data-for-searching-rsdp-on-kexec-ed-kernels.patch
-  x86-ima-check-efi-setupmode-too.patch
-  drm-meson-add-support-for-xbgr8888-abgr8888-formats.patch
-  clk-fix-debugfs-clk_possible_parents-for-clks-without-parent-string-names.patch
-  clk-simplify-debugfs-printing-and-add-a-newline.patch
-  mt76-fix-a-signedness-bug-in-mt7615_add_interface.patch
-  mt76-mt7615-use-after-free-in-mt7615_mcu_set_bcn.patch
-  clk-rockchip-don-t-yell-about-bad-mmc-phases-when-getting.patch
-  mtd-rawnand-mtk-fix-wrongly-assigned-oob-buffer-pointer-issue.patch
-  pci-always-allow-probing-with-driver_override.patch
-  ubifs-correctly-use-tnc_next-in-search_dh_cookie.patch
-  driver-core-fix-use-after-free-and-double-free-on-glue-directory.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ Loopdev Sanity [2]
-         ✅ jvm test suite [3]
-         ✅ AMTU (Abstract Machine Test Utility) [4]
-         ✅ LTP: openposix test suite [5]
-         ✅ Ethernet drivers sanity [6]
-         ✅ Networking socket: fuzz [7]
-         ✅ Networking sctp-auth: sockopts test [8]
-         ✅ Networking TCP: keepalive test [9]
-         ✅ audit: audit testsuite test [10]
-         ✅ httpd: mod_ssl smoke sanity [11]
-         ✅ iotop: sanity [12]
-         ✅ tuned: tune-processes-through-perf [13]
-         ✅ Usex - version 1.9-29 [14]
-         ✅ stress: stress-ng [15]
-         🚧 ✅ LTP lite [16]
-         🚧 ✅ Memory function: kaslr [17]
-         🚧 ✅ Networking bridge: sanity [18]
-         🚧 ✅ Networking route: pmtu [19]
-         🚧 ✅ Networking route_func: local [20]
-         🚧 ✅ Networking route_func: forward [20]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ selinux-policy: serge-testsuite [21]
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ selinux-policy: serge-testsuite [21]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ Loopdev Sanity [2]
-         ✅ jvm test suite [3]
-         ✅ AMTU (Abstract Machine Test Utility) [4]
-         ✅ LTP: openposix test suite [5]
-         ✅ Ethernet drivers sanity [6]
-         ✅ Networking socket: fuzz [7]
-         ✅ Networking sctp-auth: sockopts test [8]
-         ✅ Networking TCP: keepalive test [9]
-         ✅ audit: audit testsuite test [10]
-         ✅ httpd: mod_ssl smoke sanity [11]
-         ✅ iotop: sanity [12]
-         ✅ tuned: tune-processes-through-perf [13]
-         ✅ Usex - version 1.9-29 [14]
-         🚧 ✅ LTP lite [16]
-         🚧 ✅ Memory function: kaslr [17]
-         🚧 ✅ Networking bridge: sanity [18]
-         🚧 ✅ Networking route: pmtu [19]
-         🚧 ✅ Networking route_func: local [20]
-         🚧 ✅ Networking route_func: forward [20]
-
-  s390x:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [1]
-         ✅ Podman system integration test (as user) [1]
-         ✅ Loopdev Sanity [2]
-         ✅ jvm test suite [3]
-         ✅ AMTU (Abstract Machine Test Utility) [4]
-         ✅ LTP: openposix test suite [5]
-         ✅ Ethernet drivers sanity [6]
-         ✅ Networking socket: fuzz [7]
-         ✅ Networking sctp-auth: sockopts test [8]
-         ✅ Networking TCP: keepalive test [9]
-         ✅ audit: audit testsuite test [10]
-         ✅ httpd: mod_ssl smoke sanity [11]
-         ✅ iotop: sanity [12]
-         ✅ tuned: tune-processes-through-perf [13]
-         ✅ pciutils: sanity smoke test [22]
-         ✅ Usex - version 1.9-29 [14]
-         ✅ stress: stress-ng [15]
-         🚧 ✅ LTP lite [16]
-         🚧 ✅ Memory function: kaslr [17]
-         🚧 ✅ Networking bridge: sanity [18]
-         🚧 ✅ Networking route: pmtu [19]
-         🚧 ✅ Networking route_func: local [20]
-         🚧 ✅ Networking route_func: forward [20]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ selinux-policy: serge-testsuite [21]
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#memory/function/kaslr
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/bridge/sanity_check
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+>
+> thanks,
+>
+> greg k-h
