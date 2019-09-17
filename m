@@ -2,61 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE796B582A
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 00:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98473B5853
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 01:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbfIQWnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 18:43:00 -0400
-Received: from minerva.fahce.unlp.edu.ar ([163.10.30.2]:35463 "EHLO
-        mail.fahce.unlp.edu.ar" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726649AbfIQWnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 18:43:00 -0400
-X-Greylist: delayed 624 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Sep 2019 18:42:58 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id A525442214;
-        Tue, 17 Sep 2019 19:29:24 -0300 (-03)
-Received: from mail.fahce.unlp.edu.ar ([127.0.0.1])
-        by localhost (mail.fahce.unlp.edu.ar [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Gae0X4AX2cnO; Tue, 17 Sep 2019 19:29:24 -0300 (-03)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id 68CE441CD5;
-        Tue, 17 Sep 2019 19:29:23 -0300 (-03)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.fahce.unlp.edu.ar 68CE441CD5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fahce.unlp.edu.ar;
-        s=E73B5B28-DB89-11E8-B546-F4937DA551BC; t=1568759363;
-        bh=VMP0RSwhsca5ygCfjHx68zuRWpSW8i/8ShL5g18iFTc=;
-        h=Date:From:Message-ID:MIME-Version;
-        b=ttDQTDvW200v1nnvU3qQIfJ0jGR9NKzYz5gOmLubWMde/IsVsOEAljvympWXQqQ5y
-         uDOr3XFTDM2F70bG/efO5je5FVuj4vOwgwZX+3rD19lgrDFEpnpo2MxWDl0FgYTrcG
-         +xa5DK5DGJF04VnSIZ/ZpMmyWrJ0pFIdyM6NXD6ecLlXp4rq0b9aLxTfq8MtuHvBjr
-         k4TogM4KYGPAanaHR25kcKArP4yqdDaWo/WFzfMWh4DQMp1z2aQdetNst63S5ECC1A
-         BXcp/u6id03orGk9UTf7yt6sAnwm4Zyw1bEffGx9qGr2hlGA5wIttuphyLbTvG+7Q7
-         Suw2JN9gCQz5g==
-X-Virus-Scanned: amavisd-new at mail.fahce.unlp.edu.ar
-Received: from mail.fahce.unlp.edu.ar ([127.0.0.1])
-        by localhost (mail.fahce.unlp.edu.ar [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id pmy-LEx8gWPV; Tue, 17 Sep 2019 19:29:23 -0300 (-03)
-Received: from mailbox01.fahce.unlp.edu.ar (mailbox01.fahce.unlp.edu.ar [163.10.30.17])
-        by mail.fahce.unlp.edu.ar (Postfix) with ESMTP id 324B1420EC;
-        Tue, 17 Sep 2019 19:29:20 -0300 (-03)
-Date:   Tue, 17 Sep 2019 19:29:19 -0300 (ART)
-From:   Mr Mikhail Fridman <gdarrigran@fahce.unlp.edu.ar>
-Reply-To: "mikhail_fridman111@126.com" <mikhail_fridman111@126.com>
-Message-ID: <1027104687.625791.1568759359927.JavaMail.zimbra@fahce.unlp.edu.ar>
-Subject: Charity Gift
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [163.10.30.19]
-X-Mailer: Zimbra 8.7.11_GA_3800 (zclient/8.7.11_GA_3800)
-Thread-Index: YOM+ekPzbaKkAA2LLr1NCX5+GcSIzw==
-Thread-Topic: Charity Gift
-To:     unlisted-recipients:; (no To-header on input)
+        id S1728254AbfIQXAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 19:00:46 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39460 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726201AbfIQXAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 19:00:46 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8HMn8Me147007
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 19:00:45 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2v37u59sck-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 19:00:44 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Wed, 18 Sep 2019 00:00:43 +0100
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Wed, 18 Sep 2019 00:00:39 +0100
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8HN0cEf44368082
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 Sep 2019 23:00:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8F1452052;
+        Tue, 17 Sep 2019 23:00:38 +0000 (GMT)
+Received: from localhost.ibm.com (unknown [9.85.163.39])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 27ECC5204E;
+        Tue, 17 Sep 2019 23:00:38 +0000 (GMT)
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Patrick Callaghan <patrickc@us.ibm.com>
+Cc:     maroon <maroon@lists.linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] tpm: Wrap the buffer from the caller to tpm_buf in tpm_send()
+Date:   Tue, 17 Sep 2019 19:00:35 -0400
+X-Mailer: git-send-email 2.7.5
+X-TM-AS-GCONF: 00
+x-cbid: 19091723-0020-0000-0000-0000036E4D62
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19091723-0021-0000-0000-000021C3F389
+Message-Id: <1568761235-17516-1-git-send-email-zohar@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-17_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1909170212
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
+tpm_send() does not give anymore the result back to the caller. This
+would require another memcpy(), which kind of tells that the whole
+approach is somewhat broken. Instead, as Mimi suggested, this commit
+just wraps the data to the tpm_buf, and thus the result will not go to
+the garbage.
 
-I, Mikhail Fridman have selected you specifically as one of my beneficiaries for my Charitable Donation of $5 Million Dollars, Check the link below for confirmation:https://www.rt.com/business/343781-mikhail-fridman-will-charity/I await your earliest response.Best Regards,
+Obviously this assumes from the caller that it passes large enough
+buffer, which makes the whole API somewhat broken because it could be
+different size than @buflen but since trusted keys is the only module
+using this API right now I think that this fix is sufficient for the
+moment.
+
+In the near future the plan is to replace the parameters with a tpm_buf
+created by the caller.
+
+Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: 412eb585587a ("use tpm_buf in tpm_transmit_cmd() as the IO parameter")
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+---
+ drivers/char/tpm/tpm-interface.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index 208e5ba40e6e..e268f7422427 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -354,14 +354,9 @@ int tpm_send(struct tpm_chip *chip, void *cmd, size_t buflen)
+ 	if (!chip)
+ 		return -ENODEV;
+ 
+-	rc = tpm_buf_init(&buf, 0, 0);
+-	if (rc)
+-		goto out;
+-
+-	memcpy(buf.data, cmd, buflen);
++	buf.data = cmd;
+ 	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to a send a command");
+-	tpm_buf_destroy(&buf);
+-out:
++
+ 	tpm_put_ops(chip);
+ 	return rc;
+ }
+-- 
+2.7.5
+
