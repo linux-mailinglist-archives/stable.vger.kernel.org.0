@@ -2,108 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AFBB5067
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 16:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4887B50E0
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 16:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728132AbfIQOcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 10:32:23 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.165]:36124 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727258AbfIQOcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 10:32:23 -0400
-X-Greylist: delayed 349 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Sep 2019 10:32:22 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1568730741;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=8Hka5X/r+hzmoKvFtI6p5MPdNGRJa/0fGujvCNAxwys=;
-        b=ig33aYS1MWLoQZvoVOCX0BYRSFX02obBTAQx0+kamBv8YdlIBr34yyfqe5Z/q7A5rr
-        Z55qIt14/mlmmGqd5ZPCHyo5Ptesxm8RRueazSAQJ1hts3pYUQc+p53CeOUmDhz2E0ss
-        5mYKY3IUuubJFKZbqmSBjPKHSzX8Lp3pvNnPi4/IJQtAkeqlzJySqPYGhdZQuUU3qah1
-        W98qKLoXI2NeZ5nkdFytER7ih8HXwatmQm436fBlvR75nUHsuLcSO13GA/x8DTfl8SlJ
-        w4sUViQpuCQOZ7NyNxS9N9jne9ZJWEn+utB6qL3dP0T2nkpNFm8hQlk2huT7P6Cb0B7S
-        z84A==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBp5hRw/qOxWRk4dCyjDPUnsm74p9Jk5n8FSUKszBBBGbD3SfhNo/8="
-X-RZG-CLASS-ID: mo00
-Received: from [IPv6:2001:16b8:266f:d200:a80b:f72:f57a:c422]
-        by smtp.strato.de (RZmta 44.27.0 AUTH)
-        with ESMTPSA id u036f9v8HEQGXMX
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
-        (Client did not present a certificate);
-        Tue, 17 Sep 2019 16:26:16 +0200 (CEST)
-Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com>
-Date:   Tue, 17 Sep 2019 16:26:15 +0200
-Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>,
-        Rob Herring <robh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com>
-References: <cover.1562597164.git.hns@goldelico.com> <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com> <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com> <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com> <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com> <20190831084852.5e726cfa@aktux> <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com> <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-X-Mailer: Apple Mail (2.3124)
+        id S1727315AbfIQO7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 10:59:04 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:42479 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728874AbfIQO7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 10:59:04 -0400
+Received: by mail-io1-f68.google.com with SMTP id n197so8286738iod.9
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 07:59:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4N/btWkhdRtAkLwnNEi3JvgTHWUB7am8sFUWn4QTMHo=;
+        b=Vl+iO5Psm3owdP69GO+WOZQtnoLDGAdiMyy8AlEs6zj4KE57ayqKDns6d5FrJn5ROq
+         IGhwt1lh/vRUdyTt+CFCXnyKqmikSQqVhZXIEOj2KHwNr6k0Xuwx51HzaNHP8+vLH9rn
+         QxW4R+EVLL/5PivNA1qKPwAUzPWQ2jRsKoE9rxXNAtD8q3PcuUO9CR38EFV/4XMqqSnF
+         W7PTBHS/61nGVwhiw6EBQvCwO9ZxJq7pnVSmcp/9howaygFWPLKfe/DeMe9slMlkiwXm
+         f4jbaxLXZjDlgut4uJnT0u08GS7ZjP/PxosvoKtce/aPB6MMWEEQ8LBRv5MQpTwzzR6s
+         w6yQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4N/btWkhdRtAkLwnNEi3JvgTHWUB7am8sFUWn4QTMHo=;
+        b=dLHYP0FQSvU4NwIk0Vgp++qNorYqEb/82CI1hIM3ehJTLGbXD+o2EL99dtRhI63S0P
+         ktuGPeDKxL9RX445aaNJ55INyzBiGe16PhRYmBq9cE8x5hsTrVt9D700Vl+SsQ2YtTjG
+         Z+FgE256qy4RxqwOAYs0qctie0uEmV/skxfVa0iWwF41grI0Ga3EGvRgIi4kOJLy64Am
+         pKio9Z24d/q8U7nO+1DFMfPz9ipWHbRk9lFxOswM5xnH6pMroFezmO2mWEJCtAQPGHHA
+         EfYHOfYJKD1TLnABym+7odhtBjwbqB+9TI7kOf+yECZnOhP6T+CEridMHhD/Udf/Ou+L
+         qYtg==
+X-Gm-Message-State: APjAAAXKvn8RdjMe1SwQsQPj70NFpN4cr2xFiJxYTIy4Oh0wGpv2D9Od
+        VS464t/coGiJ+IeRL4pV36UOJZlPLOHBijXgiynIJg==
+X-Google-Smtp-Source: APXvYqz9DvHQNg9JiUWZur8kh4NHVWmxIc5OJSKjAK0NEC6eFvWeXKcUfTuQH1pek1NBrEZiHfP0dJlLdiC+XjpI0K0=
+X-Received: by 2002:a05:6602:115:: with SMTP id s21mr3306650iot.122.1568732342359;
+ Tue, 17 Sep 2019 07:59:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <1568708186-20260-1-git-send-email-wanpengli@tencent.com>
+In-Reply-To: <1568708186-20260-1-git-send-email-wanpengli@tencent.com>
+From:   Jim Mattson <jmattson@google.com>
+Date:   Tue, 17 Sep 2019 07:58:51 -0700
+Message-ID: <CALMp9eSNTvHsSn55iNfF1tUAdAihz_2d5-Hac1H6TnvHyos-SQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] KVM: Fix coalesced mmio ring buffer out-of-bounds access
+To:     Wanpeng Li <kernellwp@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        kvm list <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org,
+        Matt Delco <delco@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lunus,
+On Tue, Sep 17, 2019 at 1:16 AM Wanpeng Li <kernellwp@gmail.com> wrote:
+>
+> From: Wanpeng Li <wanpengli@tencent.com>
+>
+> Reported by syzkaller:
+>
+>         #PF: supervisor write access in kernel mode
+>         #PF: error_code(0x0002) - not-present page
+>         PGD 403c01067 P4D 403c01067 PUD 0
+>         Oops: 0002 [#1] SMP PTI
+>         CPU: 1 PID: 12564 Comm: a.out Tainted: G           OE     5.3.0-rc4+ #4
+>         RIP: 0010:coalesced_mmio_write+0xcc/0x130 [kvm]
+>         Call Trace:
+>          __kvm_io_bus_write+0x91/0xe0 [kvm]
+>          kvm_io_bus_write+0x79/0xf0 [kvm]
+>          write_mmio+0xae/0x170 [kvm]
+>          emulator_read_write_onepage+0x252/0x430 [kvm]
+>          emulator_read_write+0xcd/0x180 [kvm]
+>          emulator_write_emulated+0x15/0x20 [kvm]
+>          segmented_write+0x59/0x80 [kvm]
+>          writeback+0x113/0x250 [kvm]
+>          x86_emulate_insn+0x78c/0xd80 [kvm]
+>          x86_emulate_instruction+0x386/0x7c0 [kvm]
+>          kvm_mmu_page_fault+0xf9/0x9e0 [kvm]
+>          handle_ept_violation+0x10a/0x220 [kvm_intel]
+>          vmx_handle_exit+0xbe/0x6b0 [kvm_intel]
+>          vcpu_enter_guest+0x4dc/0x18d0 [kvm]
+>          kvm_arch_vcpu_ioctl_run+0x407/0x660 [kvm]
+>          kvm_vcpu_ioctl+0x3ad/0x690 [kvm]
+>          do_vfs_ioctl+0xa2/0x690
+>          ksys_ioctl+0x6d/0x80
+>          __x64_sys_ioctl+0x1a/0x20
+>          do_syscall_64+0x74/0x720
+>          entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>         RIP: 0010:coalesced_mmio_write+0xcc/0x130 [kvm]
+>
+> Both the coalesced_mmio ring buffer indexs ring->first and ring->last are
+> bigger than KVM_COALESCED_MMIO_MAX from the testcase, array out-of-bounds
+> access triggers by ring->coalesced_mmio[ring->last].phys_addr = addr;
+> assignment. This patch fixes it by mod indexs by KVM_COALESCED_MMIO_MAX.
+>
+> syzkaller source: https://syzkaller.appspot.com/x/repro.c?x=134b2826a00000
+>
+> Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> ---
+>  virt/kvm/coalesced_mmio.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/virt/kvm/coalesced_mmio.c b/virt/kvm/coalesced_mmio.c
+> index 5294abb..cff1ec9 100644
+> --- a/virt/kvm/coalesced_mmio.c
+> +++ b/virt/kvm/coalesced_mmio.c
+> @@ -73,6 +73,8 @@ static int coalesced_mmio_write(struct kvm_vcpu *vcpu,
+>
+>         spin_lock(&dev->kvm->ring_lock);
+>
+> +       ring->first = ring->first % KVM_COALESCED_MMIO_MAX;
+> +       ring->last = ring->last % KVM_COALESCED_MMIO_MAX;
 
-> Am 17.09.2019 um 00:52 schrieb Linus Walleij =
-<linus.walleij@linaro.org>:
->=20
-> On Mon, Sep 16, 2019 at 12:59 PM H. Nikolaus Schaller =
-<hns@goldelico.com> wrote:
->=20
->> ping.
->>=20
->> Device omap3-gta04 is neither working with v5.3 nor linux-next quite =
-a while and we need a solution.
->=20
-> Can't we just apply the last part of the patch in this thread:
->=20
-> diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi
-> b/arch/arm/boot/dts/omap3-gta04.dtsi
-> index 9a9a29fe88ec..47bab8e1040e 100644
-> --- a/arch/arm/boot/dts/omap3-gta04.dtsi
-> +++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-> @@ -124,6 +124,7 @@
->                        spi-max-frequency =3D <100000>;
->                        spi-cpol;
->                        spi-cpha;
-> +                       spi-cs-high;
->=20
->                        backlight=3D <&backlight>;
->                        label =3D "lcd";
->=20
->=20
-> Surely this fixes the problem?
+I don't think this is sufficient, since the memory that ring points to
+is shared with userspace. Userspace can overwrite your corrected
+values with illegal ones before they are used. Not exactly a TOCTTOU
+issue, since there isn't technically a 'check' here, but the same
+idea.
 
-yes, it is a workaround, but appears to violate some policies.
-E.g. the spi-cs-high; is undocumented but DT bindings maintainer
-seems to be against documenting it as I had proposed in my
-other patch.
-
-Rather he seems to have proposed a white-list in the driver code.
-So that the legacy mode is only becoming active for those systems
-which really need the legacy mode instead of everyone.
-
-Then, we do not need this patch for GTA04.
-
-So its up to you to decide which way to go. We are happy with
-any one that makes mainline work again asap...
-
-BR and thanks,
-Nikolaus
-
+>         if (!coalesced_mmio_has_room(dev)) {
+>                 spin_unlock(&dev->kvm->ring_lock);
+>                 return -EOPNOTSUPP;
+> --
+> 2.7.4
+>
