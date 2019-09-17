@@ -2,143 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3ACB54D8
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 20:03:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACED2B54EA
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 20:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726118AbfIQSD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 14:03:29 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:46795 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbfIQSD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 14:03:29 -0400
-Received: by mail-pf1-f195.google.com with SMTP id q5so2586076pfg.13
-        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 11:03:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=lck7mJNvhKtQlB0h0ewSM2EoFMfluPJ28+Anr3sILgs=;
-        b=AXPOOXRiahRLh0n4wb+BMFwCNIu8a2q6yIEkwRKSlxWTJ/ipdJaGLAC/O9dbqLboLx
-         rLeZrq4pbed/54OcZ2PU1K5Zo5H7RPgdt68jhVA7kjmfrP4A2662Uo7pGmXDsiERjegL
-         a2EMqj0bmM5/Fa6ltItqE6VuijD4RoiXuyU1YNGwfhnCiVIlh82W/r//vZhXkhM5/bAN
-         fKNnRcGimNdt6omp6PS8Pv8lXDHz0wGwwDB3qqhka5mYnFDrApxBZFsIiH+lp0XCOqPH
-         t0bFUuX2SZpgdZfzeTw2fLhO8TmeP/hA/A9YL7a3I9FtDuZjYaEwWuzTui2rustwdaMB
-         WZLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=lck7mJNvhKtQlB0h0ewSM2EoFMfluPJ28+Anr3sILgs=;
-        b=Laif1Kw3otAZl2I8UksRP5lyqYxRDAxackazrLSbwhrLbc3hmT7QevKc3kPDCW29wh
-         IAFScTiQMDCaNSK4BDZVyDEupcEwXQtu0spQEU7uiwYjKbrHlcpn/FW2Q+ZStyLSwgFa
-         jvowLqnHidkVKrLxlI6SP937CDyE2XYEeXdHWj6/lwB9BcxByXtxtTFE4Fhiq9TAGH1I
-         BrJuxAuKvH/sxxN+TKj+vCn460DEz3kO95OruS4SPg2I/HN4HKGG44x6GnWovYSYImlU
-         XJCqbeQFqwJ8myCiQlkhCMmFIYj0IFediOlwfhevzpj3DNkuURSIiNYqCRdn7Jvbnrpz
-         /07g==
-X-Gm-Message-State: APjAAAUtdmWluPjwn3EgIb53wtqunpulUxDPjRlzs8yKs0J2sPNuGmZn
-        nAm87jH9gCqpvg/wEXRB9xQ=
-X-Google-Smtp-Source: APXvYqxRpV95thKlVBJdPEV34NQ17fE+SwXG9FMXOQQVSEzi3Cb6JKc8N7ErQlLnLae0y6mriszPWw==
-X-Received: by 2002:a65:5188:: with SMTP id h8mr106707pgq.294.1568743408670;
-        Tue, 17 Sep 2019 11:03:28 -0700 (PDT)
-Received: from localhost.localdomain (M106072039032.v4.enabler.ne.jp. [106.72.39.32])
-        by smtp.gmail.com with ESMTPSA id o9sm2505263pgv.19.2019.09.17.11.03.25
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Sep 2019 11:03:28 -0700 (PDT)
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        Felix Fietkau <nbd@nbd.name>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Subject: [PATCH for 4.4.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
-Date:   Wed, 18 Sep 2019 02:54:52 +0900
-Message-Id: <20190917175452.20891-1-ikegami.t@gmail.com>
-X-Mailer: git-send-email 2.11.0
+        id S1727635AbfIQSKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 14:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727454AbfIQSKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Sep 2019 14:10:21 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84A6B21670;
+        Tue, 17 Sep 2019 18:10:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568743821;
+        bh=rSJwj07pvZ3EVYLZRzfUdwVEHgaLbLQKvUUQHP2GWEc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=f2Fe3Jo9Wi/k4Cifc/Q4c6QJhJRc+lNRKdB7lCOCaggiYxGWHOsaj/LCE9X96abvW
+         /HRidO/zLNpeJ0Xw3UAY8ZA2p8BS5JhTz0HO2mZgzmMnPOaH2pDXZ12oF3SOxE3rL8
+         MIXX50l/7VG3oDQ/u0q0g6blHHbJMOxDZNEHfiNE=
+Date:   Tue, 17 Sep 2019 20:10:18 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jean Delvare <jdelvare@suse.de>
+Cc:     stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [BACKPORT] nvmem: Use the same permissions for eeprom as for
+ nvmem
+Message-ID: <20190917181018.GC1570310@kroah.com>
+References: <20190917163001.5c775b61@endymion>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190917163001.5c775b61@endymion>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As reported by the OpenWRT team, write requests sometimes fail on some
-platforms.
-Currently to check the state chip_ready() is used correctly as described by
-the flash memory S29GL256P11TFI01 datasheet.
-Also chip_good() is used to check if the write is succeeded and it was
-implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
-checking").
-But actually the write failure is caused on some platforms and also it can
-be fixed by using chip_good() to check the state and retry instead.
-Also it seems that it is caused after repeated about 1,000 times to retry
-the write one word with the reset command.
-By using chip_good() to check the state to be done it can be reduced the
-retry with reset.
-It is depended on the actual flash chip behavior so the root cause is
-unknown.
+On Tue, Sep 17, 2019 at 04:30:01PM +0200, Jean Delvare wrote:
+> [ Upstream commit e70d8b287301eb6d7c7761c6171c56af62110ea3 ]
+> 
+> The compatibility "eeprom" attribute is currently root-only no
+> matter what the configuration says. The "nvmem" attribute does
+> respect the setting of the root_only configuration bit, so do the
+> same for "eeprom".
+> 
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Fixes: b6c217ab9be6 ("nvmem: Add backwards compatibility support for older EEPROM drivers.")
+> Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Link: https://lore.kernel.org/r/20190728184255.563332e6@endymion
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+> This is the backport of commit e70d8b287301 "nvmem: Use the same
+> permissions for eeprom as for nvmem" for stable kernel branches 4.19,
+> 4.14 and 4.9. Thanks.
 
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: stable@vger.kernel.org
-Reported-by: Fabio Bettoni <fbettoni@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-[vigneshr@ti.com: Fix a checkpatch warning]
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
----
- drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
- mode change 100644 => 100755 drivers/mtd/chips/cfi_cmdset_0002.c
+Now queued up, thanks.
 
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-old mode 100644
-new mode 100755
-index fb5a3052f144..7589d891b311
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1626,29 +1626,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
- 			continue;
- 		}
- 
--		if (time_after(jiffies, timeo) && !chip_ready(map, adr)){
-+		/*
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
-+		 */
-+		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-+			ret = -EIO;
- 			break;
- 		}
- 
--		if (chip_ready(map, adr))
-+		if (chip_good(map, adr, datum))
- 			break;
- 
- 		/* Latency issues. Drop the lock, wait a while and retry */
- 		UDELAY(map, chip, adr, 1);
- 	}
-+
- 	/* Did we succeed? */
--	if (!chip_good(map, adr, datum)) {
-+	if (ret) {
- 		/* reset on all failures. */
- 		map_write( map, CMD(0xF0), chip->start );
- 		/* FIXME - should have reset delay before continuing */
- 
--		if (++retry_cnt <= MAX_RETRIES)
-+		if (++retry_cnt <= MAX_RETRIES) {
-+			ret = 0;
- 			goto retry;
--
--		ret = -EIO;
-+		}
- 	}
- 	xip_enable(map, chip, adr);
-  op_done:
--- 
-2.11.0
-
+greg k-h
