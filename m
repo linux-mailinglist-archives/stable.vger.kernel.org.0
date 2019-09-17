@@ -2,136 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4057B4935
-	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 10:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D295B49B8
+	for <lists+stable@lfdr.de>; Tue, 17 Sep 2019 10:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfIQIXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Sep 2019 04:23:01 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:40789 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728123AbfIQIXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 04:23:01 -0400
-Received: by mail-ot1-f66.google.com with SMTP id y39so2264856ota.7;
-        Tue, 17 Sep 2019 01:23:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pAhRX1Y8hlT53IJmsS9eKDWXvMfY7PiqTbL9YMzPsQY=;
-        b=DDWYxX6hEtoMmfBPsku/8mPtsbFfVqOuH6B5K6Rf5504uIFWUvA4nKyX7p9UOK5QL9
-         x00eSKjYfX43V6lfKBKhbU6aD4TiaoRI8Bf195GYRbRSYcqm1AAyTMa5Wc/qzWj/GevV
-         D28/qLQapOc2Bs9o/O7CMpq5wkgSVuklj54vaUnWaer7QFf+EAIxYyhJYizmV1dTIsRx
-         FI8pmaCUWrzXu5/4stOiThInpHgBqPjL3Tc64msxMkJ6PjLhP75UZJHMxivCJJpLJUNL
-         CbPZId75PgVF6hRNBAr3XiwFyiu6p++OiFjWFIXl2hri56vGBMQVfz4ALicIdbSvkvOB
-         rn9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pAhRX1Y8hlT53IJmsS9eKDWXvMfY7PiqTbL9YMzPsQY=;
-        b=U6mkni8gqVFHfKlIoZWtMJ1iHwJEXH1jXrn4noJCUyAJ/ofoVXn9sdoxr7716udtpy
-         0WK7daAhF/cCxH4oZReKIUAR+tIhfUELTCdwXdUcRh4Jm+lFM+EeH8r2nK6qIh+awyl8
-         r9hQx3gqG3aswc2oKfW+R4ejhUUW6VafVhfwA+nc8p48ZhmK5LO9+LxabcnqcgTUDjYz
-         SLdc4Ls3Khiazclsb8keRJQIpMygF78gYEI9nyQpg8bO7TYZCJsLIMFLzydnIIe64nkD
-         2QKHq6Eh7UO1f+UOI2l7tZt+fBa/KXJ7F+bFjjY+sQisqoo5agSL8UH56dkS/tmNE21w
-         Wi+Q==
-X-Gm-Message-State: APjAAAXxEZG2oFiMt9umDZsIFYrR0n34kB6e759gYRE9P0EZCd/zaSbe
-        IdqESy/w/m/vJqKW0znmcOOROgXCy6RQ03vmhVY=
-X-Google-Smtp-Source: APXvYqzVVj6XLIRKAQFw0YAZbGXg8avRlJ7jD1nt0GvxOdj6vD309EupfSe3MyuCDlpLhg5U72LmlbjcnSDQAz+lgp4=
-X-Received: by 2002:a9d:aa8:: with SMTP id 37mr1771178otq.56.1568708580413;
- Tue, 17 Sep 2019 01:23:00 -0700 (PDT)
+        id S1726244AbfIQInw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Sep 2019 04:43:52 -0400
+Received: from 8.mo5.mail-out.ovh.net ([178.32.116.78]:58061 "EHLO
+        8.mo5.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728762AbfIQInv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Sep 2019 04:43:51 -0400
+X-Greylist: delayed 6611 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Sep 2019 04:43:50 EDT
+Received: from player735.ha.ovh.net (unknown [10.109.159.132])
+        by mo5.mail-out.ovh.net (Postfix) with ESMTP id 6AD8224C4B9
+        for <stable@vger.kernel.org>; Tue, 17 Sep 2019 08:13:57 +0200 (CEST)
+Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
+        (Authenticated sender: groug@kaod.org)
+        by player735.ha.ovh.net (Postfix) with ESMTPSA id CB4239E45C6B;
+        Tue, 17 Sep 2019 06:13:51 +0000 (UTC)
+Date:   Tue, 17 Sep 2019 08:13:50 +0200
+From:   Greg Kurz <groug@kaod.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>,
+        Paul Mackerras <paulus@ozlabs.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] powerpc/xive: Fix bogus error code returned by OPAL
+Message-ID: <20190917081350.26097928@bahia.lan>
+In-Reply-To: <20190917050628.GB2056553@kroah.com>
+References: <156821713818.1985334.14123187368108582810.stgit@bahia.lan>
+        <20190912073049.CF36B20830@mail.kernel.org>
+        <20190913131221.3ea88b5a@bahia.lan>
+        <87sgovsgvs.fsf@mpe.ellerman.id.au>
+        <20190917050628.GB2056553@kroah.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <1568617969-6934-1-git-send-email-wanpengli@tencent.com> <20190916191218.GM18871@linux.intel.com>
-In-Reply-To: <20190916191218.GM18871@linux.intel.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Tue, 17 Sep 2019 16:22:48 +0800
-Message-ID: <CANRm+CwhFAU6PaVYF=uBhHfQpQT0N7iJ+QvKyojOHzcsVjsfzQ@mail.gmail.com>
-Subject: Re: [PATCH] KVM: X86: Fix warning in handle_desc
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 8765412250449975783
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrudeggddutdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddm
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 17 Sep 2019 at 03:12, Sean Christopherson
-<sean.j.christopherson@intel.com> wrote:
->
-> On Mon, Sep 16, 2019 at 03:12:49PM +0800, Wanpeng Li wrote:
-> > From: Wanpeng Li <wanpengli@tencent.com>
-> >
-> > Reported by syzkaller:
-> >
-> >       WARNING: CPU: 0 PID: 6544 at /home/kernel/data/kvm/arch/x86/kvm//vmx/vmx.c:4689 handle_desc+0x37/0x40 [kvm_intel]
-> >       CPU: 0 PID: 6544 Comm: a.out Tainted: G           OE     5.3.0-rc4+ #4
-> >       RIP: 0010:handle_desc+0x37/0x40 [kvm_intel]
-> >       Call Trace:
-> >        vmx_handle_exit+0xbe/0x6b0 [kvm_intel]
-> >        vcpu_enter_guest+0x4dc/0x18d0 [kvm]
-> >        kvm_arch_vcpu_ioctl_run+0x407/0x660 [kvm]
-> >        kvm_vcpu_ioctl+0x3ad/0x690 [kvm]
-> >        do_vfs_ioctl+0xa2/0x690
-> >        ksys_ioctl+0x6d/0x80
-> >        __x64_sys_ioctl+0x1a/0x20
-> >        do_syscall_64+0x74/0x720
-> >        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> >
-> > When CR4.UMIP is set, guest should have UMIP cpuid flag. Current
-> > kvm set_sregs function doesn't have such check when userspace inputs
-> > sregs values. SECONDARY_EXEC_DESC is enabled on writes to CR4.UMIP in
-> > vmx_set_cr4 though guest doesn't have UMIP cpuid flag. The testcast
-> > triggers handle_desc warning when executing ltr instruction since guest
-> > architectural CR4 doesn't set UMIP. This patch fixes it by adding check
-> > for guest UMIP cpuid flag when get sreg inputs from userspace.
-> >
-> > Reported-by: syzbot+0f1819555fbdce992df9@syzkaller.appspotmail.com
-> > Fixes: 0367f205a3b7 ("KVM: vmx: add support for emulating UMIP")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> > ---
-> > Note: syzbot report link https://lkml.org/lkml/2019/9/11/799
-> >
-> >  arch/x86/kvm/x86.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> >
-> > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> > index f7cfd8e..83288ba 100644
-> > --- a/arch/x86/kvm/x86.c
-> > +++ b/arch/x86/kvm/x86.c
-> > @@ -8645,6 +8645,10 @@ static int kvm_valid_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
-> >                       (sregs->cr4 & X86_CR4_OSXSAVE))
-> >               return  -EINVAL;
-> >
-> > +     if (!guest_cpuid_has(vcpu, X86_FEATURE_UMIP) &&
-> > +                     (sregs->cr4 & X86_CR4_UMIP))
->
-> Assuming vmx_set_cr4() fails because nested_cr4_valid() fails, isn't this
-> a generic problem with nested VMX that just happens to be visible because
-> of the WARN_ON() in handle_desc()?
->
-> In general, KVM lets userspace set broken combinations of CPUID vs. CRx so
-> that it doesn't dictate ordering, e.g. __set_sregs() intentionally calls
-> kvm_x86_ops->set_cr4() instead of kvm_set_cr4(), which has all the CPUID
-> checks.
->
-> The existing OSXSAVE check in kvm_valid_sregs() is more about ensuring
-> host support (see commit 6d1068b3a985, "KVM: x86: invalid opcode oops on
-> SET_SREGS with OSXSAVE bit set (CVE-2012-4461)").
->
-> Given that both vmx_set_cr4() and svm_set_cr4() can return failure and
-> cause __set_sregs() to silently fail, what about adding a new x86 ops to
-> pre-check cr4, e.g. vm_x86_ops->is_valid_cr4(), and then WARN if set_cr4()
-> fails during __set_sregs()?
+On Tue, 17 Sep 2019 07:06:28 +0200
+Greg KH <greg@kroah.com> wrote:
 
-I'm a little lazy, just extract CPUID and CR4 combination checking and
-add it to __set_sregs() in new version.
+> On Tue, Sep 17, 2019 at 02:09:43PM +1000, Michael Ellerman wrote:
+> > Greg Kurz <groug@kaod.org> writes:
+> > > On Thu, 12 Sep 2019 07:30:49 +0000
+> > > Sasha Levin <sashal@kernel.org> wrote:
+> > >
+> > >> Hi,
+> > >> 
+> > >> [This is an automated email]
+> > >> 
+> > >> This commit has been processed because it contains a -stable tag.
+> > >> The stable tag indicates that it's relevant for the following trees: 4.12+
+> > >> 
+> > >> The bot has tested the following trees: v5.2.14, v4.19.72, v4.14.143.
+> > >> 
+> > >> v5.2.14: Build OK!
+> > >> v4.19.72: Failed to apply! Possible dependencies:
+> > >>     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
+> > >
+> > > This is the only dependency indeed.
+> > 
+> > But it's a large and intrusive change, so we don't want to backport it
+> > just for this.
+> > 
+> > >> v4.14.143: Failed to apply! Possible dependencies:
+> > >>     104daea149c4 ("kconfig: reference environment variables directly and remove 'option env='")
+> > >>     21c54b774744 ("kconfig: show compiler version text in the top comment")
+> > >>     315bab4e972d ("kbuild: fix endless syncconfig in case arch Makefile sets CROSS_COMPILE")
+> > >>     3298b690b21c ("kbuild: Add a cache for generated variables")
+> > >>     4e56207130ed ("kbuild: Cache a few more calls to the compiler")
+> > >>     75d9fc7fd94e ("powerpc/powernv: move OPAL call wrapper tracing and interrupt handling to C")
+> > >>     8f2133cc0e1f ("powerpc/pseries: hcall_exit tracepoint retval should be signed")
+> > >>     9a234a2e3843 ("kbuild: create directory for make cache only when necessary")
+> > >>     d677a4d60193 ("Makefile: support flag -fsanitizer-coverage=trace-cmp")
+> > >>     e08d6de4e532 ("kbuild: remove kbuild cache")
+> > >>     e17c400ae194 ("kbuild: shrink .cache.mk when it exceeds 1000 lines")
+> > >>     e501ce957a78 ("x86: Force asm-goto")
+> > >>     e9666d10a567 ("jump_label: move 'asm goto' support test to Kconfig")
+> > >> 
+> > >
+> > > That's quite a lot of patches to workaround a hard to hit skiboot bug.
+> > > As an alternative, the patch can be backported so that it applies the
+> > > following change:
+> > >
+> > > -OPAL_CALL(opal_xive_allocate_irq,              OPAL_XIVE_ALLOCATE_IRQ);
+> > > +OPAL_CALL(opal_xive_allocate_irq_raw,          OPAL_XIVE_ALLOCATE_IRQ);
+> > >
+> > > to "arch/powerpc/platforms/powernv/opal-wrappers.S"
+> > > instead of "arch/powerpc/platforms/powernv/opal-call.c" .
+> > >
+> > > BTW, this could also be done for 4.19.y .
+> > >
+> > >> 
+> > >> NOTE: The patch will not be queued to stable trees until it is upstream.
+> > >> 
+> > >> How should we proceed with this patch?
+> > >> 
+> > >
+> > > Michael ?
+> > 
+> > We should do a manual backport for v4.14 and v4.19. Greg do you have
+> > cycles to do that?
+> 
+> Me?  No, sorry.  If you want this fix there, I need someone to send the
+> backport.
+> 
 
-    Wanpeng
+Heh I guess Michael was asking me :) I'll send the backport.
+
+Cheers,
+
+--
+Greg
+
+> thanks,
+> 
+> greg k-h
+
