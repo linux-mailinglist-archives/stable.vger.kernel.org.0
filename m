@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E94FDB5BFF
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7888CB5CB4
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728394AbfIRGVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
+        id S1730326AbfIRG0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729197AbfIRGVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:21:42 -0400
+        id S1730332AbfIRG0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:26:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AEBA21924;
-        Wed, 18 Sep 2019 06:21:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5246321929;
+        Wed, 18 Sep 2019 06:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787702;
-        bh=zqnBRzTtYB/0T/hE8i8xYasAQntEJx5++76H/peYRq4=;
+        s=default; t=1568787995;
+        bh=FdXQ5GCxGzSD3aWt3Raz/h1pzonloyJFe+fcXM42WoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9yXHdudXNl3nnvvniJvJoTefmLQxbZUuOIoKaart9bx8KWkI+eiHHcv7xxT5p8j4
-         PSRvTMvyWvsiNsutI8FFl/ipuCx4lGgRZLfEs1dqAvLaJiUZNexe99q0T3bN05qnZt
-         WcdAIKdRUpgU6AV5vaSsKMDg5WULasqrlQUIBDxQ=
+        b=pGlBMaMYlrWw5Z7lkcGXokMrJ25J8yFsvW/b4acZXwDdbR8vJaSsIME9lvFUrYX8u
+         zPdq44WraUhoNSxuDuZ8fJ85w70yifXLAyHXTJlCH3Tw5IWUvpyBGoO//VW3X/x6Mc
+         Po/DOw5rALKpnQghw11M9PiCyxcZXAETY/hGdzw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Andrew F. Davis" <afd@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Alejandro Hernandez <ajhernandez@ti.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Subject: [PATCH 4.14 40/45] firmware: ti_sci: Always request response from firmware
-Date:   Wed, 18 Sep 2019 08:19:18 +0200
-Message-Id: <20190918061227.712028794@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.2 61/85] ubifs: Correctly use tnc_next() in search_dh_cookie()
+Date:   Wed, 18 Sep 2019 08:19:19 +0200
+Message-Id: <20190918061236.997345935@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew F. Davis <afd@ti.com>
+From: Richard Weinberger <richard@nod.at>
 
-commit 66f030eac257a572fbedab3d9646d87d647351fd upstream.
+commit bacfa94b08027b9f66ede7044972e3b066766b3e upstream.
 
-TI-SCI firmware will only respond to messages when the
-TI_SCI_FLAG_REQ_ACK_ON_PROCESSED flag is set. Most messages already do
-this, set this for the ones that do not.
+Commit c877154d307f fixed an uninitialized variable and optimized
+the function to not call tnc_next() in the first iteration of the
+loop. While this seemed perfectly legit and wise, it turned out to
+be illegal.
+If the lookup function does not find an exact match it will rewind
+the cursor by 1.
+The rewinded cursor will not match the name hash we are looking for
+and this results in a spurious -ENOENT.
+So we need to move to the next entry in case of an non-exact match,
+but not if the match was exact.
 
-This will be enforced in future firmware that better match the TI-SCI
-specifications, this patch will not break users of existing firmware.
+While we are here, update the documentation to avoid further confusion.
 
-Fixes: aa276781a64a ("firmware: Add basic support for TI System Control Interface (TI-SCI) protocol")
-Signed-off-by: Andrew F. Davis <afd@ti.com>
-Acked-by: Nishanth Menon <nm@ti.com>
-Tested-by: Alejandro Hernandez <ajhernandez@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Cc: Hyunchul Lee <hyc.lee@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: c877154d307f ("ubifs: Fix uninitialized variable in search_dh_cookie()")
+Fixes: 781f675e2d7e ("ubifs: Fix unlink code wrt. double hash lookups")
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/ti_sci.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ubifs/tnc.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/firmware/ti_sci.c
-+++ b/drivers/firmware/ti_sci.c
-@@ -471,9 +471,9 @@ static int ti_sci_cmd_get_revision(struc
- 	struct ti_sci_xfer *xfer;
- 	int ret;
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -1158,8 +1158,8 @@ static struct ubifs_znode *dirty_cow_bot
+  *   o exact match, i.e. the found zero-level znode contains key @key, then %1
+  *     is returned and slot number of the matched branch is stored in @n;
+  *   o not exact match, which means that zero-level znode does not contain
+- *     @key, then %0 is returned and slot number of the closest branch is stored
+- *     in @n;
++ *     @key, then %0 is returned and slot number of the closest branch or %-1
++ *     is stored in @n; In this case calling tnc_next() is mandatory.
+  *   o @key is so small that it is even less than the lowest key of the
+  *     leftmost zero-level node, then %0 is returned and %0 is stored in @n.
+  *
+@@ -1882,13 +1882,19 @@ int ubifs_tnc_lookup_nm(struct ubifs_inf
  
--	/* No need to setup flags since it is expected to respond */
- 	xfer = ti_sci_get_one_xfer(info, TI_SCI_MSG_VERSION,
--				   0x0, sizeof(struct ti_sci_msg_hdr),
-+				   TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
-+				   sizeof(struct ti_sci_msg_hdr),
- 				   sizeof(*rev_info));
- 	if (IS_ERR(xfer)) {
- 		ret = PTR_ERR(xfer);
-@@ -601,9 +601,9 @@ static int ti_sci_get_device_state(const
- 	info = handle_to_ti_sci_info(handle);
- 	dev = info->dev;
+ static int search_dh_cookie(struct ubifs_info *c, const union ubifs_key *key,
+ 			    struct ubifs_dent_node *dent, uint32_t cookie,
+-			    struct ubifs_znode **zn, int *n)
++			    struct ubifs_znode **zn, int *n, int exact)
+ {
+ 	int err;
+ 	struct ubifs_znode *znode = *zn;
+ 	struct ubifs_zbranch *zbr;
+ 	union ubifs_key *dkey;
  
--	/* Response is expected, so need of any flags */
- 	xfer = ti_sci_get_one_xfer(info, TI_SCI_MSG_GET_DEVICE_STATE,
--				   0, sizeof(*req), sizeof(*resp));
-+				   TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
-+				   sizeof(*req), sizeof(*resp));
- 	if (IS_ERR(xfer)) {
- 		ret = PTR_ERR(xfer);
- 		dev_err(dev, "Message alloc failed(%d)\n", ret);
++	if (!exact) {
++		err = tnc_next(c, &znode, n);
++		if (err)
++			return err;
++	}
++
+ 	for (;;) {
+ 		zbr = &znode->zbranch[*n];
+ 		dkey = &zbr->key;
+@@ -1930,7 +1936,7 @@ static int do_lookup_dh(struct ubifs_inf
+ 	if (unlikely(err < 0))
+ 		goto out_unlock;
+ 
+-	err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
++	err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
+ 
+ out_unlock:
+ 	mutex_unlock(&c->tnc_mutex);
+@@ -2723,7 +2729,7 @@ int ubifs_tnc_remove_dh(struct ubifs_inf
+ 		if (unlikely(err < 0))
+ 			goto out_free;
+ 
+-		err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
++		err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
+ 		if (err)
+ 			goto out_free;
+ 	}
 
 
