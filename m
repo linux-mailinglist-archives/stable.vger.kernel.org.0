@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 283D4B5BDD
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC8DB5C95
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbfIRGUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39152 "EHLO mail.kernel.org"
+        id S1730601AbfIRG1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:27:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728239AbfIRGUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:23 -0400
+        id S1729777AbfIRG1u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECE2121929;
-        Wed, 18 Sep 2019 06:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C6D721924;
+        Wed, 18 Sep 2019 06:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787622;
-        bh=KcAuGXcLMyibSCh9f3a5Nc0iP/gxhLJsrVubJb8eZT8=;
+        s=default; t=1568788069;
+        bh=CapMQcwz8Xsl+NfwobmOyBqf7rfL3JT1Ov3A4rA6++E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGqZXIDojcdGmytbaW0D+MtcD0sCcyX/8fNWd57wIumVv4TpLzW1ZGi3AoXc1K9a1
-         oktpHUN4RLp9nzf6NcQeAi2ldzA6XxaGnfNwr0rBiMDY5NKUPXFi8+SSQ0a1UZsJr5
-         0pbZfGEEjT+8ivq3Fcz5KqgAHpaEtoaW9pJIwR2c=
+        b=X5QvFyFBDWOhTxtIFcdPuiUI3Qd1TJ2fsg7jH49Ir3UqYBO19E364GYL+Oa5zoBhn
+         ueCyzehsRvM1sf2Yjbxg6fb3Fa2iaGBgKwNe0wCamtjVfMxuzG/+8hiX2nJNPzwFMm
+         NH40EfiX7c3iI6P8R+SHClLuhzaS6zkQTbyDEP0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.14 18/45] gpio: fix line flag validation in linehandle_create
+        stable@vger.kernel.org,
+        Gregg Leventhal <gleventhal@janestreet.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 5.2 38/85] ixgbe: Prevent u8 wrapping of ITR value to something less than 10us
 Date:   Wed, 18 Sep 2019 08:18:56 +0200
-Message-Id: <20190918061224.814891488@linuxfoundation.org>
+Message-Id: <20190918061235.347046644@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kent Gibson <warthog618@gmail.com>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-commit e95fbc130a162ba9ad956311b95aa0da269eea48 upstream.
+commit 377228accbbb8b9738f615d791aa803f41c067e0 upstream.
 
-linehandle_create should not allow both GPIOHANDLE_REQUEST_INPUT
-and GPIOHANDLE_REQUEST_OUTPUT to be set.
+There were a couple cases where the ITR value generated via the adaptive
+ITR scheme could exceed 126. This resulted in the value becoming either 0
+or something less than 10. Switching back and forth between a value less
+than 10 and a value greater than 10 can cause issues as certain hardware
+features such as RSC to not function well when the ITR value has dropped
+that low.
 
-Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kent Gibson <warthog618@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+CC: stable@vger.kernel.org
+Fixes: b4ded8327fea ("ixgbe: Update adaptive ITR algorithm")
+Reported-by: Gregg Leventhal <gleventhal@janestreet.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -444,12 +444,23 @@ static int linehandle_create(struct gpio
- 	struct linehandle_state *lh;
- 	struct file *file;
- 	int fd, i, count = 0, ret;
-+	u32 lflags;
- 
- 	if (copy_from_user(&handlereq, ip, sizeof(handlereq)))
- 		return -EFAULT;
- 	if ((handlereq.lines == 0) || (handlereq.lines > GPIOHANDLES_MAX))
- 		return -EINVAL;
- 
-+	lflags = handlereq.flags;
-+
-+	/*
-+	 * Do not allow both INPUT & OUTPUT flags to be set as they are
-+	 * contradictory.
-+	 */
-+	if ((lflags & GPIOHANDLE_REQUEST_INPUT) &&
-+	    (lflags & GPIOHANDLE_REQUEST_OUTPUT))
-+		return -EINVAL;
-+
- 	lh = kzalloc(sizeof(*lh), GFP_KERNEL);
- 	if (!lh)
- 		return -ENOMEM;
-@@ -470,7 +481,6 @@ static int linehandle_create(struct gpio
- 	/* Request each GPIO */
- 	for (i = 0; i < handlereq.lines; i++) {
- 		u32 offset = handlereq.lineoffsets[i];
--		u32 lflags = handlereq.flags;
- 		struct gpio_desc *desc;
- 
- 		if (offset >= gdev->ngpio) {
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -2622,7 +2622,7 @@ adjust_by_size:
+ 		/* 16K ints/sec to 9.2K ints/sec */
+ 		avg_wire_size *= 15;
+ 		avg_wire_size += 11452;
+-	} else if (avg_wire_size <= 1980) {
++	} else if (avg_wire_size < 1968) {
+ 		/* 9.2K ints/sec to 8K ints/sec */
+ 		avg_wire_size *= 5;
+ 		avg_wire_size += 22420;
+@@ -2655,6 +2655,8 @@ adjust_by_size:
+ 	case IXGBE_LINK_SPEED_2_5GB_FULL:
+ 	case IXGBE_LINK_SPEED_1GB_FULL:
+ 	case IXGBE_LINK_SPEED_10_FULL:
++		if (avg_wire_size > 8064)
++			avg_wire_size = 8064;
+ 		itr += DIV_ROUND_UP(avg_wire_size,
+ 				    IXGBE_ITR_ADAPTIVE_MIN_INC * 64) *
+ 		       IXGBE_ITR_ADAPTIVE_MIN_INC;
 
 
