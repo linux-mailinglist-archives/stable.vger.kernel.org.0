@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1C3B5C6C
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E55B5C3A
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729453AbfIRG0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        id S1727421AbfIRGYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728534AbfIRG0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:16 -0400
+        id S1727496AbfIRGYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:24:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A17920644;
-        Wed, 18 Sep 2019 06:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8C3C21925;
+        Wed, 18 Sep 2019 06:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787974;
-        bh=rwEA9Q0a06XgOshyqVw2qobUN8dbpfreOZ0k15eEyTY=;
+        s=default; t=1568787840;
+        bh=pNjQlHwmYnMq2l7APwROzUARrPp84X47aBsz4iOvu9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkgMlKEgBGr1frH1l5NJpA5TAvObNMr8gS2aBtDdeLjjyygdTv7dJf23opfQxOAfQ
-         Xqn/esteLShH1mrIDANIV4I3xwO91s2MriwV/WgkmMdq3xgj2Pj+Pi+JIj3LZ1rZmX
-         vDsoOq11Jk+o74FIgRES4z13dvlA5D3pYhiH7XHE=
+        b=0JrTKDHM2bkWUSNNOB8jnoROBjp5l9sH5OOvmP7CbbO7HewjWl2uJL23rwxu2voIE
+         e94sQZPTkrpjwhC0hQsXvzEZFRIrWME1MRFNrdYkqAB43yPsLHw9+JfhrnqXnCaLHP
+         fmCrUOaCQWSt6PCElCkczEmZNwcModkcWnif8yEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 5.2 54/85] clk: Fix debugfs clk_possible_parents for clks without parent string names
-Date:   Wed, 18 Sep 2019 08:19:12 +0200
-Message-Id: <20190918061235.821904087@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 30/50] PCI: Always allow probing with driver_override
+Date:   Wed, 18 Sep 2019 08:19:13 +0200
+Message-Id: <20190918061226.640775776@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-commit 2d156b78ce8febf15cd58a025d7d9d7b7577126a upstream.
+commit 2d2f4273cbe9058d1f5a518e5e880d27d7b3b30f upstream.
 
-Following the commit fc0c209c147f ("clk: Allow parents to be specified
-without string names"), the parent name string is not always populated.
+Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
+VF driver binding") introduced the sriov_drivers_autoprobe attribute
+which allows users to prevent the kernel from automatically probing a
+driver for new VFs as they are created.  This allows VFs to be spawned
+without automatically binding the new device to a host driver, such as
+in cases where the user intends to use the device only with a meta
+driver like vfio-pci.  However, the current implementation prevents any
+use of drivers_probe with the VF while sriov_drivers_autoprobe=0.  This
+blocks the now current general practice of setting driver_override
+followed by using drivers_probe to bind a device to a specified driver.
 
-Instead, fetch the parents clk_core struct using the appropriate helper,
-and read its name directly. If that fails, go through the possible
-sources of parent names. The order in which they are used is different
-from how parents are looked up, with the global name having precedence
-over local fw_name and indices. This makes more sense as a) the
-parent_maps structure does not differentiate between legacy global names
-and fallback global names, and b) global names likely provide more
-information than local fw_names.
+The kernel never automatically sets a driver_override therefore it seems
+we can assume a driver_override reflects the intent of the user.  Also,
+probing a device using a driver_override match seems outside the scope
+of the 'auto' part of sriov_drivers_autoprobe.  Therefore, let's allow
+driver_override matches regardless of sriov_drivers_autoprobe, which we
+can do by simply testing if a driver_override is set for a device as a
+'can probe' condition.
 
-Fixes: fc0c209c147f ("clk: Allow parents to be specified without string names")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
+Link: https://lore.kernel.org/lkml/155742996741.21878.569845487290798703.stgit@gimli.home
+Link: https://lore.kernel.org/linux-pci/155672991496.20698.4279330795743262888.stgit@gimli.home/T/#u
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/clk.c |   44 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 41 insertions(+), 3 deletions(-)
+ drivers/pci/pci-driver.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3023,12 +3023,50 @@ DEFINE_SHOW_ATTRIBUTE(clk_flags);
- static int possible_parents_show(struct seq_file *s, void *data)
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -399,7 +399,8 @@ void __weak pcibios_free_irq(struct pci_
+ #ifdef CONFIG_PCI_IOV
+ static inline bool pci_device_can_probe(struct pci_dev *pdev)
  {
- 	struct clk_core *core = s->private;
-+	struct clk_core *parent;
- 	int i;
- 
--	for (i = 0; i < core->num_parents - 1; i++)
--		seq_printf(s, "%s ", core->parents[i].name);
-+	/*
-+	 * Go through the following options to fetch a parent's name.
-+	 *
-+	 * 1. Fetch the registered parent clock and use its name
-+	 * 2. Use the global (fallback) name if specified
-+	 * 3. Use the local fw_name if provided
-+	 * 4. Fetch parent clock's clock-output-name if DT index was set
-+	 *
-+	 * This may still fail in some cases, such as when the parent is
-+	 * specified directly via a struct clk_hw pointer, but it isn't
-+	 * registered (yet).
-+	 */
-+	for (i = 0; i < core->num_parents - 1; i++) {
-+		parent = clk_core_get_parent_by_index(core, i);
-+		if (parent)
-+			seq_printf(s, "%s ", parent->name);
-+		else if (core->parents[i].name)
-+			seq_printf(s, "%s ", core->parents[i].name);
-+		else if (core->parents[i].fw_name)
-+			seq_printf(s, "<%s>(fw) ", core->parents[i].fw_name);
-+		else if (core->parents[i].index >= 0)
-+			seq_printf(s, "%s ",
-+				   of_clk_get_parent_name(core->of_node,
-+							  core->parents[i].index));
-+		else
-+			seq_puts(s, "(missing) ");
-+	}
- 
--	seq_printf(s, "%s\n", core->parents[i].name);
-+	parent = clk_core_get_parent_by_index(core, i);
-+	if (parent)
-+		seq_printf(s, "%s", parent->name);
-+	else if (core->parents[i].name)
-+		seq_printf(s, "%s", core->parents[i].name);
-+	else if (core->parents[i].fw_name)
-+		seq_printf(s, "<%s>(fw)", core->parents[i].fw_name);
-+	else if (core->parents[i].index >= 0)
-+		seq_printf(s, "%s",
-+			   of_clk_get_parent_name(core->of_node,
-+						  core->parents[i].index));
-+	else
-+		seq_puts(s, "(missing)");
- 
- 	return 0;
+-	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe);
++	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe ||
++		pdev->driver_override);
  }
+ #else
+ static inline bool pci_device_can_probe(struct pci_dev *pdev)
 
 
