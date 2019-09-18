@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF1BB59B9
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 04:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 571D2B5A8F
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 06:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbfIRCiU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 17 Sep 2019 22:38:20 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:39740 "EHLO mx1.redhat.com"
+        id S1726360AbfIRE5Z convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 18 Sep 2019 00:57:25 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57352 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727264AbfIRCiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Sep 2019 22:38:20 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        id S1725842AbfIRE5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 00:57:25 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CC8A4A3D392
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 02:38:19 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 266F7C058CA4
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 04:57:24 +0000 (UTC)
 Received: from [172.54.124.190] (cpt-1056.paas.prod.upshift.rdu2.redhat.com [10.0.19.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D2FCF60C05;
-        Wed, 18 Sep 2019 02:38:16 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8A712600C8;
+        Wed, 18 Sep 2019 04:57:21 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.1EA63B7919.DTYUHGF903@redhat.com>
-X-Gitlab-Pipeline-ID: 171039
+Message-ID: <cki.D77C165E74.IA9K2OU6S7@redhat.com>
+X-Gitlab-Pipeline-ID: 170952
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/171039
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Wed, 18 Sep 2019 02:38:19 +0000 (UTC)
-Date:   Tue, 17 Sep 2019 22:38:20 -0400
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/170952
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Wed, 18 Sep 2019 04:57:24 +0000 (UTC)
+Date:   Wed, 18 Sep 2019 00:57:25 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -55,7 +55,7 @@ The results of these automated tests are provided below.
 
 All kernel binaries, config files, and logs are available for download here:
 
-  https://artifacts.cki-project.org/pipelines/171039
+  https://artifacts.cki-project.org/pipelines/170952
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -76,7 +76,7 @@ We cloned this repository and checked out the following commit:
   Commit: 6e282ba6ff6b - Linux 5.2.15
 
 
-We grabbed the 08a483c9ddee commit of the stable queue repository.
+We grabbed the 88ed4e4e9249 commit of the stable queue repository.
 
 We then merged the patchset with `git am`:
 
@@ -164,7 +164,6 @@ We then merged the patchset with `git am`:
   platform-x86-pmc_atom-add-cb4063-beckhoff-automation-board-to-critclk_systems-dmi-table.patch
   platform-x86-pcengines-apuv2-use-key_restart-for-front-button.patch
   rsi-fix-a-double-free-bug-in-rsi_91x_deinit.patch
-  x86-build-add-wnoaddress-of-packed-member-to-realmode_cflags-to-silence-gcc9-build-warning.patch
 
 Compile testing
 ---------------
@@ -207,7 +206,6 @@ We booted each kernel and ran the following tests:
          ✅ iotop: sanity [13]
          ✅ tuned: tune-processes-through-perf [14]
          ✅ Usex - version 1.9-29 [15]
-         ✅ stress: stress-ng [16]
          🚧 ✅ LTP lite [17]
          🚧 ✅ Memory function: kaslr [18]
          🚧 ✅ Networking bridge: sanity [19]
@@ -246,11 +244,6 @@ We booted each kernel and ran the following tests:
 
   x86_64:
       Host 1:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
          ✅ Boot test [0]
          ✅ Podman system integration test (as root) [2]
          ✅ Podman system integration test (as user) [2]
@@ -269,7 +262,7 @@ We booted each kernel and ran the following tests:
          ✅ pciutils: sanity smoke test [22]
          ✅ Usex - version 1.9-29 [15]
          ✅ stress: stress-ng [16]
-         🚧 ⚡⚡⚡ LTP lite [17]
+         🚧 ✅ LTP lite [17]
          🚧 ✅ Memory function: kaslr [18]
          🚧 ✅ Networking bridge: sanity [19]
          🚧 ✅ Networking route: pmtu [20]
