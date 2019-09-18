@@ -2,150 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E91BDB5AD3
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 07:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0672BB5B57
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 07:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727557AbfIRFVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 01:21:35 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7366 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725842AbfIRFVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 01:21:32 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8I5HepL075666
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 01:21:31 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v3cekb7kx-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 01:21:30 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
-        Wed, 18 Sep 2019 06:21:28 +0100
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
-        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Wed, 18 Sep 2019 06:21:24 +0100
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8I5LNaS47644692
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Sep 2019 05:21:23 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C10A84C052;
-        Wed, 18 Sep 2019 05:21:23 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C9654C04E;
-        Wed, 18 Sep 2019 05:21:23 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 18 Sep 2019 05:21:23 +0000 (GMT)
-Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 1EC90A01E6;
-        Wed, 18 Sep 2019 15:21:22 +1000 (AEST)
-From:   "Alastair D'Silva" <alastair@au1.ibm.com>
-To:     alastair@d-silva.org
-Cc:     stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/5] powerpc: Allow flush_icache_range to work across ranges >4GB
-Date:   Wed, 18 Sep 2019 15:20:55 +1000
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190918052106.14113-1-alastair@au1.ibm.com>
-References: <20190918052106.14113-1-alastair@au1.ibm.com>
+        id S1727261AbfIRFww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 01:52:52 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:53431 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726523AbfIRFww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 01:52:52 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id C8493222BA;
+        Wed, 18 Sep 2019 01:52:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 18 Sep 2019 01:52:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=yApEeM+cx/E4QTe1WjDT5jZr1YH
+        cZM80TBsuKqJwhoU=; b=YCFY/y/eLPs0MW5E8Gblp4ZMmbBw7GlX5JgQgnfo6o5
+        CFjN8lsSv7c8xpwNoVft/+Iz4a1OdGFW8VLeh+02/JViuvo7gzlDH1tVNpVwtrGa
+        DRDdzQ35e1SpnB4FlbAw+DIjOB49TOZCjIABftiUhzOJmvztzTxfghK+iE6cphY1
+        mzBbapgIjg/0eakfgYrcAmlgmIdux1/EvQRXLAHA7wEUXfeZtnf9+R6rbWtgNlA1
+        6OwMtB9k9gZerpGvocHhd8EE+YhR57dtYnRu1VDqxt2Fo/oxJRjmBJDpVzAiBxLF
+        z7aXlc1sYNQB3bgZCUOXY3vBTwTr4Tvch14P2xX2uxg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yApEeM
+        +cx/E4QTe1WjDT5jZr1YHcZM80TBsuKqJwhoU=; b=1mjtKNTkHWi7g22WLFIbOD
+        Mc9vdk7g/h7aDxfqyuFsLIfOnU7aqPRyOVNIlZeSuZIZfKc2UjjPfswoiibIOAVY
+        Fb+OYWhO0rJcswhtAMdVEXxxYDYPFDQm9Tc8W7suuhECLfhm/rYAMZvlUXlecKli
+        tKICy5v2NbxuFPKWFDzk0r1ix00Ii/H3BkVjfgHGrggdxtOnvoCFoi8s2+RmDn9L
+        Vx1WhkZGinXJPE8X/LhiSN+y3qfz9UbW9u21UyP5GZWxeRhlGbRgXZiEaggtXIFz
+        iv7gc6pIs79mtssIZD3qy2LszqVSg/eo4witDz+EJDfQ3BIvWjKpoMlWaUoI3w8g
+        ==
+X-ME-Sender: <xms:MMaBXUgofsVIGyapbzM9S8gfWHi0AC2ZFr2bKl8dm2_usXLeRZaC8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudejgddutddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:MMaBXaauZV0g62-XlXG-2OKdFkR3TYIQ0ybywrf6YzDgvmtKm0G2qQ>
+    <xmx:MMaBXTb4Pu3W00bvJuaVXnCLkeTfr5uWqWEjm4nSCZ_TwYvp3uqecA>
+    <xmx:MMaBXfybWNApS0-krnX1wj71OqYaxzsS3zZ2WcqXXTL2E80fUCi_Vw>
+    <xmx:MsaBXZJx264xcrTbgq3IBJfKvD8LA9mmgykxr53TBfKAcFbJOqH4_Q>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 92778D6005A;
+        Wed, 18 Sep 2019 01:52:48 -0400 (EDT)
+Date:   Wed, 18 Sep 2019 07:52:46 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Tokunori Ikegami <ikegami.t@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
+        Felix Fietkau <nbd@nbd.name>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Subject: Re: [PATCH for 5.2.y] mtd: cfi_cmdset_0002: Use chip_good() to retry
+ in do_write_oneword()
+Message-ID: <20190918055246.GC1830105@kroah.com>
+References: <20190917175048.12895-1-ikegami.t@gmail.com>
+ <20190917181127.GD1570310@kroah.com>
+ <7c0113e0-d455-e3e6-86fc-45429be196fb@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19091805-0016-0000-0000-000002AD6B99
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19091805-0017-0000-0000-0000330E1355
-Message-Id: <20190918052106.14113-2-alastair@au1.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-18_04:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=624 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1909180056
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7c0113e0-d455-e3e6-86fc-45429be196fb@gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alastair D'Silva <alastair@d-silva.org>
+On Wed, Sep 18, 2019 at 07:32:39AM +0900, Tokunori Ikegami wrote:
+> 
+> On 2019/09/18 3:11, Greg KH wrote:
+> > On Wed, Sep 18, 2019 at 02:50:48AM +0900, Tokunori Ikegami wrote:
+> > > As reported by the OpenWRT team, write requests sometimes fail on some
+> > > platforms.
+> > > Currently to check the state chip_ready() is used correctly as described by
+> > > the flash memory S29GL256P11TFI01 datasheet.
+> > > Also chip_good() is used to check if the write is succeeded and it was
+> > > implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
+> > > checking").
+> > > But actually the write failure is caused on some platforms and also it can
+> > > be fixed by using chip_good() to check the state and retry instead.
+> > > Also it seems that it is caused after repeated about 1,000 times to retry
+> > > the write one word with the reset command.
+> > > By using chip_good() to check the state to be done it can be reduced the
+> > > retry with reset.
+> > > It is depended on the actual flash chip behavior so the root cause is
+> > > unknown.
+> > > 
+> > > Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+> > > Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+> > > Cc: linux-mtd@lists.infradead.org
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: Fabio Bettoni <fbettoni@gmail.com>
+> > > Signed-off-by: Felix Fietkau <nbd@nbd.name>
+> > > Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> > > Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+> > > [vigneshr@ti.com: Fix a checkpatch warning]
+> > > Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+> > > ---
+> > >   drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
+> > >   1 file changed, 12 insertions(+), 6 deletions(-)
+> > >   mode change 100644 => 100755 drivers/mtd/chips/cfi_cmdset_0002.c
+> > You changed the file to be executable???  That's not ok :(
+> 
+> Very sorry for this.
+> I missed it to fix to not be executable since it was changed to be
+> executable on my local environment.
+> Anyway I will do fix it.
 
-When calling flush_icache_range with a size >4GB, we were masking
-off the upper 32 bits, so we would incorrectly flush a range smaller
-than intended.
+Please do, we can not take these patches as-is at all.
 
-__kernel_sync_dicache in the 64 bit VDSO has the same bug.
+> > Also, what is the git commit id of this patch in Linus's tree?  I can't
+> > seem to find it there.
+> 
+> Actually it has not been pulled in Linus's tree.
+> But it has been merged into
+> git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git mtd/next for
+> v5.4-rc1 as the git commit id 37c673ade35c.
+> So I thought as that it is okay to send the patches for the stable trees.
+> But should I wait to be pulled the patch in Linus's tree at first?
 
-This patch replaces the 32 bit shifts with 64 bit ones, so that
-the full size is accounted for.
+Yes, you have to wait, please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
-Cc: stable@vger.kernel.org
----
- arch/powerpc/kernel/misc_64.S           | 4 ++--
- arch/powerpc/kernel/vdso64/cacheflush.S | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+thanks,
 
-diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
-index b55a7b4cb543..9bc0aa9aeb65 100644
---- a/arch/powerpc/kernel/misc_64.S
-+++ b/arch/powerpc/kernel/misc_64.S
-@@ -82,7 +82,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
- 1:	dcbst	0,r6
-@@ -98,7 +98,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5
- 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
- 2:	icbi	0,r6
-diff --git a/arch/powerpc/kernel/vdso64/cacheflush.S b/arch/powerpc/kernel/vdso64/cacheflush.S
-index 3f92561a64c4..526f5ba2593e 100644
---- a/arch/powerpc/kernel/vdso64/cacheflush.S
-+++ b/arch/powerpc/kernel/vdso64/cacheflush.S
-@@ -35,7 +35,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,CFG_DCACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
-@@ -52,7 +52,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5
- 	lwz	r9,CFG_ICACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
--- 
-2.21.0
-
+greg k-h
