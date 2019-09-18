@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9D4B5C50
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BF7B5BF9
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726430AbfIRGZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
+        id S1729107AbfIRGV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729997AbfIRGZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:25:07 -0400
+        id S1729075AbfIRGV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BCF021D80;
-        Wed, 18 Sep 2019 06:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA4D720678;
+        Wed, 18 Sep 2019 06:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787906;
-        bh=uaWqzottywCvur15Rkxvw7jfkwGA/KMVx4+phqc5MdQ=;
+        s=default; t=1568787686;
+        bh=QqMP07gQA1eBn0SE74284JJiDQ8ywWG1Pq6Jw9LiISk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojK2sygNCFzMyOKQIGhqoHkjG7GoQO9jy4FWcnCp8zNHrcS0TNBwk5L8vk5ILS2fJ
-         cpSpXWp9cCLzOORSMIPcZaLxxxCbby68po/RXDZpAS48htPl/kb82uZz5SPDJkHVOq
-         YM6hyClgLRgMfZO9I+6OX51wveicG64mqamPDIaI=
+        b=c01s1tgod0AiedYt8r3PhCeD8sBohTotr3jj6ojdM/B5zYXQsehwQi37cR1m2NXmI
+         8y8wRgdWv0VGFtqqHxTLSFM2sYXfA+NdjBns0vo+KDz/UviGj1/FXTxc3knGBbIyzT
+         tIFzABpYfCp0USDGkJIiLlWakUmBPG0ecWoVZR/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Crossen <mcrossen@fb.com>,
-        Roman Gushchin <guro@fb.com>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.2 27/85] cgroup: freezer: fix frozen state inheritance
+        stable@vger.kernel.org, Stefan Chulski <stefanc@marvell.com>,
+        Shaul Ben-Mayor <shaulb@marvell.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 07/45] net: phylink: Fix flow control resolution
 Date:   Wed, 18 Sep 2019 08:18:45 +0200
-Message-Id: <20190918061235.017112205@linuxfoundation.org>
+Message-Id: <20190918061223.549546832@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Stefan Chulski <stefanc@marvell.com>
 
-commit 97a61369830ab085df5aed0ff9256f35b07d425a upstream.
+[ Upstream commit 63b2ed4e10b2e6c913e1d8cdd728e7fba4115a3d ]
 
-If a new child cgroup is created in the frozen cgroup hierarchy
-(one or more of ancestor cgroups is frozen), the CGRP_FREEZE cgroup
-flag should be set. Otherwise if a process will be attached to the
-child cgroup, it won't become frozen.
+Regarding to IEEE 802.3-2015 standard section 2
+28B.3 Priority resolution - Table 28-3 - Pause resolution
 
-The problem can be reproduced with the test_cgfreezer_mkdir test.
+In case of Local device Pause=1 AsymDir=0, Link partner
+Pause=1 AsymDir=1, Local device resolution should be enable PAUSE
+transmit, disable PAUSE receive.
+And in case of Local device Pause=1 AsymDir=1, Link partner
+Pause=1 AsymDir=0, Local device resolution should be enable PAUSE
+receive, disable PAUSE transmit.
 
-This is the output before this patch:
-  ~/test_freezer
-  ok 1 test_cgfreezer_simple
-  ok 2 test_cgfreezer_tree
-  ok 3 test_cgfreezer_forkbomb
-  Cgroup /sys/fs/cgroup/cg_test_mkdir_A/cg_test_mkdir_B isn't frozen
-  not ok 4 test_cgfreezer_mkdir
-  ok 5 test_cgfreezer_rmdir
-  ok 6 test_cgfreezer_migrate
-  ok 7 test_cgfreezer_ptrace
-  ok 8 test_cgfreezer_stopped
-  ok 9 test_cgfreezer_ptraced
-  ok 10 test_cgfreezer_vfork
-
-And with this patch:
-  ~/test_freezer
-  ok 1 test_cgfreezer_simple
-  ok 2 test_cgfreezer_tree
-  ok 3 test_cgfreezer_forkbomb
-  ok 4 test_cgfreezer_mkdir
-  ok 5 test_cgfreezer_rmdir
-  ok 6 test_cgfreezer_migrate
-  ok 7 test_cgfreezer_ptrace
-  ok 8 test_cgfreezer_stopped
-  ok 9 test_cgfreezer_ptraced
-  ok 10 test_cgfreezer_vfork
-
-Reported-by: Mark Crossen <mcrossen@fb.com>
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Fixes: 76f969e8948d ("cgroup: cgroup v2 freezer")
-Cc: Tejun Heo <tj@kernel.org>
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reported-by: Shaul Ben-Mayor <shaulb@marvell.com>
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/cgroup/cgroup.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/phy/phylink.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -5213,8 +5213,16 @@ static struct cgroup *cgroup_create(stru
- 	 * if the parent has to be frozen, the child has too.
- 	 */
- 	cgrp->freezer.e_freeze = parent->freezer.e_freeze;
--	if (cgrp->freezer.e_freeze)
-+	if (cgrp->freezer.e_freeze) {
-+		/*
-+		 * Set the CGRP_FREEZE flag, so when a process will be
-+		 * attached to the child cgroup, it will become frozen.
-+		 * At this point the new cgroup is unpopulated, so we can
-+		 * consider it frozen immediately.
-+		 */
-+		set_bit(CGRP_FREEZE, &cgrp->flags);
- 		set_bit(CGRP_FROZEN, &cgrp->flags);
-+	}
- 
- 	spin_lock_irq(&css_set_lock);
- 	for (tcgrp = cgrp; tcgrp; tcgrp = cgroup_parent(tcgrp)) {
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -359,8 +359,8 @@ static void phylink_get_fixed_state(stru
+  *  Local device  Link partner
+  *  Pause AsymDir Pause AsymDir Result
+  *    1     X       1     X     TX+RX
+- *    0     1       1     1     RX
+- *    1     1       0     1     TX
++ *    0     1       1     1     TX
++ *    1     1       0     1     RX
+  */
+ static void phylink_resolve_flow(struct phylink *pl,
+ 	struct phylink_link_state *state)
+@@ -381,7 +381,7 @@ static void phylink_resolve_flow(struct
+ 			new_pause = MLO_PAUSE_TX | MLO_PAUSE_RX;
+ 		else if (pause & MLO_PAUSE_ASYM)
+ 			new_pause = state->pause & MLO_PAUSE_SYM ?
+-				 MLO_PAUSE_RX : MLO_PAUSE_TX;
++				 MLO_PAUSE_TX : MLO_PAUSE_RX;
+ 	} else {
+ 		new_pause = pl->link_config.pause & MLO_PAUSE_TXRX_MASK;
+ 	}
 
 
