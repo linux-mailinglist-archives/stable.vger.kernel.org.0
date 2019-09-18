@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E9FB5CB5
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3EC9B5C01
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730352AbfIRG0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48162 "EHLO mail.kernel.org"
+        id S1729250AbfIRGVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726081AbfIRG0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:39 -0400
+        id S1729238AbfIRGVs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3281218AF;
-        Wed, 18 Sep 2019 06:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D06FB20678;
+        Wed, 18 Sep 2019 06:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787998;
-        bh=vuQmWYb9n8G8Phco/oA95DRdHOI0T2FogrYm+d1nAbE=;
+        s=default; t=1568787707;
+        bh=bwO8NrLUzX5QEkcPRdp7XJubD37gy/0HLOx1LlqE8Uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TL9ZAon/DDpAU3eILBHjtKgYEURbDXg98D8OY0mi3RTxDIIIyg1U2XYec7VwP3AvX
-         /TD0pbAWu/PzDbb1vRqf422FeunfvGHCKgRZyGDGe9iyUbXu/iilp6f+Vk+v7U2H+9
-         qjoBwtObfw2y+UOYdyGI+uHOb0gWfkPEgiQ7rJ8E=
+        b=vdE6SggwTVFD3Zkg3z+NJYdlZ67ZdyCTN+QqBOeJRVtwq1YbZC9ygpAd/unbY68Zj
+         EBxN++uO6yY5MHZwIPFP5vgVHj9kdMj796eE/pGhmaxmWwgSbQnXMBhrrP7/4MMiqK
+         jFNZEgX8LMm+ImuTQuBjLbK4gHY0J6+uXlI7PYfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <smuchun@gmail.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Prateek Sood <prsood@codeaurora.org>
-Subject: [PATCH 5.2 62/85] driver core: Fix use-after-free and double free on glue directory
+        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
+        Christian Kellner <ckellner@redhat.com>,
+        Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.14 42/45] Revert "Bluetooth: btusb: driver to enable the usb-wakeup feature"
 Date:   Wed, 18 Sep 2019 08:19:20 +0200
-Message-Id: <20190918061237.288422081@linuxfoundation.org>
+Message-Id: <20190918061227.872848858@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,171 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <smuchun@gmail.com>
+From: Mario Limonciello <mario.limonciello@dell.com>
 
-commit ac43432cb1f5c2950408534987e57c2071e24d8f upstream.
+commit 1ffdb51f28e8ec6be0a2b812c1765b5cf5c44a8f upstream.
 
-There is a race condition between removing glue directory and adding a new
-device under the glue dir. It can be reproduced in following test:
+This reverts commit a0085f2510e8976614ad8f766b209448b385492f.
 
-CPU1:                                         CPU2:
+This commit has caused regressions in notebooks that support suspend
+to idle such as the XPS 9360, XPS 9370 and XPS 9380.
 
-device_add()
-  get_device_parent()
-    class_dir_create_and_add()
-      kobject_add_internal()
-        create_dir()    // create glue_dir
+These notebooks will wakeup from suspend to idle from an unsolicited
+advertising packet from an unpaired BLE device.
 
-                                              device_add()
-                                                get_device_parent()
-                                                  kobject_get() // get glue_dir
+In a bug report it was sugggested that this is caused by a generic
+lack of LE privacy support.  Revert this commit until that behavior
+can be avoided by the kernel.
 
-device_del()
-  cleanup_glue_dir()
-    kobject_del(glue_dir)
-
-                                                kobject_add()
-                                                  kobject_add_internal()
-                                                    create_dir() // in glue_dir
-                                                      sysfs_create_dir_ns()
-                                                        kernfs_create_dir_ns(sd)
-
-      sysfs_remove_dir() // glue_dir->sd=NULL
-      sysfs_put()        // free glue_dir->sd
-
-                                                          // sd is freed
-                                                          kernfs_new_node(sd)
-                                                            kernfs_get(glue_dir)
-                                                            kernfs_add_one()
-                                                            kernfs_put()
-
-Before CPU1 remove last child device under glue dir, if CPU2 add a new
-device under glue dir, the glue_dir kobject reference count will be
-increase to 2 via kobject_get() in get_device_parent(). And CPU2 has
-been called kernfs_create_dir_ns(), but not call kernfs_new_node().
-Meanwhile, CPU1 call sysfs_remove_dir() and sysfs_put(). This result in
-glue_dir->sd is freed and it's reference count will be 0. Then CPU2 call
-kernfs_get(glue_dir) will trigger a warning in kernfs_get() and increase
-it's reference count to 1. Because glue_dir->sd is freed by CPU1, the next
-call kernfs_add_one() by CPU2 will fail(This is also use-after-free)
-and call kernfs_put() to decrease reference count. Because the reference
-count is decremented to 0, it will also call kmem_cache_free() to free
-the glue_dir->sd again. This will result in double free.
-
-In order to avoid this happening, we also should make sure that kernfs_node
-for glue_dir is released in CPU1 only when refcount for glue_dir kobj is
-1 to fix this race.
-
-The following calltrace is captured in kernel 4.14 with the following patch
-applied:
-
-commit 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
-
---------------------------------------------------------------------------
-[    3.633703] WARNING: CPU: 4 PID: 513 at .../fs/kernfs/dir.c:494
-                Here is WARN_ON(!atomic_read(&kn->count) in kernfs_get().
-....
-[    3.633986] Call trace:
-[    3.633991]  kernfs_create_dir_ns+0xa8/0xb0
-[    3.633994]  sysfs_create_dir_ns+0x54/0xe8
-[    3.634001]  kobject_add_internal+0x22c/0x3f0
-[    3.634005]  kobject_add+0xe4/0x118
-[    3.634011]  device_add+0x200/0x870
-[    3.634017]  _request_firmware+0x958/0xc38
-[    3.634020]  request_firmware_into_buf+0x4c/0x70
-....
-[    3.634064] kernel BUG at .../mm/slub.c:294!
-                Here is BUG_ON(object == fp) in set_freepointer().
-....
-[    3.634346] Call trace:
-[    3.634351]  kmem_cache_free+0x504/0x6b8
-[    3.634355]  kernfs_put+0x14c/0x1d8
-[    3.634359]  kernfs_create_dir_ns+0x88/0xb0
-[    3.634362]  sysfs_create_dir_ns+0x54/0xe8
-[    3.634366]  kobject_add_internal+0x22c/0x3f0
-[    3.634370]  kobject_add+0xe4/0x118
-[    3.634374]  device_add+0x200/0x870
-[    3.634378]  _request_firmware+0x958/0xc38
-[    3.634381]  request_firmware_into_buf+0x4c/0x70
---------------------------------------------------------------------------
-
-Fixes: 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
-Signed-off-by: Muchun Song <smuchun@gmail.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Prateek Sood <prsood@codeaurora.org>
-Link: https://lore.kernel.org/r/20190727032122.24639-1-smuchun@gmail.com
+Fixes: a0085f2510e8 ("Bluetooth: btusb: driver to enable the usb-wakeup feature")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=200039
+Link: https://marc.info/?l=linux-bluetooth&m=156441081612627&w=2
+Link: https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/750073/
+CC: Bastien Nocera <hadess@hadess.net>
+CC: Christian Kellner <ckellner@redhat.com>
+CC: Sukumar Ghorai <sukumar.ghorai@intel.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/core.c |   53 +++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1820,12 +1820,63 @@ static inline struct kobject *get_glue_d
-  */
- static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
- {
-+	unsigned int ref;
-+
- 	/* see if we live in a "glue" directory */
- 	if (!live_in_glue_dir(glue_dir, dev))
- 		return;
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -1124,10 +1124,6 @@ static int btusb_open(struct hci_dev *hd
+ 	}
  
- 	mutex_lock(&gdp_mutex);
--	if (!kobject_has_children(glue_dir))
-+	/**
-+	 * There is a race condition between removing glue directory
-+	 * and adding a new device under the glue directory.
-+	 *
-+	 * CPU1:                                         CPU2:
-+	 *
-+	 * device_add()
-+	 *   get_device_parent()
-+	 *     class_dir_create_and_add()
-+	 *       kobject_add_internal()
-+	 *         create_dir()    // create glue_dir
-+	 *
-+	 *                                               device_add()
-+	 *                                                 get_device_parent()
-+	 *                                                   kobject_get() // get glue_dir
-+	 *
-+	 * device_del()
-+	 *   cleanup_glue_dir()
-+	 *     kobject_del(glue_dir)
-+	 *
-+	 *                                               kobject_add()
-+	 *                                                 kobject_add_internal()
-+	 *                                                   create_dir() // in glue_dir
-+	 *                                                     sysfs_create_dir_ns()
-+	 *                                                       kernfs_create_dir_ns(sd)
-+	 *
-+	 *       sysfs_remove_dir() // glue_dir->sd=NULL
-+	 *       sysfs_put()        // free glue_dir->sd
-+	 *
-+	 *                                                         // sd is freed
-+	 *                                                         kernfs_new_node(sd)
-+	 *                                                           kernfs_get(glue_dir)
-+	 *                                                           kernfs_add_one()
-+	 *                                                           kernfs_put()
-+	 *
-+	 * Before CPU1 remove last child device under glue dir, if CPU2 add
-+	 * a new device under glue dir, the glue_dir kobject reference count
-+	 * will be increase to 2 in kobject_get(k). And CPU2 has been called
-+	 * kernfs_create_dir_ns(). Meanwhile, CPU1 call sysfs_remove_dir()
-+	 * and sysfs_put(). This result in glue_dir->sd is freed.
-+	 *
-+	 * Then the CPU2 will see a stale "empty" but still potentially used
-+	 * glue dir around in kernfs_new_node().
-+	 *
-+	 * In order to avoid this happening, we also should make sure that
-+	 * kernfs_node for glue_dir is released in CPU1 only when refcount
-+	 * for glue_dir kobj is 1.
-+	 */
-+	ref = kref_read(&glue_dir->kref);
-+	if (!kobject_has_children(glue_dir) && !--ref)
- 		kobject_del(glue_dir);
- 	kobject_put(glue_dir);
- 	mutex_unlock(&gdp_mutex);
+ 	data->intf->needs_remote_wakeup = 1;
+-	/* device specific wakeup source enabled and required for USB
+-	 * remote wakeup while host is suspended
+-	 */
+-	device_wakeup_enable(&data->udev->dev);
+ 
+ 	if (test_and_set_bit(BTUSB_INTR_RUNNING, &data->flags))
+ 		goto done;
+@@ -1191,7 +1187,6 @@ static int btusb_close(struct hci_dev *h
+ 		goto failed;
+ 
+ 	data->intf->needs_remote_wakeup = 0;
+-	device_wakeup_disable(&data->udev->dev);
+ 	usb_autopm_put_interface(data->intf);
+ 
+ failed:
 
 
