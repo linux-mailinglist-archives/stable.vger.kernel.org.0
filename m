@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61FA6B5C31
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F120BB5CBD
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729688AbfIRGXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43976 "EHLO mail.kernel.org"
+        id S1727654AbfIRG2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:28:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729696AbfIRGXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:23:42 -0400
+        id S1730456AbfIRG1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25DDB218AF;
-        Wed, 18 Sep 2019 06:23:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2946221906;
+        Wed, 18 Sep 2019 06:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787821;
-        bh=NCc38KdKeBnKyP2Odg4PeFPlwltuIx2bv95xeUk0ld0=;
+        s=default; t=1568788027;
+        bh=DO155T9TYv+TyBqzz+WkFhf+n8NXB7p7oq7eXTJ/cEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkPXsJrJ3/HT0wBImwN3gVgo0XalafnPAKfF/bMGBLNsqbVsSugdnZjq7VN7RjUvm
-         nJ4/ThAanieNbMOPVacSUKUb5vvwZkK3gla99ZQE85jfHUeKz2WSNCRwpN5QgHiFna
-         zsHHLHwpQ4uSyW/lbL3oCc3mURWPgfZ51mQW2mSY=
+        b=UZKasugyQVK9E+bI/8oMBzpv1DQfoWMLAR143whR8p8HKTCGshBDVj/UJ8EYXq+XG
+         UJX+6ugWAoZ13RkS4lmHgIhCdHQhe80gxQRmcqaxuTHkLcp9Cl4HpXhXGRCrEhBNWy
+         6d2dUkkFIdX1FpWUN1EpA4Z+gfj2cIwxPWY0zqBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.19 46/50] modules: fix compile error if dont have strict module rwx
-Date:   Wed, 18 Sep 2019 08:19:29 +0200
-Message-Id: <20190918061228.274028936@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vitaly Wool <vitalywool@gmail.com>,
+        Vitaly Vul <vitaly.vul@sony.com>,
+        Jonathan Adams <jwadams@google.com>,
+        Snild Dolkow <snild@sony.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 72/85] mm/z3fold.c: remove z3fold_migration trylock
+Date:   Wed, 18 Sep 2019 08:19:30 +0200
+Message-Id: <20190918061237.682280260@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +50,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Henry Burns <henryburns@google.com>
 
-commit 93651f80dcb616b8c9115cdafc8e57a781af22d0 upstream.
+commit be03074c9af25d06cf8e9ebddfcd284c0bf7f947 upstream.
 
-If CONFIG_ARCH_HAS_STRICT_MODULE_RWX is not defined,
-we need stub for module_enable_nx() and module_enable_x().
+z3fold_page_migrate() will never succeed because it attempts to acquire
+a lock that has already been taken by migrate.c in __unmap_and_move().
 
-If CONFIG_ARCH_HAS_STRICT_MODULE_RWX is defined, but
-CONFIG_STRICT_MODULE_RWX is disabled, we need stub for
-module_enable_nx.
+  __unmap_and_move() migrate.c
+    trylock_page(oldpage)
+    move_to_new_page(oldpage_newpage)
+      a_ops->migrate_page(oldpage, newpage)
+        z3fold_page_migrate(oldpage, newpage)
+          trylock_page(oldpage)
 
-Move frob_text() outside of the CONFIG_STRICT_MODULE_RWX,
-because it is needed anyway.
-
-Fixes: 2eef1399a866 ("modules: fix BUG when load module with rodata=n")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Link: http://lkml.kernel.org/r/20190710213238.91835-1-henryburns@google.com
+Fixes: 1f862989b04a ("mm/z3fold.c: support page migration")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Vitaly Wool <vitalywool@gmail.com>
+Cc: Vitaly Vul <vitaly.vul@sony.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Snild Dolkow <snild@sony.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/module.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ mm/z3fold.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1884,7 +1884,7 @@ static void mod_sysfs_teardown(struct mo
- 	mod_sysfs_fini(mod);
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -1439,16 +1439,11 @@ static int z3fold_page_migrate(struct ad
+ 	zhdr = page_address(page);
+ 	pool = zhdr_to_pool(zhdr);
+ 
+-	if (!trylock_page(page))
+-		return -EAGAIN;
+-
+ 	if (!z3fold_page_trylock(zhdr)) {
+-		unlock_page(page);
+ 		return -EAGAIN;
+ 	}
+ 	if (zhdr->mapped_count != 0) {
+ 		z3fold_page_unlock(zhdr);
+-		unlock_page(page);
+ 		return -EBUSY;
+ 	}
+ 	if (work_pending(&zhdr->work)) {
+@@ -1494,7 +1489,6 @@ static int z3fold_page_migrate(struct ad
+ 	spin_unlock(&pool->lock);
+ 
+ 	page_mapcount_reset(page);
+-	unlock_page(page);
+ 	put_page(page);
+ 	return 0;
  }
- 
--#ifdef CONFIG_STRICT_MODULE_RWX
-+#ifdef CONFIG_ARCH_HAS_STRICT_MODULE_RWX
- /*
-  * LKM RO/NX protection: protect module's text/ro-data
-  * from modification and any data from execution.
-@@ -1907,6 +1907,7 @@ static void frob_text(const struct modul
- 		   layout->text_size >> PAGE_SHIFT);
- }
- 
-+#ifdef CONFIG_STRICT_MODULE_RWX
- static void frob_rodata(const struct module_layout *layout,
- 			int (*set_memory)(unsigned long start, int num_pages))
- {
-@@ -2039,17 +2040,21 @@ static void disable_ro_nx(const struct m
- 	frob_writable_data(layout, set_memory_x);
- }
- 
--#else
-+#else /* !CONFIG_STRICT_MODULE_RWX */
- static void disable_ro_nx(const struct module_layout *layout) { }
- static void module_enable_nx(const struct module *mod) { }
- static void module_disable_nx(const struct module *mod) { }
--#endif
-+#endif /*  CONFIG_STRICT_MODULE_RWX */
- 
- static void module_enable_x(const struct module *mod)
- {
- 	frob_text(&mod->core_layout, set_memory_x);
- 	frob_text(&mod->init_layout, set_memory_x);
- }
-+#else /* !CONFIG_ARCH_HAS_STRICT_MODULE_RWX */
-+static void module_enable_nx(const struct module *mod) { }
-+static void module_enable_x(const struct module *mod) { }
-+#endif /* CONFIG_ARCH_HAS_STRICT_MODULE_RWX */
- 
- #ifdef CONFIG_LIVEPATCH
- /*
 
 
