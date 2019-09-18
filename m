@@ -2,94 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A29B5F49
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 10:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F95B5F7C
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 10:49:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730448AbfIRId2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 04:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730405AbfIRId2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 04:33:28 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4629521929;
-        Wed, 18 Sep 2019 08:33:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568795607;
-        bh=CLc3y6pr//+2xmg7YLTQLHeHBn+e19hZRGVpbW8meNU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=znIfBdHgsym3F5/xNH+YfGG7tXY66oPckgoDte+XpQs2ah4hkok6s4N3bvzfjHGoV
-         F53Kp/GN3dTsljFP7m4tLJ2XeZB1M7yc0HFScEqB9gd69OTNrqzqL3zGsodQMu6moL
-         QB0ShhFstqLOaCLErX2wtgxDiiJ4xU1ryCgXYRl4=
-Date:   Wed, 18 Sep 2019 10:32:53 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mao Wenan <maowenan@huawei.com>
-Cc:     chien.yen@oracle.com, davem@davemloft.net, stable@vger.kernel.org,
-        rds-devel@oss.oracle.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH stable 4.4 net] net: rds: Fix NULL ptr use in
- rds_tcp_kill_sock
-Message-ID: <20190918083253.GA1862222@kroah.com>
-References: <20190918083733.50266-1-maowenan@huawei.com>
+        id S1730536AbfIRIsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 04:48:46 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:41699 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730502AbfIRIsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 04:48:46 -0400
+Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1iAVdf-0004BF-BN; Wed, 18 Sep 2019 08:48:39 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     keescook@chromium.org, luto@amacapital.net
+Cc:     jannh@google.com, wad@chromium.org, shuah@kernel.org,
+        ast@kernel.org, daniel@iogearbox.net, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Tycho Andersen <tycho@tycho.ws>,
+        Tyler Hicks <tyhicks@canonical.com>, stable@vger.kernel.org
+Subject: [PATCH 2/4] seccomp: add two missing ptrace ifdefines
+Date:   Wed, 18 Sep 2019 10:48:31 +0200
+Message-Id: <20190918084833.9369-3-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190918084833.9369-1-christian.brauner@ubuntu.com>
+References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190918083733.50266-1-maowenan@huawei.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 04:37:33PM +0800, Mao Wenan wrote:
-> After the commit c4e97b06cfdc ("net: rds: force to destroy
-> connection if t_sock is NULL in rds_tcp_kill_sock()."),
-> it introduced null-ptr-deref in rds_tcp_kill_sock as below:
-> 
-> BUG: KASAN: null-ptr-deref on address 0000000000000020
-> Read of size 8 by task kworker/u16:10/910
-> CPU: 3 PID: 910 Comm: kworker/u16:10 Not tainted 4.4.178+ #3
-> Hardware name: linux,dummy-virt (DT)
-> Workqueue: netns cleanup_net
-> Call trace:
-> [<ffffff90080abb50>] dump_backtrace+0x0/0x618
-> [<ffffff90080ac1a0>] show_stack+0x38/0x60
-> [<ffffff9008c42b78>] dump_stack+0x1a8/0x230
-> [<ffffff90085d469c>] kasan_report_error+0xc8c/0xfc0
-> [<ffffff90085d54a4>] kasan_report+0x94/0xd8
-> [<ffffff90085d1b28>] __asan_load8+0x88/0x150
-> [<ffffff9009c9cc2c>] rds_tcp_dev_event+0x734/0xb48
-> [<ffffff90081eacb0>] raw_notifier_call_chain+0x150/0x1e8
-> [<ffffff900973fec0>] call_netdevice_notifiers_info+0x90/0x110
-> [<ffffff9009764874>] netdev_run_todo+0x2f4/0xb08
-> [<ffffff9009796d34>] rtnl_unlock+0x2c/0x48
-> [<ffffff9009756484>] default_device_exit_batch+0x444/0x528
-> [<ffffff9009720498>] ops_exit_list+0x1c0/0x240
-> [<ffffff9009724a80>] cleanup_net+0x738/0xbf8
-> [<ffffff90081ca6cc>] process_one_work+0x96c/0x13e0
-> [<ffffff90081cf370>] worker_thread+0x7e0/0x1910
-> [<ffffff90081e7174>] kthread+0x304/0x390
-> [<ffffff9008094280>] ret_from_fork+0x10/0x50
-> 
-> If the first loop add the tc->t_sock = NULL to the tmp_list,
-> 1). list_for_each_entry_safe(tc, _tc, &rds_tcp_conn_list, t_tcp_node)
-> 
-> then the second loop is to find connections to destroy, tc->t_sock
-> might equal NULL, and tc->t_sock->sk happens null-ptr-deref.
-> 2). list_for_each_entry_safe(tc, _tc, &tmp_list, t_tcp_node)
-> 
-> Fixes: c4e97b06cfdc ("net: rds: force to destroy connection if t_sock is NULL in rds_tcp_kill_sock().")
-> Signed-off-by: Mao Wenan <maowenan@huawei.com>
-> ---
->  net/rds/tcp.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+Add tw missing ptrace ifdefines to avoid compilation errors on systems
+that do not provide PTRACE_EVENTMSG_SYSCALL_ENTRY or
+PTRACE_EVENTMSG_SYSCALL_EXIT or:
 
-Why is this not needed upstream as well?
+gcc -Wl,-no-as-needed -Wall  seccomp_bpf.c -lpthread -o seccomp_bpf
+In file included from seccomp_bpf.c:52:0:
+seccomp_bpf.c: In function ‘tracer_ptrace’:
+seccomp_bpf.c:1792:20: error: ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_CLONE’?
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+                    ^
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
+seccomp_bpf.c:1792:20: note: each undeclared identifier is reported only once for each function it appears in
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+                    ^
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
+seccomp_bpf.c:1793:6: error: ‘PTRACE_EVENTMSG_SYSCALL_EXIT’ undeclared (first use in this function); did you mean ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’?
+    : PTRACE_EVENTMSG_SYSCALL_EXIT, msg);
+      ^
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
 
-4.9.y?  4.14.y?  anything else?
+Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: Tycho Andersen <tycho@tycho.ws>
+CC: Tyler Hicks <tyhicks@canonical.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: stable@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: bpf@vger.kernel.org
+---
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-thanks,
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 6ef7f16c4cf5..ee52eab01800 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -155,6 +155,14 @@ struct seccomp_data {
+ #ifndef PTRACE_SECCOMP_GET_METADATA
+ #define PTRACE_SECCOMP_GET_METADATA	0x420d
+ 
++#ifndef PTRACE_EVENTMSG_SYSCALL_ENTRY
++#define PTRACE_EVENTMSG_SYSCALL_ENTRY 1
++#endif
++
++#ifndef PTRACE_EVENTMSG_SYSCALL_EXIT
++#define PTRACE_EVENTMSG_SYSCALL_EXIT 2
++#endif
++
+ struct seccomp_metadata {
+ 	__u64 filter_off;       /* Input: which filter */
+ 	__u64 flags;             /* Output: filter's flags */
+-- 
+2.23.0
 
-greg k-h
