@@ -2,122 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E336B6D49
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 22:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13297B6F8B
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 01:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390759AbfIRUKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 16:10:07 -0400
-Received: from mail-pg1-f175.google.com ([209.85.215.175]:39716 "EHLO
-        mail-pg1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390755AbfIRUKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 16:10:07 -0400
-Received: by mail-pg1-f175.google.com with SMTP id u17so478310pgi.6;
-        Wed, 18 Sep 2019 13:10:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=jejDW17MGpVNFAQ5/vkCZ4/il8VDfaKN7ZaKNxusXrw=;
-        b=n3vWxfgZ8SeYyOww2zluzjHrNIao5GU7t3m2jJbg2yHpUE07vvT0OxuDCGSj2pQ+KL
-         3seYqcOOd/ifrzWL6vJTniQ/F9MgkNsTwoXAfXC8elrwO6J5u3L7x70vz5OLIZD+CQ3P
-         YKsTVNeKHzMd4F2gdVoBXMPtuxzER5IPkxL/KRmcgkcfQKJBLTDFV/xglME5RwcczQJz
-         Enif5K9vCL+FSld8FXrHIp8KvXOgpZXSruw5K1q8vSJmnSEZ5+dhczg8drdy6Y9UqbQR
-         5qfPb6iubps0rZTDp6/UwBPIJFiKq/d1PeWBkbCTMW2EP8fdGLScZyWPHTbzJneB1lqs
-         gdSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=jejDW17MGpVNFAQ5/vkCZ4/il8VDfaKN7ZaKNxusXrw=;
-        b=Kza4mF2ueE7bMfELHNfjN8H8o56DpYTZ6nKVPwHcMvXtVNo4OgKCsY3ExrFSDpl6+A
-         DGZNBm7PuMEELGWkbEfTo+V72yacyAwg5I/GhStgu8QhfKRz3zDQTVxFvYD/WM5EJChi
-         W0gtrfg2Ejgzu71YdfbxPzukUTY/I+Oe2KTk/aEoDDb9sZWauB/cNpgRyGhBE8QM6tUM
-         ZrbhpDA1dWCJFR3oFnmfOD5Bysfhw7cD2jA8BHJCmBtEVDBhVipy9NiGZ75Ndj+q+ScA
-         Kh3m4BFajQHzjJDAvc+PQrGKYfnog4i5yils8SZ3TizhElpN1Qe4Cv8nhf1IURwlviDT
-         buCg==
-X-Gm-Message-State: APjAAAWUr9a45905r7jrPVyKjB6t6B3I7ZM7ciiIUqUDCszGJePKaj+l
-        MokVSOjntqxsw+o+wRJJLNQQPN5uzxyFbg==
-X-Google-Smtp-Source: APXvYqzTQvgTSnTnlTjE3UXi08rxjA75davJqgX8Q7HCdmsihlqcdgP6FYWFJw8H2mY7NGYnEpqHuA==
-X-Received: by 2002:a17:90a:be13:: with SMTP id a19mr99793pjs.55.1568837406331;
-        Wed, 18 Sep 2019 13:10:06 -0700 (PDT)
-Received: from [192.168.111.105] ([198.182.47.47])
-        by smtp.gmail.com with ESMTPSA id v44sm16028192pgn.17.2019.09.18.13.10.04
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 18 Sep 2019 13:10:05 -0700 (PDT)
-Subject: Re: stable backport for dc8635b78cd8669
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kbuild test robot <lkp@intel.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        arcml <linux-snps-arc@lists.infradead.org>
-References: <efb68643-3750-e94b-8387-6e4cacb3a82a@gmail.com>
- <20190918185633.GB1944551@kroah.com>
-From:   Vineet Gupta <vineetg76@gmail.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=vineetg76@gmail.com; prefer-encrypt=mutual; keydata=
- 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
- deE0Dvw98SWmZSNtdOPnJZ0D
-Message-ID: <6bcb935a-4dae-48cc-ad1e-88a51b9d6a5c@gmail.com>
-Date:   Wed, 18 Sep 2019 13:10:04 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20190918185633.GB1944551@kroah.com>
-Content-Type: text/plain; charset=utf-8
+        id S1728729AbfIRXIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 19:08:05 -0400
+Received: from mail-eopbgr710046.outbound.protection.outlook.com ([40.107.71.46]:7616
+        "EHLO NAM05-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729042AbfIRXIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 19:08:05 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JISRIuPhuE8qURO1b6zjUPBJYiCjK84jKjSbE/ln+IPJCQFBY5s6xg+qBRlC6bmDz4ePKnWvmW1/+5wMod1pe6kFOkujodVPBfWREkMyBpB3nihKQVKcpy5LlGoVHMLJ5TPXob6j3ei65y9m1y08HyeVq2T4Tyq7pbCb2ZQAhkoEis0T/hM/3DDN8XtjQ4VWO6k/pb3XHsFOoz/Rmhb5zTReLxdWhVy/7TVgRE2VZ9M2kvnUXin4SgUCe+OiZeZXIEyrbDCvVKeAiw5B1e1cMfiPb0p2I1iYShQXZ2efBjMgBEiWMIJIwl2ZP8tf4HIETKze+eAEYP5xJ5lRrjhxGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Bx4w8qG2ZujoD++Iq3/ZM/wYQDOPdfZ/G8SjY//tKo0=;
+ b=CFdofeTO+PI6LFg5lHnX7AT5oZAra5BgXaZ5YyTSUu9JpBpOZwQeLDLDdMFM4HJ6B7IpTnAmOSERamqOIo0m4TR11Tu+By7zErPWQoCFmxU4SNidUhx8kBfj/Zq3BbXNPEfXsVUJ9P3fJ2o8U1R+hcXzSqKwVacm7tneAZlRR+oYRj2qjOtsiy+e5NzPoY4zuafDyz0izg4IFn0BeC85KspXzUIAQxQgSFbp3RmvnahtUG1cx7IobgZLUGpw5p+BybGkXF2GiknveiDRYDEqJzssj/Csu0YEz7Kzh8kFieKr2wLmJRLPaj/MqEwXGQodpUuqBA7wfjgp58b/0zP34g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Bx4w8qG2ZujoD++Iq3/ZM/wYQDOPdfZ/G8SjY//tKo0=;
+ b=yUObQoZYRGJTwTcLq88vF3xUWdkhttyrU7LuDw2RRvUR8OfyunpF9++oi6JiYTry1yJCcscTfKk1V3zXYWvjy9AVoC0VaHYu4fR9tyncGKgFPmve3uOkUujyFArQNTlwFUvm7Ldy7j00zhIs00L5JY/eCNDi+P1sEvPVxQRwtJY=
+Received: from BYAPR05MB5511.namprd05.prod.outlook.com (20.177.186.28) by
+ BYAPR05MB6150.namprd05.prod.outlook.com (20.178.55.27) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2284.18; Wed, 18 Sep 2019 23:08:02 +0000
+Received: from BYAPR05MB5511.namprd05.prod.outlook.com
+ ([fe80::81ed:73c3:bc95:7d03]) by BYAPR05MB5511.namprd05.prod.outlook.com
+ ([fe80::81ed:73c3:bc95:7d03%5]) with mapi id 15.20.2284.009; Wed, 18 Sep 2019
+ 23:08:02 +0000
+From:   Adit Ranadive <aditr@vmware.com>
+To:     "jgg@mellanox.com" <jgg@mellanox.com>,
+        "dledford@redhat.com" <dledford@redhat.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>
+CC:     Adit Ranadive <aditr@vmware.com>,
+        Pv-drivers <Pv-drivers@vmware.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: [PATCH] RDMA/vmw_pvrdma: Free SRQ only once
+Thread-Topic: [PATCH] RDMA/vmw_pvrdma: Free SRQ only once
+Thread-Index: AQHVbnXq/ZdDcwSMJkWe4MH4kt57+w==
+Date:   Wed, 18 Sep 2019 23:08:00 +0000
+Message-ID: <1568848066-12449-1-git-send-email-aditr@vmware.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR07CA0024.namprd07.prod.outlook.com
+ (2603:10b6:a02:bc::37) To BYAPR05MB5511.namprd05.prod.outlook.com
+ (2603:10b6:a03:1a::28)
+x-mailer: git-send-email 1.8.3.1
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=aditr@vmware.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [66.170.99.1]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 4d0e9990-d854-4aca-4052-08d73c8d0cb7
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600167)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:BYAPR05MB6150;
+x-ms-traffictypediagnostic: BYAPR05MB6150:|BYAPR05MB6150:
+x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR05MB615055497EB5EB5EAD9DA84DC58E0@BYAPR05MB6150.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:229;
+x-forefront-prvs: 01644DCF4A
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(366004)(376002)(39860400002)(136003)(396003)(199004)(189003)(2201001)(50226002)(2906002)(52116002)(66446008)(66556008)(14454004)(6436002)(6506007)(6512007)(386003)(102836004)(4744005)(71190400001)(26005)(256004)(2501003)(6486002)(7736002)(71200400001)(86362001)(5660300002)(186003)(99286004)(305945005)(66476007)(8936002)(4326008)(486006)(64756008)(81156014)(66946007)(36756003)(3846002)(4720700003)(8676002)(478600001)(25786009)(2616005)(6116002)(316002)(110136005)(66066001)(54906003)(81166006)(476003);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR05MB6150;H:BYAPR05MB5511.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: sb/5QEC++4f9OkhEoLFwA0oMFxHVN/0ymtwXIB6lR4quY5UmCKS1L/iO4bH6zgULYFWzPuTnuvW1ur6JO1+CsdGEO1Sg5PCupiNTmSBD/8VLhJFNzxzZzYsqOIqiABzvNQUFMD+M3RgIOjlcWrerPwQY2IhWNuezVCZsSv+dTJKAz5/n4bJ39b1DfXLlpihfKQ7WBrf7vJDaJmeN23atGKM1vzZSnCwyEvx1+oD8waa21B+bJK0LHmuEYBTY3fNmTWWDhXoj+NQyse9gST4+IJTFmkMJIjUXszEy2TqMJVcILmqO2g8AbkxeHlQiGfu3/gzC/1JECq6y2XQJlrLdmdOxzefftj/GECbK61Ekmc0SjNgCK9oyXQzK+pPv2SfYD06ALX24UdITSXei5Y+uRDjfET+iklSv9kG/u7g++JU=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4d0e9990-d854-4aca-4052-08d73c8d0cb7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Sep 2019 23:08:01.9553
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: iH0uSqvdbNznuonHbBj0O8vGKHQIMbu2/GyUGQbxC583DMmZiiY0oXgGxehJNtpB3wWvynLS5fq4go/EOP6XZw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB6150
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/18/19 11:56 AM, Greg Kroah-Hartman wrote:
-> So is this only needed in 4.9.y and 4.4.y?
+An extra kfree cleanup was missed since these are now deallocated
+by core.
 
-Yes indeed !
+Cc: <stable@vger.kernel.org>
+Fixes: 68e326dea1db ("RDMA: Handle SRQ allocations by IB/core")
+Signed-off-by: Adit Ranadive <aditr@vmware.com>
+---
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_srq.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Thx,
--Vineet
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_srq.c b/drivers/infini=
+band/hw/vmw_pvrdma/pvrdma_srq.c
+index 6cac0c88cf39..36cdfbdbd325 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_srq.c
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_srq.c
+@@ -230,8 +230,6 @@ static void pvrdma_free_srq(struct pvrdma_dev *dev, str=
+uct pvrdma_srq *srq)
+=20
+ 	pvrdma_page_dir_cleanup(dev, &srq->pdir);
+=20
+-	kfree(srq);
+-
+ 	atomic_dec(&dev->num_srqs);
+ }
+=20
+--=20
+1.8.3.1
+
