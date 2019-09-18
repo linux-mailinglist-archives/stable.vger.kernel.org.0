@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B86F6B5D50
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4378AB5D2A
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728607AbfIRGUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39520 "EHLO mail.kernel.org"
+        id S1728424AbfIRGWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728502AbfIRGUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:36 -0400
+        id S1726038AbfIRGWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37AE921927;
-        Wed, 18 Sep 2019 06:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9A8E21906;
+        Wed, 18 Sep 2019 06:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787635;
-        bh=xItjJk21um48QSG8Cuzllh+TXH0xwu64qQfvRLOtT4E=;
+        s=default; t=1568787744;
+        bh=PRWKNcqBpzKR0r42LB1UrY8958YYB9J4xHEDHt+uVTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tb3nDnVIMBYKctZhhz2bby7Xn/je9N2lBhdvOF8HuWHGt4Y8E/uOZGvr1VYTpe5PS
-         ZmCCaABOCRd2Op37slk0LecptrUU61qh4KVwqlqeDQEULYKZkdj6zq9NhEkLExWb1+
-         d6eTz48ZUdHb003z0j2ypMz/Mk84ilQumP4vxCv0=
+        b=SgEfY5q9Wzyr4uXfHAFlNn6EoDktjFoLWEhxoFAipIZhDnQVfz51QpFXb5k9EfxY/
+         97ot3ukayeGElVrJMlVEN4olLvJQPKmT39HDbCdj30uZq/r+nN7E1D5nK/qlS7frsh
+         YpGYBm6FBMFHEMhsvegU/09R5g2A5TzwPbJGrODc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [PATCH 4.14 22/45] KVM: s390: Do not leak kernel stack data in the KVM_S390_INTERRUPT ioctl
-Date:   Wed, 18 Sep 2019 08:19:00 +0200
-Message-Id: <20190918061225.314367870@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 18/50] Btrfs: fix assertion failure during fsync and use of stale transaction
+Date:   Wed, 18 Sep 2019 08:19:01 +0200
+Message-Id: <20190918061224.926360825@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +44,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 53936b5bf35e140ae27e4bbf0447a61063f400da upstream.
+commit 410f954cb1d1c79ae485dd83a175f21954fd87cd upstream.
 
-When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
-an interrupt, we convert them from the legacy struct kvm_s390_interrupt
-to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
-However, this function does not take care of all types of interrupts
-that we can inject into the guest later (see do_inject_vcpu()). Since we
-do not clear out the s390irq values before calling s390int_to_s390irq(),
-there is a chance that we copy random data from the kernel stack which
-could be leaked to the userspace later.
+Sometimes when fsync'ing a file we need to log that other inodes exist and
+when we need to do that we acquire a reference on the inodes and then drop
+that reference using iput() after logging them.
 
-Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
-interrupt: s390int_to_s390irq() does not handle it, and the function
-__inject_pfault_init() later copies irq->u.ext which contains the
-random kernel stack data. This data can then be leaked either to
-the guest memory in __deliver_pfault_init(), or the userspace might
-retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
+That generally is not a problem except if we end up doing the final iput()
+(dropping the last reference) on the inode and that inode has a link count
+of 0, which can happen in a very short time window if the logging path
+gets a reference on the inode while it's being unlinked.
 
-Fix it by handling that interrupt type in s390int_to_s390irq(), too,
-and by making sure that the s390irq struct is properly pre-initialized.
-And while we're at it, make sure that s390int_to_s390irq() now
-directly returns -EINVAL for unknown interrupt types, so that we
-immediately get a proper error code in case we add more interrupt
-types to do_inject_vcpu() without updating s390int_to_s390irq()
-sometime in the future.
+In that case we end up getting the eviction callback, btrfs_evict_inode(),
+invoked through the iput() call chain which needs to drop all of the
+inode's items from its subvolume btree, and in order to do that, it needs
+to join a transaction at the helper function evict_refill_and_join().
+However because the task previously started a transaction at the fsync
+handler, btrfs_sync_file(), it has current->journal_info already pointing
+to a transaction handle and therefore evict_refill_and_join() will get
+that transaction handle from btrfs_join_transaction(). From this point on,
+two different problems can happen:
 
-Cc: stable@vger.kernel.org
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Link: https://lore.kernel.org/kvm/20190912115438.25761-1-thuth@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+1) evict_refill_and_join() will often change the transaction handle's
+   block reserve (->block_rsv) and set its ->bytes_reserved field to a
+   value greater than 0. If evict_refill_and_join() never commits the
+   transaction, the eviction handler ends up decreasing the reference
+   count (->use_count) of the transaction handle through the call to
+   btrfs_end_transaction(), and after that point we have a transaction
+   handle with a NULL ->block_rsv (which is the value prior to the
+   transaction join from evict_refill_and_join()) and a ->bytes_reserved
+   value greater than 0. If after the eviction/iput completes the inode
+   logging path hits an error or it decides that it must fallback to a
+   transaction commit, the btrfs fsync handle, btrfs_sync_file(), gets a
+   non-zero value from btrfs_log_dentry_safe(), and because of that
+   non-zero value it tries to commit the transaction using a handle with
+   a NULL ->block_rsv and a non-zero ->bytes_reserved value. This makes
+   the transaction commit hit an assertion failure at
+   btrfs_trans_release_metadata() because ->bytes_reserved is not zero but
+   the ->block_rsv is NULL. The produced stack trace for that is like the
+   following:
+
+   [192922.917158] assertion failed: !trans->bytes_reserved, file: fs/btrfs/transaction.c, line: 816
+   [192922.917553] ------------[ cut here ]------------
+   [192922.917922] kernel BUG at fs/btrfs/ctree.h:3532!
+   [192922.918310] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
+   [192922.918666] CPU: 2 PID: 883 Comm: fsstress Tainted: G        W         5.1.4-btrfs-next-47 #1
+   [192922.919035] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
+   [192922.919801] RIP: 0010:assfail.constprop.25+0x18/0x1a [btrfs]
+   (...)
+   [192922.920925] RSP: 0018:ffffaebdc8a27da8 EFLAGS: 00010286
+   [192922.921315] RAX: 0000000000000051 RBX: ffff95c9c16a41c0 RCX: 0000000000000000
+   [192922.921692] RDX: 0000000000000000 RSI: ffff95cab6b16838 RDI: ffff95cab6b16838
+   [192922.922066] RBP: ffff95c9c16a41c0 R08: 0000000000000000 R09: 0000000000000000
+   [192922.922442] R10: ffffaebdc8a27e70 R11: 0000000000000000 R12: ffff95ca731a0980
+   [192922.922820] R13: 0000000000000000 R14: ffff95ca84c73338 R15: ffff95ca731a0ea8
+   [192922.923200] FS:  00007f337eda4e80(0000) GS:ffff95cab6b00000(0000) knlGS:0000000000000000
+   [192922.923579] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   [192922.923948] CR2: 00007f337edad000 CR3: 00000001e00f6002 CR4: 00000000003606e0
+   [192922.924329] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+   [192922.924711] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+   [192922.925105] Call Trace:
+   [192922.925505]  btrfs_trans_release_metadata+0x10c/0x170 [btrfs]
+   [192922.925911]  btrfs_commit_transaction+0x3e/0xaf0 [btrfs]
+   [192922.926324]  btrfs_sync_file+0x44c/0x490 [btrfs]
+   [192922.926731]  do_fsync+0x38/0x60
+   [192922.927138]  __x64_sys_fdatasync+0x13/0x20
+   [192922.927543]  do_syscall_64+0x60/0x1c0
+   [192922.927939]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+   (...)
+   [192922.934077] ---[ end trace f00808b12068168f ]---
+
+2) If evict_refill_and_join() decides to commit the transaction, it will
+   be able to do it, since the nested transaction join only increments the
+   transaction handle's ->use_count reference counter and it does not
+   prevent the transaction from getting committed. This means that after
+   eviction completes, the fsync logging path will be using a transaction
+   handle that refers to an already committed transaction. What happens
+   when using such a stale transaction can be unpredictable, we are at
+   least having a use-after-free on the transaction handle itself, since
+   the transaction commit will call kmem_cache_free() against the handle
+   regardless of its ->use_count value, or we can end up silently losing
+   all the updates to the log tree after that iput() in the logging path,
+   or using a transaction handle that in the meanwhile was allocated to
+   another task for a new transaction, etc, pretty much unpredictable
+   what can happen.
+
+In order to fix both of them, instead of using iput() during logging, use
+btrfs_add_delayed_iput(), so that the logging path of fsync never drops
+the last reference on an inode, that step is offloaded to a safe context
+(usually the cleaner kthread).
+
+The assertion failure issue was sporadically triggered by the test case
+generic/475 from fstests, which loads the dm error target while fsstress
+is running, which lead to fsync failing while logging inodes with -EIO
+errors and then trying later to commit the transaction, triggering the
+assertion failure.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/interrupt.c |   10 ++++++++++
- arch/s390/kvm/kvm-s390.c  |    2 +-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1701,6 +1701,16 @@ int s390int_to_s390irq(struct kvm_s390_i
- 	case KVM_S390_MCHK:
- 		irq->u.mchk.mcic = s390int->parm64;
- 		break;
-+	case KVM_S390_INT_PFAULT_INIT:
-+		irq->u.ext.ext_params = s390int->parm;
-+		irq->u.ext.ext_params2 = s390int->parm64;
-+		break;
-+	case KVM_S390_RESTART:
-+	case KVM_S390_INT_CLOCK_COMP:
-+	case KVM_S390_INT_CPU_TIMER:
-+		break;
-+	default:
-+		return -EINVAL;
- 	}
- 	return 0;
- }
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3730,7 +3730,7 @@ long kvm_arch_vcpu_ioctl(struct file *fi
- 	}
- 	case KVM_S390_INTERRUPT: {
- 		struct kvm_s390_interrupt s390int;
--		struct kvm_s390_irq s390irq;
-+		struct kvm_s390_irq s390irq = {};
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5107,7 +5107,7 @@ again:
+ 						BTRFS_I(other_inode),
+ 						LOG_OTHER_INODE, 0, LLONG_MAX,
+ 						ctx);
+-				iput(other_inode);
++				btrfs_add_delayed_iput(other_inode);
+ 				if (err)
+ 					goto out_unlock;
+ 				else
+@@ -5519,7 +5519,7 @@ process_leaf:
+ 			}
  
- 		r = -EFAULT;
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
+ 			if (btrfs_inode_in_log(BTRFS_I(di_inode), trans->transid)) {
+-				iput(di_inode);
++				btrfs_add_delayed_iput(di_inode);
+ 				break;
+ 			}
+ 
+@@ -5531,7 +5531,7 @@ process_leaf:
+ 			if (!ret &&
+ 			    btrfs_must_commit_transaction(trans, BTRFS_I(di_inode)))
+ 				ret = 1;
+-			iput(di_inode);
++			btrfs_add_delayed_iput(di_inode);
+ 			if (ret)
+ 				goto next_dir_inode;
+ 			if (ctx->log_new_dentries) {
+@@ -5678,7 +5678,7 @@ static int btrfs_log_all_parents(struct
+ 			if (!ret && ctx && ctx->log_new_dentries)
+ 				ret = log_new_dir_dentries(trans, root,
+ 						   BTRFS_I(dir_inode), ctx);
+-			iput(dir_inode);
++			btrfs_add_delayed_iput(dir_inode);
+ 			if (ret)
+ 				goto out;
+ 		}
 
 
