@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A378B5BE1
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD6AB5C0E
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbfIRGUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39354 "EHLO mail.kernel.org"
+        id S1728577AbfIRGWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728366AbfIRGUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:31 -0400
+        id S1728576AbfIRGWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE94521927;
-        Wed, 18 Sep 2019 06:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5F01218AE;
+        Wed, 18 Sep 2019 06:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787630;
-        bh=YAjIkBk5V/66+E8U7WqIYrQ0uOszw4GwS0Ym3y5+VKo=;
+        s=default; t=1568787736;
+        bh=NcuPB3ua9qpATxDodUFdjI1+ntr3gULdsmQaT/X9iWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWa6IXamq+AavonUEsa4YMubp/kzhOXPxkd/nM8HoK6uN/aICNn5Uyn0Q7JxOgC7L
-         QO0X8fZxpU7ODNyVC5Y4uUeYXFBdG9uz+d7B1UwdbbeqJoirtvLBQydF+sjneDWXt6
-         nxl6ZvUppTmkVR1OI5mBOUfWEnBfy7K18+wfdk+s=
+        b=dy0lAZuZxV9buO8+Cv5UvV4D5b2bE07K4W3zsgEzxHMY50/HYv2CqaHCvB/6bueFR
+         lbn7f3SqJQ47ZMDyPynO6E4zvJapqvzjSS+TZ2SrYYiwqKy2O6E5Xsx0meUu8kqvEy
+         mPzcfDotQvCuY8dsksDrtMDj7J0/xRCSEpIXjA4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 20/45] Btrfs: fix assertion failure during fsync and use of stale transaction
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 15/50] tun: fix use-after-free when register netdev failed
 Date:   Wed, 18 Sep 2019 08:18:58 +0200
-Message-Id: <20190918061224.997301401@linuxfoundation.org>
+Message-Id: <20190918061224.628148745@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,151 +45,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 410f954cb1d1c79ae485dd83a175f21954fd87cd upstream.
+[ Upstream commit 77f22f92dff8e7b45c7786a430626d38071d4670 ]
 
-Sometimes when fsync'ing a file we need to log that other inodes exist and
-when we need to do that we acquire a reference on the inodes and then drop
-that reference using iput() after logging them.
+I got a UAF repport in tun driver when doing fuzzy test:
 
-That generally is not a problem except if we end up doing the final iput()
-(dropping the last reference) on the inode and that inode has a link count
-of 0, which can happen in a very short time window if the logging path
-gets a reference on the inode while it's being unlinked.
+[  466.269490] ==================================================================
+[  466.271792] BUG: KASAN: use-after-free in tun_chr_read_iter+0x2ca/0x2d0
+[  466.271806] Read of size 8 at addr ffff888372139250 by task tun-test/2699
+[  466.271810]
+[  466.271824] CPU: 1 PID: 2699 Comm: tun-test Not tainted 5.3.0-rc1-00001-g5a9433db2614-dirty #427
+[  466.271833] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[  466.271838] Call Trace:
+[  466.271858]  dump_stack+0xca/0x13e
+[  466.271871]  ? tun_chr_read_iter+0x2ca/0x2d0
+[  466.271890]  print_address_description+0x79/0x440
+[  466.271906]  ? vprintk_func+0x5e/0xf0
+[  466.271920]  ? tun_chr_read_iter+0x2ca/0x2d0
+[  466.271935]  __kasan_report+0x15c/0x1df
+[  466.271958]  ? tun_chr_read_iter+0x2ca/0x2d0
+[  466.271976]  kasan_report+0xe/0x20
+[  466.271987]  tun_chr_read_iter+0x2ca/0x2d0
+[  466.272013]  do_iter_readv_writev+0x4b7/0x740
+[  466.272032]  ? default_llseek+0x2d0/0x2d0
+[  466.272072]  do_iter_read+0x1c5/0x5e0
+[  466.272110]  vfs_readv+0x108/0x180
+[  466.299007]  ? compat_rw_copy_check_uvector+0x440/0x440
+[  466.299020]  ? fsnotify+0x888/0xd50
+[  466.299040]  ? __fsnotify_parent+0xd0/0x350
+[  466.299064]  ? fsnotify_first_mark+0x1e0/0x1e0
+[  466.304548]  ? vfs_write+0x264/0x510
+[  466.304569]  ? ksys_write+0x101/0x210
+[  466.304591]  ? do_preadv+0x116/0x1a0
+[  466.304609]  do_preadv+0x116/0x1a0
+[  466.309829]  do_syscall_64+0xc8/0x600
+[  466.309849]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  466.309861] RIP: 0033:0x4560f9
+[  466.309875] Code: 00 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+[  466.309889] RSP: 002b:00007ffffa5166e8 EFLAGS: 00000206 ORIG_RAX: 0000000000000127
+[  466.322992] RAX: ffffffffffffffda RBX: 0000000000400460 RCX: 00000000004560f9
+[  466.322999] RDX: 0000000000000003 RSI: 00000000200008c0 RDI: 0000000000000003
+[  466.323007] RBP: 00007ffffa516700 R08: 0000000000000004 R09: 0000000000000000
+[  466.323014] R10: 0000000000000000 R11: 0000000000000206 R12: 000000000040cb10
+[  466.323021] R13: 0000000000000000 R14: 00000000006d7018 R15: 0000000000000000
+[  466.323057]
+[  466.323064] Allocated by task 2605:
+[  466.335165]  save_stack+0x19/0x80
+[  466.336240]  __kasan_kmalloc.constprop.8+0xa0/0xd0
+[  466.337755]  kmem_cache_alloc+0xe8/0x320
+[  466.339050]  getname_flags+0xca/0x560
+[  466.340229]  user_path_at_empty+0x2c/0x50
+[  466.341508]  vfs_statx+0xe6/0x190
+[  466.342619]  __do_sys_newstat+0x81/0x100
+[  466.343908]  do_syscall_64+0xc8/0x600
+[  466.345303]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  466.347034]
+[  466.347517] Freed by task 2605:
+[  466.348471]  save_stack+0x19/0x80
+[  466.349476]  __kasan_slab_free+0x12e/0x180
+[  466.350726]  kmem_cache_free+0xc8/0x430
+[  466.351874]  putname+0xe2/0x120
+[  466.352921]  filename_lookup+0x257/0x3e0
+[  466.354319]  vfs_statx+0xe6/0x190
+[  466.355498]  __do_sys_newstat+0x81/0x100
+[  466.356889]  do_syscall_64+0xc8/0x600
+[  466.358037]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  466.359567]
+[  466.360050] The buggy address belongs to the object at ffff888372139100
+[  466.360050]  which belongs to the cache names_cache of size 4096
+[  466.363735] The buggy address is located 336 bytes inside of
+[  466.363735]  4096-byte region [ffff888372139100, ffff88837213a100)
+[  466.367179] The buggy address belongs to the page:
+[  466.368604] page:ffffea000dc84e00 refcount:1 mapcount:0 mapping:ffff8883df1b4f00 index:0x0 compound_mapcount: 0
+[  466.371582] flags: 0x2fffff80010200(slab|head)
+[  466.372910] raw: 002fffff80010200 dead000000000100 dead000000000122 ffff8883df1b4f00
+[  466.375209] raw: 0000000000000000 0000000000070007 00000001ffffffff 0000000000000000
+[  466.377778] page dumped because: kasan: bad access detected
+[  466.379730]
+[  466.380288] Memory state around the buggy address:
+[  466.381844]  ffff888372139100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  466.384009]  ffff888372139180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  466.386131] >ffff888372139200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  466.388257]                                                  ^
+[  466.390234]  ffff888372139280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  466.392512]  ffff888372139300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  466.394667] ==================================================================
 
-In that case we end up getting the eviction callback, btrfs_evict_inode(),
-invoked through the iput() call chain which needs to drop all of the
-inode's items from its subvolume btree, and in order to do that, it needs
-to join a transaction at the helper function evict_refill_and_join().
-However because the task previously started a transaction at the fsync
-handler, btrfs_sync_file(), it has current->journal_info already pointing
-to a transaction handle and therefore evict_refill_and_join() will get
-that transaction handle from btrfs_join_transaction(). From this point on,
-two different problems can happen:
+tun_chr_read_iter() accessed the memory which freed by free_netdev()
+called by tun_set_iff():
 
-1) evict_refill_and_join() will often change the transaction handle's
-   block reserve (->block_rsv) and set its ->bytes_reserved field to a
-   value greater than 0. If evict_refill_and_join() never commits the
-   transaction, the eviction handler ends up decreasing the reference
-   count (->use_count) of the transaction handle through the call to
-   btrfs_end_transaction(), and after that point we have a transaction
-   handle with a NULL ->block_rsv (which is the value prior to the
-   transaction join from evict_refill_and_join()) and a ->bytes_reserved
-   value greater than 0. If after the eviction/iput completes the inode
-   logging path hits an error or it decides that it must fallback to a
-   transaction commit, the btrfs fsync handle, btrfs_sync_file(), gets a
-   non-zero value from btrfs_log_dentry_safe(), and because of that
-   non-zero value it tries to commit the transaction using a handle with
-   a NULL ->block_rsv and a non-zero ->bytes_reserved value. This makes
-   the transaction commit hit an assertion failure at
-   btrfs_trans_release_metadata() because ->bytes_reserved is not zero but
-   the ->block_rsv is NULL. The produced stack trace for that is like the
-   following:
+        CPUA                                           CPUB
+  tun_set_iff()
+    alloc_netdev_mqs()
+    tun_attach()
+                                                  tun_chr_read_iter()
+                                                    tun_get()
+                                                    tun_do_read()
+                                                      tun_ring_recv()
+    register_netdevice() <-- inject error
+    goto err_detach
+    tun_detach_all() <-- set RCV_SHUTDOWN
+    free_netdev() <-- called from
+                     err_free_dev path
+      netdev_freemem() <-- free the memory
+                        without check refcount
+      (In this path, the refcount cannot prevent
+       freeing the memory of dev, and the memory
+       will be used by dev_put() called by
+       tun_chr_read_iter() on CPUB.)
+                                                     (Break from tun_ring_recv(),
+                                                     because RCV_SHUTDOWN is set)
+                                                   tun_put()
+                                                     dev_put() <-- use the memory
+                                                                   freed by netdev_freemem()
 
-   [192922.917158] assertion failed: !trans->bytes_reserved, file: fs/btrfs/transaction.c, line: 816
-   [192922.917553] ------------[ cut here ]------------
-   [192922.917922] kernel BUG at fs/btrfs/ctree.h:3532!
-   [192922.918310] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-   [192922.918666] CPU: 2 PID: 883 Comm: fsstress Tainted: G        W         5.1.4-btrfs-next-47 #1
-   [192922.919035] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-   [192922.919801] RIP: 0010:assfail.constprop.25+0x18/0x1a [btrfs]
-   (...)
-   [192922.920925] RSP: 0018:ffffaebdc8a27da8 EFLAGS: 00010286
-   [192922.921315] RAX: 0000000000000051 RBX: ffff95c9c16a41c0 RCX: 0000000000000000
-   [192922.921692] RDX: 0000000000000000 RSI: ffff95cab6b16838 RDI: ffff95cab6b16838
-   [192922.922066] RBP: ffff95c9c16a41c0 R08: 0000000000000000 R09: 0000000000000000
-   [192922.922442] R10: ffffaebdc8a27e70 R11: 0000000000000000 R12: ffff95ca731a0980
-   [192922.922820] R13: 0000000000000000 R14: ffff95ca84c73338 R15: ffff95ca731a0ea8
-   [192922.923200] FS:  00007f337eda4e80(0000) GS:ffff95cab6b00000(0000) knlGS:0000000000000000
-   [192922.923579] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   [192922.923948] CR2: 00007f337edad000 CR3: 00000001e00f6002 CR4: 00000000003606e0
-   [192922.924329] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-   [192922.924711] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-   [192922.925105] Call Trace:
-   [192922.925505]  btrfs_trans_release_metadata+0x10c/0x170 [btrfs]
-   [192922.925911]  btrfs_commit_transaction+0x3e/0xaf0 [btrfs]
-   [192922.926324]  btrfs_sync_file+0x44c/0x490 [btrfs]
-   [192922.926731]  do_fsync+0x38/0x60
-   [192922.927138]  __x64_sys_fdatasync+0x13/0x20
-   [192922.927543]  do_syscall_64+0x60/0x1c0
-   [192922.927939]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-   (...)
-   [192922.934077] ---[ end trace f00808b12068168f ]---
+Put the publishing of tfile->tun after register_netdevice(),
+so tun_get() won't get the tun pointer that freed by
+err_detach path if register_netdevice() failed.
 
-2) If evict_refill_and_join() decides to commit the transaction, it will
-   be able to do it, since the nested transaction join only increments the
-   transaction handle's ->use_count reference counter and it does not
-   prevent the transaction from getting committed. This means that after
-   eviction completes, the fsync logging path will be using a transaction
-   handle that refers to an already committed transaction. What happens
-   when using such a stale transaction can be unpredictable, we are at
-   least having a use-after-free on the transaction handle itself, since
-   the transaction commit will call kmem_cache_free() against the handle
-   regardless of its ->use_count value, or we can end up silently losing
-   all the updates to the log tree after that iput() in the logging path,
-   or using a transaction handle that in the meanwhile was allocated to
-   another task for a new transaction, etc, pretty much unpredictable
-   what can happen.
-
-In order to fix both of them, instead of using iput() during logging, use
-btrfs_add_delayed_iput(), so that the logging path of fsync never drops
-the last reference on an inode, that step is offloaded to a safe context
-(usually the cleaner kthread).
-
-The assertion failure issue was sporadically triggered by the test case
-generic/475 from fstests, which loads the dm error target while fsstress
-is running, which lead to fsync failing while logging inodes with -EIO
-errors and then trying later to commit the transaction, triggering the
-assertion failure.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: eb0fb363f920 ("tuntap: attach queue 0 before registering netdevice")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/btrfs/tree-log.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/tun.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5122,7 +5122,7 @@ again:
- 						BTRFS_I(other_inode),
- 						LOG_OTHER_INODE, 0, LLONG_MAX,
- 						ctx);
--				iput(other_inode);
-+				btrfs_add_delayed_iput(other_inode);
- 				if (err)
- 					goto out_unlock;
- 				else
-@@ -5539,7 +5539,7 @@ process_leaf:
- 			}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -801,7 +801,8 @@ static void tun_detach_all(struct net_de
+ }
  
- 			if (btrfs_inode_in_log(BTRFS_I(di_inode), trans->transid)) {
--				iput(di_inode);
-+				btrfs_add_delayed_iput(di_inode);
- 				break;
- 			}
+ static int tun_attach(struct tun_struct *tun, struct file *file,
+-		      bool skip_filter, bool napi, bool napi_frags)
++		      bool skip_filter, bool napi, bool napi_frags,
++		      bool publish_tun)
+ {
+ 	struct tun_file *tfile = file->private_data;
+ 	struct net_device *dev = tun->dev;
+@@ -881,7 +882,8 @@ static int tun_attach(struct tun_struct
+ 	 * initialized tfile; otherwise we risk using half-initialized
+ 	 * object.
+ 	 */
+-	rcu_assign_pointer(tfile->tun, tun);
++	if (publish_tun)
++		rcu_assign_pointer(tfile->tun, tun);
+ 	rcu_assign_pointer(tun->tfiles[tun->numqueues], tfile);
+ 	tun->numqueues++;
+ 	tun_set_real_num_queues(tun);
+@@ -2553,7 +2555,7 @@ static int tun_set_iff(struct net *net,
  
-@@ -5551,7 +5551,7 @@ process_leaf:
- 			if (!ret &&
- 			    btrfs_must_commit_transaction(trans, BTRFS_I(di_inode)))
- 				ret = 1;
--			iput(di_inode);
-+			btrfs_add_delayed_iput(di_inode);
- 			if (ret)
- 				goto next_dir_inode;
- 			if (ctx->log_new_dentries) {
-@@ -5698,7 +5698,7 @@ static int btrfs_log_all_parents(struct
- 			if (!ret && ctx && ctx->log_new_dentries)
- 				ret = log_new_dir_dentries(trans, root,
- 						   BTRFS_I(dir_inode), ctx);
--			iput(dir_inode);
-+			btrfs_add_delayed_iput(dir_inode);
- 			if (ret)
- 				goto out;
- 		}
+ 		err = tun_attach(tun, file, ifr->ifr_flags & IFF_NOFILTER,
+ 				 ifr->ifr_flags & IFF_NAPI,
+-				 ifr->ifr_flags & IFF_NAPI_FRAGS);
++				 ifr->ifr_flags & IFF_NAPI_FRAGS, true);
+ 		if (err < 0)
+ 			return err;
+ 
+@@ -2652,13 +2654,17 @@ static int tun_set_iff(struct net *net,
+ 
+ 		INIT_LIST_HEAD(&tun->disabled);
+ 		err = tun_attach(tun, file, false, ifr->ifr_flags & IFF_NAPI,
+-				 ifr->ifr_flags & IFF_NAPI_FRAGS);
++				 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
+ 		if (err < 0)
+ 			goto err_free_flow;
+ 
+ 		err = register_netdevice(tun->dev);
+ 		if (err < 0)
+ 			goto err_detach;
++		/* free_netdev() won't check refcnt, to aovid race
++		 * with dev_put() we need publish tun after registration.
++		 */
++		rcu_assign_pointer(tfile->tun, tun);
+ 	}
+ 
+ 	netif_carrier_on(tun->dev);
+@@ -2802,7 +2808,7 @@ static int tun_set_queue(struct file *fi
+ 		if (ret < 0)
+ 			goto unlock;
+ 		ret = tun_attach(tun, file, false, tun->flags & IFF_NAPI,
+-				 tun->flags & IFF_NAPI_FRAGS);
++				 tun->flags & IFF_NAPI_FRAGS, true);
+ 	} else if (ifr->ifr_flags & IFF_DETACH_QUEUE) {
+ 		tun = rtnl_dereference(tfile->tun);
+ 		if (!tun || !(tun->flags & IFF_MULTI_QUEUE) || tfile->detached)
 
 
