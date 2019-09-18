@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C07B5D55
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E45B5D2F
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728458AbfIRGUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39436 "EHLO mail.kernel.org"
+        id S1727221AbfIRGWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbfIRGUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:33 -0400
+        id S1729370AbfIRGWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9316E21928;
-        Wed, 18 Sep 2019 06:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7400F21906;
+        Wed, 18 Sep 2019 06:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787633;
-        bh=Z80W4BwS0WZgyYd2/w06g/vN6qTi8Oy8NeveaXoQSZ8=;
+        s=default; t=1568787739;
+        bh=nohuGyc7hfdYqZ6sL9+EviD0Dgpon4dbSK9zLX7rpCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfUa+zofCd3GchakDvI8e16foymsrvOJYKbWbxNcpW0OrZCpc+FgfBusfThvxtEtG
-         B7whcd0QyAQm9/X8teXRHZRpcFT1QkzC14lGEEQtJJk96pvTLLyFH9+DOr/LCid2lm
-         D48LC+iopVTmREtoeXxMe/sduM/RReamsi2JHUFI=
+        b=Vx6dXzeR1sr9h/iSLkL9JvRUhaztOWWFGkuEk+u84DsdWm/G7C/CZ0Elu678kVuaM
+         i3Ne0kv4344/ByThFtxbFM/ssk6UL1vNB1P9EbcsIR/xUR7dOmLiB7hAlanC2V6fo1
+         XtDm+7un/Bq+xVsACfnUD/grSeQsFSd8jUj19vhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Subject: [PATCH 4.14 21/45] genirq: Prevent NULL pointer dereference in resend_irqs()
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Ian W MORRISON <ianwmorrison@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 16/50] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot option and blacklist
 Date:   Wed, 18 Sep 2019 08:18:59 +0200
-Message-Id: <20190918061225.239795165@linuxfoundation.org>
+Message-Id: <20190918061224.680169319@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +47,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit eddf3e9c7c7e4d0707c68d1bb22cc6ec8aef7d4a upstream.
+commit 61f7f7c8f978b1c0d80e43c83b7d110ca0496eb4 upstream.
 
-The following crash was observed:
+Another day; another DSDT bug we need to workaround...
 
-  Unable to handle kernel NULL pointer dereference at 0000000000000158
-  Internal error: Oops: 96000004 [#1] SMP
-  pc : resend_irqs+0x68/0xb0
-  lr : resend_irqs+0x64/0xb0
-  ...
-  Call trace:
-   resend_irqs+0x68/0xb0
-   tasklet_action_common.isra.6+0x84/0x138
-   tasklet_action+0x2c/0x38
-   __do_softirq+0x120/0x324
-   run_ksoftirqd+0x44/0x60
-   smpboot_thread_fn+0x1ac/0x1e8
-   kthread+0x134/0x138
-   ret_from_fork+0x10/0x18
+Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
+at least once on boot") we call _AEI edge handlers at boot.
 
-The reason for this is that the interrupt resend mechanism happens in soft
-interrupt context, which is a asynchronous mechanism versus other
-operations on interrupts. free_irq() does not take resend handling into
-account. Thus, the irq descriptor might be already freed before the resend
-tasklet is executed. resend_irqs() does not check the return value of the
-interrupt descriptor lookup and derefences the return value
-unconditionally.
+In some rare cases this causes problems. One example of this is the Minix
+Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
+and pasted code for dealing with Micro USB-B connector host/device role
+switching, while the mini PC does not even have a micro-USB connector.
+This code, which should not be there, messes with the DDC data pin from
+the HDMI connector (switching it to GPIO mode) breaking HDMI support.
 
-  1):
-  __setup_irq
-    irq_startup
-      check_irq_resend  // activate softirq to handle resend irq
-  2):
-  irq_domain_free_irqs
-    irq_free_descs
-      free_desc
-        call_rcu(&desc->rcu, delayed_free_desc)
-  3):
-  __do_softirq
-    tasklet_action
-      resend_irqs
-        desc = irq_to_desc(irq)
-        desc->handle_irq(desc)  // desc is NULL --> Ooops
+To avoid problems like this, this commit adds a new
+gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
+allows disabling the running of _AEI edge event handlers at boot.
 
-Fix this by adding a NULL pointer check in resend_irqs() before derefencing
-the irq descriptor.
+The default value is -1/auto which uses a DMI based blacklist, the initial
+version of this blacklist contains the Neo Z83-4 fixing the HDMI breakage.
 
-Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1630ae13-5c8e-901e-de09-e740b6a426a7@huawei.com
+Cc: Daniel Drake <drake@endlessm.com>
+Cc: Ian W MORRISON <ianwmorrison@gmail.com>
+Reported-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Suggested-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Fixes: ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events at least once on boot")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20190827202835.213456-1-hdegoede@redhat.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/resend.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpio/gpiolib-acpi.c |   42 ++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
---- a/kernel/irq/resend.c
-+++ b/kernel/irq/resend.c
-@@ -38,6 +38,8 @@ static void resend_irqs(unsigned long ar
- 		irq = find_first_bit(irqs_resend, nr_irqs);
- 		clear_bit(irq, irqs_resend);
- 		desc = irq_to_desc(irq);
-+		if (!desc)
-+			continue;
- 		local_irq_disable();
- 		desc->handle_irq(desc);
- 		local_irq_enable();
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -10,6 +10,7 @@
+  * published by the Free Software Foundation.
+  */
+ 
++#include <linux/dmi.h>
+ #include <linux/errno.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/consumer.h>
+@@ -23,6 +24,11 @@
+ 
+ #include "gpiolib.h"
+ 
++static int run_edge_events_on_boot = -1;
++module_param(run_edge_events_on_boot, int, 0444);
++MODULE_PARM_DESC(run_edge_events_on_boot,
++		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
++
+ /**
+  * struct acpi_gpio_event - ACPI GPIO event handler data
+  *
+@@ -174,10 +180,13 @@ static void acpi_gpiochip_request_irq(st
+ 	event->irq_requested = true;
+ 
+ 	/* Make sure we trigger the initial state of edge-triggered IRQs */
+-	value = gpiod_get_raw_value_cansleep(event->desc);
+-	if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
+-	    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
+-		event->handler(event->irq, event);
++	if (run_edge_events_on_boot &&
++	    (event->irqflags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING))) {
++		value = gpiod_get_raw_value_cansleep(event->desc);
++		if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
++		    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
++			event->handler(event->irq, event);
++	}
+ }
+ 
+ static void acpi_gpiochip_request_irqs(struct acpi_gpio_chip *acpi_gpio)
+@@ -1253,3 +1262,28 @@ static int acpi_gpio_handle_deferred_req
+ }
+ /* We must use _sync so that this runs after the first deferred_probe run */
+ late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
++
++static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
++		}
++	},
++	{} /* Terminating entry */
++};
++
++static int acpi_gpio_setup_params(void)
++{
++	if (run_edge_events_on_boot < 0) {
++		if (dmi_check_system(run_edge_events_on_boot_blacklist))
++			run_edge_events_on_boot = 0;
++		else
++			run_edge_events_on_boot = 1;
++	}
++
++	return 0;
++}
++
++/* Directly after dmi_setup() which runs as core_initcall() */
++postcore_initcall(acpi_gpio_setup_params);
 
 
