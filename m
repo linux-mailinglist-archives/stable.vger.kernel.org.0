@@ -2,118 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9ACB6782
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 17:52:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549E7B67BA
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 18:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727498AbfIRPwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 11:52:07 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:41829 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726900AbfIRPwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 11:52:07 -0400
-Received: by mail-pl1-f194.google.com with SMTP id t10so139423plr.8;
-        Wed, 18 Sep 2019 08:52:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hgDF40EJKMi1lbTCtoI7X1hwyDhhh6fltKUSKOUxbr0=;
-        b=iHP90SdEbgkC/O+srbBHe66wt/JC9A2blIYPnV14CtXzAXg8TTVAqvwuaEHrtJmci8
-         /WUPYUBCtE8eeS462HuopL5XULobH5M++G1PTuQb1ZcBpqQSTuwcsWQxXoncm8Ns2er4
-         YVDcaGtu/6QD65uy/MyRal2EkXpOOJ9xw5jVuvMkmJHEgX3I5qtTgBT53ti/iJKEHLnE
-         VErgEGPkB1o2ve590N4+23LT9++nunwfRd0BjPO7gtip1E6/X17cHVYfwDe5xUZFGKJv
-         5cnGDKUeSZlIXlSPW3XeFIjIFywqn3EZ8VU8eQ9lETgavLKlrdI5arpjXsfMqCnBQvW0
-         l8uw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hgDF40EJKMi1lbTCtoI7X1hwyDhhh6fltKUSKOUxbr0=;
-        b=Hnb/Hnz56RAlaAU3ioBV2Iba1cXJWVcyL67ETuJYqP5DNOfAgfmVedlCRE4VeOzvF4
-         s/HLCcnxXcw3hiHyy3/M9pogq9oxcfC7tzzebvCVBnBPeOCfOEgwNKKuRbe2i0wX7qVg
-         Cl868jLJi33jYu9op3UkisZed29fQstdoRitCWCcFIECeqLGHtqBGichupQyDD4qrnkj
-         G2ppqkA8I9zVx8BUMUPo/wOGXv0fnyRP5kwioTs0dh5wkywKEFU+bP0oTbg1cFXF/oL5
-         c3Y3XZAiqE6nuwvodjHuiNZNinP+HaqQJjRyaFHmR8RvFKMMKd9NpVxMIMsHulGz6CW8
-         BmaQ==
-X-Gm-Message-State: APjAAAXyZj+hwTPkOVO6T5uAp3ksOOxdvIZeX6Ru16w1K6JipTC+FwuK
-        i//g5g/cCw5YRTnBVUTW5HBNx+AkpvM=
-X-Google-Smtp-Source: APXvYqyr2yRSweOeqQCiVv6VpIO24r8Vx3T3ovM+f2mC3+xHG1g8iWqR29BYCclecTJHLU4+xe4UDg==
-X-Received: by 2002:a17:902:7401:: with SMTP id g1mr4962495pll.20.1568821925689;
-        Wed, 18 Sep 2019 08:52:05 -0700 (PDT)
-Received: from P65xSA.lan ([2001:250:3002:22c0:d407:4304:c30b:1a00])
-        by smtp.gmail.com with ESMTPSA id y144sm8572779pfb.188.2019.09.18.08.52.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Sep 2019 08:52:05 -0700 (PDT)
-From:   DENG Qingfang <dqfext@gmail.com>
-To:     linux-spi@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH] spi: spi-gpio: fix crash when num-chipselects is 0
-Date:   Wed, 18 Sep 2019 23:52:00 +0800
-Message-Id: <20190918155200.12614-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.23.0
+        id S1730108AbfIRQHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 12:07:25 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:57812 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727127AbfIRQHY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 12:07:24 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8IFxtmx154960;
+        Wed, 18 Sep 2019 16:07:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2019-08-05;
+ bh=rdHGkEXVnsLqXXMuOn321K1NAe6rVR7Cugi8O0TDiAQ=;
+ b=RvTMIJ0Wh6JBKNQIEMUS8XyEt8widyel6SVg0Rd6vGlf50mhCXj20uqTXlG7uVIjgO79
+ TohdWwkUn+yjUKKKtEF87oeChpe+2wRhQIge+iHcgoHqobZCv2FZdJEGvXnpTNXeXI9Z
+ PN7maeTCNrRubFs7pHlRQ6jgw+n2IUs/CpPP13rKMijtvQnVxYN7tghBc7oQBHKE17DK
+ pVd6alL8n4z0un1Ofv/6onjUD7Lc3uFS2cz4wNuGKGS34pV2sMCtaadY+nujU9gn8cd1
+ neR5xkMtXF2RmoMFyCfrgaxzDqcguTGHaa9c5q5ZzXfmJZRg58PyHwIgjbSpVBKLQYLK dQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 2v385e4y5m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Sep 2019 16:07:15 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8IFwfQu058733;
+        Wed, 18 Sep 2019 16:07:15 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 2v37m9v52c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Sep 2019 16:07:15 +0000
+Received: from abhmp0012.oracle.com (abhmp0012.oracle.com [141.146.116.18])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x8IG7E9Z010968;
+        Wed, 18 Sep 2019 16:07:14 GMT
+Received: from localhost (/67.169.218.210)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 18 Sep 2019 09:07:14 -0700
+Date:   Wed, 18 Sep 2019 09:07:12 -0700
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-xfs@vger.kernel.org, linux-mm@kvack.org,
+        Amir Goldstein <amir73il@gmail.com>,
+        Boaz Harrosh <boaz@plexistor.com>,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 3/3] xfs: Fix stale data exposure when readahead races
+ with hole punch
+Message-ID: <20190918160712.GV2229799@magnolia>
+References: <20190829131034.10563-1-jack@suse.cz>
+ <20190829131034.10563-4-jack@suse.cz>
+ <20190829155204.GD5354@magnolia>
+ <20190830152449.GA25069@quack2.suse.cz>
+ <20190918123123.GC31891@quack2.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190918123123.GC31891@quack2.suse.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9384 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1908290000 definitions=main-1909180154
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9384 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1909180154
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If an spi-gpio was specified with num-chipselects = <0> in dts, kernel will crash:
+On Wed, Sep 18, 2019 at 02:31:24PM +0200, Jan Kara wrote:
+> On Fri 30-08-19 17:24:49, Jan Kara wrote:
+> > On Thu 29-08-19 08:52:04, Darrick J. Wong wrote:
+> > > On Thu, Aug 29, 2019 at 03:10:34PM +0200, Jan Kara wrote:
+> > > > Hole puching currently evicts pages from page cache and then goes on to
+> > > > remove blocks from the inode. This happens under both XFS_IOLOCK_EXCL
+> > > > and XFS_MMAPLOCK_EXCL which provides appropriate serialization with
+> > > > racing reads or page faults. However there is currently nothing that
+> > > > prevents readahead triggered by fadvise() or madvise() from racing with
+> > > > the hole punch and instantiating page cache page after hole punching has
+> > > > evicted page cache in xfs_flush_unmap_range() but before it has removed
+> > > > blocks from the inode. This page cache page will be mapping soon to be
+> > > > freed block and that can lead to returning stale data to userspace or
+> > > > even filesystem corruption.
+> > > > 
+> > > > Fix the problem by protecting handling of readahead requests by
+> > > > XFS_IOLOCK_SHARED similarly as we protect reads.
+> > > > 
+> > > > CC: stable@vger.kernel.org
+> > > > Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxjQNmxqmtA_VbYW0Su9rKRk2zobJmahcyeaEVOFKVQ5dw@mail.gmail.com/
+> > > > Reported-by: Amir Goldstein <amir73il@gmail.com>
+> > > > Signed-off-by: Jan Kara <jack@suse.cz>
+> > > 
+> > > Is there a test on xfstests to demonstrate this race?
+> > 
+> > No, but I can try to create one.
+> 
+> I was experimenting with this but I could not reproduce the issue in my
+> test VM without inserting artificial delay at appropriate place... So I
+> don't think there's much point in the fstest for this.
 
-Unable to handle kernel paging request at virtual address 32697073
-pgd = (ptrval)
-[32697073] *pgd=00000000
-Internal error: Oops: 5 [# 1] SMP ARM
-Modules linked in:
-CPU: 2 PID: 1 Comm: swapper/0 Not tainted 4.19.72 #0
-Hardware name: Generic DT based system
-PC is at validate_desc+0x28/0x80
-LR is at gpiod_direction_output+0x14/0x128
-...
-[<c0544db4>] (validate_desc) from [<c0545228>] (gpiod_direction_output+0x14/0x128)
-[<c0545228>] (gpiod_direction_output) from [<c05fa714>] (spi_gpio_setup+0x58/0x64)
-[<c05fa714>] (spi_gpio_setup) from [<c05f7258>] (spi_setup+0x12c/0x148)
-[<c05f7258>] (spi_setup) from [<c05f7330>] (spi_add_device+0xbc/0x12c)
-[<c05f7330>] (spi_add_device) from [<c05f7f74>] (spi_register_controller+0x838/0x924)
-[<c05f7f74>] (spi_register_controller) from [<c05fa494>] (spi_bitbang_start+0x108/0x120)
-[<c05fa494>] (spi_bitbang_start) from [<c05faa34>] (spi_gpio_probe+0x314/0x338)
-[<c05faa34>] (spi_gpio_probe) from [<c05a844c>] (platform_drv_probe+0x34/0x70)
+<shrug> We've added debugging knobs to XFS that inject delays to
+demonstrate race conditions that are hard to reproduce, but OTOH it's
+more fun to have a generic/ test that you can use to convince the other
+fs maintainers to take your patches. :)
 
-The cause is spi_gpio_setup() did not check if the spi-gpio has chipselect pins
-before setting their direction and results in derefing an invalid pointer.
+--D
 
-The bug is spotted in kernel 4.19.72 on OpenWrt, and does not occur in 4.14.
-
-There is a similar fix upstream 249e2632dcd0509b8f8f296f5aabf4d48dfd6da8.
-
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
----
- drivers/spi/spi-gpio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
-index 77838d8fd..3b7f0d077 100644
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -242,10 +242,12 @@ static int spi_gpio_setup(struct spi_device *spi)
- 	 * The CS GPIOs have already been
- 	 * initialized from the descriptor lookup.
- 	 */
--	cs = spi_gpio->cs_gpios[spi->chip_select];
--	if (!spi->controller_state && cs)
--		status = gpiod_direction_output(cs,
--						!(spi->mode & SPI_CS_HIGH));
-+	if (spi_gpio->has_cs) {
-+		cs = spi_gpio->cs_gpios[spi->chip_select];
-+		if (!spi->controller_state && cs)
-+			status = gpiod_direction_output(cs,
-+						  !(spi->mode & SPI_CS_HIGH));
-+	}
- 
- 	if (!status)
- 		status = spi_bitbang_setup(spi);
--- 
-2.23.0
-
+> 								Honza
+> 
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
