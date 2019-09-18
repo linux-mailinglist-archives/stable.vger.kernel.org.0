@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D81C2B5CC6
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3F2B5BEE
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727593AbfIRG0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47298 "EHLO mail.kernel.org"
+        id S1728457AbfIRGVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727809AbfIRG0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:05 -0400
+        id S1728883AbfIRGVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A86B821924;
-        Wed, 18 Sep 2019 06:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 231002053B;
+        Wed, 18 Sep 2019 06:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787964;
-        bh=RNCX+fJlMdn0iDOz7lBTlhcRBNaEyS2dXlsok6AN1B4=;
+        s=default; t=1568787659;
+        bh=P92K7UGrqkcY/2Blsi5spREbdi6x27ourdQ4qkux7Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRdEzQNhla/FX59hOODpH5fox/LZPR8w7/FSga2jHJ/Fs7Csc1xRm5qzIjzso343r
-         zFdilvB4hdGBGEunceTXA1qjicV/0e14RCc2HNbPhPz71euFy/YBYEq3yZSSbo0C68
-         PBTJSYVGq1go339C/X8JxaYWmQauCoCfuxxoKYAo=
+        b=SlCZ5dS1f99yT2xnFx12gh2DTo+cqWqcPNMOb4GGoZMaAijW5txmvXh2FJJwyKSQK
+         k2sUVgdCtiXPLz3l1Hg6rLKdsG58AzG5bYYArVoxlOv0sRTJbvv3LxUPEKZWt4NdE5
+         7Zusg5Hhny9pZCv1ssPeYRJ3/EuJYC84PEzDdry0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        YueHaibing <yuehaibing@huawei.com>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 5.2 50/85] kernel/module: Fix mem leak in module_add_modinfo_attrs
+        stable@vger.kernel.org, Xiaolei Li <xiaolei.li@mediatek.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 30/45] mtd: rawnand: mtk: Fix wrongly assigned OOB buffer pointer issue
 Date:   Wed, 18 Sep 2019 08:19:08 +0200
-Message-Id: <20190918061235.708547112@linuxfoundation.org>
+Message-Id: <20190918061226.514138610@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Xiaolei Li <xiaolei.li@mediatek.com>
 
-commit bc6f2a757d525e001268c3658bd88822e768f8db upstream.
+commit 336d4b138be2dad372b67a2388e42805c48aaa38 upstream.
 
-In module_add_modinfo_attrs if sysfs_create_file
-fails, we forget to free allocated modinfo_attrs
-and roll back the sysfs files.
+One main goal of the function mtk_nfc_update_ecc_stats is to check
+whether sectors are all empty. If they are empty, set these sectors's
+data buffer and OOB buffer as 0xff.
 
-Fixes: 03e88ae1b13d ("[PATCH] fix module sysfs files reference counting")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+But now, the sector OOB buffer pointer is wrongly assigned. We always
+do memset from sector 0.
+
+To fix this issue, pass start sector number to make OOB buffer pointer
+be properly assigned.
+
+Fixes: 1d6b1e464950 ("mtd: mediatek: driver for MTK Smart Device")
+Signed-off-by: Xiaolei Li <xiaolei.li@mediatek.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/module.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/mtk_nand.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1697,6 +1697,8 @@ static int add_usage_links(struct module
- 	return ret;
+--- a/drivers/mtd/nand/mtk_nand.c
++++ b/drivers/mtd/nand/mtk_nand.c
+@@ -846,19 +846,21 @@ static int mtk_nfc_write_oob_std(struct
+ 	return ret & NAND_STATUS_FAIL ? -EIO : 0;
  }
  
-+static void module_remove_modinfo_attrs(struct module *mod, int end);
-+
- static int module_add_modinfo_attrs(struct module *mod)
+-static int mtk_nfc_update_ecc_stats(struct mtd_info *mtd, u8 *buf, u32 sectors)
++static int mtk_nfc_update_ecc_stats(struct mtd_info *mtd, u8 *buf, u32 start,
++				    u32 sectors)
  {
- 	struct module_attribute *attr;
-@@ -1711,24 +1713,34 @@ static int module_add_modinfo_attrs(stru
- 		return -ENOMEM;
+ 	struct nand_chip *chip = mtd_to_nand(mtd);
+ 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+ 	struct mtk_nfc_nand_chip *mtk_nand = to_mtk_nand(chip);
+ 	struct mtk_ecc_stats stats;
++	u32 reg_size = mtk_nand->fdm.reg_size;
+ 	int rc, i;
  
- 	temp_attr = mod->modinfo_attrs;
--	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
-+	for (i = 0; (attr = modinfo_attrs[i]); i++) {
- 		if (!attr->test || attr->test(mod)) {
- 			memcpy(temp_attr, attr, sizeof(*temp_attr));
- 			sysfs_attr_init(&temp_attr->attr);
- 			error = sysfs_create_file(&mod->mkobj.kobj,
- 					&temp_attr->attr);
-+			if (error)
-+				goto error_out;
- 			++temp_attr;
- 		}
+ 	rc = nfi_readl(nfc, NFI_STA) & STA_EMP_PAGE;
+ 	if (rc) {
+ 		memset(buf, 0xff, sectors * chip->ecc.size);
+ 		for (i = 0; i < sectors; i++)
+-			memset(oob_ptr(chip, i), 0xff, mtk_nand->fdm.reg_size);
++			memset(oob_ptr(chip, start + i), 0xff, reg_size);
+ 		return 0;
  	}
-+
-+	return 0;
-+
-+error_out:
-+	if (i > 0)
-+		module_remove_modinfo_attrs(mod, --i);
- 	return error;
- }
  
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- 	struct module_attribute *attr;
- 	int i;
+@@ -878,7 +880,7 @@ static int mtk_nfc_read_subpage(struct m
+ 	u32 spare = mtk_nand->spare_per_sector;
+ 	u32 column, sectors, start, end, reg;
+ 	dma_addr_t addr;
+-	int bitflips;
++	int bitflips = 0;
+ 	size_t len;
+ 	u8 *buf;
+ 	int rc;
+@@ -946,14 +948,11 @@ static int mtk_nfc_read_subpage(struct m
+ 	if (rc < 0) {
+ 		dev_err(nfc->dev, "subpage done timeout\n");
+ 		bitflips = -EIO;
+-	} else {
+-		bitflips = 0;
+-		if (!raw) {
+-			rc = mtk_ecc_wait_done(nfc->ecc, ECC_DECODE);
+-			bitflips = rc < 0 ? -ETIMEDOUT :
+-				mtk_nfc_update_ecc_stats(mtd, buf, sectors);
+-			mtk_nfc_read_fdm(chip, start, sectors);
+-		}
++	} else if (!raw) {
++		rc = mtk_ecc_wait_done(nfc->ecc, ECC_DECODE);
++		bitflips = rc < 0 ? -ETIMEDOUT :
++			mtk_nfc_update_ecc_stats(mtd, buf, start, sectors);
++		mtk_nfc_read_fdm(chip, start, sectors);
+ 	}
  
- 	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
-+		if (end >= 0 && i > end)
-+			break;
- 		/* pick a field to test for end of list */
- 		if (!attr->attr.name)
- 			break;
-@@ -1816,7 +1828,7 @@ static int mod_sysfs_setup(struct module
- 	return 0;
- 
- out_unreg_modinfo_attrs:
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- out_unreg_param:
- 	module_param_sysfs_remove(mod);
- out_unreg_holders:
-@@ -1852,7 +1864,7 @@ static void mod_sysfs_fini(struct module
- {
- }
- 
--static void module_remove_modinfo_attrs(struct module *mod)
-+static void module_remove_modinfo_attrs(struct module *mod, int end)
- {
- }
- 
-@@ -1868,7 +1880,7 @@ static void init_param_lock(struct modul
- static void mod_sysfs_teardown(struct module *mod)
- {
- 	del_usage_links(mod);
--	module_remove_modinfo_attrs(mod);
-+	module_remove_modinfo_attrs(mod, -1);
- 	module_param_sysfs_remove(mod);
- 	kobject_put(mod->mkobj.drivers_dir);
- 	kobject_put(mod->holders_dir);
+ 	dma_unmap_single(nfc->dev, addr, len, DMA_FROM_DEVICE);
 
 
