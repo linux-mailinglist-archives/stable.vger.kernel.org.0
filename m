@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A32AB5EE0
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 10:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB9AB5EF3
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 10:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728952AbfIRIQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 04:16:03 -0400
-Received: from mail-wm1-f44.google.com ([209.85.128.44]:51168 "EHLO
-        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729487AbfIRIQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 04:16:02 -0400
-Received: by mail-wm1-f44.google.com with SMTP id 5so1438826wmg.0
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 01:15:57 -0700 (PDT)
+        id S1729740AbfIRIUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 04:20:22 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:40061 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726131AbfIRIUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 04:20:22 -0400
+Received: by mail-wr1-f49.google.com with SMTP id l3so5850252wru.7
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 01:20:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=RMNW0GcMGiFVYsQj7bHntLQc0aLK5bC01kQ5O06gLLk=;
-        b=UK3k8PoHqvfauYZ79L8x/nUIuEnmkNOvsKRF1R9ocOsAmP24T1JjrpxxoiCr9Rtd7S
-         n94aFqCZMjIVBvsTZ4nuZzSrkSwzciCC/wAq0BcpW0PRmoz1DZbWgvn3Eqi0J/8u1eW0
-         uWYrVZRGQaz4K/gq2N8rwJ8DUufC48uHpGuc1Vm9Yx90z4Rl+cjy1+5dsEG402AqJt76
-         Th+qlRT2Z4jlDI7tNeEqlpXLe3/LSOXgiTQQCky/vHrxt3zPIgDQzPJENjgKRBxxx8AT
-         CVpMPZvHjTG5pbCjdPHHdKV8/+RRYwW8gr+Aqm6KPKZJysLLXa+W/9DEDZxcVWs/QTtD
-         tcFw==
+        bh=YHQ/31eziZTBOfbsAIYyFxN1//VTDSNnUADkVBM6sP8=;
+        b=pINhxsN4wr4raTwh8tSsf1o4qWIhdzxhuXwDMNqgkzv+fM//VJlCqv1b/HgXcqAStJ
+         I0RtV09OotFYM8tXHAelcjlDSUndLcc7ki4GrwPkz4ndqb7N7Y6p99lCR0mZ3oIfvNIj
+         r6Crd6Oco/AgaAPyBu33s7z7NpRBrkfa0uDWPzrYDsUf2A7JRd9b+ajV0hjrb0rgtjNB
+         jS9d8f8tFNttfa0hfL9JHvR28JNp3IGc+KnceuYK0IHC/AOC/a48bbPiXpTfzAKAT2Dm
+         26if6YtAiY+DGxGcdE5si9pEU8EzKd08GNU3Ha5Lsf8+R9df4hCNoidNV5AX8CPMDwmA
+         s6og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=RMNW0GcMGiFVYsQj7bHntLQc0aLK5bC01kQ5O06gLLk=;
-        b=Qbym3nhyvxf66QCqMGCJ1lRB+9pSF9+N61lY+5BwxY8sNSQe/87yZCWpFnXEGi/yCj
-         C3f9f3YHtSNZzUwZr5n20aGWVBCJPi74t+caHcboGWGvN1KnzffGIFLvUtqR3xdi13uH
-         2q7bkN5rTwe8M+KYMAZUJRYODYNi7k1YpvxAEkamnjYwG7w4JZKpD7rMj4u4EgPfu+Dx
-         UtyfdNtMAUn+NQpMh01DtX3O4bckw0pXBKmJnGJEg/II7DrgC6WyFbCo54YLPoKk3Z5h
-         WGhnZ1pFhQY//tkl8kUwIiGtOmpyg7hl/wskxDLT5CRM98SDkGtURTB0WD2ALBUoX2Ov
-         xvpw==
-X-Gm-Message-State: APjAAAVhvOUEis0fbo8I/5HZs7ebX5Nm8Zp25GJpcpUEB5vXiBoTXqgd
-        nM2LJMd5uSDjWX1b9l6TFyndcT00JU4dOw==
-X-Google-Smtp-Source: APXvYqxuLEBLHn+f8BGnj0tGPcKaj/xa9Q9j0hOtobe+0wXc2O6DwNatZpChsai/fo2+/Tui5g9wMQ==
-X-Received: by 2002:a05:600c:2153:: with SMTP id v19mr1754568wml.146.1568794555600;
-        Wed, 18 Sep 2019 01:15:55 -0700 (PDT)
+        bh=YHQ/31eziZTBOfbsAIYyFxN1//VTDSNnUADkVBM6sP8=;
+        b=RHNZXRySynQTW9mdqMKM/vZ3kuE47ccA1Q06DDw0QZTrjjj9Fr4v2rRFB/vosxx1p0
+         QFQHcjJBgOwizsJ1zt8637TRqq/zsThTt02Y6fblW9BUlwH+jVUHf54nbVcJ+OvsTNG5
+         Fs7w4+ei7VpAOidM8A3B+df09d0sxzyuJio6Z2eFwn1a5n/pE+XiR3dyp/kP/XHFxbDe
+         nxSL7lTvj+Ni3AlV8MKipq1FQpSPz1ZmtY/q9Ln9zkC6GXNz86ws00urMbwzTG2CYIuD
+         15SeFbUIAuq0WCfGDnKIpS27fPOdjywQsTanZGAt0DlurlflnHkeoRckuhn3jgZ5WYRw
+         hgDQ==
+X-Gm-Message-State: APjAAAUfjxzixSrdig+kFl9yoiFChMiW8hgb9N7V8EvZd4+roX5zLvkl
+        QgQDEol8j6TOPevRVCIi08v6trOMMN/v9g==
+X-Google-Smtp-Source: APXvYqzTuVLPXEz0U54dRo1Uncbb+OyE+yknk17FWGcZsHnebh7cquyaIL8odd/9pYz3SFYOX44fIA==
+X-Received: by 2002:a5d:4146:: with SMTP id c6mr1952955wrq.205.1568794815921;
+        Wed, 18 Sep 2019 01:20:15 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f66sm1935121wmg.2.2019.09.18.01.15.53
+        by smtp.gmail.com with ESMTPSA id n1sm7236874wrg.67.2019.09.18.01.20.15
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 18 Sep 2019 01:15:53 -0700 (PDT)
-Message-ID: <5d81e7b9.1c69fb81.1a2e8.7db5@mx.google.com>
-Date:   Wed, 18 Sep 2019 01:15:53 -0700 (PDT)
+        Wed, 18 Sep 2019 01:20:15 -0700 (PDT)
+Message-ID: <5d81e8bf.1c69fb81.bb18e.161c@mx.google.com>
+Date:   Wed, 18 Sep 2019 01:20:15 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.73-51-gddb7a3337506
+X-Kernelci-Kernel: v5.2.15-86-g2f63f02ef506
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y build: 206 builds: 62 failed, 144 passed,
- 124 errors, 64 warnings (v4.19.73-51-gddb7a3337506)
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y build: 209 builds: 0 failed, 209 passed,
+ 19 warnings (v5.2.15-86-g2f63f02ef506)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,184 +63,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 62 failed, 144 passed, 124 errors=
-, 64 warnings (v4.19.73-51-gddb7a3337506)
+stable-rc/linux-5.2.y build: 209 builds: 0 failed, 209 passed, 19 warnings =
+(v5.2.15-86-g2f63f02ef506)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.73-51-gddb7a3337506/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.15-86-g2f63f02ef506/
 
 Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.73-51-gddb7a3337506
-Git Commit: ddb7a3337506cd5de6d52906c5291fcd90b955d2
+Branch: linux-5.2.y
+Git Describe: v5.2.15-86-g2f63f02ef506
+Git Commit: 2f63f02ef5061324ba168b1cb01c89fd89a0c593
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
-Build Failures Detected:
+Warnings Detected:
 
 arc:
-    axs103_defconfig: (gcc-8) FAIL
-    axs103_smp_defconfig: (gcc-8) FAIL
-    haps_hs_defconfig: (gcc-8) FAIL
-    haps_hs_smp_defconfig: (gcc-8) FAIL
-    hsdk_defconfig: (gcc-8) FAIL
-    nsim_hs_defconfig: (gcc-8) FAIL
-    nsim_hs_smp_defconfig: (gcc-8) FAIL
-    nsimosci_hs_defconfig: (gcc-8) FAIL
-    nsimosci_hs_smp_defconfig: (gcc-8) FAIL
-
-mips:
-    32r2el_defconfig: (gcc-8) FAIL
-    ar7_defconfig: (gcc-8) FAIL
-    ath25_defconfig: (gcc-8) FAIL
-    ath79_defconfig: (gcc-8) FAIL
-    bcm47xx_defconfig: (gcc-8) FAIL
-    bigsur_defconfig: (gcc-8) FAIL
-    capcella_defconfig: (gcc-8) FAIL
-    cavium_octeon_defconfig: (gcc-8) FAIL
-    cobalt_defconfig: (gcc-8) FAIL
-    decstation_defconfig: (gcc-8) FAIL
-    e55_defconfig: (gcc-8) FAIL
-    fuloong2e_defconfig: (gcc-8) FAIL
-    gpr_defconfig: (gcc-8) FAIL
-    ip22_defconfig: (gcc-8) FAIL
-    ip27_defconfig: (gcc-8) FAIL
-    ip28_defconfig: (gcc-8) FAIL
-    ip32_defconfig: (gcc-8) FAIL
-    jazz_defconfig: (gcc-8) FAIL
-    lemote2f_defconfig: (gcc-8) FAIL
-    loongson1b_defconfig: (gcc-8) FAIL
-    loongson1c_defconfig: (gcc-8) FAIL
-    loongson3_defconfig: (gcc-8) FAIL
-    malta_defconfig: (gcc-8) FAIL
-    malta_kvm_defconfig: (gcc-8) FAIL
-    malta_kvm_guest_defconfig: (gcc-8) FAIL
-    malta_qemu_32r6_defconfig: (gcc-8) FAIL
-    maltaaprp_defconfig: (gcc-8) FAIL
-    maltasmvp_defconfig: (gcc-8) FAIL
-    maltasmvp_eva_defconfig: (gcc-8) FAIL
-    maltaup_defconfig: (gcc-8) FAIL
-    maltaup_xpa_defconfig: (gcc-8) FAIL
-    markeins_defconfig: (gcc-8) FAIL
-    mips_paravirt_defconfig: (gcc-8) FAIL
-    mpc30x_defconfig: (gcc-8) FAIL
-    msp71xx_defconfig: (gcc-8) FAIL
-    mtx1_defconfig: (gcc-8) FAIL
-    nlm_xlp_defconfig: (gcc-8) FAIL
-    nlm_xlr_defconfig: (gcc-8) FAIL
-    pic32mzda_defconfig: (gcc-8) FAIL
-    pistachio_defconfig: (gcc-8) FAIL
-    pnx8335_stb225_defconfig: (gcc-8) FAIL
-    qi_lb60_defconfig: (gcc-8) FAIL
-    rb532_defconfig: (gcc-8) FAIL
-    rbtx49xx_defconfig: (gcc-8) FAIL
-    rm200_defconfig: (gcc-8) FAIL
-    rt305x_defconfig: (gcc-8) FAIL
-    sb1250_swarm_defconfig: (gcc-8) FAIL
-    tb0219_defconfig: (gcc-8) FAIL
-    tb0226_defconfig: (gcc-8) FAIL
-    tb0287_defconfig: (gcc-8) FAIL
-    workpad_defconfig: (gcc-8) FAIL
-    xway_defconfig: (gcc-8) FAIL
-
-riscv:
-    defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    axs103_defconfig (gcc-8): 2 errors, 1 warning
-    axs103_smp_defconfig (gcc-8): 2 errors, 1 warning
-    haps_hs_defconfig (gcc-8): 2 errors, 1 warning
-    haps_hs_smp_defconfig (gcc-8): 2 errors, 1 warning
-    hsdk_defconfig (gcc-8): 2 errors, 1 warning
-    nsim_hs_defconfig (gcc-8): 2 errors, 1 warning
-    nsim_hs_smp_defconfig (gcc-8): 2 errors, 1 warning
-    nsimosci_hs_defconfig (gcc-8): 2 errors, 1 warning
-    nsimosci_hs_smp_defconfig (gcc-8): 2 errors, 1 warning
 
 arm64:
 
 arm:
+    integrator_defconfig (gcc-8): 2 warnings
+    multi_v4t_defconfig (gcc-8): 2 warnings
+    multi_v5_defconfig (gcc-8): 2 warnings
+    realview_defconfig (gcc-8): 2 warnings
+    s3c6400_defconfig (gcc-8): 2 warnings
+    u300_defconfig (gcc-8): 2 warnings
 
 i386:
 
 mips:
-    32r2el_defconfig (gcc-8): 2 errors, 1 warning
-    ar7_defconfig (gcc-8): 2 errors, 1 warning
-    ath25_defconfig (gcc-8): 2 errors, 1 warning
-    ath79_defconfig (gcc-8): 2 errors, 1 warning
-    bcm47xx_defconfig (gcc-8): 2 errors, 1 warning
-    bigsur_defconfig (gcc-8): 2 errors, 1 warning
-    capcella_defconfig (gcc-8): 2 errors, 1 warning
-    cavium_octeon_defconfig (gcc-8): 2 errors, 1 warning
-    cobalt_defconfig (gcc-8): 2 errors, 1 warning
-    decstation_defconfig (gcc-8): 2 errors, 1 warning
-    e55_defconfig (gcc-8): 2 errors, 1 warning
-    fuloong2e_defconfig (gcc-8): 2 errors, 1 warning
-    gpr_defconfig (gcc-8): 2 errors, 1 warning
-    ip22_defconfig (gcc-8): 2 errors, 1 warning
-    ip27_defconfig (gcc-8): 2 errors, 1 warning
-    ip28_defconfig (gcc-8): 2 errors, 1 warning
-    ip32_defconfig (gcc-8): 2 errors, 1 warning
-    jazz_defconfig (gcc-8): 2 errors, 1 warning
-    lemote2f_defconfig (gcc-8): 2 errors, 1 warning
-    loongson1b_defconfig (gcc-8): 2 errors, 1 warning
-    loongson1c_defconfig (gcc-8): 2 errors, 1 warning
-    loongson3_defconfig (gcc-8): 2 errors, 2 warnings
-    malta_defconfig (gcc-8): 2 errors, 1 warning
-    malta_kvm_defconfig (gcc-8): 2 errors, 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 2 errors, 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 2 errors, 1 warning
-    maltaaprp_defconfig (gcc-8): 2 errors, 1 warning
-    maltasmvp_defconfig (gcc-8): 2 errors, 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 2 errors, 1 warning
-    maltaup_defconfig (gcc-8): 2 errors, 1 warning
-    maltaup_xpa_defconfig (gcc-8): 2 errors, 1 warning
-    markeins_defconfig (gcc-8): 2 errors, 1 warning
-    mips_paravirt_defconfig (gcc-8): 2 errors, 1 warning
-    mpc30x_defconfig (gcc-8): 2 errors, 1 warning
-    msp71xx_defconfig (gcc-8): 2 errors, 1 warning
-    mtx1_defconfig (gcc-8): 2 errors, 1 warning
-    nlm_xlp_defconfig (gcc-8): 2 errors, 1 warning
-    nlm_xlr_defconfig (gcc-8): 2 errors, 1 warning
-    pic32mzda_defconfig (gcc-8): 2 errors, 1 warning
-    pistachio_defconfig (gcc-8): 2 errors, 1 warning
-    pnx8335_stb225_defconfig (gcc-8): 2 errors, 1 warning
-    qi_lb60_defconfig (gcc-8): 2 errors, 1 warning
-    rb532_defconfig (gcc-8): 2 errors, 1 warning
-    rbtx49xx_defconfig (gcc-8): 2 errors, 1 warning
-    rm200_defconfig (gcc-8): 2 errors, 1 warning
-    rt305x_defconfig (gcc-8): 2 errors, 1 warning
-    sb1250_swarm_defconfig (gcc-8): 2 errors, 1 warning
-    tb0219_defconfig (gcc-8): 2 errors, 1 warning
-    tb0226_defconfig (gcc-8): 2 errors, 1 warning
-    tb0287_defconfig (gcc-8): 2 errors, 1 warning
-    workpad_defconfig (gcc-8): 2 errors, 1 warning
-    xway_defconfig (gcc-8): 2 errors, 1 warning
+    db1xxx_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
 
 riscv:
-    defconfig (gcc-8): 2 errors, 1 warning
+    rv32_defconfig (gcc-8): 4 warnings
 
 x86_64:
     tinyconfig (gcc-8): 1 warning
 
-Errors summary:
-
-    62   kernel/module.c:3828:2: error: implicit declaration of function 'm=
-odule_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-fu=
-nction-declaration]
-    62   kernel/module.c:2187:2: error: implicit declaration of function 'd=
-isable_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-dec=
-laration]
 
 Warnings summary:
 
-    62   cc1: some warnings being treated as errors
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1007:warning: override: UNWINDER_GUESS changes choice state
+    6    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-W=
+unused-variable]
+    6    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-W=
+unused-variable]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mism=
+atch in conditional expression
+    1    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -251,19 +129,8 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -317,19 +184,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -353,35 +209,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath25_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath79_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -390,35 +224,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -432,19 +244,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -453,19 +254,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -479,35 +269,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-capcella_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -541,19 +309,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cobalt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -582,40 +339,32 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mismatch =
+in conditional expression
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
-matches
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
-Warnings:
-    cc1: some warnings being treated as errors
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -629,19 +378,8 @@ dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -685,19 +423,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -711,19 +438,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gpr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -742,35 +458,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -779,19 +473,8 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -815,8 +498,14 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -835,67 +524,23 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -904,19 +549,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jazz_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -950,69 +584,23 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -1046,163 +634,62 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
 , 0 section mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
 Warnings:
-    cc1: some warnings being treated as errors
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
-, 0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
-section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
-Warnings:
-    cc1: some warnings being treated as errors
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1211,19 +698,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1237,19 +713,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1258,45 +723,35 @@ mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
 
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
+
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1345,99 +800,33 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning,=
- 0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1491,35 +880,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pistachio_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1528,19 +895,8 @@ pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning,=
- 0 section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1579,77 +935,34 @@ qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
 Warnings:
-    cc1: some warnings being treated as errors
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1658,19 +971,21 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rt305x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
 on mismatches
 
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
 Warnings:
-    cc1: some warnings being treated as errors
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1679,8 +994,14 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1694,19 +1015,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0=
- section mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1765,51 +1075,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0226_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1837,7 +1114,7 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1007:warning: override: UNWINDER_GUESS changes choice state
+    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1866,8 +1143,14 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
  mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1916,19 +1199,8 @@ vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1942,19 +1214,8 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/module.c:2187:2: error: implicit declaration of function 'disabl=
-e_ro_nx'; did you mean 'disable_irq'? [-Werror=3Dimplicit-function-declarat=
-ion]
-    kernel/module.c:3828:2: error: implicit declaration of function 'module=
-_disable_nx'; did you mean 'module_disable_ro'? [-Werror=3Dimplicit-functio=
-n-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
