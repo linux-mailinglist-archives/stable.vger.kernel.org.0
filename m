@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD739B5CA5
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF71B5C94
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbfIRG2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49772 "EHLO mail.kernel.org"
+        id S1730593AbfIRG1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:27:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730580AbfIRG1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:27:46 -0400
+        id S1730588AbfIRG1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2005C21924;
-        Wed, 18 Sep 2019 06:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9730521925;
+        Wed, 18 Sep 2019 06:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568788064;
-        bh=4SwofskaSHYuvkVfB214BR3wKFsV/3vSkW+uR2+8i4U=;
+        s=default; t=1568788067;
+        bh=e2SKe0d1r0FnPGDKgUrqxsSyXHcE1lOe8ABJ4w+dG7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUI9jIYmU56/kPQPbWYtdf5QCG6KwWCdaBUvXxWHreZo2VqlNbQmZT+B9S2TN/uWU
-         88y97tO03bCmHdH0Dal5RuWRvFdgH25N0NtW4F4HQF7eztHjxIisA41W/p8UQJZHSJ
-         vNwzH2UvztsRN8teyHbOcr4/nSlwM5WjjaZxYDes=
+        b=2U4Jq5ePWUSTggBIv5o+bg5NkD9BR151A7f4NGyxOzBe6279k6kiIHLa/W99UCsJG
+         skD156epGJ6GG2hdRaOPgA9PNhqhdttdct+4i3l0uNZXlrWc0gFd0AaryibxTJxKas
+         K66ZJXaH2ySnxycf1CYkXjzYBjUprjugZDS+dhFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Harvey <jamespharvey20@gmail.com>,
-        Alex Willamson <alex.williamson@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH 5.2 46/85] KVM: x86/mmu: Reintroduce fast invalidate/zap for flushing memslot
-Date:   Wed, 18 Sep 2019 08:19:04 +0200
-Message-Id: <20190918061235.590472144@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.2 47/85] KVM: nVMX: handle page fault in vmread
+Date:   Wed, 18 Sep 2019 08:19:05 +0200
+Message-Id: <20190918061235.619611195@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -45,228 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 002c5f73c508f7df5681bda339831c27f3c1aef4 upstream.
+commit f7eea636c3d505fe6f1d1066234f1aaf7171b681 upstream.
 
-James Harvey reported a livelock that was introduced by commit
-d012a06ab1d23 ("Revert "KVM: x86/mmu: Zap only the relevant pages when
-removing a memslot"").
+The implementation of vmread to memory is still incomplete, as it
+lacks the ability to do vmread to I/O memory just like vmptrst.
 
-The livelock occurs because kvm_mmu_zap_all() as it exists today will
-voluntarily reschedule and drop KVM's mmu_lock, which allows other vCPUs
-to add shadow pages.  With enough vCPUs, kvm_mmu_zap_all() can get stuck
-in an infinite loop as it can never zap all pages before observing lock
-contention or the need to reschedule.  The equivalent of kvm_mmu_zap_all()
-that was in use at the time of the reverted commit (4e103134b8623, "KVM:
-x86/mmu: Zap only the relevant pages when removing a memslot") employed
-a fast invalidate mechanism and was not susceptible to the above livelock.
-
-There are three ways to fix the livelock:
-
-- Reverting the revert (commit d012a06ab1d23) is not a viable option as
-  the revert is needed to fix a regression that occurs when the guest has
-  one or more assigned devices.  It's unlikely we'll root cause the device
-  assignment regression soon enough to fix the regression timely.
-
-- Remove the conditional reschedule from kvm_mmu_zap_all().  However, although
-  removing the reschedule would be a smaller code change, it's less safe
-  in the sense that the resulting kvm_mmu_zap_all() hasn't been used in
-  the wild for flushing memslots since the fast invalidate mechanism was
-  introduced by commit 6ca18b6950f8d ("KVM: x86: use the fast way to
-  invalidate all pages"), back in 2013.
-
-- Reintroduce the fast invalidate mechanism and use it when zapping shadow
-  pages in response to a memslot being deleted/moved, which is what this
-  patch does.
-
-For all intents and purposes, this is a revert of commit ea145aacf4ae8
-("Revert "KVM: MMU: fast invalidate all pages"") and a partial revert of
-commit 7390de1e99a70 ("Revert "KVM: x86: use the fast way to invalidate
-all pages""), i.e. restores the behavior of commit 5304b8d37c2a5 ("KVM:
-MMU: fast invalidate all pages") and commit 6ca18b6950f8d ("KVM: x86:
-use the fast way to invalidate all pages") respectively.
-
-Fixes: d012a06ab1d23 ("Revert "KVM: x86/mmu: Zap only the relevant pages when removing a memslot"")
-Reported-by: James Harvey <jamespharvey20@gmail.com>
-Cc: Alex Willamson <alex.williamson@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/kvm_host.h |    2 
- arch/x86/kvm/mmu.c              |  101 +++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 101 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -333,6 +333,7 @@ struct kvm_mmu_page {
- 	int root_count;          /* Currently serving as active root */
- 	unsigned int unsync_children;
- 	struct kvm_rmap_head parent_ptes; /* rmap pointers to parent sptes */
-+	unsigned long mmu_valid_gen;
- 	DECLARE_BITMAP(unsync_child_bitmap, 512);
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4411,6 +4411,7 @@ static int handle_vmread(struct kvm_vcpu
+ 	int len;
+ 	gva_t gva = 0;
+ 	struct vmcs12 *vmcs12;
++	struct x86_exception e;
  
- #ifdef CONFIG_X86_32
-@@ -851,6 +852,7 @@ struct kvm_arch {
- 	unsigned long n_requested_mmu_pages;
- 	unsigned long n_max_mmu_pages;
- 	unsigned int indirect_shadow_pages;
-+	unsigned long mmu_valid_gen;
- 	struct hlist_head mmu_page_hash[KVM_NUM_MMU_PAGES];
- 	/*
- 	 * Hash table of struct kvm_mmu_page.
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -2066,6 +2066,12 @@ static struct kvm_mmu_page *kvm_mmu_allo
- 	if (!direct)
- 		sp->gfns = mmu_memory_cache_alloc(&vcpu->arch.mmu_page_cache);
- 	set_page_private(virt_to_page(sp->spt), (unsigned long)sp);
-+
-+	/*
-+	 * active_mmu_pages must be a FIFO list, as kvm_zap_obsolete_pages()
-+	 * depends on valid pages being added to the head of the list.  See
-+	 * comments in kvm_zap_obsolete_pages().
-+	 */
- 	list_add(&sp->link, &vcpu->kvm->arch.active_mmu_pages);
- 	kvm_mod_used_mmu_pages(vcpu->kvm, +1);
- 	return sp;
-@@ -2215,7 +2221,7 @@ static void kvm_mmu_commit_zap_page(stru
- #define for_each_valid_sp(_kvm, _sp, _gfn)				\
- 	hlist_for_each_entry(_sp,					\
- 	  &(_kvm)->arch.mmu_page_hash[kvm_page_table_hashfn(_gfn)], hash_link) \
--		if ((_sp)->role.invalid) {    \
-+		if (is_obsolete_sp((_kvm), (_sp)) || (_sp)->role.invalid) {    \
- 		} else
- 
- #define for_each_gfn_indirect_valid_sp(_kvm, _sp, _gfn)			\
-@@ -2272,6 +2278,11 @@ static void kvm_mmu_audit(struct kvm_vcp
- static void mmu_audit_disable(void) { }
- #endif
- 
-+static bool is_obsolete_sp(struct kvm *kvm, struct kvm_mmu_page *sp)
-+{
-+	return unlikely(sp->mmu_valid_gen != kvm->arch.mmu_valid_gen);
-+}
-+
- static bool kvm_sync_page(struct kvm_vcpu *vcpu, struct kvm_mmu_page *sp,
- 			 struct list_head *invalid_list)
- {
-@@ -2496,6 +2507,7 @@ static struct kvm_mmu_page *kvm_mmu_get_
- 		if (level > PT_PAGE_TABLE_LEVEL && need_sync)
- 			flush |= kvm_sync_pages(vcpu, gfn, &invalid_list);
+ 	if (!nested_vmx_check_permission(vcpu))
+ 		return 1;
+@@ -4451,7 +4452,8 @@ static int handle_vmread(struct kvm_vcpu
+ 				vmx_instruction_info, true, len, &gva))
+ 			return 1;
+ 		/* _system ok, nested_vmx_check_permission has verified cpl=0 */
+-		kvm_write_guest_virt_system(vcpu, gva, &field_value, len, NULL);
++		if (kvm_write_guest_virt_system(vcpu, gva, &field_value, len, &e))
++			kvm_inject_page_fault(vcpu, &e);
  	}
-+	sp->mmu_valid_gen = vcpu->kvm->arch.mmu_valid_gen;
- 	clear_page(sp->spt);
- 	trace_kvm_mmu_get_page(sp, true);
  
-@@ -4229,6 +4241,13 @@ static bool fast_cr3_switch(struct kvm_v
- 			return false;
- 
- 		if (cached_root_available(vcpu, new_cr3, new_role)) {
-+			/*
-+			 * It is possible that the cached previous root page is
-+			 * obsolete because of a change in the MMU generation
-+			 * number. However, changing the generation number is
-+			 * accompanied by KVM_REQ_MMU_RELOAD, which will free
-+			 * the root set here and allocate a new one.
-+			 */
- 			kvm_make_request(KVM_REQ_LOAD_CR3, vcpu);
- 			if (!skip_tlb_flush) {
- 				kvm_make_request(KVM_REQ_MMU_SYNC, vcpu);
-@@ -5645,11 +5664,89 @@ int kvm_mmu_create(struct kvm_vcpu *vcpu
- 	return alloc_mmu_pages(vcpu);
- }
- 
-+
-+static void kvm_zap_obsolete_pages(struct kvm *kvm)
-+{
-+	struct kvm_mmu_page *sp, *node;
-+	LIST_HEAD(invalid_list);
-+	int ign;
-+
-+restart:
-+	list_for_each_entry_safe_reverse(sp, node,
-+	      &kvm->arch.active_mmu_pages, link) {
-+		/*
-+		 * No obsolete valid page exists before a newly created page
-+		 * since active_mmu_pages is a FIFO list.
-+		 */
-+		if (!is_obsolete_sp(kvm, sp))
-+			break;
-+
-+		/*
-+		 * Do not repeatedly zap a root page to avoid unnecessary
-+		 * KVM_REQ_MMU_RELOAD, otherwise we may not be able to
-+		 * progress:
-+		 *    vcpu 0                        vcpu 1
-+		 *                         call vcpu_enter_guest():
-+		 *                            1): handle KVM_REQ_MMU_RELOAD
-+		 *                                and require mmu-lock to
-+		 *                                load mmu
-+		 * repeat:
-+		 *    1): zap root page and
-+		 *        send KVM_REQ_MMU_RELOAD
-+		 *
-+		 *    2): if (cond_resched_lock(mmu-lock))
-+		 *
-+		 *                            2): hold mmu-lock and load mmu
-+		 *
-+		 *                            3): see KVM_REQ_MMU_RELOAD bit
-+		 *                                on vcpu->requests is set
-+		 *                                then return 1 to call
-+		 *                                vcpu_enter_guest() again.
-+		 *            goto repeat;
-+		 *
-+		 * Since we are reversely walking the list and the invalid
-+		 * list will be moved to the head, skip the invalid page
-+		 * can help us to avoid the infinity list walking.
-+		 */
-+		if (sp->role.invalid)
-+			continue;
-+
-+		if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
-+			kvm_mmu_commit_zap_page(kvm, &invalid_list);
-+			cond_resched_lock(&kvm->mmu_lock);
-+			goto restart;
-+		}
-+
-+		if (__kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list, &ign))
-+			goto restart;
-+	}
-+
-+	kvm_mmu_commit_zap_page(kvm, &invalid_list);
-+}
-+
-+/*
-+ * Fast invalidate all shadow pages and use lock-break technique
-+ * to zap obsolete pages.
-+ *
-+ * It's required when memslot is being deleted or VM is being
-+ * destroyed, in these cases, we should ensure that KVM MMU does
-+ * not use any resource of the being-deleted slot or all slots
-+ * after calling the function.
-+ */
-+static void kvm_mmu_zap_all_fast(struct kvm *kvm)
-+{
-+	spin_lock(&kvm->mmu_lock);
-+	kvm->arch.mmu_valid_gen++;
-+
-+	kvm_zap_obsolete_pages(kvm);
-+	spin_unlock(&kvm->mmu_lock);
-+}
-+
- static void kvm_mmu_invalidate_zap_pages_in_memslot(struct kvm *kvm,
- 			struct kvm_memory_slot *slot,
- 			struct kvm_page_track_notifier_node *node)
- {
--	kvm_mmu_zap_all(kvm);
-+	kvm_mmu_zap_all_fast(kvm);
- }
- 
- void kvm_mmu_init_vm(struct kvm *kvm)
+ 	return nested_vmx_succeed(vcpu);
 
 
