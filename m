@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BECDBB5D3F
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45964B5CFD
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbfIRGVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41140 "EHLO mail.kernel.org"
+        id S1729775AbfIRGYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:24:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727357AbfIRGVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:21:37 -0400
+        id S1727764AbfIRGYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:24:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3502320678;
-        Wed, 18 Sep 2019 06:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAB5E21920;
+        Wed, 18 Sep 2019 06:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787696;
-        bh=8ZsyCqdCQYULk/KZ2gU6zijVGHecZMDT7Cgm36fRpKE=;
+        s=default; t=1568787848;
+        bh=e8s3F0dF6ae8ciX5KzKVqB5ke4kJHwZvYtR1mi6YQqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zidtfSSZZPxaKKQdgtCM2zsyiUQ4B6JY2KF4m5Mk+zC8IIoOmBK6jv418d0vpPuaU
-         VTb0LI935Kb76+FNnI5VYocfbvyznd5xMO3MaIEkadTfTYqLqEQbMeV6AVkac6Tj2v
-         VOYe4hVEdys+3r2necB3mRoXfWWXuPiUpMiJNT3I=
+        b=GHu+yA9+ULS3Gsz8kfKDr3B+fTOlY3xPNX3+Ag5g8V/WYwK7+LA3O0Dq6Vf/tIOwg
+         LlmzC12lk3oU22d5luWb90cSD1YE9R8xfDscrdoUnlJvD/w4rf6vKcpe8TK/YaRb7U
+         jbmNhj77Q7acns9o8PjPp2gn3DZwWhKeYGRKwQfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 38/45] crypto: talitos - Do not modify req->cryptlen on decryption.
+        stable@vger.kernel.org, Muchun Song <smuchun@gmail.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Prateek Sood <prsood@codeaurora.org>
+Subject: [PATCH 4.19 33/50] driver core: Fix use-after-free and double free on glue directory
 Date:   Wed, 18 Sep 2019 08:19:16 +0200
-Message-Id: <20190918061227.478661559@linuxfoundation.org>
+Message-Id: <20190918061227.070236885@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,162 +44,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Muchun Song <smuchun@gmail.com>
 
-commit 7ede4c36cf7c6516986ee9d75b197c8bf73ea96f upstream.
+commit ac43432cb1f5c2950408534987e57c2071e24d8f upstream.
 
-For decrypt, req->cryptlen includes the size of the authentication
-part while all functions of the driver expect cryptlen to be
-the size of the encrypted data.
+There is a race condition between removing glue directory and adding a new
+device under the glue dir. It can be reproduced in following test:
 
-As it is not expected to change req->cryptlen, this patch
-implements local calculation of cryptlen.
+CPU1:                                         CPU2:
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+device_add()
+  get_device_parent()
+    class_dir_create_and_add()
+      kobject_add_internal()
+        create_dir()    // create glue_dir
+
+                                              device_add()
+                                                get_device_parent()
+                                                  kobject_get() // get glue_dir
+
+device_del()
+  cleanup_glue_dir()
+    kobject_del(glue_dir)
+
+                                                kobject_add()
+                                                  kobject_add_internal()
+                                                    create_dir() // in glue_dir
+                                                      sysfs_create_dir_ns()
+                                                        kernfs_create_dir_ns(sd)
+
+      sysfs_remove_dir() // glue_dir->sd=NULL
+      sysfs_put()        // free glue_dir->sd
+
+                                                          // sd is freed
+                                                          kernfs_new_node(sd)
+                                                            kernfs_get(glue_dir)
+                                                            kernfs_add_one()
+                                                            kernfs_put()
+
+Before CPU1 remove last child device under glue dir, if CPU2 add a new
+device under glue dir, the glue_dir kobject reference count will be
+increase to 2 via kobject_get() in get_device_parent(). And CPU2 has
+been called kernfs_create_dir_ns(), but not call kernfs_new_node().
+Meanwhile, CPU1 call sysfs_remove_dir() and sysfs_put(). This result in
+glue_dir->sd is freed and it's reference count will be 0. Then CPU2 call
+kernfs_get(glue_dir) will trigger a warning in kernfs_get() and increase
+it's reference count to 1. Because glue_dir->sd is freed by CPU1, the next
+call kernfs_add_one() by CPU2 will fail(This is also use-after-free)
+and call kernfs_put() to decrease reference count. Because the reference
+count is decremented to 0, it will also call kmem_cache_free() to free
+the glue_dir->sd again. This will result in double free.
+
+In order to avoid this happening, we also should make sure that kernfs_node
+for glue_dir is released in CPU1 only when refcount for glue_dir kobj is
+1 to fix this race.
+
+The following calltrace is captured in kernel 4.14 with the following patch
+applied:
+
+commit 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+
+--------------------------------------------------------------------------
+[    3.633703] WARNING: CPU: 4 PID: 513 at .../fs/kernfs/dir.c:494
+                Here is WARN_ON(!atomic_read(&kn->count) in kernfs_get().
+....
+[    3.633986] Call trace:
+[    3.633991]  kernfs_create_dir_ns+0xa8/0xb0
+[    3.633994]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634001]  kobject_add_internal+0x22c/0x3f0
+[    3.634005]  kobject_add+0xe4/0x118
+[    3.634011]  device_add+0x200/0x870
+[    3.634017]  _request_firmware+0x958/0xc38
+[    3.634020]  request_firmware_into_buf+0x4c/0x70
+....
+[    3.634064] kernel BUG at .../mm/slub.c:294!
+                Here is BUG_ON(object == fp) in set_freepointer().
+....
+[    3.634346] Call trace:
+[    3.634351]  kmem_cache_free+0x504/0x6b8
+[    3.634355]  kernfs_put+0x14c/0x1d8
+[    3.634359]  kernfs_create_dir_ns+0x88/0xb0
+[    3.634362]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634366]  kobject_add_internal+0x22c/0x3f0
+[    3.634370]  kobject_add+0xe4/0x118
+[    3.634374]  device_add+0x200/0x870
+[    3.634378]  _request_firmware+0x958/0xc38
+[    3.634381]  request_firmware_into_buf+0x4c/0x70
+--------------------------------------------------------------------------
+
+Fixes: 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+Signed-off-by: Muchun Song <smuchun@gmail.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Link: https://lore.kernel.org/r/20190727032122.24639-1-smuchun@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/talitos.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/base/core.c |   53 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 52 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -943,11 +943,13 @@ static void talitos_sg_unmap(struct devi
- 
- static void ipsec_esp_unmap(struct device *dev,
- 			    struct talitos_edesc *edesc,
--			    struct aead_request *areq)
-+			    struct aead_request *areq, bool encrypt)
- {
- 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
- 	struct talitos_ctx *ctx = crypto_aead_ctx(aead);
- 	unsigned int ivsize = crypto_aead_ivsize(aead);
-+	unsigned int authsize = crypto_aead_authsize(aead);
-+	unsigned int cryptlen = areq->cryptlen - (encrypt ? 0 : authsize);
- 
- 	if (edesc->desc.hdr & DESC_HDR_TYPE_IPSEC_ESP)
- 		unmap_single_talitos_ptr(dev, &edesc->desc.ptr[6],
-@@ -956,7 +958,7 @@ static void ipsec_esp_unmap(struct devic
- 	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[2], DMA_TO_DEVICE);
- 	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[0], DMA_TO_DEVICE);
- 
--	talitos_sg_unmap(dev, edesc, areq->src, areq->dst, areq->cryptlen,
-+	talitos_sg_unmap(dev, edesc, areq->src, areq->dst, cryptlen,
- 			 areq->assoclen);
- 
- 	if (edesc->dma_len)
-@@ -967,7 +969,7 @@ static void ipsec_esp_unmap(struct devic
- 		unsigned int dst_nents = edesc->dst_nents ? : 1;
- 
- 		sg_pcopy_to_buffer(areq->dst, dst_nents, ctx->iv, ivsize,
--				   areq->assoclen + areq->cryptlen - ivsize);
-+				   areq->assoclen + cryptlen - ivsize);
- 	}
- }
- 
-@@ -988,7 +990,7 @@ static void ipsec_esp_encrypt_done(struc
- 
- 	edesc = container_of(desc, struct talitos_edesc, desc);
- 
--	ipsec_esp_unmap(dev, edesc, areq);
-+	ipsec_esp_unmap(dev, edesc, areq, true);
- 
- 	/* copy the generated ICV to dst */
- 	if (edesc->icv_ool) {
-@@ -1020,7 +1022,7 @@ static void ipsec_esp_decrypt_swauth_don
- 
- 	edesc = container_of(desc, struct talitos_edesc, desc);
- 
--	ipsec_esp_unmap(dev, edesc, req);
-+	ipsec_esp_unmap(dev, edesc, req, false);
- 
- 	if (!err) {
- 		char icvdata[SHA512_DIGEST_SIZE];
-@@ -1066,7 +1068,7 @@ static void ipsec_esp_decrypt_hwauth_don
- 
- 	edesc = container_of(desc, struct talitos_edesc, desc);
- 
--	ipsec_esp_unmap(dev, edesc, req);
-+	ipsec_esp_unmap(dev, edesc, req, false);
- 
- 	/* check ICV auth status */
- 	if (!err && ((desc->hdr_lo & DESC_HDR_LO_ICCR1_MASK) !=
-@@ -1173,6 +1175,7 @@ static int talitos_sg_map(struct device
-  * fill in and submit ipsec_esp descriptor
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1648,12 +1648,63 @@ static inline struct kobject *get_glue_d
   */
- static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
-+		     bool encrypt,
- 		     void (*callback)(struct device *dev,
- 				      struct talitos_desc *desc,
- 				      void *context, int error))
-@@ -1182,7 +1185,7 @@ static int ipsec_esp(struct talitos_edes
- 	struct talitos_ctx *ctx = crypto_aead_ctx(aead);
- 	struct device *dev = ctx->dev;
- 	struct talitos_desc *desc = &edesc->desc;
--	unsigned int cryptlen = areq->cryptlen;
-+	unsigned int cryptlen = areq->cryptlen - (encrypt ? 0 : authsize);
- 	unsigned int ivsize = crypto_aead_ivsize(aead);
- 	int tbl_off = 0;
- 	int sg_count, ret;
-@@ -1324,7 +1327,7 @@ static int ipsec_esp(struct talitos_edes
+ static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
+ {
++	unsigned int ref;
++
+ 	/* see if we live in a "glue" directory */
+ 	if (!live_in_glue_dir(glue_dir, dev))
+ 		return;
  
- 	ret = talitos_submit(dev, ctx->ch, desc, callback, areq);
- 	if (ret != -EINPROGRESS) {
--		ipsec_esp_unmap(dev, edesc, areq);
-+		ipsec_esp_unmap(dev, edesc, areq, encrypt);
- 		kfree(edesc);
- 	}
- 	return ret;
-@@ -1433,9 +1436,10 @@ static struct talitos_edesc *aead_edesc_
- 	unsigned int authsize = crypto_aead_authsize(authenc);
- 	struct talitos_ctx *ctx = crypto_aead_ctx(authenc);
- 	unsigned int ivsize = crypto_aead_ivsize(authenc);
-+	unsigned int cryptlen = areq->cryptlen - (encrypt ? 0 : authsize);
- 
- 	return talitos_edesc_alloc(ctx->dev, areq->src, areq->dst,
--				   iv, areq->assoclen, areq->cryptlen,
-+				   iv, areq->assoclen, cryptlen,
- 				   authsize, ivsize, icv_stashing,
- 				   areq->base.flags, encrypt);
- }
-@@ -1454,7 +1458,7 @@ static int aead_encrypt(struct aead_requ
- 	/* set encrypt */
- 	edesc->desc.hdr = ctx->desc_hdr_template | DESC_HDR_MODE0_ENCRYPT;
- 
--	return ipsec_esp(edesc, req, ipsec_esp_encrypt_done);
-+	return ipsec_esp(edesc, req, true, ipsec_esp_encrypt_done);
- }
- 
- static int aead_decrypt(struct aead_request *req)
-@@ -1466,8 +1470,6 @@ static int aead_decrypt(struct aead_requ
- 	struct talitos_edesc *edesc;
- 	void *icvdata;
- 
--	req->cryptlen -= authsize;
--
- 	/* allocate extended descriptor */
- 	edesc = aead_edesc_alloc(req, req->iv, 1, false);
- 	if (IS_ERR(edesc))
-@@ -1485,7 +1487,8 @@ static int aead_decrypt(struct aead_requ
- 		/* reset integrity check result bits */
- 		edesc->desc.hdr_lo = 0;
- 
--		return ipsec_esp(edesc, req, ipsec_esp_decrypt_hwauth_done);
-+		return ipsec_esp(edesc, req, false,
-+				 ipsec_esp_decrypt_hwauth_done);
- 	}
- 
- 	/* Have to check the ICV with software */
-@@ -1501,7 +1504,7 @@ static int aead_decrypt(struct aead_requ
- 	sg_pcopy_to_buffer(req->src, edesc->src_nents ? : 1, icvdata, authsize,
- 			   req->assoclen + req->cryptlen - authsize);
- 
--	return ipsec_esp(edesc, req, ipsec_esp_decrypt_swauth_done);
-+	return ipsec_esp(edesc, req, false, ipsec_esp_decrypt_swauth_done);
- }
- 
- static int ablkcipher_setkey(struct crypto_ablkcipher *cipher,
+ 	mutex_lock(&gdp_mutex);
+-	if (!kobject_has_children(glue_dir))
++	/**
++	 * There is a race condition between removing glue directory
++	 * and adding a new device under the glue directory.
++	 *
++	 * CPU1:                                         CPU2:
++	 *
++	 * device_add()
++	 *   get_device_parent()
++	 *     class_dir_create_and_add()
++	 *       kobject_add_internal()
++	 *         create_dir()    // create glue_dir
++	 *
++	 *                                               device_add()
++	 *                                                 get_device_parent()
++	 *                                                   kobject_get() // get glue_dir
++	 *
++	 * device_del()
++	 *   cleanup_glue_dir()
++	 *     kobject_del(glue_dir)
++	 *
++	 *                                               kobject_add()
++	 *                                                 kobject_add_internal()
++	 *                                                   create_dir() // in glue_dir
++	 *                                                     sysfs_create_dir_ns()
++	 *                                                       kernfs_create_dir_ns(sd)
++	 *
++	 *       sysfs_remove_dir() // glue_dir->sd=NULL
++	 *       sysfs_put()        // free glue_dir->sd
++	 *
++	 *                                                         // sd is freed
++	 *                                                         kernfs_new_node(sd)
++	 *                                                           kernfs_get(glue_dir)
++	 *                                                           kernfs_add_one()
++	 *                                                           kernfs_put()
++	 *
++	 * Before CPU1 remove last child device under glue dir, if CPU2 add
++	 * a new device under glue dir, the glue_dir kobject reference count
++	 * will be increase to 2 in kobject_get(k). And CPU2 has been called
++	 * kernfs_create_dir_ns(). Meanwhile, CPU1 call sysfs_remove_dir()
++	 * and sysfs_put(). This result in glue_dir->sd is freed.
++	 *
++	 * Then the CPU2 will see a stale "empty" but still potentially used
++	 * glue dir around in kernfs_new_node().
++	 *
++	 * In order to avoid this happening, we also should make sure that
++	 * kernfs_node for glue_dir is released in CPU1 only when refcount
++	 * for glue_dir kobj is 1.
++	 */
++	ref = kref_read(&glue_dir->kref);
++	if (!kobject_has_children(glue_dir) && !--ref)
+ 		kobject_del(glue_dir);
+ 	kobject_put(glue_dir);
+ 	mutex_unlock(&gdp_mutex);
 
 
