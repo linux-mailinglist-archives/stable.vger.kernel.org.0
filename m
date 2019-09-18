@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94562B5D5A
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7137EB5CDC
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbfIRGUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S1730154AbfIRGZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727918AbfIRGUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:20 -0400
+        id S1730152AbfIRGZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:25:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 416A721928;
-        Wed, 18 Sep 2019 06:20:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E004521925;
+        Wed, 18 Sep 2019 06:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787619;
-        bh=rhAte9qVBWPhJ9vWxMQxwzWyDhD0daBzEHcmYKeCx9E=;
+        s=default; t=1568787935;
+        bh=U9DpG53GL6w9YrFfEY8N076J1h21axkip3hX3GgBUDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gv9ivrmp2OyOKcS3uo6i/obpqC3fgt6EfR6Vhsi1o1Y71fabls0/8kV9XcBRq2vk/
-         nPuw98KAopBxuqKf+x8KFMhvyw4f4/EF6a4hDOF+M/XNSYUvbAl/EqyRVazIsgJRQY
-         DCVbbG4YbJoORPdX4oJDnZ3wrXK1OR6gZGvLtHt8=
+        b=TbrMWmBv1Vkw1YdQ80SNx5A92qAp/XNi6QALGm3o+wfEfQvWRFN88egPFDPG8kjIU
+         EHMeUtyAkQhqOLjAXXbiX1gGPGN6l+VzXXfUT2PW9usCPI7iO91VP/laCcJO6ZoKGz
+         xPb14jzgvOqP8NQvmgmwgEEV6eesJlwhqSAuHMDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Ian W MORRISON <ianwmorrison@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 17/45] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot option and blacklist
+        stable@vger.kernel.org, Ilya Maximets <i.maximets@samsung.com>,
+        William Tu <u9012063@gmail.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 5.2 37/85] ixgbe: fix double clean of Tx descriptors with xdp
 Date:   Wed, 18 Sep 2019 08:18:55 +0200
-Message-Id: <20190918061224.689119365@linuxfoundation.org>
+Message-Id: <20190918061235.318662150@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,115 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ilya Maximets <i.maximets@samsung.com>
 
-commit 61f7f7c8f978b1c0d80e43c83b7d110ca0496eb4 upstream.
+commit bf280c0387ebbf8eebad1036fca8f7b85ebfde32 upstream.
 
-Another day; another DSDT bug we need to workaround...
+Tx code doesn't clear the descriptors' status after cleaning.
+So, if the budget is larger than number of used elems in a ring, some
+descriptors will be accounted twice and xsk_umem_complete_tx will move
+prod_tail far beyond the prod_head breaking the completion queue ring.
 
-Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
-at least once on boot") we call _AEI edge handlers at boot.
+Fix that by limiting the number of descriptors to clean by the number
+of used descriptors in the Tx ring.
 
-In some rare cases this causes problems. One example of this is the Minix
-Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
-and pasted code for dealing with Micro USB-B connector host/device role
-switching, while the mini PC does not even have a micro-USB connector.
-This code, which should not be there, messes with the DDC data pin from
-the HDMI connector (switching it to GPIO mode) breaking HDMI support.
+'ixgbe_clean_xdp_tx_irq()' function refactored to look more like
+'ixgbe_xsk_clean_tx_ring()' since we're allowed to directly use
+'next_to_clean' and 'next_to_use' indexes.
 
-To avoid problems like this, this commit adds a new
-gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
-allows disabling the running of _AEI edge event handlers at boot.
-
-The default value is -1/auto which uses a DMI based blacklist, the initial
-version of this blacklist contains the Neo Z83-4 fixing the HDMI breakage.
-
-Cc: stable@vger.kernel.org
-Cc: Daniel Drake <drake@endlessm.com>
-Cc: Ian W MORRISON <ianwmorrison@gmail.com>
-Reported-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Suggested-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Fixes: ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events at least once on boot")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20190827202835.213456-1-hdegoede@redhat.com
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+CC: stable@vger.kernel.org
+Fixes: 8221c5eba8c1 ("ixgbe: add AF_XDP zero-copy Tx support")
+Signed-off-by: Ilya Maximets <i.maximets@samsung.com>
+Tested-by: William Tu <u9012063@gmail.com>
+Tested-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c |   29 ++++++++++-----------------
+ 1 file changed, 11 insertions(+), 18 deletions(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -10,6 +10,7 @@
-  * published by the Free Software Foundation.
-  */
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+@@ -679,19 +679,17 @@ static void ixgbe_clean_xdp_tx_buffer(st
+ bool ixgbe_clean_xdp_tx_irq(struct ixgbe_q_vector *q_vector,
+ 			    struct ixgbe_ring *tx_ring, int napi_budget)
+ {
++	u16 ntc = tx_ring->next_to_clean, ntu = tx_ring->next_to_use;
+ 	unsigned int total_packets = 0, total_bytes = 0;
+-	u32 i = tx_ring->next_to_clean, xsk_frames = 0;
+-	unsigned int budget = q_vector->tx.work_limit;
+ 	struct xdp_umem *umem = tx_ring->xsk_umem;
+ 	union ixgbe_adv_tx_desc *tx_desc;
+ 	struct ixgbe_tx_buffer *tx_bi;
+-	bool xmit_done;
++	u32 xsk_frames = 0;
  
-+#include <linux/dmi.h>
- #include <linux/errno.h>
- #include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
-@@ -23,6 +24,11 @@
+-	tx_bi = &tx_ring->tx_buffer_info[i];
+-	tx_desc = IXGBE_TX_DESC(tx_ring, i);
+-	i -= tx_ring->count;
++	tx_bi = &tx_ring->tx_buffer_info[ntc];
++	tx_desc = IXGBE_TX_DESC(tx_ring, ntc);
  
- #include "gpiolib.h"
+-	do {
++	while (ntc != ntu) {
+ 		if (!(tx_desc->wb.status & cpu_to_le32(IXGBE_TXD_STAT_DD)))
+ 			break;
  
-+static int run_edge_events_on_boot = -1;
-+module_param(run_edge_events_on_boot, int, 0444);
-+MODULE_PARM_DESC(run_edge_events_on_boot,
-+		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
-+
- /**
-  * struct acpi_gpio_event - ACPI GPIO event handler data
-  *
-@@ -231,10 +237,13 @@ static void acpi_gpiochip_request_irq(st
- 	event->irq_requested = true;
+@@ -708,22 +706,18 @@ bool ixgbe_clean_xdp_tx_irq(struct ixgbe
  
- 	/* Make sure we trigger the initial state of edge-triggered IRQs */
--	value = gpiod_get_raw_value_cansleep(event->desc);
--	if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
--	    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
--		event->handler(event->irq, event);
-+	if (run_edge_events_on_boot &&
-+	    (event->irqflags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING))) {
-+		value = gpiod_get_raw_value_cansleep(event->desc);
-+		if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
-+		    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
-+			event->handler(event->irq, event);
+ 		tx_bi++;
+ 		tx_desc++;
+-		i++;
+-		if (unlikely(!i)) {
+-			i -= tx_ring->count;
++		ntc++;
++		if (unlikely(ntc == tx_ring->count)) {
++			ntc = 0;
+ 			tx_bi = tx_ring->tx_buffer_info;
+ 			tx_desc = IXGBE_TX_DESC(tx_ring, 0);
+ 		}
+ 
+ 		/* issue prefetch for next Tx descriptor */
+ 		prefetch(tx_desc);
 +	}
+ 
+-		/* update budget accounting */
+-		budget--;
+-	} while (likely(budget));
+-
+-	i += tx_ring->count;
+-	tx_ring->next_to_clean = i;
++	tx_ring->next_to_clean = ntc;
+ 
+ 	u64_stats_update_begin(&tx_ring->syncp);
+ 	tx_ring->stats.bytes += total_bytes;
+@@ -735,8 +729,7 @@ bool ixgbe_clean_xdp_tx_irq(struct ixgbe
+ 	if (xsk_frames)
+ 		xsk_umem_complete_tx(umem, xsk_frames);
+ 
+-	xmit_done = ixgbe_xmit_zc(tx_ring, q_vector->tx.work_limit);
+-	return budget > 0 && xmit_done;
++	return ixgbe_xmit_zc(tx_ring, q_vector->tx.work_limit);
  }
  
- static void acpi_gpiochip_request_irqs(struct acpi_gpio_chip *acpi_gpio)
-@@ -1302,3 +1311,28 @@ static int acpi_gpio_handle_deferred_req
- }
- /* We must use _sync so that this runs after the first deferred_probe run */
- late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
-+
-+static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
-+		}
-+	},
-+	{} /* Terminating entry */
-+};
-+
-+static int acpi_gpio_setup_params(void)
-+{
-+	if (run_edge_events_on_boot < 0) {
-+		if (dmi_check_system(run_edge_events_on_boot_blacklist))
-+			run_edge_events_on_boot = 0;
-+		else
-+			run_edge_events_on_boot = 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Directly after dmi_setup() which runs as core_initcall() */
-+postcore_initcall(acpi_gpio_setup_params);
+ int ixgbe_xsk_async_xmit(struct net_device *dev, u32 qid)
 
 
