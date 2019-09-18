@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01AFBB5BE7
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB1EB5C15
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728797AbfIRGUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39712 "EHLO mail.kernel.org"
+        id S1726516AbfIRGWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728774AbfIRGUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:44 -0400
+        id S1729422AbfIRGWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16EB6218AF;
-        Wed, 18 Sep 2019 06:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6712218AE;
+        Wed, 18 Sep 2019 06:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787643;
-        bh=i2uhVoobwgcY3wczFCTJwDYUidkYyrusQvKFiPPZeso=;
+        s=default; t=1568787752;
+        bh=SleRud0PGUTD2fZfmYkNDJ7w5SHW52VvA1/PzL+j33k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nP5DD9L4GI0F/pIYAYAmNMsGe0xCv1Bd7ygSgnz8w7QOEHO7w6TCchVOGzHMGaiIf
-         r2vbaBdToSIK5NLFNOf1rMWl6NJAtJjW1LL7nhtc8OCxOhPFr+P9Ld+8W4HQbYTS9R
-         Ce7EFaXoxnc14AbxBCYB4oipOpz5iQ/vQRttDpr8=
+        b=Hayv3+kMdPGpveIKttQrw0NgHK2I2VLkvb5uY3Ef/0uQVtJlptDZoM/gZC72X8zuy
+         Y9ONNJP05k9DZJBL/LWCj0e5qCONRQD9jrQIKBQmYKlO97AWgPhBkwfec5/k+P0g7o
+         XJy34JwvCBzW3qXGmop+zw5RJplf6eoUtH8HEozo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Matt Redfearn <matt.redfearn@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 25/45] MIPS: VDSO: Prevent use of smp_processor_id()
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Subject: [PATCH 4.19 20/50] genirq: Prevent NULL pointer dereference in resend_irqs()
 Date:   Wed, 18 Sep 2019 08:19:03 +0200
-Message-Id: <20190918061225.619232350@linuxfoundation.org>
+Message-Id: <20190918061225.268093210@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-commit 351fdddd366245c0fb4636f32edfb4198c8d6b8c upstream.
+commit eddf3e9c7c7e4d0707c68d1bb22cc6ec8aef7d4a upstream.
 
-VDSO code should not be using smp_processor_id(), since it is executed
-in user mode.
-Introduce a VDSO-specific path which will cause a compile-time
-or link-time error (depending upon support for __compiletime_error) if
-the VDSO ever incorrectly attempts to use smp_processor_id().
+The following crash was observed:
 
-[Matt Redfearn <matt.redfearn@imgtec.com>: Move before change to
-smp_processor_id in series]
+  Unable to handle kernel NULL pointer dereference at 0000000000000158
+  Internal error: Oops: 96000004 [#1] SMP
+  pc : resend_irqs+0x68/0xb0
+  lr : resend_irqs+0x64/0xb0
+  ...
+  Call trace:
+   resend_irqs+0x68/0xb0
+   tasklet_action_common.isra.6+0x84/0x138
+   tasklet_action+0x2c/0x38
+   __do_softirq+0x120/0x324
+   run_ksoftirqd+0x44/0x60
+   smpboot_thread_fn+0x1ac/0x1e8
+   kthread+0x134/0x138
+   ret_from_fork+0x10/0x18
 
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/17932/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
-Cc: Guenter Roeck <linux@roeck-us.net>
+The reason for this is that the interrupt resend mechanism happens in soft
+interrupt context, which is a asynchronous mechanism versus other
+operations on interrupts. free_irq() does not take resend handling into
+account. Thus, the irq descriptor might be already freed before the resend
+tasklet is executed. resend_irqs() does not check the return value of the
+interrupt descriptor lookup and derefences the return value
+unconditionally.
+
+  1):
+  __setup_irq
+    irq_startup
+      check_irq_resend  // activate softirq to handle resend irq
+  2):
+  irq_domain_free_irqs
+    irq_free_descs
+      free_desc
+        call_rcu(&desc->rcu, delayed_free_desc)
+  3):
+  __do_softirq
+    tasklet_action
+      resend_irqs
+        desc = irq_to_desc(irq)
+        desc->handle_irq(desc)  // desc is NULL --> Ooops
+
+Fix this by adding a NULL pointer check in resend_irqs() before derefencing
+the irq descriptor.
+
+Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1630ae13-5c8e-901e-de09-e740b6a426a7@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/smp.h |   12 +++++++++++-
- arch/mips/vdso/Makefile     |    3 ++-
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ kernel/irq/resend.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/mips/include/asm/smp.h
-+++ b/arch/mips/include/asm/smp.h
-@@ -25,7 +25,17 @@ extern cpumask_t cpu_sibling_map[];
- extern cpumask_t cpu_core_map[];
- extern cpumask_t cpu_foreign_map[];
- 
--#define raw_smp_processor_id() (current_thread_info()->cpu)
-+static inline int raw_smp_processor_id(void)
-+{
-+#if defined(__VDSO__)
-+	extern int vdso_smp_processor_id(void)
-+		__compiletime_error("VDSO should not call smp_processor_id()");
-+	return vdso_smp_processor_id();
-+#else
-+	return current_thread_info()->cpu;
-+#endif
-+}
-+#define raw_smp_processor_id raw_smp_processor_id
- 
- /* Map from cpu id to sequential logical cpu number.  This will only
-    not be idempotent when cpus failed to come on-line.	*/
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -7,7 +7,8 @@ ccflags-vdso := \
- 	$(filter -I%,$(KBUILD_CFLAGS)) \
- 	$(filter -E%,$(KBUILD_CFLAGS)) \
- 	$(filter -mmicromips,$(KBUILD_CFLAGS)) \
--	$(filter -march=%,$(KBUILD_CFLAGS))
-+	$(filter -march=%,$(KBUILD_CFLAGS)) \
-+	-D__VDSO__
- cflags-vdso := $(ccflags-vdso) \
- 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
- 	-O2 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
+--- a/kernel/irq/resend.c
++++ b/kernel/irq/resend.c
+@@ -36,6 +36,8 @@ static void resend_irqs(unsigned long ar
+ 		irq = find_first_bit(irqs_resend, nr_irqs);
+ 		clear_bit(irq, irqs_resend);
+ 		desc = irq_to_desc(irq);
++		if (!desc)
++			continue;
+ 		local_irq_disable();
+ 		desc->handle_irq(desc);
+ 		local_irq_enable();
 
 
