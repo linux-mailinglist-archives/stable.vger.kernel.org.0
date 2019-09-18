@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF02CB5BDA
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 842A6B5C09
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727844AbfIRGUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38984 "EHLO mail.kernel.org"
+        id S1726223AbfIRGWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727661AbfIRGUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:18 -0400
+        id S1728577AbfIRGWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B817218AF;
-        Wed, 18 Sep 2019 06:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE24A218AF;
+        Wed, 18 Sep 2019 06:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787617;
-        bh=b54rpit6NwYagsS7GZvNItxmM2LNUQzdURV6X8X7h/w=;
+        s=default; t=1568787728;
+        bh=Am3LBOHvWGKg614T7SoYKCS7JrSTDbZ+TlF37TA2tKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPbNTtAyu/tcpOfpVYOjs3P3HDd2w1q0mLmfx5K0IRvPEVSJfk8K1ygJ7E41QrfSy
-         BOsCfatcLVIvLBrn0t1svj+vq+jfD+NAuKLOZ/BxzX4W51j/X9kPah14oFaVeT6fRY
-         HZeWPL57r/n6U7kznhPrn9WHKfQclAEc952HrRGc=
+        b=FClmb+z9u/3bTSBk2FQq3tRRPkmW9Kg8jMYDnRNZDsbEbhIgkmra70Ga3fViNNqPl
+         AAJRCDI2CROpwG9ghw49v/GeUU+jCdtPwz+l44A5nMhnNN9ALK0p8XMxHgnAE5hXz+
+         koRWAhZRpBge340EF1dYUqMk8nVQIVuF4F8fx4cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "Maciej W. Rozycki" <macro@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/45] Revert "MIPS: SiByte: Enable swiotlb for SWARM, LittleSur and BigSur"
-Date:   Wed, 18 Sep 2019 08:18:54 +0200
-Message-Id: <20190918061224.601047023@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 12/50] sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
+Date:   Wed, 18 Sep 2019 08:18:55 +0200
+Message-Id: <20190918061224.308579712@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-This reverts commit c85acbf72786a5901a2170b2145761ed7cf06429 which is
-commit e4849aff1e169b86c561738daf8ff020e9de1011 upstream
+[ Upstream commit 10eb56c582c557c629271f1ee31e15e7a9b2558b ]
 
-Guenter writes:
-	Upstream commit e4849aff1e16 ("MIPS: SiByte: Enable swiotlb for SWARM,
-	LittleSur and BigSur") results in build failures in v4.4.y and v4.14.y.
+Transport should use its own pf_retrans to do the error_count
+check, instead of asoc's. Otherwise, it's meaningless to make
+pf_retrans per transport.
 
-	make bigsur_defconfig:
-
-	warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_BOARD)
-	warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_BOARD)
-
-	and the actual build:
-
-	lib/swiotlb.o: In function `swiotlb_tbl_map_single':
-	(.text+0x1c0): undefined reference to `iommu_is_span_boundary'
-	Makefile:1021: recipe for target 'vmlinux' failed
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Maciej W. Rozycki <macro@linux-mips.org>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>
+Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Kconfig                |    3 ---
- arch/mips/sibyte/common/Makefile |    1 -
- arch/mips/sibyte/common/dma.c    |   14 --------------
- 3 files changed, 18 deletions(-)
- delete mode 100644 arch/mips/sibyte/common/dma.c
+ net/sctp/sm_sideeffect.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -800,7 +800,6 @@ config SIBYTE_SWARM
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
- 	select ZONE_DMA32 if 64BIT
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -562,7 +562,7 @@ static void sctp_do_8_2_transport_strike
+ 	if (net->sctp.pf_enable &&
+ 	   (transport->state == SCTP_ACTIVE) &&
+ 	   (transport->error_count < transport->pathmaxrxt) &&
+-	   (transport->error_count > asoc->pf_retrans)) {
++	   (transport->error_count > transport->pf_retrans)) {
  
- config SIBYTE_LITTLESUR
- 	bool "Sibyte BCM91250C2-LittleSur"
-@@ -823,7 +822,6 @@ config SIBYTE_SENTOSA
- 	select SYS_HAS_CPU_SB1
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
- 
- config SIBYTE_BIGSUR
- 	bool "Sibyte BCM91480B-BigSur"
-@@ -837,7 +835,6 @@ config SIBYTE_BIGSUR
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
- 	select ZONE_DMA32 if 64BIT
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
- 
- config SNI_RM
- 	bool "SNI RM200/300/400"
---- a/arch/mips/sibyte/common/Makefile
-+++ b/arch/mips/sibyte/common/Makefile
-@@ -1,5 +1,4 @@
- obj-y := cfe.o
--obj-$(CONFIG_SWIOTLB)			+= dma.o
- obj-$(CONFIG_SIBYTE_BUS_WATCHER)	+= bus_watcher.o
- obj-$(CONFIG_SIBYTE_CFE_CONSOLE)	+= cfe_console.o
- obj-$(CONFIG_SIBYTE_TBPROF)		+= sb_tbprof.o
---- a/arch/mips/sibyte/common/dma.c
-+++ /dev/null
-@@ -1,14 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0+
--/*
-- *	DMA support for Broadcom SiByte platforms.
-- *
-- *	Copyright (c) 2018  Maciej W. Rozycki
-- */
--
--#include <linux/swiotlb.h>
--#include <asm/bootinfo.h>
--
--void __init plat_swiotlb_setup(void)
--{
--	swiotlb_init(1);
--}
+ 		sctp_assoc_control_transport(asoc, transport,
+ 					     SCTP_TRANSPORT_PF,
 
 
