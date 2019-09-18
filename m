@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA6CB5C8F
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE0AB5C91
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727591AbfIRG1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49602 "EHLO mail.kernel.org"
+        id S1730565AbfIRG1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730546AbfIRG1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:27:37 -0400
+        id S1730550AbfIRG1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3727D21924;
-        Wed, 18 Sep 2019 06:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A954621925;
+        Wed, 18 Sep 2019 06:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568788056;
-        bh=IgSnfBbKKt8oz4nntcGvxalcdOG1q6RWhwQOHW/Yhn8=;
+        s=default; t=1568788059;
+        bh=ELdwDkWxYsuhxKAe9AruqbAU4i4H9m8ztm+JwKeZQqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJX8JX/TsP0C6hp8ZghMvZIlMj5YkyNeMrbwUoLK0sfhNxgF9Lqv1KqAHlYWbBEXO
-         BPtg587MecaWmxFqY1uQe6DvIfsPdRVxsUIBvtVuFp+8ZAv0uEMvCW39mbxTuwnhCF
-         67UV/YlfVL3ltoW3Tg8Quugxji7jzeRM4zkOC6sM=
+        b=MjnyGh3oKDD2GLs9IJkFFoceD/mPYgb2j2vrQugYspvOPx/n4BNUfn7n3tNVwAR8r
+         ap9Y8IeOC000f2GlHWeZw6ioRijlzb3BPBs8v+0ek3WUxoWRZ6fRPXLqKY3SFrQqj8
+         LKG04BZHyOF3zc/R7ZnWs0ImO+MCeCuzdlb6X4Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Mammedov <imammedo@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 5.2 43/85] KVM: s390: kvm_s390_vm_start_migration: check dirty_bitmap before using it as target for memset()
-Date:   Wed, 18 Sep 2019 08:19:01 +0200
-Message-Id: <20190918061235.499343564@linuxfoundation.org>
+        Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [PATCH 5.2 44/85] KVM: s390: Do not leak kernel stack data in the KVM_S390_INTERRUPT ioctl
+Date:   Wed, 18 Sep 2019 08:19:02 +0200
+Message-Id: <20190918061235.533826007@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -47,63 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Mammedov <imammedo@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 13a17cc0526f08d1df9507f7484176371cd263a0 upstream.
+commit 53936b5bf35e140ae27e4bbf0447a61063f400da upstream.
 
-If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
-kvm_s390_vm_start_migration(), kernel will oops with:
+When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
+an interrupt, we convert them from the legacy struct kvm_s390_interrupt
+to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
+However, this function does not take care of all types of interrupts
+that we can inject into the guest later (see do_inject_vcpu()). Since we
+do not clear out the s390irq values before calling s390int_to_s390irq(),
+there is a chance that we copy random data from the kernel stack which
+could be leaked to the userspace later.
 
-  Unable to handle kernel pointer dereference in virtual kernel address space
-  Failing address: 0000000000000000 TEID: 0000000000000483
-  Fault in home space mode while using kernel ASCE.
-  AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007 S:00000001bff91000 P:000000000000003d
-  Oops: 0004 ilc:2 [#1] SMP
-  ...
-  Call Trace:
-  ([<001fffff804ec552>] kvm_s390_vm_set_attr+0x347a/0x3828 [kvm])
-   [<001fffff804ecfc0>] kvm_arch_vm_ioctl+0x6c0/0x1998 [kvm]
-   [<001fffff804b67e4>] kvm_vm_ioctl+0x51c/0x11a8 [kvm]
-   [<00000000008ba572>] do_vfs_ioctl+0x1d2/0xe58
-   [<00000000008bb284>] ksys_ioctl+0x8c/0xb8
-   [<00000000008bb2e2>] sys_ioctl+0x32/0x40
-   [<000000000175552c>] system_call+0x2b8/0x2d8
-  INFO: lockdep is turned off.
-  Last Breaking-Event-Address:
-   [<0000000000dbaf60>] __memset+0xc/0xa0
+Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
+interrupt: s390int_to_s390irq() does not handle it, and the function
+__inject_pfault_init() later copies irq->u.ext which contains the
+random kernel stack data. This data can then be leaked either to
+the guest memory in __deliver_pfault_init(), or the userspace might
+retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
 
-due to ms->dirty_bitmap being NULL, which might crash the host.
+Fix it by handling that interrupt type in s390int_to_s390irq(), too,
+and by making sure that the s390irq struct is properly pre-initialized.
+And while we're at it, make sure that s390int_to_s390irq() now
+directly returns -EINVAL for unknown interrupt types, so that we
+immediately get a proper error code in case we add more interrupt
+types to do_inject_vcpu() without updating s390int_to_s390irq()
+sometime in the future.
 
-Make sure that ms->dirty_bitmap is set before using it or
-return -EINVAL otherwise.
-
-Cc: <stable@vger.kernel.org>
-Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration with memory slots")
-Signed-off-by: Igor Mammedov <imammedo@redhat.com>
-Link: https://lore.kernel.org/kvm/20190911075218.29153-1-imammedo@redhat.com/
+Cc: stable@vger.kernel.org
 Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/kvm/20190912115438.25761-1-thuth@redhat.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/kvm-s390.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kvm/interrupt.c |   10 ++++++++++
+ arch/s390/kvm/kvm-s390.c  |    2 +-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1978,6 +1978,16 @@ int s390int_to_s390irq(struct kvm_s390_i
+ 	case KVM_S390_MCHK:
+ 		irq->u.mchk.mcic = s390int->parm64;
+ 		break;
++	case KVM_S390_INT_PFAULT_INIT:
++		irq->u.ext.ext_params = s390int->parm;
++		irq->u.ext.ext_params2 = s390int->parm64;
++		break;
++	case KVM_S390_RESTART:
++	case KVM_S390_INT_CLOCK_COMP:
++	case KVM_S390_INT_CPU_TIMER:
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 	return 0;
+ }
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1013,6 +1013,8 @@ static int kvm_s390_vm_start_migration(s
- 	/* mark all the pages in active slots as dirty */
- 	for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
- 		ms = slots->memslots + slotnr;
-+		if (!ms->dirty_bitmap)
-+			return -EINVAL;
- 		/*
- 		 * The second half of the bitmap is only used on x86,
- 		 * and would be wasted otherwise, so we put it to good
+@@ -4327,7 +4327,7 @@ long kvm_arch_vcpu_async_ioctl(struct fi
+ 	}
+ 	case KVM_S390_INTERRUPT: {
+ 		struct kvm_s390_interrupt s390int;
+-		struct kvm_s390_irq s390irq;
++		struct kvm_s390_irq s390irq = {};
+ 
+ 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
+ 			return -EFAULT;
 
 
