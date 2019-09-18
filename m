@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEB9B5D24
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2904B5D21
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729495AbfIRGbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
+        id S1726740AbfIRGW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726415AbfIRGWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:22:54 -0400
+        id S1726726AbfIRGW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EFF7218AE;
-        Wed, 18 Sep 2019 06:22:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1FE320678;
+        Wed, 18 Sep 2019 06:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787773;
-        bh=XiuiRCDKUzJagGSX8GVvQrHCcld29/Eke8+NlEPwfP8=;
+        s=default; t=1568787776;
+        bh=4nilBRjjnFBu5fdYyEt2Loj65b5J8n73B8nWWcGuS58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbYJ+e8FJ+pC44mJJjxh+gdlRp9Z3Ic3B0hjGe5INRlTLUhR1FlYXd4XbVriyq7QW
-         xW2L4ZNZyONDnTHdb7n311v4h8zBMVCvTNm0oys1IhEhAUa04dwcXbTAqBPKXXw9RD
-         v5Lp9SsdfMH87ZDpwgnFpLHM8FCz6gjJaPwtIaVY=
+        b=Gb7ahnnrAAtwe7QfUC5fGmbzWVc2NEITXpoV04+ngozv+om1yk6efqt2FXv7Asbm9
+         LH+Y7Vc/PDNH5+I2W2GmLkQqu4aQVa2mFSvKnK+y2mGWIsC2BlVRPD4IU+ZUT8RcTQ
+         XQ6xfG+aLjLPBlpWeEKg2YJJo3q8+gktf0VNioV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
-        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 06/50] net: Fix null de-reference of device refcount
-Date:   Wed, 18 Sep 2019 08:18:49 +0200
-Message-Id: <20190918061223.708235949@linuxfoundation.org>
+Subject: [PATCH 4.19 07/50] net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list
+Date:   Wed, 18 Sep 2019 08:18:50 +0200
+Message-Id: <20190918061223.774381437@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
 References: <20190918061223.116178343@linuxfoundation.org>
@@ -44,54 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+From: Shmulik Ladkani <shmulik@metanetworks.com>
 
-[ Upstream commit 10cc514f451a0f239aa34f91bc9dc954a9397840 ]
+[ Upstream commit 3dcbdb134f329842a38f0e6797191b885ab00a00 ]
 
-In event of failure during register_netdevice, free_netdev is
-invoked immediately. free_netdev assumes that all the netdevice
-refcounts have been dropped prior to it being called and as a
-result frees and clears out the refcount pointer.
+Historically, support for frag_list packets entering skb_segment() was
+limited to frag_list members terminating on exact same gso_size
+boundaries. This is verified with a BUG_ON since commit 89319d3801d1
+("net: Add frag_list support to skb_segment"), quote:
 
-However, this is not necessarily true as some of the operations
-in the NETDEV_UNREGISTER notifier handlers queue RCU callbacks for
-invocation after a grace period. The IPv4 callback in_dev_rcu_put
-tries to access the refcount after free_netdev is called which
-leads to a null de-reference-
+    As such we require all frag_list members terminate on exact MSS
+    boundaries.  This is checked using BUG_ON.
+    As there should only be one producer in the kernel of such packets,
+    namely GRO, this requirement should not be difficult to maintain.
 
-44837.761523:   <6> Unable to handle kernel paging request at
-                    virtual address 0000004a88287000
-44837.761651:   <2> pc : in_dev_finish_destroy+0x4c/0xc8
-44837.761654:   <2> lr : in_dev_finish_destroy+0x2c/0xc8
-44837.762393:   <2> Call trace:
-44837.762398:   <2>  in_dev_finish_destroy+0x4c/0xc8
-44837.762404:   <2>  in_dev_rcu_put+0x24/0x30
-44837.762412:   <2>  rcu_nocb_kthread+0x43c/0x468
-44837.762418:   <2>  kthread+0x118/0x128
-44837.762424:   <2>  ret_from_fork+0x10/0x1c
+However, since commit 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper"),
+the "exact MSS boundaries" assumption no longer holds:
+An eBPF program using bpf_skb_change_proto() DOES modify 'gso_size', but
+leaves the frag_list members as originally merged by GRO with the
+original 'gso_size'. Example of such programs are bpf-based NAT46 or
+NAT64.
 
-Fix this by waiting for the completion of the call_rcu() in
-case of register_netdevice errors.
+This lead to a kernel BUG_ON for flows involving:
+ - GRO generating a frag_list skb
+ - bpf program performing bpf_skb_change_proto() or bpf_skb_adjust_room()
+ - skb_segment() of the skb
 
-Fixes: 93ee31f14f6f ("[NET]: Fix free_netdev on register_netdev failure.")
-Cc: Sean Tranchetti <stranche@codeaurora.org>
-Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+See example BUG_ON reports in [0].
+
+In commit 13acc94eff12 ("net: permit skb_segment on head_frag frag_list skb"),
+skb_segment() was modified to support the "gso_size mangling" case of
+a frag_list GRO'ed skb, but *only* for frag_list members having
+head_frag==true (having a page-fragment head).
+
+Alas, GRO packets having frag_list members with a linear kmalloced head
+(head_frag==false) still hit the BUG_ON.
+
+This commit adds support to skb_segment() for a 'head_skb' packet having
+a frag_list whose members are *non* head_frag, with gso_size mangled, by
+disabling SG and thus falling-back to copying the data from the given
+'head_skb' into the generated segmented skbs - as suggested by Willem de
+Bruijn [1].
+
+Since this approach involves the penalty of skb_copy_and_csum_bits()
+when building the segments, care was taken in order to enable this
+solution only when required:
+ - untrusted gso_size, by testing SKB_GSO_DODGY is set
+   (SKB_GSO_DODGY is set by any gso_size mangling functions in
+    net/core/filter.c)
+ - the frag_list is non empty, its item is a non head_frag, *and* the
+   headlen of the given 'head_skb' does not match the gso_size.
+
+[0]
+https://lore.kernel.org/netdev/20190826170724.25ff616f@pixies/
+https://lore.kernel.org/netdev/9265b93f-253d-6b8c-f2b8-4b54eff1835c@fb.com/
+
+[1]
+https://lore.kernel.org/netdev/CA+FuTSfVsgNDi7c=GUU8nMg2hWxF2SjCNLXetHeVPdnxAW5K-w@mail.gmail.com/
+
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/core/skbuff.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -8562,6 +8562,8 @@ int register_netdevice(struct net_device
- 	ret = notifier_to_errno(ret);
- 	if (ret) {
- 		rollback_registered(dev);
-+		rcu_barrier();
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3530,6 +3530,25 @@ struct sk_buff *skb_segment(struct sk_bu
+ 	int pos;
+ 	int dummy;
+ 
++	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
++	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
++		/* gso_size is untrusted, and we have a frag_list with a linear
++		 * non head_frag head.
++		 *
++		 * (we assume checking the first list_skb member suffices;
++		 * i.e if either of the list_skb members have non head_frag
++		 * head, then the first one has too).
++		 *
++		 * If head_skb's headlen does not fit requested gso_size, it
++		 * means that the frag_list members do NOT terminate on exact
++		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
++		 * sharing. Therefore we must fallback to copying the frag_list
++		 * skbs; we do so by disabling SG.
++		 */
++		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
++			features &= ~NETIF_F_SG;
++	}
 +
- 		dev->reg_state = NETREG_UNREGISTERED;
- 	}
- 	/*
+ 	__skb_push(head_skb, doffset);
+ 	proto = skb_network_protocol(head_skb, &dummy);
+ 	if (unlikely(!proto))
 
 
