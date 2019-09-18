@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94663B5C9C
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DD13B5C99
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730618AbfIRG14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:27:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50034 "EHLO mail.kernel.org"
+        id S1730635AbfIRG17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:27:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730612AbfIRG1z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:27:55 -0400
+        id S1730624AbfIRG16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7844921924;
-        Wed, 18 Sep 2019 06:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23BC421925;
+        Wed, 18 Sep 2019 06:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568788075;
-        bh=RbgfYFSCI0fRyEkzo9RTB6m27zZJght3pW/pqs5AJuM=;
+        s=default; t=1568788077;
+        bh=txizpSKWNllJpJ8T6Vas/37oGmdhWUzm8YhP+TFhjJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCMFgeH3J5JpBFBVXs3xfKsuwmqbviHbm+zFsnWK3W7NAHMTauJdixSn8NkO822cb
-         znj8MRJywaT6RbbJC3wT13f2E5F0leKmU0mm9TN/o/9SSH/L/J7eXlf5L+HH0IGUiR
-         kmu8/aFah9/iXur1XGYxT9CSaYmFXCFRezSjHhyM=
+        b=F81BXwTWw0pLqa7hP9Vxn39gQtDGfwshr1XJmXlBKROqwbFNfLtgB/xFvWHEav7Tn
+         4Kulvkw3VKxf4GjxJfESzZCPrf0fZDMAiLtzAxme9ItAt60ghbHq2+Uf18yP4m5BX8
+         njG/EsO37OrlzpvYuDNGnraPpqWvV+fzpZ8UNvmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.2 84/85] rsi: fix a double free bug in rsi_91x_deinit()
-Date:   Wed, 18 Sep 2019 08:19:42 +0200
-Message-Id: <20190918061238.025709947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.2 85/85] x86/build: Add -Wnoaddress-of-packed-member to REALMODE_CFLAGS, to silence GCC9 build warning
+Date:   Wed, 18 Sep 2019 08:19:43 +0200
+Message-Id: <20190918061238.053565265@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -45,46 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 8b51dc7291473093c821195c4b6af85fadedbc2f upstream.
+commit 42e0e95474fc6076b5cd68cab8fa0340a1797a72 upstream.
 
-`dev` (struct rsi_91x_usbdev *) field of adapter
-(struct rsi_91x_usbdev *) is allocated  and initialized in
-`rsi_init_usb_interface`. If any error is detected in information
-read from the device side,  `rsi_init_usb_interface` will be
-freed. However, in the higher level error handling code in
-`rsi_probe`, if error is detected, `rsi_91x_deinit` is called
-again, in which `dev` will be freed again, resulting double free.
+One of the very few warnings I have in the current build comes from
+arch/x86/boot/edd.c, where I get the following with a gcc9 build:
 
-This patch fixes the double free by removing the free operation on
-`dev` in `rsi_init_usb_interface`, because `rsi_91x_deinit` is also
-used in `rsi_disconnect`, in that code path, the `dev` field is not
- (and thus needs to be) freed.
+   arch/x86/boot/edd.c: In function ‘query_edd’:
+   arch/x86/boot/edd.c:148:11: warning: taking address of packed member of ‘struct boot_params’ may result in an unaligned pointer value [-Waddress-of-packed-member]
+     148 |  mbrptr = boot_params.edd_mbr_sig_buffer;
+         |           ^~~~~~~~~~~
 
-This bug was found in v4.19, but is also present in the latest version
-of kernel. Fixes CVE-2019-15504.
+This warning triggers because we throw away all the CFLAGS and then make
+a new set for REALMODE_CFLAGS, so the -Wno-address-of-packed-member we
+added in the following commit is not present:
 
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+  6f303d60534c ("gcc-9: silence 'address-of-packed-member' warning")
+
+The simplest solution for now is to adjust the warning for this version
+of CFLAGS as well, but it would definitely make sense to examine whether
+REALMODE_CFLAGS could be derived from CFLAGS, so that it picks up changes
+in the compiler flags environment automatically.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Borislav Petkov <bp@alien8.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -645,7 +645,6 @@ fail_rx:
- 	kfree(rsi_dev->tx_buffer);
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -38,6 +38,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os
  
- fail_eps:
--	kfree(rsi_dev);
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
++REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
+ export REALMODE_CFLAGS
  
- 	return status;
- }
 
 
