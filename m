@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89075B5CDA
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D98B5D58
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbfIRGZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:25:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46506 "EHLO mail.kernel.org"
+        id S1727670AbfIRGUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:20:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727374AbfIRGZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:25:30 -0400
+        id S1727661AbfIRGUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:20:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9836E21924;
-        Wed, 18 Sep 2019 06:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC20421925;
+        Wed, 18 Sep 2019 06:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787930;
-        bh=wauRTjmGo+4c67cB3j2p7Ym9wqqe6uvtDzztz9dU+UE=;
+        s=default; t=1568787614;
+        bh=WSXgFjWxeDIiTJ5O/+eF0M0IKcZfG/xLhuGR8D0Jay8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifcxeVZnhR7JWelXAyZzUTqgjHH+zPH2Fhbum2O7Gqc9vTQ+G/SaGZRmy9uNH8cKe
-         FHPfwhNk+qq+VH7JSQ8L162+6IijnwanJl4s1f9lk2v1AAtfAzfplQwZ6g8rEsxoxC
-         I2u1ApMt/pRBoQ1adsHNnpyU4nYqGT9+X61oGSBU=
+        b=EvSWecvJ8OgACMbYqJKkcvCcs1km+acy8QqOOYMu/xw48Q1IzLjRNAtK8fMH+KnEy
+         OEQ8qKdcKThj4WaqWe004Mej9yLHmauLISXigLDpYHGrsztyvKoyjn3mrHOhu0zRlp
+         7Gs9qQhdVVp1LmSpfhUf5K9zjCP6g0T8mn236WVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Guan Xuetao <gxt@pku.edu.cn>,
-        Stafford Horne <shorne@gmail.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Ley Foon Tan <lftan@altera.com>,
-        Richard Kuo <rkuo@codeaurora.org>,
-        Mark Salter <msalter@redhat.com>,
-        Aurelien Jacquiot <jacquiot.aurelien@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.2 35/85] ipc: fix semtimedop for generic 32-bit architectures
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 15/45] btrfs: correctly validate compression type
 Date:   Wed, 18 Sep 2019 08:18:53 +0200
-Message-Id: <20190918061235.256229463@linuxfoundation.org>
+Message-Id: <20190918061224.441745861@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Johannes Thumshirn <jthumshirn@suse.de>
 
-commit 78e05972c5e6c8e9ca4c00ccc6985409da69f904 upstream.
+commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e upstream.
 
-As Vincent noticed, the y2038 conversion of semtimedop in linux-5.1
-broke when commit 00bf25d693e7 ("y2038: use time32 syscall names on
-32-bit") changed all system calls on all architectures that take
-a 32-bit time_t to point to the _time32 implementation, but left out
-semtimedop in the asm-generic header.
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-This affects all 32-bit architectures using asm-generic/unistd.h:
-h8300, unicore32, openrisc, nios2, hexagon, c6x, arc, nds32 and csky.
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
 
-The notable exception is riscv32, which has dropped support for the
-time32 system calls entirely.
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
 
-Reported-by: Vincent Chen <deanbo422@gmail.com>
-Cc: stable@vger.kernel.org
-Cc: Vincent Chen <deanbo422@gmail.com>
-Cc: Greentime Hu <green.hu@gmail.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Guan Xuetao <gxt@pku.edu.cn>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Ley Foon Tan <lftan@altera.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Mark Salter <msalter@redhat.com>
-Cc: Aurelien Jacquiot <jacquiot.aurelien@gmail.com>
-Cc: Guo Ren <guoren@kernel.org>
-Fixes: 00bf25d693e7 ("y2038: use time32 syscall names on 32-bit")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
+
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
+
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/uapi/asm-generic/unistd.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/compression.c |   16 ++++++++++++++++
+ fs/btrfs/compression.h |    1 +
+ fs/btrfs/props.c       |    6 +-----
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -569,7 +569,7 @@ __SYSCALL(__NR_semget, sys_semget)
- __SC_COMP(__NR_semctl, sys_semctl, compat_sys_semctl)
- #if defined(__ARCH_WANT_TIME32_SYSCALLS) || __BITS_PER_LONG != 32
- #define __NR_semtimedop 192
--__SC_COMP(__NR_semtimedop, sys_semtimedop, sys_semtimedop_time32)
-+__SC_3264(__NR_semtimedop, sys_semtimedop_time32, sys_semtimedop)
- #endif
- #define __NR_semop 193
- __SYSCALL(__NR_semop, sys_semop)
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -58,6 +58,22 @@ const char* btrfs_compress_type2str(enum
+ 	return NULL;
+ }
+ 
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
+ 
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -131,6 +131,7 @@ extern const struct btrfs_compress_op bt
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -386,11 +386,7 @@ int btrfs_subvol_inherit_props(struct bt
+ 
+ static int prop_compression_validate(const char *value, size_t len)
+ {
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
 
 
