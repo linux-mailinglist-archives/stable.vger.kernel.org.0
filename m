@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E45B5D2F
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86F6B5D50
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727221AbfIRGWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:22:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42202 "EHLO mail.kernel.org"
+        id S1728607AbfIRGUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729370AbfIRGWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:22:20 -0400
+        id S1728502AbfIRGUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:20:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7400F21906;
-        Wed, 18 Sep 2019 06:22:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37AE921927;
+        Wed, 18 Sep 2019 06:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787739;
-        bh=nohuGyc7hfdYqZ6sL9+EviD0Dgpon4dbSK9zLX7rpCI=;
+        s=default; t=1568787635;
+        bh=xItjJk21um48QSG8Cuzllh+TXH0xwu64qQfvRLOtT4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vx6dXzeR1sr9h/iSLkL9JvRUhaztOWWFGkuEk+u84DsdWm/G7C/CZ0Elu678kVuaM
-         i3Ne0kv4344/ByThFtxbFM/ssk6UL1vNB1P9EbcsIR/xUR7dOmLiB7hAlanC2V6fo1
-         XtDm+7un/Bq+xVsACfnUD/grSeQsFSd8jUj19vhE=
+        b=tb3nDnVIMBYKctZhhz2bby7Xn/je9N2lBhdvOF8HuWHGt4Y8E/uOZGvr1VYTpe5PS
+         ZmCCaABOCRd2Op37slk0LecptrUU61qh4KVwqlqeDQEULYKZkdj6zq9NhEkLExWb1+
+         d6eTz48ZUdHb003z0j2ypMz/Mk84ilQumP4vxCv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Ian W MORRISON <ianwmorrison@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 16/50] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot option and blacklist
-Date:   Wed, 18 Sep 2019 08:18:59 +0200
-Message-Id: <20190918061224.680169319@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [PATCH 4.14 22/45] KVM: s390: Do not leak kernel stack data in the KVM_S390_INTERRUPT ioctl
+Date:   Wed, 18 Sep 2019 08:19:00 +0200
+Message-Id: <20190918061225.314367870@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,115 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 61f7f7c8f978b1c0d80e43c83b7d110ca0496eb4 upstream.
+commit 53936b5bf35e140ae27e4bbf0447a61063f400da upstream.
 
-Another day; another DSDT bug we need to workaround...
+When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
+an interrupt, we convert them from the legacy struct kvm_s390_interrupt
+to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
+However, this function does not take care of all types of interrupts
+that we can inject into the guest later (see do_inject_vcpu()). Since we
+do not clear out the s390irq values before calling s390int_to_s390irq(),
+there is a chance that we copy random data from the kernel stack which
+could be leaked to the userspace later.
 
-Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
-at least once on boot") we call _AEI edge handlers at boot.
+Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
+interrupt: s390int_to_s390irq() does not handle it, and the function
+__inject_pfault_init() later copies irq->u.ext which contains the
+random kernel stack data. This data can then be leaked either to
+the guest memory in __deliver_pfault_init(), or the userspace might
+retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
 
-In some rare cases this causes problems. One example of this is the Minix
-Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
-and pasted code for dealing with Micro USB-B connector host/device role
-switching, while the mini PC does not even have a micro-USB connector.
-This code, which should not be there, messes with the DDC data pin from
-the HDMI connector (switching it to GPIO mode) breaking HDMI support.
-
-To avoid problems like this, this commit adds a new
-gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
-allows disabling the running of _AEI edge event handlers at boot.
-
-The default value is -1/auto which uses a DMI based blacklist, the initial
-version of this blacklist contains the Neo Z83-4 fixing the HDMI breakage.
+Fix it by handling that interrupt type in s390int_to_s390irq(), too,
+and by making sure that the s390irq struct is properly pre-initialized.
+And while we're at it, make sure that s390int_to_s390irq() now
+directly returns -EINVAL for unknown interrupt types, so that we
+immediately get a proper error code in case we add more interrupt
+types to do_inject_vcpu() without updating s390int_to_s390irq()
+sometime in the future.
 
 Cc: stable@vger.kernel.org
-Cc: Daniel Drake <drake@endlessm.com>
-Cc: Ian W MORRISON <ianwmorrison@gmail.com>
-Reported-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Suggested-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Fixes: ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events at least once on boot")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20190827202835.213456-1-hdegoede@redhat.com
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Ian W MORRISON <ianwmorrison@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/kvm/20190912115438.25761-1-thuth@redhat.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ arch/s390/kvm/interrupt.c |   10 ++++++++++
+ arch/s390/kvm/kvm-s390.c  |    2 +-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -10,6 +10,7 @@
-  * published by the Free Software Foundation.
-  */
- 
-+#include <linux/dmi.h>
- #include <linux/errno.h>
- #include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
-@@ -23,6 +24,11 @@
- 
- #include "gpiolib.h"
- 
-+static int run_edge_events_on_boot = -1;
-+module_param(run_edge_events_on_boot, int, 0444);
-+MODULE_PARM_DESC(run_edge_events_on_boot,
-+		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
-+
- /**
-  * struct acpi_gpio_event - ACPI GPIO event handler data
-  *
-@@ -174,10 +180,13 @@ static void acpi_gpiochip_request_irq(st
- 	event->irq_requested = true;
- 
- 	/* Make sure we trigger the initial state of edge-triggered IRQs */
--	value = gpiod_get_raw_value_cansleep(event->desc);
--	if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
--	    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
--		event->handler(event->irq, event);
-+	if (run_edge_events_on_boot &&
-+	    (event->irqflags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING))) {
-+		value = gpiod_get_raw_value_cansleep(event->desc);
-+		if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
-+		    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
-+			event->handler(event->irq, event);
-+	}
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1701,6 +1701,16 @@ int s390int_to_s390irq(struct kvm_s390_i
+ 	case KVM_S390_MCHK:
+ 		irq->u.mchk.mcic = s390int->parm64;
+ 		break;
++	case KVM_S390_INT_PFAULT_INIT:
++		irq->u.ext.ext_params = s390int->parm;
++		irq->u.ext.ext_params2 = s390int->parm64;
++		break;
++	case KVM_S390_RESTART:
++	case KVM_S390_INT_CLOCK_COMP:
++	case KVM_S390_INT_CPU_TIMER:
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 	return 0;
  }
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3730,7 +3730,7 @@ long kvm_arch_vcpu_ioctl(struct file *fi
+ 	}
+ 	case KVM_S390_INTERRUPT: {
+ 		struct kvm_s390_interrupt s390int;
+-		struct kvm_s390_irq s390irq;
++		struct kvm_s390_irq s390irq = {};
  
- static void acpi_gpiochip_request_irqs(struct acpi_gpio_chip *acpi_gpio)
-@@ -1253,3 +1262,28 @@ static int acpi_gpio_handle_deferred_req
- }
- /* We must use _sync so that this runs after the first deferred_probe run */
- late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
-+
-+static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
-+		}
-+	},
-+	{} /* Terminating entry */
-+};
-+
-+static int acpi_gpio_setup_params(void)
-+{
-+	if (run_edge_events_on_boot < 0) {
-+		if (dmi_check_system(run_edge_events_on_boot_blacklist))
-+			run_edge_events_on_boot = 0;
-+		else
-+			run_edge_events_on_boot = 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Directly after dmi_setup() which runs as core_initcall() */
-+postcore_initcall(acpi_gpio_setup_params);
+ 		r = -EFAULT;
+ 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
 
 
