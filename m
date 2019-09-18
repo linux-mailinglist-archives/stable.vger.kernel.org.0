@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7888CB5CB4
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 646F1B5C00
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730326AbfIRG0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
+        id S1729217AbfIRGVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730332AbfIRG0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:36 -0400
+        id S1728061AbfIRGVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5246321929;
-        Wed, 18 Sep 2019 06:26:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D4D521D56;
+        Wed, 18 Sep 2019 06:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787995;
-        bh=FdXQ5GCxGzSD3aWt3Raz/h1pzonloyJFe+fcXM42WoI=;
+        s=default; t=1568787704;
+        bh=YI6gIsrLXa5biKkEtXE4kviKkjkvPlGBKxKYfmv7/i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGlBMaMYlrWw5Z7lkcGXokMrJ25J8yFsvW/b4acZXwDdbR8vJaSsIME9lvFUrYX8u
-         zPdq44WraUhoNSxuDuZ8fJ85w70yifXLAyHXTJlCH3Tw5IWUvpyBGoO//VW3X/x6Mc
-         Po/DOw5rALKpnQghw11M9PiCyxcZXAETY/hGdzw0=
+        b=bVEOKMO37bgIHcnL7dzhh20Wje7fR1NErU5Ywp1TLyVNTkA+Dbc1GQqSv/w0R9zPy
+         w8QZqkc3gLGpAx/DW1GwjOHaKMrw4uCV5jOUw0e53Ciub8D+ACm8a6eZ9dNGWH7zZy
+         GvQh/5fyC8JfRIwVOZra7ZJxZr59t3PZfWCGuTDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.2 61/85] ubifs: Correctly use tnc_next() in search_dh_cookie()
+        stable@vger.kernel.org, Nishka Dasgupta <nishkadg.linux@gmail.com>,
+        CK Hu <ck.hu@mediatek.com>
+Subject: [PATCH 4.14 41/45] drm/mediatek: mtk_drm_drv.c: Add of_node_put() before goto
 Date:   Wed, 18 Sep 2019 08:19:19 +0200
-Message-Id: <20190918061236.997345935@linuxfoundation.org>
+Message-Id: <20190918061227.834898065@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
-commit bacfa94b08027b9f66ede7044972e3b066766b3e upstream.
+commit 165d42c012be69900f0e2f8545626cb9e7d4a832 upstream.
 
-Commit c877154d307f fixed an uninitialized variable and optimized
-the function to not call tnc_next() in the first iteration of the
-loop. While this seemed perfectly legit and wise, it turned out to
-be illegal.
-If the lookup function does not find an exact match it will rewind
-the cursor by 1.
-The rewinded cursor will not match the name hash we are looking for
-and this results in a spurious -ENOENT.
-So we need to move to the next entry in case of an non-exact match,
-but not if the match was exact.
+Each iteration of for_each_child_of_node puts the previous
+node, but in the case of a goto from the middle of the loop, there is
+no put, thus causing a memory leak. Hence add an of_node_put before the
+goto in two places.
+Issue found with Coccinelle.
 
-While we are here, update the documentation to avoid further confusion.
+Fixes: 119f5173628a (drm/mediatek: Add DRM Driver for Mediatek SoC MT8173)
 
-Cc: Hyunchul Lee <hyc.lee@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Fixes: c877154d307f ("ubifs: Fix uninitialized variable in search_dh_cookie()")
-Fixes: 781f675e2d7e ("ubifs: Fix unlink code wrt. double hash lookups")
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/tnc.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -1158,8 +1158,8 @@ static struct ubifs_znode *dirty_cow_bot
-  *   o exact match, i.e. the found zero-level znode contains key @key, then %1
-  *     is returned and slot number of the matched branch is stored in @n;
-  *   o not exact match, which means that zero-level znode does not contain
-- *     @key, then %0 is returned and slot number of the closest branch is stored
-- *     in @n;
-+ *     @key, then %0 is returned and slot number of the closest branch or %-1
-+ *     is stored in @n; In this case calling tnc_next() is mandatory.
-  *   o @key is so small that it is even less than the lowest key of the
-  *     leftmost zero-level node, then %0 is returned and %0 is stored in @n.
-  *
-@@ -1882,13 +1882,19 @@ int ubifs_tnc_lookup_nm(struct ubifs_inf
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -504,12 +504,15 @@ static int mtk_drm_probe(struct platform
+ 			comp = devm_kzalloc(dev, sizeof(*comp), GFP_KERNEL);
+ 			if (!comp) {
+ 				ret = -ENOMEM;
++				of_node_put(node);
+ 				goto err_node;
+ 			}
  
- static int search_dh_cookie(struct ubifs_info *c, const union ubifs_key *key,
- 			    struct ubifs_dent_node *dent, uint32_t cookie,
--			    struct ubifs_znode **zn, int *n)
-+			    struct ubifs_znode **zn, int *n, int exact)
- {
- 	int err;
- 	struct ubifs_znode *znode = *zn;
- 	struct ubifs_zbranch *zbr;
- 	union ubifs_key *dkey;
+ 			ret = mtk_ddp_comp_init(dev, node, comp, comp_id, NULL);
+-			if (ret)
++			if (ret) {
++				of_node_put(node);
+ 				goto err_node;
++			}
  
-+	if (!exact) {
-+		err = tnc_next(c, &znode, n);
-+		if (err)
-+			return err;
-+	}
-+
- 	for (;;) {
- 		zbr = &znode->zbranch[*n];
- 		dkey = &zbr->key;
-@@ -1930,7 +1936,7 @@ static int do_lookup_dh(struct ubifs_inf
- 	if (unlikely(err < 0))
- 		goto out_unlock;
- 
--	err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
-+	err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
- 
- out_unlock:
- 	mutex_unlock(&c->tnc_mutex);
-@@ -2723,7 +2729,7 @@ int ubifs_tnc_remove_dh(struct ubifs_inf
- 		if (unlikely(err < 0))
- 			goto out_free;
- 
--		err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
-+		err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
- 		if (err)
- 			goto out_free;
- 	}
+ 			private->ddp_comp[comp_id] = comp;
+ 		}
 
 
