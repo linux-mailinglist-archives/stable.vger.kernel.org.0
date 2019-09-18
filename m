@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA93B5D18
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56970B5D33
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729557AbfIRGXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:23:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
+        id S1729238AbfIRGVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729512AbfIRGXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:23:16 -0400
+        id S1727958AbfIRGVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DE6321927;
-        Wed, 18 Sep 2019 06:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 729B921920;
+        Wed, 18 Sep 2019 06:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787794;
-        bh=5Vtueu3XOmcdJMAZnPT9Mk4QioY6y6yKN0jhiCOdqF4=;
+        s=default; t=1568787710;
+        bh=Y5r2DYc2U6q8ELMTom+yXiIfvMUSdI+vlfrsGLeT+0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHWAv9MbjyGxtQLKWpaY1rrGsHRYW3J9+wDUnEZqGUfwljOwa+H+AezvFmtgy3beJ
-         RqMqDWtnNdU5CWa3q/OfGuEh0NXEUQjVsW3W8BPxJUetaJ+xxv4UcGQeAUYxUmJ9oV
-         5xbU/BP+TnkM1SOXJsTWab0eC1R/7lFW8pq64IFo=
+        b=gWmKl8ebepApTYWPM9TY6xtO9I6P11jCZEfZQ/owAWJtBdQStPJ/q6G8rA8kYRjVH
+         Nv9klTbyl0SoaHbZpWZmlTnmrNJRa5422IMwHZoWhCYD36q506wLLZ8ux4/xmwCaCX
+         m1hrRVjgN6fwiDeqd7lLdpIjA/cIDmRPS796s3MQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 37/50] crypto: talitos - fix ECB algs ivsize
-Date:   Wed, 18 Sep 2019 08:19:20 +0200
-Message-Id: <20190918061227.439481127@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 43/45] platform/x86: pmc_atom: Add CB4063 Beckhoff Automation board to critclk_systems DMI table
+Date:   Wed, 18 Sep 2019 08:19:21 +0200
+Message-Id: <20190918061227.970393408@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
 
-commit d84cc9c9524ec5973a337533e6d8ccd3e5f05f2b upstream.
+commit 9452fbf5c6cf5f470e0748fe7a14a683e7765f7a upstream.
 
-ECB's ivsize must be 0.
+The CB4063 board uses pmc_plt_clk* clocks for ethernet controllers. This
+adds it to the critclk_systems DMI table so the clocks are marked as
+CLK_CRITICAL and not turned off.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 5e75ae1b3cef ("crypto: talitos - add new crypto modes")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Signed-off-by: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/talitos.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/platform/x86/pmc_atom.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -2750,7 +2750,6 @@ static struct talitos_alg_template drive
- 			.cra_ablkcipher = {
- 				.min_keysize = AES_MIN_KEY_SIZE,
- 				.max_keysize = AES_MAX_KEY_SIZE,
--				.ivsize = AES_BLOCK_SIZE,
- 				.setkey = ablkcipher_aes_setkey,
- 			}
- 		},
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -453,6 +453,14 @@ static const struct dmi_system_id critcl
+ 	},
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
++		.ident = "Beckhoff CB4063",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
++			DMI_MATCH(DMI_BOARD_NAME, "CB4063"),
++		},
++	},
++	{
++		/* pmc_plt_clk* - are used for ethernet controllers */
+ 		.ident = "Beckhoff CB6263",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
 
 
