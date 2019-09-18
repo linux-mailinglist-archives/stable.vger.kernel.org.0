@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F120BB5CBD
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42895B5CAC
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727654AbfIRG2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
+        id S1728045AbfIRG1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730456AbfIRG1I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:27:08 -0400
+        id S1730476AbfIRG1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:27:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2946221906;
-        Wed, 18 Sep 2019 06:27:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB1B0218AF;
+        Wed, 18 Sep 2019 06:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568788027;
-        bh=DO155T9TYv+TyBqzz+WkFhf+n8NXB7p7oq7eXTJ/cEs=;
+        s=default; t=1568788030;
+        bh=FUAoHiJRL3qgdI+/miMRFMIFYjyObvtwgXnvXln8pNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZKasugyQVK9E+bI/8oMBzpv1DQfoWMLAR143whR8p8HKTCGshBDVj/UJ8EYXq+XG
-         UJX+6ugWAoZ13RkS4lmHgIhCdHQhe80gxQRmcqaxuTHkLcp9Cl4HpXhXGRCrEhBNWy
-         6d2dUkkFIdX1FpWUN1EpA4Z+gfj2cIwxPWY0zqBk=
+        b=GQ/KBds4psBfHEahDvjS/4UXw2rpo9yjhw0h6UPrdvUmjZ1p8cqu//3NcUyMJ1ti2
+         bC9KXgOV/OEX4Y7bMDQALcLMDFEqueje9X9m8gkO+b2PeA3mA51Gs8ooq85LVg5wTQ
+         IzdN2V+Nj1T5RNzMuiEJPiM+CFTk+zmJ33lukdNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vitaly Wool <vitalywool@gmail.com>,
-        Vitaly Vul <vitaly.vul@sony.com>,
-        Jonathan Adams <jwadams@google.com>,
-        Snild Dolkow <snild@sony.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Vitaly Wool <vitalywool@gmail.com>,
+        Shakeel Butt <shakeelb@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 72/85] mm/z3fold.c: remove z3fold_migration trylock
-Date:   Wed, 18 Sep 2019 08:19:30 +0200
-Message-Id: <20190918061237.682280260@linuxfoundation.org>
+Subject: [PATCH 5.2 73/85] mm/z3fold.c: fix lock/unlock imbalance in z3fold_page_isolate
+Date:   Wed, 18 Sep 2019 08:19:31 +0200
+Message-Id: <20190918061237.710903376@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -50,64 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit be03074c9af25d06cf8e9ebddfcd284c0bf7f947 upstream.
+commit 14108b9131a47ff18a3c640f583eb2d625c75c0d upstream.
 
-z3fold_page_migrate() will never succeed because it attempts to acquire
-a lock that has already been taken by migrate.c in __unmap_and_move().
+Fix lock/unlock imbalance by unlocking *zhdr* before return.
 
-  __unmap_and_move() migrate.c
-    trylock_page(oldpage)
-    move_to_new_page(oldpage_newpage)
-      a_ops->migrate_page(oldpage, newpage)
-        z3fold_page_migrate(oldpage, newpage)
-          trylock_page(oldpage)
+Addresses Coverity ID 1452811 ("Missing unlock")
 
-Link: http://lkml.kernel.org/r/20190710213238.91835-1-henryburns@google.com
-Fixes: 1f862989b04a ("mm/z3fold.c: support page migration")
-Signed-off-by: Henry Burns <henryburns@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Link: http://lkml.kernel.org/r/20190826030634.GA4379@embeddedor
+Fixes: d776aaa9895e ("mm/z3fold.c: fix race between migration and destruction")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
 Cc: Vitaly Wool <vitalywool@gmail.com>
-Cc: Vitaly Vul <vitaly.vul@sony.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Snild Dolkow <snild@sony.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Shakeel Butt <shakeelb@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/z3fold.c |    6 ------
- 1 file changed, 6 deletions(-)
+ mm/z3fold.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/mm/z3fold.c
 +++ b/mm/z3fold.c
-@@ -1439,16 +1439,11 @@ static int z3fold_page_migrate(struct ad
- 	zhdr = page_address(page);
- 	pool = zhdr_to_pool(zhdr);
- 
--	if (!trylock_page(page))
--		return -EAGAIN;
--
- 	if (!z3fold_page_trylock(zhdr)) {
--		unlock_page(page);
- 		return -EAGAIN;
- 	}
- 	if (zhdr->mapped_count != 0) {
- 		z3fold_page_unlock(zhdr);
--		unlock_page(page);
- 		return -EBUSY;
- 	}
- 	if (work_pending(&zhdr->work)) {
-@@ -1494,7 +1489,6 @@ static int z3fold_page_migrate(struct ad
- 	spin_unlock(&pool->lock);
- 
- 	page_mapcount_reset(page);
--	unlock_page(page);
- 	put_page(page);
- 	return 0;
- }
+@@ -1408,6 +1408,7 @@ static bool z3fold_page_isolate(struct p
+ 				 * should freak out.
+ 				 */
+ 				WARN(1, "Z3fold is experiencing kref problems\n");
++				z3fold_page_unlock(zhdr);
+ 				return false;
+ 			}
+ 			z3fold_page_unlock(zhdr);
 
 
