@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9008BB5CB2
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC5EB5BFD
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728846AbfIRG0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47898 "EHLO mail.kernel.org"
+        id S1729198AbfIRGVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbfIRG02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:28 -0400
+        id S1729184AbfIRGVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F79D218AF;
-        Wed, 18 Sep 2019 06:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D31E921920;
+        Wed, 18 Sep 2019 06:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787987;
-        bh=mqrNHnKR9H8wgI/Eov6wPy08jIg4/CyN6kxoTRpegyU=;
+        s=default; t=1568787699;
+        bh=ZkLdxNAd1JjyAr7Z/1lwo1NdnKy3RKQR5Pu43SOeOzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHc9kam2ERuGkZhj+RcXYfJAWsYbJox4zqezpdNC2wHFk67ccqlh+NfyW620hJJDB
-         wW9AhVL69E+1QSlONfeAok9JDSZqAGc1kptW4o83cSUpSnb9QmhZM2tXy204uUMcAa
-         OSm9wgz4GJCf3EMtLd+fEfieMdUirgTMuI5bSMK0=
+        b=SdCakmHuLVh4JFZpWCurvqrUciKO5p2XmxEju3VJQ36nlegAm3PeaguNsPdjftXdy
+         Hqn7BmbANzZq3OmpwXItGWy0RZN8vySUn4cMhmpkpW72K0S5kvqVFsm/x8GCBP6Ijs
+         afmVWHlq3gVcxudufp6uBAJjTYrWq794qNgtIpFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.2 58/85] clk: rockchip: Dont yell about bad mmc phases when getting
-Date:   Wed, 18 Sep 2019 08:19:16 +0200
-Message-Id: <20190918061235.943581380@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 39/45] crypto: talitos - HMAC SNOOP NO AFEU mode requires SW icv checking.
+Date:   Wed, 18 Sep 2019 08:19:17 +0200
+Message-Id: <20190918061227.567413573@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 6943b839721ad4a31ad2bacf6e71b21f2dfe3134 upstream.
+commit 4bbfb839259a9c96a0be872e16f7471b7136aee5 upstream.
 
-At boot time, my rk3288-veyron devices yell with 8 lines that look
-like this:
-  [    0.000000] rockchip_mmc_get_phase: invalid clk rate
+In that mode, hardware ICV verification is not supported.
 
-This is because the clock framework at clk_register() time tries to
-get the phase but we don't have a parent yet.
-
-While the errors appear to be harmless they are still ugly and, in
-general, we don't want yells like this in the log unless they are
-important.
-
-There's no real reason to be yelling here.  We can still return
--EINVAL to indicate that the phase makes no sense without a parent.
-If someone really tries to do tuning and the clock is reported as 0
-then we'll see the yells in rockchip_mmc_set_phase().
-
-Fixes: 4bf59902b500 ("clk: rockchip: Prevent calculating mmc phase if clock rate is zero")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 7405c8d7ff97 ("crypto: talitos - templates for AEAD using HMAC_SNOOP_NO_AFEU")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/rockchip/clk-mmc-phase.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/crypto/talitos.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/rockchip/clk-mmc-phase.c
-+++ b/drivers/clk/rockchip/clk-mmc-phase.c
-@@ -52,10 +52,8 @@ static int rockchip_mmc_get_phase(struct
- 	u32 delay_num = 0;
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1475,7 +1475,8 @@ static int aead_decrypt(struct aead_requ
+ 	if (IS_ERR(edesc))
+ 		return PTR_ERR(edesc);
  
- 	/* See the comment for rockchip_mmc_set_phase below */
--	if (!rate) {
--		pr_err("%s: invalid clk rate\n", __func__);
-+	if (!rate)
- 		return -EINVAL;
--	}
- 
- 	raw_value = readl(mmc_clock->reg) >> (mmc_clock->shift);
+-	if ((priv->features & TALITOS_FTR_HW_AUTH_CHECK) &&
++	if ((edesc->desc.hdr & DESC_HDR_TYPE_IPSEC_ESP) &&
++	    (priv->features & TALITOS_FTR_HW_AUTH_CHECK) &&
+ 	    ((!edesc->src_nents && !edesc->dst_nents) ||
+ 	     priv->features & TALITOS_FTR_SRC_LINK_TBL_LEN_INCLUDES_EXTENT)) {
  
 
 
