@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD13B5C99
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2218CB5CD5
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730635AbfIRG17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:27:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50112 "EHLO mail.kernel.org"
+        id S1730023AbfIRGZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbfIRG16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:27:58 -0400
+        id S1730097AbfIRGZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23BC421925;
-        Wed, 18 Sep 2019 06:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8C63218AF;
+        Wed, 18 Sep 2019 06:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568788077;
-        bh=txizpSKWNllJpJ8T6Vas/37oGmdhWUzm8YhP+TFhjJs=;
+        s=default; t=1568787914;
+        bh=7l0Qn+InndDwxNrrnKMKwhfiIuLGtZhtjryuZ43ojTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F81BXwTWw0pLqa7hP9Vxn39gQtDGfwshr1XJmXlBKROqwbFNfLtgB/xFvWHEav7Tn
-         4Kulvkw3VKxf4GjxJfESzZCPrf0fZDMAiLtzAxme9ItAt60ghbHq2+Uf18yP4m5BX8
-         njG/EsO37OrlzpvYuDNGnraPpqWvV+fzpZ8UNvmk=
+        b=CAlEtd9BoHGhcut8dRmzTfo9SsL4OtP6/1OApmOnj2J2hUg3l20HuRA8nRcJ3m1oB
+         ZNLXra9CXZBrndPIaFpxgwhdtKqZsz0fk+4e8K029LOCv3LDdv0FMDgR4euoxPnaVy
+         rwC42C3xsfq8R3X7LUiG7Grw2pjDMscTJfMrSdS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.2 85/85] x86/build: Add -Wnoaddress-of-packed-member to REALMODE_CFLAGS, to silence GCC9 build warning
-Date:   Wed, 18 Sep 2019 08:19:43 +0200
-Message-Id: <20190918061238.053565265@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 03/85] ipv6: Fix the link time qualifier of ping_v6_proc_exit_net()
+Date:   Wed, 18 Sep 2019 08:18:21 +0200
+Message-Id: <20190918061234.234303445@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -47,49 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 42e0e95474fc6076b5cd68cab8fa0340a1797a72 upstream.
+[ Upstream commit d23dbc479a8e813db4161a695d67da0e36557846 ]
 
-One of the very few warnings I have in the current build comes from
-arch/x86/boot/edd.c, where I get the following with a gcc9 build:
+The '.exit' functions from 'pernet_operations' structure should be marked
+as __net_exit, not __net_init.
 
-   arch/x86/boot/edd.c: In function ‘query_edd’:
-   arch/x86/boot/edd.c:148:11: warning: taking address of packed member of ‘struct boot_params’ may result in an unaligned pointer value [-Waddress-of-packed-member]
-     148 |  mbrptr = boot_params.edd_mbr_sig_buffer;
-         |           ^~~~~~~~~~~
-
-This warning triggers because we throw away all the CFLAGS and then make
-a new set for REALMODE_CFLAGS, so the -Wno-address-of-packed-member we
-added in the following commit is not present:
-
-  6f303d60534c ("gcc-9: silence 'address-of-packed-member' warning")
-
-The simplest solution for now is to adjust the warning for this version
-of CFLAGS as well, but it would definitely make sense to examine whether
-REALMODE_CFLAGS could be derived from CFLAGS, so that it picks up changes
-in the compiler flags environment automatically.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Acked-by: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: d862e5461423 ("net: ipv6: Implement /proc/net/icmp6.")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/ping.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -38,6 +38,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os
+--- a/net/ipv6/ping.c
++++ b/net/ipv6/ping.c
+@@ -223,7 +223,7 @@ static int __net_init ping_v6_proc_init_
+ 	return 0;
+ }
  
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
-+REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
- export REALMODE_CFLAGS
- 
+-static void __net_init ping_v6_proc_exit_net(struct net *net)
++static void __net_exit ping_v6_proc_exit_net(struct net *net)
+ {
+ 	remove_proc_entry("icmp6", net->proc_net);
+ }
 
 
