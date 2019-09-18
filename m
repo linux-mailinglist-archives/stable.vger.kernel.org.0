@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D2AB5C2B
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35BE8B5CB9
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728070AbfIRGXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43734 "EHLO mail.kernel.org"
+        id S1730414AbfIRG06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729647AbfIRGXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:23:32 -0400
+        id S1729091AbfIRG05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:26:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA24218AF;
-        Wed, 18 Sep 2019 06:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96249218AF;
+        Wed, 18 Sep 2019 06:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787810;
-        bh=BzxIUKoOvnNYHEWya8UXFU0IIsq/pDGqaOcvKpkqZTM=;
+        s=default; t=1568788017;
+        bh=Nt/kPG6oe+0JPPcyadZkQEyzrD/qvGFGAb41Yao9ZbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPT+Tw9MhsbL4p9AX4eWySkTEVpK6JPS8aqfv82HoJMTHJEZRv1cuzunZ0fkAbTos
-         pfUwCtu5AZNlCEoy4qUbPaWfrP1aGcnBx4y1tBY4NANhT1fsva85RdjbTtUVK/QLVp
-         JLJ/54wLeOCe+4km7r1nN0ERQmC6l9w8Y1vCzID8=
+        b=RMmAP0F5pTDKHaB7n3q0kcztp5gaUE4WxvkXoZLGDx5vLOCD8F6W7Eqp7OMmtzrTZ
+         c/xNRgeXdda7rQXR9A6u4OvnP0H6Fg1lUMaOxX58ZSRNSEWwl2o/5aga2LFL2TaVMG
+         LmxBcMGBcHPCG9mTP8w0EjFGi6xtIc0Gpv3r/xek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Christian Kellner <ckellner@redhat.com>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.19 43/50] Revert "Bluetooth: btusb: driver to enable the usb-wakeup feature"
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.2 68/85] crypto: talitos - HMAC SNOOP NO AFEU mode requires SW icv checking.
 Date:   Wed, 18 Sep 2019 08:19:26 +0200
-Message-Id: <20190918061228.003282962@linuxfoundation.org>
+Message-Id: <20190918061237.567054088@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@dell.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 1ffdb51f28e8ec6be0a2b812c1765b5cf5c44a8f upstream.
+commit 4bbfb839259a9c96a0be872e16f7471b7136aee5 upstream.
 
-This reverts commit a0085f2510e8976614ad8f766b209448b385492f.
+In that mode, hardware ICV verification is not supported.
 
-This commit has caused regressions in notebooks that support suspend
-to idle such as the XPS 9360, XPS 9370 and XPS 9380.
-
-These notebooks will wakeup from suspend to idle from an unsolicited
-advertising packet from an unpaired BLE device.
-
-In a bug report it was sugggested that this is caused by a generic
-lack of LE privacy support.  Revert this commit until that behavior
-can be avoided by the kernel.
-
-Fixes: a0085f2510e8 ("Bluetooth: btusb: driver to enable the usb-wakeup feature")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=200039
-Link: https://marc.info/?l=linux-bluetooth&m=156441081612627&w=2
-Link: https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/750073/
-CC: Bastien Nocera <hadess@hadess.net>
-CC: Christian Kellner <ckellner@redhat.com>
-CC: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 7405c8d7ff97 ("crypto: talitos - templates for AEAD using HMAC_SNOOP_NO_AFEU")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/btusb.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/crypto/talitos.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -1139,10 +1139,6 @@ static int btusb_open(struct hci_dev *hd
- 	}
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1515,7 +1515,8 @@ static int aead_decrypt(struct aead_requ
+ 	if (IS_ERR(edesc))
+ 		return PTR_ERR(edesc);
  
- 	data->intf->needs_remote_wakeup = 1;
--	/* device specific wakeup source enabled and required for USB
--	 * remote wakeup while host is suspended
--	 */
--	device_wakeup_enable(&data->udev->dev);
+-	if ((priv->features & TALITOS_FTR_HW_AUTH_CHECK) &&
++	if ((edesc->desc.hdr & DESC_HDR_TYPE_IPSEC_ESP) &&
++	    (priv->features & TALITOS_FTR_HW_AUTH_CHECK) &&
+ 	    ((!edesc->src_nents && !edesc->dst_nents) ||
+ 	     priv->features & TALITOS_FTR_SRC_LINK_TBL_LEN_INCLUDES_EXTENT)) {
  
- 	if (test_and_set_bit(BTUSB_INTR_RUNNING, &data->flags))
- 		goto done;
-@@ -1206,7 +1202,6 @@ static int btusb_close(struct hci_dev *h
- 		goto failed;
- 
- 	data->intf->needs_remote_wakeup = 0;
--	device_wakeup_disable(&data->udev->dev);
- 	usb_autopm_put_interface(data->intf);
- 
- failed:
 
 
