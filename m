@@ -2,38 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEACB5D48
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39ED7B5CFF
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728841AbfIRGU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:20:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40040 "EHLO mail.kernel.org"
+        id S1729808AbfIRGYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:24:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728847AbfIRGUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:20:54 -0400
+        id S1729800AbfIRGYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:24:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2C19222BD;
-        Wed, 18 Sep 2019 06:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D972321928;
+        Wed, 18 Sep 2019 06:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787654;
-        bh=8Oga840qT7mNdbKHWlniyreRrb6tdK+loARl/EV5NNI=;
+        s=default; t=1568787853;
+        bh=kWBcST6419nHX84+TZFFq6BagVu7AxrrGNueaZTJ+kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2VkkYh535KMCMpb2uQ5ZXIMmnX9rDNiV/KCbXkKtuq0Ck8KstmsbZ2uDDZAi2lWRT
-         lFLQRXr8syQm96i13Vwy4mf8HM2yn2S8Bx83LkhVTimGmI8/zA5GUppBTfF+FZxFHY
-         iCr9n6w0dQT9qV/WEuaOv7iHWHA9Ii+bSUdEZVcI=
+        b=Jcs8oGyvI54CeE0gx+jVdnd5AxVzHwviNB/L3Igu0F6AKLVnoI84d1oLdWFfUFet2
+         3UgLcDuNXyA3w1PVQZz7aFJdrjHIf0LLkeEoS2R3HRw14TGSzKAO2OVgYeAGoNB+nT
+         BkJQEt6yRff3PqVnnDW+vQi8K4AEguaXRCmyGyGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 4.14 29/45] clk: rockchip: Dont yell about bad mmc phases when getting
-Date:   Wed, 18 Sep 2019 08:19:07 +0200
-Message-Id: <20190918061226.298005862@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vaibhav Rustagi <vaibhavrustagi@google.com>,
+        Andreas Smas <andreas@lonelycoder.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        clang-built-linux@googlegroups.com, dimitri.sivanich@hpe.com,
+        mike.travis@hpe.com, russ.anderson@hpe.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 25/50] x86/purgatory: Change compiler flags from -mcmodel=kernel to -mcmodel=large to fix kexec relocation errors
+Date:   Wed, 18 Sep 2019 08:19:08 +0200
+Message-Id: <20190918061225.707967704@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Steve Wahl <steve.wahl@hpe.com>
 
-commit 6943b839721ad4a31ad2bacf6e71b21f2dfe3134 upstream.
+commit e16c2983fba0fa6763e43ad10916be35e3d8dc05 upstream.
 
-At boot time, my rk3288-veyron devices yell with 8 lines that look
-like this:
-  [    0.000000] rockchip_mmc_get_phase: invalid clk rate
+The last change to this Makefile caused relocation errors when loading
+a kdump kernel.  Restore -mcmodel=large (not -mcmodel=kernel),
+-ffreestanding, and -fno-zero-initialized-bsss, without reverting to
+the former practice of resetting KBUILD_CFLAGS.
 
-This is because the clock framework at clk_register() time tries to
-get the phase but we don't have a parent yet.
+Purgatory.ro is a standalone binary that is not linked against the
+rest of the kernel.  Its image is copied into an array that is linked
+to the kernel, and from there kexec relocates it wherever it desires.
 
-While the errors appear to be harmless they are still ugly and, in
-general, we don't want yells like this in the log unless they are
-important.
+With the previous change to compiler flags, the error "kexec: Overflow
+in relocation type 11 value 0x11fffd000" was encountered when trying
+to load the crash kernel.  This is from kexec code trying to relocate
+the purgatory.ro object.
 
-There's no real reason to be yelling here.  We can still return
--EINVAL to indicate that the phase makes no sense without a parent.
-If someone really tries to do tuning and the clock is reported as 0
-then we'll see the yells in rockchip_mmc_set_phase().
+>From the error message, relocation type 11 is R_X86_64_32S.  The
+x86_64 ABI says:
 
-Fixes: 4bf59902b500 ("clk: rockchip: Prevent calculating mmc phase if clock rate is zero")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+  "The R_X86_64_32 and R_X86_64_32S relocations truncate the
+   computed value to 32-bits.  The linker must verify that the
+   generated value for the R_X86_64_32 (R_X86_64_32S) relocation
+   zero-extends (sign-extends) to the original 64-bit value."
+
+This type of relocation doesn't work when kexec chooses to place the
+purgatory binary in memory that is not reachable with 32 bit
+addresses.
+
+The compiler flag -mcmodel=kernel allows those type of relocations to
+be emitted, so revert to using -mcmodel=large as was done before.
+
+Also restore the -ffreestanding and -fno-zero-initialized-bss flags
+because they are appropriate for a stand alone piece of object code
+which doesn't explicitly zero the bss, and one other report has said
+undefined symbols are encountered without -ffreestanding.
+
+These identical compiler flag changes need to happen for every object
+that becomes part of the purgatory.ro object, so gather them together
+first into PURGATORY_CFLAGS_REMOVE and PURGATORY_CFLAGS, and then
+apply them to each of the objects that have C source.  Do not apply
+any of these flags to kexec-purgatory.o, which is not part of the
+standalone object but part of the kernel proper.
+
+Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Tested-by: Andreas Smas <andreas@lonelycoder.com>
+Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: None
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: clang-built-linux@googlegroups.com
+Cc: dimitri.sivanich@hpe.com
+Cc: mike.travis@hpe.com
+Cc: russ.anderson@hpe.com
+Fixes: b059f801a937 ("x86/purgatory: Use CFLAGS_REMOVE rather than reset KBUILD_CFLAGS")
+Link: https://lkml.kernel.org/r/20190905202346.GA26595@swahl-linux
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andreas Smas <andreas@lonelycoder.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/rockchip/clk-mmc-phase.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/purgatory/Makefile |   35 +++++++++++++++++++----------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
 
---- a/drivers/clk/rockchip/clk-mmc-phase.c
-+++ b/drivers/clk/rockchip/clk-mmc-phase.c
-@@ -59,10 +59,8 @@ static int rockchip_mmc_get_phase(struct
- 	u32 delay_num = 0;
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -18,37 +18,40 @@ targets += purgatory.ro
+ KASAN_SANITIZE	:= n
+ KCOV_INSTRUMENT := n
  
- 	/* See the comment for rockchip_mmc_set_phase below */
--	if (!rate) {
--		pr_err("%s: invalid clk rate\n", __func__);
-+	if (!rate)
- 		return -EINVAL;
--	}
++# These are adjustments to the compiler flags used for objects that
++# make up the standalone purgatory.ro
++
++PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
++PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
++
+ # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
+ # in turn leaves some undefined symbols like __fentry__ in purgatory and not
+ # sure how to relocate those.
+ ifdef CONFIG_FUNCTION_TRACER
+-CFLAGS_REMOVE_sha256.o		+= $(CC_FLAGS_FTRACE)
+-CFLAGS_REMOVE_purgatory.o	+= $(CC_FLAGS_FTRACE)
+-CFLAGS_REMOVE_string.o		+= $(CC_FLAGS_FTRACE)
+-CFLAGS_REMOVE_kexec-purgatory.o	+= $(CC_FLAGS_FTRACE)
++PURGATORY_CFLAGS_REMOVE		+= $(CC_FLAGS_FTRACE)
+ endif
  
- 	raw_value = readl(mmc_clock->reg) >> (mmc_clock->shift);
+ ifdef CONFIG_STACKPROTECTOR
+-CFLAGS_REMOVE_sha256.o		+= -fstack-protector
+-CFLAGS_REMOVE_purgatory.o	+= -fstack-protector
+-CFLAGS_REMOVE_string.o		+= -fstack-protector
+-CFLAGS_REMOVE_kexec-purgatory.o	+= -fstack-protector
++PURGATORY_CFLAGS_REMOVE		+= -fstack-protector
+ endif
+ 
+ ifdef CONFIG_STACKPROTECTOR_STRONG
+-CFLAGS_REMOVE_sha256.o		+= -fstack-protector-strong
+-CFLAGS_REMOVE_purgatory.o	+= -fstack-protector-strong
+-CFLAGS_REMOVE_string.o		+= -fstack-protector-strong
+-CFLAGS_REMOVE_kexec-purgatory.o	+= -fstack-protector-strong
++PURGATORY_CFLAGS_REMOVE		+= -fstack-protector-strong
+ endif
+ 
+ ifdef CONFIG_RETPOLINE
+-CFLAGS_REMOVE_sha256.o		+= $(RETPOLINE_CFLAGS)
+-CFLAGS_REMOVE_purgatory.o	+= $(RETPOLINE_CFLAGS)
+-CFLAGS_REMOVE_string.o		+= $(RETPOLINE_CFLAGS)
+-CFLAGS_REMOVE_kexec-purgatory.o	+= $(RETPOLINE_CFLAGS)
++PURGATORY_CFLAGS_REMOVE		+= $(RETPOLINE_CFLAGS)
+ endif
+ 
++CFLAGS_REMOVE_purgatory.o	+= $(PURGATORY_CFLAGS_REMOVE)
++CFLAGS_purgatory.o		+= $(PURGATORY_CFLAGS)
++
++CFLAGS_REMOVE_sha256.o		+= $(PURGATORY_CFLAGS_REMOVE)
++CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
++
++CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
++CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
++
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
  
 
 
