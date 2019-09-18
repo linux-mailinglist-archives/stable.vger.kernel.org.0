@@ -2,199 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 149B7B60DD
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 11:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B272B60F8
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 12:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727503AbfIRJ46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 05:56:58 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:34868 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725298AbfIRJ46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 05:56:58 -0400
-Received: by mail-ot1-f68.google.com with SMTP id z6so5800418otb.2;
-        Wed, 18 Sep 2019 02:56:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=agCnoLfjObrBaiFi132vN3HPFhFbIn5vevMgsPbBMRY=;
-        b=BCWII7Yp3FfzhtAXRh2UACCuTyy+YNJyVQVkbo1sgjPEyICaqkz8GzfGt+OMZ/6EcM
-         t7AqI1gmcVVy5VtHngJ8Wg2JnOzqpaRQgpGa6bfWU9S9wmRXBv1NPa5GWOrKLdwaS8vO
-         tVcO8XiIq17zQvN51vupWg3sKD6stplXCaScU0yCF5zIRnZPc1TxHX5nZazC/ElFbER5
-         LEJYvT+ESBdY3optZWClrcBypzeJ6BlCdzwSMwzB+2WgTH5GU7QqfsKji/RU2zP2jGRM
-         RxlVrzo03k1xsbLTfI9t3jWMcBg6DUf6Lbqwu8uS9quXkUgVW091Gd1kzhIJf2NgIXfc
-         jdRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=agCnoLfjObrBaiFi132vN3HPFhFbIn5vevMgsPbBMRY=;
-        b=KCJjz115tpxlmoXuSVgeXBzayMhDdg4pxfeN28OI7eJk+ePGxWlcBTPzFh5JITyec6
-         zUr6RWObrDLi1e9lzTNQsrYzGcWFHZmeBkEhnipeHWHjMt06w1vnUubsEF9riX5hg7Fr
-         /dK4gW4/ZlvfcaF47/T+gKf8/bm1OcLkDOSv68yBT6ze/sDuRRN6GHTJfEACBxv8DS/s
-         AKHHVVALtEhQLgkqU4FH4ydVWvypN3g3B6Bmr7C6+zPpcJa6WxojVoomi7zKmVAQ1BAf
-         To89FZR/l18bImSv/UYJn4SPAbuZkHB6SCnAr4K78Ov7aqvVkAZZ0+DJhYZg6Kq39+tO
-         +OkA==
-X-Gm-Message-State: APjAAAUhacwyduEaia47E/xfEnzpjM327sOflLNRLHWyiziDNI4wcG4I
-        Rphc21NgmNCjJEdCPt+8zfKwAL6OMEht2Oct2pA=
-X-Google-Smtp-Source: APXvYqzpf71cnwgl/oi3HgeIc3FlwQVwUoJCWeVhTPNnMMg9BEryd2z47aGUYZmVT5smNlTU6u3xaHBw24cw7I7Ggzw=
-X-Received: by 2002:a9d:224b:: with SMTP id o69mr2047549ota.45.1568800616715;
- Wed, 18 Sep 2019 02:56:56 -0700 (PDT)
+        id S1729024AbfIRKBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 06:01:30 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:43904 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725866AbfIRKB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 06:01:29 -0400
+Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=elm)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <tyhicks@canonical.com>)
+        id 1iAWm2-0001XJ-Nx; Wed, 18 Sep 2019 10:01:22 +0000
+Date:   Wed, 18 Sep 2019 12:01:21 +0200
+From:   Tyler Hicks <tyhicks@canonical.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     keescook@chromium.org, luto@amacapital.net, jannh@google.com,
+        wad@chromium.org, shuah@kernel.org, ast@kernel.org,
+        daniel@iogearbox.net, kafai@fb.com, songliubraving@fb.com,
+        yhs@fb.com, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 3/4] seccomp: avoid overflow in implicit constant
+ conversion
+Message-ID: <20190918100121.GB5088@elm>
+References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
+ <20190918084833.9369-4-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-References: <1568708186-20260-1-git-send-email-wanpengli@tencent.com>
- <1568708186-20260-2-git-send-email-wanpengli@tencent.com> <20190917173258.GB2876@linux.intel.com>
-In-Reply-To: <20190917173258.GB2876@linux.intel.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Wed, 18 Sep 2019 17:56:44 +0800
-Message-ID: <CANRm+CwCw0aAc8zGVK9sAN-xZxt5F8mg1eanqT6NXyA2J0b6aw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] KVM: X86: Fix userspace set broken combinations of
- CPUID and CR4
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190918084833.9369-4-christian.brauner@ubuntu.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 18 Sep 2019 at 01:32, Sean Christopherson
-<sean.j.christopherson@intel.com> wrote:
->
-> On Tue, Sep 17, 2019 at 04:16:25PM +0800, Wanpeng Li wrote:
-> > From: Wanpeng Li <wanpengli@tencent.com>
-> >
-> > Reported by syzkaller:
-> >
-> >       WARNING: CPU: 0 PID: 6544 at /home/kernel/data/kvm/arch/x86/kvm//vmx/vmx.c:4689 handle_desc+0x37/0x40 [kvm_intel]
-> >       CPU: 0 PID: 6544 Comm: a.out Tainted: G           OE     5.3.0-rc4+ #4
-> >       RIP: 0010:handle_desc+0x37/0x40 [kvm_intel]
-> >       Call Trace:
-> >        vmx_handle_exit+0xbe/0x6b0 [kvm_intel]
-> >        vcpu_enter_guest+0x4dc/0x18d0 [kvm]
-> >        kvm_arch_vcpu_ioctl_run+0x407/0x660 [kvm]
-> >        kvm_vcpu_ioctl+0x3ad/0x690 [kvm]
-> >        do_vfs_ioctl+0xa2/0x690
-> >        ksys_ioctl+0x6d/0x80
-> >        __x64_sys_ioctl+0x1a/0x20
-> >        do_syscall_64+0x74/0x720
-> >        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> >
-> > When CR4.UMIP is set, guest should have UMIP cpuid flag. Current
-> > kvm set_sregs function doesn't have such check when userspace inputs
-> > sregs values. SECONDARY_EXEC_DESC is enabled on writes to CR4.UMIP
-> > in vmx_set_cr4 though guest doesn't have UMIP cpuid flag. The testcast
-> > triggers handle_desc warning when executing ltr instruction since
-> > guest architectural CR4 doesn't set UMIP. This patch fixes it by
-> > adding valid CR4 and CPUID combination checking in __set_sregs.
->
-> Checking CPUID will fix this specific scenario, but it doesn't resolve
-> the underlying issue of __set_sregs() ignoring the return of kvm_x86_ops'
-> set_cr4(), e.g. I think vmx_set_cr4() can still fail if userspace sets a
-> custom MSR_IA32_VMX_CR4_FIXED0 when nested VMX is on.
->
-> > syzkaller source: https://syzkaller.appspot.com/x/repro.c?x=138efb99600000
-> >
-> > Reported-by: syzbot+0f1819555fbdce992df9@syzkaller.appspotmail.com
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> > ---
-> >  arch/x86/kvm/x86.c | 39 ++++++++++++++++++++++++---------------
-> >  1 file changed, 24 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> > index f7cfd8e..cafb4d4 100644
-> > --- a/arch/x86/kvm/x86.c
-> > +++ b/arch/x86/kvm/x86.c
-> > @@ -884,34 +884,42 @@ int kvm_set_xcr(struct kvm_vcpu *vcpu, u32 index, u64 xcr)
-> >  }
-> >  EXPORT_SYMBOL_GPL(kvm_set_xcr);
-> >
-> > -int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
-> > +static int kvm_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
-> >  {
-> > -     unsigned long old_cr4 = kvm_read_cr4(vcpu);
-> > -     unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
-> > -                                X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE;
-> > -
-> > -     if (cr4 & CR4_RESERVED_BITS)
-> > -             return 1;
-> > -
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) && (cr4 & X86_CR4_OSXSAVE))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_SMEP) && (cr4 & X86_CR4_SMEP))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_SMAP) && (cr4 & X86_CR4_SMAP))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_FSGSBASE) && (cr4 & X86_CR4_FSGSBASE))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_PKU) && (cr4 & X86_CR4_PKE))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_LA57) && (cr4 & X86_CR4_LA57))
-> > -             return 1;
-> > +             return -EINVAL;
-> >
-> >       if (!guest_cpuid_has(vcpu, X86_FEATURE_UMIP) && (cr4 & X86_CR4_UMIP))
-> > +             return -EINVAL;
-> > +
-> > +     return 0;
-> > +}
-> > +
-> > +int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
-> > +{
-> > +     unsigned long old_cr4 = kvm_read_cr4(vcpu);
-> > +     unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
-> > +                                X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE;
-> > +
-> > +     if (cr4 & CR4_RESERVED_BITS)
-> > +             return 1;
->
-> Checking CPUID bits but allowing unconditionally reserved bits to be set
-> feels wrong.
->
-> Paolo, can you provide an "official" ruling on how KVM_SET_SREGS should
-> interact with reserved bits?  It's not at all clear from the git history
-> if skipping the checks was intentional or an oversight.
->
-> The CR4_RESERVED_BITS check has been in kvm_set_cr4() since the beginning
-> of time (commit 6aa8b732ca01, "[PATCH] kvm: userspace interface").
->
-> The first CPUID check came later, in commit 2acf923e38fb ("KVM: VMX:
-> Enable XSAVE/XRSTOR for guest"), but its changelog is decidedly unhelpful.
->
-> > +
-> > +     if (kvm_valid_cr4(vcpu, cr4))
-> >               return 1;
-> >
-> >       if (is_long_mode(vcpu)) {
-> > @@ -8675,7 +8683,8 @@ static int __set_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
-> >       struct desc_ptr dt;
-> >       int ret = -EINVAL;
-> >
-> > -     if (kvm_valid_sregs(vcpu, sregs))
-> > +     if (kvm_valid_sregs(vcpu, sregs) ||
->
-> No need for a line break.  Even better, call kvm_valid_cr4() from
-> kvm_valid_sregs(), e.g. the X86_FEATURE_XSAVE check in kvm_valid_sregs()
-> is now redundant and can be dropped, and "return kvm_valid_cr4(...)" from
-> kvm_valid_sregs() can likely be optimized into a tail call.
+On 2019-09-18 10:48:32, Christian Brauner wrote:
+> USER_NOTIF_MAGIC is assigned to int variables in this test so set it to INT_MAX
+> to avoid warnings:
+> 
+> seccomp_bpf.c: In function ‘user_notification_continue’:
+> seccomp_bpf.c:3088:26: warning: overflow in implicit constant conversion [-Woverflow]
+>  #define USER_NOTIF_MAGIC 116983961184613L
+>                           ^
+> seccomp_bpf.c:3572:15: note: in expansion of macro ‘USER_NOTIF_MAGIC’
+>   resp.error = USER_NOTIF_MAGIC;
+>                ^~~~~~~~~~~~~~~~
+> 
+> Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Andy Lutomirski <luto@amacapital.net>
+> Cc: Will Drewry <wad@chromium.org>
+> Cc: Shuah Khan <shuah@kernel.org>
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Daniel Borkmann <daniel@iogearbox.net>
+> Cc: Martin KaFai Lau <kafai@fb.com>
+> Cc: Song Liu <songliubraving@fb.com>
+> Cc: Yonghong Song <yhs@fb.com>
+> Cc: Tycho Andersen <tycho@tycho.ws>
+> CC: Tyler Hicks <tyhicks@canonical.com>
 
-handle it in new version.
+INT_MAX should be a safe value to use.
 
-    Wanpeng
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+
+Tyler
+
+> Cc: Jann Horn <jannh@google.com>
+> Cc: stable@vger.kernel.org
+> Cc: linux-kselftest@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: bpf@vger.kernel.org
+> ---
+>  tools/testing/selftests/seccomp/seccomp_bpf.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+> index ee52eab01800..921f0e26f835 100644
+> --- a/tools/testing/selftests/seccomp/seccomp_bpf.c
+> +++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+> @@ -35,6 +35,7 @@
+>  #include <stdbool.h>
+>  #include <string.h>
+>  #include <time.h>
+> +#include <limits.h>
+>  #include <linux/elf.h>
+>  #include <sys/uio.h>
+>  #include <sys/utsname.h>
+> @@ -3080,7 +3081,7 @@ static int user_trap_syscall(int nr, unsigned int flags)
+>  	return seccomp(SECCOMP_SET_MODE_FILTER, flags, &prog);
+>  }
+>  
+> -#define USER_NOTIF_MAGIC 116983961184613L
+> +#define USER_NOTIF_MAGIC INT_MAX
+>  TEST(user_notification_basic)
+>  {
+>  	pid_t pid;
+> -- 
+> 2.23.0
+> 
