@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B2EB5D20
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D30B5CD3
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726568AbfIRGWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:22:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42872 "EHLO mail.kernel.org"
+        id S1730082AbfIRGZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726244AbfIRGWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:22:49 -0400
+        id S1730076AbfIRGZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:25:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE5F721920;
-        Wed, 18 Sep 2019 06:22:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 414E121928;
+        Wed, 18 Sep 2019 06:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787768;
-        bh=TDQtsNsNqnnTlw/BrxgM+zecyV9TXa5Q7nNcLGbRio8=;
+        s=default; t=1568787911;
+        bh=Ijnvi18yIb3tKJGAmf6kgahLWvjc+PpNXmwU2/JVY60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDihc5W9RIUPylIu/qmwq5YIMh4oDMNB3O/B1TatywIQOsKjHy3L1XoojKOjCt+X+
-         BANwb1gRw98NiVFrjakQPNDqMRpuwNdxUMDTtC1QBbvVFoaltKRZu+nEYQWZgDLxTx
-         E+MC13LyKnUvSzECrCBvGrwedkwIQ9UvJxMTClPA=
+        b=DG9TvzeNhwoifb6/sUSCkBNGgatH8AmZOnNDaV1tgFB5HjgoyBEER7e5WfqUH0aSC
+         khsKOiuP8kgryytTF9oej5ey59TauegfTO/a2VM/YUR6915/ltov7+4pABpiQsMKXT
+         zIGG67zg06Gu1VNQDC86IBP+/pZWPnH9cFgiTB+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+0849c524d9c634f5ae66@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 04/50] isdn/capi: check message length in capi_write()
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.2 29/85] Revert "mmc: sdhci: Remove unneeded quirk2 flag of O2 SD host controller"
 Date:   Wed, 18 Sep 2019 08:18:47 +0200
-Message-Id: <20190918061223.551510202@linuxfoundation.org>
+Message-Id: <20190918061235.078125892@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit fe163e534e5eecdfd7b5920b0dfd24c458ee85d6 ]
+commit 49baa01c8b99ef92958e18fb58ebeb5dfdcde8af upstream.
 
-syzbot reported:
+This reverts commit 414126f9e5abf1973c661d24229543a9458fa8ce.
 
-    BUG: KMSAN: uninit-value in capi_write+0x791/0xa90 drivers/isdn/capi/capi.c:700
-    CPU: 0 PID: 10025 Comm: syz-executor379 Not tainted 4.20.0-rc7+ #2
-    Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-    Call Trace:
-      __dump_stack lib/dump_stack.c:77 [inline]
-      dump_stack+0x173/0x1d0 lib/dump_stack.c:113
-      kmsan_report+0x12e/0x2a0 mm/kmsan/kmsan.c:613
-      __msan_warning+0x82/0xf0 mm/kmsan/kmsan_instr.c:313
-      capi_write+0x791/0xa90 drivers/isdn/capi/capi.c:700
-      do_loop_readv_writev fs/read_write.c:703 [inline]
-      do_iter_write+0x83e/0xd80 fs/read_write.c:961
-      vfs_writev fs/read_write.c:1004 [inline]
-      do_writev+0x397/0x840 fs/read_write.c:1039
-      __do_sys_writev fs/read_write.c:1112 [inline]
-      __se_sys_writev+0x9b/0xb0 fs/read_write.c:1109
-      __x64_sys_writev+0x4a/0x70 fs/read_write.c:1109
-      do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
-      entry_SYSCALL_64_after_hwframe+0x63/0xe7
-    [...]
+This commit broke eMMC storage access on a new consumer MiniPC based on
+AMD SoC, which has eMMC connected to:
 
-The problem is that capi_write() is reading past the end of the message.
-Fix it by checking the message's length in the needed places.
+02:00.0 SD Host controller: O2 Micro, Inc. Device 8620 (rev 01) (prog-if 01)
+	Subsystem: O2 Micro, Inc. Device 0002
 
-Reported-and-tested-by: syzbot+0849c524d9c634f5ae66@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+During probe, several errors are seen including:
+
+  mmc1: Got data interrupt 0x02000000 even though no data operation was in progress.
+  mmc1: Timeout waiting for hardware interrupt.
+  mmc1: error -110 whilst initialising MMC card
+
+Reverting this commit allows the eMMC storage to be detected & usable
+again.
+
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Fixes: 414126f9e5ab ("mmc: sdhci: Remove unneeded quirk2 flag of O2 SD host
+controller")
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/isdn/capi/capi.c          |   10 +++++++++-
- include/uapi/linux/isdn/capicmd.h |    1 +
- 2 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/isdn/capi/capi.c
-+++ b/drivers/isdn/capi/capi.c
-@@ -688,6 +688,9 @@ capi_write(struct file *file, const char
- 	if (!cdev->ap.applid)
- 		return -ENODEV;
- 
-+	if (count < CAPIMSG_BASELEN)
-+		return -EINVAL;
-+
- 	skb = alloc_skb(count, GFP_USER);
- 	if (!skb)
- 		return -ENOMEM;
-@@ -698,7 +701,8 @@ capi_write(struct file *file, const char
- 	}
- 	mlen = CAPIMSG_LEN(skb->data);
- 	if (CAPIMSG_CMD(skb->data) == CAPI_DATA_B3_REQ) {
--		if ((size_t)(mlen + CAPIMSG_DATALEN(skb->data)) != count) {
-+		if (count < CAPI_DATA_B3_REQ_LEN ||
-+		    (size_t)(mlen + CAPIMSG_DATALEN(skb->data)) != count) {
- 			kfree_skb(skb);
- 			return -EINVAL;
- 		}
-@@ -711,6 +715,10 @@ capi_write(struct file *file, const char
- 	CAPIMSG_SETAPPID(skb->data, cdev->ap.applid);
- 
- 	if (CAPIMSG_CMD(skb->data) == CAPI_DISCONNECT_B3_RESP) {
-+		if (count < CAPI_DISCONNECT_B3_RESP_LEN) {
-+			kfree_skb(skb);
-+			return -EINVAL;
-+		}
- 		mutex_lock(&cdev->lock);
- 		capincci_free(cdev, CAPIMSG_NCCI(skb->data));
- 		mutex_unlock(&cdev->lock);
---- a/include/uapi/linux/isdn/capicmd.h
-+++ b/include/uapi/linux/isdn/capicmd.h
-@@ -16,6 +16,7 @@
- #define CAPI_MSG_BASELEN		8
- #define CAPI_DATA_B3_REQ_LEN		(CAPI_MSG_BASELEN+4+4+2+2+2)
- #define CAPI_DATA_B3_RESP_LEN		(CAPI_MSG_BASELEN+4+2)
-+#define CAPI_DISCONNECT_B3_RESP_LEN	(CAPI_MSG_BASELEN+4)
- 
- /*----- CAPI commands -----*/
- #define CAPI_ALERT		    0x01
+---
+ drivers/mmc/host/sdhci-pci-o2micro.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -432,7 +432,6 @@ int sdhci_pci_o2_probe_slot(struct sdhci
+ 					mmc_hostname(host->mmc));
+ 				host->flags &= ~SDHCI_SIGNALING_330;
+ 				host->flags |= SDHCI_SIGNALING_180;
+-				host->quirks2 |= SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD;
+ 				host->mmc->caps2 |= MMC_CAP2_NO_SD;
+ 				host->mmc->caps2 |= MMC_CAP2_NO_SDIO;
+ 				pci_write_config_dword(chip->pdev,
+@@ -682,6 +681,7 @@ static const struct sdhci_ops sdhci_pci_
+ const struct sdhci_pci_fixes sdhci_o2 = {
+ 	.probe = sdhci_pci_o2_probe,
+ 	.quirks = SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC,
++	.quirks2 = SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD,
+ 	.probe_slot = sdhci_pci_o2_probe_slot,
+ #ifdef CONFIG_PM_SLEEP
+ 	.resume = sdhci_pci_o2_resume,
 
 
