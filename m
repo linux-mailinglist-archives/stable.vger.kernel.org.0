@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A44A2B5C6B
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DE6B5C36
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730053AbfIRG0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47516 "EHLO mail.kernel.org"
+        id S1727084AbfIRGX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730060AbfIRG0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:26:12 -0400
+        id S1729732AbfIRGXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:23:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED4420644;
-        Wed, 18 Sep 2019 06:26:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54FB721929;
+        Wed, 18 Sep 2019 06:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787972;
-        bh=EOYs7diMSh6dCmIDrI61xIdpH8YnS9qM0s6IaGFfKao=;
+        s=default; t=1568787834;
+        bh=acqf8iWr/flWMhoJlMX9Rq4SnUZG25hjg5RNHePwK0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwoW93TyycDYqa/HwnOX+WNJdltzVYQtlCfJ23qwZ2uWUx7PBOamMA43LAXAPZbNu
-         hy0lO5tr+MUZxNutUTLBKjbThDkF2NGI2Q8T4Fm1t2vwIoEEkRS2j1UoKHL15uLv32
-         D54SmQyU4mgJnjqVB+jBGZv7DN6xkO2xKSt5MTho=
+        b=UC8sJ8bJvHlHHR32gRnpXyWtX+sU4uaUVDZn3t55TrWxpHgb1mX7AoMsGKZxBcLnE
+         g2HK5SeYvmeRlDU/WAeqmEfARsd+R7XPgw/FsI3nGUcfP+IITHwiM0BZtxJF7sabas
+         Diuc49wT5VP6TG0few1Hil+IahxyyauwtaGuhRlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>
-Subject: [PATCH 5.2 53/85] drm/meson: Add support for XBGR8888 & ABGR8888 formats
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.19 28/50] clk: rockchip: Dont yell about bad mmc phases when getting
 Date:   Wed, 18 Sep 2019 08:19:11 +0200
-Message-Id: <20190918061235.793519854@linuxfoundation.org>
+Message-Id: <20190918061226.403676340@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 5ffff4415f9eeae834960226770963e2947e17eb upstream.
+commit 6943b839721ad4a31ad2bacf6e71b21f2dfe3134 upstream.
 
-Add missing XBGR8888 & ABGR8888 formats variants from the primary plane.
+At boot time, my rk3288-veyron devices yell with 8 lines that look
+like this:
+  [    0.000000] rockchip_mmc_get_phase: invalid clk rate
 
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190429075238.7884-1-narmstrong@baylibre.com
+This is because the clock framework at clk_register() time tries to
+get the phase but we don't have a parent yet.
+
+While the errors appear to be harmless they are still ugly and, in
+general, we don't want yells like this in the log unless they are
+important.
+
+There's no real reason to be yelling here.  We can still return
+-EINVAL to indicate that the phase makes no sense without a parent.
+If someone really tries to do tuning and the clock is reported as 0
+then we'll see the yells in rockchip_mmc_set_phase().
+
+Fixes: 4bf59902b500 ("clk: rockchip: Prevent calculating mmc phase if clock rate is zero")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/meson/meson_plane.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/clk/rockchip/clk-mmc-phase.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/meson/meson_plane.c
-+++ b/drivers/gpu/drm/meson/meson_plane.c
-@@ -153,6 +153,13 @@ static void meson_plane_atomic_update(st
- 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
- 					      OSD_COLOR_MATRIX_32_ARGB;
- 		break;
-+	case DRM_FORMAT_XBGR8888:
-+		/* For XRGB, replace the pixel's alpha by 0xFF */
-+		writel_bits_relaxed(OSD_REPLACE_EN, OSD_REPLACE_EN,
-+				    priv->io_base + _REG(VIU_OSD1_CTRL_STAT2));
-+		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
-+					      OSD_COLOR_MATRIX_32_ABGR;
-+		break;
- 	case DRM_FORMAT_ARGB8888:
- 		/* For ARGB, use the pixel's alpha */
- 		writel_bits_relaxed(OSD_REPLACE_EN, 0,
-@@ -160,6 +167,13 @@ static void meson_plane_atomic_update(st
- 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
- 					      OSD_COLOR_MATRIX_32_ARGB;
- 		break;
-+	case DRM_FORMAT_ABGR8888:
-+		/* For ARGB, use the pixel's alpha */
-+		writel_bits_relaxed(OSD_REPLACE_EN, 0,
-+				    priv->io_base + _REG(VIU_OSD1_CTRL_STAT2));
-+		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
-+					      OSD_COLOR_MATRIX_32_ABGR;
-+		break;
- 	case DRM_FORMAT_RGB888:
- 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_24 |
- 					      OSD_COLOR_MATRIX_24_RGB;
-@@ -346,7 +360,9 @@ static const struct drm_plane_funcs meso
+--- a/drivers/clk/rockchip/clk-mmc-phase.c
++++ b/drivers/clk/rockchip/clk-mmc-phase.c
+@@ -61,10 +61,8 @@ static int rockchip_mmc_get_phase(struct
+ 	u32 delay_num = 0;
  
- static const uint32_t supported_drm_formats[] = {
- 	DRM_FORMAT_ARGB8888,
-+	DRM_FORMAT_ABGR8888,
- 	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_XBGR8888,
- 	DRM_FORMAT_RGB888,
- 	DRM_FORMAT_RGB565,
- };
+ 	/* See the comment for rockchip_mmc_set_phase below */
+-	if (!rate) {
+-		pr_err("%s: invalid clk rate\n", __func__);
++	if (!rate)
+ 		return -EINVAL;
+-	}
+ 
+ 	raw_value = readl(mmc_clock->reg) >> (mmc_clock->shift);
+ 
 
 
