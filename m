@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B586DB5D4C
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E68B5CF6
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbfIRGVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40300 "EHLO mail.kernel.org"
+        id S1729675AbfIRGXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:23:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbfIRGVF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:21:05 -0400
+        id S1729670AbfIRGXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:23:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 726D220678;
-        Wed, 18 Sep 2019 06:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C311B21920;
+        Wed, 18 Sep 2019 06:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787664;
-        bh=COj6+7yNvGeh2H5OUUJGPmHTRZ6z2tYtHadnmi6OB7M=;
+        s=default; t=1568787816;
+        bh=P2jkNYRLfUzzTKbaT5lBb357nOuaUdw3XhA7ZngbgrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6OOoNQz7DXOJRpiWyWrnMgwvhYnAnPTJG5/3zJjqKfiHp2ZYMiVIbXN3JNf2n7XO
-         RM6G/AKrFiQmAhiCGd0KBOCXz2Hbrt5iJAudHzunfNtTnDmWAo/ls7k7lIDmvGIQS2
-         glwtn6UsIS5G4ue8Jl1EtNFHQDEuieg5FbwraFKY=
+        b=HqgMlhkfz9TEwlFqWhfrgldhCQebJAvr8sGtnVtTvJeQhxeHIM0jG0r58Y20w4Ygf
+         fr83Fwr0pLNXEjiUHE+tD/mEo8UVGEMvHf4tYgzhbQAcehSU9gzWQtfzom6I/xp/jT
+         +Qrc6CNyZuV+9xoR5dS5J5neU6uWBF+e9pYVmc0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 32/45] ubifs: Correctly use tnc_next() in search_dh_cookie()
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 4.19 27/50] drm/meson: Add support for XBGR8888 & ABGR8888 formats
 Date:   Wed, 18 Sep 2019 08:19:10 +0200
-Message-Id: <20190918061226.735342219@linuxfoundation.org>
+Message-Id: <20190918061226.059082737@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit bacfa94b08027b9f66ede7044972e3b066766b3e upstream.
+commit 5ffff4415f9eeae834960226770963e2947e17eb upstream.
 
-Commit c877154d307f fixed an uninitialized variable and optimized
-the function to not call tnc_next() in the first iteration of the
-loop. While this seemed perfectly legit and wise, it turned out to
-be illegal.
-If the lookup function does not find an exact match it will rewind
-the cursor by 1.
-The rewinded cursor will not match the name hash we are looking for
-and this results in a spurious -ENOENT.
-So we need to move to the next entry in case of an non-exact match,
-but not if the match was exact.
+Add missing XBGR8888 & ABGR8888 formats variants from the primary plane.
 
-While we are here, update the documentation to avoid further confusion.
-
-Cc: Hyunchul Lee <hyc.lee@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Fixes: c877154d307f ("ubifs: Fix uninitialized variable in search_dh_cookie()")
-Fixes: 781f675e2d7e ("ubifs: Fix unlink code wrt. double hash lookups")
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190429075238.7884-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/tnc.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/meson/meson_plane.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -1164,8 +1164,8 @@ static struct ubifs_znode *dirty_cow_bot
-  *   o exact match, i.e. the found zero-level znode contains key @key, then %1
-  *     is returned and slot number of the matched branch is stored in @n;
-  *   o not exact match, which means that zero-level znode does not contain
-- *     @key, then %0 is returned and slot number of the closest branch is stored
-- *     in @n;
-+ *     @key, then %0 is returned and slot number of the closest branch or %-1
-+ *     is stored in @n; In this case calling tnc_next() is mandatory.
-  *   o @key is so small that it is even less than the lowest key of the
-  *     leftmost zero-level node, then %0 is returned and %0 is stored in @n.
-  *
-@@ -1882,13 +1882,19 @@ int ubifs_tnc_lookup_nm(struct ubifs_inf
+--- a/drivers/gpu/drm/meson/meson_plane.c
++++ b/drivers/gpu/drm/meson/meson_plane.c
+@@ -120,6 +120,13 @@ static void meson_plane_atomic_update(st
+ 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
+ 					      OSD_COLOR_MATRIX_32_ARGB;
+ 		break;
++	case DRM_FORMAT_XBGR8888:
++		/* For XRGB, replace the pixel's alpha by 0xFF */
++		writel_bits_relaxed(OSD_REPLACE_EN, OSD_REPLACE_EN,
++				    priv->io_base + _REG(VIU_OSD1_CTRL_STAT2));
++		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
++					      OSD_COLOR_MATRIX_32_ABGR;
++		break;
+ 	case DRM_FORMAT_ARGB8888:
+ 		/* For ARGB, use the pixel's alpha */
+ 		writel_bits_relaxed(OSD_REPLACE_EN, 0,
+@@ -127,6 +134,13 @@ static void meson_plane_atomic_update(st
+ 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
+ 					      OSD_COLOR_MATRIX_32_ARGB;
+ 		break;
++	case DRM_FORMAT_ABGR8888:
++		/* For ARGB, use the pixel's alpha */
++		writel_bits_relaxed(OSD_REPLACE_EN, 0,
++				    priv->io_base + _REG(VIU_OSD1_CTRL_STAT2));
++		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_32 |
++					      OSD_COLOR_MATRIX_32_ABGR;
++		break;
+ 	case DRM_FORMAT_RGB888:
+ 		priv->viu.osd1_blk0_cfg[0] |= OSD_BLK_MODE_24 |
+ 					      OSD_COLOR_MATRIX_24_RGB;
+@@ -196,7 +210,9 @@ static const struct drm_plane_funcs meso
  
- static int search_dh_cookie(struct ubifs_info *c, const union ubifs_key *key,
- 			    struct ubifs_dent_node *dent, uint32_t cookie,
--			    struct ubifs_znode **zn, int *n)
-+			    struct ubifs_znode **zn, int *n, int exact)
- {
- 	int err;
- 	struct ubifs_znode *znode = *zn;
- 	struct ubifs_zbranch *zbr;
- 	union ubifs_key *dkey;
- 
-+	if (!exact) {
-+		err = tnc_next(c, &znode, n);
-+		if (err)
-+			return err;
-+	}
-+
- 	for (;;) {
- 		zbr = &znode->zbranch[*n];
- 		dkey = &zbr->key;
-@@ -1930,7 +1936,7 @@ static int do_lookup_dh(struct ubifs_inf
- 	if (unlikely(err < 0))
- 		goto out_unlock;
- 
--	err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
-+	err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
- 
- out_unlock:
- 	mutex_unlock(&c->tnc_mutex);
-@@ -2716,7 +2722,7 @@ int ubifs_tnc_remove_dh(struct ubifs_inf
- 		if (unlikely(err < 0))
- 			goto out_free;
- 
--		err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
-+		err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
- 		if (err)
- 			goto out_free;
- 	}
+ static const uint32_t supported_drm_formats[] = {
+ 	DRM_FORMAT_ARGB8888,
++	DRM_FORMAT_ABGR8888,
+ 	DRM_FORMAT_XRGB8888,
++	DRM_FORMAT_XBGR8888,
+ 	DRM_FORMAT_RGB888,
+ 	DRM_FORMAT_RGB565,
+ };
 
 
