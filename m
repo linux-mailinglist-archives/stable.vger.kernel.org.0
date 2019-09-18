@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 472D6B5D4B
+	by mail.lfdr.de (Postfix) with ESMTP id B586DB5D4C
 	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728917AbfIRGVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40240 "EHLO mail.kernel.org"
+        id S1728936AbfIRGVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728913AbfIRGVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:21:02 -0400
+        id S1728930AbfIRGVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8B0F21927;
-        Wed, 18 Sep 2019 06:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 726D220678;
+        Wed, 18 Sep 2019 06:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787662;
-        bh=xfNEeKWUVz0j76T2lBmW58y31L2TymoH3dlALm4sJTs=;
+        s=default; t=1568787664;
+        bh=COj6+7yNvGeh2H5OUUJGPmHTRZ6z2tYtHadnmi6OB7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3EiTVqd2Zrx5dmHAUNUQYFWsLNaZ2uKej3BaWVrPSlLu6JZHWMexmky97iUr0Jux
-         olncnjr/Ua4Ey7DiNpwtkpxgbe3275txBWWV2q4jTyPFaGHiMPKfeFDOyp4v1Rw4ZL
-         nZZXYRHnZXnGDMZJKcvsC0+Ztu2IyY6pbPFDXm+s=
+        b=j6OOoNQz7DXOJRpiWyWrnMgwvhYnAnPTJG5/3zJjqKfiHp2ZYMiVIbXN3JNf2n7XO
+         RM6G/AKrFiQmAhiCGd0KBOCXz2Hbrt5iJAudHzunfNtTnDmWAo/ls7k7lIDmvGIQS2
+         glwtn6UsIS5G4ue8Jl1EtNFHQDEuieg5FbwraFKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 31/45] PCI: Always allow probing with driver_override
-Date:   Wed, 18 Sep 2019 08:19:09 +0200
-Message-Id: <20190918061226.640618792@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 32/45] ubifs: Correctly use tnc_next() in search_dh_cookie()
+Date:   Wed, 18 Sep 2019 08:19:10 +0200
+Message-Id: <20190918061226.735342219@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
 References: <20190918061222.854132812@linuxfoundation.org>
@@ -44,51 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Richard Weinberger <richard@nod.at>
 
-commit 2d2f4273cbe9058d1f5a518e5e880d27d7b3b30f upstream.
+commit bacfa94b08027b9f66ede7044972e3b066766b3e upstream.
 
-Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
-VF driver binding") introduced the sriov_drivers_autoprobe attribute
-which allows users to prevent the kernel from automatically probing a
-driver for new VFs as they are created.  This allows VFs to be spawned
-without automatically binding the new device to a host driver, such as
-in cases where the user intends to use the device only with a meta
-driver like vfio-pci.  However, the current implementation prevents any
-use of drivers_probe with the VF while sriov_drivers_autoprobe=0.  This
-blocks the now current general practice of setting driver_override
-followed by using drivers_probe to bind a device to a specified driver.
+Commit c877154d307f fixed an uninitialized variable and optimized
+the function to not call tnc_next() in the first iteration of the
+loop. While this seemed perfectly legit and wise, it turned out to
+be illegal.
+If the lookup function does not find an exact match it will rewind
+the cursor by 1.
+The rewinded cursor will not match the name hash we are looking for
+and this results in a spurious -ENOENT.
+So we need to move to the next entry in case of an non-exact match,
+but not if the match was exact.
 
-The kernel never automatically sets a driver_override therefore it seems
-we can assume a driver_override reflects the intent of the user.  Also,
-probing a device using a driver_override match seems outside the scope
-of the 'auto' part of sriov_drivers_autoprobe.  Therefore, let's allow
-driver_override matches regardless of sriov_drivers_autoprobe, which we
-can do by simply testing if a driver_override is set for a device as a
-'can probe' condition.
+While we are here, update the documentation to avoid further confusion.
 
-Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
-Link: https://lore.kernel.org/lkml/155742996741.21878.569845487290798703.stgit@gimli.home
-Link: https://lore.kernel.org/linux-pci/155672991496.20698.4279330795743262888.stgit@gimli.home/T/#u
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Hyunchul Lee <hyc.lee@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: c877154d307f ("ubifs: Fix uninitialized variable in search_dh_cookie()")
+Fixes: 781f675e2d7e ("ubifs: Fix unlink code wrt. double hash lookups")
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci-driver.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ubifs/tnc.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -400,7 +400,8 @@ void __weak pcibios_free_irq(struct pci_
- #ifdef CONFIG_PCI_IOV
- static inline bool pci_device_can_probe(struct pci_dev *pdev)
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -1164,8 +1164,8 @@ static struct ubifs_znode *dirty_cow_bot
+  *   o exact match, i.e. the found zero-level znode contains key @key, then %1
+  *     is returned and slot number of the matched branch is stored in @n;
+  *   o not exact match, which means that zero-level znode does not contain
+- *     @key, then %0 is returned and slot number of the closest branch is stored
+- *     in @n;
++ *     @key, then %0 is returned and slot number of the closest branch or %-1
++ *     is stored in @n; In this case calling tnc_next() is mandatory.
+  *   o @key is so small that it is even less than the lowest key of the
+  *     leftmost zero-level node, then %0 is returned and %0 is stored in @n.
+  *
+@@ -1882,13 +1882,19 @@ int ubifs_tnc_lookup_nm(struct ubifs_inf
+ 
+ static int search_dh_cookie(struct ubifs_info *c, const union ubifs_key *key,
+ 			    struct ubifs_dent_node *dent, uint32_t cookie,
+-			    struct ubifs_znode **zn, int *n)
++			    struct ubifs_znode **zn, int *n, int exact)
  {
--	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe);
-+	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe ||
-+		pdev->driver_override);
- }
- #else
- static inline bool pci_device_can_probe(struct pci_dev *pdev)
+ 	int err;
+ 	struct ubifs_znode *znode = *zn;
+ 	struct ubifs_zbranch *zbr;
+ 	union ubifs_key *dkey;
+ 
++	if (!exact) {
++		err = tnc_next(c, &znode, n);
++		if (err)
++			return err;
++	}
++
+ 	for (;;) {
+ 		zbr = &znode->zbranch[*n];
+ 		dkey = &zbr->key;
+@@ -1930,7 +1936,7 @@ static int do_lookup_dh(struct ubifs_inf
+ 	if (unlikely(err < 0))
+ 		goto out_unlock;
+ 
+-	err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
++	err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
+ 
+ out_unlock:
+ 	mutex_unlock(&c->tnc_mutex);
+@@ -2716,7 +2722,7 @@ int ubifs_tnc_remove_dh(struct ubifs_inf
+ 		if (unlikely(err < 0))
+ 			goto out_free;
+ 
+-		err = search_dh_cookie(c, key, dent, cookie, &znode, &n);
++		err = search_dh_cookie(c, key, dent, cookie, &znode, &n, err);
+ 		if (err)
+ 			goto out_free;
+ 	}
 
 
