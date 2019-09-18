@@ -2,64 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8918EB657B
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 16:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9256BB6588
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 16:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728087AbfIROH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 10:07:28 -0400
-Received: from foss.arm.com ([217.140.110.172]:42558 "EHLO foss.arm.com"
+        id S1727004AbfIROJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 10:09:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727004AbfIROH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 10:07:28 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F399E1000;
-        Wed, 18 Sep 2019 07:07:27 -0700 (PDT)
-Received: from e121166-lin.cambridge.arm.com (e121166-lin.cambridge.arm.com [10.1.196.255])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4B15A3F67D;
-        Wed, 18 Sep 2019 07:07:27 -0700 (PDT)
-Date:   Wed, 18 Sep 2019 15:06:51 +0100
-From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jon Derrick <jonathan.derrick@intel.com>,
-        Bjorn Helgaas <helgaas@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] PCI: vmd: Fix config addressing when using bus
- offsets
-Message-ID: <20190918140644.GA7301@e121166-lin.cambridge.arm.com>
-References: <20190916135435.5017-2-jonathan.derrick@intel.com>
- <20190918110800.18D9021920@mail.kernel.org>
+        id S1726038AbfIROJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 10:09:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 017D2218AF;
+        Wed, 18 Sep 2019 14:09:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568815797;
+        bh=fiuiRVJ1fZdnx/CWlyqok8rfVCycNLo2lTBkY+5k/RQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S6zBV4RmArHz9F0e/v6RPXOrSyY4VIqYoRcxP7G2TRj0R81lrUIOlp1t+zfmv/5eu
+         c22QSgikb4JTFMElcvKplelcZYC3Iyo3b+C+P7Lzu8R6CwMyCozdFyPojJwAvXgxLv
+         +QNaE84O9oUbzoW3l8Zeeee3SOMDog7Lx+/EcBqE=
+Date:   Wed, 18 Sep 2019 16:09:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org, will@kernel.org,
+        kernellwp@gmail.com, Matt Delco <delco@chromium.org>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>
+Subject: Re: [PATCH] KVM: coalesced_mmio: add bounds checking
+Message-ID: <20190918140955.GA1920517@kroah.com>
+References: <1568815302-21319-1-git-send-email-pbonzini@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190918110800.18D9021920@mail.kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1568815302-21319-1-git-send-email-pbonzini@redhat.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 11:07:59AM +0000, Sasha Levin wrote:
-> Hi,
+On Wed, Sep 18, 2019 at 04:01:42PM +0200, Paolo Bonzini wrote:
+> From: Matt Delco <delco@chromium.org>
 > 
-> [This is an automated email]
+> The first/last indexes are typically shared with a user app.
+> The app can change the 'last' index that the kernel uses
+> to store the next result.  This change sanity checks the index
+> before using it for writing to a potentially arbitrary address.
 > 
-> This commit has been processed because it contains a "Fixes:" tag,
+> This fixes CVE-2019-14821.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 5f94c1741bdc ("KVM: Add coalesced MMIO support (common part)")
+> Signed-off-by: Matt Delco <delco@chromium.org>
+> Signed-off-by: Jim Mattson <jmattson@google.com>
+> Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
+> [Use READ_ONCE. - Paolo]
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  virt/kvm/coalesced_mmio.c | 19 +++++++++++--------
+>  1 file changed, 11 insertions(+), 8 deletions(-)
 
-It also contains a Cc: stable tag :)
+Also looks good to me.
 
-> fixing commit: 2a5a9c9a20f9 PCI: vmd: Add offset to bus numbers if necessary.
-> 
-> The bot has tested the following trees: v5.2.15, v4.19.73.
-> 
-> v5.2.15: Build OK!
-> v4.19.73: Failed to apply! Possible dependencies:
->     0294951030eb ("PCI/VMD: Configure MPS settings before adding devices")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-
-You should take into account the Cc: stable tag requests, namely v5.2+.
-
-Thanks,
-Lorenzo
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
