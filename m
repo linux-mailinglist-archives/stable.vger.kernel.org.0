@@ -2,85 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A86EB6506
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 15:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37813B652B
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 15:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728941AbfIRNvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 09:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52698 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728997AbfIRNvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 09:51:20 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E86832067B;
-        Wed, 18 Sep 2019 13:51:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568814679;
-        bh=C0FJ39ZzCKIX9+jiW5XpQ4c5SpxZKDGE72S8Vkv8nq4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pmXg63ggQ4ywWS2LfIrJQHTNGOy6+L7Zl14ZPpnGRNEn7q1C9dnF/AVq4sRyBgcvC
-         dki8JCmhcKgr28gaMj2Akm2XdvAkAtA9ABZs3uXI48tuzCpRbBduVAH1/KxgST3YKt
-         DZOeYpegVaVIHhnHxXHth8CC4sGesVP5hUSnRvhQ=
-Date:   Wed, 18 Sep 2019 15:51:17 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/50] 4.19.74-stable review
-Message-ID: <20190918135117.GA1913575@kroah.com>
-References: <20190918061223.116178343@linuxfoundation.org>
- <b1cff98a-d08f-d6cc-393f-9ca80c9229fe@roeck-us.net>
- <20190918134003.GF1908968@kroah.com>
+        id S1728467AbfIRNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 09:55:47 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42841 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728507AbfIRNzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 09:55:46 -0400
+Received: by mail-lj1-f194.google.com with SMTP id y23so7308206lje.9
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 06:55:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=tNLvCJD8JwcCMK7I1v+h5eHmlGilLzYiGQKoWxXRw+I=;
+        b=FpKO+rhM7RZkTbnbXB3cUCmrK8DBfBUTTWS1QVC7DLLpTIBsE5lEe1fnh0vJStLSbm
+         +om4dvdgpmmZeSV5GPmsft+g3FqFrCh//a9HER0KxkUmjYPGtPDXtRUzjgEQzyXoTTMf
+         X9hEPVZ3fM1HtAG4XJg+JloeeVheTbkUcUWKpb6Al9iNRhWpA//uRvb2mEzlmasBAYBU
+         bqOCF/4smDqFtkPm0fFR5UZv5/TquKMnDK0lr9NtWtFjTYPSbKs/FHEdM+OhhOqcp9rp
+         7fIZ2/GN4Cq55WRCfH3MTIN6scTZRdTK5xPDNmDk9jbC+6nt9+q63LYlM33WCcU2FSYt
+         E+vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tNLvCJD8JwcCMK7I1v+h5eHmlGilLzYiGQKoWxXRw+I=;
+        b=s7a/hHpjTq34lhr64u1KDSofVRX6GPQrjFYVBOXWJDULbHNYdJY2+9Rfy9Qq7hG1Ki
+         fZNWxia8HR2RoWXAeQGINdEv7P/xzJpxLZCZz12zbdVksaPbu7Mm0Z0/7Jkkx523rLjP
+         z1iQ2XINTrNNW+Ed7mh/aK/CpOQvVUm2UH/PFXXulPqykBb1WOj+kvIC1lhcrQ1lc/cR
+         xBJMSTrKrzPk0KRUfLfc/cOgvAaR8AJwXpSXqVAFWRimk5NLbGnTK45X1kU46cTwCLPo
+         O6RS9AnwNoRGa8e1q2Ym3B5ODxqgyNwElDeFogNzrk0oXHM+wjubIKF7PXk7cHivmttG
+         9xAg==
+X-Gm-Message-State: APjAAAVVcZQ4WhGGsyCImbc9zCl3Um4BZBp4t1ixK3vkgip/+8cABG21
+        2gdS/Y3Az9mygDGHGHpwlJI8lJnCkw63gpVkW5gRBQ==
+X-Google-Smtp-Source: APXvYqzKch4BK+EEAj9RkXabpSdJ2+4z3t02KRTSdQzxTzvZq7iGg1rXeGAx74Bd4Davhz9rAEV7rfO6zH+4HRy56M4=
+X-Received: by 2002:a05:651c:150:: with SMTP id c16mr2344011ljd.224.1568814944322;
+ Wed, 18 Sep 2019 06:55:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190918134003.GF1908968@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 18 Sep 2019 19:25:33 +0530
+Message-ID: <CA+G9fYuMwOT+f40RNokrnVgwQZzN3u1D3y_dK3QHMdDJ8sFxiA@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/45] 4.14.145-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 03:40:03PM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Sep 18, 2019 at 05:59:09AM -0700, Guenter Roeck wrote:
-> > On 9/17/19 11:18 PM, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.19.74 release.
-> > > There are 50 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Fri 20 Sep 2019 06:09:47 AM UTC.
-> > > Anything received after that time might be too late.
-> > > 
-> > 
-> > I see lots of build failures.
-> > 
-> > kernel/module.c: In function 'free_module':
-> > kernel/module.c:2187:2: error: implicit declaration of function 'disable_ro_nx'; did you mean 'disable_irq'?
-> > 
-> > kernel/module.c: In function 'load_module':
-> > kernel/module.c:3828:2: error: implicit declaration of function 'module_disable_nx'; did you mean 'module_disable_ro'?
-> > 
-> > Reverting
-> > 
-> > ed510bd0bce3 modules: fix compile error if don't have strict module rwx
-> > 22afe9550160 modules: fix BUG when load module with rodata=n
-> > 
-> > fixes the problem.
-> 
-> Ugh, I thought I got these right.  Let me see what I got wrong in the
-> backport...
-> 
-> Any hint as to what the .config is here that is causing the problems?
+On Wed, 18 Sep 2019 at 11:51, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.145 release.
+> There are 45 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri 20 Sep 2019 06:09:47 AM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.145-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Ok, I think I've fixed this now, I've pushed out an updated queue and a
--rc2 with a change that should resolve this.  Please let me know if that
-didn't work.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-thanks,
+Summary
+------------------------------------------------------------------------
 
-greg k-h
+kernel: 4.14.145-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: 187d767985cf878208592ce3ca667e5021abf2f6
+git describe: v4.14.144-46-g187d767985cf
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.144-46-g187d767985cf
+
+No regressions (compared to build v4.14.144)
+
+No fixes (compared to build v4.14.144)
+
+Ran 23713 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* spectre-meltdown-checker-test
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
