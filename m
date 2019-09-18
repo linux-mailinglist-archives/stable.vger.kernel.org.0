@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EC5B5C49
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0481EB5C5F
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:26:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729870AbfIRGYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S1730204AbfIRGZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:25:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729914AbfIRGYq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:24:46 -0400
+        id S1730196AbfIRGZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:25:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE809218AF;
-        Wed, 18 Sep 2019 06:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC0B921920;
+        Wed, 18 Sep 2019 06:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787885;
-        bh=EZNyax7R31/fUpxWagzOXKRSCF27HvnrImbZpRsL8sY=;
+        s=default; t=1568787948;
+        bh=pjvi5e0JD3oQ6w9n9LpfofgHo6x1NQIQAj2rtjbJ3U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0od94pKX+gYwSXchVGSqT/7QT6rSEzJw7awGnx5vxMmDmdNZvDRwoNWlMAyovB7or
-         IAxqAYZBBDcnxlD4tGxzuH+WEkpQk3DY2T/7cPxObVBWSJ2UQ/R3njfbNZnsZ3IMBs
-         4eiu54gV5ECtKp1RxHCnz6pjZg37IxbfAMFUDQiA=
+        b=ss39CC5DDXSCfeKeMivtaEhb7n1Sb3yNWkPPLhr6LEdOeEWwrdFrlqDGtL3P933fJ
+         yoaOvAJMR/F8A8ijmBpE/X3427Q9tu5DX+d1GPPZJC+0qxOceS3h4LqfMfPhEM24OV
+         met6tnEhVAXqUzPZ99uIJyBb9n2wKyF6OU8UzESg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Melin <larsm17@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 02/85] cdc_ether: fix rndis support for Mediatek based smartphones
-Date:   Wed, 18 Sep 2019 08:18:20 +0200
-Message-Id: <20190918061234.200486731@linuxfoundation.org>
+Subject: [PATCH 5.2 08/85] net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list
+Date:   Wed, 18 Sep 2019 08:18:26 +0200
+Message-Id: <20190918061234.392649861@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -44,102 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Bjørn Mork" <bjorn@mork.no>
+From: Shmulik Ladkani <shmulik@metanetworks.com>
 
-[ Upstream commit 4d7ffcf3bf1be98d876c570cab8fc31d9fa92725 ]
+[ Upstream commit 3dcbdb134f329842a38f0e6797191b885ab00a00 ]
 
-A Mediatek based smartphone owner reports problems with USB
-tethering in Linux.  The verbose USB listing shows a rndis_host
-interface pair (e0/01/03 + 10/00/00), but the driver fails to
-bind with
+Historically, support for frag_list packets entering skb_segment() was
+limited to frag_list members terminating on exact same gso_size
+boundaries. This is verified with a BUG_ON since commit 89319d3801d1
+("net: Add frag_list support to skb_segment"), quote:
 
-[  355.960428] usb 1-4: bad CDC descriptors
+    As such we require all frag_list members terminate on exact MSS
+    boundaries.  This is checked using BUG_ON.
+    As there should only be one producer in the kernel of such packets,
+    namely GRO, this requirement should not be difficult to maintain.
 
-The problem is a failsafe test intended to filter out ACM serial
-functions using the same 02/02/ff class/subclass/protocol as RNDIS.
-The serial functions are recognized by their non-zero bmCapabilities.
+However, since commit 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper"),
+the "exact MSS boundaries" assumption no longer holds:
+An eBPF program using bpf_skb_change_proto() DOES modify 'gso_size', but
+leaves the frag_list members as originally merged by GRO with the
+original 'gso_size'. Example of such programs are bpf-based NAT46 or
+NAT64.
 
-No RNDIS function with non-zero bmCapabilities were known at the time
-this failsafe was added. But it turns out that some Wireless class
-RNDIS functions are using the bmCapabilities field. These functions
-are uniquely identified as RNDIS by their class/subclass/protocol, so
-the failing test can safely be disabled.  The same applies to the two
-types of Misc class RNDIS functions.
+This lead to a kernel BUG_ON for flows involving:
+ - GRO generating a frag_list skb
+ - bpf program performing bpf_skb_change_proto() or bpf_skb_adjust_room()
+ - skb_segment() of the skb
 
-Applying the failsafe to Communication class functions only retains
-the original functionality, and fixes the problem for the Mediatek based
-smartphone.
+See example BUG_ON reports in [0].
 
-Tow examples of CDC functional descriptors with non-zero bmCapabilities
-from Wireless class RNDIS functions are:
+In commit 13acc94eff12 ("net: permit skb_segment on head_frag frag_list skb"),
+skb_segment() was modified to support the "gso_size mangling" case of
+a frag_list GRO'ed skb, but *only* for frag_list members having
+head_frag==true (having a page-fragment head).
 
-0e8d:000a  Mediatek Crosscall Spider X5 3G Phone
+Alas, GRO packets having frag_list members with a linear kmalloced head
+(head_frag==false) still hit the BUG_ON.
 
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x0f
-          connection notifications
-          sends break
-          line coding and serial state
-          get/set/clear comm features
-      CDC Union:
-        bMasterInterface        0
-        bSlaveInterface         1
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          1
+This commit adds support to skb_segment() for a 'head_skb' packet having
+a frag_list whose members are *non* head_frag, with gso_size mangled, by
+disabling SG and thus falling-back to copying the data from the given
+'head_skb' into the generated segmented skbs - as suggested by Willem de
+Bruijn [1].
 
-and
+Since this approach involves the penalty of skb_copy_and_csum_bits()
+when building the segments, care was taken in order to enable this
+solution only when required:
+ - untrusted gso_size, by testing SKB_GSO_DODGY is set
+   (SKB_GSO_DODGY is set by any gso_size mangling functions in
+    net/core/filter.c)
+ - the frag_list is non empty, its item is a non head_frag, *and* the
+   headlen of the given 'head_skb' does not match the gso_size.
 
-19d2:1023  ZTE K4201-z
+[0]
+https://lore.kernel.org/netdev/20190826170724.25ff616f@pixies/
+https://lore.kernel.org/netdev/9265b93f-253d-6b8c-f2b8-4b54eff1835c@fb.com/
 
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          1
-      CDC Union:
-        bMasterInterface        0
-        bSlaveInterface         1
+[1]
+https://lore.kernel.org/netdev/CA+FuTSfVsgNDi7c=GUU8nMg2hWxF2SjCNLXetHeVPdnxAW5K-w@mail.gmail.com/
 
-The Mediatek example is believed to apply to most smartphones with
-Mediatek firmware.  The ZTE example is most likely also part of a larger
-family of devices/firmwares.
-
-Suggested-by: Lars Melin <larsm17@gmail.com>
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ether.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/core/skbuff.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -206,7 +206,15 @@ int usbnet_generic_cdc_bind(struct usbne
- 		goto bad_desc;
- 	}
- skip:
--	if (rndis && header.usb_cdc_acm_descriptor &&
-+	/* Communcation class functions with bmCapabilities are not
-+	 * RNDIS.  But some Wireless class RNDIS functions use
-+	 * bmCapabilities for their own purpose. The failsafe is
-+	 * therefore applied only to Communication class RNDIS
-+	 * functions.  The rndis test is redundant, but a cheap
-+	 * optimization.
-+	 */
-+	if (rndis && is_rndis(&intf->cur_altsetting->desc) &&
-+	    header.usb_cdc_acm_descriptor &&
- 	    header.usb_cdc_acm_descriptor->bmCapabilities) {
- 		dev_dbg(&intf->dev,
- 			"ACM capabilities %02x, not really RNDIS?\n",
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3531,6 +3531,25 @@ struct sk_buff *skb_segment(struct sk_bu
+ 	int pos;
+ 	int dummy;
+ 
++	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
++	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
++		/* gso_size is untrusted, and we have a frag_list with a linear
++		 * non head_frag head.
++		 *
++		 * (we assume checking the first list_skb member suffices;
++		 * i.e if either of the list_skb members have non head_frag
++		 * head, then the first one has too).
++		 *
++		 * If head_skb's headlen does not fit requested gso_size, it
++		 * means that the frag_list members do NOT terminate on exact
++		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
++		 * sharing. Therefore we must fallback to copying the frag_list
++		 * skbs; we do so by disabling SG.
++		 */
++		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
++			features &= ~NETIF_F_SG;
++	}
++
+ 	__skb_push(head_skb, doffset);
+ 	proto = skb_network_protocol(head_skb, &dummy);
+ 	if (unlikely(!proto))
 
 
