@@ -2,133 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CACB5FEB
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 11:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CB6B5FF9
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 11:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728888AbfIRJPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 05:15:21 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:42732 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726077AbfIRJPV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 05:15:21 -0400
-Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=elm)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <tyhicks@canonical.com>)
-        id 1iAW3O-0006i4-C9; Wed, 18 Sep 2019 09:15:14 +0000
-Date:   Wed, 18 Sep 2019 11:15:12 +0200
-From:   Tyler Hicks <tyhicks@canonical.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     keescook@chromium.org, luto@amacapital.net, jannh@google.com,
-        wad@chromium.org, shuah@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, kafai@fb.com, songliubraving@fb.com,
-        yhs@fb.com, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/4] seccomp: add two missing ptrace ifdefines
-Message-ID: <20190918091512.GA5088@elm>
-References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
- <20190918084833.9369-3-christian.brauner@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190918084833.9369-3-christian.brauner@ubuntu.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727563AbfIRJSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 05:18:11 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:59448 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726902AbfIRJSL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 05:18:11 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8I98s17178458;
+        Wed, 18 Sep 2019 09:18:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : content-type :
+ content-transfer-encoding : mime-version : date : subject : cc : to :
+ message-id; s=corp-2019-08-05;
+ bh=gA/odFn87PvHOX3/sRNMnXipUhOglLsNrS+FR8K/TSg=;
+ b=q0Ky/DDUCQYW4sVrsHOBH9Zv2pinj+y6aSvXJG81Ek4BgP87O1/fvm4B3xfMtAUcoLCF
+ /AbeFbLC7MqxsM4qbWpE0C+lVFS/QcYHDehe0g+T9QeeZ1U//F00z1/GCxKtn6hSmHrU
+ ADjQdafWE3988bUx9V1Qk/Del1LEd7TnpmYEcotJ8UTMxqPpIy1rW1eCKPJnOM7+7lsC
+ V9co8IdESWV1RZziJ5giCngIvfY6YjCrkPS4Ay6jf19uwlo0vGdAXXxAEyyqqzQjWA5I
+ I96hecXAWYphSQeWfH+4ZQwrqqJNaA8wB33ttn/5TdWVBixL6AYSqFK4O+Z/opU6Q3DX 2w== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2120.oracle.com with ESMTP id 2v385e2gss-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Sep 2019 09:18:08 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8I98o2W173997;
+        Wed, 18 Sep 2019 09:18:07 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 2v37m9xgpr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Sep 2019 09:18:07 +0000
+Received: from abhmp0022.oracle.com (abhmp0022.oracle.com [141.146.116.28])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x8I9I4EM022343;
+        Wed, 18 Sep 2019 09:18:06 GMT
+Received: from dhcp-10-172-157-168.no.oracle.com (/10.172.157.168)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 18 Sep 2019 02:18:04 -0700
+From:   =?utf-8?Q?H=C3=A5kon_Bugge?= <haakon.bugge@oracle.com>
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Date:   Wed, 18 Sep 2019 11:17:59 +0200
+Subject: Stable branches missing ed7a01fd3fd7
+Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        OFED mailing list <linux-rdma@vger.kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Message-Id: <880A1006-BF84-4691-8EE1-8E6D111BF09F@oracle.com>
+X-Mailer: Apple Mail (2.3445.104.11)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=3 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=564
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1908290000 definitions=main-1909180094
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=3 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=643 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1909180094
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-09-18 10:48:31, Christian Brauner wrote:
-> Add tw missing ptrace ifdefines to avoid compilation errors on systems
-> that do not provide PTRACE_EVENTMSG_SYSCALL_ENTRY or
-> PTRACE_EVENTMSG_SYSCALL_EXIT or:
-> 
-> gcc -Wl,-no-as-needed -Wall  seccomp_bpf.c -lpthread -o seccomp_bpf
-> In file included from seccomp_bpf.c:52:0:
-> seccomp_bpf.c: In function ‘tracer_ptrace’:
-> seccomp_bpf.c:1792:20: error: ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_CLONE’?
->   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
->                     ^
-> ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
->   __typeof__(_expected) __exp = (_expected); \
->              ^~~~~~~~~
-> seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
->   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
->   ^~~~~~~~~
-> seccomp_bpf.c:1792:20: note: each undeclared identifier is reported only once for each function it appears in
->   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
->                     ^
-> ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
->   __typeof__(_expected) __exp = (_expected); \
->              ^~~~~~~~~
-> seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
->   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
->   ^~~~~~~~~
-> seccomp_bpf.c:1793:6: error: ‘PTRACE_EVENTMSG_SYSCALL_EXIT’ undeclared (first use in this function); did you mean ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’?
->     : PTRACE_EVENTMSG_SYSCALL_EXIT, msg);
->       ^
-> ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
->   __typeof__(_expected) __exp = (_expected); \
->              ^~~~~~~~~
-> seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
->   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
->   ^~~~~~~~~
-> 
-> Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Hi Greg,
 
-I think this Fixes line is incorrect and should be changed to:
 
-Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
+Commit 00313983cda6 ("RDMA/nldev: provide detailed CM_ID information") =
+is in the following stable releases:
 
-With that changed,
+  stable/linux-4.17.y
+  stable/linux-4.18.y
+  stable/linux-4.19.y
+  stable/linux-4.20.y
+  stable/linux-5.0.y
+  stable/linux-5.1.y
+  stable/linux-5.2.y
+  stable/linux-5.3.y
+  stable/master
 
-Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+It has a potential for a big leak of task_struct's, and if the case is =
+hit, the number of task_struct entries in /proc/slabinfo increases =
+rapidly.
 
-Tyler
+The fix, ed7a01fd3fd7 ("RDMA/restrack: Release task struct which was =
+hold by CM_ID object"), is in the following stable releases:
 
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Andy Lutomirski <luto@amacapital.net>
-> Cc: Will Drewry <wad@chromium.org>
-> Cc: Shuah Khan <shuah@kernel.org>
-> Cc: Alexei Starovoitov <ast@kernel.org>
-> Cc: Daniel Borkmann <daniel@iogearbox.net>
-> Cc: Martin KaFai Lau <kafai@fb.com>
-> Cc: Song Liu <songliubraving@fb.com>
-> Cc: Yonghong Song <yhs@fb.com>
-> Cc: Tycho Andersen <tycho@tycho.ws>
-> CC: Tyler Hicks <tyhicks@canonical.com>
-> Cc: Jann Horn <jannh@google.com>
-> Cc: stable@vger.kernel.org
-> Cc: linux-kselftest@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: bpf@vger.kernel.org
-> ---
->  tools/testing/selftests/seccomp/seccomp_bpf.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> index 6ef7f16c4cf5..ee52eab01800 100644
-> --- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-> +++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> @@ -155,6 +155,14 @@ struct seccomp_data {
->  #ifndef PTRACE_SECCOMP_GET_METADATA
->  #define PTRACE_SECCOMP_GET_METADATA	0x420d
->  
-> +#ifndef PTRACE_EVENTMSG_SYSCALL_ENTRY
-> +#define PTRACE_EVENTMSG_SYSCALL_ENTRY 1
-> +#endif
-> +
-> +#ifndef PTRACE_EVENTMSG_SYSCALL_EXIT
-> +#define PTRACE_EVENTMSG_SYSCALL_EXIT 2
-> +#endif
-> +
->  struct seccomp_metadata {
->  	__u64 filter_off;       /* Input: which filter */
->  	__u64 flags;             /* Output: filter's flags */
-> -- 
-> 2.23.0
-> 
+  stable/linux-4.20.y
+  stable/linux-5.0.y
+  stable/linux-5.1.y
+  stable/linux-5.2.y
+  stable/linux-5.3.y
+  stable/master
+
+Hence, this commit needs to be included in 4-17..4.19.
+
+
+Thxs, H=C3=A5kon
+
+
