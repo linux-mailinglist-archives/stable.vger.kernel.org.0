@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F23CAB5BCF
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D342EB5BD1
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727344AbfIRGT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
+        id S1727463AbfIRGUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:20:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725842AbfIRGT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:19:59 -0400
+        id S1725842AbfIRGUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:20:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D2D420678;
-        Wed, 18 Sep 2019 06:19:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A374020678;
+        Wed, 18 Sep 2019 06:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787598;
-        bh=9b64Q7luG20J3yoGxGL9zwCpfms6M+EEzPZ+Il1iNUs=;
+        s=default; t=1568787601;
+        bh=KRpzWBTrV668u9vRIRCYyd+1V9j7GnrY304T/nzNa8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1xgm8UL4OJEtshiI581l0QfXE/J+GZjl2UA/RG19PqSLDDXchHcbhfFIvuWcyQN+
-         ntxrcbrJT/6rL7DK8QtJAsMc61IOkaObYMj+zRSAVLmdfCC12DbIo6adEBcES3iMbk
-         WisJwC0UlmuvJ7o8K7Q5mCMNVVxPwUwGp2acrLts=
+        b=TdPMxFVtwHxuF9JeoSiUSdBJ1dl0BFnr5NxjwZmW9y96ozQyTe/Zcr8cpUPLH8CRz
+         ldhREgfw4723/k7Yu+ofaHIC0HvTbJXgqjdP/1Ju0SNwoD88PFdJavt//c0/pHMKwI
+         MSDRbJXpo9ZVgBzXWALsuZrhUis/9RTypuYxQAGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 01/45] bridge/mdb: remove wrong use of NLM_F_MULTI
-Date:   Wed, 18 Sep 2019 08:18:39 +0200
-Message-Id: <20190918061223.039718513@linuxfoundation.org>
+Subject: [PATCH 4.14 10/45] sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
+Date:   Wed, 18 Sep 2019 08:18:48 +0200
+Message-Id: <20190918061223.900744710@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
 References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,35 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 94a72b3f024fc7e9ab640897a1e38583a470659d ]
+[ Upstream commit 10eb56c582c557c629271f1ee31e15e7a9b2558b ]
 
-NLM_F_MULTI must be used only when a NLMSG_DONE message is sent at the end.
-In fact, NLMSG_DONE is sent only at the end of a dump.
+Transport should use its own pf_retrans to do the error_count
+check, instead of asoc's. Otherwise, it's meaningless to make
+pf_retrans per transport.
 
-Libraries like libnl will wait forever for NLMSG_DONE.
-
-Fixes: 949f1e39a617 ("bridge: mdb: notify on router port add and del")
-CC: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_mdb.c |    2 +-
+ net/sctp/sm_sideeffect.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -373,7 +373,7 @@ static int nlmsg_populate_rtr_fill(struc
- 	struct nlmsghdr *nlh;
- 	struct nlattr *nest;
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -542,7 +542,7 @@ static void sctp_do_8_2_transport_strike
+ 	if (net->sctp.pf_enable &&
+ 	   (transport->state == SCTP_ACTIVE) &&
+ 	   (transport->error_count < transport->pathmaxrxt) &&
+-	   (transport->error_count > asoc->pf_retrans)) {
++	   (transport->error_count > transport->pf_retrans)) {
  
--	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), NLM_F_MULTI);
-+	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), 0);
- 	if (!nlh)
- 		return -EMSGSIZE;
- 
+ 		sctp_assoc_control_transport(asoc, transport,
+ 					     SCTP_TRANSPORT_PF,
 
 
