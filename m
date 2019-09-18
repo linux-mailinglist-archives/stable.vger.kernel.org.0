@@ -2,107 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CB6B5FF9
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 11:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73869B606B
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 11:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727563AbfIRJSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 05:18:11 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:59448 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726902AbfIRJSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 05:18:11 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8I98s17178458;
-        Wed, 18 Sep 2019 09:18:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : content-type :
- content-transfer-encoding : mime-version : date : subject : cc : to :
- message-id; s=corp-2019-08-05;
- bh=gA/odFn87PvHOX3/sRNMnXipUhOglLsNrS+FR8K/TSg=;
- b=q0Ky/DDUCQYW4sVrsHOBH9Zv2pinj+y6aSvXJG81Ek4BgP87O1/fvm4B3xfMtAUcoLCF
- /AbeFbLC7MqxsM4qbWpE0C+lVFS/QcYHDehe0g+T9QeeZ1U//F00z1/GCxKtn6hSmHrU
- ADjQdafWE3988bUx9V1Qk/Del1LEd7TnpmYEcotJ8UTMxqPpIy1rW1eCKPJnOM7+7lsC
- V9co8IdESWV1RZziJ5giCngIvfY6YjCrkPS4Ay6jf19uwlo0vGdAXXxAEyyqqzQjWA5I
- I96hecXAWYphSQeWfH+4ZQwrqqJNaA8wB33ttn/5TdWVBixL6AYSqFK4O+Z/opU6Q3DX 2w== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 2v385e2gss-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Sep 2019 09:18:08 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8I98o2W173997;
-        Wed, 18 Sep 2019 09:18:07 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 2v37m9xgpr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Sep 2019 09:18:07 +0000
-Received: from abhmp0022.oracle.com (abhmp0022.oracle.com [141.146.116.28])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x8I9I4EM022343;
-        Wed, 18 Sep 2019 09:18:06 GMT
-Received: from dhcp-10-172-157-168.no.oracle.com (/10.172.157.168)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 18 Sep 2019 02:18:04 -0700
-From:   =?utf-8?Q?H=C3=A5kon_Bugge?= <haakon.bugge@oracle.com>
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Date:   Wed, 18 Sep 2019 11:17:59 +0200
-Subject: Stable branches missing ed7a01fd3fd7
-Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        OFED mailing list <linux-rdma@vger.kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Leon Romanovsky <leon@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <880A1006-BF84-4691-8EE1-8E6D111BF09F@oracle.com>
-X-Mailer: Apple Mail (2.3445.104.11)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=3 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=564
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1908290000 definitions=main-1909180094
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=3 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=643 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
- definitions=main-1909180094
+        id S1726869AbfIRJdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 05:33:15 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:43450 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726824AbfIRJdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 05:33:15 -0400
+Received: by mail-pl1-f194.google.com with SMTP id 4so2839576pld.10
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 02:33:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=z4B1DM+aYjxU+okrUuJoTvRLDFQzAUQP1MHsJfZ8ctg=;
+        b=noym6exVDUobw/l3VarrVn4UO8k2aBotK9mPpYLFN3s2PcIDPw3W0uqDfj9YIgvEi7
+         vk5a1AZGwyvuCOS+DsTEaJmmbUNOwuzcvZbyY+wK6i0aXpb+TlkTHLcUvZYV0RQiivtc
+         iaFseJoDvn+cewjZ6GYA6Qm9rWPlpVS9KOjgMXpWiz5ttFCPDG4kIMxwe56TCkhVNulP
+         hovhZewvsXyajKhHvBa2xDB1mKufIg55v40HDZvmsmVj8YX6IiZzDXiMhT1KcSGz6ivB
+         6S7tmp/+OkFDt87HJiRPb3sL/us1uoMhmwUixfF2LZ5Vqix2LUbLxay6QXsyu+UwLFrc
+         3Wzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=z4B1DM+aYjxU+okrUuJoTvRLDFQzAUQP1MHsJfZ8ctg=;
+        b=H1EltAilG0Uslqol4mx9bwol5BL+slFeQqs51+KMfkDrFT+Ea5GxMVNoZTroP7wkzt
+         nrJEBiV3C2MV8UXX5sJ1zEKH3cCJgW+Z3RSgfjUR8bC2p7w7D6JIh59WfLmJFrxNjDdU
+         yDDrlH3IaKYY8EuCGwyNn0OVrT6H174n52cWRjF8urY9wM2z21J8AUo1JsPqMJfhXwf3
+         WMouJ/VCG28IIYlALTBfZ3F7fuh9JR7mLt+inZHUHQ6vpQjh6/WXYsuqY6NMvrbAZ265
+         NvlS+XRTYFN9NfpsA/Y0sy18gDXwNNfugU15aXDLIoxFPmWTlp/QuDRdN9EucKHiOW91
+         oKcA==
+X-Gm-Message-State: APjAAAXE/4SLxaEsrkplrzZanwGpe3d9r+bkjXgGAjIqqqIMW8diNKTq
+        DCtbpUIZQYPMPwn6FlIy9sZ2V0h0M8Iwvo2upLI=
+X-Google-Smtp-Source: APXvYqwVxsoDWo1Nzb7UGgPHvy3risRo5hcBJ+6xSz+84i3eMRGzF+oyqkv9asSP2bzsH8TXLdWEp+yvfGXEq7Olj8o=
+X-Received: by 2002:a17:902:720a:: with SMTP id ba10mr3273778plb.328.1568799194683;
+ Wed, 18 Sep 2019 02:33:14 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: muahammedrabia@gmail.com
+Received: by 2002:a17:90a:318a:0:0:0:0 with HTTP; Wed, 18 Sep 2019 02:33:13
+ -0700 (PDT)
+From:   "Mrs. Rabia Muahammed " <rabiamuahammed@gmail.com>
+Date:   Wed, 18 Sep 2019 02:33:13 -0700
+X-Google-Sender-Auth: maGQo_1eHrcWlPma8U_yUiIXcBk
+Message-ID: <CAAOy-CMf18o9tk=rRtuev2xv00wPuYUSJwTVh+4StcWceScK3A@mail.gmail.com>
+Subject: From Mrs. Rabia Muahammed
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+-- 
+From Mrs. Rabia Muahammed
+
+Dear Good Friend
+
+My Name Is Mrs. Rabia Muahammed , I am a banker in (GARANTI BANK
+ISTANBUL TURKEY (G B I T)
+I want to transfer an abandoned sum of 25.5 millions USD to your
+account. 50% will be for you. No risk involved. Contact me for more
+details. Kindly reply me back.
 
 
-Commit 00313983cda6 ("RDMA/nldev: provide detailed CM_ID information") =
-is in the following stable releases:
-
-  stable/linux-4.17.y
-  stable/linux-4.18.y
-  stable/linux-4.19.y
-  stable/linux-4.20.y
-  stable/linux-5.0.y
-  stable/linux-5.1.y
-  stable/linux-5.2.y
-  stable/linux-5.3.y
-  stable/master
-
-It has a potential for a big leak of task_struct's, and if the case is =
-hit, the number of task_struct entries in /proc/slabinfo increases =
-rapidly.
-
-The fix, ed7a01fd3fd7 ("RDMA/restrack: Release task struct which was =
-hold by CM_ID object"), is in the following stable releases:
-
-  stable/linux-4.20.y
-  stable/linux-5.0.y
-  stable/linux-5.1.y
-  stable/linux-5.2.y
-  stable/linux-5.3.y
-  stable/master
-
-Hence, this commit needs to be included in 4-17..4.19.
+Fill this information
 
 
-Thxs, H=C3=A5kon
+Full name:
+Direct cell number:
+Country:
+City:
+Age :
+Gender:
+Occupation:
 
 
+Please respond urgently
+
+
+Regards,
+Mrs.Rabia Muahammed
