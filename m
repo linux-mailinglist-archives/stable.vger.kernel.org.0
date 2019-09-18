@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 750D9B6AC2
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 20:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 426AAB6B39
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 20:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728542AbfIRSnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 14:43:35 -0400
-Received: from mail-ua1-f66.google.com ([209.85.222.66]:40975 "EHLO
-        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728433AbfIRSne (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 14:43:34 -0400
-Received: by mail-ua1-f66.google.com with SMTP id l13so203380uap.8
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 11:43:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=loNRlK2QnHbmYQodT9OjJzv2I1xH7Ca7s6gDhXiSBPk=;
-        b=FKX0abwuY7MoQJcKfDo0EEiCvKCwbWePW3cDegUKc+SssiXzGlGPjzkjl0UkmFze5y
-         KkJOi6x+Yy86kEuj+faHl1CTxJwaNda/8j97m7UBJ64ftqdH6QfV0gBkAZHFGGDW6qGy
-         dEwV9rFNXhbWrFxJ7uBYDssrGa0/uZ/SoQqBxfU2Af6khek78IC4Z9tws80ZWrkxSlss
-         LblDy/vt5LiahW1u8q4r3lE4cUgYIuPfN5N51ZdG5i5ScyWArpZgTgbH4m6HOVdOmwlN
-         nbFJDrrYf0z+QoLra/I0QN3yiROhnRQDMAj9AeH9tpdcf5M24Gc29HXpBziWN5oUDMAl
-         UK2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=loNRlK2QnHbmYQodT9OjJzv2I1xH7Ca7s6gDhXiSBPk=;
-        b=s0YQf52p1Y4Fo+Yknbmv3Lp6dVH3AgafnCPTmappDmwmN34lgnYEw4U/+Osews9dFV
-         DF7BypHY78YJlAjvogLQQXTeLcWpblrJhqFoF/g+M2DXsmG5tOFiVnu0QlWLQJ9TX7in
-         KurtjqmoYHaBx7Ah/kSyf02TWtxq5XKa0HPs9ipHDLHA2qIWWpM2IyXoZ2W5iN2HQoOF
-         KrfdmeO8S+N4zzjdZQdYlXyjfu7t0g5BBjTneGQkf0HPCVIx02XWr2hr0yTlfZCSwRRj
-         Ny7/caJL8Lg0wM2re4WPdni7R36DDSvt4Fv07+OXUV3X5Lznt/vXrYJ2MZTFBow8lokX
-         npYg==
-X-Gm-Message-State: APjAAAVDJXQXSVX4oaXt5NRxXo+VkXETGBDp+h4hA5Pq5ca6Mw5gvZSw
-        jQaUCDAz4M0/S+3SwxfQ/Zyr2usbeSJ9K9ZtZlo=
-X-Google-Smtp-Source: APXvYqxzm7TwpVvnoUSiw/hkuCT0V09CCsRzQG1N94ypO8jfdVYEVHlnsQfxJaH9vTtSb7MBha+j7kHeEuIg05pDpw4=
-X-Received: by 2002:ab0:5ac6:: with SMTP id x6mr3429671uae.7.1568832213785;
- Wed, 18 Sep 2019 11:43:33 -0700 (PDT)
+        id S2387703AbfIRS4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 14:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59852 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387658AbfIRS4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 14:56:36 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0D99222BD;
+        Wed, 18 Sep 2019 18:56:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568832996;
+        bh=VgF4oxnkm95abC04U+ZEJWH733Bi1oVy4TQp3hrbazQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DrrKUVaynHppU8RftJRmiED3I0GmjXAt16neo7L6j7CQl6M4zuSf79pznAOlT2zIe
+         XD0Pm2REG84TYWgx0lBRC+C4Eavabpu+a0N9cwqtcqhQUKLEz1lrorJlxNS7qvM69B
+         gP9b2SIe+ZvbGtjYYRhwIW7z7PeX/euxcnSMv1Uc=
+Date:   Wed, 18 Sep 2019 20:56:33 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Vineet Gupta <vineetg76@gmail.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        kbuild test robot <lkp@intel.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        arcml <linux-snps-arc@lists.infradead.org>
+Subject: Re: stable backport for dc8635b78cd8669
+Message-ID: <20190918185633.GB1944551@kroah.com>
+References: <efb68643-3750-e94b-8387-6e4cacb3a82a@gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ab0:558b:0:0:0:0:0 with HTTP; Wed, 18 Sep 2019 11:43:33
- -0700 (PDT)
-Reply-To: annabelle.edo@yandex.ua
-From:   "Mrs. Annabelle Edo." <vita320320@gmail.com>
-Date:   Wed, 18 Sep 2019 20:43:33 +0200
-Message-ID: <CAN0RYr3rZe6oho_rh31u1mz7LEjc8EHzbkYtuwMjVa1LGc=nMw@mail.gmail.com>
-Subject: How are you and your Family,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <efb68643-3750-e94b-8387-6e4cacb3a82a@gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I sent you a message containing the details about your distance
-Relation, did you received it?
+On Wed, Sep 18, 2019 at 10:40:32AM -0700, Vineet Gupta wrote:
+> Hi Stable team,
+> 
+> Can we please backport dc8635b78cd8669c37e230058d18c33af7451ab1 ("kernel/exit.c:
+> export abort() to modules")
+> 
+> 0-Day kernel test infra reports ARC 4.x.y builds failing after backport of
+> af1be2e21203867cb958aace ("ARC: handle gcc generated __builtin_trap for older
+> compiler")
 
-Kind Regards.
-Mrs. Annabelle Edo.
+So is this only needed in 4.9.y and 4.4.y?
+
+thanks,
+
+greg k-h
