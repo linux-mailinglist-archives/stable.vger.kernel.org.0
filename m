@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4744BB5D3A
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE6EB5D32
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729124AbfIRGV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:21:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
+        id S1728332AbfIRGWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:22:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729084AbfIRGVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:21:24 -0400
+        id S1729306AbfIRGWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:22:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F05172053B;
-        Wed, 18 Sep 2019 06:21:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DDB8218AF;
+        Wed, 18 Sep 2019 06:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787683;
-        bh=qEC3OPBq2O/Yt0wWToHvduRL+baM8br/3x3yc5kO8KA=;
+        s=default; t=1568787720;
+        bh=qKc9hFuApt77yOaD7f+h92ICXvsOaXgo5AkSeczts0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e5AjyEpDn3JtBmizig6+NLpB0Ea5IkQW3q52fW2YAUyncQ9Ksf7XH/CakxIOKrJi9
-         RJS5rTQM5pJU/ofI3DsqqFW8SvAer1iBjCZkuDu6zbHIPuqnaQPnoCoIeEVZ7ar20r
-         c039uUhl4IqYWZqXOQxaOuod+JKgYpGUpyyPM1ks=
+        b=U4GF8ZMsiO0rQsbEZI4smpoSHZM7zV/5K5P91EGMFM7QqZKs+nKAOkOFyp5Zuvkyw
+         Ajwfinhz9RQL3V20nzD6uN6v8f3RgWtsrYC3ZEUsZfyeR0Z9KhV1LLqt80zbQEOMR/
+         09cW6fZ1ZZ94QXwGdYe1+iVuq3XwgAz+Nv7NLbZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 06/45] net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list
+Subject: [PATCH 4.19 01/50] bridge/mdb: remove wrong use of NLM_F_MULTI
 Date:   Wed, 18 Sep 2019 08:18:44 +0200
-Message-Id: <20190918061223.498721351@linuxfoundation.org>
+Message-Id: <20190918061223.328227452@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
-References: <20190918061222.854132812@linuxfoundation.org>
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+References: <20190918061223.116178343@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,105 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shmulik Ladkani <shmulik@metanetworks.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 3dcbdb134f329842a38f0e6797191b885ab00a00 ]
+[ Upstream commit 94a72b3f024fc7e9ab640897a1e38583a470659d ]
 
-Historically, support for frag_list packets entering skb_segment() was
-limited to frag_list members terminating on exact same gso_size
-boundaries. This is verified with a BUG_ON since commit 89319d3801d1
-("net: Add frag_list support to skb_segment"), quote:
+NLM_F_MULTI must be used only when a NLMSG_DONE message is sent at the end.
+In fact, NLMSG_DONE is sent only at the end of a dump.
 
-    As such we require all frag_list members terminate on exact MSS
-    boundaries.  This is checked using BUG_ON.
-    As there should only be one producer in the kernel of such packets,
-    namely GRO, this requirement should not be difficult to maintain.
+Libraries like libnl will wait forever for NLMSG_DONE.
 
-However, since commit 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper"),
-the "exact MSS boundaries" assumption no longer holds:
-An eBPF program using bpf_skb_change_proto() DOES modify 'gso_size', but
-leaves the frag_list members as originally merged by GRO with the
-original 'gso_size'. Example of such programs are bpf-based NAT46 or
-NAT64.
-
-This lead to a kernel BUG_ON for flows involving:
- - GRO generating a frag_list skb
- - bpf program performing bpf_skb_change_proto() or bpf_skb_adjust_room()
- - skb_segment() of the skb
-
-See example BUG_ON reports in [0].
-
-In commit 13acc94eff12 ("net: permit skb_segment on head_frag frag_list skb"),
-skb_segment() was modified to support the "gso_size mangling" case of
-a frag_list GRO'ed skb, but *only* for frag_list members having
-head_frag==true (having a page-fragment head).
-
-Alas, GRO packets having frag_list members with a linear kmalloced head
-(head_frag==false) still hit the BUG_ON.
-
-This commit adds support to skb_segment() for a 'head_skb' packet having
-a frag_list whose members are *non* head_frag, with gso_size mangled, by
-disabling SG and thus falling-back to copying the data from the given
-'head_skb' into the generated segmented skbs - as suggested by Willem de
-Bruijn [1].
-
-Since this approach involves the penalty of skb_copy_and_csum_bits()
-when building the segments, care was taken in order to enable this
-solution only when required:
- - untrusted gso_size, by testing SKB_GSO_DODGY is set
-   (SKB_GSO_DODGY is set by any gso_size mangling functions in
-    net/core/filter.c)
- - the frag_list is non empty, its item is a non head_frag, *and* the
-   headlen of the given 'head_skb' does not match the gso_size.
-
-[0]
-https://lore.kernel.org/netdev/20190826170724.25ff616f@pixies/
-https://lore.kernel.org/netdev/9265b93f-253d-6b8c-f2b8-4b54eff1835c@fb.com/
-
-[1]
-https://lore.kernel.org/netdev/CA+FuTSfVsgNDi7c=GUU8nMg2hWxF2SjCNLXetHeVPdnxAW5K-w@mail.gmail.com/
-
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Fixes: 949f1e39a617 ("bridge: mdb: notify on router port add and del")
+CC: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ net/bridge/br_mdb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -3514,6 +3514,25 @@ struct sk_buff *skb_segment(struct sk_bu
- 	int pos;
- 	int dummy;
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -419,7 +419,7 @@ static int nlmsg_populate_rtr_fill(struc
+ 	struct nlmsghdr *nlh;
+ 	struct nlattr *nest;
  
-+	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
-+	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
-+		/* gso_size is untrusted, and we have a frag_list with a linear
-+		 * non head_frag head.
-+		 *
-+		 * (we assume checking the first list_skb member suffices;
-+		 * i.e if either of the list_skb members have non head_frag
-+		 * head, then the first one has too).
-+		 *
-+		 * If head_skb's headlen does not fit requested gso_size, it
-+		 * means that the frag_list members do NOT terminate on exact
-+		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
-+		 * sharing. Therefore we must fallback to copying the frag_list
-+		 * skbs; we do so by disabling SG.
-+		 */
-+		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
-+			features &= ~NETIF_F_SG;
-+	}
-+
- 	__skb_push(head_skb, doffset);
- 	proto = skb_network_protocol(head_skb, &dummy);
- 	if (unlikely(!proto))
+-	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), NLM_F_MULTI);
++	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), 0);
+ 	if (!nlh)
+ 		return -EMSGSIZE;
+ 
 
 
