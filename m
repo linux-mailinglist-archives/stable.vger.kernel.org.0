@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C630CB5C1C
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CD6B5C52
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726738AbfIRGWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:22:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42932 "EHLO mail.kernel.org"
+        id S1726442AbfIRGZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726336AbfIRGWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:22:51 -0400
+        id S1729322AbfIRGZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:25:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77E8120678;
-        Wed, 18 Sep 2019 06:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B00FA21920;
+        Wed, 18 Sep 2019 06:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787771;
-        bh=6i7efIOM550mZw18GJ5GyN2fkPsj4EWhQYI8fpBo4g8=;
+        s=default; t=1568787917;
+        bh=dYQnHfr6ZvMChLC33ncBlJbHNAlWvdOxIzicHEF1M9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dBWkpGskHX0+nXFhUp7GLDTxJlYgSnyRMWcCt2WMRgGJCgNwkRygNCsr01hO3OCq
-         z7YX7dp6F+HupDMNonXJRcuvKMc76aM0+KwV+jj+8IKWFAtjd7evKBUQtOtNAsSzHa
-         XVO25TW4S8ePasQ5xyTTSiU7z6FN2bMJvnui/MgA=
+        b=LAoLRo73ms7qCguVtRLajFSyQYLlK3/bHPZXG736MtuZMTnRvHY3U6OUjDDlow1V1
+         aY2kybJQqClYNFPbEY9khj9W/dahtOW8c4hCY4p8souiuwF2nwSiboRsFLlz8TWneH
+         NlAyC+k9D8oWocOxIFC4z8T1ebqPW5zOmAmL+6Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Marley <michael@michaelmarley.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/50] ixgbe: Fix secpath usage for IPsec TX offload.
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.2 30/85] mmc: tmio: Fixup runtime PM management during probe
 Date:   Wed, 18 Sep 2019 08:18:48 +0200
-Message-Id: <20190918061223.591034226@linuxfoundation.org>
+Message-Id: <20190918061235.108832140@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
+References: <20190918061234.107708857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit f39b683d35dfa93a58f1b400a8ec0ff81296b37c ]
+commit aa86f1a3887523d78bfadd1c4e4df8f919336511 upstream.
 
-The ixgbe driver currently does IPsec TX offloading
-based on an existing secpath. However, the secpath
-can also come from the RX side, in this case it is
-misinterpreted for TX offload and the packets are
-dropped with a "bad sa_idx" error. Fix this by using
-the xfrm_offload() function to test for TX offload.
+The tmio_mmc_host_probe() calls pm_runtime_set_active() to update the
+runtime PM status of the device, as to make it reflect the current status
+of the HW. This works fine for most cases, but unfortunate not for all.
+Especially, there is a generic problem when the device has a genpd attached
+and that genpd have the ->start|stop() callbacks assigned.
 
-Fixes: 592594704761 ("ixgbe: process the Tx ipsec offload")
-Reported-by: Michael Marley <michael@michaelmarley.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+More precisely, if the driver calls pm_runtime_set_active() during
+->probe(), genpd does not get to invoke the ->start() callback for it,
+which means the HW isn't really fully powered on. Furthermore, in the next
+phase, when the device becomes runtime suspended, genpd will invoke the
+->stop() callback for it, potentially leading to usage count imbalance
+problems, depending on what's implemented behind the callbacks of course.
+
+To fix this problem, convert to call pm_runtime_get_sync() from
+tmio_mmc_host_probe() rather than pm_runtime_set_active(). Additionally, to
+avoid bumping usage counters and unnecessary re-initializing the HW the
+first time the tmio driver's ->runtime_resume() callback is called,
+introduce a state flag to keeping track of this.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -34,6 +34,7 @@
- #include <net/tc_act/tc_mirred.h>
- #include <net/vxlan.h>
- #include <net/mpls.h>
-+#include <net/xfrm.h>
+---
+ drivers/mmc/host/tmio_mmc.h      |    1 +
+ drivers/mmc/host/tmio_mmc_core.c |    9 ++++++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+--- a/drivers/mmc/host/tmio_mmc.h
++++ b/drivers/mmc/host/tmio_mmc.h
+@@ -163,6 +163,7 @@ struct tmio_mmc_host {
+ 	unsigned long		last_req_ts;
+ 	struct mutex		ios_lock;	/* protect set_ios() context */
+ 	bool			native_hotplug;
++	bool			runtime_synced;
+ 	bool			sdio_irq_enabled;
  
- #include "ixgbe.h"
- #include "ixgbe_common.h"
-@@ -8599,7 +8600,8 @@ netdev_tx_t ixgbe_xmit_frame_ring(struct
- #endif /* IXGBE_FCOE */
+ 	/* Mandatory callback */
+--- a/drivers/mmc/host/tmio_mmc_core.c
++++ b/drivers/mmc/host/tmio_mmc_core.c
+@@ -1258,20 +1258,22 @@ int tmio_mmc_host_probe(struct tmio_mmc_
+ 	/* See if we also get DMA */
+ 	tmio_mmc_request_dma(_host, pdata);
  
- #ifdef CONFIG_XFRM_OFFLOAD
--	if (skb->sp && !ixgbe_ipsec_tx(tx_ring, first, &ipsec_tx))
-+	if (xfrm_offload(skb) &&
-+	    !ixgbe_ipsec_tx(tx_ring, first, &ipsec_tx))
- 		goto out_drop;
- #endif
- 	tso = ixgbe_tso(tx_ring, first, &hdr_len, &ipsec_tx);
+-	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
++	pm_runtime_get_sync(&pdev->dev);
+ 
+ 	ret = mmc_add_host(mmc);
+ 	if (ret)
+ 		goto remove_host;
+ 
+ 	dev_pm_qos_expose_latency_limit(&pdev->dev, 100);
++	pm_runtime_put(&pdev->dev);
+ 
+ 	return 0;
+ 
+ remove_host:
++	pm_runtime_put_noidle(&pdev->dev);
+ 	tmio_mmc_host_remove(_host);
+ 	return ret;
+ }
+@@ -1340,6 +1342,11 @@ int tmio_mmc_host_runtime_resume(struct
+ {
+ 	struct tmio_mmc_host *host = dev_get_drvdata(dev);
+ 
++	if (!host->runtime_synced) {
++		host->runtime_synced = true;
++		return 0;
++	}
++
+ 	tmio_mmc_clk_enable(host);
+ 	tmio_mmc_hw_reset(host->mmc);
+ 
 
 
