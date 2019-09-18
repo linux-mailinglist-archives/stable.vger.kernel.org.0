@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96677B5CD8
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97275B5D5D
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730045AbfIRGZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
+        id S1726988AbfIRGdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:33:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727859AbfIRGZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:25:22 -0400
+        id S1727536AbfIRGUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:20:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBAA221920;
-        Wed, 18 Sep 2019 06:25:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FD1F218AE;
+        Wed, 18 Sep 2019 06:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787922;
-        bh=yyMYnl9xVKxxHpTJhZhw2/F9RlZGrcbZgSK3AlEtctQ=;
+        s=default; t=1568787606;
+        bh=+dI+rVf+1+sdiK1BAdoxjotm3JYBHjEnkmGqtzDyUPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n69BJ+bupaNXrHhohn2IJ5BWlJOEwRFD4GY7TucnrstU7CSk4mINwESpl5ijq915V
-         6a6N6UwK0UFCSxGRHHkWBBuuFHBfcQG9Xw+I0M7Ft3nXHElrSQ+ahvB524zM7lKdux
-         Qlyt++XRkANUJQhepa8t8BPSNoCWPMuVN4I336dM=
+        b=XADt5HcJXv1cqfrssUWBrBe5vmiKwbi50xfAhGfDuD3yozvnv1ZnWdpt2tMjQ+dKa
+         kWyUaENPIVN9Km8+DoRObNVjTydP23s885WAe5RnFDdXKTlcTo+CY6cWzzgvIRibmZ
+         e5slKG15Ywgd/4HpegSV74Q0qj6N+w5Dh81nwlmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Khoruzhick <anarsoul@gmail.com>,
-        Qiang Yu <yuq825@gmail.com>
-Subject: [PATCH 5.2 32/85] drm/lima: fix lima_gem_wait() return value
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 12/45] tipc: add NULL pointer check before calling kfree_rcu
 Date:   Wed, 18 Sep 2019 08:18:50 +0200
-Message-Id: <20190918061235.169875025@linuxfoundation.org>
+Message-Id: <20190918061224.137451852@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
-References: <20190918061234.107708857@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Khoruzhick <anarsoul@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 21670bd78a25001cf8ef2679b378c73fb73b904f upstream.
+[ Upstream commit 42dec1dbe38239cf91cc1f4df7830c66276ced37 ]
 
-drm_gem_reservation_object_wait() returns 0 if it succeeds and -ETIME
-if it timeouts, but lima driver assumed that 0 is error.
+Unlike kfree(p), kfree_rcu(p, rcu) won't do NULL pointer check. When
+tipc_nametbl_remove_publ returns NULL, the panic below happens:
 
-Cc: stable@vger.kernel.org
-Fixes: a1d2a6339961e ("drm/lima: driver for ARM Mali4xx GPUs")
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190908024800.23229-1-anarsoul@gmail.com
+   BUG: unable to handle kernel NULL pointer dereference at 0000000000000068
+   RIP: 0010:__call_rcu+0x1d/0x290
+   Call Trace:
+    <IRQ>
+    tipc_publ_notify+0xa9/0x170 [tipc]
+    tipc_node_write_unlock+0x8d/0x100 [tipc]
+    tipc_node_link_down+0xae/0x1d0 [tipc]
+    tipc_node_check_dest+0x3ea/0x8f0 [tipc]
+    ? tipc_disc_rcv+0x2c7/0x430 [tipc]
+    tipc_disc_rcv+0x2c7/0x430 [tipc]
+    ? tipc_rcv+0x6bb/0xf20 [tipc]
+    tipc_rcv+0x6bb/0xf20 [tipc]
+    ? ip_route_input_slow+0x9cf/0xb10
+    tipc_udp_recv+0x195/0x1e0 [tipc]
+    ? tipc_udp_is_known_peer+0x80/0x80 [tipc]
+    udp_queue_rcv_skb+0x180/0x460
+    udp_unicast_rcv_skb.isra.56+0x75/0x90
+    __udp4_lib_rcv+0x4ce/0xb90
+    ip_local_deliver_finish+0x11c/0x210
+    ip_local_deliver+0x6b/0xe0
+    ? ip_rcv_finish+0xa9/0x410
+    ip_rcv+0x273/0x362
+
+Fixes: 97ede29e80ee ("tipc: convert name table read-write lock to RCU")
+Reported-by: Li Shuang <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/lima/lima_gem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/name_distr.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/lima/lima_gem.c
-+++ b/drivers/gpu/drm/lima/lima_gem.c
-@@ -342,7 +342,7 @@ int lima_gem_wait(struct drm_file *file,
- 	timeout = drm_timeout_abs_to_jiffies(timeout_ns);
+--- a/net/tipc/name_distr.c
++++ b/net/tipc/name_distr.c
+@@ -224,7 +224,8 @@ static void tipc_publ_purge(struct net *
+ 		       publ->key);
+ 	}
  
- 	ret = drm_gem_reservation_object_wait(file, handle, write, timeout);
--	if (ret == 0)
-+	if (ret == -ETIME)
- 		ret = timeout ? -ETIMEDOUT : -EBUSY;
+-	kfree_rcu(p, rcu);
++	if (p)
++		kfree_rcu(p, rcu);
+ }
  
- 	return ret;
+ /**
 
 
