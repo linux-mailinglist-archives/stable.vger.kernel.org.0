@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39ED7B5CFF
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472D6B5D4B
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729808AbfIRGYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:24:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
+        id S1728917AbfIRGVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729800AbfIRGYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:24:14 -0400
+        id S1728913AbfIRGVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:21:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D972321928;
-        Wed, 18 Sep 2019 06:24:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B0F21927;
+        Wed, 18 Sep 2019 06:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787853;
-        bh=kWBcST6419nHX84+TZFFq6BagVu7AxrrGNueaZTJ+kM=;
+        s=default; t=1568787662;
+        bh=xfNEeKWUVz0j76T2lBmW58y31L2TymoH3dlALm4sJTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jcs8oGyvI54CeE0gx+jVdnd5AxVzHwviNB/L3Igu0F6AKLVnoI84d1oLdWFfUFet2
-         3UgLcDuNXyA3w1PVQZz7aFJdrjHIf0LLkeEoS2R3HRw14TGSzKAO2OVgYeAGoNB+nT
-         BkJQEt6yRff3PqVnnDW+vQi8K4AEguaXRCmyGyGA=
+        b=n3EiTVqd2Zrx5dmHAUNUQYFWsLNaZ2uKej3BaWVrPSlLu6JZHWMexmky97iUr0Jux
+         olncnjr/Ua4Ey7DiNpwtkpxgbe3275txBWWV2q4jTyPFaGHiMPKfeFDOyp4v1Rw4ZL
+         nZZXYRHnZXnGDMZJKcvsC0+Ztu2IyY6pbPFDXm+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vaibhav Rustagi <vaibhavrustagi@google.com>,
-        Andreas Smas <andreas@lonelycoder.com>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        clang-built-linux@googlegroups.com, dimitri.sivanich@hpe.com,
-        mike.travis@hpe.com, russ.anderson@hpe.com,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 25/50] x86/purgatory: Change compiler flags from -mcmodel=kernel to -mcmodel=large to fix kexec relocation errors
-Date:   Wed, 18 Sep 2019 08:19:08 +0200
-Message-Id: <20190918061225.707967704@linuxfoundation.org>
+        Alex Williamson <alex.williamson@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 31/45] PCI: Always allow probing with driver_override
+Date:   Wed, 18 Sep 2019 08:19:09 +0200
+Message-Id: <20190918061226.640618792@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
-References: <20190918061223.116178343@linuxfoundation.org>
+In-Reply-To: <20190918061222.854132812@linuxfoundation.org>
+References: <20190918061222.854132812@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wahl <steve.wahl@hpe.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-commit e16c2983fba0fa6763e43ad10916be35e3d8dc05 upstream.
+commit 2d2f4273cbe9058d1f5a518e5e880d27d7b3b30f upstream.
 
-The last change to this Makefile caused relocation errors when loading
-a kdump kernel.  Restore -mcmodel=large (not -mcmodel=kernel),
--ffreestanding, and -fno-zero-initialized-bsss, without reverting to
-the former practice of resetting KBUILD_CFLAGS.
+Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
+VF driver binding") introduced the sriov_drivers_autoprobe attribute
+which allows users to prevent the kernel from automatically probing a
+driver for new VFs as they are created.  This allows VFs to be spawned
+without automatically binding the new device to a host driver, such as
+in cases where the user intends to use the device only with a meta
+driver like vfio-pci.  However, the current implementation prevents any
+use of drivers_probe with the VF while sriov_drivers_autoprobe=0.  This
+blocks the now current general practice of setting driver_override
+followed by using drivers_probe to bind a device to a specified driver.
 
-Purgatory.ro is a standalone binary that is not linked against the
-rest of the kernel.  Its image is copied into an array that is linked
-to the kernel, and from there kexec relocates it wherever it desires.
+The kernel never automatically sets a driver_override therefore it seems
+we can assume a driver_override reflects the intent of the user.  Also,
+probing a device using a driver_override match seems outside the scope
+of the 'auto' part of sriov_drivers_autoprobe.  Therefore, let's allow
+driver_override matches regardless of sriov_drivers_autoprobe, which we
+can do by simply testing if a driver_override is set for a device as a
+'can probe' condition.
 
-With the previous change to compiler flags, the error "kexec: Overflow
-in relocation type 11 value 0x11fffd000" was encountered when trying
-to load the crash kernel.  This is from kexec code trying to relocate
-the purgatory.ro object.
-
->From the error message, relocation type 11 is R_X86_64_32S.  The
-x86_64 ABI says:
-
-  "The R_X86_64_32 and R_X86_64_32S relocations truncate the
-   computed value to 32-bits.  The linker must verify that the
-   generated value for the R_X86_64_32 (R_X86_64_32S) relocation
-   zero-extends (sign-extends) to the original 64-bit value."
-
-This type of relocation doesn't work when kexec chooses to place the
-purgatory binary in memory that is not reachable with 32 bit
-addresses.
-
-The compiler flag -mcmodel=kernel allows those type of relocations to
-be emitted, so revert to using -mcmodel=large as was done before.
-
-Also restore the -ffreestanding and -fno-zero-initialized-bss flags
-because they are appropriate for a stand alone piece of object code
-which doesn't explicitly zero the bss, and one other report has said
-undefined symbols are encountered without -ffreestanding.
-
-These identical compiler flag changes need to happen for every object
-that becomes part of the purgatory.ro object, so gather them together
-first into PURGATORY_CFLAGS_REMOVE and PURGATORY_CFLAGS, and then
-apply them to each of the objects that have C source.  Do not apply
-any of these flags to kexec-purgatory.o, which is not part of the
-standalone object but part of the kernel proper.
-
-Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Tested-by: Andreas Smas <andreas@lonelycoder.com>
-Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: None
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: clang-built-linux@googlegroups.com
-Cc: dimitri.sivanich@hpe.com
-Cc: mike.travis@hpe.com
-Cc: russ.anderson@hpe.com
-Fixes: b059f801a937 ("x86/purgatory: Use CFLAGS_REMOVE rather than reset KBUILD_CFLAGS")
-Link: https://lkml.kernel.org/r/20190905202346.GA26595@swahl-linux
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andreas Smas <andreas@lonelycoder.com>
+Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
+Link: https://lore.kernel.org/lkml/155742996741.21878.569845487290798703.stgit@gimli.home
+Link: https://lore.kernel.org/linux-pci/155672991496.20698.4279330795743262888.stgit@gimli.home/T/#u
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/purgatory/Makefile |   35 +++++++++++++++++++----------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ drivers/pci/pci-driver.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -18,37 +18,40 @@ targets += purgatory.ro
- KASAN_SANITIZE	:= n
- KCOV_INSTRUMENT := n
- 
-+# These are adjustments to the compiler flags used for objects that
-+# make up the standalone purgatory.ro
-+
-+PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
-+PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
-+
- # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
- # in turn leaves some undefined symbols like __fentry__ in purgatory and not
- # sure how to relocate those.
- ifdef CONFIG_FUNCTION_TRACER
--CFLAGS_REMOVE_sha256.o		+= $(CC_FLAGS_FTRACE)
--CFLAGS_REMOVE_purgatory.o	+= $(CC_FLAGS_FTRACE)
--CFLAGS_REMOVE_string.o		+= $(CC_FLAGS_FTRACE)
--CFLAGS_REMOVE_kexec-purgatory.o	+= $(CC_FLAGS_FTRACE)
-+PURGATORY_CFLAGS_REMOVE		+= $(CC_FLAGS_FTRACE)
- endif
- 
- ifdef CONFIG_STACKPROTECTOR
--CFLAGS_REMOVE_sha256.o		+= -fstack-protector
--CFLAGS_REMOVE_purgatory.o	+= -fstack-protector
--CFLAGS_REMOVE_string.o		+= -fstack-protector
--CFLAGS_REMOVE_kexec-purgatory.o	+= -fstack-protector
-+PURGATORY_CFLAGS_REMOVE		+= -fstack-protector
- endif
- 
- ifdef CONFIG_STACKPROTECTOR_STRONG
--CFLAGS_REMOVE_sha256.o		+= -fstack-protector-strong
--CFLAGS_REMOVE_purgatory.o	+= -fstack-protector-strong
--CFLAGS_REMOVE_string.o		+= -fstack-protector-strong
--CFLAGS_REMOVE_kexec-purgatory.o	+= -fstack-protector-strong
-+PURGATORY_CFLAGS_REMOVE		+= -fstack-protector-strong
- endif
- 
- ifdef CONFIG_RETPOLINE
--CFLAGS_REMOVE_sha256.o		+= $(RETPOLINE_CFLAGS)
--CFLAGS_REMOVE_purgatory.o	+= $(RETPOLINE_CFLAGS)
--CFLAGS_REMOVE_string.o		+= $(RETPOLINE_CFLAGS)
--CFLAGS_REMOVE_kexec-purgatory.o	+= $(RETPOLINE_CFLAGS)
-+PURGATORY_CFLAGS_REMOVE		+= $(RETPOLINE_CFLAGS)
- endif
- 
-+CFLAGS_REMOVE_purgatory.o	+= $(PURGATORY_CFLAGS_REMOVE)
-+CFLAGS_purgatory.o		+= $(PURGATORY_CFLAGS)
-+
-+CFLAGS_REMOVE_sha256.o		+= $(PURGATORY_CFLAGS_REMOVE)
-+CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
-+
-+CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
-+CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
-+
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
- 
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -400,7 +400,8 @@ void __weak pcibios_free_irq(struct pci_
+ #ifdef CONFIG_PCI_IOV
+ static inline bool pci_device_can_probe(struct pci_dev *pdev)
+ {
+-	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe);
++	return (!pdev->is_virtfn || pdev->physfn->sriov->drivers_autoprobe ||
++		pdev->driver_override);
+ }
+ #else
+ static inline bool pci_device_can_probe(struct pci_dev *pdev)
 
 
