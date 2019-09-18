@@ -2,129 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31101B6237
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 13:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C78B6262
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 13:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbfIRL0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 07:26:32 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:46258 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730065AbfIRL0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 07:26:32 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8IBNoqe146870;
-        Wed, 18 Sep 2019 11:26:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2019-08-05; bh=HWlhLi9iPsMBLr+je8pNhoJSs7q0Qb60SYxIVKtsnPU=;
- b=GDFug7GGzN5titq5nHn7hUMIpDOJ8hPTF9cBdWi/TOGQWvNKiaIHwXmljS2Y48a11ERZ
- tDkkumwi4nsJyEW8gg3s4unyzOJVwKjidjwjBk+PNZ753Hge9vMcS56GiPMVW4yAXwag
- y7QBb++LtEWoOWorzDEV6qE387lGMAaQfPtozuCaVLzQRUVXqVoo8eVkoEdEY6E+2rnp
- cM3Srsl/N58OhREXl+4NLJjoJcM8gXlh4202cWCWnSsxuFTKcaKFwGdItmILK7aav0g5
- Sco1lozer+spP0QZ/Z78+OTtNZTfdPUGypMlQy4rkq7QOt8fxaonUN9BzP1M8FlOO8Rk yQ== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 2v385du481-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Sep 2019 11:26:27 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x8IBOIJQ119055;
-        Wed, 18 Sep 2019 11:26:26 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3020.oracle.com with ESMTP id 2v37mmds71-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Sep 2019 11:26:26 +0000
-Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x8IBQNJs002222;
-        Wed, 18 Sep 2019 11:26:23 GMT
-Received: from dhcp-10-172-157-168.no.oracle.com (/10.172.157.168)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 18 Sep 2019 04:26:23 -0700
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: Stable branches missing ed7a01fd3fd7
-From:   =?utf-8?Q?H=C3=A5kon_Bugge?= <haakon.bugge@oracle.com>
-In-Reply-To: <20190918111037.GE1894362@kroah.com>
-Date:   Wed, 18 Sep 2019 13:26:20 +0200
-Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        OFED mailing list <linux-rdma@vger.kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Leon Romanovsky <leon@kernel.org>
+        id S1727989AbfIRLoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 07:44:32 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51241 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727608AbfIRLob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 07:44:31 -0400
+Received: by mail-wm1-f65.google.com with SMTP id 7so2250412wme.1
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 04:44:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9zxBa5PNLWVAEpdd9mhwHREEiAX1/dgUaL7rv2IAgNA=;
+        b=Cv3pk1AVFsQ12d4TBW4gw//OAQCXLF5X11EJBTDvYmjm1xqGSHyZYXyxUGNaY2Ijnk
+         J2lQItEz46Qyc5A/Qx6mKVeVMtb/Lfl6BaPgyxAcV3JBtD6u8GvGuxrr1+eesH8Drqno
+         8l7sY557Kgoi5yjn+UxvPmrAJZjYb4M18zTTCLyV28WtRrEKJTVdrJYV3v0NOKDY9C3l
+         u+U2g52Ohn+tMbNbhUudEWoh544VkkKKDgemXFx71q4+7veZEY/SFN7EVRauPfJ64Y4v
+         NoNBY6x2S7IbJ2aetwdU/gc0FJX49721qs6vAKBFoeCON3ULkZ0Cu2bYQ8ak6x2eGnaM
+         kOEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9zxBa5PNLWVAEpdd9mhwHREEiAX1/dgUaL7rv2IAgNA=;
+        b=TrgFDlO08q84srloDOBi0KvMWz2qG2bknauvHAxoPP0wcCkPSwYo1eJ2orTysRIm6g
+         Pu/zP61Gzk1s9sDhHvgQWdigKlbxqWEw0N3E0E4dedzcSnyS1m+9MJNcKolrv84pMx7H
+         hdx9tktRUEKKQrxpGvyZtwC50dQkTCdph2xa5cjgSD3XTyUVxXTNeR6rImGNfyPdZ+qr
+         5Cu93VVOmjZZsjVIouYBV0ArmYdRnkc6HdMWn20uZHt0PxwU02hdEt2494xVmJrRbNk7
+         4yTJaJNVv9ylXZZwuLn733OL5HuNAlMresHFC+vGL1u8zM9gcJpev1PJmmCpkCVbS/5O
+         S3vw==
+X-Gm-Message-State: APjAAAVc77aczVAoZCaD7GaXyHtof2tfnAPwbN2FwXvW/k+XTHonxtlv
+        q1R5r93DG7JxkLPbaUJqv/Gjt3u9oWjUQA==
+X-Google-Smtp-Source: APXvYqyVBZhKT4ln3Cc/kQeRE4CdYJyZ6si4mq7kdHqM051x1XMloQsFrD3uXPlkm/dMHPS7XzpkHw==
+X-Received: by 2002:a05:600c:351:: with SMTP id u17mr2670966wmd.130.1568807069488;
+        Wed, 18 Sep 2019 04:44:29 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f3sm3989722wrq.53.2019.09.18.04.44.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Sep 2019 04:44:29 -0700 (PDT)
+Message-ID: <5d82189d.1c69fb81.4a051.142c@mx.google.com>
+Date:   Wed, 18 Sep 2019 04:44:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <2BED7C73-DB59-4002-86E6-296BABE5248E@oracle.com>
-References: <880A1006-BF84-4691-8EE1-8E6D111BF09F@oracle.com>
- <20190918111037.GE1894362@kroah.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-X-Mailer: Apple Mail (2.3445.104.11)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=4 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=841
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1908290000 definitions=main-1909180115
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9383 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=4 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=916 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
- definitions=main-1909180115
+X-Kernelci-Kernel: v4.4.193-25-g5a8375350d04
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 104 boots: 1 failed,
+ 92 passed with 10 offline, 1 conflict (v4.4.193-25-g5a8375350d04)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 104 boots: 1 failed, 92 passed with 10 offline,=
+ 1 conflict (v4.4.193-25-g5a8375350d04)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.193-25-g5a8375350d04/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.193-25-g5a8375350d04/
 
-> On 18 Sep 2019, at 13:10, Greg Kroah-Hartman =
-<gregkh@linuxfoundation.org> wrote:
->=20
-> On Wed, Sep 18, 2019 at 11:17:59AM +0200, H=C3=A5kon Bugge wrote:
->> Hi Greg,
->>=20
->>=20
->> Commit 00313983cda6 ("RDMA/nldev: provide detailed CM_ID =
-information") is in the following stable releases:
->>=20
->>  stable/linux-4.17.y
->>  stable/linux-4.18.y
->>  stable/linux-4.19.y
->>  stable/linux-4.20.y
->>  stable/linux-5.0.y
->>  stable/linux-5.1.y
->>  stable/linux-5.2.y
->>  stable/linux-5.3.y
->>  stable/master
->=20
-> It was part of the 4.17 release, so yes, of course it is in all later
-> releases.
->=20
->> It has a potential for a big leak of task_struct's, and if the case =
-is hit, the number of task_struct entries in /proc/slabinfo increases =
-rapidly.
->>=20
->> The fix, ed7a01fd3fd7 ("RDMA/restrack: Release task struct which was =
-hold by CM_ID object"), is in the following stable releases:
->>=20
->>  stable/linux-4.20.y
->>  stable/linux-5.0.y
->>  stable/linux-5.1.y
->>  stable/linux-5.2.y
->>  stable/linux-5.3.y
->>  stable/master
->=20
-> It was part of the 4.20 release, so yes, it will be in all releases
-> newer than that.
->=20
->> Hence, this commit needs to be included in 4-17..4.19.
->=20
-> Given there is only one "active" kernel branch you are looking at =
-here,
-> that means it should only go into 4.19.y, right?
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.193-25-g5a8375350d04
+Git Commit: 5a8375350d044b3c456bba7827cf3b233cac0308
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 18 SoC families, 13 builds out of 190
 
-Yes, you are right. I should have read the collateral first, =
-kernel.org/releases.html :-)
+Boot Failure Detected:
 
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
-Thxs, H=C3=A5kon
+Offline Platforms:
 
+arm64:
 
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
