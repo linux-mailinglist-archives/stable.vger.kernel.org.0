@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABFFBB5C48
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A0FB5C4C
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 08:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729074AbfIRGYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 02:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1729914AbfIRGY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 02:24:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726559AbfIRGYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:24:48 -0400
+        id S1728521AbfIRGYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 02:24:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 635EC21906;
-        Wed, 18 Sep 2019 06:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3A3E21925;
+        Wed, 18 Sep 2019 06:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568787887;
-        bh=UqpGjpQIsaWV6BoQvz6w19/Y036E3Hu8dlA49ww9pRg=;
+        s=default; t=1568787893;
+        bh=Kf4pKTh2YzX0quCJ+zHpTjeK/sT8pzWlaS2kqku8Ay8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APRqOiTAAjcSw1jFqUBN60QzWMfgi8/CAXYU2dJ7sRkpkGFpzTIODs6JFtbU2M43v
-         kJx3/8P5XAZwojBElXaPyxtDKmanopA8u7cXx/MmY6SS9y5YF51q6s2Yph9LhycmNU
-         YhirIa4xUf2Eb9rOAPLuOZlZKypiAQpM/5Hpqbuw=
+        b=xWKebVcTTVo3+tZgPGGr3ZARVcq6bUtmKLwHaxP1uNvaOImvQ///rlevNUYlrg1EP
+         ckXBbhxk+Xfr8btbCGx4W+ereRIjx2KOkL670xE51ffaWKKSZgNnf8m8APIm4b5L8l
+         0bMWGAx8nYDtBZs1skD++9iToMPGRo2LSSj6HBvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 20/85] sctp: fix the missing put_user when dumping transport thresholds
-Date:   Wed, 18 Sep 2019 08:18:38 +0200
-Message-Id: <20190918061234.788486326@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Ian W MORRISON <ianwmorrison@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.2 22/85] gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot option and blacklist
+Date:   Wed, 18 Sep 2019 08:18:40 +0200
+Message-Id: <20190918061234.856795767@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190918061234.107708857@linuxfoundation.org>
 References: <20190918061234.107708857@linuxfoundation.org>
@@ -45,43 +47,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f794dc2304d83ab998c2eee5bab0549aff5c53a2 ]
+commit 61f7f7c8f978b1c0d80e43c83b7d110ca0496eb4 upstream.
 
-This issue causes SCTP_PEER_ADDR_THLDS sockopt not to be able to dump
-a transport thresholds info.
+Another day; another DSDT bug we need to workaround...
 
-Fix it by adding 'goto' put_user in sctp_getsockopt_paddr_thresholds.
+Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
+at least once on boot") we call _AEI edge handlers at boot.
 
-Fixes: 8add543e369d ("sctp: add SCTP_FUTURE_ASSOC for SCTP_PEER_ADDR_THLDS sockopt")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In some rare cases this causes problems. One example of this is the Minix
+Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
+and pasted code for dealing with Micro USB-B connector host/device role
+switching, while the mini PC does not even have a micro-USB connector.
+This code, which should not be there, messes with the DDC data pin from
+the HDMI connector (switching it to GPIO mode) breaking HDMI support.
+
+To avoid problems like this, this commit adds a new
+gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
+allows disabling the running of _AEI edge event handlers at boot.
+
+The default value is -1/auto which uses a DMI based blacklist, the initial
+version of this blacklist contains the Neo Z83-4 fixing the HDMI breakage.
+
+Cc: stable@vger.kernel.org
+Cc: Daniel Drake <drake@endlessm.com>
+Cc: Ian W MORRISON <ianwmorrison@gmail.com>
+Reported-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Suggested-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Fixes: ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events at least once on boot")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20190827202835.213456-1-hdegoede@redhat.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/socket.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -7176,7 +7176,7 @@ static int sctp_getsockopt_paddr_thresho
- 		val.spt_pathmaxrxt = trans->pathmaxrxt;
- 		val.spt_pathpfthld = trans->pf_retrans;
+---
+ drivers/gpio/gpiolib-acpi.c |   42 ++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
+
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -7,6 +7,7 @@
+  *          Mika Westerberg <mika.westerberg@linux.intel.com>
+  */
  
--		return 0;
-+		goto out;
- 	}
++#include <linux/dmi.h>
+ #include <linux/errno.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/gpio/driver.h>
+@@ -19,6 +20,11 @@
  
- 	asoc = sctp_id2assoc(sk, val.spt_assoc_id);
-@@ -7194,6 +7194,7 @@ static int sctp_getsockopt_paddr_thresho
- 		val.spt_pathmaxrxt = sp->pathmaxrxt;
- 	}
+ #include "gpiolib.h"
  
-+out:
- 	if (put_user(len, optlen) || copy_to_user(optval, &val, len))
- 		return -EFAULT;
++static int run_edge_events_on_boot = -1;
++module_param(run_edge_events_on_boot, int, 0444);
++MODULE_PARM_DESC(run_edge_events_on_boot,
++		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
++
+ /**
+  * struct acpi_gpio_event - ACPI GPIO event handler data
+  *
+@@ -170,10 +176,13 @@ static void acpi_gpiochip_request_irq(st
+ 	event->irq_requested = true;
  
+ 	/* Make sure we trigger the initial state of edge-triggered IRQs */
+-	value = gpiod_get_raw_value_cansleep(event->desc);
+-	if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
+-	    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
+-		event->handler(event->irq, event);
++	if (run_edge_events_on_boot &&
++	    (event->irqflags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING))) {
++		value = gpiod_get_raw_value_cansleep(event->desc);
++		if (((event->irqflags & IRQF_TRIGGER_RISING) && value == 1) ||
++		    ((event->irqflags & IRQF_TRIGGER_FALLING) && value == 0))
++			event->handler(event->irq, event);
++	}
+ }
+ 
+ static void acpi_gpiochip_request_irqs(struct acpi_gpio_chip *acpi_gpio)
+@@ -1283,3 +1292,28 @@ static int acpi_gpio_handle_deferred_req
+ }
+ /* We must use _sync so that this runs after the first deferred_probe run */
+ late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
++
++static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
++		}
++	},
++	{} /* Terminating entry */
++};
++
++static int acpi_gpio_setup_params(void)
++{
++	if (run_edge_events_on_boot < 0) {
++		if (dmi_check_system(run_edge_events_on_boot_blacklist))
++			run_edge_events_on_boot = 0;
++		else
++			run_edge_events_on_boot = 1;
++	}
++
++	return 0;
++}
++
++/* Directly after dmi_setup() which runs as core_initcall() */
++postcore_initcall(acpi_gpio_setup_params);
 
 
