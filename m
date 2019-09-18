@@ -2,108 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B272B60F8
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 12:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB12B6219
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 13:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbfIRKBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 06:01:30 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:43904 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbfIRKB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 06:01:29 -0400
-Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=elm)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <tyhicks@canonical.com>)
-        id 1iAWm2-0001XJ-Nx; Wed, 18 Sep 2019 10:01:22 +0000
-Date:   Wed, 18 Sep 2019 12:01:21 +0200
-From:   Tyler Hicks <tyhicks@canonical.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     keescook@chromium.org, luto@amacapital.net, jannh@google.com,
-        wad@chromium.org, shuah@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, kafai@fb.com, songliubraving@fb.com,
-        yhs@fb.com, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 3/4] seccomp: avoid overflow in implicit constant
- conversion
-Message-ID: <20190918100121.GB5088@elm>
-References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
- <20190918084833.9369-4-christian.brauner@ubuntu.com>
+        id S1729936AbfIRLKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 07:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58262 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727456AbfIRLKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Sep 2019 07:10:40 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4378920644;
+        Wed, 18 Sep 2019 11:10:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568805039;
+        bh=rPqceDwqfp7kCokNreSth0gVwsFRJq6QSPVbFP1Ds+0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rj61/XI4CEaBb30YbJCZ224KbQr0NeBRoSqXnHF8oU4Mvu8H8RIMpdGQz1N1K17s2
+         g3KKOYDelNwChDHwTpUKQ98Mc7Y7LSRzvQzCCyGXYkAsuDGKvjYYMfZAB6I960xcn5
+         15xPZJn+MAsOMrnB+//K3rkVAQeIJd39Q3AeDSV0=
+Date:   Wed, 18 Sep 2019 13:10:37 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?H=E5kon?= Bugge <haakon.bugge@oracle.com>
+Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        OFED mailing list <linux-rdma@vger.kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>
+Subject: Re: Stable branches missing ed7a01fd3fd7
+Message-ID: <20190918111037.GE1894362@kroah.com>
+References: <880A1006-BF84-4691-8EE1-8E6D111BF09F@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190918084833.9369-4-christian.brauner@ubuntu.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <880A1006-BF84-4691-8EE1-8E6D111BF09F@oracle.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-09-18 10:48:32, Christian Brauner wrote:
-> USER_NOTIF_MAGIC is assigned to int variables in this test so set it to INT_MAX
-> to avoid warnings:
+On Wed, Sep 18, 2019 at 11:17:59AM +0200, H�kon Bugge wrote:
+> Hi Greg,
 > 
-> seccomp_bpf.c: In function ‘user_notification_continue’:
-> seccomp_bpf.c:3088:26: warning: overflow in implicit constant conversion [-Woverflow]
->  #define USER_NOTIF_MAGIC 116983961184613L
->                           ^
-> seccomp_bpf.c:3572:15: note: in expansion of macro ‘USER_NOTIF_MAGIC’
->   resp.error = USER_NOTIF_MAGIC;
->                ^~~~~~~~~~~~~~~~
 > 
-> Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Andy Lutomirski <luto@amacapital.net>
-> Cc: Will Drewry <wad@chromium.org>
-> Cc: Shuah Khan <shuah@kernel.org>
-> Cc: Alexei Starovoitov <ast@kernel.org>
-> Cc: Daniel Borkmann <daniel@iogearbox.net>
-> Cc: Martin KaFai Lau <kafai@fb.com>
-> Cc: Song Liu <songliubraving@fb.com>
-> Cc: Yonghong Song <yhs@fb.com>
-> Cc: Tycho Andersen <tycho@tycho.ws>
-> CC: Tyler Hicks <tyhicks@canonical.com>
-
-INT_MAX should be a safe value to use.
-
-Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
-
-Tyler
-
-> Cc: Jann Horn <jannh@google.com>
-> Cc: stable@vger.kernel.org
-> Cc: linux-kselftest@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: bpf@vger.kernel.org
-> ---
->  tools/testing/selftests/seccomp/seccomp_bpf.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> Commit 00313983cda6 ("RDMA/nldev: provide detailed CM_ID information") is in the following stable releases:
 > 
-> diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> index ee52eab01800..921f0e26f835 100644
-> --- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-> +++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> @@ -35,6 +35,7 @@
->  #include <stdbool.h>
->  #include <string.h>
->  #include <time.h>
-> +#include <limits.h>
->  #include <linux/elf.h>
->  #include <sys/uio.h>
->  #include <sys/utsname.h>
-> @@ -3080,7 +3081,7 @@ static int user_trap_syscall(int nr, unsigned int flags)
->  	return seccomp(SECCOMP_SET_MODE_FILTER, flags, &prog);
->  }
->  
-> -#define USER_NOTIF_MAGIC 116983961184613L
-> +#define USER_NOTIF_MAGIC INT_MAX
->  TEST(user_notification_basic)
->  {
->  	pid_t pid;
-> -- 
-> 2.23.0
+>   stable/linux-4.17.y
+>   stable/linux-4.18.y
+>   stable/linux-4.19.y
+>   stable/linux-4.20.y
+>   stable/linux-5.0.y
+>   stable/linux-5.1.y
+>   stable/linux-5.2.y
+>   stable/linux-5.3.y
+>   stable/master
+
+It was part of the 4.17 release, so yes, of course it is in all later
+releases.
+
+> It has a potential for a big leak of task_struct's, and if the case is hit, the number of task_struct entries in /proc/slabinfo increases rapidly.
 > 
+> The fix, ed7a01fd3fd7 ("RDMA/restrack: Release task struct which was hold by CM_ID object"), is in the following stable releases:
+> 
+>   stable/linux-4.20.y
+>   stable/linux-5.0.y
+>   stable/linux-5.1.y
+>   stable/linux-5.2.y
+>   stable/linux-5.3.y
+>   stable/master
+
+It was part of the 4.20 release, so yes, it will be in all releases
+newer than that.
+
+> Hence, this commit needs to be included in 4-17..4.19.
+
+Given there is only one "active" kernel branch you are looking at here,
+that means it should only go into 4.19.y, right?
+
+thanks,
+
+greg k-h
