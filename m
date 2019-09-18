@@ -2,77 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0289B633E
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 14:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A7CB6385
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 14:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729498AbfIRMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 08:31:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36768 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725902AbfIRMbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Sep 2019 08:31:15 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id ED106AD2B;
-        Wed, 18 Sep 2019 12:31:13 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 07F751E4201; Wed, 18 Sep 2019 14:31:24 +0200 (CEST)
-Date:   Wed, 18 Sep 2019 14:31:24 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     Jan Kara <jack@suse.cz>, linux-xfs@vger.kernel.org,
-        linux-mm@kvack.org, Amir Goldstein <amir73il@gmail.com>,
-        Boaz Harrosh <boaz@plexistor.com>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 3/3] xfs: Fix stale data exposure when readahead races
- with hole punch
-Message-ID: <20190918123123.GC31891@quack2.suse.cz>
-References: <20190829131034.10563-1-jack@suse.cz>
- <20190829131034.10563-4-jack@suse.cz>
- <20190829155204.GD5354@magnolia>
- <20190830152449.GA25069@quack2.suse.cz>
+        id S1726876AbfIRMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 08:46:49 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:41934 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725902AbfIRMqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 08:46:49 -0400
+Received: by mail-lf1-f68.google.com with SMTP id r2so5573899lfn.8
+        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 05:46:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=7e1TdzFiatHjnWIzrqdUH+5ObA9z+SBV4y7paSr3H3Y=;
+        b=c3hEixxIWklF4nx/ftNTRXNA0mUxEOu0phWQ+2tU08n84QPq0XZlv89o+0M11KaGY3
+         58bYJcYu30BT0K1431ndKcYZYXLP2u7ba6pl5TnxHbChicTv5sI0KwLP5fZso7SXfYp4
+         SbIP9VhiTrcrWqmAOfI4yuvKxtHJe+X//Ln5P95ovcec/hX4Tjqcvf5XEEmveFzCT5A9
+         oO+EomMoz8zi8CTy/kiqCND+cQ0OnhvMfyhK2mq0s6Y5dW9+Sxob4RvfvxGMXlK90vRZ
+         9BXbnnZvSn93SuWI5c1WRU782rCjU6XDhY7xOx/tivu0l/CpqfgHFWcTk5SLU8dmUjwH
+         Y6KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=7e1TdzFiatHjnWIzrqdUH+5ObA9z+SBV4y7paSr3H3Y=;
+        b=kYx269Byeq7lpQviFlo3CVYoaB/ZLUETC1xf2mmpGYdiDCPqzSULh009TqkhYNomu/
+         eFgsEHBl9VnPB5zJDuomSqPSbZaO8OGn33EtcRgztiW901JSk/Z8hcPtYlxnxSlaSCbn
+         NkISBMGMtT0rFfVFoLpa1tTsMcQl8xKQmsLAdc9YKvw09h8S22LcoxjmiMbQsjAyOKcE
+         UfVGTb9T0GqfLISKJUEl2isIVfqRxpVrmVWnlF0PdgTerx+Q+IrFHw+SY/k8BIW48ZfN
+         paBM/TufYX3gQWUsb2OjLNF9NfuNCZS8wFg555PKqv7N8Yj+iLFCvXEzusYBIyeg/H6d
+         poYQ==
+X-Gm-Message-State: APjAAAXF1FwIEiSkTTfTFrwyizIx/RmtpiDwK1fPHk45xdTdIxh0IlVH
+        QVnRkV9pK+7u//ojR7sh3xSlfCProHmKxfhvhg8=
+X-Google-Smtp-Source: APXvYqyt/8l9BoAUCHKws78TAuQNf9lydwyYvHl6eLMmPMQlo6HpAIW8gFe0qHtr/X8/oLsTdZrwnOTJq8lsLbYOl7o=
+X-Received: by 2002:ac2:5c11:: with SMTP id r17mr2084032lfp.61.1568810807061;
+ Wed, 18 Sep 2019 05:46:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190830152449.GA25069@quack2.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:a19:614b:0:0:0:0:0 with HTTP; Wed, 18 Sep 2019 05:46:46
+ -0700 (PDT)
+Reply-To: eddywilliam0003@gmail.com
+From:   eddy william <barristerlevi@gmail.com>
+Date:   Wed, 18 Sep 2019 14:46:46 +0200
+Message-ID: <CAEJ6Chccb2CvFg0M5VoZNAXcjNNqEuf8KXecnAfqw+imLYTGSg@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 30-08-19 17:24:49, Jan Kara wrote:
-> On Thu 29-08-19 08:52:04, Darrick J. Wong wrote:
-> > On Thu, Aug 29, 2019 at 03:10:34PM +0200, Jan Kara wrote:
-> > > Hole puching currently evicts pages from page cache and then goes on to
-> > > remove blocks from the inode. This happens under both XFS_IOLOCK_EXCL
-> > > and XFS_MMAPLOCK_EXCL which provides appropriate serialization with
-> > > racing reads or page faults. However there is currently nothing that
-> > > prevents readahead triggered by fadvise() or madvise() from racing with
-> > > the hole punch and instantiating page cache page after hole punching has
-> > > evicted page cache in xfs_flush_unmap_range() but before it has removed
-> > > blocks from the inode. This page cache page will be mapping soon to be
-> > > freed block and that can lead to returning stale data to userspace or
-> > > even filesystem corruption.
-> > > 
-> > > Fix the problem by protecting handling of readahead requests by
-> > > XFS_IOLOCK_SHARED similarly as we protect reads.
-> > > 
-> > > CC: stable@vger.kernel.org
-> > > Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxjQNmxqmtA_VbYW0Su9rKRk2zobJmahcyeaEVOFKVQ5dw@mail.gmail.com/
-> > > Reported-by: Amir Goldstein <amir73il@gmail.com>
-> > > Signed-off-by: Jan Kara <jack@suse.cz>
-> > 
-> > Is there a test on xfstests to demonstrate this race?
-> 
-> No, but I can try to create one.
+Hallo
 
-I was experimenting with this but I could not reproduce the issue in my
-test VM without inserting artificial delay at appropriate place... So I
-don't think there's much point in the fstest for this.
+Mein Name ist Eddy William. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
+($14,2 Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
 
-								Honza
+Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
+bei einem Autounfall ums Leben gekommen ist
+und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
+nd 50%
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: eddywilliam0003gmail.com
 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Vielen Dank im Voraus,
+Mr.Eddy William
+
+
+
+
+Hello
+
+My name is Eddy William I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($14.2 Million)
+dollars my client left in the bank before his death.
+
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:eddywilliam0003gmail.=
+com
+
+Many thanks in advance,
+Mr.Eddy William
