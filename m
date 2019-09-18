@@ -2,93 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A7CB6385
-	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E3CB63E1
+	for <lists+stable@lfdr.de>; Wed, 18 Sep 2019 14:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbfIRMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Sep 2019 08:46:49 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:41934 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725902AbfIRMqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 08:46:49 -0400
-Received: by mail-lf1-f68.google.com with SMTP id r2so5573899lfn.8
-        for <stable@vger.kernel.org>; Wed, 18 Sep 2019 05:46:47 -0700 (PDT)
+        id S1727616AbfIRM7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Sep 2019 08:59:14 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:32830 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727243AbfIRM7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Sep 2019 08:59:14 -0400
+Received: by mail-pf1-f195.google.com with SMTP id q10so4440048pfl.0;
+        Wed, 18 Sep 2019 05:59:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=7e1TdzFiatHjnWIzrqdUH+5ObA9z+SBV4y7paSr3H3Y=;
-        b=c3hEixxIWklF4nx/ftNTRXNA0mUxEOu0phWQ+2tU08n84QPq0XZlv89o+0M11KaGY3
-         58bYJcYu30BT0K1431ndKcYZYXLP2u7ba6pl5TnxHbChicTv5sI0KwLP5fZso7SXfYp4
-         SbIP9VhiTrcrWqmAOfI4yuvKxtHJe+X//Ln5P95ovcec/hX4Tjqcvf5XEEmveFzCT5A9
-         oO+EomMoz8zi8CTy/kiqCND+cQ0OnhvMfyhK2mq0s6Y5dW9+Sxob4RvfvxGMXlK90vRZ
-         9BXbnnZvSn93SuWI5c1WRU782rCjU6XDhY7xOx/tivu0l/CpqfgHFWcTk5SLU8dmUjwH
-         Y6KQ==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2KzX9yQQB2le8oqzNGc5Ap3CJZ0FDKYjjqdufeUqBKc=;
+        b=p5kh6odFcDsrY5kgkQR+CK/EkOKVnG0ukHhluun66xDPpsZ9xJJddUGxFEO53HOzAW
+         qQvmEE/NxKuJ7Y6cz2BFgIjyR8JVUqII9Pt1/HVIKJ4cfjRelT3LtwMOe2oSuPG/NOJy
+         22s8/3T05l1c7ukuLpVGOow7GFwh2axxiph3cB/dgJsobSd+ptUV3ceIxf+xawp8FD9K
+         9A6jP9JGiZHc/qmbUFQMUUR1bHycHe7Uft413cuhcus6ysVquYnuJjYLKcXUgLCcJlIv
+         9pfCVqMJAFQnSw9Vdm11Lgv1+KKC2FniET87Fl3bx33w8Pl7zX9kLQTvnIz4EvS7T8ow
+         68Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=7e1TdzFiatHjnWIzrqdUH+5ObA9z+SBV4y7paSr3H3Y=;
-        b=kYx269Byeq7lpQviFlo3CVYoaB/ZLUETC1xf2mmpGYdiDCPqzSULh009TqkhYNomu/
-         eFgsEHBl9VnPB5zJDuomSqPSbZaO8OGn33EtcRgztiW901JSk/Z8hcPtYlxnxSlaSCbn
-         NkISBMGMtT0rFfVFoLpa1tTsMcQl8xKQmsLAdc9YKvw09h8S22LcoxjmiMbQsjAyOKcE
-         UfVGTb9T0GqfLISKJUEl2isIVfqRxpVrmVWnlF0PdgTerx+Q+IrFHw+SY/k8BIW48ZfN
-         paBM/TufYX3gQWUsb2OjLNF9NfuNCZS8wFg555PKqv7N8Yj+iLFCvXEzusYBIyeg/H6d
-         poYQ==
-X-Gm-Message-State: APjAAAXF1FwIEiSkTTfTFrwyizIx/RmtpiDwK1fPHk45xdTdIxh0IlVH
-        QVnRkV9pK+7u//ojR7sh3xSlfCProHmKxfhvhg8=
-X-Google-Smtp-Source: APXvYqyt/8l9BoAUCHKws78TAuQNf9lydwyYvHl6eLMmPMQlo6HpAIW8gFe0qHtr/X8/oLsTdZrwnOTJq8lsLbYOl7o=
-X-Received: by 2002:ac2:5c11:: with SMTP id r17mr2084032lfp.61.1568810807061;
- Wed, 18 Sep 2019 05:46:47 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2KzX9yQQB2le8oqzNGc5Ap3CJZ0FDKYjjqdufeUqBKc=;
+        b=r4rLUVmq0YBPmce3owpFWaYyW4VYmcA+fX2kHwVstdvFHFdPZCGqg2vReOWX25NjXO
+         Z+AwLVN5p8IA3dWQJklDQQGBBcjbTAwb2CDwNu/VAW2exc4WXNnFVgScencUzj6V4KdW
+         LVBa9XaRU9lHzQJ0I5qOMtcRELzXq4+y4AUJ1Xj98ZKUEK3PUWaY0l1NpG4/k4TjecRF
+         xaKHDKl/3BSnxiu+ECwybz6wNjueSGAHa6CzVvQFW4muXa+8qgLSyOzSdYeuR+yWKKze
+         h8g3M0puIpuMCCZieQ0aZSwhrqhM8LF0t41QZuBA4MnVb+P9WNBp50DGhqeJDyOQ0mCN
+         x6hA==
+X-Gm-Message-State: APjAAAXBfYMRmAfKguMI1rjGjU+y0yeE0z0OfhbFU6mANiz8XPCU2W6f
+        JnBXDArDZDUMkcEHB5/kB1k5AxXQ
+X-Google-Smtp-Source: APXvYqzgVVmbqhy+3up5X2+VQa7MNKjO5SdWpt4WUNzsZXkQGx9iiYDO0tOto9TSaW+VS8kSmA1iCQ==
+X-Received: by 2002:a17:90a:a393:: with SMTP id x19mr3594539pjp.91.1568811552874;
+        Wed, 18 Sep 2019 05:59:12 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id j9sm5755655pff.128.2019.09.18.05.59.10
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Sep 2019 05:59:11 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/50] 4.19.74-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20190918061223.116178343@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <b1cff98a-d08f-d6cc-393f-9ca80c9229fe@roeck-us.net>
+Date:   Wed, 18 Sep 2019 05:59:09 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Received: by 2002:a19:614b:0:0:0:0:0 with HTTP; Wed, 18 Sep 2019 05:46:46
- -0700 (PDT)
-Reply-To: eddywilliam0003@gmail.com
-From:   eddy william <barristerlevi@gmail.com>
-Date:   Wed, 18 Sep 2019 14:46:46 +0200
-Message-ID: <CAEJ6Chccb2CvFg0M5VoZNAXcjNNqEuf8KXecnAfqw+imLYTGSg@mail.gmail.com>
-Subject: hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190918061223.116178343@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
+On 9/17/19 11:18 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.74 release.
+> There are 50 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 20 Sep 2019 06:09:47 AM UTC.
+> Anything received after that time might be too late.
+> 
 
-Mein Name ist Eddy William. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
-Ihnen anbieten
-die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
-($14,2 Millionen US-Dollar)
-Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
+I see lots of build failures.
 
-Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
-bei einem Autounfall ums Leben gekommen ist
-und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
-nd 50%
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
-Informationen: eddywilliam0003gmail.com
+kernel/module.c: In function 'free_module':
+kernel/module.c:2187:2: error: implicit declaration of function 'disable_ro_nx'; did you mean 'disable_irq'?
 
-Vielen Dank im Voraus,
-Mr.Eddy William
+kernel/module.c: In function 'load_module':
+kernel/module.c:3828:2: error: implicit declaration of function 'module_disable_nx'; did you mean 'module_disable_ro'?
 
+Reverting
 
+ed510bd0bce3 modules: fix compile error if don't have strict module rwx
+22afe9550160 modules: fix BUG when load module with rodata=n
 
+fixes the problem.
 
-Hello
-
-My name is Eddy William I am a lawyer by profession. I wish to offer you
-the next of kin to my client. You will inherit the sum of ($14.2 Million)
-dollars my client left in the bank before his death.
-
-My client is a citizen of your country who died in auto crash with his wife
-and only son. I will be entitled with 50% of the total fund while 50% will
-be for you.
-Please contact my private email here for more details:eddywilliam0003gmail.=
-com
-
-Many thanks in advance,
-Mr.Eddy William
+Guenter
