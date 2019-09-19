@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C584DB8640
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA926B8679
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393986AbfISWUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
+        id S2388812AbfISW3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:29:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393033AbfISWUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:14 -0400
+        id S2392500AbfISWR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:17:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92F44217D6;
-        Thu, 19 Sep 2019 22:20:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B520121907;
+        Thu, 19 Sep 2019 22:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931614;
-        bh=7qzM2gbgcZH8LjA8YqY/rq6Rfs4xuVzEsRBat+ya2eU=;
+        s=default; t=1568931447;
+        bh=SD+/dPytZJTVINNwhSYESFDl7e+W+IhKtgomcj9nMj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUX49VMkmM9ekxO1enBmptnfoM7PuiQjogqp07vJ2VKa5HzA7Hu0CidC0WwrpxsG/
-         f7jjaokMNQtUyGj9vEPbfIlFCBFBViY5AW0Plzg7r5TSwMs2AHgh8FG1he8URZLkNR
-         7uIuavnaiBHEY1nEOQjYZenrEP+EAOl9Kw5yx4JA=
+        b=DAvYowNt1jyJokCf6eSpy39A2HUgnl+jfJEZG0opf/UjslWEusW1W2elf2ac7BqkL
+         vq8xSYzaZ1+CROrvB05qESvnCV4eZAI62xk1bGFH5ZpopOVTHJrwyp+z7guSzJlQ1J
+         +ZPTyg9kg5sCkxF1GsFE1tMy87dJPyPt62ibfPmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 51/74] qed: Add cleanup in qed_slowpath_start()
-Date:   Fri, 20 Sep 2019 00:04:04 +0200
-Message-Id: <20190919214809.805385008@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jong Hyun Park <park.jonghyun@yonsei.ac.kr>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 50/59] x86/hyper-v: Fix overflow bug in fill_gva_list()
+Date:   Fri, 20 Sep 2019 00:04:05 +0200
+Message-Id: <20190919214807.701968440@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +50,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-[ Upstream commit de0e4fd2f07ce3bbdb69dfb8d9426b7227451b69 ]
+[ Upstream commit 4030b4c585c41eeefec7bd20ce3d0e100a0f2e4d ]
 
-If qed_mcp_send_drv_version() fails, no cleanup is executed, leading to
-memory leaks. To fix this issue, introduce the label 'err4' to perform the
-cleanup work before returning the error.
+When the 'start' parameter is >=  0xFF000000 on 32-bit
+systems, or >= 0xFFFFFFFF'FF000000 on 64-bit systems,
+fill_gva_list() gets into an infinite loop.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With such inputs, 'cur' overflows after adding HV_TLB_FLUSH_UNIT
+and always compares as less than end.  Memory is filled with
+guest virtual addresses until the system crashes.
+
+Fix this by never incrementing 'cur' to be larger than 'end'.
+
+Reported-by: Jong Hyun Park <park.jonghyun@yonsei.ac.kr>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 2ffd9e33ce4a ("x86/hyper-v: Use hypercall for remote TLB flush")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/hyperv/mmu.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index a769196628d91..708117fc6f733 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -958,7 +958,7 @@ static int qed_slowpath_start(struct qed_dev *cdev,
- 					      &drv_version);
- 		if (rc) {
- 			DP_NOTICE(cdev, "Failed sending drv version command\n");
--			return rc;
-+			goto err4;
- 		}
- 	}
+diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
+index 56c9ebac946fe..47718fff0b797 100644
+--- a/arch/x86/hyperv/mmu.c
++++ b/arch/x86/hyperv/mmu.c
+@@ -57,12 +57,14 @@ static inline int fill_gva_list(u64 gva_list[], int offset,
+ 		 * Lower 12 bits encode the number of additional
+ 		 * pages to flush (in addition to the 'cur' page).
+ 		 */
+-		if (diff >= HV_TLB_FLUSH_UNIT)
++		if (diff >= HV_TLB_FLUSH_UNIT) {
+ 			gva_list[gva_n] |= ~PAGE_MASK;
+-		else if (diff)
++			cur += HV_TLB_FLUSH_UNIT;
++		}  else if (diff) {
+ 			gva_list[gva_n] |= (diff - 1) >> PAGE_SHIFT;
++			cur = end;
++		}
  
-@@ -966,6 +966,8 @@ static int qed_slowpath_start(struct qed_dev *cdev,
+-		cur += HV_TLB_FLUSH_UNIT;
+ 		gva_n++;
  
- 	return 0;
- 
-+err4:
-+	qed_ll2_dealloc_if(cdev);
- err3:
- 	qed_hw_stop(cdev);
- err2:
+ 	} while (cur < end);
 -- 
 2.20.1
 
