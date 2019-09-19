@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D5CB83D8
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E28B83DA
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404959AbfISWFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:05:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42506 "EHLO mail.kernel.org"
+        id S2404983AbfISWFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404932AbfISWFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:05:22 -0400
+        id S2404976AbfISWF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:05:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BA56218AF;
-        Thu, 19 Sep 2019 22:05:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05294218AF;
+        Thu, 19 Sep 2019 22:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930722;
-        bh=EJP4nNfG7YbTybV+6Scm3vb4nnLKhgmOruTce9/Yr4o=;
+        s=default; t=1568930727;
+        bh=3tM0UaXpK9hyBLBvIYjqMgOquMudUYvPcuK67Ua82Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDIixJiHM31ukA+wo+eUpub3U4tV9xSFK2k3oJDL8y06t6CCXBANv/FqPLCn2l2vw
-         QRMqaDmVyd10Rn/pJVcsT4PSR5WaKamFI0GPC5AsZaqEONHZ8t33p0rKtfUKQQ3MaR
-         RJYk0D4PVCjZ/risqkwiyYa2Z1JKGgtlPKgaBNeA=
+        b=ycpNUyHJ4mWpljKdYbLGmVndSFnETftPS2tCVOtS688U1ddVcnnwopsv32gbFEzIR
+         QMe8hMRAoLP4zkNFzbllKTN4dsCYOkRRTP3MrM88U5L6WPwDHH9wtwAILMiNxIK8jd
+         CnOJv03W5qdLqVVnlJR5do2bjDwkpgpHrzaKAl3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.3 12/21] Documentation: sphinx: Add missing comma to list of strings
-Date:   Fri, 20 Sep 2019 00:03:13 +0200
-Message-Id: <20190919214706.339764323@linuxfoundation.org>
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Subject: [PATCH 5.3 14/21] serial: sprd: correct the wrong sequence of arguments
+Date:   Fri, 20 Sep 2019 00:03:15 +0200
+Message-Id: <20190919214707.904000879@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
 References: <20190919214657.842130855@linuxfoundation.org>
@@ -45,33 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-commit 11fec009d97e5bd2329ef7d52d71e9f6763f1048 upstream.
+commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
 
-In Python, like in C, when a comma is omitted in a list of strings, the
-two strings around the missing comma are concatenated.
+The sequence of arguments which was passed to handle_lsr_errors() didn't
+match the parameters defined in that function, &lsr was passed to flag
+and &flag was passed to lsr, this patch fixed that.
 
-Cc: stable@vger.kernel.org  # v5.2 only
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/sphinx/automarkup.py |    2 +-
+ drivers/tty/serial/sprd_serial.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/sphinx/automarkup.py
-+++ b/Documentation/sphinx/automarkup.py
-@@ -25,7 +25,7 @@ RE_function = re.compile(r'([\w_][\w\d_]
- # to the creation of incorrect and confusing cross references.  So
- # just don't even try with these names.
- #
--Skipfuncs = [ 'open', 'close', 'read', 'write', 'fcntl', 'mmap'
-+Skipfuncs = [ 'open', 'close', 'read', 'write', 'fcntl', 'mmap',
-               'select', 'poll', 'fork', 'execve', 'clone', 'ioctl']
+--- a/drivers/tty/serial/sprd_serial.c
++++ b/drivers/tty/serial/sprd_serial.c
+@@ -609,7 +609,7 @@ static inline void sprd_rx(struct uart_p
  
- #
+ 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
+ 			   SPRD_LSR_FE | SPRD_LSR_OE))
+-			if (handle_lsr_errors(port, &lsr, &flag))
++			if (handle_lsr_errors(port, &flag, &lsr))
+ 				continue;
+ 		if (uart_handle_sysrq_char(port, ch))
+ 			continue;
 
 
