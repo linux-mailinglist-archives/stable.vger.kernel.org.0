@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BBFB876A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D98B86F5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405142AbfISWGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43524 "EHLO mail.kernel.org"
+        id S2390431AbfISWdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405139AbfISWGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:11 -0400
+        id S2405952AbfISWMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D6FB21907;
-        Thu, 19 Sep 2019 22:06:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CB9321920;
+        Thu, 19 Sep 2019 22:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930770;
-        bh=jeSySUfleWeX2Y/EGvf5SlLYq5xu2WCm2zPbshQ8Unk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HbiOGsIQpRc+J7WtsirYb5Hq7c1oK9M1h0ryA7ws4T1POgpeDbpPc/WYWqgcdtfhL
-         6SSUuUUE0LfvSeL9WQCj2HtDxfntfddUt4MZlE5LZtIa9RJcOCElKQc7NxTU8/OFrN
-         ZYgXYVUFH3juUDLPSbfei6WaPfru4gLzc+U/021Y=
+        s=default; t=1568931137;
+        bh=hFYo/74gVn52eg42PNmX0qBZBecS71x9smF8rN55b5I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JpFzz1uxt2N2mQv/Ux8+jlr4+pi5fTqM8yWptNlXcSrH1PG0Fp6t0D0V1rZ24SNjv
+         PuqWUbhpIpBPQKJdoQA3/3kkoT985KDKoUOM2i4tC5+QK8qCHtzt8iWhIqYNrLL/1H
+         oyfQ7q3pXEvnl8leRjJYGz9ZdVPt1O8tR9S7dpPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.3 00/21] 5.3.1-stable review
-Date:   Fri, 20 Sep 2019 00:03:01 +0200
-Message-Id: <20190919214657.842130855@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Huang <huangwenabc@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.comg>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 17/79] mwifiex: Fix three heap overflow at parsing element in cfg80211_ap_settings
+Date:   Fri, 20 Sep 2019 00:03:02 +0200
+Message-Id: <20190919214809.317382787@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-MIME-Version: 1.0
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.3.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.3.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.3.1-rc1
-X-KernelTest-Deadline: 2019-09-21T21:47+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,130 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.3.1 release.
-There are 21 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Wen Huang <huangwenabc@gmail.com>
 
-Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
-Anything received after that time might be too late.
+commit 7caac62ed598a196d6ddf8d9c121e12e082cac3a upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-and the diffstat can be found below.
+mwifiex_update_vs_ie(),mwifiex_set_uap_rates() and
+mwifiex_set_wmm_params() call memcpy() without checking
+the destination size.Since the source is given from
+user-space, this may trigger a heap buffer overflow.
 
-thanks,
+Fix them by putting the length check before performing memcpy().
 
-greg k-h
+This fix addresses CVE-2019-14814,CVE-2019-14815,CVE-2019-14816.
 
--------------
-Pseudo-Shortlog of commits:
+Signed-off-by: Wen Huang <huangwenabc@gmail.com>
+Acked-by: Ganapathi Bhat <gbhat@marvell.comg>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.3.1-rc1
+---
+ drivers/net/wireless/marvell/mwifiex/ie.c      |    3 +++
+ drivers/net/wireless/marvell/mwifiex/uap_cmd.c |    9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-Sean Young <sean@mess.org>
-    media: technisat-usb2: break out of loop at end of buffer
-
-Jann Horn <jannh@google.com>
-    floppy: fix usercopy direction
-
-Bjorn Andersson <bjorn.andersson@linaro.org>
-    phy: qcom-qmp: Correct ready status, again
-
-Amir Goldstein <amir73il@gmail.com>
-    ovl: fix regression caused by overlapping layers detection
-
-Will Deacon <will@kernel.org>
-    Revert "arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}"
-
-Masashi Honma <masashi.honma@gmail.com>
-    nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds
-
-Razvan Stefanescu <razvan.stefanescu@microchip.com>
-    tty/serial: atmel: reschedule TX after RX was started
-
-Chunyan Zhang <chunyan.zhang@unisoc.com>
-    serial: sprd: correct the wrong sequence of arguments
-
-Hung-Te Lin <hungte@chromium.org>
-    firmware: google: check if size is valid when decoding VPD data
-
-Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-    Documentation: sphinx: Add missing comma to list of strings
-
-Matt Delco <delco@chromium.org>
-    KVM: coalesced_mmio: add bounds checking
-
-Jose Abreu <Jose.Abreu@synopsys.com>
-    net: stmmac: Hold rtnl lock in suspend/resume callbacks
-
-Andrew Lunn <andrew@lunn.ch>
-    net: dsa: Fix load order between DSA drivers and taggers
-
-Dongli Zhang <dongli.zhang@oracle.com>
-    xen-netfront: do not assume sk_buff_head list is empty in error handling
-
-Willem de Bruijn <willemb@google.com>
-    udp: correct reuseport selection with connected sockets
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    net_sched: let qdisc_put() accept NULL pointer
-
-Paolo Abeni <pabeni@redhat.com>
-    net/sched: fix race between deactivation and dequeue for NOLOCK qdisc
-
-Xin Long <lucien.xin@gmail.com>
-    ip6_gre: fix a dst leak in ip6erspan_tunnel_xmit
-
-Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-    phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
-
-Sean Young <sean@mess.org>
-    media: tm6000: double free if usb disconnect while streaming
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: usbcore: Fix slab-out-of-bounds bug during device reset
-
-
--------------
-
-Diffstat:
-
- Documentation/filesystems/overlayfs.txt           |  2 +-
- Documentation/sphinx/automarkup.py                |  2 +-
- Makefile                                          |  4 +-
- arch/arm64/include/asm/pgtable.h                  | 12 +++-
- drivers/block/floppy.c                            |  4 +-
- drivers/firmware/google/vpd.c                     |  4 +-
- drivers/firmware/google/vpd_decode.c              | 55 ++++++++++-------
- drivers/firmware/google/vpd_decode.h              |  6 +-
- drivers/media/usb/dvb-usb/technisat-usb2.c        | 22 ++++---
- drivers/media/usb/tm6000/tm6000-dvb.c             |  3 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 ++--
- drivers/net/xen-netfront.c                        |  2 +-
- drivers/phy/qualcomm/phy-qcom-qmp.c               | 33 +++++-----
- drivers/phy/renesas/phy-rcar-gen3-usb2.c          |  2 +
- drivers/tty/serial/atmel_serial.c                 |  1 -
- drivers/tty/serial/sprd_serial.c                  |  2 +-
- drivers/usb/core/config.c                         | 12 ++--
- fs/overlayfs/ovl_entry.h                          |  1 +
- fs/overlayfs/super.c                              | 73 +++++++++++++++--------
- include/net/pkt_sched.h                           |  7 ++-
- include/net/sock_reuseport.h                      | 20 ++++++-
- net/core/dev.c                                    | 16 +++--
- net/core/sock_reuseport.c                         | 15 ++++-
- net/dsa/dsa2.c                                    |  2 +
- net/ipv4/datagram.c                               |  2 +
- net/ipv4/udp.c                                    |  5 +-
- net/ipv6/datagram.c                               |  2 +
- net/ipv6/ip6_gre.c                                |  2 +-
- net/ipv6/udp.c                                    |  5 +-
- net/sched/sch_generic.c                           |  3 +
- net/wireless/nl80211.c                            |  4 +-
- virt/kvm/coalesced_mmio.c                         | 19 +++---
- 32 files changed, 227 insertions(+), 127 deletions(-)
+--- a/drivers/net/wireless/marvell/mwifiex/ie.c
++++ b/drivers/net/wireless/marvell/mwifiex/ie.c
+@@ -241,6 +241,9 @@ static int mwifiex_update_vs_ie(const u8
+ 		}
+ 
+ 		vs_ie = (struct ieee_types_header *)vendor_ie;
++		if (le16_to_cpu(ie->ie_length) + vs_ie->len + 2 >
++			IEEE_MAX_IE_SIZE)
++			return -EINVAL;
+ 		memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
+ 		       vs_ie, vs_ie->len + 2);
+ 		le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
+--- a/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
++++ b/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
+@@ -265,6 +265,8 @@ mwifiex_set_uap_rates(struct mwifiex_uap
+ 
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_SUPP_RATES, var_pos, len);
+ 	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES)
++			return;
+ 		memcpy(bss_cfg->rates, rate_ie + 1, rate_ie->len);
+ 		rate_len = rate_ie->len;
+ 	}
+@@ -272,8 +274,11 @@ mwifiex_set_uap_rates(struct mwifiex_uap
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
+ 					   params->beacon.tail,
+ 					   params->beacon.tail_len);
+-	if (rate_ie)
++	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES - rate_len)
++			return;
+ 		memcpy(bss_cfg->rates + rate_len, rate_ie + 1, rate_ie->len);
++	}
+ 
+ 	return;
+ }
+@@ -391,6 +396,8 @@ mwifiex_set_wmm_params(struct mwifiex_pr
+ 					    params->beacon.tail_len);
+ 	if (vendor_ie) {
+ 		wmm_ie = vendor_ie;
++		if (*(wmm_ie + 1) > sizeof(struct mwifiex_types_wmm_info))
++			return;
+ 		memcpy(&bss_cfg->wmm_info, wmm_ie +
+ 		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
+ 		priv->wmm_enabled = 1;
 
 
