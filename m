@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFFE8B8476
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED7BB852C
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405837AbfISWLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:11:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49660 "EHLO mail.kernel.org"
+        id S2393917AbfISWS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405830AbfISWLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:11:04 -0400
+        id S2406571AbfISWSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:18:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 082EB21920;
-        Thu, 19 Sep 2019 22:11:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 868D721907;
+        Thu, 19 Sep 2019 22:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931063;
-        bh=sjobayxK8BQV7kAzsBZ5thsoTl6H6cbirtCozGkDE30=;
+        s=default; t=1568931504;
+        bh=+dI+rVf+1+sdiK1BAdoxjotm3JYBHjEnkmGqtzDyUPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTvvfKOZ0ylUnD5G4TN/8oKr3zVDpD8/Zj9KjRAXkIp+b/V3SjWMAkCbUtGhQ3UCD
-         leV2U38QxZry5l776hMM/Mpw7IciJvTOO4f5viBJ2HturQHrg7gZgEpVYwLOqcRqyl
-         UiQZLrH535tYKWRQ3voW5XPs6k2ZT1rIE3SxAilE=
+        b=KQlaZDHwnVIpv8Lx0m722rH10T0V3onFylBDNFSRcsm0Hj/WwFBMz4Vo5laoPnDaY
+         kK7/UdJ7FoEyxnquCTACjJuYVN1kUZlKjyopdIRbT9HEUhvMCZEu86M8LAMZAG+2xn
+         VjF9EmVxFDINIuuTZY7wMb9J15GL1q4USDJtB+P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baolin Wang <baolin.wang@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 115/124] dmaengine: sprd: Fix the DMA link-list configuration
-Date:   Fri, 20 Sep 2019 00:03:23 +0200
-Message-Id: <20190919214823.367143978@linuxfoundation.org>
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 11/74] tipc: add NULL pointer check before calling kfree_rcu
+Date:   Fri, 20 Sep 2019 00:03:24 +0200
+Message-Id: <20190919214805.117395564@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linaro.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 689379c2f383b1fdfdff03e84cf659daf62f2088 ]
+[ Upstream commit 42dec1dbe38239cf91cc1f4df7830c66276ced37 ]
 
-For the Spreadtrum DMA link-list mode, when the DMA engine got a slave
-hardware request, which will trigger the DMA engine to load the DMA
-configuration from the link-list memory automatically. But before the
-slave hardware request, the slave will get an incorrect residue due
-to the first node used to trigger the link-list was configured as the
-last source address and destination address.
+Unlike kfree(p), kfree_rcu(p, rcu) won't do NULL pointer check. When
+tipc_nametbl_remove_publ returns NULL, the panic below happens:
 
-Thus we should make sure the first node was configured the start source
-address and destination address, which can fix this issue.
+   BUG: unable to handle kernel NULL pointer dereference at 0000000000000068
+   RIP: 0010:__call_rcu+0x1d/0x290
+   Call Trace:
+    <IRQ>
+    tipc_publ_notify+0xa9/0x170 [tipc]
+    tipc_node_write_unlock+0x8d/0x100 [tipc]
+    tipc_node_link_down+0xae/0x1d0 [tipc]
+    tipc_node_check_dest+0x3ea/0x8f0 [tipc]
+    ? tipc_disc_rcv+0x2c7/0x430 [tipc]
+    tipc_disc_rcv+0x2c7/0x430 [tipc]
+    ? tipc_rcv+0x6bb/0xf20 [tipc]
+    tipc_rcv+0x6bb/0xf20 [tipc]
+    ? ip_route_input_slow+0x9cf/0xb10
+    tipc_udp_recv+0x195/0x1e0 [tipc]
+    ? tipc_udp_is_known_peer+0x80/0x80 [tipc]
+    udp_queue_rcv_skb+0x180/0x460
+    udp_unicast_rcv_skb.isra.56+0x75/0x90
+    __udp4_lib_rcv+0x4ce/0xb90
+    ip_local_deliver_finish+0x11c/0x210
+    ip_local_deliver+0x6b/0xe0
+    ? ip_rcv_finish+0xa9/0x410
+    ip_rcv+0x273/0x362
 
-Fixes: 4ac695464763 ("dmaengine: sprd: Support DMA link-list mode")
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Link: https://lore.kernel.org/r/77868edb7aff9d5cb12ac3af8827ef2e244441a6.1567150471.git.baolin.wang@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 97ede29e80ee ("tipc: convert name table read-write lock to RCU")
+Reported-by: Li Shuang <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/sprd-dma.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/tipc/name_distr.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index baac476c86224..525dc7338fe3b 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -908,6 +908,7 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
- 	struct dma_slave_config *slave_cfg = &schan->slave_cfg;
- 	dma_addr_t src = 0, dst = 0;
-+	dma_addr_t start_src = 0, start_dst = 0;
- 	struct sprd_dma_desc *sdesc;
- 	struct scatterlist *sg;
- 	u32 len = 0;
-@@ -954,6 +955,11 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 			dst = sg_dma_address(sg);
- 		}
- 
-+		if (!i) {
-+			start_src = src;
-+			start_dst = dst;
-+		}
-+
- 		/*
- 		 * The link-list mode needs at least 2 link-list
- 		 * configurations. If there is only one sg, it doesn't
-@@ -970,8 +976,8 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 		}
+--- a/net/tipc/name_distr.c
++++ b/net/tipc/name_distr.c
+@@ -224,7 +224,8 @@ static void tipc_publ_purge(struct net *
+ 		       publ->key);
  	}
  
--	ret = sprd_dma_fill_desc(chan, &sdesc->chn_hw, 0, 0, src, dst, len,
--				 dir, flags, slave_cfg);
-+	ret = sprd_dma_fill_desc(chan, &sdesc->chn_hw, 0, 0, start_src,
-+				 start_dst, len, dir, flags, slave_cfg);
- 	if (ret) {
- 		kfree(sdesc);
- 		return NULL;
--- 
-2.20.1
-
+-	kfree_rcu(p, rcu);
++	if (p)
++		kfree_rcu(p, rcu);
+ }
+ 
+ /**
 
 
