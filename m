@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06914B84E6
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC63AB8515
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404419AbfISWPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55422 "EHLO mail.kernel.org"
+        id S2406460AbfISWRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403915AbfISWP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:15:29 -0400
+        id S2406465AbfISWRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:17:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 636A821907;
-        Thu, 19 Sep 2019 22:15:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55C0420678;
+        Thu, 19 Sep 2019 22:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931328;
-        bh=ont1s2hWDsj0rjL5UpbAstBll8ppiMiCPDPkdEjRjYY=;
+        s=default; t=1568931449;
+        bh=dHaNzdX8RhfYNR3G9kvpasvBZPNiOdCFP+q6x9pJ5Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wdLUiEyiWXUoodjI9s+g3oRIDAHD0XhTP7zI+Ah4diTYKKI0fjC85+4kVlojZEot
-         E51M5iG6o6poVlMlQ8tpCrEU++p6hqBJO/DCDlJc9DWMV3OAN6y0WwDMr+uwWPoQRW
-         qt+m70sbzGSscyTCWfduMHSS2DDL4E08RZr486As=
+        b=tdSojR/Og12xQNgrI6KDcVsiY7oepRQMyw8OXpXS2jh7/zAJ1CE5FQfoJGfpADLfy
+         ODvU8u6ogUwKvSKMHV95rDP4LLjp/VchBRXKs3VaESzHuvF4/qzpXJ39C7LKOyQy0H
+         2bNhvdaQCFF31utGqxulcUbRStnyDyuZF78eLXoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>, Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 79/79] media: technisat-usb2: break out of loop at end of buffer
-Date:   Fri, 20 Sep 2019 00:04:04 +0200
-Message-Id: <20190919214814.696898666@linuxfoundation.org>
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Hillf Danton <hdanton@sina.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 51/59] keys: Fix missing null pointer check in request_key_auth_describe()
+Date:   Fri, 20 Sep 2019 00:04:06 +0200
+Message-Id: <20190919214807.790861796@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Hillf Danton <hdanton@sina.com>
 
-commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b upstream.
+[ Upstream commit d41a3effbb53b1bcea41e328d16a4d046a508381 ]
 
-Ensure we do not access the buffer beyond the end if no 0xff byte
-is encountered.
+If a request_key authentication token key gets revoked, there's a window in
+which request_key_auth_describe() can see it with a NULL payload - but it
+makes no check for this and something like the following oops may occur:
 
-Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	BUG: Kernel NULL pointer dereference at 0x00000038
+	Faulting instruction address: 0xc0000000004ddf30
+	Oops: Kernel access of bad area, sig: 11 [#1]
+	...
+	NIP [...] request_key_auth_describe+0x90/0xd0
+	LR [...] request_key_auth_describe+0x54/0xd0
+	Call Trace:
+	[...] request_key_auth_describe+0x54/0xd0 (unreliable)
+	[...] proc_keys_show+0x308/0x4c0
+	[...] seq_read+0x3d0/0x540
+	[...] proc_reg_read+0x90/0x110
+	[...] __vfs_read+0x3c/0x70
+	[...] vfs_read+0xb4/0x1b0
+	[...] ksys_read+0x7c/0x130
+	[...] system_call+0x5c/0x70
 
+Fix this by checking for a NULL pointer when describing such a key.
+
+Also make the read routine check for a NULL pointer to be on the safe side.
+
+[DH: Modified to not take already-held rcu lock and modified to also check
+ in the read routine]
+
+Fixes: 04c567d9313e ("[PATCH] Keys: Fix race between two instantiators of a key")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/technisat-usb2.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ security/keys/request_key_auth.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/media/usb/dvb-usb/technisat-usb2.c
-+++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
-@@ -607,10 +607,9 @@ static int technisat_usb2_frontend_attac
- static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
+index 5e515791ccd11..1d34b2a5f485e 100644
+--- a/security/keys/request_key_auth.c
++++ b/security/keys/request_key_auth.c
+@@ -71,6 +71,9 @@ static void request_key_auth_describe(const struct key *key,
  {
- 	struct technisat_usb2_state *state = d->priv;
--	u8 *buf = state->buf;
--	u8 *b;
--	int ret;
- 	struct ir_raw_event ev;
-+	u8 *buf = state->buf;
-+	int i, ret;
+ 	struct request_key_auth *rka = get_request_key_auth(key);
  
- 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
- 	buf[1] = 0x08;
-@@ -646,26 +645,25 @@ unlock:
- 		return 0; /* no key pressed */
- 
- 	/* decoding */
--	b = buf+1;
- 
- #if 0
- 	deb_rc("RC: %d ", ret);
--	debug_dump(b, ret, deb_rc);
-+	debug_dump(buf + 1, ret, deb_rc);
- #endif
- 
- 	ev.pulse = 0;
--	while (1) {
--		ev.pulse = !ev.pulse;
--		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
--		ir_raw_event_store(d->rc_dev, &ev);
--
--		b++;
--		if (*b == 0xff) {
-+	for (i = 1; i < ARRAY_SIZE(state->buf); i++) {
-+		if (buf[i] == 0xff) {
- 			ev.pulse = 0;
- 			ev.duration = 888888*2;
- 			ir_raw_event_store(d->rc_dev, &ev);
- 			break;
- 		}
++	if (!rka)
++		return;
 +
-+		ev.pulse = !ev.pulse;
-+		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
-+			       FIRMWARE_CLOCK_TICK) / 1000;
-+		ir_raw_event_store(d->rc_dev, &ev);
- 	}
+ 	seq_puts(m, "key:");
+ 	seq_puts(m, key->description);
+ 	if (key_is_positive(key))
+@@ -88,6 +91,9 @@ static long request_key_auth_read(const struct key *key,
+ 	size_t datalen;
+ 	long ret;
  
- 	ir_raw_event_handle(d->rc_dev);
++	if (!rka)
++		return -EKEYREVOKED;
++
+ 	datalen = rka->callout_len;
+ 	ret = datalen;
+ 
+-- 
+2.20.1
+
 
 
