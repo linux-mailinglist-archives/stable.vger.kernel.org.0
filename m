@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9149B872C
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F701B86D9
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405442AbfISWJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
+        id S2406044AbfISWN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405437AbfISWJc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:32 -0400
+        id S2389065AbfISWNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 972D621907;
-        Thu, 19 Sep 2019 22:09:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45178218AF;
+        Thu, 19 Sep 2019 22:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930972;
-        bh=2vjN1mTgWrVfPYXSq4C3quBd4Ijtnf7GY7w2gVNMFUw=;
+        s=default; t=1568931203;
+        bh=MRUNO9C/94B63GnoViI+yGfylvAzUS9Io838A+lk0UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cULZrZgm80e8dykXA/U6jC+zm/i0QknXbhd+rPfah7qC3Wl8kQGzgrPIJGds38aFt
-         IWHSe7YV6FzzgBjfY7bi1LwJO0IyZ4Vbt9heWeLGEcM0praVKh7r2gJbpN4Vl/+Z2W
-         7eEQ2g8PmnbmGYpgNF8slvrZfSgyViO8+x0IzifA=
+        b=PCAAwn5Hb+C9Mdx3AIze7/JTrgjYxfOK5W42pkg3iOUECF+siZU+j0DhUqQpARokN
+         VIPVeOOPF+2xy1seNpa97cjjLaQwsVGmPUp9rRIcWsxKmhDJq6/0d10m4o5AjsibWf
+         S2GzOllgmlVRr2klGJGPQyJ/urnCkWSE1IsH2hcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nagarjuna Kristam <nkristam@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 082/124] usb: host: xhci-tegra: Set DMA mask correctly
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 05/79] powerpc/mm/radix: Use the right page size for vmemmap mapping
 Date:   Fri, 20 Sep 2019 00:02:50 +0200
-Message-Id: <20190919214822.000675695@linuxfoundation.org>
+Message-Id: <20190919214808.182414532@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nagarjuna Kristam <nkristam@nvidia.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 993cc8753453fccfe060a535bbe21fcf1001b626 ]
+commit 89a3496e0664577043666791ec07fb731d57c950 upstream.
 
-The Falcon microcontroller that runs the XUSB firmware and which is
-responsible for exposing the XHCI interface can address only 40 bits of
-memory. Typically that's not a problem because Tegra devices don't have
-enough system memory to exceed those 40 bits.
+We use mmu_vmemmap_psize to find the page size for mapping the vmmemap area.
+With radix translation, we are suboptimally setting this value to PAGE_SIZE.
 
-However, if the ARM SMMU is enable on Tegra186 and later, the addresses
-passed to the XUSB controller can be anywhere in the 48-bit IOV address
-space of the ARM SMMU. Since the DMA/IOMMU API starts allocating from
-the top of the IOVA space, the Falcon microcontroller is not able to
-load the firmware successfully.
+We do check for 2M page size support and update mmu_vmemap_psize to use
+hugepage size but we suboptimally reset the value to PAGE_SIZE in
+radix__early_init_mmu(). This resulted in always mapping vmemmap area with
+64K page size.
 
-Fix this by setting the DMA mask to 40 bits, which will force the DMA
-API to map the buffer for the firmware to an IOVA that is addressable by
-the Falcon.
-
-Signed-off-by: Nagarjuna Kristam <nkristam@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/1566989697-13049-1-git-send-email-nkristam@nvidia.com
+Fixes: 2bfd65e45e87 ("powerpc/mm/radix: Add radix callbacks for early init routines")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/host/xhci-tegra.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/mm/pgtable-radix.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
-index 294158113d62c..77142f9bf26ae 100644
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1217,6 +1217,16 @@ static int tegra_xusb_probe(struct platform_device *pdev)
+--- a/arch/powerpc/mm/pgtable-radix.c
++++ b/arch/powerpc/mm/pgtable-radix.c
+@@ -521,14 +521,6 @@ void __init radix__early_init_devtree(vo
+ 	mmu_psize_defs[MMU_PAGE_64K].shift = 16;
+ 	mmu_psize_defs[MMU_PAGE_64K].ap = 0x5;
+ found:
+-#ifdef CONFIG_SPARSEMEM_VMEMMAP
+-	if (mmu_psize_defs[MMU_PAGE_2M].shift) {
+-		/*
+-		 * map vmemmap using 2M if available
+-		 */
+-		mmu_vmemmap_psize = MMU_PAGE_2M;
+-	}
+-#endif /* CONFIG_SPARSEMEM_VMEMMAP */
+ 	return;
+ }
  
- 	tegra_xusb_config(tegra, regs);
+@@ -567,7 +559,13 @@ void __init radix__early_init_mmu(void)
  
-+	/*
-+	 * The XUSB Falcon microcontroller can only address 40 bits, so set
-+	 * the DMA mask accordingly.
-+	 */
-+	err = dma_set_mask_and_coherent(tegra->dev, DMA_BIT_MASK(40));
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failed to set DMA mask: %d\n", err);
-+		goto put_rpm;
-+	}
-+
- 	err = tegra_xusb_load_firmware(tegra);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to load firmware: %d\n", err);
--- 
-2.20.1
-
+ #ifdef CONFIG_SPARSEMEM_VMEMMAP
+ 	/* vmemmap mapping */
+-	mmu_vmemmap_psize = mmu_virtual_psize;
++	if (mmu_psize_defs[MMU_PAGE_2M].shift) {
++		/*
++		 * map vmemmap using 2M if available
++		 */
++		mmu_vmemmap_psize = MMU_PAGE_2M;
++	} else
++		mmu_vmemmap_psize = mmu_virtual_psize;
+ #endif
+ 	/*
+ 	 * initialize page table size
 
 
