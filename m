@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F0FB8593
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E42B8636
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406860AbfISWWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S2390247AbfISWU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406853AbfISWW3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:22:29 -0400
+        id S2394026AbfISWUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:20:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69BA121927;
-        Thu, 19 Sep 2019 22:22:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A59721907;
+        Thu, 19 Sep 2019 22:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931748;
-        bh=4pzk7W34Hwiym1j70wpXjtgVm/YZFf5dNu8qSh4DBXg=;
+        s=default; t=1568931624;
+        bh=h7bs5BaL3V7O2y9WW5ZRBJX0p8qiT4bHZLFJo4yFCI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqomM5ShHsZ5G6UDpdAWEfxs6rcf+aLxfX40qJRXrvRy2FqNX8WuUdbl7CtkJdsaE
-         KtZpknYtXntzKcmUeLEgUAPw1uIFQrrY0ESMBJoC5QSgDNp54JBbSzrOkY1VudgLEI
-         aysrsw65M1B6auDsiyLacJOk/0SuLpPy+MSNt2UE=
+        b=Y4/KJKy5Eyw/kGjEyhKF0DroOgd3eiPoo4/+03yUY4VHKurHijqKK0Ux6yhHujNbf
+         3sSE5WWKfIC22GKht4MjSZs9RciWbJGlO3uFQ129TYbl6aVEHt4/bD5cGaQz8dNN9Q
+         Y/P+AvfnftFnrsAr5p5h6r+UC9NTyFykivNm9LQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Ganesan Ramalingam <ganesanr@broadcom.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jayachandran C <jnair@caviumnetworks.com>,
-        John Crispin <john@phrozen.org>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 25/56] MIPS: netlogic: xlr: Remove erroneous check in nlm_fmn_send()
-Date:   Fri, 20 Sep 2019 00:04:06 +0200
-Message-Id: <20190919214755.209045371@linuxfoundation.org>
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 54/74] r8152: Set memory to all 0xFFs on failed reg reads
+Date:   Fri, 20 Sep 2019 00:04:07 +0200
+Message-Id: <20190919214810.052809203@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,54 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-commit 02eec6c9fc0cb13169cc97a6139771768791f92b upstream.
+[ Upstream commit f53a7ad189594a112167efaf17ea8d0242b5ac00 ]
 
-In nlm_fmn_send() we have a loop which attempts to send a message
-multiple times in order to handle the transient failure condition of a
-lack of available credit. When examining the status register to detect
-the failure we check for a condition that can never be true, which falls
-foul of gcc 8's -Wtautological-compare:
+get_registers() blindly copies the memory written to by the
+usb_control_msg() call even if the underlying urb failed.
 
-  In file included from arch/mips/netlogic/common/irq.c:65:
-  ./arch/mips/include/asm/netlogic/xlr/fmn.h: In function 'nlm_fmn_send':
-  ./arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise
-    comparison always evaluates to false [-Werror=tautological-compare]
-     if ((status & 0x2) == 1)
-                        ^~
+This could lead to junk register values being read by the driver, since
+some indirect callers of get_registers() ignore the return values. One
+example is:
+  ocp_read_dword() ignores the return value of generic_ocp_read(), which
+  calls get_registers().
 
-If the path taken if this condition were true all we do is print a
-message to the kernel console. Since failures seem somewhat expected
-here (making the console message questionable anyway) and the condition
-has clearly never evaluated true we simply remove it, rather than
-attempting to fix it to check status correctly.
+So, emulate PCI "Master Abort" behavior by setting the buffer to all
+0xFFs when usb_control_msg() fails.
 
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/20174/
-Cc: Ganesan Ramalingam <ganesanr@broadcom.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Jayachandran C <jnair@caviumnetworks.com>
-Cc: John Crispin <john@phrozen.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch is copied from the r8152 driver (v2.12.0) published by
+Realtek (www.realtek.com).
 
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Acked-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/netlogic/xlr/fmn.h |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/usb/r8152.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/mips/include/asm/netlogic/xlr/fmn.h
-+++ b/arch/mips/include/asm/netlogic/xlr/fmn.h
-@@ -301,8 +301,6 @@ static inline int nlm_fmn_send(unsigned
- 	for (i = 0; i < 8; i++) {
- 		nlm_msgsnd(dest);
- 		status = nlm_read_c2_status0();
--		if ((status & 0x2) == 1)
--			pr_info("Send pending fail!\n");
- 		if ((status & 0x4) == 0)
- 			return 0;
- 	}
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 02e29562d254e..15dc70c118579 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -689,8 +689,11 @@ int get_registers(struct r8152 *tp, u16 value, u16 index, u16 size, void *data)
+ 	ret = usb_control_msg(tp->udev, usb_rcvctrlpipe(tp->udev, 0),
+ 			      RTL8152_REQ_GET_REGS, RTL8152_REQT_READ,
+ 			      value, index, tmp, size, 500);
++	if (ret < 0)
++		memset(data, 0xff, size);
++	else
++		memcpy(data, tmp, size);
+ 
+-	memcpy(data, tmp, size);
+ 	kfree(tmp);
+ 
+ 	return ret;
+-- 
+2.20.1
+
 
 
