@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A27CEB874A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B3DB874C
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393240AbfISWHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:07:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
+        id S2393252AbfISWHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393235AbfISWHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:07:32 -0400
+        id S2393248AbfISWHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6539B21907;
-        Thu, 19 Sep 2019 22:07:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1397A218AF;
+        Thu, 19 Sep 2019 22:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930851;
-        bh=hnqkJNqeU0GZH+MoozhkmudYBgC7N8oYscP95+s0Whg=;
+        s=default; t=1568930854;
+        bh=9gc/Zm1Jj1ppxAEBa09tR3HducYwUO/bNUYg07C8ndk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPCW0hgUHljNZsu+3kFauwDF4yrvbPfNSr6RM7fi3DrJytcz5v4gwIOkDh5+4Niej
-         2uRhx+jnsjlBiIvCHpFPmRu6o1YY81zEOGlyNnTkDJiytRU8O6AlGcg0HT8IC2nAIX
-         jQ1D4OY5YEVPlXukTE8ZCZvMrvJge6QdbGINFynU=
+        b=lUs0Rpw7acQzysr9UT33L1xcGnf1F2Cx675Mfh+CRMCxMZp0o2+aQ5kih+n/42fH3
+         Uxu4GtNIAUeFHiGdsNymxGApMasap+u+bQO8kYy0digiRlDPpex/K190HQoG7T16ja
+         Qlp/axpbTge3hDm98ZXXd1lvyUsrGQdryXinHsHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 010/124] nfs: disable client side deduplication
-Date:   Fri, 20 Sep 2019 00:01:38 +0200
-Message-Id: <20190919214819.539230985@linuxfoundation.org>
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.2 011/124] powerpc/mm/radix: Use the right page size for vmemmap mapping
+Date:   Fri, 20 Sep 2019 00:01:39 +0200
+Message-Id: <20190919214819.570071312@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -44,35 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 9026b3a973b0b0b73c15ba40aff87cd0959fd0f3 upstream.
+commit 89a3496e0664577043666791ec07fb731d57c950 upstream.
 
-The NFS protocol doesn't support deduplication, so turn it off again.
+We use mmu_vmemmap_psize to find the page size for mapping the vmmemap area.
+With radix translation, we are suboptimally setting this value to PAGE_SIZE.
 
-Fixes: ce96e888fe48e ("Fix nfs4.2 return -EINVAL when do dedupe operation")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+We do check for 2M page size support and update mmu_vmemap_psize to use
+hugepage size but we suboptimally reset the value to PAGE_SIZE in
+radix__early_init_mmu(). This resulted in always mapping vmemmap area with
+64K page size.
+
+Fixes: 2bfd65e45e87 ("powerpc/mm/radix: Add radix callbacks for early init routines")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4file.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/mm/book3s64/radix_pgtable.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -187,7 +187,11 @@ static loff_t nfs42_remap_file_range(str
- 	bool same_inode = false;
- 	int ret;
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -515,14 +515,6 @@ void __init radix__early_init_devtree(vo
+ 	mmu_psize_defs[MMU_PAGE_64K].shift = 16;
+ 	mmu_psize_defs[MMU_PAGE_64K].ap = 0x5;
+ found:
+-#ifdef CONFIG_SPARSEMEM_VMEMMAP
+-	if (mmu_psize_defs[MMU_PAGE_2M].shift) {
+-		/*
+-		 * map vmemmap using 2M if available
+-		 */
+-		mmu_vmemmap_psize = MMU_PAGE_2M;
+-	}
+-#endif /* CONFIG_SPARSEMEM_VMEMMAP */
+ 	return;
+ }
  
--	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
-+	/* NFS does not support deduplication. */
-+	if (remap_flags & REMAP_FILE_DEDUP)
-+		return -EOPNOTSUPP;
-+
-+	if (remap_flags & ~REMAP_FILE_ADVISORY)
- 		return -EINVAL;
+@@ -587,7 +579,13 @@ void __init radix__early_init_mmu(void)
  
- 	/* check alignment w.r.t. clone_blksize */
+ #ifdef CONFIG_SPARSEMEM_VMEMMAP
+ 	/* vmemmap mapping */
+-	mmu_vmemmap_psize = mmu_virtual_psize;
++	if (mmu_psize_defs[MMU_PAGE_2M].shift) {
++		/*
++		 * map vmemmap using 2M if available
++		 */
++		mmu_vmemmap_psize = MMU_PAGE_2M;
++	} else
++		mmu_vmemmap_psize = mmu_virtual_psize;
+ #endif
+ 	/*
+ 	 * initialize page table size
 
 
