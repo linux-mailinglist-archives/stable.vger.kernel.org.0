@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB93AB861E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5206FB8668
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406706AbfISWVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35756 "EHLO mail.kernel.org"
+        id S2406552AbfISWSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406704AbfISWVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:21:18 -0400
+        id S2404681AbfISWSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:18:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE66E21907;
-        Thu, 19 Sep 2019 22:21:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CA3E21924;
+        Thu, 19 Sep 2019 22:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931678;
-        bh=wnITQ2KXJYh9SLVeKmbRzzeu15XPQTUn5t2r+rTvR54=;
+        s=default; t=1568931479;
+        bh=XoWVh8zkxqQBH7vyK96N6HQzgw676k1kvoxSzDKHeGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyZixq5H3Q6ZeMRt+ZBhh/YfY+K5wFMUH+JG3Pcx7zKMoElwmeBmaDs5mzN2skObd
-         8/TRwoAh/m6W2jYMbHLyRVqor1gkS8WTTIFKZcioLdzLg0u8xMnwGW6XiZ9XrvgB9A
-         7N8zW8udSFzaUubuMmT729G8qwsfzEz+KjirC5bU=
+        b=Ik+2BtCYHFsjS9srJRcR/5qMdnb/MSNG9Tt6DZ2vvvfj6O7Uxu7ZaKjJxHIi0kE4g
+         351V0jy7C/cCroMm/CoOu14efRsv7PVDb4qbUP6KnawX1LOC1ZLu3gSduXjt25Q0lP
+         FKdGjLFv2ElDyFbJGFC9POHJ5WNeqJPhm26Dj+80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.9 38/74] x86/boot: Add missing bootparam that breaks boot on some platforms
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 36/59] cifs: Use kzfree() to zero out the password
 Date:   Fri, 20 Sep 2019 00:03:51 +0200
-Message-Id: <20190919214808.643870604@linuxfoundation.org>
+Message-Id: <20190919214806.407908148@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-Change
+[ Upstream commit 478228e57f81f6cb60798d54fc02a74ea7dd267e ]
 
-  a90118c445cc x86/boot: Save fields explicitly, zero out everything else
+It's safer to zero out the password so that it can never be disclosed.
 
-modified the way boot parameters were saved on x86.  When this was
-backported, e820_table didn't exists, and that change was dropped.
-Unfortunately, e820_table did exist, it was just named e820_map
-in this kernel version.
-
-This was breaking booting on a Supermicro Super Server/A2SDi-2C-HLN4F
-with a Denverton CPU.  Adding e820_map to the saved boot params table
-fixes the issue.
-
-Cc: <stable@vger.kernel.org> # 4.9.x, 4.4.x
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0c219f5799c7 ("cifs: set domainName when a domain-key is used in multiuser")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/bootparam_utils.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/connect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/bootparam_utils.h
-+++ b/arch/x86/include/asm/bootparam_utils.h
-@@ -71,6 +71,7 @@ static void sanitize_boot_params(struct
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
- 			BOOT_PARAM_PRESERVE(hdr),
-+			BOOT_PARAM_PRESERVE(e820_map),
- 			BOOT_PARAM_PRESERVE(eddbuf),
- 		};
- 
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 699e763ea671a..f523a9ca9574f 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2662,7 +2662,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
+ 			rc = -ENOMEM;
+ 			kfree(vol->username);
+ 			vol->username = NULL;
+-			kfree(vol->password);
++			kzfree(vol->password);
+ 			vol->password = NULL;
+ 			goto out_key_put;
+ 		}
+-- 
+2.20.1
+
 
 
