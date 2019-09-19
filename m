@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D7CB858A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6625B8647
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406786AbfISWWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37052 "EHLO mail.kernel.org"
+        id S2405987AbfISW2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:28:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406778AbfISWWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:22:10 -0400
+        id S2393961AbfISWUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:20:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5877C21927;
-        Thu, 19 Sep 2019 22:22:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 681F721907;
+        Thu, 19 Sep 2019 22:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931729;
-        bh=ATTSTQNzeM8sUDrhqGjI62uCRviZbT7bue9ppOoviPs=;
+        s=default; t=1568931602;
+        bh=MKKCdTpxrjO/8GLYKplTiRHH7UYUIgrAhr+SMn0bOcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIBwdd53HHOsyzU7I8eubSnyXON7rFH2W5gqUdA26alQi5fMwvZzuVexUcS6xuo58
-         mG/a6zLGwjZI2CR+YHKXpejRObyl0LxukyaB9IC9OHi+92VZzp5vl7SdHGzg7H0ytx
-         tEFDsh94z3OmGxAlVraBY8/ENVSIY3Q3hCTomD90=
+        b=pVs0QGEQISfiHNFN1iM4q8g2UZbph3pCoeARM/p3Z8oEbsasWM+FiwYIW1pXV1rrA
+         TOALofm7ThZ5y3Hf2BcDuQVBgtaJ0dYML+Trd7VAoxiTzAOFVOsr/VWVLTvO3NhV5l
+         4K45hhkX8Mzd5MhWiB3Wf70OhkATL8VAtgbzEXuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "Maciej W. Rozycki" <macro@linux-mips.org>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH 4.4 19/56] MIPS: VDSO: Use same -m%-float cflag as the kernel proper
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 47/74] s390/bpf: use 32-bit index for tail calls
 Date:   Fri, 20 Sep 2019 00:04:00 +0200
-Message-Id: <20190919214753.768218356@linuxfoundation.org>
+Message-Id: <20190919214809.343520917@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-commit 0648e50e548d881d025b9419a1a168753c8e2bf7 upstream.
+[ Upstream commit 91b4db5313a2c793aabc2143efb8ed0cf0fdd097 ]
 
-The MIPS VDSO build currently doesn't provide the -msoft-float flag to
-the compiler as the kernel proper does. This results in an attempt to
-use the compiler's default floating point configuration, which can be
-problematic in cases where this is incompatible with the target CPU's
--march= flag. For example decstation_defconfig fails to build using
-toolchains in which gcc was configured --with-fp-32=xx with the
-following error:
+"p runtime/jit: pass > 32bit index to tail_call" fails when
+bpf_jit_enable=1, because the tail call is not executed.
 
-    LDS     arch/mips/vdso/vdso.lds
-  cc1: error: '-march=r3000' requires '-mfp32'
-  make[2]: *** [scripts/Makefile.build:379: arch/mips/vdso/vdso.lds] Error 1
+This in turn is because the generated code assumes index is 64-bit,
+while it must be 32-bit, and as a result prog array bounds check fails,
+while it should pass. Even if bounds check would have passed, the code
+that follows uses 64-bit index to compute prog array offset.
 
-The kernel proper avoids this error because we build with the
--msoft-float compiler flag, rather than using the compiler's default.
-Pass this flag through to the VDSO build so that it too becomes agnostic
-to the toolchain's floating point configuration.
+Fix by using clrj instead of clgrj for comparing index with array size,
+and also by using llgfr for truncating index to 32 bits before using it
+to compute prog array offset.
 
-Note that this is filtered out from KBUILD_CFLAGS rather than simply
-always using -msoft-float such that if we switch the kernel to use
--mno-float in the future the VDSO will automatically inherit the change.
-
-The VDSO doesn't actually include any floating point code, and its
-.MIPS.abiflags section is already manually generated to specify that
-it's compatible with any floating point ABI. As such this change should
-have no effect on the resulting VDSO, apart from fixing the build
-failure for affected toolchains.
-
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Reported-by: Kevin Hilman <khilman@baylibre.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Cc: Maciej W. Rozycki <macro@linux-mips.org>
-Cc: linux-mips@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.4+
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 6651ee070b31 ("s390/bpf: implement bpf_tail_call() helper")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/net/bpf_jit_comp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -7,6 +7,7 @@ ccflags-vdso := \
- 	$(filter -E%,$(KBUILD_CFLAGS)) \
- 	$(filter -mmicromips,$(KBUILD_CFLAGS)) \
- 	$(filter -march=%,$(KBUILD_CFLAGS)) \
-+	$(filter -m%-float,$(KBUILD_CFLAGS)) \
- 	-D__VDSO__
- cflags-vdso := $(ccflags-vdso) \
- 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index e4616090732a4..9b15a1dc66287 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1062,8 +1062,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		/* llgf %w1,map.max_entries(%b2) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0016, REG_W1, REG_0, BPF_REG_2,
+ 			      offsetof(struct bpf_array, map.max_entries));
+-		/* clgrj %b3,%w1,0xa,label0: if %b3 >= %w1 goto out */
+-		EMIT6_PCREL_LABEL(0xec000000, 0x0065, BPF_REG_3,
++		/* clrj %b3,%w1,0xa,label0: if (u32)%b3 >= (u32)%w1 goto out */
++		EMIT6_PCREL_LABEL(0xec000000, 0x0077, BPF_REG_3,
+ 				  REG_W1, 0, 0xa);
+ 
+ 		/*
+@@ -1089,8 +1089,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		 *         goto out;
+ 		 */
+ 
+-		/* sllg %r1,%b3,3: %r1 = index * 8 */
+-		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, BPF_REG_3, REG_0, 3);
++		/* llgfr %r1,%b3: %r1 = (u32) index */
++		EMIT4(0xb9160000, REG_1, BPF_REG_3);
++		/* sllg %r1,%r1,3: %r1 *= 8 */
++		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, REG_1, REG_0, 3);
+ 		/* lg %r1,prog(%b2,%r1) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_1, BPF_REG_2,
+ 			      REG_1, offsetof(struct bpf_array, ptrs));
+-- 
+2.20.1
+
 
 
