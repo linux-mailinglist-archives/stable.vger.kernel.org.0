@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59556B8776
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1EBAB86E5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406810AbfISWgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:36:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
+        id S2393662AbfISWMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405105AbfISWGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:05 -0400
+        id S2393646AbfISWMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF4C621927;
-        Thu, 19 Sep 2019 22:06:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FB1D218AF;
+        Thu, 19 Sep 2019 22:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930765;
-        bh=slnhpFEp5xIh7mPkMPWgPhf7Q9Yh1FvqHssoFJ05Vfw=;
+        s=default; t=1568931160;
+        bh=vRRFaWWGUOYTPrur3oc3/d02XUTCjrwdPwVR3rAWPoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKBIDNKZMiuXVCSC4GNzt0pm05hysQtgAbx9+M0A+SqOkOMymTHq+5nQS2viuSehu
-         NGtupbLK9z9Led/NJex53Hj4pKXtzmrpb5T/OwFuiKnji56Q/tyJuFNp8WZ26t+G7Q
-         xFCr3eLY4WZ/acF9EPNsy30Z1IyIE/3tzKnzXNA8=
+        b=VcfpkDdikl/ANLluzWygUrSd9ksADgPT5Nntyqu/fHsU15ujgpiZ6okwRpclwSCWb
+         M/ls7/0bMc7is4JtbERFhakxezam0+dYn/hwgpBWT6N7KqxnUo8dFQ26+Azr9p7n8A
+         zuEsxCP/0rKZJ5elc2ANfmNS69Of9WAy7nmYNf74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 08/21] xen-netfront: do not assume sk_buff_head list is empty in error handling
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/79] s390/bpf: fix lcgr instruction encoding
 Date:   Fri, 20 Sep 2019 00:03:09 +0200
-Message-Id: <20190919214702.452008775@linuxfoundation.org>
+Message-Id: <20190919214810.111207626@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
-References: <20190919214657.842130855@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
+[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
 
-When skb_shinfo(skb) is not able to cache extra fragment (that is,
-skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
-the sk_buff_head list is already empty. As a result, cons is increased only
-by 1 and returns to error handling path in xennet_poll().
+"masking, test in bounds 3" fails on s390, because
+BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
+BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
+The associated comment indicates that the code was intended to
+emit lcgr in the first place, it's just that the wrong opcode
+was used.
 
-However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
-set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
-buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
-already cleared to NULL. This leads to NULL pointer access in the next
-iteration to process rx ring buffer entries.
+Fix by using the correct opcode.
 
-Below is how xennet_poll() does error handling. All remaining entries in
-tmpq are accounted to queue->rx.rsp_cons without assuming how many
-outstanding skbs are remained in the list.
-
- 985 static int xennet_poll(struct napi_struct *napi, int budget)
-... ...
-1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
-1033                   __skb_queue_head(&tmpq, skb);
-1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
-1035                   goto err;
-1036           }
-
-It is better to always have the error handling in the same way.
-
-Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c |    2 +-
+ arch/s390/net/bpf_jit_comp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -906,7 +906,7 @@ static RING_IDX xennet_fill_frags(struct
- 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
- 		}
- 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
--			queue->rx.rsp_cons = ++cons;
-+			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
- 			kfree_skb(nskb);
- 			return ~0U;
- 		}
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index d7052cbe984f8..a3ce1fdc3d802 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -841,7 +841,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		break;
+ 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
+ 		/* lcgr %dst,%dst */
+-		EMIT4(0xb9130000, dst_reg, dst_reg);
++		EMIT4(0xb9030000, dst_reg, dst_reg);
+ 		break;
+ 	/*
+ 	 * BPF_FROM_BE/LE
+-- 
+2.20.1
+
 
 
