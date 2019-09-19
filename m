@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBB3B8539
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB3AB84F8
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392692AbfISWSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:18:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
+        id S2406269AbfISWQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:16:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392742AbfISWSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:18:55 -0400
+        id S2406266AbfISWQI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:16:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28591217D6;
-        Thu, 19 Sep 2019 22:18:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 153C0218AF;
+        Thu, 19 Sep 2019 22:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931534;
-        bh=yNoJNMFU8cWJ+QmjH6UBcA1yV6OmQN22vRgU4Q1qBEk=;
+        s=default; t=1568931367;
+        bh=xlj4YzSLybuhqRVuRFUgZO5wN1PoJ9k1JCxgoRxgs3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsCA+ijqOStwotiTY6+iJrxaeAt//qRyD01rf+q3P/nt3TTbRfAcbtOZWt9jtY6Ix
-         Xu30tjQ6O2LnTQseLoWhfMcQyJIWPQxFoP70Br3A9wZ5D+4YWOsDUiZ8HT8CZIJnuc
-         kPAmX1svVQhhukXhUMKKhRdibwL4f+xeYWnFrftY=
+        b=UAkKYE5nmg1u8Z87SMsqCzyIGy8AIJYDJzVJvK+cK0F4oiTX5HOE6lpaWmlehVKch
+         6HuRDun1YQsnXTPjcLPYjN8Sf6ol9FWXTOriKGyaKV6YQ8qDEiLD7qHoVHHB43ZZEu
+         Xg7B/HEX5wXJnMhBQvNd+ZYq8K13r2PCQ7yBs2rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Matt Redfearn <matt.redfearn@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 21/74] MIPS: VDSO: Prevent use of smp_processor_id()
-Date:   Fri, 20 Sep 2019 00:03:34 +0200
-Message-Id: <20190919214806.779501443@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Reid <preid@electromag.com.au>,
+        Moritz Fischer <mdf@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/59] fpga: altera-ps-spi: Fix getting of optional confd gpio
+Date:   Fri, 20 Sep 2019 00:03:35 +0200
+Message-Id: <20190919214801.744973272@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+From: Phil Reid <preid@electromag.com.au>
 
-commit 351fdddd366245c0fb4636f32edfb4198c8d6b8c upstream.
+[ Upstream commit dec43da46f63eb71f519d963ba6832838e4262a3 ]
 
-VDSO code should not be using smp_processor_id(), since it is executed
-in user mode.
-Introduce a VDSO-specific path which will cause a compile-time
-or link-time error (depending upon support for __compiletime_error) if
-the VDSO ever incorrectly attempts to use smp_processor_id().
+Currently the driver does not handle EPROBE_DEFER for the confd gpio.
+Use devm_gpiod_get_optional() instead of devm_gpiod_get() and return
+error codes from altera_ps_probe().
 
-[Matt Redfearn <matt.redfearn@imgtec.com>: Move before change to
-smp_processor_id in series]
-
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/17932/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 5692fae0742d ("fpga manager: Add altera-ps-spi driver for Altera FPGAs")
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/smp.h |   12 +++++++++++-
- arch/mips/vdso/Makefile     |    3 ++-
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/fpga/altera-ps-spi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/arch/mips/include/asm/smp.h
-+++ b/arch/mips/include/asm/smp.h
-@@ -25,7 +25,17 @@ extern cpumask_t cpu_sibling_map[];
- extern cpumask_t cpu_core_map[];
- extern cpumask_t cpu_foreign_map[];
+diff --git a/drivers/fpga/altera-ps-spi.c b/drivers/fpga/altera-ps-spi.c
+index 06d212a3d49dd..19b1cf8a82528 100644
+--- a/drivers/fpga/altera-ps-spi.c
++++ b/drivers/fpga/altera-ps-spi.c
+@@ -207,7 +207,7 @@ static int altera_ps_write_complete(struct fpga_manager *mgr,
+ 		return -EIO;
+ 	}
  
--#define raw_smp_processor_id() (current_thread_info()->cpu)
-+static inline int raw_smp_processor_id(void)
-+{
-+#if defined(__VDSO__)
-+	extern int vdso_smp_processor_id(void)
-+		__compiletime_error("VDSO should not call smp_processor_id()");
-+	return vdso_smp_processor_id();
-+#else
-+	return current_thread_info()->cpu;
-+#endif
-+}
-+#define raw_smp_processor_id raw_smp_processor_id
+-	if (!IS_ERR(conf->confd)) {
++	if (conf->confd) {
+ 		if (!gpiod_get_raw_value_cansleep(conf->confd)) {
+ 			dev_err(&mgr->dev, "CONF_DONE is inactive!\n");
+ 			return -EIO;
+@@ -263,10 +263,13 @@ static int altera_ps_probe(struct spi_device *spi)
+ 		return PTR_ERR(conf->status);
+ 	}
  
- /* Map from cpu id to sequential logical cpu number.  This will only
-    not be idempotent when cpus failed to come on-line.	*/
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -6,7 +6,8 @@ ccflags-vdso := \
- 	$(filter -I%,$(KBUILD_CFLAGS)) \
- 	$(filter -E%,$(KBUILD_CFLAGS)) \
- 	$(filter -mmicromips,$(KBUILD_CFLAGS)) \
--	$(filter -march=%,$(KBUILD_CFLAGS))
-+	$(filter -march=%,$(KBUILD_CFLAGS)) \
-+	-D__VDSO__
- cflags-vdso := $(ccflags-vdso) \
- 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
- 	-O2 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
+-	conf->confd = devm_gpiod_get(&spi->dev, "confd", GPIOD_IN);
++	conf->confd = devm_gpiod_get_optional(&spi->dev, "confd", GPIOD_IN);
+ 	if (IS_ERR(conf->confd)) {
+-		dev_warn(&spi->dev, "Not using confd gpio: %ld\n",
+-			 PTR_ERR(conf->confd));
++		dev_err(&spi->dev, "Failed to get confd gpio: %ld\n",
++			PTR_ERR(conf->confd));
++		return PTR_ERR(conf->confd);
++	} else if (!conf->confd) {
++		dev_warn(&spi->dev, "Not using confd gpio");
+ 	}
+ 
+ 	/* Register manager with unique name */
+-- 
+2.20.1
+
 
 
