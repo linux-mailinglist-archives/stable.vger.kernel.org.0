@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 780E2B85B1
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB40B85E2
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404965AbfISWXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:23:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39754 "EHLO mail.kernel.org"
+        id S2405103AbfISWZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:25:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389457AbfISWXu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:23:50 -0400
+        id S2407057AbfISWXx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:23:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71AE921929;
-        Thu, 19 Sep 2019 22:23:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5356521920;
+        Thu, 19 Sep 2019 22:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931830;
-        bh=PS4psoici0H95izA0+rLc0LA6/LF/xpQ0WNCxnaETgo=;
+        s=default; t=1568931833;
+        bh=YPQUVoNFly186FGiihx6pRJ6rB1JjNJQOT4c6Wej2H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4z7tw40PsZnWhJJT+ScAdkke4oxBkoo8DCxbH27doaP2esy1k8Xs3c+RgDcUvtBF
-         fhUa4iZEczFaTIVOHjGoFsZUXUTWapYxCZ4mQNiwwka8cDzB7+TAL+n0S1QGiDfy/Q
-         sE7x48NrDa2qwJNEowH9CRQRYNgP+1COO+5nKFHQ=
+        b=hJN+L7tQn2bh3hjTlpk/Tco3E78Ch8x3Mf4rD745NjDvBrrkW+YCXr0HGfFhAEQys
+         uA7N0Q2qUrS/DUYBD4S1ij95hmdQT3hIhe2BQU9zbtzUWNBoUCzzeuRo4jH6dSm78X
+         /C6t4bZdafa5Wf/4LtrMUZZMhcK0iD1rDAe98JDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 54/56] floppy: fix usercopy direction
-Date:   Fri, 20 Sep 2019 00:04:35 +0200
-Message-Id: <20190919214804.957737167@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>, Kees Cook <keescook@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.4 55/56] media: technisat-usb2: break out of loop at end of buffer
+Date:   Fri, 20 Sep 2019 00:04:36 +0200
+Message-Id: <20190919214805.053463953@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
 References: <20190919214742.483643642@linuxfoundation.org>
@@ -44,44 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Sean Young <sean@mess.org>
 
-commit 52f6f9d74f31078964ca1574f7bb612da7877ac8 upstream.
+commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b upstream.
 
-As sparse points out, these two copy_from_user() should actually be
-copy_to_user().
+Ensure we do not access the buffer beyond the end if no 0xff byte
+is encountered.
 
-Fixes: 229b53c9bf4e ("take floppy compat ioctls to sodding floppy.c")
-Cc: stable@vger.kernel.org
-Acked-by: Alexander Popov <alex.popov@linux.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/floppy.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb/technisat-usb2.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3784,7 +3784,7 @@ static int compat_getdrvprm(int drive,
- 	v.native_format = UDP->native_format;
- 	mutex_unlock(&floppy_mutex);
+--- a/drivers/media/usb/dvb-usb/technisat-usb2.c
++++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
+@@ -594,9 +594,9 @@ static int technisat_usb2_frontend_attac
  
--	if (copy_from_user(arg, &v, sizeof(struct compat_floppy_drive_params)))
-+	if (copy_to_user(arg, &v, sizeof(struct compat_floppy_drive_params)))
- 		return -EFAULT;
- 	return 0;
- }
-@@ -3820,7 +3820,7 @@ static int compat_getdrvstat(int drive,
- 	v.bufblocks = UDRS->bufblocks;
- 	mutex_unlock(&floppy_mutex);
+ static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+ {
+-	u8 buf[62], *b;
+-	int ret;
++	u8 buf[62];
+ 	struct ir_raw_event ev;
++	int i, ret;
  
--	if (copy_from_user(arg, &v, sizeof(struct compat_floppy_drive_struct)))
-+	if (copy_to_user(arg, &v, sizeof(struct compat_floppy_drive_struct)))
- 		return -EFAULT;
- 	return 0;
- Eintr:
+ 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
+ 	buf[1] = 0x08;
+@@ -632,26 +632,25 @@ unlock:
+ 		return 0; /* no key pressed */
+ 
+ 	/* decoding */
+-	b = buf+1;
+ 
+ #if 0
+ 	deb_rc("RC: %d ", ret);
+-	debug_dump(b, ret, deb_rc);
++	debug_dump(buf + 1, ret, deb_rc);
+ #endif
+ 
+ 	ev.pulse = 0;
+-	while (1) {
+-		ev.pulse = !ev.pulse;
+-		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
+-		ir_raw_event_store(d->rc_dev, &ev);
+-
+-		b++;
+-		if (*b == 0xff) {
++	for (i = 1; i < ARRAY_SIZE(buf); i++) {
++		if (buf[i] == 0xff) {
+ 			ev.pulse = 0;
+ 			ev.duration = 888888*2;
+ 			ir_raw_event_store(d->rc_dev, &ev);
+ 			break;
+ 		}
++
++		ev.pulse = !ev.pulse;
++		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
++			       FIRMWARE_CLOCK_TICK) / 1000;
++		ir_raw_event_store(d->rc_dev, &ev);
+ 	}
+ 
+ 	ir_raw_event_handle(d->rc_dev);
 
 
