@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 807FAB845D
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A4CB8461
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405646AbfISWKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:10:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48634 "EHLO mail.kernel.org"
+        id S2405670AbfISWKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405642AbfISWKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:10:17 -0400
+        id S2405665AbfISWKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:10:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D27221924;
-        Thu, 19 Sep 2019 22:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9F9721907;
+        Thu, 19 Sep 2019 22:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931016;
-        bh=nsDc/mzUG1VGkHJYD5ixRppFhQryzabmU85QmhsoTzk=;
+        s=default; t=1568931022;
+        bh=WxaMEKrG7MelREYobpfsgDzwoREu3G2l4m4/3rQ6iUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akPifbC6Vl5t8nv/vBNC6QNtTtFfCwrzfLlJBnwQJoLm2jt5y4OvvJ8K+lKlKpsYG
-         b86fYwCe6N/ZCPiWUVnCuRuREaAtb2t60y5FjroxniQPv4xFOyapI0RWCaacqM0Clr
-         480biRcYhyy/2aKnwGHIFvehhEkHaVVg+bha1Wx8=
+        b=rw4mjvxoHRwir47thhV5Z5wAI7Gr9sj+RGOMXxQI2b8us+n7aDMfp4nX/FkV9Y6Vx
+         0XmAJXJSJCp/qoWD06cG5c3iDsiq4Njlc+XFZCyxcAFCuQyeqNvz0LxfQMciUyR1XM
+         k26wvatE2P9nTyi3YYoPQhjHDDJrP6YbJSK1FYiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Prarit Bhargava <prarit@redhat.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
         Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 097/124] tools/power turbostat: fix file descriptor leaks
-Date:   Fri, 20 Sep 2019 00:03:05 +0200
-Message-Id: <20190919214822.586215309@linuxfoundation.org>
+Subject: [PATCH 5.2 098/124] tools/power turbostat: fix buffer overrun
+Date:   Fri, 20 Sep 2019 00:03:06 +0200
+Message-Id: <20190919214822.627247848@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -46,35 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
 
-[ Upstream commit 605736c6929d541c78a85dffae4d33a23b6b2149 ]
+[ Upstream commit eeb71c950bc6eee460f2070643ce137e067b234c ]
 
-Fix file descriptor leaks by closing fp before return.
+turbostat could be terminated by general protection fault on some latest
+hardwares which (for example) support 9 levels of C-states and show 18
+"tADDED" lines. That bloats the total output and finally causes buffer
+overrun.  So let's extend the buffer to avoid this.
 
-Addresses-Coverity-ID: 1444591 ("Resource leak")
-Addresses-Coverity-ID: 1444592 ("Resource leak")
-Fixes: 5ea7647b333f ("tools/power turbostat: Warn on bad ACPI LPIT data")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
 Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index efc8d07364c61..0ffbbcac4d19d 100644
+index 0ffbbcac4d19d..752cb4c0fde6b 100644
 --- a/tools/power/x86/turbostat/turbostat.c
 +++ b/tools/power/x86/turbostat/turbostat.c
-@@ -2912,6 +2912,7 @@ int snapshot_cpu_lpi_us(void)
- 	if (retval != 1) {
- 		fprintf(stderr, "Disabling Low Power Idle CPU output\n");
- 		BIC_NOT_PRESENT(BIC_CPU_LPI);
-+		fclose(fp);
- 		return -1;
- 	}
+@@ -5125,7 +5125,7 @@ int initialize_counters(int cpu_id)
  
+ void allocate_output_buffer()
+ {
+-	output_buffer = calloc(1, (1 + topo.num_cpus) * 1024);
++	output_buffer = calloc(1, (1 + topo.num_cpus) * 2048);
+ 	outp = output_buffer;
+ 	if (outp == NULL)
+ 		err(-1, "calloc output buffer");
 -- 
 2.20.1
 
