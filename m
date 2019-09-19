@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86080B871D
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 394DAB86F6
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404202AbfISWKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48274 "EHLO mail.kernel.org"
+        id S2405919AbfISWMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405493AbfISWJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:58 -0400
+        id S2405915AbfISWMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB1BE21920;
-        Thu, 19 Sep 2019 22:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ABF121924;
+        Thu, 19 Sep 2019 22:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930997;
-        bh=YTk7WT15d0Y8PLniGSxM2yMCqXNLzL1Es1fkvcZq1Wk=;
+        s=default; t=1568931127;
+        bh=ouKyXAVyj6EMO2IS6VD8fdjtqEOD8VGdbxLgDFJDtEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrN24fLiKVSAY+Q0GsujzDHz9Ei9oUaUi5AM2VjfnsNfJYoGdbUz2iRm+WW95ZY2p
-         hqJshRvE940eannHSsgH4xmO9Bc8SBoCkU2pRHoGAMckklg12j480eFQlz2zFwU/Kc
-         ClojkjefNyVaGxr3FKT+79+5RlHS8EnWcD1ZnK4Q=
+        b=Eenn43DhNO20kXvSGl13yA33TPV+RUhEzB+eB3QrD1IR18yEhnhWdwUxAXVwSAF4w
+         LbFZ/cp45UP4vkSFocpNmcPA40I19zH/nf2VPhnFajP9srutUAREzo1G8J0+yA4xh4
+         ar9SJhgVZ3zPnsophrG1Os3Pz6pXdmpuJi2mnUfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lori Hikichi <lori.hikichi@broadcom.com>,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 090/124] i2c: iproc: Stop advertising support of SMBUS quick cmd
+        stable@vger.kernel.org, Matt Delco <delco@chromium.org>,
+        Jim Mattson <jmattson@google.com>,
+        syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 13/79] KVM: coalesced_mmio: add bounds checking
 Date:   Fri, 20 Sep 2019 00:02:58 +0200
-Message-Id: <20190919214822.313642904@linuxfoundation.org>
+Message-Id: <20190919214808.978553296@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lori Hikichi <lori.hikichi@broadcom.com>
+From: Matt Delco <delco@chromium.org>
 
-[ Upstream commit b3d604d405166edfd4e1e6053409b85008f4f56d ]
+commit b60fe990c6b07ef6d4df67bc0530c7c90a62623a upstream.
 
-The driver does not support the SMBUS Quick command so remove the
-flag that indicates that level of support.
-By default the i2c_detect tool uses the quick command to try and
-detect devices at some bus addresses.  If the quick command is used
-then we will not detect the device, even though it is present.
+The first/last indexes are typically shared with a user app.
+The app can change the 'last' index that the kernel uses
+to store the next result.  This change sanity checks the index
+before using it for writing to a potentially arbitrary address.
 
-Fixes: e6e5dd3566e0 (i2c: iproc: Add Broadcom iProc I2C Driver)
-Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes CVE-2019-14821.
+
+Cc: stable@vger.kernel.org
+Fixes: 5f94c1741bdc ("KVM: Add coalesced MMIO support (common part)")
+Signed-off-by: Matt Delco <delco@chromium.org>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
+[Use READ_ONCE. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ virt/kvm/coalesced_mmio.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index ad1681872e39d..b99322d83f483 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -801,7 +801,10 @@ static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -40,7 +40,7 @@ static int coalesced_mmio_in_range(struc
+ 	return 1;
+ }
  
- static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
+-static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev)
++static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev, u32 last)
  {
--	u32 val = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	u32 val;
-+
-+	/* We do not support the SMBUS Quick command */
-+	val = I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+ 	struct kvm_coalesced_mmio_ring *ring;
+ 	unsigned avail;
+@@ -52,7 +52,7 @@ static int coalesced_mmio_has_room(struc
+ 	 * there is always one unused entry in the buffer
+ 	 */
+ 	ring = dev->kvm->coalesced_mmio_ring;
+-	avail = (ring->first - ring->last - 1) % KVM_COALESCED_MMIO_MAX;
++	avail = (ring->first - last - 1) % KVM_COALESCED_MMIO_MAX;
+ 	if (avail == 0) {
+ 		/* full */
+ 		return 0;
+@@ -67,24 +67,27 @@ static int coalesced_mmio_write(struct k
+ {
+ 	struct kvm_coalesced_mmio_dev *dev = to_mmio(this);
+ 	struct kvm_coalesced_mmio_ring *ring = dev->kvm->coalesced_mmio_ring;
++	__u32 insert;
  
- 	if (adap->algo->reg_slave)
- 		val |= I2C_FUNC_SLAVE;
--- 
-2.20.1
-
+ 	if (!coalesced_mmio_in_range(dev, addr, len))
+ 		return -EOPNOTSUPP;
+ 
+ 	spin_lock(&dev->kvm->ring_lock);
+ 
+-	if (!coalesced_mmio_has_room(dev)) {
++	insert = READ_ONCE(ring->last);
++	if (!coalesced_mmio_has_room(dev, insert) ||
++	    insert >= KVM_COALESCED_MMIO_MAX) {
+ 		spin_unlock(&dev->kvm->ring_lock);
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+ 	/* copy data in first free entry of the ring */
+ 
+-	ring->coalesced_mmio[ring->last].phys_addr = addr;
+-	ring->coalesced_mmio[ring->last].len = len;
+-	memcpy(ring->coalesced_mmio[ring->last].data, val, len);
++	ring->coalesced_mmio[insert].phys_addr = addr;
++	ring->coalesced_mmio[insert].len = len;
++	memcpy(ring->coalesced_mmio[insert].data, val, len);
+ 	smp_wmb();
+-	ring->last = (ring->last + 1) % KVM_COALESCED_MMIO_MAX;
++	ring->last = (insert + 1) % KVM_COALESCED_MMIO_MAX;
+ 	spin_unlock(&dev->kvm->ring_lock);
+ 	return 0;
+ }
 
 
