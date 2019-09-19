@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A561B863B
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E7AB860B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392538AbfISWT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33782 "EHLO mail.kernel.org"
+        id S2406754AbfISWWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:22:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390487AbfISWT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:19:58 -0400
+        id S2404958AbfISWWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5BD921A49;
-        Thu, 19 Sep 2019 22:19:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F21EC21924;
+        Thu, 19 Sep 2019 22:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931597;
-        bh=2ibOJCskqyyIBOusPY1iCMu2HpaNxbbIeVYJZPmsBhE=;
+        s=default; t=1568931724;
+        bh=8BTfjg4RNnB4XrZjNOTvCz6Gtu4UnMZH+r+BDGHfquI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrIOCHMgqjcJf0AkPmF+2rPZ7VEi/2SxVm9u3tqzWS2CfAJUDvTO7TAYZPEiNg5a5
-         rbBN/14n6AItaCj12i91mRrgnX1CuWnH4D0Zf8Uriee173R0q4KnZDBvYR4lxSmqjx
-         Yi/SM5wgf9JnpMovO07U5yAtJgFxHqa/mcYsadBY=
+        b=nM6minULzke+XowmMgGG13m5mvkRU0j2unFgN4ZfCEEzcTNcp9fnNAw1hD3ZOIAqE
+         5PsqDqPSYlxEsAPIQwIjBZTicTd2QnnG1Y5z93SrU6bZs0ZYDWAoLDWcvr1DfblV+v
+         wOoaNFiiZR5r/27BUY34DsSyWTkfVsK3Kk3HwQfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/74] s390/bpf: fix lcgr instruction encoding
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 17/56] KVM: nVMX: handle page fault in vmread
 Date:   Fri, 20 Sep 2019 00:03:58 +0200
-Message-Id: <20190919214809.196831790@linuxfoundation.org>
+Message-Id: <20190919214752.927023617@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
+commit f7eea636c3d505fe6f1d1066234f1aaf7171b681 upstream.
 
-"masking, test in bounds 3" fails on s390, because
-BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
-BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
-The associated comment indicates that the code was intended to
-emit lcgr in the first place, it's just that the wrong opcode
-was used.
+The implementation of vmread to memory is still incomplete, as it
+lacks the ability to do vmread to I/O memory just like vmptrst.
 
-Fix by using the correct opcode.
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 896344b6e0363..e4616090732a4 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -881,7 +881,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		break;
- 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
- 		/* lcgr %dst,%dst */
--		EMIT4(0xb9130000, dst_reg, dst_reg);
-+		EMIT4(0xb9030000, dst_reg, dst_reg);
- 		break;
- 	/*
- 	 * BPF_FROM_BE/LE
--- 
-2.20.1
-
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -7247,6 +7247,7 @@ static int handle_vmread(struct kvm_vcpu
+ 	unsigned long exit_qualification = vmcs_readl(EXIT_QUALIFICATION);
+ 	u32 vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+ 	gva_t gva = 0;
++	struct x86_exception e;
+ 
+ 	if (!nested_vmx_check_permission(vcpu) ||
+ 	    !nested_vmx_check_vmcs12(vcpu))
+@@ -7273,8 +7274,10 @@ static int handle_vmread(struct kvm_vcpu
+ 				vmx_instruction_info, true, &gva))
+ 			return 1;
+ 		/* _system ok, as nested_vmx_check_permission verified cpl=0 */
+-		kvm_write_guest_virt_system(vcpu, gva, &field_value,
+-					    (is_long_mode(vcpu) ? 8 : 4), NULL);
++		if (kvm_write_guest_virt_system(vcpu, gva, &field_value,
++						(is_long_mode(vcpu) ? 8 : 4),
++						NULL))
++			kvm_inject_page_fault(vcpu, &e);
+ 	}
+ 
+ 	nested_vmx_succeed(vcpu);
 
 
