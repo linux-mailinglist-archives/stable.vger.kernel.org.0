@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E32B9B875F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB46FB8763
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405274AbfISWGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:06:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S2393120AbfISWHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405269AbfISWGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:46 -0400
+        id S2393117AbfISWHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89E5E21920;
-        Thu, 19 Sep 2019 22:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1952821907;
+        Thu, 19 Sep 2019 22:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930806;
-        bh=U4CHxSGHitHApCNjAH7iKIqHWmPLONJnYaP/Hq8Qqhc=;
+        s=default; t=1568930819;
+        bh=hFYo/74gVn52eg42PNmX0qBZBecS71x9smF8rN55b5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVSsixw5obFjMcBuEbwq0N7Esh6fIBgU9+/H+EdR4qsMkT0sU/BRlQ9Ig4mjXRjPQ
-         qFKmZmK9jJU5/ZyPW+VWtGf1dSOM1iTAf/gGr70rjnxqK13qftc/wjC0LON+ghgz0I
-         eazpQmLolwaa5wxX4lkl31+9k8fa6HFoNuSKP05w=
+        b=w6zT5l6VLhTz9AzQfWSgRQOnJoN9FywNRHruMIZfQ3/74s+D1zxoDLMA6mPlTMwJw
+         TbxfSyLut8r5cjD5tjqUkzXDJW39+9XhN4/9xa1ku77D1LGdCKuPaRMNHWHTevmaOH
+         fA/xhnoB7wYpDpntOYQ6ZPcgsur/BbP4RuBDkRpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Delco <delco@chromium.org>,
-        Jim Mattson <jmattson@google.com>,
-        syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.2 021/124] KVM: coalesced_mmio: add bounds checking
-Date:   Fri, 20 Sep 2019 00:01:49 +0200
-Message-Id: <20190919214819.854076035@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Huang <huangwenabc@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.comg>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.2 025/124] mwifiex: Fix three heap overflow at parsing element in cfg80211_ap_settings
+Date:   Fri, 20 Sep 2019 00:01:53 +0200
+Message-Id: <20190919214819.972597811@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -45,84 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Delco <delco@chromium.org>
+From: Wen Huang <huangwenabc@gmail.com>
 
-commit b60fe990c6b07ef6d4df67bc0530c7c90a62623a upstream.
+commit 7caac62ed598a196d6ddf8d9c121e12e082cac3a upstream.
 
-The first/last indexes are typically shared with a user app.
-The app can change the 'last' index that the kernel uses
-to store the next result.  This change sanity checks the index
-before using it for writing to a potentially arbitrary address.
+mwifiex_update_vs_ie(),mwifiex_set_uap_rates() and
+mwifiex_set_wmm_params() call memcpy() without checking
+the destination size.Since the source is given from
+user-space, this may trigger a heap buffer overflow.
 
-This fixes CVE-2019-14821.
+Fix them by putting the length check before performing memcpy().
 
-Cc: stable@vger.kernel.org
-Fixes: 5f94c1741bdc ("KVM: Add coalesced MMIO support (common part)")
-Signed-off-by: Matt Delco <delco@chromium.org>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
-[Use READ_ONCE. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This fix addresses CVE-2019-14814,CVE-2019-14815,CVE-2019-14816.
+
+Signed-off-by: Wen Huang <huangwenabc@gmail.com>
+Acked-by: Ganapathi Bhat <gbhat@marvell.comg>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/coalesced_mmio.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/ie.c      |    3 +++
+ drivers/net/wireless/marvell/mwifiex/uap_cmd.c |    9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/virt/kvm/coalesced_mmio.c
-+++ b/virt/kvm/coalesced_mmio.c
-@@ -40,7 +40,7 @@ static int coalesced_mmio_in_range(struc
- 	return 1;
- }
+--- a/drivers/net/wireless/marvell/mwifiex/ie.c
++++ b/drivers/net/wireless/marvell/mwifiex/ie.c
+@@ -241,6 +241,9 @@ static int mwifiex_update_vs_ie(const u8
+ 		}
  
--static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev)
-+static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev, u32 last)
- {
- 	struct kvm_coalesced_mmio_ring *ring;
- 	unsigned avail;
-@@ -52,7 +52,7 @@ static int coalesced_mmio_has_room(struc
- 	 * there is always one unused entry in the buffer
- 	 */
- 	ring = dev->kvm->coalesced_mmio_ring;
--	avail = (ring->first - ring->last - 1) % KVM_COALESCED_MMIO_MAX;
-+	avail = (ring->first - last - 1) % KVM_COALESCED_MMIO_MAX;
- 	if (avail == 0) {
- 		/* full */
- 		return 0;
-@@ -67,25 +67,28 @@ static int coalesced_mmio_write(struct k
- {
- 	struct kvm_coalesced_mmio_dev *dev = to_mmio(this);
- 	struct kvm_coalesced_mmio_ring *ring = dev->kvm->coalesced_mmio_ring;
-+	__u32 insert;
+ 		vs_ie = (struct ieee_types_header *)vendor_ie;
++		if (le16_to_cpu(ie->ie_length) + vs_ie->len + 2 >
++			IEEE_MAX_IE_SIZE)
++			return -EINVAL;
+ 		memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
+ 		       vs_ie, vs_ie->len + 2);
+ 		le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
+--- a/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
++++ b/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
+@@ -265,6 +265,8 @@ mwifiex_set_uap_rates(struct mwifiex_uap
  
- 	if (!coalesced_mmio_in_range(dev, addr, len))
- 		return -EOPNOTSUPP;
- 
- 	spin_lock(&dev->kvm->ring_lock);
- 
--	if (!coalesced_mmio_has_room(dev)) {
-+	insert = READ_ONCE(ring->last);
-+	if (!coalesced_mmio_has_room(dev, insert) ||
-+	    insert >= KVM_COALESCED_MMIO_MAX) {
- 		spin_unlock(&dev->kvm->ring_lock);
- 		return -EOPNOTSUPP;
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_SUPP_RATES, var_pos, len);
+ 	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES)
++			return;
+ 		memcpy(bss_cfg->rates, rate_ie + 1, rate_ie->len);
+ 		rate_len = rate_ie->len;
  	}
+@@ -272,8 +274,11 @@ mwifiex_set_uap_rates(struct mwifiex_uap
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
+ 					   params->beacon.tail,
+ 					   params->beacon.tail_len);
+-	if (rate_ie)
++	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES - rate_len)
++			return;
+ 		memcpy(bss_cfg->rates + rate_len, rate_ie + 1, rate_ie->len);
++	}
  
- 	/* copy data in first free entry of the ring */
- 
--	ring->coalesced_mmio[ring->last].phys_addr = addr;
--	ring->coalesced_mmio[ring->last].len = len;
--	memcpy(ring->coalesced_mmio[ring->last].data, val, len);
--	ring->coalesced_mmio[ring->last].pio = dev->zone.pio;
-+	ring->coalesced_mmio[insert].phys_addr = addr;
-+	ring->coalesced_mmio[insert].len = len;
-+	memcpy(ring->coalesced_mmio[insert].data, val, len);
-+	ring->coalesced_mmio[insert].pio = dev->zone.pio;
- 	smp_wmb();
--	ring->last = (ring->last + 1) % KVM_COALESCED_MMIO_MAX;
-+	ring->last = (insert + 1) % KVM_COALESCED_MMIO_MAX;
- 	spin_unlock(&dev->kvm->ring_lock);
- 	return 0;
+ 	return;
  }
+@@ -391,6 +396,8 @@ mwifiex_set_wmm_params(struct mwifiex_pr
+ 					    params->beacon.tail_len);
+ 	if (vendor_ie) {
+ 		wmm_ie = vendor_ie;
++		if (*(wmm_ie + 1) > sizeof(struct mwifiex_types_wmm_info))
++			return;
+ 		memcpy(&bss_cfg->wmm_info, wmm_ie +
+ 		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
+ 		priv->wmm_enabled = 1;
 
 
