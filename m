@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23129B86D8
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2D4AB86D5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392325AbfISWcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52690 "EHLO mail.kernel.org"
+        id S2390512AbfISWcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390588AbfISWNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:13:32 -0400
+        id S2393745AbfISWNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D69521907;
-        Thu, 19 Sep 2019 22:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6081218AF;
+        Thu, 19 Sep 2019 22:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931211;
-        bh=HSDBrtfx0RrD3/Qa7HSXACxV8XQljFuckFcTvqevCnQ=;
+        s=default; t=1568931214;
+        bh=G1zJi/9JfDk5Zq1Bft9rAYTAbGWQwwHcOFvaA0/MDkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1j9P0W+FoItIQWeZpZkp4SdLBxhZty43lA2uhAV79sWjxPxeFo8qqEnOIyIGf0hD
-         rlHZPa+/qpvGykEQIQxp3Yka3gUdDtRIENeUvZgWlvQTpAABTT3SMCPb3YUsdGlY+G
-         euGXC5ljVJ9JNRJnTbGVNu6+QqOn4YUTHfb1Wa7k=
+        b=yjQSHm42/CB6ZILyvZKPGY9GXBSZlZ6vzLxOJ53hEUbfBBr1S1x9fXc2EQVMLqoXc
+         DpParH9EdqHYJMXq3O6O2p7S21b2/BAfuaY8Tlfitfc5pE2zhYHLq+nYt9v46h4CI7
+         zI+XhiPWElCvureGyyBQJYeSnNXVCwdPVaAjxJL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 4.19 08/79] phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
-Date:   Fri, 20 Sep 2019 00:02:53 +0200
-Message-Id: <20190919214808.486081633@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        William Tu <u9012063@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 09/79] ip6_gre: fix a dst leak in ip6erspan_tunnel_xmit
+Date:   Fri, 20 Sep 2019 00:02:54 +0200
+Message-Id: <20190919214808.668645962@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
 References: <20190919214807.612593061@linuxfoundation.org>
@@ -44,54 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit e6839c31a608e79f2057fab987dd814f5d3477e6 upstream.
+[ Upstream commit 28e486037747c2180470b77c290d4090ad42f259 ]
 
-The hardware manual should be revised, but the initial value of
-VBCTRL.OCCLREN is set to 1 actually. If the bit is set, the hardware
-clears VBCTRL.VBOUT and ADPCTRL.DRVVBUS registers automatically
-when the hardware detects over-current signal from a USB power switch.
-However, since the hardware doesn't have any registers which
-indicates over-current, the driver cannot handle it at all. So, if
-"is_otg_channel" hardware detects over-current, since ADPCTRL.DRVVBUS
-register is cleared automatically, the channel cannot be used after
-that.
+In ip6erspan_tunnel_xmit(), if the skb will not be sent out, it has to
+be freed on the tx_err path. Otherwise when deleting a netns, it would
+cause dst/dev to leak, and dmesg shows:
 
-To resolve this behavior, this patch sets the VBCTRL.OCCLREN to 0
-to keep ADPCTRL.DRVVBUS even if the "is_otg_channel" hardware
-detects over-current. (We assume a USB power switch itself protects
-over-current and turns the VBUS off.)
+  unregister_netdevice: waiting for lo to become free. Usage count = 1
 
-This patch is inspired by a BSP patch from Kazuya Mizuguchi.
-
-Fixes: 1114e2d31731 ("phy: rcar-gen3-usb2: change the mode to OTG on the combined channel")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: ef7baf5e083c ("ip6_gre: add ip6 erspan collect_md mode")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: William Tu <u9012063@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/phy/renesas/phy-rcar-gen3-usb2.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv6/ip6_gre.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -66,6 +66,7 @@
- 					 USB2_OBINT_IDDIGCHG)
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -988,7 +988,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit
+ 		if (unlikely(!tun_info ||
+ 			     !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
+ 			     ip_tunnel_info_af(tun_info) != AF_INET6))
+-			return -EINVAL;
++			goto tx_err;
  
- /* VBCTRL */
-+#define USB2_VBCTRL_OCCLREN		BIT(16)
- #define USB2_VBCTRL_DRVVBUSSEL		BIT(8)
- 
- /* LINECTRL1 */
-@@ -289,6 +290,7 @@ static void rcar_gen3_init_otg(struct rc
- 	u32 val;
- 
- 	val = readl(usb2_base + USB2_VBCTRL);
-+	val &= ~USB2_VBCTRL_OCCLREN;
- 	writel(val | USB2_VBCTRL_DRVVBUSSEL, usb2_base + USB2_VBCTRL);
- 	writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
- 	val = readl(usb2_base + USB2_OBINTEN);
+ 		key = &tun_info->key;
+ 		memset(&fl6, 0, sizeof(fl6));
 
 
