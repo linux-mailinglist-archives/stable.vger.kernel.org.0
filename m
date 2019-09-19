@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8E2B8546
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A992CB84AC
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392753AbfISWTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32946 "EHLO mail.kernel.org"
+        id S2393710AbfISWNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:13:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392452AbfISWTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:19:19 -0400
+        id S2393708AbfISWNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B584820678;
-        Thu, 19 Sep 2019 22:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451CD21907;
+        Thu, 19 Sep 2019 22:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931559;
-        bh=eRqoDxPhzvVbfx3W3pJb3IwRfIRBOVWrUZjCX5SJ9ZI=;
+        s=default; t=1568931184;
+        bh=g+8gN4To4ZyjBJu5S9PnPsLOBXeOcULykk1z9+yLU+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B43Kgd1PQ0Pk17am7g9gr5SaWL+4zQZlkNPjFeC8ZuDKa0zE86Was6GhAtdwHq8UB
-         Sfy+ikWwSJMyTi7vTwCGf/XNKkVGN9+7nfhVPULafwvJZjXwJkdVH8mUNVzmuxJlxI
-         xWibVcRJnoVZNcmbuhhhGf7nqI0hNR9D7V/qlx9M=
+        b=IJ5pmPhfBZj0nnQTYtGJvNa8WPwKy0Fdhg/P40waHYRYyreX7mEFLvxUqcJTw6Awi
+         pw+HxoQDuAUUIMJy2yt89AzEqctEplQrJjJVkOEfYHLSBBGnIQkmCI+v1hz4/2d5PF
+         BEYOT5OcHamEeE1e3TJC+gj6Ka3oAdhWFhGLUxnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 03/74] ipv6: Fix the link time qualifier of ping_v6_proc_exit_net()
-Date:   Fri, 20 Sep 2019 00:03:16 +0200
-Message-Id: <20190919214801.207325640@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Reid <preid@electromag.com.au>,
+        Moritz Fischer <mdf@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/79] fpga: altera-ps-spi: Fix getting of optional confd gpio
+Date:   Fri, 20 Sep 2019 00:03:17 +0200
+Message-Id: <20190919214810.609051121@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Phil Reid <preid@electromag.com.au>
 
-[ Upstream commit d23dbc479a8e813db4161a695d67da0e36557846 ]
+[ Upstream commit dec43da46f63eb71f519d963ba6832838e4262a3 ]
 
-The '.exit' functions from 'pernet_operations' structure should be marked
-as __net_exit, not __net_init.
+Currently the driver does not handle EPROBE_DEFER for the confd gpio.
+Use devm_gpiod_get_optional() instead of devm_gpiod_get() and return
+error codes from altera_ps_probe().
 
-Fixes: d862e5461423 ("net: ipv6: Implement /proc/net/icmp6.")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5692fae0742d ("fpga manager: Add altera-ps-spi driver for Altera FPGAs")
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ping.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/fpga/altera-ps-spi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -239,7 +239,7 @@ static int __net_init ping_v6_proc_init_
- 	return ping_proc_register(net, &ping_v6_seq_afinfo);
- }
+diff --git a/drivers/fpga/altera-ps-spi.c b/drivers/fpga/altera-ps-spi.c
+index 24b25c6260366..4925cae7dcdde 100644
+--- a/drivers/fpga/altera-ps-spi.c
++++ b/drivers/fpga/altera-ps-spi.c
+@@ -207,7 +207,7 @@ static int altera_ps_write_complete(struct fpga_manager *mgr,
+ 		return -EIO;
+ 	}
  
--static void __net_init ping_v6_proc_exit_net(struct net *net)
-+static void __net_exit ping_v6_proc_exit_net(struct net *net)
- {
- 	return ping_proc_unregister(net, &ping_v6_seq_afinfo);
- }
+-	if (!IS_ERR(conf->confd)) {
++	if (conf->confd) {
+ 		if (!gpiod_get_raw_value_cansleep(conf->confd)) {
+ 			dev_err(&mgr->dev, "CONF_DONE is inactive!\n");
+ 			return -EIO;
+@@ -265,10 +265,13 @@ static int altera_ps_probe(struct spi_device *spi)
+ 		return PTR_ERR(conf->status);
+ 	}
+ 
+-	conf->confd = devm_gpiod_get(&spi->dev, "confd", GPIOD_IN);
++	conf->confd = devm_gpiod_get_optional(&spi->dev, "confd", GPIOD_IN);
+ 	if (IS_ERR(conf->confd)) {
+-		dev_warn(&spi->dev, "Not using confd gpio: %ld\n",
+-			 PTR_ERR(conf->confd));
++		dev_err(&spi->dev, "Failed to get confd gpio: %ld\n",
++			PTR_ERR(conf->confd));
++		return PTR_ERR(conf->confd);
++	} else if (!conf->confd) {
++		dev_warn(&spi->dev, "Not using confd gpio");
+ 	}
+ 
+ 	/* Register manager with unique name */
+-- 
+2.20.1
+
 
 
