@@ -2,67 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F18CDB7976
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 14:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6756CB7984
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 14:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731905AbfISMcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 08:32:03 -0400
-Received: from mail-io1-f71.google.com ([209.85.166.71]:42763 "EHLO
-        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727273AbfISMcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 08:32:03 -0400
-Received: by mail-io1-f71.google.com with SMTP id x9so4966162ior.9
-        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 05:32:01 -0700 (PDT)
+        id S1732151AbfISMdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 08:33:41 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:33446 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732150AbfISMdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 08:33:41 -0400
+Received: by mail-wr1-f67.google.com with SMTP id b9so2962025wrs.0
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 05:33:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1apuBGMd6DNRUzFMWA+UITXwocV+IQkynhVUUhiZt4I=;
+        b=l6sIUsrcsq7o/+Lc9fp5fotswc0i5CnpZG2TZ3geYTNrbNRrRwNnA9DJHyZpy+3k8R
+         CyOka6VerEPeEZGeMOfKWIinPzoEcnawPQTA5UiwfjGrLLjpvxCWWWXFjNgDRulKt2Gx
+         vCYgf7GgNixAOK6SqxPzeKkj3Re3/7St+N4cIYSfvIFe/ulo9m4JEv+pVuzaRCju3NR4
+         4LcIMaWS2WmDTfUl7I5CFzo+Vfw1QJodS7Rnoh1bIovlt+GaYl4DYKFGt2F3ZDsHEYym
+         FXHI2NwjAKG54i8A4sgdRqHzMVVhkouZ4jmjrqWld7uOkZg0anJa5mK3hh9XBxKW7nJc
+         H/mA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=xRvATBd4vJz/ca0H8KHxwpk25gX5YP7T2VKX90zZjjY=;
-        b=bn55qU2b+O12gYrTGT8oKMJ/h5VgulIxa7BEnHPM2aLDRXaESODigbgzzcDbgwwybj
-         bu0Gjds0XrU8Jj1EzjZCZJC5gXD74h2bR6A7AAAvi7SIZmQwZFmmyka1C04kNwSkHk81
-         PMz6Juo8CedcM7em/2WgGQSi89KEOfvcfdS3sXXODN0pVh62M0UNu/+9c67bhwt5Z9Ph
-         0kowJOpbKbRrJjaGJ7WI1tv8LYmEswR5cv7PG5SXMlnLmWFCYy2EL8JlDMoAL2pVi6h+
-         VYFsvMSp5MLY4MVFcUGi/Ljm8It3+5cYTgf1swA8TgL4TjYaEoosTPbUFZjVaBlxZIwf
-         gIFg==
-X-Gm-Message-State: APjAAAU7a1EDIYMkyYVgvUQgrmzTpDjOnH5Zfla0ax8Mc79pCvqsb2Bo
-        MkjknS5IRbOkJQcjVdthDz6RTsQfobsyGW8NlIUlSUI+22kV
-X-Google-Smtp-Source: APXvYqznsY295KYp6iVKDsqG6sE+Z6Mre4W0acF8SRnsbhhSSg0DoispESLcXcx0yTSMXL8rH7pjSRc8Sz/uxP6+Ti76M+HxxP4c
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1apuBGMd6DNRUzFMWA+UITXwocV+IQkynhVUUhiZt4I=;
+        b=kPT+0pYaDq4qeD8pbKGKUgr4fKOIIxu0chUOaccTImoQG8tieL5YdsqzMUZYLOkXu2
+         7VIkh2orUo+Os9rChrKDEJTmcv8218X0DRnOTXqk96U1Y1jjiDV5Z7ANDp3jX2Jp3x1U
+         pPjbjsvdFGqBgOwdGuRvYwEeI74e7+OgjojcjNzdf9N/gSaZkI/q3SvSpxYRuHek2zZU
+         UWFCgrTGNGRVWo6P6eioRA6/KRt32hG1nPmAvtgQYTiLL2am4CD5IuL73Be77Zw43EVZ
+         sqGoEyUetk/dR1jm8smaG+U0CwUYCNYNMhcsv2bb7QIp1kPHK06sT/wANwt5ImKdHedD
+         qoFA==
+X-Gm-Message-State: APjAAAWUsURJnrAG3t8eieTdvowV1uhtml08EXxtRFX+dPyANsS9Z1Uc
+        mIaYj131cknISFA3IXDOsUsx+M0tgxxFDA==
+X-Google-Smtp-Source: APXvYqx4F9ulcg905+Wu8zK8W0+3b5GHWkkF+UihXlIJzmE4SqV6HU0SEntkaSsP6M5RZodTM41c3w==
+X-Received: by 2002:a5d:5185:: with SMTP id k5mr6309795wrv.341.1568896418800;
+        Thu, 19 Sep 2019 05:33:38 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s1sm12965990wrg.80.2019.09.19.05.33.37
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Sep 2019 05:33:37 -0700 (PDT)
+Message-ID: <5d8375a1.1c69fb81.a1144.dbba@mx.google.com>
+Date:   Thu, 19 Sep 2019 05:33:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Received: by 2002:a6b:b8c3:: with SMTP id i186mr12174261iof.194.1568896320918;
- Thu, 19 Sep 2019 05:32:00 -0700 (PDT)
-Date:   Thu, 19 Sep 2019 05:32:00 -0700
-In-Reply-To: <20190919121234.30620-1-johan@kernel.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000e5e3c40592e723c4@google.com>
-Subject: Re: KASAN: use-after-free Read in atusb_disconnect
-From:   syzbot <syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com>
-To:     alex.aring@gmail.com, andreyknvl@google.com, davem@davemloft.net,
-        johan@kernel.org, linux-kernel@vger.kernel.org,
-        linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org, stefan@datenfreihafen.org,
-        syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.74
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y boot: 85 boots: 0 failed, 85 passed (v4.19.74)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable/linux-4.19.y boot: 85 boots: 0 failed, 85 passed (v4.19.74)
 
-syzbot has tested the proposed patch and the reproducer did not trigger  
-crash:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.74/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.74/
 
-Reported-and-tested-by:  
-syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.74
+Git Commit: dbc29aff8d04f134553326a0c533a442a1774041
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 44 unique boards, 18 SoC families, 14 builds out of 206
 
-Tested on:
-
-commit:         f0df5c1b usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git
-kernel config:  https://syzkaller.appspot.com/x/.config?x=5c6633fa4ed00be5
-dashboard link: https://syzkaller.appspot.com/bug?extid=f4509a9138a1472e7e80
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=10f3ebb5600000
-
-Note: testing is done by a robot and is best-effort only.
+---
+For more info write to <info@kernelci.org>
