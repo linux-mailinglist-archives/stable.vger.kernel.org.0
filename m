@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2596CB861B
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14EEB8584
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394050AbfISWVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
+        id S2394112AbfISWV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389787AbfISWV1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:21:27 -0400
+        id S2394108AbfISWV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:21:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23464217D6;
-        Thu, 19 Sep 2019 22:21:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05C0321920;
+        Thu, 19 Sep 2019 22:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931686;
-        bh=gP1KFasB8WO5aIgzqJHmO5K+ABZ0LA7tXlnu06A8+bI=;
+        s=default; t=1568931716;
+        bh=gooiVDH5g9HpvZWBNFw92O16E/DOwxjMhDd3ub3cRFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKoKltIs1yHjYXw202u0WcL/Wl3QI+ignW9BO1LpLzeaX/pmAB4rYFZNb+P04pZMi
-         2ylXWV0FoF8VHRYkdJwBzV40RHxw+j1Dp8rrJoAKqDgMXXRGLsjYNUeA+lA41QxWd1
-         hTxMFFyDm1s03ABIe7cYQQnbdsLqiE4uZIaJH8Tw=
+        b=qjeTSiEvkwPZ4lxcQ8pKRIdyqsenkvB1TWx2jIWQtX765iM4plIneWssVT/10T2lE
+         pCQktEj07+jfdWZMUy6UBcc3i9GuQRkQ6DgTZP5otsolRX1YDiiBPqY1bK6Z7bylqL
+         Kzk+uMHKl9KK+/CyPnWiMqb0h+zMw7KVkMhBEW7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Subject: [PATCH 4.9 41/74] serial: sprd: correct the wrong sequence of arguments
-Date:   Fri, 20 Sep 2019 00:03:54 +0200
-Message-Id: <20190919214808.860798104@linuxfoundation.org>
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Subject: [PATCH 4.4 14/56] genirq: Prevent NULL pointer dereference in resend_irqs()
+Date:   Fri, 20 Sep 2019 00:03:55 +0200
+Message-Id: <20190919214751.955935516@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
+commit eddf3e9c7c7e4d0707c68d1bb22cc6ec8aef7d4a upstream.
 
-The sequence of arguments which was passed to handle_lsr_errors() didn't
-match the parameters defined in that function, &lsr was passed to flag
-and &flag was passed to lsr, this patch fixed that.
+The following crash was observed:
 
-Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
+  Unable to handle kernel NULL pointer dereference at 0000000000000158
+  Internal error: Oops: 96000004 [#1] SMP
+  pc : resend_irqs+0x68/0xb0
+  lr : resend_irqs+0x64/0xb0
+  ...
+  Call trace:
+   resend_irqs+0x68/0xb0
+   tasklet_action_common.isra.6+0x84/0x138
+   tasklet_action+0x2c/0x38
+   __do_softirq+0x120/0x324
+   run_ksoftirqd+0x44/0x60
+   smpboot_thread_fn+0x1ac/0x1e8
+   kthread+0x134/0x138
+   ret_from_fork+0x10/0x18
+
+The reason for this is that the interrupt resend mechanism happens in soft
+interrupt context, which is a asynchronous mechanism versus other
+operations on interrupts. free_irq() does not take resend handling into
+account. Thus, the irq descriptor might be already freed before the resend
+tasklet is executed. resend_irqs() does not check the return value of the
+interrupt descriptor lookup and derefences the return value
+unconditionally.
+
+  1):
+  __setup_irq
+    irq_startup
+      check_irq_resend  // activate softirq to handle resend irq
+  2):
+  irq_domain_free_irqs
+    irq_free_descs
+      free_desc
+        call_rcu(&desc->rcu, delayed_free_desc)
+  3):
+  __do_softirq
+    tasklet_action
+      resend_irqs
+        desc = irq_to_desc(irq)
+        desc->handle_irq(desc)  // desc is NULL --> Ooops
+
+Fix this by adding a NULL pointer check in resend_irqs() before derefencing
+the irq descriptor.
+
+Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1630ae13-5c8e-901e-de09-e740b6a426a7@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/sprd_serial.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/resend.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -240,7 +240,7 @@ static inline void sprd_rx(struct uart_p
- 
- 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
- 			SPRD_LSR_FE | SPRD_LSR_OE))
--			if (handle_lsr_errors(port, &lsr, &flag))
-+			if (handle_lsr_errors(port, &flag, &lsr))
- 				continue;
- 		if (uart_handle_sysrq_char(port, ch))
- 			continue;
+--- a/kernel/irq/resend.c
++++ b/kernel/irq/resend.c
+@@ -37,6 +37,8 @@ static void resend_irqs(unsigned long ar
+ 		irq = find_first_bit(irqs_resend, nr_irqs);
+ 		clear_bit(irq, irqs_resend);
+ 		desc = irq_to_desc(irq);
++		if (!desc)
++			continue;
+ 		local_irq_disable();
+ 		desc->handle_irq(desc);
+ 		local_irq_enable();
 
 
