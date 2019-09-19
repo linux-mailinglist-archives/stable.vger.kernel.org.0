@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C27CB85F4
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2336EB8673
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407176AbfISWZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
+        id S2406484AbfISWRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394131AbfISWW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:22:58 -0400
+        id S2406465AbfISWRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:17:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D649B21920;
-        Thu, 19 Sep 2019 22:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 298B621920;
+        Thu, 19 Sep 2019 22:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931778;
-        bh=AB1E/MbgpqzKN9ZmRscBe9uf/LgHfzWk8FJCCK5DZe4=;
+        s=default; t=1568931452;
+        bh=74nf5UnRKvBiWWXFw3xnxICQuYxH0BWLfryXXrsDYPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lg15LTHOAw2NgTFaKehXXmUcPPRCsg9qUwfuHl5UU6oCUOuhyCVnCN9r1V4KsGHc+
-         VMffYhBvOMxfO3hduwXrltamTxorh5XR1UOi5R8muTClFZki1KlGdWaNIPP1HKDEkG
-         HVU57ZWfn/n89IGh+hny9VlEdw1uPpsjiWqY7bRA=
+        b=wIWaTN6WubEgiSqpZCT2ADr2mk78+YpLI3hFTx0ZmcWCbN0SoGRnCZJsD86hQe2rf
+         HwYnfSaAQr7M6UlJoHfTMpeSSl/G2yCKd3yFXzSkuagbkdjSf7NfZQKaoAYf6L5is5
+         i2yBJnk+GKz/Jh48CVut/kwp5T3MjZhp3vp2JQE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 08/56] sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 34/59] kallsyms: Dont let kallsyms_lookup_size_offset() fail on retrieving the first symbol
 Date:   Fri, 20 Sep 2019 00:03:49 +0200
-Message-Id: <20190919214747.939647334@linuxfoundation.org>
+Message-Id: <20190919214806.003059718@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 10eb56c582c557c629271f1ee31e15e7a9b2558b ]
+[ Upstream commit 2a1a3fa0f29270583f0e6e3100d609e09697add1 ]
 
-Transport should use its own pf_retrans to do the error_count
-check, instead of asoc's. Otherwise, it's meaningless to make
-pf_retrans per transport.
+An arm64 kernel configured with
 
-Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  CONFIG_KPROBES=y
+  CONFIG_KALLSYMS=y
+  # CONFIG_KALLSYMS_ALL is not set
+  CONFIG_KALLSYMS_BASE_RELATIVE=y
+
+reports the following kprobe failure:
+
+  [    0.032677] kprobes: failed to populate blacklist: -22
+  [    0.033376] Please take care of using kprobes.
+
+It appears that kprobe fails to retrieve the symbol at address
+0xffff000010081000, despite this symbol being in System.map:
+
+  ffff000010081000 T __exception_text_start
+
+This symbol is part of the first group of aliases in the
+kallsyms_offsets array (symbol names generated using ugly hacks in
+scripts/kallsyms.c):
+
+  kallsyms_offsets:
+          .long   0x1000 // do_undefinstr
+          .long   0x1000 // efi_header_end
+          .long   0x1000 // _stext
+          .long   0x1000 // __exception_text_start
+          .long   0x12b0 // do_cp15instr
+
+Looking at the implementation of get_symbol_pos(), it returns the
+lowest index for aliasing symbols. In this case, it return 0.
+
+But kallsyms_lookup_size_offset() considers 0 as a failure, which
+is obviously wrong (there is definitely a valid symbol living there).
+In turn, the kprobe blacklisting stops abruptly, hence the original
+error.
+
+A CONFIG_KALLSYMS_ALL kernel wouldn't fail as there is always
+some random symbols at the beginning of this array, which are never
+looked up via kallsyms_lookup_size_offset.
+
+Fix it by considering that get_symbol_pos() is always successful
+(which is consistent with the other uses of this function).
+
+Fixes: ffc5089196446 ("[PATCH] Create kallsyms_lookup_size_offset()")
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_sideeffect.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/kallsyms.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -505,7 +505,7 @@ static void sctp_do_8_2_transport_strike
- 	 */
- 	if ((transport->state == SCTP_ACTIVE) &&
- 	   (transport->error_count < transport->pathmaxrxt) &&
--	   (transport->error_count > asoc->pf_retrans)) {
-+	   (transport->error_count > transport->pf_retrans)) {
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index 127e7cfafa552..3e1b66366ac23 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -296,8 +296,10 @@ int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
+ {
+ 	char namebuf[KSYM_NAME_LEN];
  
- 		sctp_assoc_control_transport(asoc, transport,
- 					     SCTP_TRANSPORT_PF,
+-	if (is_ksym_addr(addr))
+-		return !!get_symbol_pos(addr, symbolsize, offset);
++	if (is_ksym_addr(addr)) {
++		get_symbol_pos(addr, symbolsize, offset);
++		return 1;
++	}
+ 	return !!module_address_lookup(addr, symbolsize, offset, NULL, namebuf) ||
+ 	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
+ }
+-- 
+2.20.1
+
 
 
