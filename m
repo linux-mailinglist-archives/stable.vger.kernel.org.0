@@ -2,92 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5953FB8118
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 20:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463ABB8123
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392091AbfISS6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 14:58:24 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:33799 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388943AbfISS6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 14:58:24 -0400
-Received: by mail-ot1-f65.google.com with SMTP id m19so2214302otp.1;
-        Thu, 19 Sep 2019 11:58:23 -0700 (PDT)
+        id S2392156AbfISTCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 15:02:14 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:33420 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389629AbfISTCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 15:02:14 -0400
+Received: by mail-io1-f67.google.com with SMTP id m11so10451528ioo.0;
+        Thu, 19 Sep 2019 12:02:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YMIQo0y0joi9ONCPZAMGxjNxNx6MRqPmS+7Wzb6NPMw=;
-        b=PdMcH7dAkOiUVObgzoR9D3iU41jNVLqhuajjaBVFwYrNpJtDABOoz75SpJQPYngU//
-         5DcHtHCLgYFS/AXF2zWerXUbAyZKCQpPactZrIWSwVGc4U02cJpbO7bRqRFnkYKe2ApS
-         mXZBH9X6OJjK8fg4uP4W/y2eM8G4JvPy2+4tJVfXG7ajjbxnJEpTYycFmkbShTnGJlBT
-         VYaLM+6B5/rzTtss7vo0gk+hJXLIGTCCPtwc0xxj3sC/eSvF7MD0sHefN8YQcs8BA9hY
-         lQudFnhYdMamD4OtNLLvirAoJrt6FDQ6D7Bw16hUijItmeYDdr0KtLEoY8gY0BLM0yVr
-         Zm4g==
+        h=from:to:cc:subject:date:message-id:in-reply-to;
+        bh=4X6G5fyDOE+8qDzwdcGrWs6Ga+WuHS2SnviPyZtHUSo=;
+        b=UQnxMIdqhSQFf91e+sM59Ud05JHhPy1Y8x8zf8DHNpthxD4L3VNTOT1PAxUOKb5NJw
+         Qrk6R4Zix8EvhguGv8GUkZG1MTR+KGGzm5auozkogFEgNRJZsMQu4X5ALpt5N9U41GTR
+         p9faY6p4FpozIMwFlB/VXT4+zgptSr+C9USZMyyE2Up4dDkrwejqzDABE6u7IQ2lYJIo
+         3Ni4KbZ9m3gCTBL/XvAP5Ey/+C5Tx6jsQv4X6xbMLTdl8OoCYO20CXMCDsbZcNPZH5/z
+         epUENUSBYwQ0QmkBG2i2+QFWW6gX2cPc0fCa1dxdUbH5//iUyy68BLHN8tofcDskx3a5
+         YOew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YMIQo0y0joi9ONCPZAMGxjNxNx6MRqPmS+7Wzb6NPMw=;
-        b=ZqLxMdt/lWd31czs+1+dQ9+qq7gGDs3lzOlyFnWUa8330lGDwTiGAnnQcgXgAGXvZC
-         xMIspQdQEuXIej1TjfSlnOCwf+YIYuxSKFiRoWIvpoFgxTRRm3FhG+zcYxP/0D9MwxaL
-         0Fwr0MCuCi5kVT2QSfHdySpqCd6Sw23TorD/Kxx22c9w48dDOYT6OVq/36vCW0FiPGMh
-         8jL3IwN5tk5/gPZ7L54LpK5XEo5ZZSfGNCY1Upd6juYVFkTY56YxViPKw6xrJgKM88Ko
-         7FIHXxA26mciYLl+AbTl1NsZmVY3ybHes/w2RNn7ixtKcQcxLgAoGIiYX1Y3KVkcbU6q
-         wZdA==
-X-Gm-Message-State: APjAAAX9ni6ikF+Ml3VXHejcjMg2RcmfPmTwRFrp2PCeLfbYxFiftk2J
-        /Txe7xxLfbbGEFGwJmYvYTb6BUR3OzuVs82MGWA=
-X-Google-Smtp-Source: APXvYqxccIC05hsDwWUY5rbQWcSMLJsLpJN2oedXJT8dEp7TlRE79IMU082hbFlMCp4I4WwU4vEACd9GbZXs4zp4yno=
-X-Received: by 2002:a9d:5f10:: with SMTP id f16mr6999602oti.332.1568919503185;
- Thu, 19 Sep 2019 11:58:23 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190919151137.9960-1-TheSven73@gmail.com> <20190919182904.AF657207FC@mail.kernel.org>
-In-Reply-To: <20190919182904.AF657207FC@mail.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to;
+        bh=4X6G5fyDOE+8qDzwdcGrWs6Ga+WuHS2SnviPyZtHUSo=;
+        b=cewtcT3ymdRPW6XyJwHEcXPA9la+hTX6IQqLTLbL9mk1peHJJWWAITUJ0cPeAbNdc6
+         h56VrGz96JRXR5O4WpXUce6w9K5Z96FqoTr+uJL4rJ23Xivv/ihnsY6l2+RNpyCL+gMW
+         vnfhMjaLkD6ORHGfg6w34pP4c5IEEqHi0ydNeF7FFByvwZFoHumdRoqS0TowT2x2xepr
+         os3iBMjIgrYn9WLYi+Rwf+U6Bx0fYhsZ0a4G9VoKzjnHBJZMRzV6kVl/RdG9Sa6A22N7
+         KSU0T59Dy1SoYNSYStcmXIJ9jk3C75/1sB7ZrQB5lpmzQfR7xy/ipmO+FV7OmuARuYY8
+         RajA==
+X-Gm-Message-State: APjAAAW4MACAMihXeTg3LYbHi4fYZtu+Cjk6c3L0G17AQIZvnRgBWkVx
+        GcPEhQsYQ3y7FNZtUSVNVzzHUlAY
+X-Google-Smtp-Source: APXvYqwxuhM2iQg+2+pWNOMaj8I4qbFEjgrjcTphhnZk1Wcc+KxOLuQmdjDzx9HbY+koj0p1gxZctQ==
+X-Received: by 2002:a02:8644:: with SMTP id e62mr14360370jai.115.1568919732897;
+        Thu, 19 Sep 2019 12:02:12 -0700 (PDT)
+Received: from svens-asus.arcx.com ([184.94.50.30])
+        by smtp.gmail.com with ESMTPSA id e139sm9182234iof.60.2019.09.19.12.02.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Sep 2019 12:02:12 -0700 (PDT)
 From:   Sven Van Asbroeck <thesven73@gmail.com>
-Date:   Thu, 19 Sep 2019 14:58:12 -0400
-Message-ID: <CAGngYiW2bObc8L+mQJEMzYRe+QU7Xx1X_-So-o0RYAE7TWr3rg@mail.gmail.com>
-Subject: Re: [PATCH v1] power: supply: ltc2941-battery-gauge: fix use-after-free
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Google-Original-From: Sven Van Asbroeck <TheSven73@gmail.com>
+To:     Sebastian Reichel <sre@kernel.org>
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 4.4 v1] power: supply: ltc2941-battery-gauge: fix use-after-free
+Date:   Thu, 19 Sep 2019 15:02:08 -0400
+Message-Id: <20190919190208.13648-1-TheSven73@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190919151137.9960-1-TheSven73@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 19, 2019 at 2:29 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.2.15, v4.19.73, v4.14.144, v4.9.193, v4.4.193.
->
-> v5.2.15: Build OK!
-> v4.19.73: Build OK!
-> v4.14.144: Build OK!
-> v4.9.193: Build OK!
-> v4.4.193: Failed to apply! Possible dependencies:
->     Unable to calculate
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-> --
-> Thanks,
-> Sasha
+This driver's remove path calls cancel_delayed_work().
+However, that function does not wait until the work function
+finishes. This could mean that the work function is still
+running after the driver's remove function has finished,
+which would result in a use-after-free.
 
-Doesn't apply on 4.4 because power supply drivers moved to a different
-directory (power/supply) between 4.4 and 4.9.
+Fix by calling cancel_delayed_work_sync(), which ensures that
+that the work is properly cancelled, no longer running, and
+unable to re-schedule itself.
 
-I will post a patch with a fixed-up file path, marked as "[PATCH 4.4 v1]".
-If this should be addressed differently, please let me know.
+This issue was detected with the help of Coccinelle.
 
-Sven
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+---
+ drivers/power/ltc2941-battery-gauge.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/power/ltc2941-battery-gauge.c b/drivers/power/ltc2941-battery-gauge.c
+index da49436176cd..30a9014b2f95 100644
+--- a/drivers/power/ltc2941-battery-gauge.c
++++ b/drivers/power/ltc2941-battery-gauge.c
+@@ -449,7 +449,7 @@ static int ltc294x_i2c_remove(struct i2c_client *client)
+ {
+ 	struct ltc294x_info *info = i2c_get_clientdata(client);
+ 
+-	cancel_delayed_work(&info->work);
++	cancel_delayed_work_sync(&info->work);
+ 	power_supply_unregister(info->supply);
+ 	return 0;
+ }
+-- 
+2.17.1
+
