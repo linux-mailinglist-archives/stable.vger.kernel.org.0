@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D42A0B83E3
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 660DFB8469
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:10:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405048AbfISWFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:05:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
+        id S2405725AbfISWKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405041AbfISWFt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:05:49 -0400
+        id S2405721AbfISWKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:10:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BA9221920;
-        Thu, 19 Sep 2019 22:05:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 004E52196E;
+        Thu, 19 Sep 2019 22:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930748;
-        bh=0qOUK7DxgaowD+7uXfhLT4sDuEmqh4GKgVw/JQxHd3w=;
+        s=default; t=1568931039;
+        bh=kIUj63N086jo5gW8T5PEHX5HflmQK9Y16vh87LQ3F2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOdhwbV4X4z9bmP4ZBaBqN92cZhPEZqJoteLl3tgdU49PTLZ+vgj9PaGEU8E5/gqc
-         o/buFss60QVTr3pg76j1FgIwTcouxAuEUMfgj+TbVq2/uBl0rGroOw8DPJVf6PiVhc
-         p4/Po5giMpT9+6G0U0mAPWsyFTGvWgkMWxuuSVYs=
+        b=aVJBGBtB+6IrInGqYuu2Qy+X2Ze0AqFqRRc16UXnB32wwRpm4DHDr7HXWq0qfCtSr
+         45ulk/JwNkaxwb1gNtFlLn9REQRWJobOZ/i6IPNol06KxkTSYphZ+b92WsdXOOqeej
+         Y2Ok5PI7XhXt1CeVIhM5+AH+CCjRhQD38gb546+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>, Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 21/21] media: technisat-usb2: break out of loop at end of buffer
-Date:   Fri, 20 Sep 2019 00:03:22 +0200
-Message-Id: <20190919214713.907399353@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 073/124] NFSv2: Fix eof handling
+Date:   Fri, 20 Sep 2019 00:02:41 +0200
+Message-Id: <20190919214821.655959119@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
-References: <20190919214657.842130855@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b upstream.
+[ Upstream commit 71affe9be45a5c60b9772e1b2701710712637274 ]
 
-Ensure we do not access the buffer beyond the end if no 0xff byte
-is encountered.
+If we received a reply from the server with a zero length read and
+no error, then that implies we are at eof.
 
-Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/technisat-usb2.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ fs/nfs/proc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/technisat-usb2.c
-+++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
-@@ -608,10 +608,9 @@ static int technisat_usb2_frontend_attac
- static int technisat_usb2_get_ir(struct dvb_usb_device *d)
- {
- 	struct technisat_usb2_state *state = d->priv;
--	u8 *buf = state->buf;
--	u8 *b;
--	int ret;
- 	struct ir_raw_event ev;
-+	u8 *buf = state->buf;
-+	int i, ret;
- 
- 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
- 	buf[1] = 0x08;
-@@ -647,26 +646,25 @@ unlock:
- 		return 0; /* no key pressed */
- 
- 	/* decoding */
--	b = buf+1;
- 
- #if 0
- 	deb_rc("RC: %d ", ret);
--	debug_dump(b, ret, deb_rc);
-+	debug_dump(buf + 1, ret, deb_rc);
- #endif
- 
- 	ev.pulse = 0;
--	while (1) {
--		ev.pulse = !ev.pulse;
--		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
--		ir_raw_event_store(d->rc_dev, &ev);
--
--		b++;
--		if (*b == 0xff) {
-+	for (i = 1; i < ARRAY_SIZE(state->buf); i++) {
-+		if (buf[i] == 0xff) {
- 			ev.pulse = 0;
- 			ev.duration = 888888*2;
- 			ir_raw_event_store(d->rc_dev, &ev);
- 			break;
- 		}
-+
-+		ev.pulse = !ev.pulse;
-+		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
-+			       FIRMWARE_CLOCK_TICK) / 1000;
-+		ir_raw_event_store(d->rc_dev, &ev);
+diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
+index 5552fa8b6e128..ec79d2214a78c 100644
+--- a/fs/nfs/proc.c
++++ b/fs/nfs/proc.c
+@@ -594,7 +594,8 @@ static int nfs_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
+ 		/* Emulate the eof flag, which isn't normally needed in NFSv2
+ 		 * as it is guaranteed to always return the file attributes
+ 		 */
+-		if (hdr->args.offset + hdr->res.count >= hdr->res.fattr->size)
++		if ((hdr->res.count == 0 && hdr->args.count > 0) ||
++		    hdr->args.offset + hdr->res.count >= hdr->res.fattr->size)
+ 			hdr->res.eof = 1;
  	}
- 
- 	ir_raw_event_handle(d->rc_dev);
+ 	return 0;
+-- 
+2.20.1
+
 
 
