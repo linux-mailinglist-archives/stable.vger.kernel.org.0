@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DBAB846F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7F2B8471
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405766AbfISWKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
+        id S2405776AbfISWKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405764AbfISWKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:10:48 -0400
+        id S2405772AbfISWKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:10:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1495F21A49;
-        Thu, 19 Sep 2019 22:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B59B021927;
+        Thu, 19 Sep 2019 22:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931047;
-        bh=tIOyhS6VF6IaTHZxXUaqI8fByJAKFcQIdfAgqKw19ic=;
+        s=default; t=1568931050;
+        bh=pR3CzoiP/l4u9WXOivvJeklVRs9Y9Mr9UyzMcf/eFN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sf0ogBd8GNVTWWUn2qxihvRGXmKEKdvoPw/Q6fc+ftA463jjtyq2S8QJDrd/FNk5w
-         DVPlcWJ959uYWJoZzB0n/1RF/CTeVlV7qLqF24HsHVGOkIEucuAED00j/CdZlcpX8i
-         S7DhoFGB02c9A0ar5IrJdj+5i4PxJwGRZ6+q08yY=
+        b=JuDDgckm3tufovLwSqnJYNDgVcksx05v98FV0LT4yQm4Q6BhvV48xLu8zXjymR/7M
+         4xY56C7Hm+ADdvxIzO9AhBSVUp4By0MlCGBmv2yrtlyMT0qOrgmkAqJhFo5t/nonAJ
+         rtsstb3PnppKZBPrGAIFIz5tBWk5eXnf7rGy+GPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 076/124] kallsyms: Dont let kallsyms_lookup_size_offset() fail on retrieving the first symbol
-Date:   Fri, 20 Sep 2019 00:02:44 +0200
-Message-Id: <20190919214821.770166428@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 077/124] netfilter: conntrack: make sysctls per-namespace again
+Date:   Fri, 20 Sep 2019 00:02:45 +0200
+Message-Id: <20190919214821.809312471@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -47,83 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 2a1a3fa0f29270583f0e6e3100d609e09697add1 ]
+[ Upstream commit 478553fd1b6f819390b64a2e13ac756c4d1a2836 ]
 
-An arm64 kernel configured with
+When I merged the extension sysctl tables with the main one I forgot to
+reset them on netns creation.  They currently read/write init_net settings.
 
-  CONFIG_KPROBES=y
-  CONFIG_KALLSYMS=y
-  # CONFIG_KALLSYMS_ALL is not set
-  CONFIG_KALLSYMS_BASE_RELATIVE=y
-
-reports the following kprobe failure:
-
-  [    0.032677] kprobes: failed to populate blacklist: -22
-  [    0.033376] Please take care of using kprobes.
-
-It appears that kprobe fails to retrieve the symbol at address
-0xffff000010081000, despite this symbol being in System.map:
-
-  ffff000010081000 T __exception_text_start
-
-This symbol is part of the first group of aliases in the
-kallsyms_offsets array (symbol names generated using ugly hacks in
-scripts/kallsyms.c):
-
-  kallsyms_offsets:
-          .long   0x1000 // do_undefinstr
-          .long   0x1000 // efi_header_end
-          .long   0x1000 // _stext
-          .long   0x1000 // __exception_text_start
-          .long   0x12b0 // do_cp15instr
-
-Looking at the implementation of get_symbol_pos(), it returns the
-lowest index for aliasing symbols. In this case, it return 0.
-
-But kallsyms_lookup_size_offset() considers 0 as a failure, which
-is obviously wrong (there is definitely a valid symbol living there).
-In turn, the kprobe blacklisting stops abruptly, hence the original
-error.
-
-A CONFIG_KALLSYMS_ALL kernel wouldn't fail as there is always
-some random symbols at the beginning of this array, which are never
-looked up via kallsyms_lookup_size_offset.
-
-Fix it by considering that get_symbol_pos() is always successful
-(which is consistent with the other uses of this function).
-
-Fixes: ffc5089196446 ("[PATCH] Create kallsyms_lookup_size_offset()")
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: d912dec12428 ("netfilter: conntrack: merge acct and helper sysctl table with main one")
+Fixes: cb2833ed0044 ("netfilter: conntrack: merge ecache and timestamp sysctl tables with main one")
+Reported-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kallsyms.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_standalone.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
-index 95a260f9214b9..136ce049c4ad2 100644
---- a/kernel/kallsyms.c
-+++ b/kernel/kallsyms.c
-@@ -263,8 +263,10 @@ int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
- {
- 	char namebuf[KSYM_NAME_LEN];
- 
--	if (is_ksym_addr(addr))
--		return !!get_symbol_pos(addr, symbolsize, offset);
-+	if (is_ksym_addr(addr)) {
-+		get_symbol_pos(addr, symbolsize, offset);
-+		return 1;
-+	}
- 	return !!module_address_lookup(addr, symbolsize, offset, NULL, namebuf) ||
- 	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
- }
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index e0d392cb3075a..0006503d2da97 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -1037,8 +1037,13 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
+ 	table[NF_SYSCTL_CT_COUNT].data = &net->ct.count;
+ 	table[NF_SYSCTL_CT_CHECKSUM].data = &net->ct.sysctl_checksum;
+ 	table[NF_SYSCTL_CT_LOG_INVALID].data = &net->ct.sysctl_log_invalid;
++	table[NF_SYSCTL_CT_ACCT].data = &net->ct.sysctl_acct;
++	table[NF_SYSCTL_CT_HELPER].data = &net->ct.sysctl_auto_assign_helper;
+ #ifdef CONFIG_NF_CONNTRACK_EVENTS
+ 	table[NF_SYSCTL_CT_EVENTS].data = &net->ct.sysctl_events;
++#endif
++#ifdef CONFIG_NF_CONNTRACK_TIMESTAMP
++	table[NF_SYSCTL_CT_TIMESTAMP].data = &net->ct.sysctl_tstamp;
+ #endif
+ 	table[NF_SYSCTL_CT_PROTO_TIMEOUT_GENERIC].data = &nf_generic_pernet(net)->timeout;
+ 	table[NF_SYSCTL_CT_PROTO_TIMEOUT_ICMP].data = &nf_icmp_pernet(net)->timeout;
 -- 
 2.20.1
 
