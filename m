@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80EF6B85AB
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3F5B8633
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407019AbfISWXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:23:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
+        id S2407263AbfISW1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404833AbfISWXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:23:39 -0400
+        id S1732787AbfISWUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:20:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D940217D6;
-        Thu, 19 Sep 2019 22:23:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1627C217D6;
+        Thu, 19 Sep 2019 22:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931818;
-        bh=PR52xkbux8D/o0y0jOqLn/nJhGP7n4QdaZlmgyNHkAU=;
+        s=default; t=1568931643;
+        bh=bP67rUnQuQQMO/vk4mRw7dPx0htZlKaooFSF+6uvFV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yD/UFC7OHrgbUsIBKdTu+sg8p3bNwTERIv5D4OJbphlNinp2n3ZhEmX0GBMM0tVkl
-         7LRKKIq93CssPOJyY7OsGdqI2ZGphoaZBZ7voqS+xCXHR3nH9EEhGklpPWBckKLBrt
-         koIJg+8SqMXNQ9iWkQqanjL6ATfqZCPYZ8zKqUJo=
+        b=EXrAdIQEsDTnPrsZuFUsiOuU925sP43nYL9ZrNUCVhSuTZVV3+gyTZfNeEwaFA2uR
+         wBsQQLz7brRqVlsj4HI7r/pYKfGMBc6vzneL1DRLqAuKYinck8/020pk/r9xgrmCXF
+         Am6AwyuENwVjK+5tTpjm64jNeG87VMM9Ni8+Lcsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Subject: [PATCH 4.4 33/56] tty/serial: atmel: reschedule TX after RX was started
+        stable@vger.kernel.org, Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 61/74] ARM: 8901/1: add a criteria for pfn_valid of arm
 Date:   Fri, 20 Sep 2019 00:04:14 +0200
-Message-Id: <20190919214757.680401739@linuxfoundation.org>
+Message-Id: <20190919214810.492813939@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Razvan Stefanescu <razvan.stefanescu@microchip.com>
+From: zhaoyang <huangzhaoyang@gmail.com>
 
-commit d2ace81bf902a9f11d52e59e5d232d2255a0e353 upstream.
+[ Upstream commit 5b3efa4f1479c91cb8361acef55f9c6662feba57 ]
 
-When half-duplex RS485 communication is used, after RX is started, TX
-tasklet still needs to be  scheduled tasklet. This avoids console freezing
-when more data is to be transmitted, if the serial communication is not
-closed.
+pfn_valid can be wrong when parsing a invalid pfn whose phys address
+exceeds BITS_PER_LONG as the MSB will be trimed when shifted.
 
-Fixes: 69646d7a3689 ("tty/serial: atmel: RS485 HD w/DMA: enable RX after TX is stopped")
-Signed-off-by: Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190813074025.16218-1-razvan.stefanescu@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The issue originally arise from bellowing call stack, which corresponding to
+an access of the /proc/kpageflags from userspace with a invalid pfn parameter
+and leads to kernel panic.
 
+[46886.723249] c7 [<c031ff98>] (stable_page_flags) from [<c03203f8>]
+[46886.723264] c7 [<c0320368>] (kpageflags_read) from [<c0312030>]
+[46886.723280] c7 [<c0311fb0>] (proc_reg_read) from [<c02a6e6c>]
+[46886.723290] c7 [<c02a6e24>] (__vfs_read) from [<c02a7018>]
+[46886.723301] c7 [<c02a6f74>] (vfs_read) from [<c02a778c>]
+[46886.723315] c7 [<c02a770c>] (SyS_pread64) from [<c0108620>]
+(ret_fast_syscall+0x0/0x28)
+
+Signed-off-by: Zhaoyang Huang <zhaoyang.huang@unisoc.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/mm/init.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -1275,7 +1275,6 @@ atmel_handle_transmit(struct uart_port *
- 
- 			atmel_port->hd_start_rx = false;
- 			atmel_start_rx(port);
--			return;
- 		}
- 
- 		tasklet_schedule(&atmel_port->tasklet);
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index 4fb1474141a61..0fe4a7025e467 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -192,6 +192,11 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
+ #ifdef CONFIG_HAVE_ARCH_PFN_VALID
+ int pfn_valid(unsigned long pfn)
+ {
++	phys_addr_t addr = __pfn_to_phys(pfn);
++
++	if (__phys_to_pfn(addr) != pfn)
++		return 0;
++
+ 	return memblock_is_map_memory(__pfn_to_phys(pfn));
+ }
+ EXPORT_SYMBOL(pfn_valid);
+-- 
+2.20.1
+
 
 
