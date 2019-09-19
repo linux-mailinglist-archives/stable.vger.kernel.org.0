@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A5FB8722
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23129B86D8
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405479AbfISWJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47968 "EHLO mail.kernel.org"
+        id S2392325AbfISWcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405473AbfISWJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:41 -0400
+        id S2390588AbfISWNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE45421928;
-        Thu, 19 Sep 2019 22:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D69521907;
+        Thu, 19 Sep 2019 22:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930980;
-        bh=RvzhxzUs3oaoGtjI+qyUhG9SuYuCbVBTNsG965Kl+pk=;
+        s=default; t=1568931211;
+        bh=HSDBrtfx0RrD3/Qa7HSXACxV8XQljFuckFcTvqevCnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTNRNKp65I68xHopAGZKvVgRdrljB/QmxpQUeKn1rD89xmAmIWf6cB3B42OgbTWng
-         byoZizUC7c5patYzMQQfWQkgO5267wM4nUxTlD/S19Dymqzkm3cI/zhL3W4FBKzJaq
-         ZF7gHzTecfTMeGjeThcLmRrampGkUOxL707Ta2xU=
+        b=v1j9P0W+FoItIQWeZpZkp4SdLBxhZty43lA2uhAV79sWjxPxeFo8qqEnOIyIGf0hD
+         rlHZPa+/qpvGykEQIQxp3Yka3gUdDtRIENeUvZgWlvQTpAABTT3SMCPb3YUsdGlY+G
+         euGXC5ljVJ9JNRJnTbGVNu6+QqOn4YUTHfb1Wa7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 085/124] ibmvnic: Do not process reset during or after device removal
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 4.19 08/79] phy: renesas: rcar-gen3-usb2: Disable clearing VBUS in over-current
 Date:   Fri, 20 Sep 2019 00:02:53 +0200
-Message-Id: <20190919214822.119965729@linuxfoundation.org>
+Message-Id: <20190919214808.486081633@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 36f1031c51a2538e5558fb44c6d6b88f98d3c0f2 ]
+commit e6839c31a608e79f2057fab987dd814f5d3477e6 upstream.
 
-Currently, the ibmvnic driver will not schedule device resets
-if the device is being removed, but does not check the device
-state before the reset is actually processed. This leads to a race
-where a reset is scheduled with a valid device state but is
-processed after the driver has been removed, resulting in an oops.
+The hardware manual should be revised, but the initial value of
+VBCTRL.OCCLREN is set to 1 actually. If the bit is set, the hardware
+clears VBCTRL.VBOUT and ADPCTRL.DRVVBUS registers automatically
+when the hardware detects over-current signal from a USB power switch.
+However, since the hardware doesn't have any registers which
+indicates over-current, the driver cannot handle it at all. So, if
+"is_otg_channel" hardware detects over-current, since ADPCTRL.DRVVBUS
+register is cleared automatically, the channel cannot be used after
+that.
 
-Fix this by checking the device state before processing a queued
-reset event.
+To resolve this behavior, this patch sets the VBCTRL.OCCLREN to 0
+to keep ADPCTRL.DRVVBUS even if the "is_otg_channel" hardware
+detects over-current. (We assume a USB power switch itself protects
+over-current and turns the VBUS off.)
 
-Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
-Tested-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is inspired by a BSP patch from Kazuya Mizuguchi.
+
+Fixes: 1114e2d31731 ("phy: rcar-gen3-usb2: change the mode to OTG on the combined channel")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/phy/renesas/phy-rcar-gen3-usb2.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index cebd20f3128d4..fa4bb940665c2 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1983,6 +1983,10 @@ static void __ibmvnic_reset(struct work_struct *work)
+--- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
++++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+@@ -66,6 +66,7 @@
+ 					 USB2_OBINT_IDDIGCHG)
  
- 	rwi = get_next_rwi(adapter);
- 	while (rwi) {
-+		if (adapter->state == VNIC_REMOVING ||
-+		    adapter->state == VNIC_REMOVED)
-+			goto out;
-+
- 		if (adapter->force_reset_recovery) {
- 			adapter->force_reset_recovery = false;
- 			rc = do_hard_reset(adapter, rwi, reset_state);
-@@ -2007,7 +2011,7 @@ static void __ibmvnic_reset(struct work_struct *work)
- 		netdev_dbg(adapter->netdev, "Reset failed\n");
- 		free_all_rwi(adapter);
- 	}
--
-+out:
- 	adapter->resetting = false;
- 	if (we_lock_rtnl)
- 		rtnl_unlock();
--- 
-2.20.1
-
+ /* VBCTRL */
++#define USB2_VBCTRL_OCCLREN		BIT(16)
+ #define USB2_VBCTRL_DRVVBUSSEL		BIT(8)
+ 
+ /* LINECTRL1 */
+@@ -289,6 +290,7 @@ static void rcar_gen3_init_otg(struct rc
+ 	u32 val;
+ 
+ 	val = readl(usb2_base + USB2_VBCTRL);
++	val &= ~USB2_VBCTRL_OCCLREN;
+ 	writel(val | USB2_VBCTRL_DRVVBUSSEL, usb2_base + USB2_VBCTRL);
+ 	writel(USB2_OBINT_BITS, usb2_base + USB2_OBINTSTA);
+ 	val = readl(usb2_base + USB2_OBINTEN);
 
 
