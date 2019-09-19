@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02DF0B8405
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1454B840B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393153AbfISWHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44750 "EHLO mail.kernel.org"
+        id S2393198AbfISWHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:07:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393147AbfISWHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:07:08 -0400
+        id S2393166AbfISWHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2188C21907;
-        Thu, 19 Sep 2019 22:07:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ACD7218AF;
+        Thu, 19 Sep 2019 22:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930827;
-        bh=VYbY30XxuB4PDQyDyAilembN1dn12ZikXDIQuAiwlZc=;
+        s=default; t=1568930841;
+        bh=NZ1BsXKgGPlCcAzGWiNt0D1XMpiB4ymc0WgYmkVRm7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jn517+9CqjafZqUnXzfvcEoCalqJ3wxnAANDEbVm1EEg/9NIuwk63ae77N08JLwJW
-         9Ci7taVeNeLshlPfovNFAXRpeTnb2aGLAui430s93l++tbabv3r/ZSV8R7nJl44Ei0
-         zPnwfxOKRlgKg2bnJdhwNyUQbgW40Xy0fnk981Hs=
+        b=D4l0ildYv2wyhTKNr83r/STb9mO9rbUAmP/mJ/e4zAxBSfoAD8F4iTVzK3T2QODyk
+         x9Kw15vuK/2GGwdg1ehS8bn5O8STTY42yIddZwdl1Cj24ArOh66IERIEF6pPrBdiFZ
+         oBRcznk0APLXQECEMylAWrA8ueFi1ikWB2+jtN1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Alexander Aring <aring@mojatatu.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+        Keerthy <j-keerthy@ti.com>, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 028/124] ieee802154: hwsim: unregister hw while hwsim_subscribe_all_others fails
-Date:   Fri, 20 Sep 2019 00:01:56 +0200
-Message-Id: <20190919214820.066340943@linuxfoundation.org>
+Subject: [PATCH 5.2 033/124] ARM: dts: Fix flags for gpio7
+Date:   Fri, 20 Sep 2019 00:02:01 +0200
+Message-Id: <20190919214820.228685554@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -46,98 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit de166bbe861738c8bc3e5dad5b03f45d7d6ef914 ]
+[ Upstream commit 2e8647bbe1c8233a20c32fd2648258f2c05c7335 ]
 
-KASAN report this:
+The ti,no-idle-on-init and ti,no-reset-on-init flags need to be at
+the interconnect target module level for the modules that have it
+defined. Otherwise we get the following warnings:
 
-kernel BUG at net/mac802154/main.c:130!
-invalid opcode: 0000 [#1] PREEMPT SMP
-CPU: 0 PID: 19932 Comm: modprobe Not tainted 5.1.0-rc6+ #22
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:ieee802154_free_hw+0x2a/0x30 [mac802154]
-Code: 55 48 8d 57 38 48 89 e5 53 48 89 fb 48 8b 47 38 48 39 c2 75 15 48 8d 7f 48 e8 82 85 16 e1 48 8b 7b 28 e8 f9 ef 83 e2 5b 5d c3 <0f> 0b 0f 1f 40 00 55 48 89 e5 53 48 89 fb 0f b6 86 80 00 00 00 88
-RSP: 0018:ffffc90001c7b9f0 EFLAGS: 00010206
-RAX: ffff88822df3aa80 RBX: ffff88823143d5c0 RCX: 0000000000000002
-RDX: ffff88823143d5f8 RSI: ffff88822b1fabc0 RDI: ffff88823143d5c0
-RBP: ffffc90001c7b9f8 R08: 0000000000000000 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000000 R12: 00000000fffffff4
-R13: ffff88822dea4f50 R14: ffff88823143d7c0 R15: 00000000fffffff4
-FS: 00007ff52e999540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fdc06dba768 CR3: 000000023160a000 CR4: 00000000000006f0
-Call Trace:
- hwsim_add_one+0x2dd/0x540 [mac802154_hwsim]
- hwsim_probe+0x2f/0xb0 [mac802154_hwsim]
- platform_drv_probe+0x3a/0x90
- ? driver_sysfs_add+0x79/0xb0
- really_probe+0x1d4/0x2d0
- driver_probe_device+0x50/0xf0
- device_driver_attach+0x54/0x60
- __driver_attach+0x7e/0xd0
- ? device_driver_attach+0x60/0x60
- bus_for_each_dev+0x68/0xc0
- driver_attach+0x19/0x20
- bus_add_driver+0x15e/0x200
- driver_register+0x5b/0xf0
- __platform_driver_register+0x31/0x40
- hwsim_init_module+0x74/0x1000 [mac802154_hwsim]
- ? 0xffffffffa00e9000
- do_one_initcall+0x6c/0x3cc
- ? kmem_cache_alloc_trace+0x248/0x3b0
- do_init_module+0x5b/0x1f1
- load_module+0x1db1/0x2690
- ? m_show+0x1d0/0x1d0
- __do_sys_finit_module+0xc5/0xd0
- __x64_sys_finit_module+0x15/0x20
- do_syscall_64+0x6b/0x1d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7ff52e4a2839
-Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1f f6 2c 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffffa7b3c08 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-RAX: ffffffffffffffda RBX: 00005647560a2a00 RCX: 00007ff52e4a2839
-RDX: 0000000000000000 RSI: 00005647547f3c2e RDI: 0000000000000003
-RBP: 00005647547f3c2e R08: 0000000000000000 R09: 00005647560a2a00
-R10: 0000000000000003 R11: 0000000000000246 R12: 0000000000000000
-R13: 00005647560a2c10 R14: 0000000000040000 R15: 00005647560a2a00
-Modules linked in: mac802154_hwsim(+) mac802154 [last unloaded: mac802154_hwsim]
+dts flag should be at module level for ti,no-idle-on-init
+dts flag should be at module level for ti,no-reset-on-init
 
-In hwsim_add_one, if hwsim_subscribe_all_others fails, we
-should call ieee802154_unregister_hw to free resources.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Alexander Aring <aring@mojatatu.com>
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Reviewed-by: Suman Anna <s-anna@ti.com>
+Tested-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi | 2 +-
+ arch/arm/boot/dts/dra7-evm.dts                  | 2 +-
+ arch/arm/boot/dts/dra7-l4.dtsi                  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 94b9e9d775e40..c20e7ef18bc95 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -802,7 +802,7 @@ static int hwsim_add_one(struct genl_info *info, struct device *dev,
- 		err = hwsim_subscribe_all_others(phy);
- 		if (err < 0) {
- 			mutex_unlock(&hwsim_phys_lock);
--			goto err_reg;
-+			goto err_subscribe;
- 		}
- 	}
- 	list_add_tail(&phy->list, &hwsim_phys);
-@@ -812,6 +812,8 @@ static int hwsim_add_one(struct genl_info *info, struct device *dev,
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index d50de7a6ea6c5..bc76f1705c0f6 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -379,7 +379,7 @@
+ 	};
+ };
  
- 	return idx;
+-&gpio7 {
++&gpio7_target {
+ 	ti,no-reset-on-init;
+ 	ti,no-idle-on-init;
+ };
+diff --git a/arch/arm/boot/dts/dra7-evm.dts b/arch/arm/boot/dts/dra7-evm.dts
+index 714e971b912a4..de7f85efaa512 100644
+--- a/arch/arm/boot/dts/dra7-evm.dts
++++ b/arch/arm/boot/dts/dra7-evm.dts
+@@ -498,7 +498,7 @@
+ 	phy-supply = <&ldousb_reg>;
+ };
  
-+err_subscribe:
-+	ieee802154_unregister_hw(phy->hw);
- err_reg:
- 	kfree(pib);
- err_pib:
+-&gpio7 {
++&gpio7_target {
+ 	ti,no-reset-on-init;
+ 	ti,no-idle-on-init;
+ };
+diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
+index 23faedec08abd..63628e166c0cd 100644
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -1261,7 +1261,7 @@
+ 			};
+ 		};
+ 
+-		target-module@51000 {			/* 0x48051000, ap 45 2e.0 */
++		gpio7_target: target-module@51000 {		/* 0x48051000, ap 45 2e.0 */
+ 			compatible = "ti,sysc-omap2", "ti,sysc";
+ 			ti,hwmods = "gpio7";
+ 			reg = <0x51000 0x4>,
 -- 
 2.20.1
 
