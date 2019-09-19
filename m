@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB40B85E2
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A222B85B3
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405103AbfISWZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
+        id S2407069AbfISWX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407057AbfISWXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:23:53 -0400
+        id S2407066AbfISWX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:23:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5356521920;
-        Thu, 19 Sep 2019 22:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 586B921920;
+        Thu, 19 Sep 2019 22:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931833;
-        bh=YPQUVoNFly186FGiihx6pRJ6rB1JjNJQOT4c6Wej2H4=;
+        s=default; t=1568931835;
+        bh=MJwYI1KVbjryZ/U0QHBipNr+8bajKoJ+EZOTakjitT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJN+L7tQn2bh3hjTlpk/Tco3E78Ch8x3Mf4rD745NjDvBrrkW+YCXr0HGfFhAEQys
-         uA7N0Q2qUrS/DUYBD4S1ij95hmdQT3hIhe2BQU9zbtzUWNBoUCzzeuRo4jH6dSm78X
-         /C6t4bZdafa5Wf/4LtrMUZZMhcK0iD1rDAe98JDk=
+        b=lO/LDtnXQDBZRWJypg83vOMztwHCyJLdBF8SkQtEM+pgGafQM1i0jUjCpwhPao63F
+         pl85KM7qxD/KG6N3g8adYXBVF7Ez4ELEJjhWW/QzsuVEH4/HIZWatWOx/og0yzPgX7
+         tEz6hzgtVn+PVr/NZTa0XdP288Xb8+eE2wYjdY0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>, Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.4 55/56] media: technisat-usb2: break out of loop at end of buffer
-Date:   Fri, 20 Sep 2019 00:04:36 +0200
-Message-Id: <20190919214805.053463953@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.4 56/56] ARC: export "abort" for modules
+Date:   Fri, 20 Sep 2019 00:04:37 +0200
+Message-Id: <20190919214805.317139034@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
 References: <20190919214742.483643642@linuxfoundation.org>
@@ -45,71 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
 
-commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b upstream.
+This is a custom patch (no mainline equivalent) for stable backport only
+to address 0-Day kernel test infra ARC 4.x.y builds errors.
 
-Ensure we do not access the buffer beyond the end if no 0xff byte
-is encountered.
+The reason for this custom patch as that it is a single patch, touches
+only ARC, vs. atleast two 7c2c11b208be09c1, dc8635b78cd8669 which touch
+atleast 3 other arches (one long removed) and could potentially have a
+fallout.
 
-Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+CC: stable@vger.kernel.org	# 4.4, 4.9
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/technisat-usb2.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ arch/arc/kernel/traps.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/usb/dvb-usb/technisat-usb2.c
-+++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
-@@ -594,9 +594,9 @@ static int technisat_usb2_frontend_attac
- 
- static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+--- a/arch/arc/kernel/traps.c
++++ b/arch/arc/kernel/traps.c
+@@ -163,3 +163,4 @@ void abort(void)
  {
--	u8 buf[62], *b;
--	int ret;
-+	u8 buf[62];
- 	struct ir_raw_event ev;
-+	int i, ret;
- 
- 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
- 	buf[1] = 0x08;
-@@ -632,26 +632,25 @@ unlock:
- 		return 0; /* no key pressed */
- 
- 	/* decoding */
--	b = buf+1;
- 
- #if 0
- 	deb_rc("RC: %d ", ret);
--	debug_dump(b, ret, deb_rc);
-+	debug_dump(buf + 1, ret, deb_rc);
- #endif
- 
- 	ev.pulse = 0;
--	while (1) {
--		ev.pulse = !ev.pulse;
--		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
--		ir_raw_event_store(d->rc_dev, &ev);
--
--		b++;
--		if (*b == 0xff) {
-+	for (i = 1; i < ARRAY_SIZE(buf); i++) {
-+		if (buf[i] == 0xff) {
- 			ev.pulse = 0;
- 			ev.duration = 888888*2;
- 			ir_raw_event_store(d->rc_dev, &ev);
- 			break;
- 		}
-+
-+		ev.pulse = !ev.pulse;
-+		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
-+			       FIRMWARE_CLOCK_TICK) / 1000;
-+		ir_raw_event_store(d->rc_dev, &ev);
- 	}
- 
- 	ir_raw_event_handle(d->rc_dev);
+ 	__asm__ __volatile__("trap_s  5\n");
+ }
++EXPORT_SYMBOL(abort);
 
 
