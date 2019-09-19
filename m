@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F4BB84DB
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D58EB847B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392116AbfISWPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54736 "EHLO mail.kernel.org"
+        id S2393558AbfISWLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:11:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393839AbfISWO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:14:59 -0400
+        id S2393226AbfISWLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:11:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 393CB218AF;
-        Thu, 19 Sep 2019 22:14:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A3D7218AF;
+        Thu, 19 Sep 2019 22:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931298;
-        bh=9ZkUmIAtqapg5V4o9+m2L/LvSQjknh64QISz0pC6Op8=;
+        s=default; t=1568931076;
+        bh=6nwFTGM40OJf3SA3mcvKK+YqV+J1assoWr1tet+7zfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nz3kV8nie4T7bPraOQXw3Ot1JT0MHXqZGQnBsLWUoqYOaiuecEYqwI1l5P9Y5mOaU
-         8+vZhDCf2gi3is5zxS/HbEqMYZl1CCaKV+7M/uzL+LYx9A3p4gY/+8zKvTSEK8Pk9z
-         /Gtk3wo4byw6lQp8ArlayktwZdiHTOAzjB4BGyCo=
+        b=gd47OST5nvU6KJLm35NgCH8MWhUYtir5pnpZ19dLJP5fMjovpI0h2KHGN8/X85ygE
+         r5zEcbozDrOD5Xyh5ZUrs8+Spj4DGAbfaXO9ZBLqLa77a1WV+YwfY2rvj0EGEKt9zN
+         fqXNx6fnp+hXaJw9Y4/mhVeuBw8NgRvagZ/ZwS04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/79] batman-adv: Only read OGM2 tvlv_len after buffer len check
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.2 120/124] Revert "arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}"
 Date:   Fri, 20 Sep 2019 00:03:28 +0200
-Message-Id: <20190919214811.470416788@linuxfoundation.org>
+Message-Id: <20190919214823.541658650@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 0ff0f15a32c093381ad1abc06abe85afb561ab28 ]
+commit d0b7a302d58abe24ed0f32a0672dd4c356bb73db upstream.
 
-Multiple batadv_ogm2_packet can be stored in an skbuff. The functions
-batadv_v_ogm_send_to_if() uses batadv_v_ogm_aggr_packet() to check if there
-is another additional batadv_ogm2_packet in the skb or not before they
-continue processing the packet.
+This reverts commit 24fe1b0efad4fcdd32ce46cffeab297f22581707.
 
-The length for such an OGM2 is BATADV_OGM2_HLEN +
-batadv_ogm2_packet->tvlv_len. The check must first check that at least
-BATADV_OGM2_HLEN bytes are available before it accesses tvlv_len (which is
-part of the header. Otherwise it might try read outside of the currently
-available skbuff to get the content of tvlv_len.
+Commit 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from
+set_{pte,pmd,pud}") removed ISB instructions immediately following updates
+to the page table, on the grounds that they are not required by the
+architecture and a DSB alone is sufficient to ensure that subsequent data
+accesses use the new translation:
 
-Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  DDI0487E_a, B2-128:
+
+  | ... no instruction that appears in program order after the DSB
+  | instruction can alter any state of the system or perform any part of
+  | its functionality until the DSB completes other than:
+  |
+  | * Being fetched from memory and decoded
+  | * Reading the general-purpose, SIMD and floating-point,
+  |   Special-purpose, or System registers that are directly or indirectly
+  |   read without causing side-effects.
+
+However, the same document also states the following:
+
+  DDI0487E_a, B2-125:
+
+  | DMB and DSB instructions affect reads and writes to the memory system
+  | generated by Load/Store instructions and data or unified cache
+  | maintenance instructions being executed by the PE. Instruction fetches
+  | or accesses caused by a hardware translation table access are not
+  | explicit accesses.
+
+which appears to claim that the DSB alone is insufficient.  Unfortunately,
+some CPU designers have followed the second clause above, whereas in Linux
+we've been relying on the first. This means that our mapping sequence:
+
+	MOV	X0, <valid pte>
+	STR	X0, [Xptep]	// Store new PTE to page table
+	DSB	ISHST
+	LDR	X1, [X2]	// Translates using the new PTE
+
+can actually raise a translation fault on the load instruction because the
+translation can be performed speculatively before the page table update and
+then marked as "faulting" by the CPU. For user PTEs, this is ok because we
+can handle the spurious fault, but for kernel PTEs and intermediate table
+entries this results in a panic().
+
+Revert the offending commit to reintroduce the missing barriers.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}")
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/batman-adv/bat_v_ogm.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/pgtable.h |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/batman-adv/bat_v_ogm.c b/net/batman-adv/bat_v_ogm.c
-index 2948b41b06d47..d241ccc0ca027 100644
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -643,17 +643,23 @@ batadv_v_ogm_process_per_outif(struct batadv_priv *bat_priv,
-  * batadv_v_ogm_aggr_packet() - checks if there is another OGM aggregated
-  * @buff_pos: current position in the skb
-  * @packet_len: total length of the skb
-- * @tvlv_len: tvlv length of the previously considered OGM
-+ * @ogm2_packet: potential OGM2 in buffer
-  *
-  * Return: true if there is enough space for another OGM, false otherwise.
-  */
--static bool batadv_v_ogm_aggr_packet(int buff_pos, int packet_len,
--				     __be16 tvlv_len)
-+static bool
-+batadv_v_ogm_aggr_packet(int buff_pos, int packet_len,
-+			 const struct batadv_ogm2_packet *ogm2_packet)
- {
- 	int next_buff_pos = 0;
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -214,8 +214,10 @@ static inline void set_pte(pte_t *ptep,
+ 	 * Only if the new pte is valid and kernel, otherwise TLB maintenance
+ 	 * or update_mmu_cache() have the necessary barriers.
+ 	 */
+-	if (pte_valid_not_user(pte))
++	if (pte_valid_not_user(pte)) {
+ 		dsb(ishst);
++		isb();
++	}
+ }
  
--	next_buff_pos += buff_pos + BATADV_OGM2_HLEN;
--	next_buff_pos += ntohs(tvlv_len);
-+	/* check if there is enough space for the header */
-+	next_buff_pos += buff_pos + sizeof(*ogm2_packet);
-+	if (next_buff_pos > packet_len)
-+		return false;
-+
-+	/* check if there is enough space for the optional TVLV */
-+	next_buff_pos += ntohs(ogm2_packet->tvlv_len);
+ extern void __sync_icache_dcache(pte_t pteval);
+@@ -453,8 +455,10 @@ static inline void set_pmd(pmd_t *pmdp,
  
- 	return (next_buff_pos <= packet_len) &&
- 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
-@@ -830,7 +836,7 @@ int batadv_v_ogm_packet_recv(struct sk_buff *skb,
- 	ogm_packet = (struct batadv_ogm2_packet *)skb->data;
+ 	WRITE_ONCE(*pmdp, pmd);
  
- 	while (batadv_v_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
--					ogm_packet->tvlv_len)) {
-+					ogm_packet)) {
- 		batadv_v_ogm_process(skb, ogm_offset, if_incoming);
+-	if (pmd_valid(pmd))
++	if (pmd_valid(pmd)) {
+ 		dsb(ishst);
++		isb();
++	}
+ }
  
- 		ogm_offset += BATADV_OGM2_HLEN;
--- 
-2.20.1
-
+ static inline void pmd_clear(pmd_t *pmdp)
+@@ -512,8 +516,10 @@ static inline void set_pud(pud_t *pudp,
+ 
+ 	WRITE_ONCE(*pudp, pud);
+ 
+-	if (pud_valid(pud))
++	if (pud_valid(pud)) {
+ 		dsb(ishst);
++		isb();
++	}
+ }
+ 
+ static inline void pud_clear(pud_t *pudp)
 
 
