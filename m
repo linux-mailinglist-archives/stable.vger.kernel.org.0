@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3D3B850E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F70B84E9
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406436AbfISWRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58164 "EHLO mail.kernel.org"
+        id S2404508AbfISWPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:15:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406408AbfISWRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:17:09 -0400
+        id S2403915AbfISWPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:15:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CF88217D6;
-        Thu, 19 Sep 2019 22:17:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F6FC218AF;
+        Thu, 19 Sep 2019 22:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931428;
-        bh=mxeu4uLj13ZdTwyKcHula4thozA5vnCkalosJXisIRE=;
+        s=default; t=1568931331;
+        bh=rbeWn0IPTd+TWEds9YFtOWj5EmQqVblA0ypZpXd4tiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDuu2CUtcareSGdyNAb/qVIh/YfBXcbxKMKActcMKAIYlAd7+Xi1rKUBqXUXPCgKO
-         xSzy10Fkhnum1giA5al3v9XBGVFyZU9OADlDHJmBoMLJKXUB58W8FvFQSnotQZwE8H
-         ymsQRFO4r8NHY/oT/7OUR96GSYWgm5Vkq6OJJZZA=
+        b=lLRRaMU+Gp4rhFKYMA95DqhM7MHyQ7w1tLfWO3nHWK7j9is7s7vulDuuKZDzyHGco
+         h5CVooPiDRN2YV/gapSPOdOYNxVtZhZz1V+AMMF5lrvtESTSJVnxI0E/ss/iHFeJg1
+         5EWXjloGw4b7ik7s6kkfTQ8UrAzyYGTvISPe51kU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/59] tools/power x86_energy_perf_policy: Fix "uninitialized variable" warnings at -O2
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 73/79] iommu/amd: Fix race in increase_address_space()
 Date:   Fri, 20 Sep 2019 00:03:58 +0200
-Message-Id: <20190919214807.144422966@linuxfoundation.org>
+Message-Id: <20190919214814.076342289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit adb8049097a9ec4acd09fbd3aa8636199a78df8a ]
+[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
 
-x86_energy_perf_policy first uses __get_cpuid() to check the maximum
-CPUID level and exits if it is too low.  It then assumes that later
-calls will succeed (which I think is architecturally guaranteed).  It
-also assumes that CPUID works at all (which is not guaranteed on
-x86_32).
+After the conversion to lock-less dma-api call the
+increase_address_space() function can be called without any
+locking. Multiple CPUs could potentially race for increasing
+the address space, leading to invalid domain->mode settings
+and invalid page-tables. This has been happening in the wild
+under high IO load and memory pressure.
 
-If optimisations are enabled, gcc warns about potentially
-uninitialized variables.  Fix this by adding an exit-on-error after
-every call to __get_cpuid() instead of just checking the maximum
-level.
+Fix the race by locking this operation. The function is
+called infrequently so that this does not introduce
+a performance regression in the dma-api path again.
 
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Len Brown <len.brown@intel.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../x86_energy_perf_policy.c                  | 26 +++++++++++--------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/iommu/amd_iommu.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy.c b/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy.c
-index 65bbe627a425f..bbef8bcf44d6d 100644
---- a/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy.c
-+++ b/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy.c
-@@ -1260,6 +1260,15 @@ void probe_dev_msr(void)
- 		if (system("/sbin/modprobe msr > /dev/null 2>&1"))
- 			err(-5, "no /dev/cpu/0/msr, Try \"# modprobe msr\" ");
- }
-+
-+static void get_cpuid_or_exit(unsigned int leaf,
-+			     unsigned int *eax, unsigned int *ebx,
-+			     unsigned int *ecx, unsigned int *edx)
-+{
-+	if (!__get_cpuid(leaf, eax, ebx, ecx, edx))
-+		errx(1, "Processor not supported\n");
-+}
-+
- /*
-  * early_cpuid()
-  * initialize turbo_is_enabled, has_hwp, has_epb
-@@ -1267,15 +1276,10 @@ void probe_dev_msr(void)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 8b79e2b32d378..69c269dc4f1bf 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1340,18 +1340,21 @@ static void domain_flush_devices(struct protection_domain *domain)
+  * another level increases the size of the address space by 9 bits to a size up
+  * to 64 bits.
   */
- void early_cpuid(void)
+-static bool increase_address_space(struct protection_domain *domain,
++static void increase_address_space(struct protection_domain *domain,
+ 				   gfp_t gfp)
  {
--	unsigned int eax, ebx, ecx, edx, max_level;
-+	unsigned int eax, ebx, ecx, edx;
- 	unsigned int fms, family, model;
++	unsigned long flags;
+ 	u64 *pte;
  
--	__get_cpuid(0, &max_level, &ebx, &ecx, &edx);
--
--	if (max_level < 6)
--		errx(1, "Processor not supported\n");
--
--	__get_cpuid(1, &fms, &ebx, &ecx, &edx);
-+	get_cpuid_or_exit(1, &fms, &ebx, &ecx, &edx);
- 	family = (fms >> 8) & 0xf;
- 	model = (fms >> 4) & 0xf;
- 	if (family == 6 || family == 0xf)
-@@ -1289,7 +1293,7 @@ void early_cpuid(void)
- 		bdx_highest_ratio = msr & 0xFF;
- 	}
+-	if (domain->mode == PAGE_MODE_6_LEVEL)
++	spin_lock_irqsave(&domain->lock, flags);
++
++	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
+ 		/* address space already 64 bit large */
+-		return false;
++		goto out;
  
--	__get_cpuid(0x6, &eax, &ebx, &ecx, &edx);
-+	get_cpuid_or_exit(0x6, &eax, &ebx, &ecx, &edx);
- 	turbo_is_enabled = (eax >> 1) & 1;
- 	has_hwp = (eax >> 7) & 1;
- 	has_epb = (ecx >> 3) & 1;
-@@ -1307,7 +1311,7 @@ void parse_cpuid(void)
+ 	pte = (void *)get_zeroed_page(gfp);
+ 	if (!pte)
+-		return false;
++		goto out;
  
- 	eax = ebx = ecx = edx = 0;
+ 	*pte             = PM_LEVEL_PDE(domain->mode,
+ 					iommu_virt_to_phys(domain->pt_root));
+@@ -1359,7 +1362,10 @@ static bool increase_address_space(struct protection_domain *domain,
+ 	domain->mode    += 1;
+ 	domain->updated  = true;
  
--	__get_cpuid(0, &max_level, &ebx, &ecx, &edx);
-+	get_cpuid_or_exit(0, &max_level, &ebx, &ecx, &edx);
+-	return true;
++out:
++	spin_unlock_irqrestore(&domain->lock, flags);
++
++	return;
+ }
  
- 	if (ebx == 0x756e6547 && edx == 0x49656e69 && ecx == 0x6c65746e)
- 		genuine_intel = 1;
-@@ -1316,7 +1320,7 @@ void parse_cpuid(void)
- 		fprintf(stderr, "CPUID(0): %.4s%.4s%.4s ",
- 			(char *)&ebx, (char *)&edx, (char *)&ecx);
- 
--	__get_cpuid(1, &fms, &ebx, &ecx, &edx);
-+	get_cpuid_or_exit(1, &fms, &ebx, &ecx, &edx);
- 	family = (fms >> 8) & 0xf;
- 	model = (fms >> 4) & 0xf;
- 	stepping = fms & 0xf;
-@@ -1341,7 +1345,7 @@ void parse_cpuid(void)
- 		errx(1, "CPUID: no MSR");
- 
- 
--	__get_cpuid(0x6, &eax, &ebx, &ecx, &edx);
-+	get_cpuid_or_exit(0x6, &eax, &ebx, &ecx, &edx);
- 	/* turbo_is_enabled already set */
- 	/* has_hwp already set */
- 	has_hwp_notify = eax & (1 << 8);
+ static u64 *alloc_pte(struct protection_domain *domain,
 -- 
 2.20.1
 
