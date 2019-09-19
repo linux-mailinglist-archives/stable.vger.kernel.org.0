@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D98B86F5
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA74B8771
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390431AbfISWdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
+        id S2405026AbfISWFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405952AbfISWMS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:12:18 -0400
+        id S2405021AbfISWFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:05:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CB9321920;
-        Thu, 19 Sep 2019 22:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0670D21920;
+        Thu, 19 Sep 2019 22:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931137;
-        bh=hFYo/74gVn52eg42PNmX0qBZBecS71x9smF8rN55b5I=;
+        s=default; t=1568930743;
+        bh=uXApcOOq8pqdlMRIhJGKNROJNJSxxs2fvJOtJZSJMgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpFzz1uxt2N2mQv/Ux8+jlr4+pi5fTqM8yWptNlXcSrH1PG0Fp6t0D0V1rZ24SNjv
-         PuqWUbhpIpBPQKJdoQA3/3kkoT985KDKoUOM2i4tC5+QK8qCHtzt8iWhIqYNrLL/1H
-         oyfQ7q3pXEvnl8leRjJYGz9ZdVPt1O8tR9S7dpPA=
+        b=PBC7QZiIZl6b6VMQM30+177Dsvk//n0o5/oX3ImH5csWJeI2qFsesIBDNXkl+cV4y
+         g3bEPyKqWHCEjEIzgejb6VurWt1xO0osF9ze1ulGcfP9ByflDuz53MDuQFhVNkC/R+
+         0BSyIrQDURdqwrjMeR7ymJygfdOY8XkHXK2AIHpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Huang <huangwenabc@gmail.com>,
-        Ganapathi Bhat <gbhat@marvell.comg>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 17/79] mwifiex: Fix three heap overflow at parsing element in cfg80211_ap_settings
-Date:   Fri, 20 Sep 2019 00:03:02 +0200
-Message-Id: <20190919214809.317382787@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.3 02/21] media: tm6000: double free if usb disconnect while streaming
+Date:   Fri, 20 Sep 2019 00:03:03 +0200
+Message-Id: <20190919214659.093752887@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
+References: <20190919214657.842130855@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Huang <huangwenabc@gmail.com>
+From: Sean Young <sean@mess.org>
 
-commit 7caac62ed598a196d6ddf8d9c121e12e082cac3a upstream.
+commit 699bf94114151aae4dceb2d9dbf1a6312839dcae upstream.
 
-mwifiex_update_vs_ie(),mwifiex_set_uap_rates() and
-mwifiex_set_wmm_params() call memcpy() without checking
-the destination size.Since the source is given from
-user-space, this may trigger a heap buffer overflow.
+The usb_bulk_urb will kfree'd on disconnect, so ensure the pointer is set
+to NULL after each free.
 
-Fix them by putting the length check before performing memcpy().
+stop stream
+urb killing
+urb buffer free
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start stream request tm6000_start_stream
+tm6000: pipe reset
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: IR URB failure: status: -71, length 0
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+tm6000:  error tm6000_urb_received
+usb 1-2: USB disconnect, device number 5
+tm6000: disconnecting tm6000 #0
+==================================================================
+BUG: KASAN: use-after-free in dvb_fini+0x75/0x140 [tm6000_dvb]
+Read of size 8 at addr ffff888241044060 by task kworker/2:0/22
 
-This fix addresses CVE-2019-14814,CVE-2019-14815,CVE-2019-14816.
+CPU: 2 PID: 22 Comm: kworker/2:0 Tainted: G        W         5.3.0-rc4+ #1
+Hardware name: LENOVO 20KHCTO1WW/20KHCTO1WW, BIOS N23ET65W (1.40 ) 07/02/2019
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack+0x9a/0xf0
+ print_address_description.cold+0xae/0x34f
+ __kasan_report.cold+0x75/0x93
+ ? tm6000_fillbuf+0x390/0x3c0 [tm6000_alsa]
+ ? dvb_fini+0x75/0x140 [tm6000_dvb]
+ kasan_report+0xe/0x12
+ dvb_fini+0x75/0x140 [tm6000_dvb]
+ tm6000_close_extension+0x51/0x80 [tm6000]
+ tm6000_usb_disconnect.cold+0xd4/0x105 [tm6000]
+ usb_unbind_interface+0xe4/0x390
+ device_release_driver_internal+0x121/0x250
+ bus_remove_device+0x197/0x260
+ device_del+0x268/0x550
+ ? __device_links_no_driver+0xd0/0xd0
+ ? usb_remove_ep_devs+0x30/0x3b
+ usb_disable_device+0x122/0x400
+ usb_disconnect+0x153/0x430
+ hub_event+0x800/0x1e40
+ ? trace_hardirqs_on_thunk+0x1a/0x20
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? retint_kernel+0x10/0x10
+ ? lock_is_held_type+0xf1/0x130
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? process_one_work+0x4ae/0xa00
+ process_one_work+0x4ba/0xa00
+ ? pwq_dec_nr_in_flight+0x160/0x160
+ ? do_raw_spin_lock+0x10a/0x1d0
+ worker_thread+0x7a/0x5c0
+ ? process_one_work+0xa00/0xa00
+ kthread+0x1d5/0x200
+ ? kthread_create_worker_on_cpu+0xd0/0xd0
+ ret_from_fork+0x3a/0x50
 
-Signed-off-by: Wen Huang <huangwenabc@gmail.com>
-Acked-by: Ganapathi Bhat <gbhat@marvell.comg>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Allocated by task 2682:
+ save_stack+0x1b/0x80
+ __kasan_kmalloc.constprop.0+0xc2/0xd0
+ usb_alloc_urb+0x28/0x60
+ tm6000_start_feed+0x10a/0x300 [tm6000_dvb]
+ dmx_ts_feed_start_filtering+0x86/0x120 [dvb_core]
+ dvb_dmxdev_start_feed+0x121/0x180 [dvb_core]
+ dvb_dmxdev_filter_start+0xcb/0x540 [dvb_core]
+ dvb_demux_do_ioctl+0x7ed/0x890 [dvb_core]
+ dvb_usercopy+0x97/0x1f0 [dvb_core]
+ dvb_demux_ioctl+0x11/0x20 [dvb_core]
+ do_vfs_ioctl+0x5d8/0x9d0
+ ksys_ioctl+0x5e/0x90
+ __x64_sys_ioctl+0x3d/0x50
+ do_syscall_64+0x74/0xe0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 22:
+ save_stack+0x1b/0x80
+ __kasan_slab_free+0x12c/0x170
+ kfree+0xfd/0x3a0
+ xhci_giveback_urb_in_irq+0xfe/0x230
+ xhci_td_cleanup+0x276/0x340
+ xhci_irq+0x1129/0x3720
+ __handle_irq_event_percpu+0x6e/0x420
+ handle_irq_event_percpu+0x6f/0x100
+ handle_irq_event+0x55/0x84
+ handle_edge_irq+0x108/0x3b0
+ handle_irq+0x2e/0x40
+ do_IRQ+0x83/0x1a0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/ie.c      |    3 +++
- drivers/net/wireless/marvell/mwifiex/uap_cmd.c |    9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/media/usb/tm6000/tm6000-dvb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/marvell/mwifiex/ie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/ie.c
-@@ -241,6 +241,9 @@ static int mwifiex_update_vs_ie(const u8
+--- a/drivers/media/usb/tm6000/tm6000-dvb.c
++++ b/drivers/media/usb/tm6000/tm6000-dvb.c
+@@ -97,6 +97,7 @@ static void tm6000_urb_received(struct u
+ 			printk(KERN_ERR "tm6000:  error %s\n", __func__);
+ 			kfree(urb->transfer_buffer);
+ 			usb_free_urb(urb);
++			dev->dvb->bulk_urb = NULL;
  		}
- 
- 		vs_ie = (struct ieee_types_header *)vendor_ie;
-+		if (le16_to_cpu(ie->ie_length) + vs_ie->len + 2 >
-+			IEEE_MAX_IE_SIZE)
-+			return -EINVAL;
- 		memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
- 		       vs_ie, vs_ie->len + 2);
- 		le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
---- a/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
-+++ b/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
-@@ -265,6 +265,8 @@ mwifiex_set_uap_rates(struct mwifiex_uap
- 
- 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_SUPP_RATES, var_pos, len);
- 	if (rate_ie) {
-+		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES)
-+			return;
- 		memcpy(bss_cfg->rates, rate_ie + 1, rate_ie->len);
- 		rate_len = rate_ie->len;
  	}
-@@ -272,8 +274,11 @@ mwifiex_set_uap_rates(struct mwifiex_uap
- 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
- 					   params->beacon.tail,
- 					   params->beacon.tail_len);
--	if (rate_ie)
-+	if (rate_ie) {
-+		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES - rate_len)
-+			return;
- 		memcpy(bss_cfg->rates + rate_len, rate_ie + 1, rate_ie->len);
-+	}
- 
- 	return;
  }
-@@ -391,6 +396,8 @@ mwifiex_set_wmm_params(struct mwifiex_pr
- 					    params->beacon.tail_len);
- 	if (vendor_ie) {
- 		wmm_ie = vendor_ie;
-+		if (*(wmm_ie + 1) > sizeof(struct mwifiex_types_wmm_info))
-+			return;
- 		memcpy(&bss_cfg->wmm_info, wmm_ie +
- 		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
- 		priv->wmm_enabled = 1;
+@@ -127,6 +128,7 @@ static int tm6000_start_stream(struct tm
+ 	dvb->bulk_urb->transfer_buffer = kzalloc(size, GFP_KERNEL);
+ 	if (!dvb->bulk_urb->transfer_buffer) {
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -153,6 +155,7 @@ static int tm6000_start_stream(struct tm
+ 
+ 		kfree(dvb->bulk_urb->transfer_buffer);
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		return ret;
+ 	}
+ 
 
 
