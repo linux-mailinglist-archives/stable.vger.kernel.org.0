@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B76B855F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8790B85FE
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732785AbfISWU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
+        id S2391216AbfISW0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394032AbfISWU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:28 -0400
+        id S2406872AbfISWWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBD97217D6;
-        Thu, 19 Sep 2019 22:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E54121D6C;
+        Thu, 19 Sep 2019 22:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931627;
-        bh=zMZ3NN5Ec3j2NtL7lZrB4gu39QodgcLY7Q9IEA1DIFo=;
+        s=default; t=1568931754;
+        bh=+zLwyqeloT/kBiMcGpwtDWqjnX2V2XAV8iYqf4jYkI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apl3mXN5zkhRAE5zp7w4A6Ebl+dB8BR6uPTRXsfKkxNprPFA4lKUBK4QRvdTQAJcl
-         FBl8KigGDRB01Is7EOHj0oE2xh7T1fQ6K9nPDhpxEjeBpH/PWOVwwMrHMaej2nAaEA
-         +NIk9ZtbFbIExCp379lQ7Jgj7S0/Yu3L3CVevPvo=
+        b=UkjiYQGrpqW34ILpwG1sgqK+RukbcCFhOeRFIq8h0oIG20aFQTBPjj2ecoYJU5MB6
+         R28O/ii60Xzz/0QSKwJ4BWS7pT43fdRESGLX3QAVXpdsmEozn9XorHE4ucnbLug1Uo
+         UO/mb0gDQ218BE/nvqPRcaiFOTPR4A9AdFOwoFq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>, alan@linux.intel.com,
-        bp@alien8.de, cheol.yong.kim@intel.com, qi-ming.wu@intel.com,
-        rahul.tanwar@intel.com, rppt@linux.ibm.com, tony.luck@intel.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 55/74] x86/apic: Fix arch_dynirq_lower_bound() bug for DT enabled machines
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 27/56] USB: usbcore: Fix slab-out-of-bounds bug during device reset
 Date:   Fri, 20 Sep 2019 00:04:08 +0200
-Message-Id: <20190919214810.108283855@linuxfoundation.org>
+Message-Id: <20190919214755.636298873@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,71 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 3e5bedc2c258341702ddffbd7688c5e6eb01eafa ]
+commit 3dd550a2d36596a1b0ee7955da3b611c031d3873 upstream.
 
-Rahul Tanwar reported the following bug on DT systems:
+The syzbot fuzzer provoked a slab-out-of-bounds error in the USB core:
 
-> 'ioapic_dynirq_base' contains the virtual IRQ base number. Presently, it is
-> updated to the end of hardware IRQ numbers but this is done only when IOAPIC
-> configuration type is IOAPIC_DOMAIN_LEGACY or IOAPIC_DOMAIN_STRICT. There is
-> a third type IOAPIC_DOMAIN_DYNAMIC which applies when IOAPIC configuration
-> comes from devicetree.
->
-> See dtb_add_ioapic() in arch/x86/kernel/devicetree.c
->
-> In case of IOAPIC_DOMAIN_DYNAMIC (DT/OF based system), 'ioapic_dynirq_base'
-> remains to zero initialized value. This means that for OF based systems,
-> virtual IRQ base will get set to zero.
+BUG: KASAN: slab-out-of-bounds in memcmp+0xa6/0xb0 lib/string.c:904
+Read of size 1 at addr ffff8881d175bed6 by task kworker/0:3/2746
 
-Such systems will very likely not even boot.
+CPU: 0 PID: 2746 Comm: kworker/0:3 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  memcmp+0xa6/0xb0 lib/string.c:904
+  memcmp include/linux/string.h:400 [inline]
+  descriptors_changed drivers/usb/core/hub.c:5579 [inline]
+  usb_reset_and_verify_device+0x564/0x1300 drivers/usb/core/hub.c:5729
+  usb_reset_device+0x4c1/0x920 drivers/usb/core/hub.c:5898
+  rt2x00usb_probe+0x53/0x7af
+drivers/net/wireless/ralink/rt2x00/rt2x00usb.c:806
 
-For DT enabled machines ioapic_dynirq_base is irrelevant and not
-updated, so simply map the IRQ base 1:1 instead.
+The error occurs when the descriptors_changed() routine (called during
+a device reset) attempts to compare the old and new BOS and capability
+descriptors.  The length it uses for the comparison is the
+wTotalLength value stored in BOS descriptor, but this value is not
+necessarily the same as the length actually allocated for the
+descriptors.  If it is larger the routine will call memcmp() with a
+length that is too big, thus reading beyond the end of the allocated
+region and leading to this fault.
 
-Reported-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: alan@linux.intel.com
-Cc: bp@alien8.de
-Cc: cheol.yong.kim@intel.com
-Cc: qi-ming.wu@intel.com
-Cc: rahul.tanwar@intel.com
-Cc: rppt@linux.ibm.com
-Cc: tony.luck@intel.com
-Link: http://lkml.kernel.org/r/20190821081330.1187-1-rahul.tanwar@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The kernel reads the BOS descriptor twice: first to get the total
+length of all the capability descriptors, and second to read it along
+with all those other descriptors.  A malicious (or very faulty) device
+may send different values for the BOS descriptor fields each time.
+The memory area will be allocated using the wTotalLength value read
+the first time, but stored within it will be the value read the second
+time.
+
+To prevent this possibility from causing any errors, this patch
+modifies the BOS descriptor after it has been read the second time:
+It sets the wTotalLength field to the actual length of the descriptors
+that were read in and validated.  Then the memcpy() call, or any other
+code using these descriptors, will be able to rely on wTotalLength
+being valid.
+
+Reported-and-tested-by: syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909041154260.1722-100000@iolanthe.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/apic/io_apic.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/core/config.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index d34629d70421f..09dd95cabfc28 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2346,7 +2346,13 @@ unsigned int arch_dynirq_lower_bound(unsigned int from)
- 	 * dmar_alloc_hwirq() may be called before setup_IO_APIC(), so use
- 	 * gsi_top if ioapic_dynirq_base hasn't been initialized yet.
- 	 */
--	return ioapic_initialized ? ioapic_dynirq_base : gsi_top;
-+	if (!ioapic_initialized)
-+		return gsi_top;
-+	/*
-+	 * For DT enabled machines ioapic_dynirq_base is irrelevant and not
-+	 * updated. So simply return @from if ioapic_dynirq_base == 0.
-+	 */
-+	return ioapic_dynirq_base ? : from;
- }
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -891,7 +891,7 @@ int usb_get_bos_descriptor(struct usb_de
+ 	struct usb_bos_descriptor *bos;
+ 	struct usb_dev_cap_header *cap;
+ 	struct usb_ssp_cap_descriptor *ssp_cap;
+-	unsigned char *buffer;
++	unsigned char *buffer, *buffer0;
+ 	int length, total_len, num, i, ssac;
+ 	__u8 cap_type;
+ 	int ret;
+@@ -936,10 +936,12 @@ int usb_get_bos_descriptor(struct usb_de
+ 			ret = -ENOMSG;
+ 		goto err;
+ 	}
++
++	buffer0 = buffer;
+ 	total_len -= length;
++	buffer += length;
  
- #ifdef CONFIG_X86_32
--- 
-2.20.1
-
+ 	for (i = 0; i < num; i++) {
+-		buffer += length;
+ 		cap = (struct usb_dev_cap_header *)buffer;
+ 
+ 		if (total_len < sizeof(*cap) || total_len < cap->bLength) {
+@@ -953,8 +955,6 @@ int usb_get_bos_descriptor(struct usb_de
+ 			break;
+ 		}
+ 
+-		total_len -= length;
+-
+ 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
+ 			dev_warn(ddev, "descriptor type invalid, skip\n");
+ 			continue;
+@@ -989,7 +989,11 @@ int usb_get_bos_descriptor(struct usb_de
+ 		default:
+ 			break;
+ 		}
++
++		total_len -= length;
++		buffer += length;
+ 	}
++	dev->bos->desc->wTotalLength = cpu_to_le16(buffer - buffer0);
+ 
+ 	return 0;
+ 
 
 
