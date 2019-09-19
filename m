@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC68B876F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0353CB86EA
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404992AbfISWFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
+        id S2406030AbfISWNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404985AbfISWFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:05:31 -0400
+        id S2406026AbfISWNC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A87A221907;
-        Thu, 19 Sep 2019 22:05:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C3AF21907;
+        Thu, 19 Sep 2019 22:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930730;
-        bh=i59vVpsWme0l4E3I1ANgSvilDUw/eEg/54eOPwkejZA=;
+        s=default; t=1568931181;
+        bh=nQm9fmpxpPMRbefy42NAkue3FZlAfMV+pg0Kwb0mokM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMEgEAjgPHocJXLmCsqeJyQwgTXRTAPcCPHZSSGu0laNzgQfgU1QARw7c0Hhxzs8P
-         IFSVI2zAlIqc6PU3nnKz8va0JM5Nbq+WovX0QphykyM+DlD5Gflr4CQu/W+X1VoJe1
-         cXfsiw4RXjYk9FBIvNZD6nho1/rtWcvqIvucduyc=
+        b=F/OWM5tQXGYBn+kbTSvTvEJs/I/I7QfDVtq6RgI9NPnIRvNHFSeYjkFtI7GfRXoUS
+         j30uloUQrJBt/Ul87kbYn+LvB0KlsYVDtfNMxih9wcWRostHT8rmY5UBefwm5zQkoB
+         9J+VvBgOYHkOhln14oAnBVGeFzQf1Wd33QohdX2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Subject: [PATCH 5.3 15/21] tty/serial: atmel: reschedule TX after RX was started
+        Quentin Monnet <quentin.monnet@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/79] tools: bpftool: close prog FD before exit on showing a single program
 Date:   Fri, 20 Sep 2019 00:03:16 +0200
-Message-Id: <20190919214708.783116461@linuxfoundation.org>
+Message-Id: <20190919214810.531834718@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
-References: <20190919214657.842130855@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Razvan Stefanescu <razvan.stefanescu@microchip.com>
+From: Quentin Monnet <quentin.monnet@netronome.com>
 
-commit d2ace81bf902a9f11d52e59e5d232d2255a0e353 upstream.
+[ Upstream commit d34b044038bfb0e19caa8b019910efc465f41d5f ]
 
-When half-duplex RS485 communication is used, after RX is started, TX
-tasklet still needs to be  scheduled tasklet. This avoids console freezing
-when more data is to be transmitted, if the serial communication is not
-closed.
+When showing metadata about a single program by invoking
+"bpftool prog show PROG", the file descriptor referring to the program
+is not closed before returning from the function. Let's close it.
 
-Fixes: 69646d7a3689 ("tty/serial: atmel: RS485 HD w/DMA: enable RX after TX is stopped")
-Signed-off-by: Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190813074025.16218-1-razvan.stefanescu@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
+Signed-off-by: Quentin Monnet <quentin.monnet@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c |    1 -
- 1 file changed, 1 deletion(-)
+ tools/bpf/bpftool/prog.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -1400,7 +1400,6 @@ atmel_handle_transmit(struct uart_port *
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index bbba0d61570fe..4f9611af46422 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -381,7 +381,9 @@ static int do_show(int argc, char **argv)
+ 		if (fd < 0)
+ 			return -1;
  
- 			atmel_port->hd_start_rx = false;
- 			atmel_start_rx(port);
--			return;
- 		}
+-		return show_prog(fd);
++		err = show_prog(fd);
++		close(fd);
++		return err;
+ 	}
  
- 		atmel_tasklet_schedule(atmel_port, &atmel_port->tasklet_tx);
+ 	if (argc)
+-- 
+2.20.1
+
 
 
