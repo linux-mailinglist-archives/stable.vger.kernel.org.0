@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D1B8B8619
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B22B85EB
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404751AbfISWVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36180 "EHLO mail.kernel.org"
+        id S2394182AbfISWXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404844AbfISWVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:21:37 -0400
+        id S2394176AbfISWXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:23:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D835E20678;
-        Thu, 19 Sep 2019 22:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B034520678;
+        Thu, 19 Sep 2019 22:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931697;
-        bh=MJwYI1KVbjryZ/U0QHBipNr+8bajKoJ+EZOTakjitT8=;
+        s=default; t=1568931804;
+        bh=s3X8KYhopGYFylN09akusJr4NOztZXLrmbfsb8R3yHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWv3xZJAptqbZkZ6/WWrzOWJ5FAxEMEE8ikTqZlC1GUlAkTSxZnJ4NbE6Z4L09O9h
-         cPBNUNSOEDkYzRVv6NytR+NsIT/8DOb5OTjXVW0xd+fP3KJMKNWBOIBtGlqlq+Hmbr
-         gwhBXluNgYKk+dJeOX+XD9NQGnwhMfvWLEZxxI4U=
+        b=h+/ZYrdb+jhFzmOusHXiNU6Pk6k4RgXG7kIg4O9sOOhevU25RGFLYOAJeJIhdbZEN
+         Q4KfCf7RbJDwONweRmnTLg9hCBehY/Btb/q7agTucIlObirmSZCzT66vXUZa9kF2bi
+         0xXMW809AGEt18Nbjx0Y+iRGrOe6sROSaJcuzhfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.9 74/74] ARC: export "abort" for modules
+        stable@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 46/56] NFSv2: Fix write regression
 Date:   Fri, 20 Sep 2019 00:04:27 +0200
-Message-Id: <20190919214811.564310227@linuxfoundation.org>
+Message-Id: <20190919214801.282028438@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-This is a custom patch (no mainline equivalent) for stable backport only
-to address 0-Day kernel test infra ARC 4.x.y builds errors.
+[ Upstream commit d33d4beb522987d1c305c12500796f9be3687dee ]
 
-The reason for this custom patch as that it is a single patch, touches
-only ARC, vs. atleast two 7c2c11b208be09c1, dc8635b78cd8669 which touch
-atleast 3 other arches (one long removed) and could potentially have a
-fallout.
+Ensure we update the write result count on success, since the
+RPC call itself does not do so.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-CC: stable@vger.kernel.org	# 4.4, 4.9
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Tested-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/traps.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/proc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arc/kernel/traps.c
-+++ b/arch/arc/kernel/traps.c
-@@ -163,3 +163,4 @@ void abort(void)
+diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
+index 80ecdf2ec8b6a..b83e14ad13c45 100644
+--- a/fs/nfs/proc.c
++++ b/fs/nfs/proc.c
+@@ -610,8 +610,10 @@ static int nfs_proc_pgio_rpc_prepare(struct rpc_task *task,
+ 
+ static int nfs_write_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
  {
- 	__asm__ __volatile__("trap_s  5\n");
+-	if (task->tk_status >= 0)
++	if (task->tk_status >= 0) {
++		hdr->res.count = hdr->args.count;
+ 		nfs_writeback_update_inode(hdr);
++	}
+ 	return 0;
  }
-+EXPORT_SYMBOL(abort);
+ 
+-- 
+2.20.1
+
 
 
