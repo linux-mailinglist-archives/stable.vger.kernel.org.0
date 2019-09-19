@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC90B849F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A395B8463
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393650AbfISWMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
+        id S2405657AbfISWK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393646AbfISWMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:12:35 -0400
+        id S2393535AbfISWK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:10:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EA1B218AF;
-        Thu, 19 Sep 2019 22:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E47C21920;
+        Thu, 19 Sep 2019 22:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931154;
-        bh=nVFI3vmSter5ho8tuRJcBpNeZYCsfswYldUZv3Ldu5E=;
+        s=default; t=1568931025;
+        bh=Ov6xLFQ1v2QQcBXiK649r5jt25ebyAzDbX3CZoFlSEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTMJGkzDm51YdHdyLqNZ90UsDX/G/Nf5RqcutBhycKFTDgpd64HriR+oPoLLcAQ+7
-         UgdbP3dKorn+v87dUHD9o1XVTP5xxG5/82/7+dUK/gjKp38dqr6X65CO6jxrqevsuC
-         GbZXY2gkXFK+N+vKZ0xaVb9mruJTn176thfkpGM0=
+        b=Wsi4SpWiEIdsvJaYi7IKe6+reg1ogseHy7i29Gakcy/C/W9zdxLV2TUq6aSia9gD6
+         X3UHJYCoayvaNHqagmoImr4jBkojGmI86qUp+GYoLJmlOQk5Enuay+dd1kD+mX3MjR
+         wlgs3zIR4l6B3KDSBE6ZlPIgqHWO7JnAI8eo+CxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Keerthy <j-keerthy@ti.com>, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Kosuke Tatsukawa <tatsu@ab.jp.nec.com>,
+        Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/79] ARM: OMAP2+: Fix missing SYSC_HAS_RESET_STATUS for dra7 epwmss
+Subject: [PATCH 5.2 099/124] tools/power turbostat: Fix Haswell Core systems
 Date:   Fri, 20 Sep 2019 00:03:07 +0200
-Message-Id: <20190919214809.961464786@linuxfoundation.org>
+Message-Id: <20190919214822.682987329@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit afd58b162e48076e3fe66d08a69eefbd6fe71643 ]
+[ Upstream commit cd188af5282d9f9e65f63915b13239bafc746f8d ]
 
-TRM says PWMSS_SYSCONFIG bit for SOFTRESET changes to zero when
-reset is completed. Let's configure it as otherwise we get warnings
-on boot when we check the data against dts provided data. Eventually
-the legacy platform data will be just dropped, but let's fix the
-warning first.
+turbostat: cpu0: msr offset 0x630 read failed: Input/output error
 
-Reviewed-by: Suman Anna <s-anna@ti.com>
-Tested-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+because Haswell Core does not have C8-C10.
+
+Output C8-C10 only on Haswell ULT.
+
+Fixes: f5a4c76ad7de ("tools/power turbostat: consolidate duplicate model numbers")
+
+Reported-by: Prarit Bhargava <prarit@redhat.com>
+Suggested-by: Kosuke Tatsukawa <tatsu@ab.jp.nec.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod_7xx_data.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/power/x86/turbostat/turbostat.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-index e6c7061a8e736..3547f32822b64 100644
---- a/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_7xx_data.c
-@@ -385,7 +385,8 @@ static struct omap_hwmod dra7xx_dcan2_hwmod = {
- static struct omap_hwmod_class_sysconfig dra7xx_epwmss_sysc = {
- 	.rev_offs	= 0x0,
- 	.sysc_offs	= 0x4,
--	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET,
-+	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
-+			  SYSC_HAS_RESET_STATUS,
- 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
- 	.sysc_fields	= &omap_hwmod_sysc_type2,
- };
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 752cb4c0fde6b..56c3e041d4f93 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -3211,6 +3211,7 @@ int probe_nhm_msrs(unsigned int family, unsigned int model)
+ 		break;
+ 	case INTEL_FAM6_HASWELL_CORE:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_X:	/* HSX */
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_GT3E:	/* HSW */
+ 	case INTEL_FAM6_BROADWELL_CORE:	/* BDW */
+ 	case INTEL_FAM6_BROADWELL_GT3E:	/* BDW */
+@@ -3407,6 +3408,7 @@ int has_config_tdp(unsigned int family, unsigned int model)
+ 	case INTEL_FAM6_IVYBRIDGE:	/* IVB */
+ 	case INTEL_FAM6_HASWELL_CORE:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_X:	/* HSX */
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_GT3E:	/* HSW */
+ 	case INTEL_FAM6_BROADWELL_CORE:	/* BDW */
+ 	case INTEL_FAM6_BROADWELL_GT3E:	/* BDW */
+@@ -3843,6 +3845,7 @@ void rapl_probe_intel(unsigned int family, unsigned int model)
+ 	case INTEL_FAM6_SANDYBRIDGE:
+ 	case INTEL_FAM6_IVYBRIDGE:
+ 	case INTEL_FAM6_HASWELL_CORE:	/* HSW */
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_GT3E:	/* HSW */
+ 	case INTEL_FAM6_BROADWELL_CORE:	/* BDW */
+ 	case INTEL_FAM6_BROADWELL_GT3E:	/* BDW */
+@@ -4034,6 +4037,7 @@ void perf_limit_reasons_probe(unsigned int family, unsigned int model)
+ 
+ 	switch (model) {
+ 	case INTEL_FAM6_HASWELL_CORE:	/* HSW */
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_GT3E:	/* HSW */
+ 		do_gfx_perf_limit_reasons = 1;
+ 	case INTEL_FAM6_HASWELL_X:	/* HSX */
+@@ -4253,6 +4257,7 @@ int has_snb_msrs(unsigned int family, unsigned int model)
+ 	case INTEL_FAM6_IVYBRIDGE_X:	/* IVB Xeon */
+ 	case INTEL_FAM6_HASWELL_CORE:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_X:	/* HSW */
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_HASWELL_GT3E:	/* HSW */
+ 	case INTEL_FAM6_BROADWELL_CORE:	/* BDW */
+ 	case INTEL_FAM6_BROADWELL_GT3E:	/* BDW */
+@@ -4286,7 +4291,7 @@ int has_hsw_msrs(unsigned int family, unsigned int model)
+ 		return 0;
+ 
+ 	switch (model) {
+-	case INTEL_FAM6_HASWELL_CORE:
++	case INTEL_FAM6_HASWELL_ULT:	/* HSW */
+ 	case INTEL_FAM6_BROADWELL_CORE:	/* BDW */
+ 	case INTEL_FAM6_SKYLAKE_MOBILE:	/* SKL */
+ 	case INTEL_FAM6_CANNONLAKE_MOBILE:	/* CNL */
+@@ -4570,9 +4575,6 @@ unsigned int intel_model_duplicates(unsigned int model)
+ 	case INTEL_FAM6_XEON_PHI_KNM:
+ 		return INTEL_FAM6_XEON_PHI_KNL;
+ 
+-	case INTEL_FAM6_HASWELL_ULT:
+-		return INTEL_FAM6_HASWELL_CORE;
+-
+ 	case INTEL_FAM6_BROADWELL_X:
+ 	case INTEL_FAM6_BROADWELL_XEON_D:	/* BDX-DE */
+ 		return INTEL_FAM6_BROADWELL_X;
 -- 
 2.20.1
 
