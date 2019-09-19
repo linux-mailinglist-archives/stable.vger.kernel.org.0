@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54953B858C
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E77BB863D
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:28:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406800AbfISWWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37192 "EHLO mail.kernel.org"
+        id S2405606AbfISWUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:20:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406778AbfISWWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:22:16 -0400
+        id S2404604AbfISWUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:20:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3FEB20678;
-        Thu, 19 Sep 2019 22:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B3EF217D6;
+        Thu, 19 Sep 2019 22:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931735;
-        bh=acqf8iWr/flWMhoJlMX9Rq4SnUZG25hjg5RNHePwK0M=;
+        s=default; t=1568931605;
+        bh=o66SKGWdVKDfAkB7FtfJ9Gt9OTioTM7C2cJAnN6iwqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4bOcv0BUuGKoKsYVvhKFajpSVsLtMRxt67u2oi71oA+aH8e85fJrM3eN7XK59MFg
-         QCrRtnb2SIFJ62C5rXty6MrBrMHSH9ZImyMpHdO0V1cn2LaxjYUOGa6ah4alnrgKD/
-         nsHKFtiH88Dtqfhh0YxG5BytyGj4X6WG7jV8nr7g=
+        b=2KwQspWwAyXxx3ZAf+nAlgzmSMEdx3HgPxSqm3FOoYZSZ6yDYGOfuzogis2A20ZbH
+         Yc3PNiKOwB6QP3pNQkOasmTJ8J3hqtEiLk4KbZaUeWFiuzrIOBnz4PnSzoj4xhZRyt
+         hxbdCmCdNC9ciMebG2JIjRBQ+6tDHfyNI8YWODVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 4.4 20/56] clk: rockchip: Dont yell about bad mmc phases when getting
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 48/74] NFSv4: Fix return values for nfs4_file_open()
 Date:   Fri, 20 Sep 2019 00:04:01 +0200
-Message-Id: <20190919214754.225657690@linuxfoundation.org>
+Message-Id: <20190919214809.435827055@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 6943b839721ad4a31ad2bacf6e71b21f2dfe3134 upstream.
+[ Upstream commit 90cf500e338ab3f3c0f126ba37e36fb6a9058441 ]
 
-At boot time, my rk3288-veyron devices yell with 8 lines that look
-like this:
-  [    0.000000] rockchip_mmc_get_phase: invalid clk rate
+Currently, we are translating RPC level errors such as timeouts,
+as well as interrupts etc into EOPENSTALE, which forces a single
+replay of the open attempt. What we actually want to do is
+force the replay only in the cases where the returned error
+indicates that the file may have changed on the server.
 
-This is because the clock framework at clk_register() time tries to
-get the phase but we don't have a parent yet.
+So the fix is to spell out the exact set of errors where we want
+to return EOPENSTALE.
 
-While the errors appear to be harmless they are still ugly and, in
-general, we don't want yells like this in the log unless they are
-important.
-
-There's no real reason to be yelling here.  We can still return
--EINVAL to indicate that the phase makes no sense without a parent.
-If someone really tries to do tuning and the clock is reported as 0
-then we'll see the yells in rockchip_mmc_set_phase().
-
-Fixes: 4bf59902b500 ("clk: rockchip: Prevent calculating mmc phase if clock rate is zero")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-mmc-phase.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/nfs/nfs4file.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/clk/rockchip/clk-mmc-phase.c
-+++ b/drivers/clk/rockchip/clk-mmc-phase.c
-@@ -61,10 +61,8 @@ static int rockchip_mmc_get_phase(struct
- 	u32 delay_num = 0;
- 
- 	/* See the comment for rockchip_mmc_set_phase below */
--	if (!rate) {
--		pr_err("%s: invalid clk rate\n", __func__);
-+	if (!rate)
- 		return -EINVAL;
--	}
- 
- 	raw_value = readl(mmc_clock->reg) >> (mmc_clock->shift);
- 
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 8a0c301b0c699..7138383382ff1 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -73,13 +73,13 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+ 		switch (err) {
+-		case -EPERM:
+-		case -EACCES:
+-		case -EDQUOT:
+-		case -ENOSPC:
+-		case -EROFS:
+-			goto out_put_ctx;
+ 		default:
++			goto out_put_ctx;
++		case -ENOENT:
++		case -ESTALE:
++		case -EISDIR:
++		case -ENOTDIR:
++		case -ELOOP:
+ 			goto out_drop;
+ 		}
+ 	}
+-- 
+2.20.1
+
 
 
