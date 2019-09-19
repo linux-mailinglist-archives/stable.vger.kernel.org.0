@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A80B5B860D
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D7CB858A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406768AbfISWWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
+        id S2406786AbfISWWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404758AbfISWWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:22:07 -0400
+        id S2406778AbfISWWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B487721924;
-        Thu, 19 Sep 2019 22:22:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5877C21927;
+        Thu, 19 Sep 2019 22:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931727;
-        bh=yS15S4ft0wc0riRxiATHhmn5nzjFhfv4vQg+5N7czZI=;
+        s=default; t=1568931729;
+        bh=ATTSTQNzeM8sUDrhqGjI62uCRviZbT7bue9ppOoviPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZy4+Rzio2YFRTax7RWQkdHt4FijROxh/PSmcfduNFu6uv94uJnp60GLWcESKtC7M
-         BOuoMcCQM9bpHFZttiuuJ9kQdRiSDyezaV3Z04ITnrIsJ0qO5SkKe4Ez6xn0Va7fv6
-         PasEC/ZuM44Vg8/Wh7ReKfXjuTZeDlW3GkM30+V0=
+        b=SIBwdd53HHOsyzU7I8eubSnyXON7rFH2W5gqUdA26alQi5fMwvZzuVexUcS6xuo58
+         mG/a6zLGwjZI2CR+YHKXpejRObyl0LxukyaB9IC9OHi+92VZzp5vl7SdHGzg7H0ytx
+         tEFDsh94z3OmGxAlVraBY8/ENVSIY3Q3hCTomD90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Matt Redfearn <matt.redfearn@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 18/56] MIPS: VDSO: Prevent use of smp_processor_id()
-Date:   Fri, 20 Sep 2019 00:03:59 +0200
-Message-Id: <20190919214753.303821133@linuxfoundation.org>
+        Kevin Hilman <khilman@baylibre.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Maciej W. Rozycki" <macro@linux-mips.org>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH 4.4 19/56] MIPS: VDSO: Use same -m%-float cflag as the kernel proper
+Date:   Fri, 20 Sep 2019 00:04:00 +0200
+Message-Id: <20190919214753.768218356@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
 References: <20190919214742.483643642@linuxfoundation.org>
@@ -48,63 +48,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Burton <paul.burton@mips.com>
 
-commit 351fdddd366245c0fb4636f32edfb4198c8d6b8c upstream.
+commit 0648e50e548d881d025b9419a1a168753c8e2bf7 upstream.
 
-VDSO code should not be using smp_processor_id(), since it is executed
-in user mode.
-Introduce a VDSO-specific path which will cause a compile-time
-or link-time error (depending upon support for __compiletime_error) if
-the VDSO ever incorrectly attempts to use smp_processor_id().
+The MIPS VDSO build currently doesn't provide the -msoft-float flag to
+the compiler as the kernel proper does. This results in an attempt to
+use the compiler's default floating point configuration, which can be
+problematic in cases where this is incompatible with the target CPU's
+-march= flag. For example decstation_defconfig fails to build using
+toolchains in which gcc was configured --with-fp-32=xx with the
+following error:
 
-[Matt Redfearn <matt.redfearn@imgtec.com>: Move before change to
-smp_processor_id in series]
+    LDS     arch/mips/vdso/vdso.lds
+  cc1: error: '-march=r3000' requires '-mfp32'
+  make[2]: *** [scripts/Makefile.build:379: arch/mips/vdso/vdso.lds] Error 1
+
+The kernel proper avoids this error because we build with the
+-msoft-float compiler flag, rather than using the compiler's default.
+Pass this flag through to the VDSO build so that it too becomes agnostic
+to the toolchain's floating point configuration.
+
+Note that this is filtered out from KBUILD_CFLAGS rather than simply
+always using -msoft-float such that if we switch the kernel to use
+-mno-float in the future the VDSO will automatically inherit the change.
+
+The VDSO doesn't actually include any floating point code, and its
+.MIPS.abiflags section is already manually generated to specify that
+it's compatible with any floating point ABI. As such this change should
+have no effect on the resulting VDSO, apart from fixing the build
+failure for affected toolchains.
 
 Signed-off-by: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/17932/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
+Cc: Maciej W. Rozycki <macro@linux-mips.org>
+Cc: linux-mips@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.4+
 Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/smp.h |   12 +++++++++++-
- arch/mips/vdso/Makefile     |    3 ++-
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ arch/mips/vdso/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/include/asm/smp.h
-+++ b/arch/mips/include/asm/smp.h
-@@ -25,7 +25,17 @@ extern cpumask_t cpu_sibling_map[];
- extern cpumask_t cpu_core_map[];
- extern cpumask_t cpu_foreign_map;
- 
--#define raw_smp_processor_id() (current_thread_info()->cpu)
-+static inline int raw_smp_processor_id(void)
-+{
-+#if defined(__VDSO__)
-+	extern int vdso_smp_processor_id(void)
-+		__compiletime_error("VDSO should not call smp_processor_id()");
-+	return vdso_smp_processor_id();
-+#else
-+	return current_thread_info()->cpu;
-+#endif
-+}
-+#define raw_smp_processor_id raw_smp_processor_id
- 
- /* Map from cpu id to sequential logical cpu number.  This will only
-    not be idempotent when cpus failed to come on-line.	*/
 --- a/arch/mips/vdso/Makefile
 +++ b/arch/mips/vdso/Makefile
-@@ -6,7 +6,8 @@ ccflags-vdso := \
- 	$(filter -I%,$(KBUILD_CFLAGS)) \
+@@ -7,6 +7,7 @@ ccflags-vdso := \
  	$(filter -E%,$(KBUILD_CFLAGS)) \
  	$(filter -mmicromips,$(KBUILD_CFLAGS)) \
--	$(filter -march=%,$(KBUILD_CFLAGS))
-+	$(filter -march=%,$(KBUILD_CFLAGS)) \
-+	-D__VDSO__
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
++	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+ 	-D__VDSO__
  cflags-vdso := $(ccflags-vdso) \
  	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
- 	-O2 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
 
 
