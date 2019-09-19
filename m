@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50173B8563
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 073DCB85BE
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733242AbfISWUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34748 "EHLO mail.kernel.org"
+        id S2407152AbfISWYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733207AbfISWUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:38 -0400
+        id S2407126AbfISWYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:24:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D0B421907;
-        Thu, 19 Sep 2019 22:20:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E757321929;
+        Thu, 19 Sep 2019 22:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931638;
-        bh=WTkBljxolxbt6IIdUyLpknTO5H3oWViPH4OupxZfFBM=;
+        s=default; t=1568931858;
+        bh=BhAkphDj+0fgyrcKIHmH9JEYx3kwCeJH+ofYqdmz4b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9sADBMz4oabWR2axti4RtKWaEv7LMR2FwAvCluv3CmbOEoHl+3sq2nikxsLCcA1f
-         0775FIWyEIG27suXor5n1nUemEyGCaG7252oZQDS4fNRj5wS9ZtyaejvM1rXARuIyl
-         p2IoYAF0oFoyPWWWzzjuOfjO/tJ9oAaU4/pHGnNE=
+        b=QojTKrL80Ux4WJRtxWgeJ+CV1DvacUBmENo2JmojmRkW35MBT4d8GobaFaImgKbFE
+         XMR6eEdOPrc2em62x0rJGF6oKe7fDHh5FyUmGiTbwVVCQdaLp4MPmczJ7WFj5Q2zar
+         319DJQ87unlnGM7VkG5ZG6et+oSy3UlInsSR64SA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 59/74] cifs: set domainName when a domain-key is used in multiuser
+        stable@vger.kernel.org, Matt Delco <delco@chromium.org>,
+        Jim Mattson <jmattson@google.com>,
+        syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 31/56] KVM: coalesced_mmio: add bounds checking
 Date:   Fri, 20 Sep 2019 00:04:12 +0200
-Message-Id: <20190919214810.350127916@linuxfoundation.org>
+Message-Id: <20190919214757.048128688@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Matt Delco <delco@chromium.org>
 
-[ Upstream commit f2aee329a68f5a907bcff11a109dfe17c0b41aeb ]
+commit b60fe990c6b07ef6d4df67bc0530c7c90a62623a upstream.
 
-RHBZ: 1710429
+The first/last indexes are typically shared with a user app.
+The app can change the 'last' index that the kernel uses
+to store the next result.  This change sanity checks the index
+before using it for writing to a potentially arbitrary address.
 
-When we use a domain-key to authenticate using multiuser we must also set
-the domainnmame for the new volume as it will be used and passed to the server
-in the NTLMSSP Domain-name.
+This fixes CVE-2019-14821.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 5f94c1741bdc ("KVM: Add coalesced MMIO support (common part)")
+Signed-off-by: Matt Delco <delco@chromium.org>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
+[Use READ_ONCE. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/cifs/connect.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ virt/kvm/coalesced_mmio.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index f291ed0c155db..2a199f4b663bf 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2447,6 +2447,7 @@ static int
- cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -39,7 +39,7 @@ static int coalesced_mmio_in_range(struc
+ 	return 1;
+ }
+ 
+-static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev)
++static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev, u32 last)
  {
- 	int rc = 0;
-+	int is_domain = 0;
- 	const char *delim, *payload;
- 	char *desc;
- 	ssize_t len;
-@@ -2494,6 +2495,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 			rc = PTR_ERR(key);
- 			goto out_err;
- 		}
-+		is_domain = 1;
+ 	struct kvm_coalesced_mmio_ring *ring;
+ 	unsigned avail;
+@@ -51,7 +51,7 @@ static int coalesced_mmio_has_room(struc
+ 	 * there is always one unused entry in the buffer
+ 	 */
+ 	ring = dev->kvm->coalesced_mmio_ring;
+-	avail = (ring->first - ring->last - 1) % KVM_COALESCED_MMIO_MAX;
++	avail = (ring->first - last - 1) % KVM_COALESCED_MMIO_MAX;
+ 	if (avail == 0) {
+ 		/* full */
+ 		return 0;
+@@ -66,24 +66,27 @@ static int coalesced_mmio_write(struct k
+ {
+ 	struct kvm_coalesced_mmio_dev *dev = to_mmio(this);
+ 	struct kvm_coalesced_mmio_ring *ring = dev->kvm->coalesced_mmio_ring;
++	__u32 insert;
+ 
+ 	if (!coalesced_mmio_in_range(dev, addr, len))
+ 		return -EOPNOTSUPP;
+ 
+ 	spin_lock(&dev->kvm->ring_lock);
+ 
+-	if (!coalesced_mmio_has_room(dev)) {
++	insert = READ_ONCE(ring->last);
++	if (!coalesced_mmio_has_room(dev, insert) ||
++	    insert >= KVM_COALESCED_MMIO_MAX) {
+ 		spin_unlock(&dev->kvm->ring_lock);
+ 		return -EOPNOTSUPP;
  	}
  
- 	down_read(&key->sem);
-@@ -2551,6 +2553,26 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 		goto out_key_put;
- 	}
+ 	/* copy data in first free entry of the ring */
  
-+	/*
-+	 * If we have a domain key then we must set the domainName in the
-+	 * for the request.
-+	 */
-+	if (is_domain && ses->domainName) {
-+		vol->domainname = kstrndup(ses->domainName,
-+					   strlen(ses->domainName),
-+					   GFP_KERNEL);
-+		if (!vol->domainname) {
-+			cifs_dbg(FYI, "Unable to allocate %zd bytes for "
-+				 "domain\n", len);
-+			rc = -ENOMEM;
-+			kfree(vol->username);
-+			vol->username = NULL;
-+			kfree(vol->password);
-+			vol->password = NULL;
-+			goto out_key_put;
-+		}
-+	}
-+
- out_key_put:
- 	up_read(&key->sem);
- 	key_put(key);
--- 
-2.20.1
-
+-	ring->coalesced_mmio[ring->last].phys_addr = addr;
+-	ring->coalesced_mmio[ring->last].len = len;
+-	memcpy(ring->coalesced_mmio[ring->last].data, val, len);
++	ring->coalesced_mmio[insert].phys_addr = addr;
++	ring->coalesced_mmio[insert].len = len;
++	memcpy(ring->coalesced_mmio[insert].data, val, len);
+ 	smp_wmb();
+-	ring->last = (ring->last + 1) % KVM_COALESCED_MMIO_MAX;
++	ring->last = (insert + 1) % KVM_COALESCED_MMIO_MAX;
+ 	spin_unlock(&dev->kvm->ring_lock);
+ 	return 0;
+ }
 
 
