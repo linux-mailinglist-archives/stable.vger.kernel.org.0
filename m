@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E1CB84E2
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A32AB8480
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:11:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404001AbfISWPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
+        id S2393600AbfISWLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:11:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406064AbfISWPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:15:08 -0400
+        id S2393595AbfISWLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:11:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76A6821927;
-        Thu, 19 Sep 2019 22:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5EE8218AF;
+        Thu, 19 Sep 2019 22:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931307;
-        bh=h3bcOGtPLUCBSlVlXbcseSnPv5QaAVKpkn0I2pFFNnw=;
+        s=default; t=1568931090;
+        bh=CmiYWrCziYWwm/L7yhLnm4McX5taLlSI0gBZlUARNcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y60t3lzEqmyh7RPeWOD9e9s9O/tJFHIpJJkRFQRQZlTuotLBX5W7z8xkyLWparWEd
-         FYriKQh2hSO4ynuSMx13mu6hS7RdvSjtWHoG2n0lYdLztrO6gyDyaEbg8+ryk/vqHY
-         wCAU//Zvthp6/OCZBOVRiSscR0Ft74BA4sIcxvL0=
+        b=WPwZ97055epYiOqafzcZglfFRGhoRcey/h8PdkO1blGT1XS8HxYFAZXNw1DMuzKMm
+         il4ewKKDYK9vVkr0ipuLocuzPa94qywKvamRKK3iif0hkzF8/a7CQ2bLYT99ILCs8U
+         EQPvdnb0rHN5iZnKK1a4i5PYh2S7U+Xjl+tb4Efo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>, alan@linux.intel.com,
-        bp@alien8.de, cheol.yong.kim@intel.com, qi-ming.wu@intel.com,
-        rahul.tanwar@intel.com, rppt@linux.ibm.com, tony.luck@intel.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/79] x86/apic: Fix arch_dynirq_lower_bound() bug for DT enabled machines
-Date:   Fri, 20 Sep 2019 00:03:31 +0200
-Message-Id: <20190919214811.667982823@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.2 124/124] vfs: Fix refcounting of filenames in fs_parser
+Date:   Fri, 20 Sep 2019 00:03:32 +0200
+Message-Id: <20190919214823.713060325@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,71 +42,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 3e5bedc2c258341702ddffbd7688c5e6eb01eafa ]
+commit 7cdfa44227b0d8842d46a775cebe4311150cb8f2 upstream.
 
-Rahul Tanwar reported the following bug on DT systems:
+Fix an overput in which filename_lookup() unconditionally drops a ref to
+the filename it was given, but this isn't taken account of in the caller,
+fs_lookup_param().
 
-> 'ioapic_dynirq_base' contains the virtual IRQ base number. Presently, it is
-> updated to the end of hardware IRQ numbers but this is done only when IOAPIC
-> configuration type is IOAPIC_DOMAIN_LEGACY or IOAPIC_DOMAIN_STRICT. There is
-> a third type IOAPIC_DOMAIN_DYNAMIC which applies when IOAPIC configuration
-> comes from devicetree.
->
-> See dtb_add_ioapic() in arch/x86/kernel/devicetree.c
->
-> In case of IOAPIC_DOMAIN_DYNAMIC (DT/OF based system), 'ioapic_dynirq_base'
-> remains to zero initialized value. This means that for OF based systems,
-> virtual IRQ base will get set to zero.
+Addresses-Coverity-ID: 1443811 ("Use after free")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Such systems will very likely not even boot.
-
-For DT enabled machines ioapic_dynirq_base is irrelevant and not
-updated, so simply map the IRQ base 1:1 instead.
-
-Reported-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Tested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: alan@linux.intel.com
-Cc: bp@alien8.de
-Cc: cheol.yong.kim@intel.com
-Cc: qi-ming.wu@intel.com
-Cc: rahul.tanwar@intel.com
-Cc: rppt@linux.ibm.com
-Cc: tony.luck@intel.com
-Link: http://lkml.kernel.org/r/20190821081330.1187-1-rahul.tanwar@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/fs_parser.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index 4077e309e5c4c..ab22eded61d25 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2432,7 +2432,13 @@ unsigned int arch_dynirq_lower_bound(unsigned int from)
- 	 * dmar_alloc_hwirq() may be called before setup_IO_APIC(), so use
- 	 * gsi_top if ioapic_dynirq_base hasn't been initialized yet.
- 	 */
--	return ioapic_initialized ? ioapic_dynirq_base : gsi_top;
-+	if (!ioapic_initialized)
-+		return gsi_top;
-+	/*
-+	 * For DT enabled machines ioapic_dynirq_base is irrelevant and not
-+	 * updated. So simply return @from if ioapic_dynirq_base == 0.
-+	 */
-+	return ioapic_dynirq_base ? : from;
- }
+--- a/fs/fs_parser.c
++++ b/fs/fs_parser.c
+@@ -264,6 +264,7 @@ int fs_lookup_param(struct fs_context *f
+ 		return invalf(fc, "%s: not usable as path", param->key);
+ 	}
  
- #ifdef CONFIG_X86_32
--- 
-2.20.1
-
++	f->refcnt++; /* filename_lookup() drops our ref. */
+ 	ret = filename_lookup(param->dirfd, f, flags, _path, NULL);
+ 	if (ret < 0) {
+ 		errorf(fc, "%s: Lookup failure for '%s'", param->key, f->name);
 
 
