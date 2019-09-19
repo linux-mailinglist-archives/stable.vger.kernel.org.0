@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC89B84EC
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8DC5B852F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406173AbfISWPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
+        id S2393469AbfISWSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406169AbfISWPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:15:40 -0400
+        id S2393938AbfISWSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:18:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A560A21907;
-        Thu, 19 Sep 2019 22:15:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98D61217D6;
+        Thu, 19 Sep 2019 22:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931340;
-        bh=gP1KFasB8WO5aIgzqJHmO5K+ABZ0LA7tXlnu06A8+bI=;
+        s=default; t=1568931512;
+        bh=raFL4PWAzKDtichfE0J1DdyzzL0RH0Rn396Nk47a/G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PwmJeWeCcU2XYEVJtA+fATfQipHHwMI0ism35n5/9rTg5taFj66Yo2QFycZXTQQP
-         Nkm/T4+H9Wilg9MelIXF1Cxrv3EDhn8o3sWeZUK2yJMxx9KTd/bS27fh3eykN87fmc
-         YxC/MwsSWQL+DKcXklMg8iyMLpG8tSxb9lGcPPnk=
+        b=eOWJUhyvyscacpfZ4K8FL4rk5PKELWHN2kdLHZHu+40gEAgSl+Q/uS/sqoTVBFTs+
+         XKow6pI4xw138N37qXq9PweGKARW1DfN8HcuIBEMOOO3TNtE4HsAf5UvzsXfNrY5uW
+         DztxPUa5t/JI0nQ0qBvl2QMO/MhaY2YC5ZOOq/3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Subject: [PATCH 4.14 11/59] serial: sprd: correct the wrong sequence of arguments
-Date:   Fri, 20 Sep 2019 00:03:26 +0200
-Message-Id: <20190919214758.710259373@linuxfoundation.org>
+        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.9 14/74] gpio: fix line flag validation in linehandle_create
+Date:   Fri, 20 Sep 2019 00:03:27 +0200
+Message-Id: <20190919214805.709583309@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Kent Gibson <warthog618@gmail.com>
 
-commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
+commit e95fbc130a162ba9ad956311b95aa0da269eea48 upstream.
 
-The sequence of arguments which was passed to handle_lsr_errors() didn't
-match the parameters defined in that function, &lsr was passed to flag
-and &flag was passed to lsr, this patch fixed that.
+linehandle_create should not allow both GPIOHANDLE_REQUEST_INPUT
+and GPIOHANDLE_REQUEST_OUTPUT to be set.
 
-Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
+Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
+Signed-off-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/sprd_serial.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -240,7 +240,7 @@ static inline void sprd_rx(struct uart_p
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -426,12 +426,23 @@ static int linehandle_create(struct gpio
+ 	struct linehandle_state *lh;
+ 	struct file *file;
+ 	int fd, i, count = 0, ret;
++	u32 lflags;
  
- 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
- 			SPRD_LSR_FE | SPRD_LSR_OE))
--			if (handle_lsr_errors(port, &lsr, &flag))
-+			if (handle_lsr_errors(port, &flag, &lsr))
- 				continue;
- 		if (uart_handle_sysrq_char(port, ch))
- 			continue;
+ 	if (copy_from_user(&handlereq, ip, sizeof(handlereq)))
+ 		return -EFAULT;
+ 	if ((handlereq.lines == 0) || (handlereq.lines > GPIOHANDLES_MAX))
+ 		return -EINVAL;
+ 
++	lflags = handlereq.flags;
++
++	/*
++	 * Do not allow both INPUT & OUTPUT flags to be set as they are
++	 * contradictory.
++	 */
++	if ((lflags & GPIOHANDLE_REQUEST_INPUT) &&
++	    (lflags & GPIOHANDLE_REQUEST_OUTPUT))
++		return -EINVAL;
++
+ 	lh = kzalloc(sizeof(*lh), GFP_KERNEL);
+ 	if (!lh)
+ 		return -ENOMEM;
+@@ -452,7 +463,6 @@ static int linehandle_create(struct gpio
+ 	/* Request each GPIO */
+ 	for (i = 0; i < handlereq.lines; i++) {
+ 		u32 offset = handlereq.lineoffsets[i];
+-		u32 lflags = handlereq.flags;
+ 		struct gpio_desc *desc;
+ 
+ 		if (offset >= gdev->ngpio) {
 
 
