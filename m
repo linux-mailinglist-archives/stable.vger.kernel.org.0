@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51659B863F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D2BB8670
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393988AbfISWUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34072 "EHLO mail.kernel.org"
+        id S2392492AbfISWR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:17:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393986AbfISWUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:11 -0400
+        id S2392403AbfISWRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:17:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACBB5217D6;
-        Thu, 19 Sep 2019 22:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13FB9217D6;
+        Thu, 19 Sep 2019 22:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931611;
-        bh=1uYRIa9dJFLkZU1QyZXcVGUl/P1dDHw2UzJHa6GuqiA=;
+        s=default; t=1568931444;
+        bh=Yl59bSCmjGQO8ga6KfcvRC+PKgjgMXblO8qVnUO1YgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Du1aQhWoqFsvtwe/Rem77cWn8jF5LV//kYGQwv1nzNEP3HLcDbUIDo/RcTpdkOgKb
-         dYRfWrrZuPBMaGHKDq1N58GA1adTdcmcELdYYnvtpMAF4+D0o+41pFWem0ktjW/NF0
-         bSpYk5jxfNAWXPgYjcB89lyaU4u6z07Ls0PEIQAk=
+        b=CIUgrrmIKjBa24Ls/FmheSALLE7QUFmxgEq+YEN5mGp746l6j7Dgoxf417CZHxb1T
+         zT2/xRz9La4xM944I++MHvDoDJRlFkC9pVHti5MwEHn3aLBKT9yYmbfyj2W63Pjc73
+         kG5ksLvWOiRII9OrmXJ9xzszahQXwvJgihV97w1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, broonie@kernel.org,
+        sfr@canb.auug.org.au, akpm@linux-foundation.org, mhocko@suse.cz,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/74] Kconfig: Fix the reference to the IDT77105 Phy driver in the description of ATM_NICSTAR_USE_IDT77105
-Date:   Fri, 20 Sep 2019 00:04:03 +0200
-Message-Id: <20190919214809.659324425@linuxfoundation.org>
+Subject: [PATCH 4.14 49/59] x86/uaccess: Dont leak the AC flags into __get_user() argument evaluation
+Date:   Fri, 20 Sep 2019 00:04:04 +0200
+Message-Id: <20190919214807.665886883@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit cd9d4ff9b78fcd0fc4708900ba3e52e71e1a7690 ]
+[ Upstream commit 9b8bd476e78e89c9ea26c3b435ad0201c3d7dbf5 ]
 
-This should be IDT77105, not IDT77015.
+Identical to __put_user(); the __get_user() argument evalution will too
+leak UBSAN crud into the __uaccess_begin() / __uaccess_end() region.
+While uncommon this was observed to happen for:
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  drivers/xen/gntdev.c: if (__get_user(old_status, batch->status[i]))
+
+where UBSAN added array bound checking.
+
+This complements commit:
+
+  6ae865615fc4 ("x86/uaccess: Dont leak the AC flag into __put_user() argument evaluation")
+
+Tested-by Sedat Dilek <sedat.dilek@gmail.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: broonie@kernel.org
+Cc: sfr@canb.auug.org.au
+Cc: akpm@linux-foundation.org
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: mhocko@suse.cz
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20190829082445.GM2369@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/uaccess.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/atm/Kconfig b/drivers/atm/Kconfig
-index 31c60101a69a4..7fa840170151b 100644
---- a/drivers/atm/Kconfig
-+++ b/drivers/atm/Kconfig
-@@ -199,7 +199,7 @@ config ATM_NICSTAR_USE_SUNI
- 	  make the card work).
- 
- config ATM_NICSTAR_USE_IDT77105
--	bool "Use IDT77015 PHY driver (25Mbps)"
-+	bool "Use IDT77105 PHY driver (25Mbps)"
- 	depends on ATM_NICSTAR
- 	help
- 	  Support for the PHYsical layer chip in ForeRunner LE25 cards. In
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 4111edb3188e2..9718303410614 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -451,8 +451,10 @@ do {									\
+ ({									\
+ 	int __gu_err;							\
+ 	__inttype(*(ptr)) __gu_val;					\
++	__typeof__(ptr) __gu_ptr = (ptr);				\
++	__typeof__(size) __gu_size = (size);				\
+ 	__uaccess_begin_nospec();					\
+-	__get_user_size(__gu_val, (ptr), (size), __gu_err, -EFAULT);	\
++	__get_user_size(__gu_val, __gu_ptr, __gu_size, __gu_err, -EFAULT);	\
+ 	__uaccess_end();						\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
+ 	__builtin_expect(__gu_err, 0);					\
 -- 
 2.20.1
 
