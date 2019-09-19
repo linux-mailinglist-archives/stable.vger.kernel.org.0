@@ -2,202 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4BDB76E4
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 12:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A6BB77A5
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 12:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389118AbfISJ74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 05:59:56 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:56308 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388940AbfISJ74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 05:59:56 -0400
-Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iAtE4-0004bo-Fj; Thu, 19 Sep 2019 09:59:48 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     keescook@chromium.org, luto@amacapital.net
-Cc:     jannh@google.com, wad@chromium.org, shuah@kernel.org,
-        ast@kernel.org, daniel@iogearbox.net, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org,
+        id S2388165AbfISKmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 06:42:54 -0400
+Received: from vmicros1.altlinux.org ([194.107.17.57]:43728 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387520AbfISKmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 06:42:54 -0400
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id DA8F072CCAE;
+        Thu, 19 Sep 2019 13:42:51 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+        id CC39F7CCB47; Thu, 19 Sep 2019 13:42:51 +0300 (MSK)
+Date:   Thu, 19 Sep 2019 13:42:51 +0300
+From:   "Dmitry V. Levin" <ldv@altlinux.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Tyler Hicks <tyhicks@canonical.com>,
         Christian Brauner <christian.brauner@ubuntu.com>,
-        Tycho Andersen <tycho@tycho.ws>,
-        Tyler Hicks <tyhicks@canonical.com>, stable@vger.kernel.org
-Subject: [PATCH v1 3/3] seccomp: test SECCOMP_USER_NOTIF_FLAG_CONTINUE
-Date:   Thu, 19 Sep 2019 11:59:03 +0200
-Message-Id: <20190919095903.19370-4-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919095903.19370-1-christian.brauner@ubuntu.com>
-References: <20190919095903.19370-1-christian.brauner@ubuntu.com>
+        luto@amacapital.net, jannh@google.com, wad@chromium.org,
+        shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        Tycho Andersen <tycho@tycho.ws>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] seccomp: add two missing ptrace ifdefines
+Message-ID: <20190919104251.GA16834@altlinux.org>
+References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
+ <20190918084833.9369-3-christian.brauner@ubuntu.com>
+ <20190918091512.GA5088@elm>
+ <201909181031.1EE73B4@keescook>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <201909181031.1EE73B4@keescook>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Test whether a syscall can be performed after having been intercepted by
-the seccomp notifier. The test uses dup() and kcmp() since it allows us to
-nicely test whether the dup() syscall actually succeeded by comparing whether
-the fds refer to the same underlying struct file.
+On Wed, Sep 18, 2019 at 10:33:09AM -0700, Kees Cook wrote:
+> On Wed, Sep 18, 2019 at 11:15:12AM +0200, Tyler Hicks wrote:
+> > On 2019-09-18 10:48:31, Christian Brauner wrote:
+> > > Add tw missing ptrace ifdefines to avoid compilation errors on systems
+> > > that do not provide PTRACE_EVENTMSG_SYSCALL_ENTRY or
+> > > PTRACE_EVENTMSG_SYSCALL_EXIT or:
+> > > 
+> > > gcc -Wl,-no-as-needed -Wall  seccomp_bpf.c -lpthread -o seccomp_bpf
+> > > In file included from seccomp_bpf.c:52:0:
+> > > seccomp_bpf.c: In function ‘tracer_ptrace’:
+> > > seccomp_bpf.c:1792:20: error: ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_CLONE’?
+> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+> > >                     ^
+> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+> > >   __typeof__(_expected) __exp = (_expected); \
+> > >              ^~~~~~~~~
+> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+> > >   ^~~~~~~~~
+> > > seccomp_bpf.c:1792:20: note: each undeclared identifier is reported only once for each function it appears in
+> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+> > >                     ^
+> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+> > >   __typeof__(_expected) __exp = (_expected); \
+> > >              ^~~~~~~~~
+> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+> > >   ^~~~~~~~~
+> > > seccomp_bpf.c:1793:6: error: ‘PTRACE_EVENTMSG_SYSCALL_EXIT’ undeclared (first use in this function); did you mean ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’?
+> > >     : PTRACE_EVENTMSG_SYSCALL_EXIT, msg);
+> > >       ^
+> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+> > >   __typeof__(_expected) __exp = (_expected); \
+> > >              ^~~~~~~~~
+> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
+> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+> > >   ^~~~~~~~~
+> > > 
+> > > Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+> > 
+> > I think this Fixes line is incorrect and should be changed to:
+> > 
+> > Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
+> > 
+> > With that changed,
+> > 
+> > Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+> 
+> This is actually fixed in -next already (and, yes, with the Fixes line
+> Tyler has mentioned):
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git/commit/?h=next&id=69b2d3c5924273a0ae968d3818210fc57a1b9d07
 
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Will Drewry <wad@chromium.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: Tycho Andersen <tycho@tycho.ws>
-CC: Tyler Hicks <tyhicks@canonical.com>
-Cc: stable@vger.kernel.org
-Cc: linux-kselftest@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: bpf@vger.kernel.org
----
-/* v1 */
-- Christian Brauner <christian.brauner@ubuntu.com>:
-  - adapt to new flag name SECCOMP_USER_NOTIF_FLAG_CONTINUE
+Excuse me, does it mean that you expect each selftest to be self-hosted?
+I was (and still is) under impression that selftests should be built
+with headers installed from the tree. Is it the case, or is it not?
 
-/* v0 */
-Link: https://lore.kernel.org/r/20190918084833.9369-5-christian.brauner@ubuntu.com
----
- tools/testing/selftests/seccomp/seccomp_bpf.c | 102 ++++++++++++++++++
- 1 file changed, 102 insertions(+)
 
-diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-index e996d7b7fd6e..b0966599acb5 100644
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -44,6 +44,7 @@
- #include <sys/times.h>
- #include <sys/socket.h>
- #include <sys/ioctl.h>
-+#include <linux/kcmp.h>
- 
- #include <unistd.h>
- #include <sys/syscall.h>
-@@ -167,6 +168,10 @@ struct seccomp_metadata {
- 
- #define SECCOMP_RET_USER_NOTIF 0x7fc00000U
- 
-+#ifndef SECCOMP_USER_NOTIF_FLAG_CONTINUE
-+#define SECCOMP_USER_NOTIF_FLAG_CONTINUE 0x00000001
-+#endif
-+
- #define SECCOMP_IOC_MAGIC		'!'
- #define SECCOMP_IO(nr)			_IO(SECCOMP_IOC_MAGIC, nr)
- #define SECCOMP_IOR(nr, type)		_IOR(SECCOMP_IOC_MAGIC, nr, type)
-@@ -3481,6 +3486,103 @@ TEST(seccomp_get_notif_sizes)
- 	EXPECT_EQ(sizes.seccomp_notif_resp, sizeof(struct seccomp_notif_resp));
- }
- 
-+static int filecmp(pid_t pid1, pid_t pid2, int fd1, int fd2)
-+{
-+#ifdef __NR_kcmp
-+	return syscall(__NR_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2);
-+#else
-+	errno = ENOSYS;
-+	return -1;
-+#endif
-+}
-+
-+TEST(user_notification_continue)
-+{
-+	pid_t pid;
-+	long ret;
-+	int status, listener;
-+	struct seccomp_notif req = {};
-+	struct seccomp_notif_resp resp = {};
-+	struct pollfd pollfd;
-+
-+	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-+	ASSERT_EQ(0, ret) {
-+		TH_LOG("Kernel does not support PR_SET_NO_NEW_PRIVS!");
-+	}
-+
-+	listener = user_trap_syscall(__NR_dup, SECCOMP_FILTER_FLAG_NEW_LISTENER);
-+	ASSERT_GE(listener, 0);
-+
-+	pid = fork();
-+	ASSERT_GE(pid, 0);
-+
-+	if (pid == 0) {
-+		int dup_fd, pipe_fds[2];
-+		pid_t self;
-+
-+		ret = pipe(pipe_fds);
-+		if (ret < 0)
-+			exit(EXIT_FAILURE);
-+
-+		dup_fd = dup(pipe_fds[0]);
-+		if (dup_fd < 0)
-+			exit(EXIT_FAILURE);
-+
-+		self = getpid();
-+
-+		ret = filecmp(self, self, pipe_fds[0], dup_fd);
-+		if (ret)
-+			exit(EXIT_FAILURE);
-+
-+		exit(EXIT_SUCCESS);
-+	}
-+
-+	pollfd.fd = listener;
-+	pollfd.events = POLLIN | POLLOUT;
-+
-+	EXPECT_GT(poll(&pollfd, 1, -1), 0);
-+	EXPECT_EQ(pollfd.revents, POLLIN);
-+
-+	EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_RECV, &req), 0);
-+
-+	pollfd.fd = listener;
-+	pollfd.events = POLLIN | POLLOUT;
-+
-+	EXPECT_GT(poll(&pollfd, 1, -1), 0);
-+	EXPECT_EQ(pollfd.revents, POLLOUT);
-+
-+	EXPECT_EQ(req.data.nr, __NR_dup);
-+
-+	resp.id = req.id;
-+	resp.flags = SECCOMP_USER_NOTIF_FLAG_CONTINUE;
-+
-+	/*
-+	 * Verify that setting SECCOMP_USER_NOTIF_FLAG_CONTINUE enforces other
-+	 * args be set to 0.
-+	 */
-+	resp.error = 0;
-+	resp.val = USER_NOTIF_MAGIC;
-+	EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_SEND, &resp), -1);
-+	EXPECT_EQ(errno, EINVAL);
-+
-+	resp.error = USER_NOTIF_MAGIC;
-+	resp.val = 0;
-+	EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_SEND, &resp), -1);
-+	EXPECT_EQ(errno, EINVAL);
-+
-+	resp.error = 0;
-+	resp.val = 0;
-+	EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_SEND, &resp), 0) {
-+		if (errno == EINVAL)
-+			XFAIL(goto skip, "Kernel does not support SECCOMP_USER_NOTIF_FLAG_CONTINUE");
-+	}
-+
-+skip:
-+	EXPECT_EQ(waitpid(pid, &status, 0), pid);
-+	EXPECT_EQ(true, WIFEXITED(status));
-+	EXPECT_EQ(0, WEXITSTATUS(status));
-+}
-+
- /*
-  * TODO:
-  * - add microbenchmarks
 -- 
-2.23.0
-
+ldv
