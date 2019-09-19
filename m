@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F9EB83F6
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59573B83F8
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405251AbfISWGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44126 "EHLO mail.kernel.org"
+        id S2405263AbfISWGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:06:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405243AbfISWGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:39 -0400
+        id S2405254AbfISWGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:06:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 753EA218AF;
-        Thu, 19 Sep 2019 22:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 296FA21907;
+        Thu, 19 Sep 2019 22:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930798;
-        bh=ZfHd1jtfZQk+oHwecwNGPskZirVCtdQFTXO5g3EUvdY=;
+        s=default; t=1568930800;
+        bh=slnhpFEp5xIh7mPkMPWgPhf7Q9Yh1FvqHssoFJ05Vfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lDol9xz4CsSbxIojOrZn9CHHpMOwbxb8qYtHWr4rscBIJ7hQgLFijCWeFxpFvuOl
-         UQUBrNVmcqBPBGzNSz7Fkb3YpzIApIBpOeoAf3X+AGDKjpyi9JvdHot3rZEfSCvUpD
-         9GRAa/oR3EoI+6ZoOB3PbtkT2u3Dc/hEWxeFmms8=
+        b=q3OZskpNW+R5yIoagR/Gj8Pek/JZ857xm6sXrPkKRiz6CwPQlAN7LRtP81scXRXcm
+         tsuL62JxR1XBxVBchsR+hXvsHIFyO56XkLxjsC0cJXULWGKFoGuWF2TaCY3+cAyt0i
+         xgLpMdLrUEuffGtyRKJVFE31TimRqkbrwAxnvdN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Craig Gallek <kraig@google.com>,
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 018/124] udp: correct reuseport selection with connected sockets
-Date:   Fri, 20 Sep 2019 00:01:46 +0200
-Message-Id: <20190919214819.769727806@linuxfoundation.org>
+Subject: [PATCH 5.2 019/124] xen-netfront: do not assume sk_buff_head list is empty in error handling
+Date:   Fri, 20 Sep 2019 00:01:47 +0200
+Message-Id: <20190919214819.797972451@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -45,176 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit acdcecc61285faed359f1a3568c32089cc3a8329 ]
+[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
 
-UDP reuseport groups can hold a mix unconnected and connected sockets.
-Ensure that connections only receive all traffic to their 4-tuple.
+When skb_shinfo(skb) is not able to cache extra fragment (that is,
+skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
+the sk_buff_head list is already empty. As a result, cons is increased only
+by 1 and returns to error handling path in xennet_poll().
 
-Fast reuseport returns on the first reuseport match on the assumption
-that all matches are equal. Only if connections are present, return to
-the previous behavior of scoring all sockets.
+However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
+set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
+buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
+already cleared to NULL. This leads to NULL pointer access in the next
+iteration to process rx ring buffer entries.
 
-Record if connections are present and if so (1) treat such connected
-sockets as an independent match from the group, (2) only return
-2-tuple matches from reuseport and (3) do not return on the first
-2-tuple reuseport match to allow for a higher scoring match later.
+Below is how xennet_poll() does error handling. All remaining entries in
+tmpq are accounted to queue->rx.rsp_cons without assuming how many
+outstanding skbs are remained in the list.
 
-New field has_conns is set without locks. No other fields in the
-bitmap are modified at runtime and the field is only ever set
-unconditionally, so an RMW cannot miss a change.
+ 985 static int xennet_poll(struct napi_struct *napi, int budget)
+... ...
+1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
+1033                   __skb_queue_head(&tmpq, skb);
+1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
+1035                   goto err;
+1036           }
 
-Fixes: e32ea7e74727 ("soreuseport: fast reuseport UDP socket selection")
-Link: http://lkml.kernel.org/r/CA+FuTSfRP09aJNYRt04SS6qj22ViiOEWaWmLAwX0psk8-PGNxw@mail.gmail.com
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Craig Gallek <kraig@google.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
+It is better to always have the error handling in the same way.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock_reuseport.h |   21 ++++++++++++++++++++-
- net/core/sock_reuseport.c    |   15 +++++++++++++--
- net/ipv4/datagram.c          |    2 ++
- net/ipv4/udp.c               |    5 +++--
- net/ipv6/datagram.c          |    2 ++
- net/ipv6/udp.c               |    5 +++--
- 6 files changed, 43 insertions(+), 7 deletions(-)
+ drivers/net/xen-netfront.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/sock_reuseport.h
-+++ b/include/net/sock_reuseport.h
-@@ -21,7 +21,8 @@ struct sock_reuseport {
- 	unsigned int		synq_overflow_ts;
- 	/* ID stays the same even after the size of socks[] grows. */
- 	unsigned int		reuseport_id;
--	bool			bind_inany;
-+	unsigned int		bind_inany:1;
-+	unsigned int		has_conns:1;
- 	struct bpf_prog __rcu	*prog;		/* optional BPF sock selector */
- 	struct sock		*socks[0];	/* array of sock pointers */
- };
-@@ -35,6 +36,24 @@ extern struct sock *reuseport_select_soc
- 					  struct sk_buff *skb,
- 					  int hdr_len);
- extern int reuseport_attach_prog(struct sock *sk, struct bpf_prog *prog);
-+
-+static inline bool reuseport_has_conns(struct sock *sk, bool set)
-+{
-+	struct sock_reuseport *reuse;
-+	bool ret = false;
-+
-+	rcu_read_lock();
-+	reuse = rcu_dereference(sk->sk_reuseport_cb);
-+	if (reuse) {
-+		if (set)
-+			reuse->has_conns = 1;
-+		ret = reuse->has_conns;
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
-+}
-+
- int reuseport_get_id(struct sock_reuseport *reuse);
- 
- #endif  /* _SOCK_REUSEPORT_H */
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -295,8 +295,19 @@ struct sock *reuseport_select_sock(struc
- 
- select_by_hash:
- 		/* no bpf or invalid bpf result: fall back to hash usage */
--		if (!sk2)
--			sk2 = reuse->socks[reciprocal_scale(hash, socks)];
-+		if (!sk2) {
-+			int i, j;
-+
-+			i = j = reciprocal_scale(hash, socks);
-+			while (reuse->socks[i]->sk_state == TCP_ESTABLISHED) {
-+				i++;
-+				if (i >= reuse->num_socks)
-+					i = 0;
-+				if (i == j)
-+					goto out;
-+			}
-+			sk2 = reuse->socks[i];
-+		}
- 	}
- 
- out:
---- a/net/ipv4/datagram.c
-+++ b/net/ipv4/datagram.c
-@@ -15,6 +15,7 @@
- #include <net/sock.h>
- #include <net/route.h>
- #include <net/tcp_states.h>
-+#include <net/sock_reuseport.h>
- 
- int __ip4_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- {
-@@ -69,6 +70,7 @@ int __ip4_datagram_connect(struct sock *
- 	}
- 	inet->inet_daddr = fl4->daddr;
- 	inet->inet_dport = usin->sin_port;
-+	reuseport_has_conns(sk, true);
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
- 	inet->inet_id = jiffies;
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -434,12 +434,13 @@ static struct sock *udp4_lib_lookup2(str
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif, exact_dif);
- 		if (score > badness) {
--			if (sk->sk_reuseport) {
-+			if (sk->sk_reuseport &&
-+			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp_ehashfn(net, daddr, hnum,
- 						   saddr, sport);
- 				result = reuseport_select_sock(sk, hash, skb,
- 							sizeof(struct udphdr));
--				if (result)
-+				if (result && !reuseport_has_conns(sk, false))
- 					return result;
- 			}
- 			badness = score;
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -27,6 +27,7 @@
- #include <net/ip6_route.h>
- #include <net/tcp_states.h>
- #include <net/dsfield.h>
-+#include <net/sock_reuseport.h>
- 
- #include <linux/errqueue.h>
- #include <linux/uaccess.h>
-@@ -254,6 +255,7 @@ ipv4_connected:
- 		goto out;
- 	}
- 
-+	reuseport_has_conns(sk, true);
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
- out:
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -168,13 +168,14 @@ static struct sock *udp6_lib_lookup2(str
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif, exact_dif);
- 		if (score > badness) {
--			if (sk->sk_reuseport) {
-+			if (sk->sk_reuseport &&
-+			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp6_ehashfn(net, daddr, hnum,
- 						    saddr, sport);
- 
- 				result = reuseport_select_sock(sk, hash, skb,
- 							sizeof(struct udphdr));
--				if (result)
-+				if (result && !reuseport_has_conns(sk, false))
- 					return result;
- 			}
- 			result = sk;
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -906,7 +906,7 @@ static RING_IDX xennet_fill_frags(struct
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons;
++			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+ 			return ~0U;
+ 		}
 
 
