@@ -2,100 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EADEB79EC
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 14:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01672B79ED
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 14:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388618AbfISM5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 08:57:30 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:48801 "EHLO
+        id S1728516AbfISM5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 08:57:39 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60843 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727980AbfISM5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 08:57:30 -0400
+        by vger.kernel.org with ESMTP id S1727980AbfISM5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 08:57:38 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id DA5517DA;
-        Thu, 19 Sep 2019 08:57:28 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id EDEF87A4;
+        Thu, 19 Sep 2019 08:57:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 19 Sep 2019 08:57:29 -0400
+  by compute6.internal (MEProxy); Thu, 19 Sep 2019 08:57:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=aowFOdl/EIeeZ3NERaVX5NgpdBb
-        Ykhs8Nff7kjX3pi8=; b=n8W0ZTxy5ATryeRQGltugwlLK3EIT3iJ63wQP1fhnLY
-        qFeCWatSDogfugg+iBIqeCMn7FuyDM0YC9DJOaB0TRQ8RvHWj8kpiHTFu4/9PyAe
-        n4axv/QPamoChUVCubbjr8+PnyBHNuWIAqNnveT99i3d52Gg9hIB1NtwgltQLGGN
-        f4FgFpEasoWdPrFz+doji6QfPKAYcvef/n6uBtVXPk+yiU48sbBQmdiin+gotKLs
-        hbi2NZQCcuAKIDfSRSMkgaTYgASBISlYxuy4oTwolgj3yLWQbKb48d/XVZU8DqV4
-        bWRZRl7KsxKbt5m6fC6wILOfpGOrcJt+wXqiGMFQ9/A==
+        :content-type:in-reply-to; s=fm1; bh=ZPK6yJNRxhT1AEgABy3qr2ptLi+
+        WzTLdFgfadcu/8QY=; b=RLkK6lacYbRyieHQvkilgCMbcaNivIg/KReocE7/ifa
+        LJyb5aMKi5Snwt1yI0GuNQ/LOgc1C7hiFUEUjAAbdLxFwZvKSj2RyUqfxxpTeJVw
+        Oxf3aUGum0ZdIyGnmjOm1ST8e4QeySoJ1+1gGHxQK7IBMx/eR4H9JU3WHQv7xE3Z
+        P3gJYaC4FyK1obeyWA/DpIckfmq9SE16uFi1sRGgUIw+rGeqtUl4nDimnqdW/91/
+        KtkbLw8FmudvrSAYzYpvbFCWlNN+0p7VnlDx0lCq8RmR/cg5040v1CSURjHTY9rx
+        oDulIMP4wUDlLPIyvilzX/mzYv2uZPOXdA39HrC0Czg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aowFOd
-        l/EIeeZ3NERaVX5NgpdBbYkhs8Nff7kjX3pi8=; b=mG0XmvkKBy+ptMyw6cu32P
-        3OrGBWwQVJA+L95CqGk+Sf8tXd/tFDMpYJDCb1eHbfP66BSMXPQ6R5Pr5rl1ql+M
-        2hqDIJU37jhL1NizY/d/Im2tOISiuHrSyIuD3m9FCyIcDcq42g6E9F3wymyImBJt
-        1B+C+viE1DldI9N7flCsArdglSD5fpnw5uhrr7lbSp9hwv4zmEPAimk6xXYxadgQ
-        sKHIgVsln+AB69js0L7cpGftxbfOMGKbDQ8oYzXkP6yXfPemlYPA/rFU+Vv33ogr
-        K4BYEmShnkiuRbsKDPiDajUAtk0HR+GZKaNN4b21uPchuoEtKF71DR7acWVDTIOw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZPK6yJ
+        NRxhT1AEgABy3qr2ptLi+WzTLdFgfadcu/8QY=; b=uywEfcRDhkdGxFl1+MxgZN
+        WlvRQ19ERW5wgrpB0B5MbKudSZ8fr/J5aDvZuYo+KlwYKTHha3ZvCat71e3OIlgp
+        wKEbH2YhpTI5/if0jvbZnSabTjUv+MsuV+Yfn3/3xjW3TY8FESrTx7kgn84NxwVc
+        PUAxD4rZInDmXvL2EfWQduI4FqJkq47hIy+ycvYzcDpKnnySs8VNSQPaUp8SrMyJ
+        6mpmmTWYihpGJ86vyZueWik+IFSHii4qTCKNuIeVf9N01z1Fg0+YghBCYrFIFnaK
+        Gs12xc7TCEu8t2m0HhXCV8H33QyNj8SObuwO5l9OAn0+LbQKXU6j+WbcrlDbbXzA
         ==
-X-ME-Sender: <xms:LnuDXQGT8A8tgtcw9ugp8eR7hIYe2QRDaFSePHuyKS6vov8QxMPzTQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgdehlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:QXuDXSF_RoQl_QIPdB-h_aKDolRCXsPZHPlZ7msDbvUZ3a-Py8nnEQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:LnuDXeRzr5gJZLkyt6_aW2EYhwfB0oGv7JcZ6QsXSdcbDPDNzQqfTQ>
-    <xmx:LnuDXU5z_Dfr_3JIJw234Bc9RP6lXt8urAjtAn7spSdDWADEgAjNRA>
-    <xmx:LnuDXczxQkDfgS8LdW5vIcBzU_GGIw-STCf0PDQGwF8TgVxc-fnjGw>
-    <xmx:OHuDXdVs3UMF9L0hDNu9OaMw80NvVP7YpkADWHS5D1HFEXTppy5Bcg>
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrd
+    horhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
+    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:QXuDXfOZjG_n4VahHg5ZKtGgUiRQw437J7lZVkH0myZPlAZiFjtF0A>
+    <xmx:QXuDXZL5_Eby1KFyu3pT8Xj4MwKZvWAONp7mckUfR4MHOdx4NoZeJw>
+    <xmx:QXuDXQ_auO0Eb1eDqFT2zf8UeMBw1p0FgpnLiBpzB7DBUjE2pFeBMw>
+    <xmx:QXuDXYe0U7taq6nkKET_7CkqgPQd9dyO4q0YyXSow0ilznPh4jyMBA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F2DE98005B;
-        Thu, 19 Sep 2019 08:57:17 -0400 (EDT)
-Date:   Thu, 19 Sep 2019 14:57:16 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1523B80059;
+        Thu, 19 Sep 2019 08:57:36 -0400 (EDT)
+Date:   Thu, 19 Sep 2019 14:57:36 +0200
 From:   Greg KH <greg@kroah.com>
-To:     minyard@acm.org
-Cc:     stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
-Subject: Re: [PATCH] x86/boot: Add missing bootparam that breaks boot on some
- platforms
-Message-ID: <20190919125716.GA3431951@kroah.com>
-References: <20190919121646.22472-1-minyard@acm.org>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.2
+Message-ID: <20190919125736.GB3431951@kroah.com>
+References: <cki.BCC66CB54E.K2A3YXEFWC@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190919121646.22472-1-minyard@acm.org>
+In-Reply-To: <cki.BCC66CB54E.K2A3YXEFWC@redhat.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 19, 2019 at 07:16:46AM -0500, minyard@acm.org wrote:
-> From: Corey Minyard <cminyard@mvista.com>
+On Thu, Sep 19, 2019 at 08:42:43AM -0400, CKI Project wrote:
 > 
-> Change
+> Hello,
 > 
->   a90118c445cc x86/boot: Save fields explicitly, zero out everything else
+> We ran automated tests on a patchset that was proposed for merging into this
+> kernel tree. The patches were applied to:
 > 
-> modified the way boot parameters were saved on x86.  When this was
-> backported, e820_table didn't exists, and that change was dropped.
-> Unfortunately, e820_table did exist, it was just named e820_map
-> in this kernel version.
+>        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+>             Commit: 1e2ba4a74fa7 - Linux 5.2.16
 > 
-> This was breaking booting on a Supermicro Super Server/A2SDi-2C-HLN4F
-> with a Denverton CPU.  Adding e820_map to the saved boot params table
-> fixes the issue.
+> The results of these automated tests are provided below.
 > 
-> Cc: <stable@vger.kernel.org> # 4.9.x, 4.4.x
-> Signed-off-by: Corey Minyard <cminyard@mvista.com>
-> ---
-> I checked the stable mailing lists and didn't see any discussion of
-> this, I hope it's not a dup, but some systems will be broken without
-> this.
-> 
-> I wasn't sure how to add a "Fixes:" field in a situation like this.
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: FAILED
 
-No problem this works, now queued up.
-
-thanks,
-
-greg k-h
+My fault, should be fixed soon...
