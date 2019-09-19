@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 356DCB857E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55E1B8680
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394071AbfISWVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33586 "EHLO mail.kernel.org"
+        id S2406393AbfISWQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733140AbfISWTr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:19:47 -0400
+        id S2406390AbfISWQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:16:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1247F20678;
-        Thu, 19 Sep 2019 22:19:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77CAB21920;
+        Thu, 19 Sep 2019 22:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931586;
-        bh=9Cb/7Dxwdgc3rSVccFfgH4ZMgneEXgFibVvzSzLCIyA=;
+        s=default; t=1568931415;
+        bh=0d+4Cw+EXZlf6smP3ZQcXUGuFe+smEJO/16gc3anj7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVxNsJsP/82zj3yRy7Pxx2t+lbBaQ9/jhvGiZQfj40v9rb3r5ek6+yTG/oSEAJpsO
-         VHKK+8zNo2h7bppS/Xbo+jhWdn63PCh2cgdiopKP8onNYk55BBZsfxXeKbmpOZ6KXC
-         avcPtY5vacF1IZ6LEXgu2Xi/gz2t1xOOgCG7ap+M=
+        b=JrQH/O/Ejmd005BZMrkvej6DMLun1UxoWxwSmIKR8KzeljpC6YPQ2Pa+/4DFn3/fM
+         GgA5H/gwEobkIS1YffAa0Qh2o4w2XuHREiAptwycJCP3WsaJn2chU3kwTx00WFlfwu
+         N1Znjl+xa7BIxB68x3R8h1ZBVoMKwN5vdCTT1QPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
+        stable@vger.kernel.org,
+        syzbot+d5870a903591faaca4ae@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 09/74] sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
-Date:   Fri, 20 Sep 2019 00:03:22 +0200
-Message-Id: <20190919214803.931884674@linuxfoundation.org>
+Subject: [PATCH 4.14 08/59] net_sched: let qdisc_put() accept NULL pointer
+Date:   Fri, 20 Sep 2019 00:03:23 +0200
+Message-Id: <20190919214757.815158337@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 10eb56c582c557c629271f1ee31e15e7a9b2558b ]
+[ Upstream commit 6efb971ba8edfbd80b666f29de12882852f095ae ]
 
-Transport should use its own pf_retrans to do the error_count
-check, instead of asoc's. Otherwise, it's meaningless to make
-pf_retrans per transport.
+When tcf_block_get() fails in sfb_init(), q->qdisc is still a NULL
+pointer which leads to a crash in sfb_destroy(). Similar for
+sch_dsmark.
 
-Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Instead of fixing each separately, Linus suggested to just accept
+NULL pointer in qdisc_put(), which would make callers easier.
+
+(For sch_dsmark, the bug probably exists long before commit
+6529eaba33f0.)
+
+Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
+Reported-by: syzbot+d5870a903591faaca4ae@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_sideeffect.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_generic.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -509,7 +509,7 @@ static void sctp_do_8_2_transport_strike
- 	if (net->sctp.pf_enable &&
- 	   (transport->state == SCTP_ACTIVE) &&
- 	   (transport->error_count < transport->pathmaxrxt) &&
--	   (transport->error_count > asoc->pf_retrans)) {
-+	   (transport->error_count > transport->pf_retrans)) {
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -705,6 +705,9 @@ void qdisc_destroy(struct Qdisc *qdisc)
+ {
+ 	const struct Qdisc_ops  *ops = qdisc->ops;
  
- 		sctp_assoc_control_transport(asoc, transport,
- 					     SCTP_TRANSPORT_PF,
++	if (!qdisc)
++		return;
++
+ 	if (qdisc->flags & TCQ_F_BUILTIN ||
+ 	    !refcount_dec_and_test(&qdisc->refcnt))
+ 		return;
 
 
