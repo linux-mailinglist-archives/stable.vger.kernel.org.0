@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DD5B853E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF94B8542
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404703AbfISWTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60882 "EHLO mail.kernel.org"
+        id S2406635AbfISWTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390275AbfISWTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:19:04 -0400
+        id S2404569AbfISWTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:19:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2E521924;
-        Thu, 19 Sep 2019 22:19:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C065D20678;
+        Thu, 19 Sep 2019 22:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931542;
-        bh=nMVcyCBO+pu2YgbD35jIQJZ5asTgAX/Y8u6irtWayIg=;
+        s=default; t=1568931548;
+        bh=dds7yyew+Q7DthIfAXV2F78bppU+YezfeIJzAnwPfVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xHvw5w0s9V34//do5Lkj7HG6WrufFkeQkZOajDHsBO/c48+rypQH+n5VEBQB4aWlT
-         XdwNoH4lDO/Z1akxGu/9qB/H4tLx+7eZe7qzbSQMHAExWc3jnFMsgqRmNncHjjN8KE
-         NQXY6x8HUnch7HDdbTkfL488dgXdyNiHxDNJOGj4=
+        b=ahA3G1TInNGoSiiTYOU1lAml3jlqu3AXeDIbEulZqDxo6lDP/CG346NdUlBeLmMpk
+         eGikHE1Pcoranb/K7OnnXopJPCrb5MigxrJgt8a2Bcnv2F3YQJhmySulJp/nDRwt+f
+         xvbYXCey8/gOujdKRSiRd8T/D/gh5HtrfsiYtM+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaolei Li <xiaolei.li@mediatek.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.9 24/74] mtd: rawnand: mtk: Fix wrongly assigned OOB buffer pointer issue
-Date:   Fri, 20 Sep 2019 00:03:37 +0200
-Message-Id: <20190919214807.117496666@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 26/74] crypto: talitos - check AES key size
+Date:   Fri, 20 Sep 2019 00:03:39 +0200
+Message-Id: <20190919214807.377976288@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
 References: <20190919214800.519074117@linuxfoundation.org>
@@ -43,84 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Li <xiaolei.li@mediatek.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 336d4b138be2dad372b67a2388e42805c48aaa38 upstream.
+commit 1ba34e71e9e56ac29a52e0d42b6290f3dc5bfd90 upstream.
 
-One main goal of the function mtk_nfc_update_ecc_stats is to check
-whether sectors are all empty. If they are empty, set these sectors's
-data buffer and OOB buffer as 0xff.
+Although the HW accepts any size and silently truncates
+it to the correct length, the extra tests expects EINVAL
+to be returned when the key size is not valid.
 
-But now, the sector OOB buffer pointer is wrongly assigned. We always
-do memset from sector 0.
-
-To fix this issue, pass start sector number to make OOB buffer pointer
-be properly assigned.
-
-Fixes: 1d6b1e464950 ("mtd: mediatek: driver for MTK Smart Device")
-Signed-off-by: Xiaolei Li <xiaolei.li@mediatek.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4de9d0b547b9 ("crypto: talitos - Add ablkcipher algorithms")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/mtk_nand.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/crypto/talitos.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/mtd/nand/mtk_nand.c
-+++ b/drivers/mtd/nand/mtk_nand.c
-@@ -810,19 +810,21 @@ static int mtk_nfc_write_oob_std(struct
- 	return ret & NAND_STATUS_FAIL ? -EIO : 0;
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1528,6 +1528,18 @@ static int ablkcipher_setkey(struct cryp
+ 	return 0;
  }
  
--static int mtk_nfc_update_ecc_stats(struct mtd_info *mtd, u8 *buf, u32 sectors)
-+static int mtk_nfc_update_ecc_stats(struct mtd_info *mtd, u8 *buf, u32 start,
-+				    u32 sectors)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
- 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
- 	struct mtk_nfc_nand_chip *mtk_nand = to_mtk_nand(chip);
- 	struct mtk_ecc_stats stats;
-+	u32 reg_size = mtk_nand->fdm.reg_size;
- 	int rc, i;
- 
- 	rc = nfi_readl(nfc, NFI_STA) & STA_EMP_PAGE;
- 	if (rc) {
- 		memset(buf, 0xff, sectors * chip->ecc.size);
- 		for (i = 0; i < sectors; i++)
--			memset(oob_ptr(chip, i), 0xff, mtk_nand->fdm.reg_size);
-+			memset(oob_ptr(chip, start + i), 0xff, reg_size);
- 		return 0;
- 	}
- 
-@@ -842,7 +844,7 @@ static int mtk_nfc_read_subpage(struct m
- 	u32 spare = mtk_nand->spare_per_sector;
- 	u32 column, sectors, start, end, reg;
- 	dma_addr_t addr;
--	int bitflips;
-+	int bitflips = 0;
- 	size_t len;
- 	u8 *buf;
- 	int rc;
-@@ -910,14 +912,11 @@ static int mtk_nfc_read_subpage(struct m
- 	if (rc < 0) {
- 		dev_err(nfc->dev, "subpage done timeout\n");
- 		bitflips = -EIO;
--	} else {
--		bitflips = 0;
--		if (!raw) {
--			rc = mtk_ecc_wait_done(nfc->ecc, ECC_DECODE);
--			bitflips = rc < 0 ? -ETIMEDOUT :
--				mtk_nfc_update_ecc_stats(mtd, buf, sectors);
--			mtk_nfc_read_fdm(chip, start, sectors);
--		}
-+	} else if (!raw) {
-+		rc = mtk_ecc_wait_done(nfc->ecc, ECC_DECODE);
-+		bitflips = rc < 0 ? -ETIMEDOUT :
-+			mtk_nfc_update_ecc_stats(mtd, buf, start, sectors);
-+		mtk_nfc_read_fdm(chip, start, sectors);
- 	}
- 
- 	dma_unmap_single(nfc->dev, addr, len, DMA_FROM_DEVICE);
++static int ablkcipher_aes_setkey(struct crypto_ablkcipher *cipher,
++				  const u8 *key, unsigned int keylen)
++{
++	if (keylen == AES_KEYSIZE_128 || keylen == AES_KEYSIZE_192 ||
++	    keylen == AES_KEYSIZE_256)
++		return ablkcipher_setkey(cipher, key, keylen);
++
++	crypto_ablkcipher_set_flags(cipher, CRYPTO_TFM_RES_BAD_KEY_LEN);
++
++	return -EINVAL;
++}
++
+ static void common_nonsnoop_unmap(struct device *dev,
+ 				  struct talitos_edesc *edesc,
+ 				  struct ablkcipher_request *areq)
+@@ -2621,6 +2633,7 @@ static struct talitos_alg_template drive
+ 				.min_keysize = AES_MIN_KEY_SIZE,
+ 				.max_keysize = AES_MAX_KEY_SIZE,
+ 				.ivsize = AES_BLOCK_SIZE,
++				.setkey = ablkcipher_aes_setkey,
+ 			}
+ 		},
+ 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
+@@ -2638,6 +2651,7 @@ static struct talitos_alg_template drive
+ 				.min_keysize = AES_MIN_KEY_SIZE,
+ 				.max_keysize = AES_MAX_KEY_SIZE,
+ 				.ivsize = AES_BLOCK_SIZE,
++				.setkey = ablkcipher_aes_setkey,
+ 			}
+ 		},
+ 		.desc_hdr_template = DESC_HDR_TYPE_AESU_CTR_NONSNOOP |
 
 
