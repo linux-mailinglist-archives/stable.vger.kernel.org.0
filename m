@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3261AB86FD
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E90EB8721
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405898AbfISWL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50774 "EHLO mail.kernel.org"
+        id S2405508AbfISWJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388719AbfISWL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:11:59 -0400
+        id S2405505AbfISWJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:09:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF93921907;
-        Thu, 19 Sep 2019 22:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 330AF21924;
+        Thu, 19 Sep 2019 22:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931118;
-        bh=iJiYBylmBVU7bUMfyMLcsvFBF4/8vYy8SG45FdeNJSg=;
+        s=default; t=1568930991;
+        bh=48NONwleXv7yulCxjWwTzPAFeGowSucCtbVQ7QAI4IA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpugMNtYrphuKeIhxDIfm6lq9VS7YelwehNATVHUHXtubXhpoO0DwZWueJQOsiR/u
-         SWCAB5U+muyNtlw/XAzIbXtrIjb9Egv1RPkcL+D0sIM9uopJtgc1juKuaK4u/Qo2iM
-         0A+NV+rKXWrQNp28pnOVzP6ogNABnphTkeELqUmU=
+        b=qvYkM2fQgxreh/LAesjwnixLztADdYdbNRTcSnpJhhfE11uvced1pSfFxqwjoObga
+         oojeLF+drjCoBnAmnt8JEaTOtr42ToljFispc/cxRBOxl5K/PdBMTx8cXCLKFHwnk/
+         j90uPbTsN6DhkWKrWfWIRgXlMkYml/q+PG019rcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Craig Gallek <kraig@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 10/79] udp: correct reuseport selection with connected sockets
-Date:   Fri, 20 Sep 2019 00:02:55 +0200
-Message-Id: <20190919214808.734045565@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, acme@kernel.org,
+        Josh Hunt <johunt@akamai.com>, bpuranda@akamai.com,
+        mingo@redhat.com, jolsa@redhat.com, tglx@linutronix.de,
+        namhyung@kernel.org, alexander.shishkin@linux.intel.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 088/124] perf/x86/intel: Restrict period on Nehalem
+Date:   Fri, 20 Sep 2019 00:02:56 +0200
+Message-Id: <20190919214822.235807874@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,176 +47,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Josh Hunt <johunt@akamai.com>
 
-[ Upstream commit acdcecc61285faed359f1a3568c32089cc3a8329 ]
+[ Upstream commit 44d3bbb6f5e501b873218142fe08cdf62a4ac1f3 ]
 
-UDP reuseport groups can hold a mix unconnected and connected sockets.
-Ensure that connections only receive all traffic to their 4-tuple.
+We see our Nehalem machines reporting 'perfevents: irq loop stuck!' in
+some cases when using perf:
 
-Fast reuseport returns on the first reuseport match on the assumption
-that all matches are equal. Only if connections are present, return to
-the previous behavior of scoring all sockets.
-
-Record if connections are present and if so (1) treat such connected
-sockets as an independent match from the group, (2) only return
-2-tuple matches from reuseport and (3) do not return on the first
-2-tuple reuseport match to allow for a higher scoring match later.
-
-New field has_conns is set without locks. No other fields in the
-bitmap are modified at runtime and the field is only ever set
-unconditionally, so an RMW cannot miss a change.
-
-Fixes: e32ea7e74727 ("soreuseport: fast reuseport UDP socket selection")
-Link: http://lkml.kernel.org/r/CA+FuTSfRP09aJNYRt04SS6qj22ViiOEWaWmLAwX0psk8-PGNxw@mail.gmail.com
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Craig Gallek <kraig@google.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+perfevents: irq loop stuck!
+WARNING: CPU: 0 PID: 3485 at arch/x86/events/intel/core.c:2282 intel_pmu_handle_irq+0x37b/0x530
+...
+RIP: 0010:intel_pmu_handle_irq+0x37b/0x530
+...
+Call Trace:
+<NMI>
+? perf_event_nmi_handler+0x2e/0x50
+? intel_pmu_save_and_restart+0x50/0x50
+perf_event_nmi_handler+0x2e/0x50
+nmi_handle+0x6e/0x120
+default_do_nmi+0x3e/0x100
+do_nmi+0x102/0x160
+end_repeat_nmi+0x16/0x50
+...
+? native_write_msr+0x6/0x20
+? native_write_msr+0x6/0x20
+</NMI>
+intel_pmu_enable_event+0x1ce/0x1f0
+x86_pmu_start+0x78/0xa0
+x86_pmu_enable+0x252/0x310
+__perf_event_task_sched_in+0x181/0x190
+? __switch_to_asm+0x41/0x70
+? __switch_to_asm+0x35/0x70
+? __switch_to_asm+0x41/0x70
+? __switch_to_asm+0x35/0x70
+finish_task_switch+0x158/0x260
+__schedule+0x2f6/0x840
+? hrtimer_start_range_ns+0x153/0x210
+schedule+0x32/0x80
+schedule_hrtimeout_range_clock+0x8a/0x100
+? hrtimer_init+0x120/0x120
+ep_poll+0x2f7/0x3a0
+? wake_up_q+0x60/0x60
+do_epoll_wait+0xa9/0xc0
+__x64_sys_epoll_wait+0x1a/0x20
+do_syscall_64+0x4e/0x110
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fdeb1e96c03
+...
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: acme@kernel.org
+Cc: Josh Hunt <johunt@akamai.com>
+Cc: bpuranda@akamai.com
+Cc: mingo@redhat.com
+Cc: jolsa@redhat.com
+Cc: tglx@linutronix.de
+Cc: namhyung@kernel.org
+Cc: alexander.shishkin@linux.intel.com
+Link: https://lkml.kernel.org/r/1566256411-18820-1-git-send-email-johunt@akamai.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock_reuseport.h |   21 ++++++++++++++++++++-
- net/core/sock_reuseport.c    |   15 +++++++++++++--
- net/ipv4/datagram.c          |    2 ++
- net/ipv4/udp.c               |    5 +++--
- net/ipv6/datagram.c          |    2 ++
- net/ipv6/udp.c               |    5 +++--
- 6 files changed, 43 insertions(+), 7 deletions(-)
+ arch/x86/events/intel/core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/net/sock_reuseport.h
-+++ b/include/net/sock_reuseport.h
-@@ -21,7 +21,8 @@ struct sock_reuseport {
- 	unsigned int		synq_overflow_ts;
- 	/* ID stays the same even after the size of socks[] grows. */
- 	unsigned int		reuseport_id;
--	bool			bind_inany;
-+	unsigned int		bind_inany:1;
-+	unsigned int		has_conns:1;
- 	struct bpf_prog __rcu	*prog;		/* optional BPF sock selector */
- 	struct sock		*socks[0];	/* array of sock pointers */
- };
-@@ -35,6 +36,24 @@ extern struct sock *reuseport_select_soc
- 					  struct sk_buff *skb,
- 					  int hdr_len);
- extern int reuseport_attach_prog(struct sock *sk, struct bpf_prog *prog);
-+
-+static inline bool reuseport_has_conns(struct sock *sk, bool set)
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 6179be624f357..2369ea1a1db79 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -3572,6 +3572,11 @@ static u64 bdw_limit_period(struct perf_event *event, u64 left)
+ 	return left;
+ }
+ 
++static u64 nhm_limit_period(struct perf_event *event, u64 left)
 +{
-+	struct sock_reuseport *reuse;
-+	bool ret = false;
-+
-+	rcu_read_lock();
-+	reuse = rcu_dereference(sk->sk_reuseport_cb);
-+	if (reuse) {
-+		if (set)
-+			reuse->has_conns = 1;
-+		ret = reuse->has_conns;
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
++	return max(left, 32ULL);
 +}
 +
- int reuseport_get_id(struct sock_reuseport *reuse);
+ PMU_FORMAT_ATTR(event,	"config:0-7"	);
+ PMU_FORMAT_ATTR(umask,	"config:8-15"	);
+ PMU_FORMAT_ATTR(edge,	"config:18"	);
+@@ -4550,6 +4555,7 @@ __init int intel_pmu_init(void)
+ 		x86_pmu.pebs_constraints = intel_nehalem_pebs_event_constraints;
+ 		x86_pmu.enable_all = intel_pmu_nhm_enable_all;
+ 		x86_pmu.extra_regs = intel_nehalem_extra_regs;
++		x86_pmu.limit_period = nhm_limit_period;
  
- #endif  /* _SOCK_REUSEPORT_H */
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -292,8 +292,19 @@ struct sock *reuseport_select_sock(struc
+ 		mem_attr = nhm_mem_events_attrs;
  
- select_by_hash:
- 		/* no bpf or invalid bpf result: fall back to hash usage */
--		if (!sk2)
--			sk2 = reuse->socks[reciprocal_scale(hash, socks)];
-+		if (!sk2) {
-+			int i, j;
-+
-+			i = j = reciprocal_scale(hash, socks);
-+			while (reuse->socks[i]->sk_state == TCP_ESTABLISHED) {
-+				i++;
-+				if (i >= reuse->num_socks)
-+					i = 0;
-+				if (i == j)
-+					goto out;
-+			}
-+			sk2 = reuse->socks[i];
-+		}
- 	}
- 
- out:
---- a/net/ipv4/datagram.c
-+++ b/net/ipv4/datagram.c
-@@ -19,6 +19,7 @@
- #include <net/sock.h>
- #include <net/route.h>
- #include <net/tcp_states.h>
-+#include <net/sock_reuseport.h>
- 
- int __ip4_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- {
-@@ -73,6 +74,7 @@ int __ip4_datagram_connect(struct sock *
- 	}
- 	inet->inet_daddr = fl4->daddr;
- 	inet->inet_dport = usin->sin_port;
-+	reuseport_has_conns(sk, true);
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
- 	inet->inet_id = jiffies;
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -443,12 +443,13 @@ static struct sock *udp4_lib_lookup2(str
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif, exact_dif);
- 		if (score > badness) {
--			if (sk->sk_reuseport) {
-+			if (sk->sk_reuseport &&
-+			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp_ehashfn(net, daddr, hnum,
- 						   saddr, sport);
- 				result = reuseport_select_sock(sk, hash, skb,
- 							sizeof(struct udphdr));
--				if (result)
-+				if (result && !reuseport_has_conns(sk, false))
- 					return result;
- 			}
- 			badness = score;
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -31,6 +31,7 @@
- #include <net/ip6_route.h>
- #include <net/tcp_states.h>
- #include <net/dsfield.h>
-+#include <net/sock_reuseport.h>
- 
- #include <linux/errqueue.h>
- #include <linux/uaccess.h>
-@@ -258,6 +259,7 @@ ipv4_connected:
- 		goto out;
- 	}
- 
-+	reuseport_has_conns(sk, true);
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
- out:
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -177,13 +177,14 @@ static struct sock *udp6_lib_lookup2(str
- 		score = compute_score(sk, net, saddr, sport,
- 				      daddr, hnum, dif, sdif, exact_dif);
- 		if (score > badness) {
--			if (sk->sk_reuseport) {
-+			if (sk->sk_reuseport &&
-+			    sk->sk_state != TCP_ESTABLISHED) {
- 				hash = udp6_ehashfn(net, daddr, hnum,
- 						    saddr, sport);
- 
- 				result = reuseport_select_sock(sk, hash, skb,
- 							sizeof(struct udphdr));
--				if (result)
-+				if (result && !reuseport_has_conns(sk, false))
- 					return result;
- 			}
- 			result = sk;
+-- 
+2.20.1
+
 
 
