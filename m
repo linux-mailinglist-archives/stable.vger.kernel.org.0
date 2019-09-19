@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21958B8518
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02836B851A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406465AbfISWRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58804 "EHLO mail.kernel.org"
+        id S2406507AbfISWRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406488AbfISWRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:17:36 -0400
+        id S2406488AbfISWRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:17:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEE3B20678;
-        Thu, 19 Sep 2019 22:17:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CE4320678;
+        Thu, 19 Sep 2019 22:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931455;
-        bh=wOfno92071SM8Zoy2bQQhGzk30UPTtn44awh7U17Mu0=;
+        s=default; t=1568931460;
+        bh=euDTmi3o+maZTn2OyWRJ//BCsc8MPWXUgCcZXYSqCJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAQ+8fB+fNFDqiCVnoqrmiFHFYB/EXIiioGmv+QBR3SnwyIneFB1Sy4sDBCZAR5KV
-         czZqi1wm6ZCfapuv8KNZyfq9i9IMHQd3i5nKLoULyKG1tR1YNMr+GGBusWa4HZU4pL
-         1gJJtTZdJ5oSV8imIY7MK52I6IfNJtROkuGX2Exk=
+        b=PR0oHqXoUFt94KBPPN5JYiI3Q3H3l9f6lGCT9m6h+RiPqb7VS/P3Wp7qm/6Jo6tIr
+         19LITOm8G+X/6QPmw4/O4kNKC6o+jE5T6ZnqI4+PfFldQ21Mg2QFJlHIBN15bQT8wP
+         ZOsJ2Xw3E1f2sZ8Q/ZLG4TRzgy5FpbDKKEYqVa4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 52/59] iommu/amd: Flush old domains in kdump kernel
-Date:   Fri, 20 Sep 2019 00:04:07 +0200
-Message-Id: <20190919214808.023865468@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.14 54/59] PCI: kirin: Fix section mismatch warning
+Date:   Fri, 20 Sep 2019 00:04:09 +0200
+Message-Id: <20190919214808.159977294@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
 References: <20190919214755.852282682@linuxfoundation.org>
@@ -43,84 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Hayes <stuart.w.hayes@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 36b7200f67dfe75b416b5281ed4ace9927b513bc ]
+commit 6870b673509779195cab300aedc844b352d9cfbc upstream.
 
-When devices are attached to the amd_iommu in a kdump kernel, the old device
-table entries (DTEs), which were copied from the crashed kernel, will be
-overwritten with a new domain number.  When the new DTE is written, the IOMMU
-is told to flush the DTE from its internal cache--but it is not told to flush
-the translation cache entries for the old domain number.
+The PCI kirin driver compilation produces the following section mismatch
+warning:
 
-Without this patch, AMD systems using the tg3 network driver fail when kdump
-tries to save the vmcore to a network system, showing network timeouts and
-(sometimes) IOMMU errors in the kernel log.
+WARNING: vmlinux.o(.text+0x4758cc): Section mismatch in reference from
+the function kirin_pcie_probe() to the function
+.init.text:kirin_add_pcie_port()
+The function kirin_pcie_probe() references
+the function __init kirin_add_pcie_port().
+This is often because kirin_pcie_probe lacks a __init
+annotation or the annotation of kirin_add_pcie_port is wrong.
 
-This patch will flush IOMMU translation cache entries for the old domain when
-a DTE gets overwritten with a new domain number.
+Remove '__init' from kirin_add_pcie_port() to fix it.
 
-Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
-Fixes: 3ac3e5ee5ed5 ('iommu/amd: Copy old trans table from old kernel')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fc5165db245a ("PCI: kirin: Add HiSilicon Kirin SoC PCIe controller driver")
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+[lorenzo.pieralisi@arm.com: updated commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/amd_iommu.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/pci/dwc/pcie-kirin.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 684f7cdd814b6..822c85226a29f 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1150,6 +1150,17 @@ static void amd_iommu_flush_tlb_all(struct amd_iommu *iommu)
- 	iommu_completion_wait(iommu);
- }
+--- a/drivers/pci/dwc/pcie-kirin.c
++++ b/drivers/pci/dwc/pcie-kirin.c
+@@ -449,8 +449,8 @@ static const struct dw_pcie_host_ops kir
+ 	.host_init = kirin_pcie_host_init,
+ };
  
-+static void amd_iommu_flush_tlb_domid(struct amd_iommu *iommu, u32 dom_id)
-+{
-+	struct iommu_cmd cmd;
-+
-+	build_inv_iommu_pages(&cmd, 0, CMD_INV_IOMMU_ALL_PAGES_ADDRESS,
-+			      dom_id, 1);
-+	iommu_queue_command(iommu, &cmd);
-+
-+	iommu_completion_wait(iommu);
-+}
-+
- static void amd_iommu_flush_all(struct amd_iommu *iommu)
+-static int __init kirin_add_pcie_port(struct dw_pcie *pci,
+-				      struct platform_device *pdev)
++static int kirin_add_pcie_port(struct dw_pcie *pci,
++			       struct platform_device *pdev)
  {
- 	struct iommu_cmd cmd;
-@@ -1835,6 +1846,7 @@ static void set_dte_entry(u16 devid, struct protection_domain *domain, bool ats)
- {
- 	u64 pte_root = 0;
- 	u64 flags = 0;
-+	u32 old_domid;
+ 	pci->pp.ops = &kirin_pcie_host_ops;
  
- 	if (domain->mode != PAGE_MODE_NONE)
- 		pte_root = iommu_virt_to_phys(domain->pt_root);
-@@ -1877,8 +1889,20 @@ static void set_dte_entry(u16 devid, struct protection_domain *domain, bool ats)
- 	flags &= ~DEV_DOMID_MASK;
- 	flags |= domain->id;
- 
-+	old_domid = amd_iommu_dev_table[devid].data[1] & DEV_DOMID_MASK;
- 	amd_iommu_dev_table[devid].data[1]  = flags;
- 	amd_iommu_dev_table[devid].data[0]  = pte_root;
-+
-+	/*
-+	 * A kdump kernel might be replacing a domain ID that was copied from
-+	 * the previous kernel--if so, it needs to flush the translation cache
-+	 * entries for the old domain ID that is being overwritten
-+	 */
-+	if (old_domid) {
-+		struct amd_iommu *iommu = amd_iommu_rlookup_table[devid];
-+
-+		amd_iommu_flush_tlb_domid(iommu, old_domid);
-+	}
- }
- 
- static void clear_dte_entry(u16 devid)
--- 
-2.20.1
-
 
 
