@@ -2,84 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0DCB7EB3
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 18:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53AF8B7F73
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 18:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390254AbfISQDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 12:03:24 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:36700 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389371AbfISQDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 12:03:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=vJRSj0yJ0nGMQ7A04jXbedZdlDHcAN0hBrzP50Ruo6g=; b=enEiR9C8pobypGbm3Yy3RH5U8
-        TsGirkqhrEOn7G+4Oldowb8anNJrWFpFbamtEgD5TksYWJ9AKr9t7Z8AERxiv/Z0WkZy4cjQkKbeb
-        m/nxq4q6tjVQFHarK9iHDf4DSp32U593EVhKKIJf7WhoWNqGNj22cAXlRHkgcb0BOwBIw=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iAyto-0004MD-Ol; Thu, 19 Sep 2019 16:03:16 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id A09802741D3A; Thu, 19 Sep 2019 17:03:15 +0100 (BST)
-Date:   Thu, 19 Sep 2019 17:03:15 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] spi: atmel: Fix crash when using more than 4 gpio CS
-Message-ID: <20190919160315.GQ3642@sirena.co.uk>
-References: <20190919153847.7179-1-gregory.clement@bootlin.com>
+        id S2391052AbfISQzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 12:55:33 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:44600 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391014AbfISQzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 12:55:33 -0400
+Received: by mail-pg1-f195.google.com with SMTP id g3so641364pgs.11
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 09:55:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=vKHGVC2TBv+sLI5Edyli1ZnZuQJKo2XmgdaDIhIwBKQ=;
+        b=Q6ZXGNHId7DBF16qRzWjOVrjjWMIk9gF2BlQ3nAW2OPUcTUkCsnk6/NyiCDdTnkbuQ
+         MVylF1TZ86CAYhVM34nj3IVmzadWHImCp8eXVyaId7+4LfT61yxP+g6jb+kP20WEATgS
+         oznxdzTHAqD9/Lokv9dqcPOfn4HLHjcWB3CW4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=vKHGVC2TBv+sLI5Edyli1ZnZuQJKo2XmgdaDIhIwBKQ=;
+        b=GFZtbqg3vVlNLIoe9+F7NXcsSBAisMlRiNRh6fA/EgRSAIn3R92sVGzeDI720NyeV+
+         w8JOomte8pSq7/seliJ/ThUZnWk4mlprD3waJLoGIEJ8qwY8M2TVk/ymF4uGN04+mJVW
+         Z6bP5Dq1Z7F+EjO8OIaieU9SUW5AGtRUjREi6PBLkDx8WjOSeQhx5VR4ARe4BMgoWqXX
+         TEOfioHWZEvB4Zu3vhSrE0+Yew/KSKBfDj9MSa6dmxItA7+xP2NjJTeJIXdbQ8rhcDHv
+         ZkNoarYXCGrQj6P8RmC9XlX7ob2DIn7SG8DZiLqUh8lsY8YX1fg/2KFLpel0KhWqtai/
+         kCug==
+X-Gm-Message-State: APjAAAXo8vGetV/68Fr2vx6tnJ4opFdNWBs3f8EP9JGKPL7SHbJumG/M
+        ke5R8ttw0LrwibEiuW7kUGiYmQ==
+X-Google-Smtp-Source: APXvYqw6zEHZKGyziOXSgqUJbbCCYyEPYuCqQ3kwb1DJ6hxrcEF9h2MB7qPcwFj2W56qe0ZKdQnWWg==
+X-Received: by 2002:a17:90a:7347:: with SMTP id j7mr4863606pjs.88.1568912132371;
+        Thu, 19 Sep 2019 09:55:32 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id d5sm4872630pjw.31.2019.09.19.09.55.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Sep 2019 09:55:31 -0700 (PDT)
+Date:   Thu, 19 Sep 2019 09:55:30 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     "Dmitry V. Levin" <ldv@altlinux.org>
+Cc:     Tyler Hicks <tyhicks@canonical.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        luto@amacapital.net, jannh@google.com, wad@chromium.org,
+        shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        Tycho Andersen <tycho@tycho.ws>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] seccomp: add two missing ptrace ifdefines
+Message-ID: <201909190918.443D6BC7@keescook>
+References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
+ <20190918084833.9369-3-christian.brauner@ubuntu.com>
+ <20190918091512.GA5088@elm>
+ <201909181031.1EE73B4@keescook>
+ <20190919104251.GA16834@altlinux.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Vxa5joy26gVGOrvU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190919153847.7179-1-gregory.clement@bootlin.com>
-X-Cookie: I'll be Grateful when they're Dead.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190919104251.GA16834@altlinux.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 19, 2019 at 01:42:51PM +0300, Dmitry V. Levin wrote:
+> On Wed, Sep 18, 2019 at 10:33:09AM -0700, Kees Cook wrote:
+> > This is actually fixed in -next already (and, yes, with the Fixes line
+> > Tyler has mentioned):
+> > 
+> > https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git/commit/?h=next&id=69b2d3c5924273a0ae968d3818210fc57a1b9d07
+> 
+> Excuse me, does it mean that you expect each selftest to be self-hosted?
+> I was (and still is) under impression that selftests should be built
+> with headers installed from the tree. Is it the case, or is it not?
 
---Vxa5joy26gVGOrvU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+As you know (but to give others some context) there is a long-standing
+bug in the selftest build environment that causes these problems (it
+isn't including the uAPI headers) which you'd proposed to be fixed
+recently[1]. Did that ever get sent as a "real" patch? I don't see it
+in Shuah's tree; can you send it to Shuah?
 
-On Thu, Sep 19, 2019 at 05:38:47PM +0200, Gregory CLEMENT wrote:
+But even with that fixed, since the seccomp selftest has a history of
+being built stand-alone, I've continued to take these kinds of fixes.
 
-> With this patch, when using a gpio CS, the hardware CS0 is always
-> used. Thanks to this, there is no more limitation for the number of
-> gpio CS we can use.
+-Kees
 
-This is going to break any system where we use both a GPIO chip select
-and chip select 0.  Ideally we'd try to figure out an unused chip select
-to use here...
+[1] https://lore.kernel.org/lkml/20190805094719.GA1693@altlinux.org/
 
---Vxa5joy26gVGOrvU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2DpsIACgkQJNaLcl1U
-h9DKfgf+Jsooil74xOpQ+umzYyZp8Qb3FEcyImIlX60lGCNBSHiEvAhRajJ6+AXX
-CsWEWs+bSzrHgo4y5RRwOrtp7RXbEJARgR2ke9JZ0l9P9qdU3oW/m8A8Ghq4Q8z/
-3w+GW4UoWkqUuDjK/LZeOvBtmq1+viYePqq+wOLg12uVCc+aifI1qZlTJHFaGJUf
-EJDxnopv92Ct66G3ZcQ8lMmujukMAuk6Z7+H6SJqvhIDOQLd8Ryt955+6v198wcq
-M8zO5suWI6sTMK0HpsN6L3K/WOe7vOUOPYyyLtKBSAA4+Piy9EaQcVsWv1mVLJfp
-SO2Y3XYEQykklvv+yX+7XlZxS6QYAg==
-=WMib
------END PGP SIGNATURE-----
-
---Vxa5joy26gVGOrvU--
+-- 
+Kees Cook
