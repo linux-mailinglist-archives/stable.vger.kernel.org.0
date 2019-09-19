@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3090BB8635
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2EFCB85F9
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732921AbfISWUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34578 "EHLO mail.kernel.org"
+        id S2406882AbfISWWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:22:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732875AbfISWUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:30 -0400
+        id S2406847AbfISWWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B5121907;
-        Thu, 19 Sep 2019 22:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61AAD20678;
+        Thu, 19 Sep 2019 22:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931630;
-        bh=INDJQZJbLv6NZK2YvstF0dhVGzZJAfkD6dXh5LtwKSg=;
+        s=default; t=1568931756;
+        bh=LU5dOEn+N8hZ4WvGQ6KZFsD9bXp/utkpa2zCwdJtBCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ye7k9fQUAkbCeaC5i5uEU0L7agv/pnaBdnaL28s9R1goDs24qPph+OZ4oV9YZEFyw
-         kWflKShkbd9lZ9nLseUh9vwvXUl64fze/KB6B6lnyrIY0fd7KJtsrTvlmOd6bP8eS5
-         JZt2H7n3RltRxOnmcUgeld/IJX+j2gdI77laOPkI=
+        b=Xcnk/QMJhRfRi+sr4Ur4Mi+oYAo2nedo+9yv8tC4rMdg+srKe0gwmoUYGPOcHBCoL
+         a8Ied6jlUx5xVU2HNwsVkREJtZzBhWYgvDjkvughOAdOVXGxrneWcATcECTVtyctp0
+         OvO/VLX4Vq27n4ZlQ3QZxMTq5RJlvcoKWCH9vsgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Jarosch <thomas.jarosch@intra2net.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 56/74] netfilter: nf_conntrack_ftp: Fix debug output
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.4 28/56] media: tm6000: double free if usb disconnect while streaming
 Date:   Fri, 20 Sep 2019 00:04:09 +0200
-Message-Id: <20190919214810.162846928@linuxfoundation.org>
+Message-Id: <20190919214755.955913118@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Jarosch <thomas.jarosch@intra2net.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 3a069024d371125227de3ac8fa74223fcf473520 ]
+commit 699bf94114151aae4dceb2d9dbf1a6312839dcae upstream.
 
-The find_pattern() debug output was printing the 'skip' character.
-This can be a NULL-byte and messes up further pr_debug() output.
+The usb_bulk_urb will kfree'd on disconnect, so ensure the pointer is set
+to NULL after each free.
 
-Output without the fix:
-kernel: nf_conntrack_ftp: Pattern matches!
-kernel: nf_conntrack_ftp: Skipped up to `<7>nf_conntrack_ftp: find_pattern `PORT': dlen = 8
-kernel: nf_conntrack_ftp: find_pattern `EPRT': dlen = 8
+stop stream
+urb killing
+urb buffer free
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start stream request tm6000_start_stream
+tm6000: pipe reset
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: IR URB failure: status: -71, length 0
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+tm6000:  error tm6000_urb_received
+usb 1-2: USB disconnect, device number 5
+tm6000: disconnecting tm6000 #0
+==================================================================
+BUG: KASAN: use-after-free in dvb_fini+0x75/0x140 [tm6000_dvb]
+Read of size 8 at addr ffff888241044060 by task kworker/2:0/22
 
-Output with the fix:
-kernel: nf_conntrack_ftp: Pattern matches!
-kernel: nf_conntrack_ftp: Skipped up to 0x0 delimiter!
-kernel: nf_conntrack_ftp: Match succeeded!
-kernel: nf_conntrack_ftp: conntrack_ftp: match `172,17,0,100,200,207' (20 bytes at 4150681645)
-kernel: nf_conntrack_ftp: find_pattern `PORT': dlen = 8
+CPU: 2 PID: 22 Comm: kworker/2:0 Tainted: G        W         5.3.0-rc4+ #1
+Hardware name: LENOVO 20KHCTO1WW/20KHCTO1WW, BIOS N23ET65W (1.40 ) 07/02/2019
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack+0x9a/0xf0
+ print_address_description.cold+0xae/0x34f
+ __kasan_report.cold+0x75/0x93
+ ? tm6000_fillbuf+0x390/0x3c0 [tm6000_alsa]
+ ? dvb_fini+0x75/0x140 [tm6000_dvb]
+ kasan_report+0xe/0x12
+ dvb_fini+0x75/0x140 [tm6000_dvb]
+ tm6000_close_extension+0x51/0x80 [tm6000]
+ tm6000_usb_disconnect.cold+0xd4/0x105 [tm6000]
+ usb_unbind_interface+0xe4/0x390
+ device_release_driver_internal+0x121/0x250
+ bus_remove_device+0x197/0x260
+ device_del+0x268/0x550
+ ? __device_links_no_driver+0xd0/0xd0
+ ? usb_remove_ep_devs+0x30/0x3b
+ usb_disable_device+0x122/0x400
+ usb_disconnect+0x153/0x430
+ hub_event+0x800/0x1e40
+ ? trace_hardirqs_on_thunk+0x1a/0x20
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? retint_kernel+0x10/0x10
+ ? lock_is_held_type+0xf1/0x130
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? process_one_work+0x4ae/0xa00
+ process_one_work+0x4ba/0xa00
+ ? pwq_dec_nr_in_flight+0x160/0x160
+ ? do_raw_spin_lock+0x10a/0x1d0
+ worker_thread+0x7a/0x5c0
+ ? process_one_work+0xa00/0xa00
+ kthread+0x1d5/0x200
+ ? kthread_create_worker_on_cpu+0xd0/0xd0
+ ret_from_fork+0x3a/0x50
 
-Signed-off-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Allocated by task 2682:
+ save_stack+0x1b/0x80
+ __kasan_kmalloc.constprop.0+0xc2/0xd0
+ usb_alloc_urb+0x28/0x60
+ tm6000_start_feed+0x10a/0x300 [tm6000_dvb]
+ dmx_ts_feed_start_filtering+0x86/0x120 [dvb_core]
+ dvb_dmxdev_start_feed+0x121/0x180 [dvb_core]
+ dvb_dmxdev_filter_start+0xcb/0x540 [dvb_core]
+ dvb_demux_do_ioctl+0x7ed/0x890 [dvb_core]
+ dvb_usercopy+0x97/0x1f0 [dvb_core]
+ dvb_demux_ioctl+0x11/0x20 [dvb_core]
+ do_vfs_ioctl+0x5d8/0x9d0
+ ksys_ioctl+0x5e/0x90
+ __x64_sys_ioctl+0x3d/0x50
+ do_syscall_64+0x74/0xe0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 22:
+ save_stack+0x1b/0x80
+ __kasan_slab_free+0x12c/0x170
+ kfree+0xfd/0x3a0
+ xhci_giveback_urb_in_irq+0xfe/0x230
+ xhci_td_cleanup+0x276/0x340
+ xhci_irq+0x1129/0x3720
+ __handle_irq_event_percpu+0x6e/0x420
+ handle_irq_event_percpu+0x6f/0x100
+ handle_irq_event+0x55/0x84
+ handle_edge_irq+0x108/0x3b0
+ handle_irq+0x2e/0x40
+ do_IRQ+0x83/0x1a0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/nf_conntrack_ftp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/tm6000/tm6000-dvb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_ftp.c b/net/netfilter/nf_conntrack_ftp.c
-index e3ed200608788..562b545242492 100644
---- a/net/netfilter/nf_conntrack_ftp.c
-+++ b/net/netfilter/nf_conntrack_ftp.c
-@@ -323,7 +323,7 @@ static int find_pattern(const char *data, size_t dlen,
- 		i++;
+--- a/drivers/media/usb/tm6000/tm6000-dvb.c
++++ b/drivers/media/usb/tm6000/tm6000-dvb.c
+@@ -111,6 +111,7 @@ static void tm6000_urb_received(struct u
+ 			printk(KERN_ERR "tm6000:  error %s\n", __func__);
+ 			kfree(urb->transfer_buffer);
+ 			usb_free_urb(urb);
++			dev->dvb->bulk_urb = NULL;
+ 		}
+ 	}
+ }
+@@ -143,6 +144,7 @@ static int tm6000_start_stream(struct tm
+ 	dvb->bulk_urb->transfer_buffer = kzalloc(size, GFP_KERNEL);
+ 	if (dvb->bulk_urb->transfer_buffer == NULL) {
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		printk(KERN_ERR "tm6000: couldn't allocate transfer buffer!\n");
+ 		return -ENOMEM;
+ 	}
+@@ -170,6 +172,7 @@ static int tm6000_start_stream(struct tm
+ 
+ 		kfree(dvb->bulk_urb->transfer_buffer);
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		return ret;
  	}
  
--	pr_debug("Skipped up to `%c'!\n", skip);
-+	pr_debug("Skipped up to 0x%hhx delimiter!\n", skip);
- 
- 	*numoff = i;
- 	*numlen = getnum(data + i, dlen - i, cmd, term, numoff);
--- 
-2.20.1
-
 
 
