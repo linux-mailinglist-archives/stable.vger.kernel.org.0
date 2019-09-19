@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D2BB8670
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC3BFB8607
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392492AbfISWR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58560 "EHLO mail.kernel.org"
+        id S2390532AbfISW0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392403AbfISWRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:17:25 -0400
+        id S2406830AbfISWWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13FB9217D6;
-        Thu, 19 Sep 2019 22:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC4D1217D6;
+        Thu, 19 Sep 2019 22:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931444;
-        bh=Yl59bSCmjGQO8ga6KfcvRC+PKgjgMXblO8qVnUO1YgM=;
+        s=default; t=1568931743;
+        bh=oodeJ+0d7shrMwu2VCOzA6cipo4DbmkAS4qiVyyugnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIUgrrmIKjBa24Ls/FmheSALLE7QUFmxgEq+YEN5mGp746l6j7Dgoxf417CZHxb1T
-         zT2/xRz9La4xM944I++MHvDoDJRlFkC9pVHti5MwEHn3aLBKT9yYmbfyj2W63Pjc73
-         kG5ksLvWOiRII9OrmXJ9xzszahQXwvJgihV97w1A=
+        b=b0Icf6lTNWqF3E+PoyalGZQi6Wv/bwnNyb66nSPRQNX2X0T8AlbtySVlUBTtL8SIo
+         01n1OLsN6KLq9Ri3c6HT52T9c/ruVzs26fu+m5ET/cyi/ZbHcuGwJHpTTz86Q2ldtM
+         pC4R8Yblb3qMYIAwBB0j7B5t9FoZxZujWMS0E+SQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, broonie@kernel.org,
-        sfr@canb.auug.org.au, akpm@linux-foundation.org, mhocko@suse.cz,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/59] x86/uaccess: Dont leak the AC flags into __get_user() argument evaluation
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 23/56] crypto: talitos - check data blocksize in ablkcipher.
 Date:   Fri, 20 Sep 2019 00:04:04 +0200
-Message-Id: <20190919214807.665886883@linuxfoundation.org>
+Message-Id: <20190919214754.861255842@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 9b8bd476e78e89c9ea26c3b435ad0201c3d7dbf5 ]
+commit ee483d32ee1a1a7f7d7e918fbc350c790a5af64a upstream.
 
-Identical to __put_user(); the __get_user() argument evalution will too
-leak UBSAN crud into the __uaccess_begin() / __uaccess_end() region.
-While uncommon this was observed to happen for:
+When data size is not a multiple of the alg's block size,
+the SEC generates an error interrupt and dumps the registers.
+And for NULL size, the SEC does just nothing and the interrupt
+is awaited forever.
 
-  drivers/xen/gntdev.c: if (__get_user(old_status, batch->status[i]))
+This patch ensures the data size is correct before submitting
+the request to the SEC engine.
 
-where UBSAN added array bound checking.
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4de9d0b547b9 ("crypto: talitos - Add ablkcipher algorithms")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This complements commit:
-
-  6ae865615fc4 ("x86/uaccess: Dont leak the AC flag into __put_user() argument evaluation")
-
-Tested-by Sedat Dilek <sedat.dilek@gmail.com>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: broonie@kernel.org
-Cc: sfr@canb.auug.org.au
-Cc: akpm@linux-foundation.org
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: mhocko@suse.cz
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20190829082445.GM2369@hirez.programming.kicks-ass.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/uaccess.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/talitos.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 4111edb3188e2..9718303410614 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -451,8 +451,10 @@ do {									\
- ({									\
- 	int __gu_err;							\
- 	__inttype(*(ptr)) __gu_val;					\
-+	__typeof__(ptr) __gu_ptr = (ptr);				\
-+	__typeof__(size) __gu_size = (size);				\
- 	__uaccess_begin_nospec();					\
--	__get_user_size(__gu_val, (ptr), (size), __gu_err, -EFAULT);	\
-+	__get_user_size(__gu_val, __gu_ptr, __gu_size, __gu_err, -EFAULT);	\
- 	__uaccess_end();						\
- 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
- 	__builtin_expect(__gu_err, 0);					\
--- 
-2.20.1
-
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1641,6 +1641,14 @@ static int ablkcipher_encrypt(struct abl
+ 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
+ 	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+ 	struct talitos_edesc *edesc;
++	unsigned int blocksize =
++			crypto_tfm_alg_blocksize(crypto_ablkcipher_tfm(cipher));
++
++	if (!areq->nbytes)
++		return 0;
++
++	if (areq->nbytes % blocksize)
++		return -EINVAL;
+ 
+ 	/* allocate extended descriptor */
+ 	edesc = ablkcipher_edesc_alloc(areq, true);
+@@ -1658,6 +1666,14 @@ static int ablkcipher_decrypt(struct abl
+ 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
+ 	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+ 	struct talitos_edesc *edesc;
++	unsigned int blocksize =
++			crypto_tfm_alg_blocksize(crypto_ablkcipher_tfm(cipher));
++
++	if (!areq->nbytes)
++		return 0;
++
++	if (areq->nbytes % blocksize)
++		return -EINVAL;
+ 
+ 	/* allocate extended descriptor */
+ 	edesc = ablkcipher_edesc_alloc(areq, false);
 
 
