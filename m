@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5CAB83FC
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145DEB83FE
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405283AbfISWGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
+        id S2393106AbfISWG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:06:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405279AbfISWGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:52 -0400
+        id S2393100AbfISWG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:06:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D668421907;
-        Thu, 19 Sep 2019 22:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 541A821920;
+        Thu, 19 Sep 2019 22:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930811;
-        bh=3tM0UaXpK9hyBLBvIYjqMgOquMudUYvPcuK67Ua82Do=;
+        s=default; t=1568930816;
+        bh=i59vVpsWme0l4E3I1ANgSvilDUw/eEg/54eOPwkejZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KR/zeiPMQwyJZ/80igVZbM4SkPQheJsIS5sHfOBlLa2TMUrYKG+ulYun+G/i5amR
-         chSH2ZjGFJdVeFEvuTHxpYNNBl5yYir0yfpHOpRyWJsrYprXAz0UuF16i+r2mn4K2C
-         FHEPhTpArt5mzSdPe+7sH+gt1yoFTuHyHAyb5FZ4=
+        b=rsqHmEQ8sUxyvnZt0xROt9Zu5uggbtE0uuORQf8qDZFZN+DoQeXTnBRpSB6m6VEcb
+         PR+9SfgBB5fjNhTNbA3G1lJ2QQelbw7tYLRoaU9DsJknquzpnMcNyjyFTfroFJJXe3
+         rS/Bih3d5ngPCj2stvOOC4cLH8EPjX4LMgmgisQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Subject: [PATCH 5.2 023/124] serial: sprd: correct the wrong sequence of arguments
-Date:   Fri, 20 Sep 2019 00:01:51 +0200
-Message-Id: <20190919214819.912302822@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Razvan Stefanescu <razvan.stefanescu@microchip.com>
+Subject: [PATCH 5.2 024/124] tty/serial: atmel: reschedule TX after RX was started
+Date:   Fri, 20 Sep 2019 00:01:52 +0200
+Message-Id: <20190919214819.942328981@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -43,35 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Razvan Stefanescu <razvan.stefanescu@microchip.com>
 
-commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
+commit d2ace81bf902a9f11d52e59e5d232d2255a0e353 upstream.
 
-The sequence of arguments which was passed to handle_lsr_errors() didn't
-match the parameters defined in that function, &lsr was passed to flag
-and &flag was passed to lsr, this patch fixed that.
+When half-duplex RS485 communication is used, after RX is started, TX
+tasklet still needs to be  scheduled tasklet. This avoids console freezing
+when more data is to be transmitted, if the serial communication is not
+closed.
 
-Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
+Fixes: 69646d7a3689 ("tty/serial: atmel: RS485 HD w/DMA: enable RX after TX is stopped")
+Signed-off-by: Razvan Stefanescu <razvan.stefanescu@microchip.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
+Link: https://lore.kernel.org/r/20190813074025.16218-1-razvan.stefanescu@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/sprd_serial.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/atmel_serial.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -609,7 +609,7 @@ static inline void sprd_rx(struct uart_p
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -1400,7 +1400,6 @@ atmel_handle_transmit(struct uart_port *
  
- 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
- 			   SPRD_LSR_FE | SPRD_LSR_OE))
--			if (handle_lsr_errors(port, &lsr, &flag))
-+			if (handle_lsr_errors(port, &flag, &lsr))
- 				continue;
- 		if (uart_handle_sysrq_char(port, ch))
- 			continue;
+ 			atmel_port->hd_start_rx = false;
+ 			atmel_start_rx(port);
+-			return;
+ 		}
+ 
+ 		atmel_tasklet_schedule(atmel_port, &atmel_port->tasklet_tx);
 
 
