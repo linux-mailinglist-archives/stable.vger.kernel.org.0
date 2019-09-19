@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F26B5B874F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8D9B8745
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405317AbfISWHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45592 "EHLO mail.kernel.org"
+        id S2404844AbfISWfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:35:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405313AbfISWHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:07:51 -0400
+        id S2393292AbfISWHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 376E821907;
-        Thu, 19 Sep 2019 22:07:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D58F121907;
+        Thu, 19 Sep 2019 22:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930870;
-        bh=1mpdEmxlulUxMm5dMbUBfyxVH2N8bAtQhPgQoAI14Lk=;
+        s=default; t=1568930873;
+        bh=h2IhLcindbILDhqXojQbO6MMiUWRO4pjB7tV4EHYZ90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLSbbhJGip5XGHETyaJSsbFHjb49IzkwomK6xsLo0ORJVGp3bEGYqoJmv7dWvva4r
-         6DaQbCrJolWMR+1Ss37Tp7rRAXQbbMkL72j4x72haT7ispRwkfUqyvW96e341mZL95
-         zIyLCX7duZm6/1fB4hPYuu+AfwtmdgAFQZ2VZb8Q=
+        b=IkSYoPpqgNcmNNdbcs07cuCNQLI0SAKUKQO26AaPsc827UNaFbhBKCWLC/8z3nRKi
+         JgrI97Ad4uaw7AAvbeOdxUbbwFqiHj13PVx4/MD9Elv3WRiSf6sx0u8+sd41kzApBB
+         gGFXvHmjngxQ7WsiDPb17Yli6so4o5bWpjK0RCNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quentin Monnet <quentin.monnet@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Phil Reid <preid@electromag.com.au>,
+        Moritz Fischer <mdf@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 045/124] tools: bpftool: close prog FD before exit on showing a single program
-Date:   Fri, 20 Sep 2019 00:02:13 +0200
-Message-Id: <20190919214820.643391357@linuxfoundation.org>
+Subject: [PATCH 5.2 046/124] fpga: altera-ps-spi: Fix getting of optional confd gpio
+Date:   Fri, 20 Sep 2019 00:02:14 +0200
+Message-Id: <20190919214820.679319008@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -47,39 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin.monnet@netronome.com>
+From: Phil Reid <preid@electromag.com.au>
 
-[ Upstream commit d34b044038bfb0e19caa8b019910efc465f41d5f ]
+[ Upstream commit dec43da46f63eb71f519d963ba6832838e4262a3 ]
 
-When showing metadata about a single program by invoking
-"bpftool prog show PROG", the file descriptor referring to the program
-is not closed before returning from the function. Let's close it.
+Currently the driver does not handle EPROBE_DEFER for the confd gpio.
+Use devm_gpiod_get_optional() instead of devm_gpiod_get() and return
+error codes from altera_ps_probe().
 
-Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
-Signed-off-by: Quentin Monnet <quentin.monnet@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 5692fae0742d ("fpga manager: Add altera-ps-spi driver for Altera FPGAs")
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/prog.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/fpga/altera-ps-spi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
-index 7a4e21a315236..d41651afe5f64 100644
---- a/tools/bpf/bpftool/prog.c
-+++ b/tools/bpf/bpftool/prog.c
-@@ -362,7 +362,9 @@ static int do_show(int argc, char **argv)
- 		if (fd < 0)
- 			return -1;
- 
--		return show_prog(fd);
-+		err = show_prog(fd);
-+		close(fd);
-+		return err;
+diff --git a/drivers/fpga/altera-ps-spi.c b/drivers/fpga/altera-ps-spi.c
+index a13f224303c69..0221dee8dd4c6 100644
+--- a/drivers/fpga/altera-ps-spi.c
++++ b/drivers/fpga/altera-ps-spi.c
+@@ -210,7 +210,7 @@ static int altera_ps_write_complete(struct fpga_manager *mgr,
+ 		return -EIO;
  	}
  
- 	if (argc)
+-	if (!IS_ERR(conf->confd)) {
++	if (conf->confd) {
+ 		if (!gpiod_get_raw_value_cansleep(conf->confd)) {
+ 			dev_err(&mgr->dev, "CONF_DONE is inactive!\n");
+ 			return -EIO;
+@@ -289,10 +289,13 @@ static int altera_ps_probe(struct spi_device *spi)
+ 		return PTR_ERR(conf->status);
+ 	}
+ 
+-	conf->confd = devm_gpiod_get(&spi->dev, "confd", GPIOD_IN);
++	conf->confd = devm_gpiod_get_optional(&spi->dev, "confd", GPIOD_IN);
+ 	if (IS_ERR(conf->confd)) {
+-		dev_warn(&spi->dev, "Not using confd gpio: %ld\n",
+-			 PTR_ERR(conf->confd));
++		dev_err(&spi->dev, "Failed to get confd gpio: %ld\n",
++			PTR_ERR(conf->confd));
++		return PTR_ERR(conf->confd);
++	} else if (!conf->confd) {
++		dev_warn(&spi->dev, "Not using confd gpio");
+ 	}
+ 
+ 	/* Register manager with unique name */
 -- 
 2.20.1
 
