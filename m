@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FACB8710
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59556B8776
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405682AbfISWKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
+        id S2406810AbfISWgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405672AbfISWK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:10:28 -0400
+        id S2405105AbfISWGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:06:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5872721907;
-        Thu, 19 Sep 2019 22:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF4C621927;
+        Thu, 19 Sep 2019 22:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931027;
-        bh=DdbsRQrasbBJPd+uNCTuwjdggFssW12cvLMg0WbkFUU=;
+        s=default; t=1568930765;
+        bh=slnhpFEp5xIh7mPkMPWgPhf7Q9Yh1FvqHssoFJ05Vfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXW6uRIf6Q+4DiBDmJcDO7Cz+c7zVeTWte0MLPcYQrBHfetEoNl9dbEjSIHSQoYDO
-         kfhwxksUwuPPj6SpzlJJFY4MYXZLpO1IUMmG1Vz97awsOUnd97OlfOmNXYnDiaxDzo
-         i9EuZyviKIcbuWZY3Ng5DMRD/q/4hsSLKUhlinLU=
+        b=TKBIDNKZMiuXVCSC4GNzt0pm05hysQtgAbx9+M0A+SqOkOMymTHq+5nQS2viuSehu
+         NGtupbLK9z9Led/NJex53Hj4pKXtzmrpb5T/OwFuiKnji56Q/tyJuFNp8WZ26t+G7Q
+         xFCr3eLY4WZ/acF9EPNsy30Z1IyIE/3tzKnzXNA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
-        Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 100/124] tools/power turbostat: Add Ice Lake NNPI support
-Date:   Fri, 20 Sep 2019 00:03:08 +0200
-Message-Id: <20190919214822.828810769@linuxfoundation.org>
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 08/21] xen-netfront: do not assume sk_buff_head list is empty in error handling
+Date:   Fri, 20 Sep 2019 00:03:09 +0200
+Message-Id: <20190919214702.452008775@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
+References: <20190919214657.842130855@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit d93ea567fc4eec2d3581015e23d2c555f8b393ba ]
+[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
 
-This enables turbostat utility on Ice Lake NNPI SoC.
+When skb_shinfo(skb) is not able to cache extra fragment (that is,
+skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
+the sk_buff_head list is already empty. As a result, cons is increased only
+by 1 and returns to error handling path in xennet_poll().
 
-Link: https://lkml.org/lkml/2019/6/5/1034
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
+set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
+buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
+already cleared to NULL. This leads to NULL pointer access in the next
+iteration to process rx ring buffer entries.
+
+Below is how xennet_poll() does error handling. All remaining entries in
+tmpq are accounted to queue->rx.rsp_cons without assuming how many
+outstanding skbs are remained in the list.
+
+ 985 static int xennet_poll(struct napi_struct *napi, int budget)
+... ...
+1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
+1033                   __skb_queue_head(&tmpq, skb);
+1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
+1035                   goto err;
+1036           }
+
+It is better to always have the error handling in the same way.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netfront.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 56c3e041d4f93..0a80f3cc24e31 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4586,6 +4586,7 @@ unsigned int intel_model_duplicates(unsigned int model)
- 		return INTEL_FAM6_SKYLAKE_MOBILE;
- 
- 	case INTEL_FAM6_ICELAKE_MOBILE:
-+	case INTEL_FAM6_ICELAKE_NNPI:
- 		return INTEL_FAM6_CANNONLAKE_MOBILE;
- 	}
- 	return model;
--- 
-2.20.1
-
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -906,7 +906,7 @@ static RING_IDX xennet_fill_frags(struct
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons;
++			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+ 			return ~0U;
+ 		}
 
 
