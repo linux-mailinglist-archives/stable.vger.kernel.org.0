@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1264B86CA
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDFBB8699
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732519AbfISWNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53098 "EHLO mail.kernel.org"
+        id S2406283AbfISWQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732518AbfISWNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:13:52 -0400
+        id S2406277AbfISWQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:16:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12A7F21928;
-        Thu, 19 Sep 2019 22:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD2421920;
+        Thu, 19 Sep 2019 22:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931230;
-        bh=/cJb+htfQAkNd+2fIa/5w62fEqY+y7eBmbzaphFs5TM=;
+        s=default; t=1568931370;
+        bh=uzKKD5qqt73DIpkrsgYADca5BmE3oK1MNkTTEMz098g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSYLAtWrP3HnOPrXZBKjZS0yN2EwWsjC++t0ecyxJQSTVczllOld55iSHifDGPZms
-         DOt3w1f2hhb7qTv0nH2JifaZWkpSSbSE2TyKeJIcb4/bEhMgvGj/osxJZJWx3ceoyj
-         K5sNIqS6jnZDhjhlb8j/MnySGUJb1r7lMVAhd1Bs=
+        b=sraszFUoxL0Ndd/5VKiJ5Zt2vBMQM4hzx+VHHqM7uqykpU8M8/PTmJ7tJsnPWnp1X
+         vaHhu6X4myg6Tc8PCNnExyGIs0UICSNJgNRgAwSLu39wE1tlbI8NxA9pLg655VWXGn
+         +iCnfEzMh8/dLDF4UG/0BLm1bqfVZJeOpa5v/s3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/79] kallsyms: Dont let kallsyms_lookup_size_offset() fail on retrieving the first symbol
+        stable@vger.kernel.org,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/59] netfilter: xt_nfacct: Fix alignment mismatch in xt_nfacct_match_info
 Date:   Fri, 20 Sep 2019 00:03:36 +0200
-Message-Id: <20190919214811.975668286@linuxfoundation.org>
+Message-Id: <20190919214802.089357664@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
 
-[ Upstream commit 2a1a3fa0f29270583f0e6e3100d609e09697add1 ]
+[ Upstream commit 89a26cd4b501e9511d3cd3d22327fc76a75a38b3 ]
 
-An arm64 kernel configured with
+When running a 64-bit kernel with a 32-bit iptables binary, the size of
+the xt_nfacct_match_info struct diverges.
 
-  CONFIG_KPROBES=y
-  CONFIG_KALLSYMS=y
-  # CONFIG_KALLSYMS_ALL is not set
-  CONFIG_KALLSYMS_BASE_RELATIVE=y
+    kernel: sizeof(struct xt_nfacct_match_info) : 40
+    iptables: sizeof(struct xt_nfacct_match_info)) : 36
 
-reports the following kprobe failure:
+Trying to append nfacct related rules results in an unhelpful message.
+Although it is suggested to look for more information in dmesg, nothing
+can be found there.
 
-  [    0.032677] kprobes: failed to populate blacklist: -22
-  [    0.033376] Please take care of using kprobes.
+    # iptables -A <chain> -m nfacct --nfacct-name <acct-object>
+    iptables: Invalid argument. Run `dmesg' for more information.
 
-It appears that kprobe fails to retrieve the symbol at address
-0xffff000010081000, despite this symbol being in System.map:
+This patch fixes the memory misalignment by enforcing 8-byte alignment
+within the struct's first revision. This solution is often used in many
+other uapi netfilter headers.
 
-  ffff000010081000 T __exception_text_start
-
-This symbol is part of the first group of aliases in the
-kallsyms_offsets array (symbol names generated using ugly hacks in
-scripts/kallsyms.c):
-
-  kallsyms_offsets:
-          .long   0x1000 // do_undefinstr
-          .long   0x1000 // efi_header_end
-          .long   0x1000 // _stext
-          .long   0x1000 // __exception_text_start
-          .long   0x12b0 // do_cp15instr
-
-Looking at the implementation of get_symbol_pos(), it returns the
-lowest index for aliasing symbols. In this case, it return 0.
-
-But kallsyms_lookup_size_offset() considers 0 as a failure, which
-is obviously wrong (there is definitely a valid symbol living there).
-In turn, the kprobe blacklisting stops abruptly, hence the original
-error.
-
-A CONFIG_KALLSYMS_ALL kernel wouldn't fail as there is always
-some random symbols at the beginning of this array, which are never
-looked up via kallsyms_lookup_size_offset.
-
-Fix it by considering that get_symbol_pos() is always successful
-(which is consistent with the other uses of this function).
-
-Fixes: ffc5089196446 ("[PATCH] Create kallsyms_lookup_size_offset()")
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kallsyms.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/uapi/linux/netfilter/xt_nfacct.h |  5 ++++
+ net/netfilter/xt_nfacct.c                | 36 ++++++++++++++++--------
+ 2 files changed, 30 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
-index 02a0b01380d8e..ed87dac8378cc 100644
---- a/kernel/kallsyms.c
-+++ b/kernel/kallsyms.c
-@@ -262,8 +262,10 @@ int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
- {
- 	char namebuf[KSYM_NAME_LEN];
+diff --git a/include/uapi/linux/netfilter/xt_nfacct.h b/include/uapi/linux/netfilter/xt_nfacct.h
+index 5c8a4d760ee34..b5123ab8d54a8 100644
+--- a/include/uapi/linux/netfilter/xt_nfacct.h
++++ b/include/uapi/linux/netfilter/xt_nfacct.h
+@@ -11,4 +11,9 @@ struct xt_nfacct_match_info {
+ 	struct nf_acct	*nfacct;
+ };
  
--	if (is_ksym_addr(addr))
--		return !!get_symbol_pos(addr, symbolsize, offset);
-+	if (is_ksym_addr(addr)) {
-+		get_symbol_pos(addr, symbolsize, offset);
-+		return 1;
-+	}
- 	return !!module_address_lookup(addr, symbolsize, offset, NULL, namebuf) ||
- 	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
++struct xt_nfacct_match_info_v1 {
++	char		name[NFACCT_NAME_MAX];
++	struct nf_acct	*nfacct __attribute__((aligned(8)));
++};
++
+ #endif /* _XT_NFACCT_MATCH_H */
+diff --git a/net/netfilter/xt_nfacct.c b/net/netfilter/xt_nfacct.c
+index 6f92d25590a85..ea447b437f122 100644
+--- a/net/netfilter/xt_nfacct.c
++++ b/net/netfilter/xt_nfacct.c
+@@ -55,25 +55,39 @@ nfacct_mt_destroy(const struct xt_mtdtor_param *par)
+ 	nfnl_acct_put(info->nfacct);
  }
+ 
+-static struct xt_match nfacct_mt_reg __read_mostly = {
+-	.name       = "nfacct",
+-	.family     = NFPROTO_UNSPEC,
+-	.checkentry = nfacct_mt_checkentry,
+-	.match      = nfacct_mt,
+-	.destroy    = nfacct_mt_destroy,
+-	.matchsize  = sizeof(struct xt_nfacct_match_info),
+-	.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
+-	.me         = THIS_MODULE,
++static struct xt_match nfacct_mt_reg[] __read_mostly = {
++	{
++		.name       = "nfacct",
++		.revision   = 0,
++		.family     = NFPROTO_UNSPEC,
++		.checkentry = nfacct_mt_checkentry,
++		.match      = nfacct_mt,
++		.destroy    = nfacct_mt_destroy,
++		.matchsize  = sizeof(struct xt_nfacct_match_info),
++		.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
++		.me         = THIS_MODULE,
++	},
++	{
++		.name       = "nfacct",
++		.revision   = 1,
++		.family     = NFPROTO_UNSPEC,
++		.checkentry = nfacct_mt_checkentry,
++		.match      = nfacct_mt,
++		.destroy    = nfacct_mt_destroy,
++		.matchsize  = sizeof(struct xt_nfacct_match_info_v1),
++		.usersize   = offsetof(struct xt_nfacct_match_info_v1, nfacct),
++		.me         = THIS_MODULE,
++	},
+ };
+ 
+ static int __init nfacct_mt_init(void)
+ {
+-	return xt_register_match(&nfacct_mt_reg);
++	return xt_register_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
+ }
+ 
+ static void __exit nfacct_mt_exit(void)
+ {
+-	xt_unregister_match(&nfacct_mt_reg);
++	xt_unregister_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
+ }
+ 
+ module_init(nfacct_mt_init);
 -- 
 2.20.1
 
