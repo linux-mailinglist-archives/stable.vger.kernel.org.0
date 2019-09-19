@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C8FB8688
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4C2B86A6
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732706AbfISWRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58416 "EHLO mail.kernel.org"
+        id S2406118AbfISWPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392014AbfISWRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:17:17 -0400
+        id S2406110AbfISWPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:15:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 418DB21907;
-        Thu, 19 Sep 2019 22:17:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B320218AF;
+        Thu, 19 Sep 2019 22:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931436;
-        bh=WDDmQk9gOFP0z6dEEfHIWljZ+gHsBxUO1ko+buhLRBk=;
+        s=default; t=1568931321;
+        bh=ej3JkK1HB9anEL2CFh0q2v+icdE1Z+30Ji3GxRcMoV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akh87n8A062ERWSAUbKDUPsKI4FUZtg8vMXdUyPPlv4s9f9cRtr7ImDS5sYdjD6iN
-         0MEq0016cjkwqkSdtJKsq54rZi+IrMQTVdIqdKXH6ePMlLm6yYy2cpnLiuqgDr2tLT
-         ewK9stglGrm+fsZgiIEMPLzfBfhiOKeUlcYa0UHk=
+        b=LBd2x7uoJn2nvjrKr5lVt9RG2R4X921tLkI8R+pKw46EvS9DN7LvVYR277Ec5dNsY
+         8hqPpRJOXzIRMmZYxEq+AUcNFXO+jpCiJXLvfyGJ/git1Y7YsXvqD4jQZfZjR1D76H
+         ncu/zmQiFAp+1Jkq0uUQQVzqnAJy4PNtMneVl960=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 46/59] net: seeq: Fix the function used to release some memory in an error handling path
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Jann Horn <jannh@google.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 76/79] floppy: fix usercopy direction
 Date:   Fri, 20 Sep 2019 00:04:01 +0200
-Message-Id: <20190919214807.433413162@linuxfoundation.org>
+Message-Id: <20190919214814.438395644@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit e1e54ec7fb55501c33b117c111cb0a045b8eded2 ]
+commit 52f6f9d74f31078964ca1574f7bb612da7877ac8 upstream.
 
-In commit 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv"),
-a call to 'get_zeroed_page()' has been turned into a call to
-'dma_alloc_coherent()'. Only the remove function has been updated to turn
-the corresponding 'free_page()' into 'dma_free_attrs()'.
-The error hndling path of the probe function has not been updated.
+As sparse points out, these two copy_from_user() should actually be
+copy_to_user().
 
-Fix it now.
+Fixes: 229b53c9bf4e ("take floppy compat ioctls to sodding floppy.c")
+Cc: stable@vger.kernel.org
+Acked-by: Alexander Popov <alex.popov@linux.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Rename the corresponding label to something more in line.
-
-Fixes: 99cd149efe82 ("sgiseeq: replace use of dma_cache_wback_inv")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/seeq/sgiseeq.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/block/floppy.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/seeq/sgiseeq.c b/drivers/net/ethernet/seeq/sgiseeq.c
-index 84a42ed97601d..49a18439bea2b 100644
---- a/drivers/net/ethernet/seeq/sgiseeq.c
-+++ b/drivers/net/ethernet/seeq/sgiseeq.c
-@@ -792,15 +792,16 @@ static int sgiseeq_probe(struct platform_device *pdev)
- 		printk(KERN_ERR "Sgiseeq: Cannot register net device, "
- 		       "aborting.\n");
- 		err = -ENODEV;
--		goto err_out_free_page;
-+		goto err_out_free_attrs;
- 	}
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3791,7 +3791,7 @@ static int compat_getdrvprm(int drive,
+ 	v.native_format = UDP->native_format;
+ 	mutex_unlock(&floppy_mutex);
  
- 	printk(KERN_INFO "%s: %s %pM\n", dev->name, sgiseeqstr, dev->dev_addr);
- 
+-	if (copy_from_user(arg, &v, sizeof(struct compat_floppy_drive_params)))
++	if (copy_to_user(arg, &v, sizeof(struct compat_floppy_drive_params)))
+ 		return -EFAULT;
  	return 0;
+ }
+@@ -3827,7 +3827,7 @@ static int compat_getdrvstat(int drive,
+ 	v.bufblocks = UDRS->bufblocks;
+ 	mutex_unlock(&floppy_mutex);
  
--err_out_free_page:
--	free_page((unsigned long) sp->srings);
-+err_out_free_attrs:
-+	dma_free_attrs(&pdev->dev, sizeof(*sp->srings), sp->srings,
-+		       sp->srings_dma, DMA_ATTR_NON_CONSISTENT);
- err_out_free_dev:
- 	free_netdev(dev);
- 
--- 
-2.20.1
-
+-	if (copy_from_user(arg, &v, sizeof(struct compat_floppy_drive_struct)))
++	if (copy_to_user(arg, &v, sizeof(struct compat_floppy_drive_struct)))
+ 		return -EFAULT;
+ 	return 0;
+ Eintr:
 
 
