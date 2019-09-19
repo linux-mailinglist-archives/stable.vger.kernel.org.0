@@ -2,1170 +2,663 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E56AB78A2
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 13:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E26EB78E3
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 14:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388505AbfISLlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 07:41:01 -0400
-Received: from mail-wr1-f43.google.com ([209.85.221.43]:44030 "EHLO
-        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388384AbfISLlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 07:41:01 -0400
-Received: by mail-wr1-f43.google.com with SMTP id q17so2722033wrx.10
-        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 04:40:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qV9gemi/o60hFuKA8yAw0gxPwDHjDyn/46SeoD54l70=;
-        b=aqE8IulN9KTpnhzhg39YmU6v0FfayeKksMm5Hed0sjgRlxKf5HcfZDOSHPX1ux5WNo
-         IkrkIjPSZoz3TsjjAZ73WSH03GaW4RX7F/E2RVNe0H8FJeFYvGXVWLCVgHAPVtY78NmH
-         Gmu9YXTRyPaGq2hs5VJPIGoWhBrgKuqVzZ5THoKTOMwkTyRnUtg1PYS5hUY4Nri/QMpu
-         nT+vc0KnkqObj/X08I5OVmjZjrH4qaLK7foKfao+Xq4e9mLDG4keLDdu/lB3ImEk8g6s
-         yai+vw26v/8nYHy1d6K2yeyh+JRyyRnPcZJjLpDHtJHRESqGjz1RHOQmvd9PXsB3Zd/9
-         9YEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qV9gemi/o60hFuKA8yAw0gxPwDHjDyn/46SeoD54l70=;
-        b=Vpj3mGgbeKGgWgPF9XrU0uJT/CC96q59/fa1/nBo/lhnW5TUWeupi/U7W6XuqlsB+D
-         nYyX9Nwe+lxr2VQB9ehSqpOi+dhQuajKgiqw2vmJjr3bEpOv7GeU9A0sAdmWnls2SZGM
-         0zGKib54bQA6qXastuQ6A1rsFfx9y3X8uCJjev9dMUfIFPDOJjU57XS9j4kjU6yx+I/Y
-         g2+LayvRB2Z0dZZ1n2yUg4zc+Sz5zUaLrQLJUQbWBswvgSqV5+lnvYQR3g0UtFvemYJy
-         vxSI78sD1z4RjZVWRBLcAHvwfehkmkh8OqEYYG64rvIp8O+GTtHmFu9iuwgoZ1VIeykk
-         I2DA==
-X-Gm-Message-State: APjAAAWELoGFaTEahvlvAoswYbMr+95RI1ZlpkD0Y3qs68c8kf7lpmyj
-        gspyh7mbos1rKrHADixxYY5H2KZNf+Mv2Q==
-X-Google-Smtp-Source: APXvYqz37BTy+w0EK35umRH7WoG5Xfd0+TxDnfXMe62rveY0+Eqrg2fti1Ii/f3ckCq1HgwdBOWdOw==
-X-Received: by 2002:a5d:680d:: with SMTP id w13mr6786385wru.282.1568893253679;
-        Thu, 19 Sep 2019 04:40:53 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k9sm13602740wrd.7.2019.09.19.04.40.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Sep 2019 04:40:52 -0700 (PDT)
-Message-ID: <5d836944.1c69fb81.8f9c9.f2d0@mx.google.com>
-Date:   Thu, 19 Sep 2019 04:40:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.74
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 6 warnings (v4.19.74)
+        id S2390121AbfISMHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 08:07:06 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60060 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390120AbfISMHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 08:07:06 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 8BF06A3D3AC
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 12:07:05 +0000 (UTC)
+Received: from localhost (ovpn-112-15.phx2.redhat.com [10.3.112.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BBB025D6B0
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 12:07:02 +0000 (UTC)
+Date:   Thu, 19 Sep 2019 14:07:00 +0200 (CEST)
+Message-Id: <20190919.140700.1621589455975591285.davem@redhat.com>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Subject: [PATCHES] Networking
+From:   David Miller <davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Thu_Sep_19_14_07_00_2019_555)--"
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Thu, 19 Sep 2019 12:07:05 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 6 warnings =
-(v4.19.74)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.74/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.74
-Git Commit: dbc29aff8d04f134553326a0c533a442a1774041
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Warnings Detected:
-
-arc:
-
-arm64:
-
-arm:
-
-i386:
-
-mips:
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson3_defconfig (gcc-8): 2 warnings
-    malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 warning
-
-riscv:
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    3    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:131: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1007:warning: override: UNWINDER_GUESS changes choice state
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    {standard input}:131: Warning: macro instruction expanded into multiple=
- instructions
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1007:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+----Next_Part(Thu_Sep_19_14_07_00_2019_555)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+Please queue up the following networking bug fixes for v5.2 and v5.3 -stable,
+respectively.
+
+Thank you.
+
+----Next_Part(Thu_Sep_19_14_07_00_2019_555)--
+Content-Type: Application/Octet-Stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="net_52.mbox"
+
+RnJvbSBlODY5ODFlMTQ1ZTgzNzRkYmU5YjY4NDRmYzlkZWU5YTYxMjI5OTZlIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBYaW4gTG9uZyA8bHVjaWVuLnhpbkBnbWFpbC5jb20+CkRhdGU6
+IEZyaSwgMTMgU2VwIDIwMTkgMTc6NDU6NDcgKzA4MDAKU3ViamVjdDogW1BBVENIIDEvNl0gaXA2
+X2dyZTogZml4IGEgZHN0IGxlYWsgaW4gaXA2ZXJzcGFuX3R1bm5lbF94bWl0CgpbIFVwc3RyZWFt
+IGNvbW1pdCAyOGU0ODYwMzc3NDdjMjE4MDQ3MGI3N2MyOTBkNDA5MGFkNDJmMjU5IF0KCkluIGlw
+NmVyc3Bhbl90dW5uZWxfeG1pdCgpLCBpZiB0aGUgc2tiIHdpbGwgbm90IGJlIHNlbnQgb3V0LCBp
+dCBoYXMgdG8KYmUgZnJlZWQgb24gdGhlIHR4X2VyciBwYXRoLiBPdGhlcndpc2Ugd2hlbiBkZWxl
+dGluZyBhIG5ldG5zLCBpdCB3b3VsZApjYXVzZSBkc3QvZGV2IHRvIGxlYWssIGFuZCBkbWVzZyBz
+aG93czoKCiAgdW5yZWdpc3Rlcl9uZXRkZXZpY2U6IHdhaXRpbmcgZm9yIGxvIHRvIGJlY29tZSBm
+cmVlLiBVc2FnZSBjb3VudCA9IDEKCkZpeGVzOiBlZjdiYWY1ZTA4M2MgKCJpcDZfZ3JlOiBhZGQg
+aXA2IGVyc3BhbiBjb2xsZWN0X21kIG1vZGUiKQpTaWduZWQtb2ZmLWJ5OiBYaW4gTG9uZyA8bHVj
+aWVuLnhpbkBnbWFpbC5jb20+CkFja2VkLWJ5OiBXaWxsaWFtIFR1IDx1OTAxMjA2M0BnbWFpbC5j
+b20+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4K
+LS0tCiBuZXQvaXB2Ni9pcDZfZ3JlLmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
+b24oKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9uZXQvaXB2Ni9pcDZfZ3JlLmMgYi9u
+ZXQvaXB2Ni9pcDZfZ3JlLmMKaW5kZXggZGQyZDBiOTYzMjYwLi5kNTc3OWQ2YTYwNjUgMTAwNjQ0
+Ci0tLSBhL25ldC9pcHY2L2lwNl9ncmUuYworKysgYi9uZXQvaXB2Ni9pcDZfZ3JlLmMKQEAgLTk2
+OCw3ICs5NjgsNyBAQCBzdGF0aWMgbmV0ZGV2X3R4X3QgaXA2ZXJzcGFuX3R1bm5lbF94bWl0KHN0
+cnVjdCBza19idWZmICpza2IsCiAJCWlmICh1bmxpa2VseSghdHVuX2luZm8gfHwKIAkJCSAgICAg
+ISh0dW5faW5mby0+bW9kZSAmIElQX1RVTk5FTF9JTkZPX1RYKSB8fAogCQkJICAgICBpcF90dW5u
+ZWxfaW5mb19hZih0dW5faW5mbykgIT0gQUZfSU5FVDYpKQotCQkJcmV0dXJuIC1FSU5WQUw7CisJ
+CQlnb3RvIHR4X2VycjsKIAogCQlrZXkgPSAmdHVuX2luZm8tPmtleTsKIAkJbWVtc2V0KCZmbDYs
+IDAsIHNpemVvZihmbDYpKTsKLS0gCjIuMjEuMAoKCkZyb20gZDdiZjA4OTA0OTg3YWJhYjc4NGZl
+YjRkMTdhZDE3Y2Q1YjdkOTQwZSBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogUGFvbG8g
+QWJlbmkgPHBhYmVuaUByZWRoYXQuY29tPgpEYXRlOiBUaHUsIDEyIFNlcCAyMDE5IDEyOjAyOjQy
+ICswMjAwClN1YmplY3Q6IFtQQVRDSCAyLzZdIG5ldC9zY2hlZDogZml4IHJhY2UgYmV0d2VlbiBk
+ZWFjdGl2YXRpb24gYW5kIGRlcXVldWUgZm9yCiBOT0xPQ0sgcWRpc2MKClsgVXBzdHJlYW0gY29t
+bWl0IGQ1MThkMmVkODY0MGMxY2JiYmI2ZjYzOTM5ZTNlNjU0NzE4MTczNjcgXQoKVGhlIHRlc3Qg
+aW1wbGVtZW50ZWQgYnkgc29tZV9xZGlzY19pc19idXN5KCkgaXMgc29tZXdoYXQgbG9vc3kgZm9y
+Ck5PTE9DSyBxZGlzYywgYXMgd2UgbWF5IGhpdCB0aGUgZm9sbG93aW5nIHNjZW5hcmlvOgoKQ1BV
+MQkJCQkJCUNQVTIKLy8gaW4gbmV0X3R4X2FjdGlvbigpCmNsZWFyX2JpdChfX1FESVNDX1NUQVRF
+X1NDSEVELi4uKTsKCQkJCQkJLy8gaW4gc29tZV9xZGlzY19pc19idXN5KCkKCQkJCQkJdmFsID0g
+KHFkaXNjX2lzX3J1bm5pbmcocSkgfHwKCQkJCQkJICAgICAgIHRlc3RfYml0KF9fUURJU0NfU1RB
+VEVfU0NIRUQsCgkJCQkJCQkJJnEtPnN0YXRlKSk7CgkJCQkJCS8vIGhlcmUgdmFsIGlzIDAgYnV0
+Li4uCnFkaXNjX3J1bihxKQovLyAuLi4gQ1BVMSBpcyBnb2luZyB0byBydW4gdGhlIHFkaXNjIG5l
+eHQKCkFzIGEgY29uc2VndWVuY2UgcWRpc2NfcnVuKCkgaW4gbmV0X3R4X2FjdGlvbigpIGNhbiBy
+YWNlIHdpdGggcWRpc2NfcmVzZXQoKQppbiBkZXZfcWRpc2NfcmVzZXQoKS4gU3VjaCByYWNlIGlz
+IG5vdCBwb3NzaWJsZSBmb3IgIU5PTE9DSyBxZGlzYyBhcwpib3RoIHRoZSBhYm92ZSBiaXQgb3Bl
+cmF0aW9ucyBhcmUgdW5kZXIgdGhlIHJvb3QgcWRpc2MgbG9jaygpLgoKQWZ0ZXIgY29tbWl0IDAy
+MWExN2VkNzk2YiAoInBmaWZvX2Zhc3Q6IGRyb3AgdW5uZWVkZWQgYWRkaXRpb25hbCBsb2NrIG9u
+IGRlcXVldWUiKQp0aGUgcmFjZSBjYW4gY2F1c2UgdXNlIGFmdGVyIGZyZWUgYW5kL29yIG51bGwg
+cHRyIGRlcmVmZXJlbmNlLCBidXQgdGhlIHJvb3QKY2F1c2UgaXMgbGlrZWx5IG9sZGVyLgoKVGhp
+cyBwYXRjaCBhZGRyZXNzZXMgdGhlIGlzc3VlIGV4cGxpY2l0bHkgY2hlY2tpbmcgZm9yIGRlYWN0
+aXZhdGlvbiB1bmRlcgp0aGUgc2VxbG9jayBmb3IgTk9MT0NLIHFkaXNjLCBzbyB0aGF0IHRoZSBx
+ZGlzY19ydW4oKSBpbiB0aGUgY3JpdGljYWwKc2NlbmFyaW8gYmVjb21lcyBhIG5vLW9wLgoKTm90
+ZSB0aGF0IHRoZSBlbnF1ZXVlKCkgb3AgY2FuIHN0aWxsIGV4ZWN1dGUgY29uY3VycmVudGx5IHdp
+dGggZGV2X3FkaXNjX3Jlc2V0KCksCmJ1dCB0aGF0IGlzIHNhZmUgZHVlIHRvIHRoZSBza2JfYXJy
+YXkoKSBsb2NraW5nLCBhbmQgd2UgY2FuJ3QgYXZvaWQgdGhhdApmb3IgTk9MT0NLIHFkaXNjcy4K
+CkZpeGVzOiAwMjFhMTdlZDc5NmIgKCJwZmlmb19mYXN0OiBkcm9wIHVubmVlZGVkIGFkZGl0aW9u
+YWwgbG9jayBvbiBkZXF1ZXVlIikKUmVwb3J0ZWQtYnk6IExpIFNodWFuZyA8c2h1YWxpQHJlZGhh
+dC5jb20+ClJlcG9ydGVkLWFuZC10ZXN0ZWQtYnk6IERhdmlkZSBDYXJhdHRpIDxkY2FyYXR0aUBy
+ZWRoYXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBQYW9sbyBBYmVuaSA8cGFiZW5pQHJlZGhhdC5jb20+
+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0t
+CiBpbmNsdWRlL25ldC9wa3Rfc2NoZWQuaCB8ICA3ICsrKysrKy0KIG5ldC9jb3JlL2Rldi5jICAg
+ICAgICAgIHwgMTYgKysrKysrKysrKy0tLS0tLQogMiBmaWxlcyBjaGFuZ2VkLCAxNiBpbnNlcnRp
+b25zKCspLCA3IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbmV0L3BrdF9zY2hl
+ZC5oIGIvaW5jbHVkZS9uZXQvcGt0X3NjaGVkLmgKaW5kZXggYTE2ZmJlOWEyYTY3Li5hYTk5Yzcz
+YzNmYmQgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbmV0L3BrdF9zY2hlZC5oCisrKyBiL2luY2x1ZGUv
+bmV0L3BrdF9zY2hlZC5oCkBAIC0xMTgsNyArMTE4LDEyIEBAIHZvaWQgX19xZGlzY19ydW4oc3Ry
+dWN0IFFkaXNjICpxKTsKIHN0YXRpYyBpbmxpbmUgdm9pZCBxZGlzY19ydW4oc3RydWN0IFFkaXNj
+ICpxKQogewogCWlmIChxZGlzY19ydW5fYmVnaW4ocSkpIHsKLQkJX19xZGlzY19ydW4ocSk7CisJ
+CS8qIE5PTE9DSyBxZGlzYyBtdXN0IGNoZWNrICdzdGF0ZScgdW5kZXIgdGhlIHFkaXNjIHNlcWxv
+Y2sKKwkJICogdG8gYXZvaWQgcmFjaW5nIHdpdGggZGV2X3FkaXNjX3Jlc2V0KCkKKwkJICovCisJ
+CWlmICghKHEtPmZsYWdzICYgVENRX0ZfTk9MT0NLKSB8fAorCQkgICAgbGlrZWx5KCF0ZXN0X2Jp
+dChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELCAmcS0+c3RhdGUpKSkKKwkJCV9fcWRpc2NfcnVu
+KHEpOwogCQlxZGlzY19ydW5fZW5kKHEpOwogCX0KIH0KZGlmZiAtLWdpdCBhL25ldC9jb3JlL2Rl
+di5jIGIvbmV0L2NvcmUvZGV2LmMKaW5kZXggMmZmNTU2OTA2YjVkLi44MjhlY2NhMDNjMDcgMTAw
+NjQ0Ci0tLSBhL25ldC9jb3JlL2Rldi5jCisrKyBiL25ldC9jb3JlL2Rldi5jCkBAIC0zNDc1LDE4
+ICszNDc1LDIyIEBAIHN0YXRpYyBpbmxpbmUgaW50IF9fZGV2X3htaXRfc2tiKHN0cnVjdCBza19i
+dWZmICpza2IsIHN0cnVjdCBRZGlzYyAqcSwKIAlxZGlzY19jYWxjdWxhdGVfcGt0X2xlbihza2Is
+IHEpOwogCiAJaWYgKHEtPmZsYWdzICYgVENRX0ZfTk9MT0NLKSB7Ci0JCWlmICh1bmxpa2VseSh0
+ZXN0X2JpdChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELCAmcS0+c3RhdGUpKSkgewotCQkJX19x
+ZGlzY19kcm9wKHNrYiwgJnRvX2ZyZWUpOwotCQkJcmMgPSBORVRfWE1JVF9EUk9QOwotCQl9IGVs
+c2UgaWYgKChxLT5mbGFncyAmIFRDUV9GX0NBTl9CWVBBU1MpICYmIHEtPmVtcHR5ICYmCi0JCQkg
+ICBxZGlzY19ydW5fYmVnaW4ocSkpIHsKKwkJaWYgKChxLT5mbGFncyAmIFRDUV9GX0NBTl9CWVBB
+U1MpICYmIHEtPmVtcHR5ICYmCisJCSAgICBxZGlzY19ydW5fYmVnaW4ocSkpIHsKKwkJCWlmICh1
+bmxpa2VseSh0ZXN0X2JpdChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELAorCQkJCQkgICAgICAm
+cS0+c3RhdGUpKSkgeworCQkJCV9fcWRpc2NfZHJvcChza2IsICZ0b19mcmVlKTsKKwkJCQlyYyA9
+IE5FVF9YTUlUX0RST1A7CisJCQkJZ290byBlbmRfcnVuOworCQkJfQogCQkJcWRpc2NfYnN0YXRz
+X2NwdV91cGRhdGUocSwgc2tiKTsKIAorCQkJcmMgPSBORVRfWE1JVF9TVUNDRVNTOwogCQkJaWYg
+KHNjaF9kaXJlY3RfeG1pdChza2IsIHEsIGRldiwgdHhxLCBOVUxMLCB0cnVlKSkKIAkJCQlfX3Fk
+aXNjX3J1bihxKTsKIAorZW5kX3J1bjoKIAkJCXFkaXNjX3J1bl9lbmQocSk7Ci0JCQlyYyA9IE5F
+VF9YTUlUX1NVQ0NFU1M7CiAJCX0gZWxzZSB7CiAJCQlyYyA9IHEtPmVucXVldWUoc2tiLCBxLCAm
+dG9fZnJlZSkgJiBORVRfWE1JVF9NQVNLOwogCQkJcWRpc2NfcnVuKHEpOwotLSAKMi4yMS4wCgoK
+RnJvbSBmYmFmZmZjNDIwMjgwNzQ2ZGI4OGE5MmVlZTAzYzcyMzE1NzM0MDczIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBDb25nIFdhbmcgPHhpeW91Lndhbmdjb25nQGdtYWlsLmNvbT4K
+RGF0ZTogVGh1LCAxMiBTZXAgMjAxOSAxMDoyMjozMCAtMDcwMApTdWJqZWN0OiBbUEFUQ0ggMy82
+XSBuZXRfc2NoZWQ6IGxldCBxZGlzY19wdXQoKSBhY2NlcHQgTlVMTCBwb2ludGVyCgpbIFVwc3Ry
+ZWFtIGNvbW1pdCA2ZWZiOTcxYmE4ZWRmYmQ4MGI2NjZmMjlkZTEyODgyODUyZjA5NWFlIF0KCldo
+ZW4gdGNmX2Jsb2NrX2dldCgpIGZhaWxzIGluIHNmYl9pbml0KCksIHEtPnFkaXNjIGlzIHN0aWxs
+IGEgTlVMTApwb2ludGVyIHdoaWNoIGxlYWRzIHRvIGEgY3Jhc2ggaW4gc2ZiX2Rlc3Ryb3koKS4g
+U2ltaWxhciBmb3IKc2NoX2RzbWFyay4KCkluc3RlYWQgb2YgZml4aW5nIGVhY2ggc2VwYXJhdGVs
+eSwgTGludXMgc3VnZ2VzdGVkIHRvIGp1c3QgYWNjZXB0Ck5VTEwgcG9pbnRlciBpbiBxZGlzY19w
+dXQoKSwgd2hpY2ggd291bGQgbWFrZSBjYWxsZXJzIGVhc2llci4KCihGb3Igc2NoX2RzbWFyaywg
+dGhlIGJ1ZyBwcm9iYWJseSBleGlzdHMgbG9uZyBiZWZvcmUgY29tbWl0CjY1MjllYWJhMzNmMC4p
+CgpGaXhlczogNjUyOWVhYmEzM2YwICgibmV0OiBzY2hlZDogaW50cm9kdWNlIHRjZiBibG9jayBp
+bmZyYWN0cnVjdHVyZSIpClJlcG9ydGVkLWJ5OiBzeXpib3QrZDU4NzBhOTAzNTkxZmFhY2E0YWVA
+c3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQpTdWdnZXN0ZWQtYnk6IExpbnVzIFRvcnZhbGRzIDx0
+b3J2YWxkc0BsaW51eC1mb3VuZGF0aW9uLm9yZz4KQ2M6IEphbWFsIEhhZGkgU2FsaW0gPGpoc0Bt
+b2phdGF0dS5jb20+CkNjOiBKaXJpIFBpcmtvIDxqaXJpQHJlc251bGxpLnVzPgpTaWduZWQtb2Zm
+LWJ5OiBDb25nIFdhbmcgPHhpeW91Lndhbmdjb25nQGdtYWlsLmNvbT4KQWNrZWQtYnk6IEppcmkg
+UGlya28gPGppcmlAbWVsbGFub3guY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIg
+PGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3NjaGVkL3NjaF9nZW5lcmljLmMgfCAzICsr
+KwogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL25ldC9zY2hl
+ZC9zY2hfZ2VuZXJpYy5jIGIvbmV0L3NjaGVkL3NjaF9nZW5lcmljLmMKaW5kZXggYWMyOGY2YTVk
+NzBlLi4xN2JkOGY1MzliYzcgMTAwNjQ0Ci0tLSBhL25ldC9zY2hlZC9zY2hfZ2VuZXJpYy5jCisr
+KyBiL25ldC9zY2hlZC9zY2hfZ2VuZXJpYy5jCkBAIC05ODUsNiArOTg1LDkgQEAgc3RhdGljIHZv
+aWQgcWRpc2NfZGVzdHJveShzdHJ1Y3QgUWRpc2MgKnFkaXNjKQogCiB2b2lkIHFkaXNjX3B1dChz
+dHJ1Y3QgUWRpc2MgKnFkaXNjKQogeworCWlmICghcWRpc2MpCisJCXJldHVybjsKKwogCWlmIChx
+ZGlzYy0+ZmxhZ3MgJiBUQ1FfRl9CVUlMVElOIHx8CiAJICAgICFyZWZjb3VudF9kZWNfYW5kX3Rl
+c3QoJnFkaXNjLT5yZWZjbnQpKQogCQlyZXR1cm47Ci0tIAoyLjIxLjAKCgpGcm9tIGEyMmJjYWVh
+M2Q3Zjk2Yjc1MWEyYjA1NDMzOGZjMTFjMmMyMDE2ZWUgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAx
+CkZyb206IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4KRGF0ZTogVGh1LCAx
+MiBTZXAgMjAxOSAyMToxNjozOSAtMDQwMApTdWJqZWN0OiBbUEFUQ0ggNC82XSB1ZHA6IGNvcnJl
+Y3QgcmV1c2Vwb3J0IHNlbGVjdGlvbiB3aXRoIGNvbm5lY3RlZCBzb2NrZXRzCgpbIFVwc3RyZWFt
+IGNvbW1pdCBhY2RjZWNjNjEyODVmYWVkMzU5ZjFhMzU2OGMzMjA4OWNjM2E4MzI5IF0KClVEUCBy
+ZXVzZXBvcnQgZ3JvdXBzIGNhbiBob2xkIGEgbWl4IHVuY29ubmVjdGVkIGFuZCBjb25uZWN0ZWQg
+c29ja2V0cy4KRW5zdXJlIHRoYXQgY29ubmVjdGlvbnMgb25seSByZWNlaXZlIGFsbCB0cmFmZmlj
+IHRvIHRoZWlyIDQtdHVwbGUuCgpGYXN0IHJldXNlcG9ydCByZXR1cm5zIG9uIHRoZSBmaXJzdCBy
+ZXVzZXBvcnQgbWF0Y2ggb24gdGhlIGFzc3VtcHRpb24KdGhhdCBhbGwgbWF0Y2hlcyBhcmUgZXF1
+YWwuIE9ubHkgaWYgY29ubmVjdGlvbnMgYXJlIHByZXNlbnQsIHJldHVybiB0bwp0aGUgcHJldmlv
+dXMgYmVoYXZpb3Igb2Ygc2NvcmluZyBhbGwgc29ja2V0cy4KClJlY29yZCBpZiBjb25uZWN0aW9u
+cyBhcmUgcHJlc2VudCBhbmQgaWYgc28gKDEpIHRyZWF0IHN1Y2ggY29ubmVjdGVkCnNvY2tldHMg
+YXMgYW4gaW5kZXBlbmRlbnQgbWF0Y2ggZnJvbSB0aGUgZ3JvdXAsICgyKSBvbmx5IHJldHVybgoy
+LXR1cGxlIG1hdGNoZXMgZnJvbSByZXVzZXBvcnQgYW5kICgzKSBkbyBub3QgcmV0dXJuIG9uIHRo
+ZSBmaXJzdAoyLXR1cGxlIHJldXNlcG9ydCBtYXRjaCB0byBhbGxvdyBmb3IgYSBoaWdoZXIgc2Nv
+cmluZyBtYXRjaCBsYXRlci4KCk5ldyBmaWVsZCBoYXNfY29ubnMgaXMgc2V0IHdpdGhvdXQgbG9j
+a3MuIE5vIG90aGVyIGZpZWxkcyBpbiB0aGUKYml0bWFwIGFyZSBtb2RpZmllZCBhdCBydW50aW1l
+IGFuZCB0aGUgZmllbGQgaXMgb25seSBldmVyIHNldAp1bmNvbmRpdGlvbmFsbHksIHNvIGFuIFJN
+VyBjYW5ub3QgbWlzcyBhIGNoYW5nZS4KCkZpeGVzOiBlMzJlYTdlNzQ3MjcgKCJzb3JldXNlcG9y
+dDogZmFzdCByZXVzZXBvcnQgVURQIHNvY2tldCBzZWxlY3Rpb24iKQpMaW5rOiBodHRwOi8vbGtt
+bC5rZXJuZWwub3JnL3IvQ0ErRnVUU2ZSUDA5YUpOWVJ0MDRTUzZxajIyVmlpT0VXYVdtTEF3WDBw
+c2s4LVBHTnh3QG1haWwuZ21haWwuY29tClNpZ25lZC1vZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4g
+PHdpbGxlbWJAZ29vZ2xlLmNvbT4KQWNrZWQtYnk6IFBhb2xvIEFiZW5pIDxwYWJlbmlAcmVkaGF0
+LmNvbT4KQWNrZWQtYnk6IENyYWlnIEdhbGxlayA8a3JhaWdAZ29vZ2xlLmNvbT4KU2lnbmVkLW9m
+Zi1ieTogV2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtYkBnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5
+OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogaW5jbHVkZS9uZXQv
+c29ja19yZXVzZXBvcnQuaCB8IDIxICsrKysrKysrKysrKysrKysrKysrLQogbmV0L2NvcmUvc29j
+a19yZXVzZXBvcnQuYyAgICB8IDE1ICsrKysrKysrKysrKystLQogbmV0L2lwdjQvZGF0YWdyYW0u
+YyAgICAgICAgICB8ICAyICsrCiBuZXQvaXB2NC91ZHAuYyAgICAgICAgICAgICAgIHwgIDUgKysr
+LS0KIG5ldC9pcHY2L2RhdGFncmFtLmMgICAgICAgICAgfCAgMiArKwogbmV0L2lwdjYvdWRwLmMg
+ICAgICAgICAgICAgICB8ICA1ICsrKy0tCiA2IGZpbGVzIGNoYW5nZWQsIDQzIGluc2VydGlvbnMo
+KyksIDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9uZXQvc29ja19yZXVzZXBv
+cnQuaCBiL2luY2x1ZGUvbmV0L3NvY2tfcmV1c2Vwb3J0LmgKaW5kZXggOGE1ZjcwYzdjZGYyLi41
+ZTY5ZmJhMTgxYmMgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbmV0L3NvY2tfcmV1c2Vwb3J0LmgKKysr
+IGIvaW5jbHVkZS9uZXQvc29ja19yZXVzZXBvcnQuaApAQCAtMjEsNyArMjEsOCBAQCBzdHJ1Y3Qg
+c29ja19yZXVzZXBvcnQgewogCXVuc2lnbmVkIGludAkJc3lucV9vdmVyZmxvd190czsKIAkvKiBJ
+RCBzdGF5cyB0aGUgc2FtZSBldmVuIGFmdGVyIHRoZSBzaXplIG9mIHNvY2tzW10gZ3Jvd3MuICov
+CiAJdW5zaWduZWQgaW50CQlyZXVzZXBvcnRfaWQ7Ci0JYm9vbAkJCWJpbmRfaW5hbnk7CisJdW5z
+aWduZWQgaW50CQliaW5kX2luYW55OjE7CisJdW5zaWduZWQgaW50CQloYXNfY29ubnM6MTsKIAlz
+dHJ1Y3QgYnBmX3Byb2cgX19yY3UJKnByb2c7CQkvKiBvcHRpb25hbCBCUEYgc29jayBzZWxlY3Rv
+ciAqLwogCXN0cnVjdCBzb2NrCQkqc29ja3NbMF07CS8qIGFycmF5IG9mIHNvY2sgcG9pbnRlcnMg
+Ki8KIH07CkBAIC0zNSw2ICszNiwyNCBAQCBleHRlcm4gc3RydWN0IHNvY2sgKnJldXNlcG9ydF9z
+ZWxlY3Rfc29jayhzdHJ1Y3Qgc29jayAqc2ssCiAJCQkJCSAgc3RydWN0IHNrX2J1ZmYgKnNrYiwK
+IAkJCQkJICBpbnQgaGRyX2xlbik7CiBleHRlcm4gaW50IHJldXNlcG9ydF9hdHRhY2hfcHJvZyhz
+dHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBicGZfcHJvZyAqcHJvZyk7CisKK3N0YXRpYyBpbmxpbmUg
+Ym9vbCByZXVzZXBvcnRfaGFzX2Nvbm5zKHN0cnVjdCBzb2NrICpzaywgYm9vbCBzZXQpCit7CisJ
+c3RydWN0IHNvY2tfcmV1c2Vwb3J0ICpyZXVzZTsKKwlib29sIHJldCA9IGZhbHNlOworCisJcmN1
+X3JlYWRfbG9jaygpOworCXJldXNlID0gcmN1X2RlcmVmZXJlbmNlKHNrLT5za19yZXVzZXBvcnRf
+Y2IpOworCWlmIChyZXVzZSkgeworCQlpZiAoc2V0KQorCQkJcmV1c2UtPmhhc19jb25ucyA9IDE7
+CisJCXJldCA9IHJldXNlLT5oYXNfY29ubnM7CisJfQorCXJjdV9yZWFkX3VubG9jaygpOworCisJ
+cmV0dXJuIHJldDsKK30KKwogaW50IHJldXNlcG9ydF9nZXRfaWQoc3RydWN0IHNvY2tfcmV1c2Vw
+b3J0ICpyZXVzZSk7CiAKICNlbmRpZiAgLyogX1NPQ0tfUkVVU0VQT1JUX0ggKi8KZGlmZiAtLWdp
+dCBhL25ldC9jb3JlL3NvY2tfcmV1c2Vwb3J0LmMgYi9uZXQvY29yZS9zb2NrX3JldXNlcG9ydC5j
+CmluZGV4IGRjNGFlZmRmMmEwOC4uMmY4OTc3Nzc2M2FkIDEwMDY0NAotLS0gYS9uZXQvY29yZS9z
+b2NrX3JldXNlcG9ydC5jCisrKyBiL25ldC9jb3JlL3NvY2tfcmV1c2Vwb3J0LmMKQEAgLTI5NSw4
+ICsyOTUsMTkgQEAgc3RydWN0IHNvY2sgKnJldXNlcG9ydF9zZWxlY3Rfc29jayhzdHJ1Y3Qgc29j
+ayAqc2ssCiAKIHNlbGVjdF9ieV9oYXNoOgogCQkvKiBubyBicGYgb3IgaW52YWxpZCBicGYgcmVz
+dWx0OiBmYWxsIGJhY2sgdG8gaGFzaCB1c2FnZSAqLwotCQlpZiAoIXNrMikKLQkJCXNrMiA9IHJl
+dXNlLT5zb2Nrc1tyZWNpcHJvY2FsX3NjYWxlKGhhc2gsIHNvY2tzKV07CisJCWlmICghc2syKSB7
+CisJCQlpbnQgaSwgajsKKworCQkJaSA9IGogPSByZWNpcHJvY2FsX3NjYWxlKGhhc2gsIHNvY2tz
+KTsKKwkJCXdoaWxlIChyZXVzZS0+c29ja3NbaV0tPnNrX3N0YXRlID09IFRDUF9FU1RBQkxJU0hF
+RCkgeworCQkJCWkrKzsKKwkJCQlpZiAoaSA+PSByZXVzZS0+bnVtX3NvY2tzKQorCQkJCQlpID0g
+MDsKKwkJCQlpZiAoaSA9PSBqKQorCQkJCQlnb3RvIG91dDsKKwkJCX0KKwkJCXNrMiA9IHJldXNl
+LT5zb2Nrc1tpXTsKKwkJfQogCX0KIAogb3V0OgpkaWZmIC0tZ2l0IGEvbmV0L2lwdjQvZGF0YWdy
+YW0uYyBiL25ldC9pcHY0L2RhdGFncmFtLmMKaW5kZXggN2JkMjllNjk0NjAzLi45YTBmZTBjMmZh
+MDIgMTAwNjQ0Ci0tLSBhL25ldC9pcHY0L2RhdGFncmFtLmMKKysrIGIvbmV0L2lwdjQvZGF0YWdy
+YW0uYwpAQCAtMTUsNiArMTUsNyBAQAogI2luY2x1ZGUgPG5ldC9zb2NrLmg+CiAjaW5jbHVkZSA8
+bmV0L3JvdXRlLmg+CiAjaW5jbHVkZSA8bmV0L3RjcF9zdGF0ZXMuaD4KKyNpbmNsdWRlIDxuZXQv
+c29ja19yZXVzZXBvcnQuaD4KIAogaW50IF9faXA0X2RhdGFncmFtX2Nvbm5lY3Qoc3RydWN0IHNv
+Y2sgKnNrLCBzdHJ1Y3Qgc29ja2FkZHIgKnVhZGRyLCBpbnQgYWRkcl9sZW4pCiB7CkBAIC02OSw2
+ICs3MCw3IEBAIGludCBfX2lwNF9kYXRhZ3JhbV9jb25uZWN0KHN0cnVjdCBzb2NrICpzaywgc3Ry
+dWN0IHNvY2thZGRyICp1YWRkciwgaW50IGFkZHJfbGVuCiAJfQogCWluZXQtPmluZXRfZGFkZHIg
+PSBmbDQtPmRhZGRyOwogCWluZXQtPmluZXRfZHBvcnQgPSB1c2luLT5zaW5fcG9ydDsKKwlyZXVz
+ZXBvcnRfaGFzX2Nvbm5zKHNrLCB0cnVlKTsKIAlzay0+c2tfc3RhdGUgPSBUQ1BfRVNUQUJMSVNI
+RUQ7CiAJc2tfc2V0X3R4aGFzaChzayk7CiAJaW5ldC0+aW5ldF9pZCA9IGppZmZpZXM7CmRpZmYg
+LS1naXQgYS9uZXQvaXB2NC91ZHAuYyBiL25ldC9pcHY0L3VkcC5jCmluZGV4IGVlZDU5Yzg0Nzcy
+Mi4uYWNhYjc3MzhmNzMzIDEwMDY0NAotLS0gYS9uZXQvaXB2NC91ZHAuYworKysgYi9uZXQvaXB2
+NC91ZHAuYwpAQCAtNDM0LDEyICs0MzQsMTMgQEAgc3RhdGljIHN0cnVjdCBzb2NrICp1ZHA0X2xp
+Yl9sb29rdXAyKHN0cnVjdCBuZXQgKm5ldCwKIAkJc2NvcmUgPSBjb21wdXRlX3Njb3JlKHNrLCBu
+ZXQsIHNhZGRyLCBzcG9ydCwKIAkJCQkgICAgICBkYWRkciwgaG51bSwgZGlmLCBzZGlmLCBleGFj
+dF9kaWYpOwogCQlpZiAoc2NvcmUgPiBiYWRuZXNzKSB7Ci0JCQlpZiAoc2stPnNrX3JldXNlcG9y
+dCkgeworCQkJaWYgKHNrLT5za19yZXVzZXBvcnQgJiYKKwkJCSAgICBzay0+c2tfc3RhdGUgIT0g
+VENQX0VTVEFCTElTSEVEKSB7CiAJCQkJaGFzaCA9IHVkcF9laGFzaGZuKG5ldCwgZGFkZHIsIGhu
+dW0sCiAJCQkJCQkgICBzYWRkciwgc3BvcnQpOwogCQkJCXJlc3VsdCA9IHJldXNlcG9ydF9zZWxl
+Y3Rfc29jayhzaywgaGFzaCwgc2tiLAogCQkJCQkJCXNpemVvZihzdHJ1Y3QgdWRwaGRyKSk7Ci0J
+CQkJaWYgKHJlc3VsdCkKKwkJCQlpZiAocmVzdWx0ICYmICFyZXVzZXBvcnRfaGFzX2Nvbm5zKHNr
+LCBmYWxzZSkpCiAJCQkJCXJldHVybiByZXN1bHQ7CiAJCQl9CiAJCQliYWRuZXNzID0gc2NvcmU7
+CmRpZmYgLS1naXQgYS9uZXQvaXB2Ni9kYXRhZ3JhbS5jIGIvbmV0L2lwdjYvZGF0YWdyYW0uYwpp
+bmRleCA5ZDc4YzkwN2I5MTguLjY5NDE2OGUyMzAyZSAxMDA2NDQKLS0tIGEvbmV0L2lwdjYvZGF0
+YWdyYW0uYworKysgYi9uZXQvaXB2Ni9kYXRhZ3JhbS5jCkBAIC0yNyw2ICsyNyw3IEBACiAjaW5j
+bHVkZSA8bmV0L2lwNl9yb3V0ZS5oPgogI2luY2x1ZGUgPG5ldC90Y3Bfc3RhdGVzLmg+CiAjaW5j
+bHVkZSA8bmV0L2RzZmllbGQuaD4KKyNpbmNsdWRlIDxuZXQvc29ja19yZXVzZXBvcnQuaD4KIAog
+I2luY2x1ZGUgPGxpbnV4L2VycnF1ZXVlLmg+CiAjaW5jbHVkZSA8bGludXgvdWFjY2Vzcy5oPgpA
+QCAtMjU0LDYgKzI1NSw3IEBAIGludCBfX2lwNl9kYXRhZ3JhbV9jb25uZWN0KHN0cnVjdCBzb2Nr
+ICpzaywgc3RydWN0IHNvY2thZGRyICp1YWRkciwKIAkJZ290byBvdXQ7CiAJfQogCisJcmV1c2Vw
+b3J0X2hhc19jb25ucyhzaywgdHJ1ZSk7CiAJc2stPnNrX3N0YXRlID0gVENQX0VTVEFCTElTSEVE
+OwogCXNrX3NldF90eGhhc2goc2spOwogb3V0OgpkaWZmIC0tZ2l0IGEvbmV0L2lwdjYvdWRwLmMg
+Yi9uZXQvaXB2Ni91ZHAuYwppbmRleCA3MGIwMWJkOTUwMjIuLjEyNThiZTE5ZTE4NiAxMDA2NDQK
+LS0tIGEvbmV0L2lwdjYvdWRwLmMKKysrIGIvbmV0L2lwdjYvdWRwLmMKQEAgLTE2OCwxMyArMTY4
+LDE0IEBAIHN0YXRpYyBzdHJ1Y3Qgc29jayAqdWRwNl9saWJfbG9va3VwMihzdHJ1Y3QgbmV0ICpu
+ZXQsCiAJCXNjb3JlID0gY29tcHV0ZV9zY29yZShzaywgbmV0LCBzYWRkciwgc3BvcnQsCiAJCQkJ
+ICAgICAgZGFkZHIsIGhudW0sIGRpZiwgc2RpZiwgZXhhY3RfZGlmKTsKIAkJaWYgKHNjb3JlID4g
+YmFkbmVzcykgewotCQkJaWYgKHNrLT5za19yZXVzZXBvcnQpIHsKKwkJCWlmIChzay0+c2tfcmV1
+c2Vwb3J0ICYmCisJCQkgICAgc2stPnNrX3N0YXRlICE9IFRDUF9FU1RBQkxJU0hFRCkgewogCQkJ
+CWhhc2ggPSB1ZHA2X2VoYXNoZm4obmV0LCBkYWRkciwgaG51bSwKIAkJCQkJCSAgICBzYWRkciwg
+c3BvcnQpOwogCiAJCQkJcmVzdWx0ID0gcmV1c2Vwb3J0X3NlbGVjdF9zb2NrKHNrLCBoYXNoLCBz
+a2IsCiAJCQkJCQkJc2l6ZW9mKHN0cnVjdCB1ZHBoZHIpKTsKLQkJCQlpZiAocmVzdWx0KQorCQkJ
+CWlmIChyZXN1bHQgJiYgIXJldXNlcG9ydF9oYXNfY29ubnMoc2ssIGZhbHNlKSkKIAkJCQkJcmV0
+dXJuIHJlc3VsdDsKIAkJCX0KIAkJCXJlc3VsdCA9IHNrOwotLSAKMi4yMS4wCgoKRnJvbSAyZmE0
+ZDlhZGNmNGVjMmE1OTMwZDI5YTEwZTY1OGVkYjBmYmM3Y2RkIE1vbiBTZXAgMTcgMDA6MDA6MDAg
+MjAwMQpGcm9tOiBEb25nbGkgWmhhbmcgPGRvbmdsaS56aGFuZ0BvcmFjbGUuY29tPgpEYXRlOiBN
+b24sIDE2IFNlcCAyMDE5IDExOjQ2OjU5ICswODAwClN1YmplY3Q6IFtQQVRDSCA1LzZdIHhlbi1u
+ZXRmcm9udDogZG8gbm90IGFzc3VtZSBza19idWZmX2hlYWQgbGlzdCBpcyBlbXB0eSBpbgogZXJy
+b3IgaGFuZGxpbmcKClsgVXBzdHJlYW0gY29tbWl0IDAwYjM2ODUwMmQxOGY3OTBhYjcxNWUwNTU4
+NjlmZDRiYjc0ODRhOWIgXQoKV2hlbiBza2Jfc2hpbmZvKHNrYikgaXMgbm90IGFibGUgdG8gY2Fj
+aGUgZXh0cmEgZnJhZ21lbnQgKHRoYXQgaXMsCnNrYl9zaGluZm8oc2tiKS0+bnJfZnJhZ3MgPj0g
+TUFYX1NLQl9GUkFHUyksIHhlbm5ldF9maWxsX2ZyYWdzKCkgYXNzdW1lcwp0aGUgc2tfYnVmZl9o
+ZWFkIGxpc3QgaXMgYWxyZWFkeSBlbXB0eS4gQXMgYSByZXN1bHQsIGNvbnMgaXMgaW5jcmVhc2Vk
+IG9ubHkKYnkgMSBhbmQgcmV0dXJucyB0byBlcnJvciBoYW5kbGluZyBwYXRoIGluIHhlbm5ldF9w
+b2xsKCkuCgpIb3dldmVyLCBpZiB0aGUgc2tfYnVmZl9oZWFkIGxpc3QgaXMgbm90IGVtcHR5LCBx
+dWV1ZS0+cngucnNwX2NvbnMgbWF5IGJlCnNldCBpbmNvcnJlY3RseS4gVGhhdCBpcywgcXVldWUt
+PnJ4LnJzcF9jb25zIHdvdWxkIHBvaW50IHRvIHRoZSByeCByaW5nCmJ1ZmZlciBlbnRyaWVzIHdo
+b3NlIHF1ZXVlLT5yeF9za2JzW2ldIGFuZCBxdWV1ZS0+Z3JhbnRfcnhfcmVmW2ldIGFyZQphbHJl
+YWR5IGNsZWFyZWQgdG8gTlVMTC4gVGhpcyBsZWFkcyB0byBOVUxMIHBvaW50ZXIgYWNjZXNzIGlu
+IHRoZSBuZXh0Cml0ZXJhdGlvbiB0byBwcm9jZXNzIHJ4IHJpbmcgYnVmZmVyIGVudHJpZXMuCgpC
+ZWxvdyBpcyBob3cgeGVubmV0X3BvbGwoKSBkb2VzIGVycm9yIGhhbmRsaW5nLiBBbGwgcmVtYWlu
+aW5nIGVudHJpZXMgaW4KdG1wcSBhcmUgYWNjb3VudGVkIHRvIHF1ZXVlLT5yeC5yc3BfY29ucyB3
+aXRob3V0IGFzc3VtaW5nIGhvdyBtYW55Cm91dHN0YW5kaW5nIHNrYnMgYXJlIHJlbWFpbmVkIGlu
+IHRoZSBsaXN0LgoKIDk4NSBzdGF0aWMgaW50IHhlbm5ldF9wb2xsKHN0cnVjdCBuYXBpX3N0cnVj
+dCAqbmFwaSwgaW50IGJ1ZGdldCkKLi4uIC4uLgoxMDMyICAgICAgICAgICBpZiAodW5saWtlbHko
+eGVubmV0X3NldF9za2JfZ3NvKHNrYiwgZ3NvKSkpIHsKMTAzMyAgICAgICAgICAgICAgICAgICBf
+X3NrYl9xdWV1ZV9oZWFkKCZ0bXBxLCBza2IpOwoxMDM0ICAgICAgICAgICAgICAgICAgIHF1ZXVl
+LT5yeC5yc3BfY29ucyArPSBza2JfcXVldWVfbGVuKCZ0bXBxKTsKMTAzNSAgICAgICAgICAgICAg
+ICAgICBnb3RvIGVycjsKMTAzNiAgICAgICAgICAgfQoKSXQgaXMgYmV0dGVyIHRvIGFsd2F5cyBo
+YXZlIHRoZSBlcnJvciBoYW5kbGluZyBpbiB0aGUgc2FtZSB3YXkuCgpGaXhlczogYWQ0ZjE1ZGMy
+YzcwICgieGVuL25ldGZyb250OiBkb24ndCBidWcgaW4gY2FzZSBvZiB0b28gbWFueSBmcmFncyIp
+ClNpZ25lZC1vZmYtYnk6IERvbmdsaSBaaGFuZyA8ZG9uZ2xpLnpoYW5nQG9yYWNsZS5jb20+ClNp
+Z25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0tCiBk
+cml2ZXJzL25ldC94ZW4tbmV0ZnJvbnQuYyB8IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2Vy
+dGlvbigrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3hlbi1uZXRm
+cm9udC5jIGIvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMKaW5kZXggOGQzMzk3MGEyOTUwLi41
+ZjU3MjJiZjY3NjIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbmV0L3hlbi1uZXRmcm9udC5jCisrKyBi
+L2RyaXZlcnMvbmV0L3hlbi1uZXRmcm9udC5jCkBAIC05MDYsNyArOTA2LDcgQEAgc3RhdGljIFJJ
+TkdfSURYIHhlbm5ldF9maWxsX2ZyYWdzKHN0cnVjdCBuZXRmcm9udF9xdWV1ZSAqcXVldWUsCiAJ
+CQlfX3Bza2JfcHVsbF90YWlsKHNrYiwgcHVsbF90byAtIHNrYl9oZWFkbGVuKHNrYikpOwogCQl9
+CiAJCWlmICh1bmxpa2VseShza2Jfc2hpbmZvKHNrYiktPm5yX2ZyYWdzID49IE1BWF9TS0JfRlJB
+R1MpKSB7Ci0JCQlxdWV1ZS0+cngucnNwX2NvbnMgPSArK2NvbnM7CisJCQlxdWV1ZS0+cngucnNw
+X2NvbnMgPSArK2NvbnMgKyBza2JfcXVldWVfbGVuKGxpc3QpOwogCQkJa2ZyZWVfc2tiKG5za2Ip
+OwogCQkJcmV0dXJuIH4wVTsKIAkJfQotLSAKMi4yMS4wCgoKRnJvbSAyOWUzNTU2ODdmNGE1NGJm
+MzRiY2FjMmZiYmU3MjA4ZjZjZjFmMzgxIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBB
+bmRyZXcgTHVubiA8YW5kcmV3QGx1bm4uY2g+CkRhdGU6IFRodSwgMTIgU2VwIDIwMTkgMTU6MTY6
+NDUgKzAyMDAKU3ViamVjdDogW1BBVENIIDYvNl0gbmV0OiBkc2E6IEZpeCBsb2FkIG9yZGVyIGJl
+dHdlZW4gRFNBIGRyaXZlcnMgYW5kIHRhZ2dlcnMKClsgVXBzdHJlYW0gY29tbWl0IDIzNDI2YTI1
+ZTU1YTQxN2RjMTA0ZGYwODc4MWI2ZWZmOTVlNjVmM2YgXQoKVGhlIERTQSBjb3JlLCBEU0EgdGFn
+Z2VycyBhbmQgRFNBIGRyaXZlcnMgYWxsIG1ha2UgdXNlIG9mCm1vZHVsZV9pbml0KCkuIEhlbmNl
+IHRoZXkgZ2V0IGluaXRpYWxpc2VkIGF0IGRldmljZV9pbml0Y2FsbCgpIHRpbWUuClRoZSBvcmRl
+cmluZyBpcyBub24tZGV0ZXJtaW5pc3RpYy4gSXQgY2FuIGJlIGEgRFNBIGRyaXZlciBpcyBib3Vu
+ZCB0bwphIGRldmljZSBiZWZvcmUgdGhlIG5lZWRlZCB0YWcgZHJpdmVyIGhhcyBiZWVuIGluaXRp
+YWxpc2VkLCByZXN1bHRpbmcKaW4gdGhlIG1lc3NhZ2U6CgpObyB0YWdnZXIgZm9yIHRoaXMgc3dp
+dGNoCgpSYXRoZXIgdGhhbiBoYXZlIHRoaXMgYmUgZmF0YWwsIHJldHVybiAtRVBST0JFX0RFRkVS
+IHNvIHRoYXQgaXQgaXMKdHJpZWQgYWdhaW4gbGF0ZXIgb25jZSBhbGwgdGhlIG5lZWRlZCBkcml2
+ZXJzIGhhdmUgYmVlbiBsb2FkZWQuCgpGaXhlczogZDNiOGMwNDk4OGNhICgiZHNhOiBBZGQgYm9p
+bGVycGxhdGUgaGVscGVyIHRvIHJlZ2lzdGVyIERTQSB0YWcgZHJpdmVyIG1vZHVsZXMiKQpTaWdu
+ZWQtb2ZmLWJ5OiBBbmRyZXcgTHVubiA8YW5kcmV3QGx1bm4uY2g+ClNpZ25lZC1vZmYtYnk6IERh
+dmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0tCiBuZXQvZHNhL2RzYTIuYyB8
+IDIgKysKIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9uZXQv
+ZHNhL2RzYTIuYyBiL25ldC9kc2EvZHNhMi5jCmluZGV4IDgyMGRkOGRhNTdmYy4uMTczOWI5OGE4
+ZjRiIDEwMDY0NAotLS0gYS9uZXQvZHNhL2RzYTIuYworKysgYi9uZXQvZHNhL2RzYTIuYwpAQCAt
+NTc3LDYgKzU3Nyw4IEBAIHN0YXRpYyBpbnQgZHNhX3BvcnRfcGFyc2VfY3B1KHN0cnVjdCBkc2Ff
+cG9ydCAqZHAsIHN0cnVjdCBuZXRfZGV2aWNlICptYXN0ZXIpCiAJdGFnX3Byb3RvY29sID0gZHMt
+Pm9wcy0+Z2V0X3RhZ19wcm90b2NvbChkcywgZHAtPmluZGV4KTsKIAl0YWdfb3BzID0gZHNhX3Rh
+Z19kcml2ZXJfZ2V0KHRhZ19wcm90b2NvbCk7CiAJaWYgKElTX0VSUih0YWdfb3BzKSkgeworCQlp
+ZiAoUFRSX0VSUih0YWdfb3BzKSA9PSAtRU5PUFJPVE9PUFQpCisJCQlyZXR1cm4gLUVQUk9CRV9E
+RUZFUjsKIAkJZGV2X3dhcm4oZHMtPmRldiwgIk5vIHRhZ2dlciBmb3IgdGhpcyBzd2l0Y2hcbiIp
+OwogCQlyZXR1cm4gUFRSX0VSUih0YWdfb3BzKTsKIAl9Ci0tIAoyLjIxLjAKCg==
+
+----Next_Part(Thu_Sep_19_14_07_00_2019_555)--
+Content-Type: Application/Octet-Stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="net_53.mbox"
+
+RnJvbSA2YmJlMWFmMDdjOGI4NDc1YTU5Y2JiMmQwNjQwMjJiOWQ2NjA2M2YwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBYaW4gTG9uZyA8bHVjaWVuLnhpbkBnbWFpbC5jb20+CkRhdGU6
+IEZyaSwgMTMgU2VwIDIwMTkgMTc6NDU6NDcgKzA4MDAKU3ViamVjdDogW1BBVENIIDEvN10gaXA2
+X2dyZTogZml4IGEgZHN0IGxlYWsgaW4gaXA2ZXJzcGFuX3R1bm5lbF94bWl0CgpbIFVwc3RyZWFt
+IGNvbW1pdCAyOGU0ODYwMzc3NDdjMjE4MDQ3MGI3N2MyOTBkNDA5MGFkNDJmMjU5IF0KCkluIGlw
+NmVyc3Bhbl90dW5uZWxfeG1pdCgpLCBpZiB0aGUgc2tiIHdpbGwgbm90IGJlIHNlbnQgb3V0LCBp
+dCBoYXMgdG8KYmUgZnJlZWQgb24gdGhlIHR4X2VyciBwYXRoLiBPdGhlcndpc2Ugd2hlbiBkZWxl
+dGluZyBhIG5ldG5zLCBpdCB3b3VsZApjYXVzZSBkc3QvZGV2IHRvIGxlYWssIGFuZCBkbWVzZyBz
+aG93czoKCiAgdW5yZWdpc3Rlcl9uZXRkZXZpY2U6IHdhaXRpbmcgZm9yIGxvIHRvIGJlY29tZSBm
+cmVlLiBVc2FnZSBjb3VudCA9IDEKCkZpeGVzOiBlZjdiYWY1ZTA4M2MgKCJpcDZfZ3JlOiBhZGQg
+aXA2IGVyc3BhbiBjb2xsZWN0X21kIG1vZGUiKQpTaWduZWQtb2ZmLWJ5OiBYaW4gTG9uZyA8bHVj
+aWVuLnhpbkBnbWFpbC5jb20+CkFja2VkLWJ5OiBXaWxsaWFtIFR1IDx1OTAxMjA2M0BnbWFpbC5j
+b20+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4K
+LS0tCiBuZXQvaXB2Ni9pcDZfZ3JlLmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
+b24oKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9uZXQvaXB2Ni9pcDZfZ3JlLmMgYi9u
+ZXQvaXB2Ni9pcDZfZ3JlLmMKaW5kZXggZGQyZDBiOTYzMjYwLi5kNTc3OWQ2YTYwNjUgMTAwNjQ0
+Ci0tLSBhL25ldC9pcHY2L2lwNl9ncmUuYworKysgYi9uZXQvaXB2Ni9pcDZfZ3JlLmMKQEAgLTk2
+OCw3ICs5NjgsNyBAQCBzdGF0aWMgbmV0ZGV2X3R4X3QgaXA2ZXJzcGFuX3R1bm5lbF94bWl0KHN0
+cnVjdCBza19idWZmICpza2IsCiAJCWlmICh1bmxpa2VseSghdHVuX2luZm8gfHwKIAkJCSAgICAg
+ISh0dW5faW5mby0+bW9kZSAmIElQX1RVTk5FTF9JTkZPX1RYKSB8fAogCQkJICAgICBpcF90dW5u
+ZWxfaW5mb19hZih0dW5faW5mbykgIT0gQUZfSU5FVDYpKQotCQkJcmV0dXJuIC1FSU5WQUw7CisJ
+CQlnb3RvIHR4X2VycjsKIAogCQlrZXkgPSAmdHVuX2luZm8tPmtleTsKIAkJbWVtc2V0KCZmbDYs
+IDAsIHNpemVvZihmbDYpKTsKLS0gCjIuMjEuMAoKCkZyb20gZDgxY2E0NTYwODgxZWZiNWQyMjZh
+YzJhN2EwOThmNmZmM2NhYWNhZSBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogUGFvbG8g
+QWJlbmkgPHBhYmVuaUByZWRoYXQuY29tPgpEYXRlOiBUaHUsIDEyIFNlcCAyMDE5IDEyOjAyOjQy
+ICswMjAwClN1YmplY3Q6IFtQQVRDSCAyLzddIG5ldC9zY2hlZDogZml4IHJhY2UgYmV0d2VlbiBk
+ZWFjdGl2YXRpb24gYW5kIGRlcXVldWUgZm9yCiBOT0xPQ0sgcWRpc2MKClsgVXBzdHJlYW0gY29t
+bWl0IGQ1MThkMmVkODY0MGMxY2JiYmI2ZjYzOTM5ZTNlNjU0NzE4MTczNjcgXQoKVGhlIHRlc3Qg
+aW1wbGVtZW50ZWQgYnkgc29tZV9xZGlzY19pc19idXN5KCkgaXMgc29tZXdoYXQgbG9vc3kgZm9y
+Ck5PTE9DSyBxZGlzYywgYXMgd2UgbWF5IGhpdCB0aGUgZm9sbG93aW5nIHNjZW5hcmlvOgoKQ1BV
+MQkJCQkJCUNQVTIKLy8gaW4gbmV0X3R4X2FjdGlvbigpCmNsZWFyX2JpdChfX1FESVNDX1NUQVRF
+X1NDSEVELi4uKTsKCQkJCQkJLy8gaW4gc29tZV9xZGlzY19pc19idXN5KCkKCQkJCQkJdmFsID0g
+KHFkaXNjX2lzX3J1bm5pbmcocSkgfHwKCQkJCQkJICAgICAgIHRlc3RfYml0KF9fUURJU0NfU1RB
+VEVfU0NIRUQsCgkJCQkJCQkJJnEtPnN0YXRlKSk7CgkJCQkJCS8vIGhlcmUgdmFsIGlzIDAgYnV0
+Li4uCnFkaXNjX3J1bihxKQovLyAuLi4gQ1BVMSBpcyBnb2luZyB0byBydW4gdGhlIHFkaXNjIG5l
+eHQKCkFzIGEgY29uc2VndWVuY2UgcWRpc2NfcnVuKCkgaW4gbmV0X3R4X2FjdGlvbigpIGNhbiBy
+YWNlIHdpdGggcWRpc2NfcmVzZXQoKQppbiBkZXZfcWRpc2NfcmVzZXQoKS4gU3VjaCByYWNlIGlz
+IG5vdCBwb3NzaWJsZSBmb3IgIU5PTE9DSyBxZGlzYyBhcwpib3RoIHRoZSBhYm92ZSBiaXQgb3Bl
+cmF0aW9ucyBhcmUgdW5kZXIgdGhlIHJvb3QgcWRpc2MgbG9jaygpLgoKQWZ0ZXIgY29tbWl0IDAy
+MWExN2VkNzk2YiAoInBmaWZvX2Zhc3Q6IGRyb3AgdW5uZWVkZWQgYWRkaXRpb25hbCBsb2NrIG9u
+IGRlcXVldWUiKQp0aGUgcmFjZSBjYW4gY2F1c2UgdXNlIGFmdGVyIGZyZWUgYW5kL29yIG51bGwg
+cHRyIGRlcmVmZXJlbmNlLCBidXQgdGhlIHJvb3QKY2F1c2UgaXMgbGlrZWx5IG9sZGVyLgoKVGhp
+cyBwYXRjaCBhZGRyZXNzZXMgdGhlIGlzc3VlIGV4cGxpY2l0bHkgY2hlY2tpbmcgZm9yIGRlYWN0
+aXZhdGlvbiB1bmRlcgp0aGUgc2VxbG9jayBmb3IgTk9MT0NLIHFkaXNjLCBzbyB0aGF0IHRoZSBx
+ZGlzY19ydW4oKSBpbiB0aGUgY3JpdGljYWwKc2NlbmFyaW8gYmVjb21lcyBhIG5vLW9wLgoKTm90
+ZSB0aGF0IHRoZSBlbnF1ZXVlKCkgb3AgY2FuIHN0aWxsIGV4ZWN1dGUgY29uY3VycmVudGx5IHdp
+dGggZGV2X3FkaXNjX3Jlc2V0KCksCmJ1dCB0aGF0IGlzIHNhZmUgZHVlIHRvIHRoZSBza2JfYXJy
+YXkoKSBsb2NraW5nLCBhbmQgd2UgY2FuJ3QgYXZvaWQgdGhhdApmb3IgTk9MT0NLIHFkaXNjcy4K
+CkZpeGVzOiAwMjFhMTdlZDc5NmIgKCJwZmlmb19mYXN0OiBkcm9wIHVubmVlZGVkIGFkZGl0aW9u
+YWwgbG9jayBvbiBkZXF1ZXVlIikKUmVwb3J0ZWQtYnk6IExpIFNodWFuZyA8c2h1YWxpQHJlZGhh
+dC5jb20+ClJlcG9ydGVkLWFuZC10ZXN0ZWQtYnk6IERhdmlkZSBDYXJhdHRpIDxkY2FyYXR0aUBy
+ZWRoYXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBQYW9sbyBBYmVuaSA8cGFiZW5pQHJlZGhhdC5jb20+
+ClNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KLS0t
+CiBpbmNsdWRlL25ldC9wa3Rfc2NoZWQuaCB8ICA3ICsrKysrKy0KIG5ldC9jb3JlL2Rldi5jICAg
+ICAgICAgIHwgMTYgKysrKysrKysrKy0tLS0tLQogMiBmaWxlcyBjaGFuZ2VkLCAxNiBpbnNlcnRp
+b25zKCspLCA3IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbmV0L3BrdF9zY2hl
+ZC5oIGIvaW5jbHVkZS9uZXQvcGt0X3NjaGVkLmgKaW5kZXggYTE2ZmJlOWEyYTY3Li5hYTk5Yzcz
+YzNmYmQgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbmV0L3BrdF9zY2hlZC5oCisrKyBiL2luY2x1ZGUv
+bmV0L3BrdF9zY2hlZC5oCkBAIC0xMTgsNyArMTE4LDEyIEBAIHZvaWQgX19xZGlzY19ydW4oc3Ry
+dWN0IFFkaXNjICpxKTsKIHN0YXRpYyBpbmxpbmUgdm9pZCBxZGlzY19ydW4oc3RydWN0IFFkaXNj
+ICpxKQogewogCWlmIChxZGlzY19ydW5fYmVnaW4ocSkpIHsKLQkJX19xZGlzY19ydW4ocSk7CisJ
+CS8qIE5PTE9DSyBxZGlzYyBtdXN0IGNoZWNrICdzdGF0ZScgdW5kZXIgdGhlIHFkaXNjIHNlcWxv
+Y2sKKwkJICogdG8gYXZvaWQgcmFjaW5nIHdpdGggZGV2X3FkaXNjX3Jlc2V0KCkKKwkJICovCisJ
+CWlmICghKHEtPmZsYWdzICYgVENRX0ZfTk9MT0NLKSB8fAorCQkgICAgbGlrZWx5KCF0ZXN0X2Jp
+dChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELCAmcS0+c3RhdGUpKSkKKwkJCV9fcWRpc2NfcnVu
+KHEpOwogCQlxZGlzY19ydW5fZW5kKHEpOwogCX0KIH0KZGlmZiAtLWdpdCBhL25ldC9jb3JlL2Rl
+di5jIGIvbmV0L2NvcmUvZGV2LmMKaW5kZXggNTE1NmMwZWRlYmU4Li40ZWQ5ZGY3NGViOGEgMTAw
+NjQ0Ci0tLSBhL25ldC9jb3JlL2Rldi5jCisrKyBiL25ldC9jb3JlL2Rldi5jCkBAIC0zNDY3LDE4
+ICszNDY3LDIyIEBAIHN0YXRpYyBpbmxpbmUgaW50IF9fZGV2X3htaXRfc2tiKHN0cnVjdCBza19i
+dWZmICpza2IsIHN0cnVjdCBRZGlzYyAqcSwKIAlxZGlzY19jYWxjdWxhdGVfcGt0X2xlbihza2Is
+IHEpOwogCiAJaWYgKHEtPmZsYWdzICYgVENRX0ZfTk9MT0NLKSB7Ci0JCWlmICh1bmxpa2VseSh0
+ZXN0X2JpdChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELCAmcS0+c3RhdGUpKSkgewotCQkJX19x
+ZGlzY19kcm9wKHNrYiwgJnRvX2ZyZWUpOwotCQkJcmMgPSBORVRfWE1JVF9EUk9QOwotCQl9IGVs
+c2UgaWYgKChxLT5mbGFncyAmIFRDUV9GX0NBTl9CWVBBU1MpICYmIHEtPmVtcHR5ICYmCi0JCQkg
+ICBxZGlzY19ydW5fYmVnaW4ocSkpIHsKKwkJaWYgKChxLT5mbGFncyAmIFRDUV9GX0NBTl9CWVBB
+U1MpICYmIHEtPmVtcHR5ICYmCisJCSAgICBxZGlzY19ydW5fYmVnaW4ocSkpIHsKKwkJCWlmICh1
+bmxpa2VseSh0ZXN0X2JpdChfX1FESVNDX1NUQVRFX0RFQUNUSVZBVEVELAorCQkJCQkgICAgICAm
+cS0+c3RhdGUpKSkgeworCQkJCV9fcWRpc2NfZHJvcChza2IsICZ0b19mcmVlKTsKKwkJCQlyYyA9
+IE5FVF9YTUlUX0RST1A7CisJCQkJZ290byBlbmRfcnVuOworCQkJfQogCQkJcWRpc2NfYnN0YXRz
+X2NwdV91cGRhdGUocSwgc2tiKTsKIAorCQkJcmMgPSBORVRfWE1JVF9TVUNDRVNTOwogCQkJaWYg
+KHNjaF9kaXJlY3RfeG1pdChza2IsIHEsIGRldiwgdHhxLCBOVUxMLCB0cnVlKSkKIAkJCQlfX3Fk
+aXNjX3J1bihxKTsKIAorZW5kX3J1bjoKIAkJCXFkaXNjX3J1bl9lbmQocSk7Ci0JCQlyYyA9IE5F
+VF9YTUlUX1NVQ0NFU1M7CiAJCX0gZWxzZSB7CiAJCQlyYyA9IHEtPmVucXVldWUoc2tiLCBxLCAm
+dG9fZnJlZSkgJiBORVRfWE1JVF9NQVNLOwogCQkJcWRpc2NfcnVuKHEpOwotLSAKMi4yMS4wCgoK
+RnJvbSAzYzM0MzQyZWQ4YmQ3ZDQ4ZjdmOTRiYzcyODM2ODIyN2Y1MWUwOGJlIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBDb25nIFdhbmcgPHhpeW91Lndhbmdjb25nQGdtYWlsLmNvbT4K
+RGF0ZTogVGh1LCAxMiBTZXAgMjAxOSAxMDoyMjozMCAtMDcwMApTdWJqZWN0OiBbUEFUQ0ggMy83
+XSBuZXRfc2NoZWQ6IGxldCBxZGlzY19wdXQoKSBhY2NlcHQgTlVMTCBwb2ludGVyCgpbIFVwc3Ry
+ZWFtIGNvbW1pdCA2ZWZiOTcxYmE4ZWRmYmQ4MGI2NjZmMjlkZTEyODgyODUyZjA5NWFlIF0KCldo
+ZW4gdGNmX2Jsb2NrX2dldCgpIGZhaWxzIGluIHNmYl9pbml0KCksIHEtPnFkaXNjIGlzIHN0aWxs
+IGEgTlVMTApwb2ludGVyIHdoaWNoIGxlYWRzIHRvIGEgY3Jhc2ggaW4gc2ZiX2Rlc3Ryb3koKS4g
+U2ltaWxhciBmb3IKc2NoX2RzbWFyay4KCkluc3RlYWQgb2YgZml4aW5nIGVhY2ggc2VwYXJhdGVs
+eSwgTGludXMgc3VnZ2VzdGVkIHRvIGp1c3QgYWNjZXB0Ck5VTEwgcG9pbnRlciBpbiBxZGlzY19w
+dXQoKSwgd2hpY2ggd291bGQgbWFrZSBjYWxsZXJzIGVhc2llci4KCihGb3Igc2NoX2RzbWFyaywg
+dGhlIGJ1ZyBwcm9iYWJseSBleGlzdHMgbG9uZyBiZWZvcmUgY29tbWl0CjY1MjllYWJhMzNmMC4p
+CgpGaXhlczogNjUyOWVhYmEzM2YwICgibmV0OiBzY2hlZDogaW50cm9kdWNlIHRjZiBibG9jayBp
+bmZyYWN0cnVjdHVyZSIpClJlcG9ydGVkLWJ5OiBzeXpib3QrZDU4NzBhOTAzNTkxZmFhY2E0YWVA
+c3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQpTdWdnZXN0ZWQtYnk6IExpbnVzIFRvcnZhbGRzIDx0
+b3J2YWxkc0BsaW51eC1mb3VuZGF0aW9uLm9yZz4KQ2M6IEphbWFsIEhhZGkgU2FsaW0gPGpoc0Bt
+b2phdGF0dS5jb20+CkNjOiBKaXJpIFBpcmtvIDxqaXJpQHJlc251bGxpLnVzPgpTaWduZWQtb2Zm
+LWJ5OiBDb25nIFdhbmcgPHhpeW91Lndhbmdjb25nQGdtYWlsLmNvbT4KQWNrZWQtYnk6IEppcmkg
+UGlya28gPGppcmlAbWVsbGFub3guY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIg
+PGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogbmV0L3NjaGVkL3NjaF9nZW5lcmljLmMgfCAzICsr
+KwogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL25ldC9zY2hl
+ZC9zY2hfZ2VuZXJpYy5jIGIvbmV0L3NjaGVkL3NjaF9nZW5lcmljLmMKaW5kZXggYWMyOGY2YTVk
+NzBlLi4xN2JkOGY1MzliYzcgMTAwNjQ0Ci0tLSBhL25ldC9zY2hlZC9zY2hfZ2VuZXJpYy5jCisr
+KyBiL25ldC9zY2hlZC9zY2hfZ2VuZXJpYy5jCkBAIC05ODUsNiArOTg1LDkgQEAgc3RhdGljIHZv
+aWQgcWRpc2NfZGVzdHJveShzdHJ1Y3QgUWRpc2MgKnFkaXNjKQogCiB2b2lkIHFkaXNjX3B1dChz
+dHJ1Y3QgUWRpc2MgKnFkaXNjKQogeworCWlmICghcWRpc2MpCisJCXJldHVybjsKKwogCWlmIChx
+ZGlzYy0+ZmxhZ3MgJiBUQ1FfRl9CVUlMVElOIHx8CiAJICAgICFyZWZjb3VudF9kZWNfYW5kX3Rl
+c3QoJnFkaXNjLT5yZWZjbnQpKQogCQlyZXR1cm47Ci0tIAoyLjIxLjAKCgpGcm9tIDQ1M2E5MDU1
+N2I1MDQ0NDZiZjIyOTJlMTE5MjE5MDk4ZTAxZThiZDYgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAx
+CkZyb206IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4KRGF0ZTogVGh1LCAx
+MiBTZXAgMjAxOSAyMToxNjozOSAtMDQwMApTdWJqZWN0OiBbUEFUQ0ggNC83XSB1ZHA6IGNvcnJl
+Y3QgcmV1c2Vwb3J0IHNlbGVjdGlvbiB3aXRoIGNvbm5lY3RlZCBzb2NrZXRzCgpbIFVwc3RyZWFt
+IGNvbW1pdCBhY2RjZWNjNjEyODVmYWVkMzU5ZjFhMzU2OGMzMjA4OWNjM2E4MzI5IF0KClVEUCBy
+ZXVzZXBvcnQgZ3JvdXBzIGNhbiBob2xkIGEgbWl4IHVuY29ubmVjdGVkIGFuZCBjb25uZWN0ZWQg
+c29ja2V0cy4KRW5zdXJlIHRoYXQgY29ubmVjdGlvbnMgb25seSByZWNlaXZlIGFsbCB0cmFmZmlj
+IHRvIHRoZWlyIDQtdHVwbGUuCgpGYXN0IHJldXNlcG9ydCByZXR1cm5zIG9uIHRoZSBmaXJzdCBy
+ZXVzZXBvcnQgbWF0Y2ggb24gdGhlIGFzc3VtcHRpb24KdGhhdCBhbGwgbWF0Y2hlcyBhcmUgZXF1
+YWwuIE9ubHkgaWYgY29ubmVjdGlvbnMgYXJlIHByZXNlbnQsIHJldHVybiB0bwp0aGUgcHJldmlv
+dXMgYmVoYXZpb3Igb2Ygc2NvcmluZyBhbGwgc29ja2V0cy4KClJlY29yZCBpZiBjb25uZWN0aW9u
+cyBhcmUgcHJlc2VudCBhbmQgaWYgc28gKDEpIHRyZWF0IHN1Y2ggY29ubmVjdGVkCnNvY2tldHMg
+YXMgYW4gaW5kZXBlbmRlbnQgbWF0Y2ggZnJvbSB0aGUgZ3JvdXAsICgyKSBvbmx5IHJldHVybgoy
+LXR1cGxlIG1hdGNoZXMgZnJvbSByZXVzZXBvcnQgYW5kICgzKSBkbyBub3QgcmV0dXJuIG9uIHRo
+ZSBmaXJzdAoyLXR1cGxlIHJldXNlcG9ydCBtYXRjaCB0byBhbGxvdyBmb3IgYSBoaWdoZXIgc2Nv
+cmluZyBtYXRjaCBsYXRlci4KCk5ldyBmaWVsZCBoYXNfY29ubnMgaXMgc2V0IHdpdGhvdXQgbG9j
+a3MuIE5vIG90aGVyIGZpZWxkcyBpbiB0aGUKYml0bWFwIGFyZSBtb2RpZmllZCBhdCBydW50aW1l
+IGFuZCB0aGUgZmllbGQgaXMgb25seSBldmVyIHNldAp1bmNvbmRpdGlvbmFsbHksIHNvIGFuIFJN
+VyBjYW5ub3QgbWlzcyBhIGNoYW5nZS4KCkZpeGVzOiBlMzJlYTdlNzQ3MjcgKCJzb3JldXNlcG9y
+dDogZmFzdCByZXVzZXBvcnQgVURQIHNvY2tldCBzZWxlY3Rpb24iKQpMaW5rOiBodHRwOi8vbGtt
+bC5rZXJuZWwub3JnL3IvQ0ErRnVUU2ZSUDA5YUpOWVJ0MDRTUzZxajIyVmlpT0VXYVdtTEF3WDBw
+c2s4LVBHTnh3QG1haWwuZ21haWwuY29tClNpZ25lZC1vZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4g
+PHdpbGxlbWJAZ29vZ2xlLmNvbT4KQWNrZWQtYnk6IFBhb2xvIEFiZW5pIDxwYWJlbmlAcmVkaGF0
+LmNvbT4KQWNrZWQtYnk6IENyYWlnIEdhbGxlayA8a3JhaWdAZ29vZ2xlLmNvbT4KU2lnbmVkLW9m
+Zi1ieTogV2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtYkBnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5
+OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogaW5jbHVkZS9uZXQv
+c29ja19yZXVzZXBvcnQuaCB8IDIwICsrKysrKysrKysrKysrKysrKystCiBuZXQvY29yZS9zb2Nr
+X3JldXNlcG9ydC5jICAgIHwgMTUgKysrKysrKysrKysrKy0tCiBuZXQvaXB2NC9kYXRhZ3JhbS5j
+ICAgICAgICAgIHwgIDIgKysKIG5ldC9pcHY0L3VkcC5jICAgICAgICAgICAgICAgfCAgNSArKyst
+LQogbmV0L2lwdjYvZGF0YWdyYW0uYyAgICAgICAgICB8ICAyICsrCiBuZXQvaXB2Ni91ZHAuYyAg
+ICAgICAgICAgICAgIHwgIDUgKysrLS0KIDYgZmlsZXMgY2hhbmdlZCwgNDIgaW5zZXJ0aW9ucygr
+KSwgNyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9pbmNsdWRlL25ldC9zb2NrX3JldXNlcG9y
+dC5oIGIvaW5jbHVkZS9uZXQvc29ja19yZXVzZXBvcnQuaAppbmRleCBkOTExMmRlODUyNjEuLjQz
+ZjRhODE4ZDg4ZiAxMDA2NDQKLS0tIGEvaW5jbHVkZS9uZXQvc29ja19yZXVzZXBvcnQuaAorKysg
+Yi9pbmNsdWRlL25ldC9zb2NrX3JldXNlcG9ydC5oCkBAIC0yMSw3ICsyMSw4IEBAIHN0cnVjdCBz
+b2NrX3JldXNlcG9ydCB7CiAJdW5zaWduZWQgaW50CQlzeW5xX292ZXJmbG93X3RzOwogCS8qIElE
+IHN0YXlzIHRoZSBzYW1lIGV2ZW4gYWZ0ZXIgdGhlIHNpemUgb2Ygc29ja3NbXSBncm93cy4gKi8K
+IAl1bnNpZ25lZCBpbnQJCXJldXNlcG9ydF9pZDsKLQlib29sCQkJYmluZF9pbmFueTsKKwl1bnNp
+Z25lZCBpbnQJCWJpbmRfaW5hbnk6MTsKKwl1bnNpZ25lZCBpbnQJCWhhc19jb25uczoxOwogCXN0
+cnVjdCBicGZfcHJvZyBfX3JjdQkqcHJvZzsJCS8qIG9wdGlvbmFsIEJQRiBzb2NrIHNlbGVjdG9y
+ICovCiAJc3RydWN0IHNvY2sJCSpzb2Nrc1swXTsJLyogYXJyYXkgb2Ygc29jayBwb2ludGVycyAq
+LwogfTsKQEAgLTM3LDYgKzM4LDIzIEBAIGV4dGVybiBzdHJ1Y3Qgc29jayAqcmV1c2Vwb3J0X3Nl
+bGVjdF9zb2NrKHN0cnVjdCBzb2NrICpzaywKIGV4dGVybiBpbnQgcmV1c2Vwb3J0X2F0dGFjaF9w
+cm9nKHN0cnVjdCBzb2NrICpzaywgc3RydWN0IGJwZl9wcm9nICpwcm9nKTsKIGV4dGVybiBpbnQg
+cmV1c2Vwb3J0X2RldGFjaF9wcm9nKHN0cnVjdCBzb2NrICpzayk7CiAKK3N0YXRpYyBpbmxpbmUg
+Ym9vbCByZXVzZXBvcnRfaGFzX2Nvbm5zKHN0cnVjdCBzb2NrICpzaywgYm9vbCBzZXQpCit7CisJ
+c3RydWN0IHNvY2tfcmV1c2Vwb3J0ICpyZXVzZTsKKwlib29sIHJldCA9IGZhbHNlOworCisJcmN1
+X3JlYWRfbG9jaygpOworCXJldXNlID0gcmN1X2RlcmVmZXJlbmNlKHNrLT5za19yZXVzZXBvcnRf
+Y2IpOworCWlmIChyZXVzZSkgeworCQlpZiAoc2V0KQorCQkJcmV1c2UtPmhhc19jb25ucyA9IDE7
+CisJCXJldCA9IHJldXNlLT5oYXNfY29ubnM7CisJfQorCXJjdV9yZWFkX3VubG9jaygpOworCisJ
+cmV0dXJuIHJldDsKK30KKwogaW50IHJldXNlcG9ydF9nZXRfaWQoc3RydWN0IHNvY2tfcmV1c2Vw
+b3J0ICpyZXVzZSk7CiAKICNlbmRpZiAgLyogX1NPQ0tfUkVVU0VQT1JUX0ggKi8KZGlmZiAtLWdp
+dCBhL25ldC9jb3JlL3NvY2tfcmV1c2Vwb3J0LmMgYi9uZXQvY29yZS9zb2NrX3JldXNlcG9ydC5j
+CmluZGV4IDk0MDhmOTI2NGQwNS4uZjNjZWVjOTNmMzkyIDEwMDY0NAotLS0gYS9uZXQvY29yZS9z
+b2NrX3JldXNlcG9ydC5jCisrKyBiL25ldC9jb3JlL3NvY2tfcmV1c2Vwb3J0LmMKQEAgLTI5NSw4
+ICsyOTUsMTkgQEAgc3RydWN0IHNvY2sgKnJldXNlcG9ydF9zZWxlY3Rfc29jayhzdHJ1Y3Qgc29j
+ayAqc2ssCiAKIHNlbGVjdF9ieV9oYXNoOgogCQkvKiBubyBicGYgb3IgaW52YWxpZCBicGYgcmVz
+dWx0OiBmYWxsIGJhY2sgdG8gaGFzaCB1c2FnZSAqLwotCQlpZiAoIXNrMikKLQkJCXNrMiA9IHJl
+dXNlLT5zb2Nrc1tyZWNpcHJvY2FsX3NjYWxlKGhhc2gsIHNvY2tzKV07CisJCWlmICghc2syKSB7
+CisJCQlpbnQgaSwgajsKKworCQkJaSA9IGogPSByZWNpcHJvY2FsX3NjYWxlKGhhc2gsIHNvY2tz
+KTsKKwkJCXdoaWxlIChyZXVzZS0+c29ja3NbaV0tPnNrX3N0YXRlID09IFRDUF9FU1RBQkxJU0hF
+RCkgeworCQkJCWkrKzsKKwkJCQlpZiAoaSA+PSByZXVzZS0+bnVtX3NvY2tzKQorCQkJCQlpID0g
+MDsKKwkJCQlpZiAoaSA9PSBqKQorCQkJCQlnb3RvIG91dDsKKwkJCX0KKwkJCXNrMiA9IHJldXNl
+LT5zb2Nrc1tpXTsKKwkJfQogCX0KIAogb3V0OgpkaWZmIC0tZ2l0IGEvbmV0L2lwdjQvZGF0YWdy
+YW0uYyBiL25ldC9pcHY0L2RhdGFncmFtLmMKaW5kZXggN2JkMjllNjk0NjAzLi45YTBmZTBjMmZh
+MDIgMTAwNjQ0Ci0tLSBhL25ldC9pcHY0L2RhdGFncmFtLmMKKysrIGIvbmV0L2lwdjQvZGF0YWdy
+YW0uYwpAQCAtMTUsNiArMTUsNyBAQAogI2luY2x1ZGUgPG5ldC9zb2NrLmg+CiAjaW5jbHVkZSA8
+bmV0L3JvdXRlLmg+CiAjaW5jbHVkZSA8bmV0L3RjcF9zdGF0ZXMuaD4KKyNpbmNsdWRlIDxuZXQv
+c29ja19yZXVzZXBvcnQuaD4KIAogaW50IF9faXA0X2RhdGFncmFtX2Nvbm5lY3Qoc3RydWN0IHNv
+Y2sgKnNrLCBzdHJ1Y3Qgc29ja2FkZHIgKnVhZGRyLCBpbnQgYWRkcl9sZW4pCiB7CkBAIC02OSw2
+ICs3MCw3IEBAIGludCBfX2lwNF9kYXRhZ3JhbV9jb25uZWN0KHN0cnVjdCBzb2NrICpzaywgc3Ry
+dWN0IHNvY2thZGRyICp1YWRkciwgaW50IGFkZHJfbGVuCiAJfQogCWluZXQtPmluZXRfZGFkZHIg
+PSBmbDQtPmRhZGRyOwogCWluZXQtPmluZXRfZHBvcnQgPSB1c2luLT5zaW5fcG9ydDsKKwlyZXVz
+ZXBvcnRfaGFzX2Nvbm5zKHNrLCB0cnVlKTsKIAlzay0+c2tfc3RhdGUgPSBUQ1BfRVNUQUJMSVNI
+RUQ7CiAJc2tfc2V0X3R4aGFzaChzayk7CiAJaW5ldC0+aW5ldF9pZCA9IGppZmZpZXM7CmRpZmYg
+LS1naXQgYS9uZXQvaXB2NC91ZHAuYyBiL25ldC9pcHY0L3VkcC5jCmluZGV4IGQ4ODgyMWM3OTRm
+Yi4uMTY0ODZjOGI3MDhiIDEwMDY0NAotLS0gYS9uZXQvaXB2NC91ZHAuYworKysgYi9uZXQvaXB2
+NC91ZHAuYwpAQCAtNDIzLDEyICs0MjMsMTMgQEAgc3RhdGljIHN0cnVjdCBzb2NrICp1ZHA0X2xp
+Yl9sb29rdXAyKHN0cnVjdCBuZXQgKm5ldCwKIAkJc2NvcmUgPSBjb21wdXRlX3Njb3JlKHNrLCBu
+ZXQsIHNhZGRyLCBzcG9ydCwKIAkJCQkgICAgICBkYWRkciwgaG51bSwgZGlmLCBzZGlmKTsKIAkJ
+aWYgKHNjb3JlID4gYmFkbmVzcykgewotCQkJaWYgKHNrLT5za19yZXVzZXBvcnQpIHsKKwkJCWlm
+IChzay0+c2tfcmV1c2Vwb3J0ICYmCisJCQkgICAgc2stPnNrX3N0YXRlICE9IFRDUF9FU1RBQkxJ
+U0hFRCkgewogCQkJCWhhc2ggPSB1ZHBfZWhhc2hmbihuZXQsIGRhZGRyLCBobnVtLAogCQkJCQkJ
+ICAgc2FkZHIsIHNwb3J0KTsKIAkJCQlyZXN1bHQgPSByZXVzZXBvcnRfc2VsZWN0X3NvY2soc2ss
+IGhhc2gsIHNrYiwKIAkJCQkJCQlzaXplb2Yoc3RydWN0IHVkcGhkcikpOwotCQkJCWlmIChyZXN1
+bHQpCisJCQkJaWYgKHJlc3VsdCAmJiAhcmV1c2Vwb3J0X2hhc19jb25ucyhzaywgZmFsc2UpKQog
+CQkJCQlyZXR1cm4gcmVzdWx0OwogCQkJfQogCQkJYmFkbmVzcyA9IHNjb3JlOwpkaWZmIC0tZ2l0
+IGEvbmV0L2lwdjYvZGF0YWdyYW0uYyBiL25ldC9pcHY2L2RhdGFncmFtLmMKaW5kZXggOWFiODk3
+ZGVkNGRmLi45NmY5MzkyNDhkMmYgMTAwNjQ0Ci0tLSBhL25ldC9pcHY2L2RhdGFncmFtLmMKKysr
+IGIvbmV0L2lwdjYvZGF0YWdyYW0uYwpAQCAtMjcsNiArMjcsNyBAQAogI2luY2x1ZGUgPG5ldC9p
+cDZfcm91dGUuaD4KICNpbmNsdWRlIDxuZXQvdGNwX3N0YXRlcy5oPgogI2luY2x1ZGUgPG5ldC9k
+c2ZpZWxkLmg+CisjaW5jbHVkZSA8bmV0L3NvY2tfcmV1c2Vwb3J0Lmg+CiAKICNpbmNsdWRlIDxs
+aW51eC9lcnJxdWV1ZS5oPgogI2luY2x1ZGUgPGxpbnV4L3VhY2Nlc3MuaD4KQEAgLTI1NCw2ICsy
+NTUsNyBAQCBpbnQgX19pcDZfZGF0YWdyYW1fY29ubmVjdChzdHJ1Y3Qgc29jayAqc2ssIHN0cnVj
+dCBzb2NrYWRkciAqdWFkZHIsCiAJCWdvdG8gb3V0OwogCX0KIAorCXJldXNlcG9ydF9oYXNfY29u
+bnMoc2ssIHRydWUpOwogCXNrLT5za19zdGF0ZSA9IFRDUF9FU1RBQkxJU0hFRDsKIAlza19zZXRf
+dHhoYXNoKHNrKTsKIG91dDoKZGlmZiAtLWdpdCBhL25ldC9pcHY2L3VkcC5jIGIvbmV0L2lwdjYv
+dWRwLmMKaW5kZXggODI3ZmU3Mzg1MDc4Li41OTk1ZmRjOTlkM2YgMTAwNjQ0Ci0tLSBhL25ldC9p
+cHY2L3VkcC5jCisrKyBiL25ldC9pcHY2L3VkcC5jCkBAIC0xNTgsMTMgKzE1OCwxNCBAQCBzdGF0
+aWMgc3RydWN0IHNvY2sgKnVkcDZfbGliX2xvb2t1cDIoc3RydWN0IG5ldCAqbmV0LAogCQlzY29y
+ZSA9IGNvbXB1dGVfc2NvcmUoc2ssIG5ldCwgc2FkZHIsIHNwb3J0LAogCQkJCSAgICAgIGRhZGRy
+LCBobnVtLCBkaWYsIHNkaWYpOwogCQlpZiAoc2NvcmUgPiBiYWRuZXNzKSB7Ci0JCQlpZiAoc2st
+PnNrX3JldXNlcG9ydCkgeworCQkJaWYgKHNrLT5za19yZXVzZXBvcnQgJiYKKwkJCSAgICBzay0+
+c2tfc3RhdGUgIT0gVENQX0VTVEFCTElTSEVEKSB7CiAJCQkJaGFzaCA9IHVkcDZfZWhhc2hmbihu
+ZXQsIGRhZGRyLCBobnVtLAogCQkJCQkJICAgIHNhZGRyLCBzcG9ydCk7CiAKIAkJCQlyZXN1bHQg
+PSByZXVzZXBvcnRfc2VsZWN0X3NvY2soc2ssIGhhc2gsIHNrYiwKIAkJCQkJCQlzaXplb2Yoc3Ry
+dWN0IHVkcGhkcikpOwotCQkJCWlmIChyZXN1bHQpCisJCQkJaWYgKHJlc3VsdCAmJiAhcmV1c2Vw
+b3J0X2hhc19jb25ucyhzaywgZmFsc2UpKQogCQkJCQlyZXR1cm4gcmVzdWx0OwogCQkJfQogCQkJ
+cmVzdWx0ID0gc2s7Ci0tIAoyLjIxLjAKCgpGcm9tIGQyODVmYzI3MDQ4YTlmNDdmYmY4ZDc5Yjcx
+NTc3NTRmNDJkMzBiMmYgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IERvbmdsaSBaaGFu
+ZyA8ZG9uZ2xpLnpoYW5nQG9yYWNsZS5jb20+CkRhdGU6IE1vbiwgMTYgU2VwIDIwMTkgMTE6NDY6
+NTkgKzA4MDAKU3ViamVjdDogW1BBVENIIDUvN10geGVuLW5ldGZyb250OiBkbyBub3QgYXNzdW1l
+IHNrX2J1ZmZfaGVhZCBsaXN0IGlzIGVtcHR5IGluCiBlcnJvciBoYW5kbGluZwoKWyBVcHN0cmVh
+bSBjb21taXQgMDBiMzY4NTAyZDE4Zjc5MGFiNzE1ZTA1NTg2OWZkNGJiNzQ4NGE5YiBdCgpXaGVu
+IHNrYl9zaGluZm8oc2tiKSBpcyBub3QgYWJsZSB0byBjYWNoZSBleHRyYSBmcmFnbWVudCAodGhh
+dCBpcywKc2tiX3NoaW5mbyhza2IpLT5ucl9mcmFncyA+PSBNQVhfU0tCX0ZSQUdTKSwgeGVubmV0
+X2ZpbGxfZnJhZ3MoKSBhc3N1bWVzCnRoZSBza19idWZmX2hlYWQgbGlzdCBpcyBhbHJlYWR5IGVt
+cHR5LiBBcyBhIHJlc3VsdCwgY29ucyBpcyBpbmNyZWFzZWQgb25seQpieSAxIGFuZCByZXR1cm5z
+IHRvIGVycm9yIGhhbmRsaW5nIHBhdGggaW4geGVubmV0X3BvbGwoKS4KCkhvd2V2ZXIsIGlmIHRo
+ZSBza19idWZmX2hlYWQgbGlzdCBpcyBub3QgZW1wdHksIHF1ZXVlLT5yeC5yc3BfY29ucyBtYXkg
+YmUKc2V0IGluY29ycmVjdGx5LiBUaGF0IGlzLCBxdWV1ZS0+cngucnNwX2NvbnMgd291bGQgcG9p
+bnQgdG8gdGhlIHJ4IHJpbmcKYnVmZmVyIGVudHJpZXMgd2hvc2UgcXVldWUtPnJ4X3NrYnNbaV0g
+YW5kIHF1ZXVlLT5ncmFudF9yeF9yZWZbaV0gYXJlCmFscmVhZHkgY2xlYXJlZCB0byBOVUxMLiBU
+aGlzIGxlYWRzIHRvIE5VTEwgcG9pbnRlciBhY2Nlc3MgaW4gdGhlIG5leHQKaXRlcmF0aW9uIHRv
+IHByb2Nlc3MgcnggcmluZyBidWZmZXIgZW50cmllcy4KCkJlbG93IGlzIGhvdyB4ZW5uZXRfcG9s
+bCgpIGRvZXMgZXJyb3IgaGFuZGxpbmcuIEFsbCByZW1haW5pbmcgZW50cmllcyBpbgp0bXBxIGFy
+ZSBhY2NvdW50ZWQgdG8gcXVldWUtPnJ4LnJzcF9jb25zIHdpdGhvdXQgYXNzdW1pbmcgaG93IG1h
+bnkKb3V0c3RhbmRpbmcgc2ticyBhcmUgcmVtYWluZWQgaW4gdGhlIGxpc3QuCgogOTg1IHN0YXRp
+YyBpbnQgeGVubmV0X3BvbGwoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLCBpbnQgYnVkZ2V0KQou
+Li4gLi4uCjEwMzIgICAgICAgICAgIGlmICh1bmxpa2VseSh4ZW5uZXRfc2V0X3NrYl9nc28oc2ti
+LCBnc28pKSkgewoxMDMzICAgICAgICAgICAgICAgICAgIF9fc2tiX3F1ZXVlX2hlYWQoJnRtcHEs
+IHNrYik7CjEwMzQgICAgICAgICAgICAgICAgICAgcXVldWUtPnJ4LnJzcF9jb25zICs9IHNrYl9x
+dWV1ZV9sZW4oJnRtcHEpOwoxMDM1ICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyOwoxMDM2ICAg
+ICAgICAgICB9CgpJdCBpcyBiZXR0ZXIgdG8gYWx3YXlzIGhhdmUgdGhlIGVycm9yIGhhbmRsaW5n
+IGluIHRoZSBzYW1lIHdheS4KCkZpeGVzOiBhZDRmMTVkYzJjNzAgKCJ4ZW4vbmV0ZnJvbnQ6IGRv
+bid0IGJ1ZyBpbiBjYXNlIG9mIHRvbyBtYW55IGZyYWdzIikKU2lnbmVkLW9mZi1ieTogRG9uZ2xp
+IFpoYW5nIDxkb25nbGkuemhhbmdAb3JhY2xlLmNvbT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4g
+TWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgotLS0KIGRyaXZlcnMvbmV0L3hlbi1uZXRmcm9u
+dC5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0p
+CgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMgYi9kcml2ZXJzL25ldC94
+ZW4tbmV0ZnJvbnQuYwppbmRleCA4ZDMzOTcwYTI5NTAuLjVmNTcyMmJmNjc2MiAxMDA2NDQKLS0t
+IGEvZHJpdmVycy9uZXQveGVuLW5ldGZyb250LmMKKysrIGIvZHJpdmVycy9uZXQveGVuLW5ldGZy
+b250LmMKQEAgLTkwNiw3ICs5MDYsNyBAQCBzdGF0aWMgUklOR19JRFggeGVubmV0X2ZpbGxfZnJh
+Z3Moc3RydWN0IG5ldGZyb250X3F1ZXVlICpxdWV1ZSwKIAkJCV9fcHNrYl9wdWxsX3RhaWwoc2ti
+LCBwdWxsX3RvIC0gc2tiX2hlYWRsZW4oc2tiKSk7CiAJCX0KIAkJaWYgKHVubGlrZWx5KHNrYl9z
+aGluZm8oc2tiKS0+bnJfZnJhZ3MgPj0gTUFYX1NLQl9GUkFHUykpIHsKLQkJCXF1ZXVlLT5yeC5y
+c3BfY29ucyA9ICsrY29uczsKKwkJCXF1ZXVlLT5yeC5yc3BfY29ucyA9ICsrY29ucyArIHNrYl9x
+dWV1ZV9sZW4obGlzdCk7CiAJCQlrZnJlZV9za2IobnNrYik7CiAJCQlyZXR1cm4gfjBVOwogCQl9
+Ci0tIAoyLjIxLjAKCgpGcm9tIDk2MjU2YzZjYWUxMzM3ZGQyYTM0ZGJkMmJjMzc3ZDMyNWNlZWEz
+OGUgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEFuZHJldyBMdW5uIDxhbmRyZXdAbHVu
+bi5jaD4KRGF0ZTogVGh1LCAxMiBTZXAgMjAxOSAxNToxNjo0NSArMDIwMApTdWJqZWN0OiBbUEFU
+Q0ggNi83XSBuZXQ6IGRzYTogRml4IGxvYWQgb3JkZXIgYmV0d2VlbiBEU0EgZHJpdmVycyBhbmQg
+dGFnZ2VycwoKWyBVcHN0cmVhbSBjb21taXQgMjM0MjZhMjVlNTVhNDE3ZGMxMDRkZjA4NzgxYjZl
+ZmY5NWU2NWYzZiBdCgpUaGUgRFNBIGNvcmUsIERTQSB0YWdnZXJzIGFuZCBEU0EgZHJpdmVycyBh
+bGwgbWFrZSB1c2Ugb2YKbW9kdWxlX2luaXQoKS4gSGVuY2UgdGhleSBnZXQgaW5pdGlhbGlzZWQg
+YXQgZGV2aWNlX2luaXRjYWxsKCkgdGltZS4KVGhlIG9yZGVyaW5nIGlzIG5vbi1kZXRlcm1pbmlz
+dGljLiBJdCBjYW4gYmUgYSBEU0EgZHJpdmVyIGlzIGJvdW5kIHRvCmEgZGV2aWNlIGJlZm9yZSB0
+aGUgbmVlZGVkIHRhZyBkcml2ZXIgaGFzIGJlZW4gaW5pdGlhbGlzZWQsIHJlc3VsdGluZwppbiB0
+aGUgbWVzc2FnZToKCk5vIHRhZ2dlciBmb3IgdGhpcyBzd2l0Y2gKClJhdGhlciB0aGFuIGhhdmUg
+dGhpcyBiZSBmYXRhbCwgcmV0dXJuIC1FUFJPQkVfREVGRVIgc28gdGhhdCBpdCBpcwp0cmllZCBh
+Z2FpbiBsYXRlciBvbmNlIGFsbCB0aGUgbmVlZGVkIGRyaXZlcnMgaGF2ZSBiZWVuIGxvYWRlZC4K
+CkZpeGVzOiBkM2I4YzA0OTg4Y2EgKCJkc2E6IEFkZCBib2lsZXJwbGF0ZSBoZWxwZXIgdG8gcmVn
+aXN0ZXIgRFNBIHRhZyBkcml2ZXIgbW9kdWxlcyIpClNpZ25lZC1vZmYtYnk6IEFuZHJldyBMdW5u
+IDxhbmRyZXdAbHVubi5jaD4KU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBk
+YXZlbWxvZnQubmV0PgotLS0KIG5ldC9kc2EvZHNhMi5jIHwgMiArKwogMSBmaWxlIGNoYW5nZWQs
+IDIgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL25ldC9kc2EvZHNhMi5jIGIvbmV0L2RzYS9k
+c2EyLmMKaW5kZXggM2FiZDE3M2ViYWNiLi45NmY3ODdjZjliNmUgMTAwNjQ0Ci0tLSBhL25ldC9k
+c2EvZHNhMi5jCisrKyBiL25ldC9kc2EvZHNhMi5jCkBAIC02MjMsNiArNjIzLDggQEAgc3RhdGlj
+IGludCBkc2FfcG9ydF9wYXJzZV9jcHUoc3RydWN0IGRzYV9wb3J0ICpkcCwgc3RydWN0IG5ldF9k
+ZXZpY2UgKm1hc3RlcikKIAl0YWdfcHJvdG9jb2wgPSBkcy0+b3BzLT5nZXRfdGFnX3Byb3RvY29s
+KGRzLCBkcC0+aW5kZXgpOwogCXRhZ19vcHMgPSBkc2FfdGFnX2RyaXZlcl9nZXQodGFnX3Byb3Rv
+Y29sKTsKIAlpZiAoSVNfRVJSKHRhZ19vcHMpKSB7CisJCWlmIChQVFJfRVJSKHRhZ19vcHMpID09
+IC1FTk9QUk9UT09QVCkKKwkJCXJldHVybiAtRVBST0JFX0RFRkVSOwogCQlkZXZfd2Fybihkcy0+
+ZGV2LCAiTm8gdGFnZ2VyIGZvciB0aGlzIHN3aXRjaFxuIik7CiAJCXJldHVybiBQVFJfRVJSKHRh
+Z19vcHMpOwogCX0KLS0gCjIuMjEuMAoKCkZyb20gMTFjZjBlYTEyYTY3MjY1OTc1MWU2OGQwY2Ux
+YzU5ZTQ5YjA2OWU5OCBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogSm9zZSBBYnJldSA8
+Sm9zZS5BYnJldUBzeW5vcHN5cy5jb20+CkRhdGU6IEZyaSwgMTMgU2VwIDIwMTkgMTE6NTA6MzIg
+KzAyMDAKU3ViamVjdDogW1BBVENIIDcvN10gbmV0OiBzdG1tYWM6IEhvbGQgcnRubCBsb2NrIGlu
+IHN1c3BlbmQvcmVzdW1lIGNhbGxiYWNrcwoKWyBVcHN0cmVhbSBjb21taXQgMTllMTNjYjI3Yjk5
+OGZmNDlmMDdlMzk5YjU4NzFiZmU1YmE3ZTNmMCBdCgpXZSBuZWVkIHRvIGhvbGQgcm5sIGxvY2sg
+aW4gc3VzcGVuZCBhbmQgcmVzdW1lIGNhbGxiYWNrcyBiZWNhdXNlIHBoeWxpbmsKcmVxdWlyZXMg
+aXQuIE90aGVyd2lzZSB3ZSB3aWxsIGdldCBhIFdBUk4oKSBpbiBzdXNwZW5kIGFuZCByZXN1bWUu
+CgpBbHNvLCBtb3ZlIHBoeWxpbmsgc3RhcnQgYW5kIHN0b3AgY2FsbGJhY2tzIHRvIGluc2lkZSBk
+ZXZpY2UncyBpbnRlcm5hbApsb2NrIHNvIHRoYXQgd2UgcHJldmVudCBjb25jdXJyZW50IEhXIGFj
+Y2Vzc2VzLgoKRml4ZXM6IDc0MzcxMjcyZjk3ZiAoIm5ldDogc3RtbWFjOiBDb252ZXJ0IHRvIHBo
+eWxpbmsgYW5kIHJlbW92ZSBwaHlsaWIgbG9naWMiKQpSZXBvcnRlZC1ieTogQ2hyaXN0b3BoZSBS
+T1VMTElFUiA8Y2hyaXN0b3BoZS5yb3VsbGllckBzdC5jb20+ClRlc3RlZC1ieTogQ2hyaXN0b3Bo
+ZSBST1VMTElFUiA8Y2hyaXN0b3BoZS5yb3VsbGllckBzdC5jb20+ClNpZ25lZC1vZmYtYnk6IEpv
+c2UgQWJyZXUgPGpvYWJyZXVAc3lub3BzeXMuY29tPgpTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBN
+aWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Ci0tLQogZHJpdmVycy9uZXQvZXRoZXJuZXQvc3Rt
+aWNyby9zdG1tYWMvc3RtbWFjX21haW4uYyB8IDEyICsrKysrKysrLS0tLQogMSBmaWxlIGNoYW5n
+ZWQsIDggaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJz
+L25ldC9ldGhlcm5ldC9zdG1pY3JvL3N0bW1hYy9zdG1tYWNfbWFpbi5jIGIvZHJpdmVycy9uZXQv
+ZXRoZXJuZXQvc3RtaWNyby9zdG1tYWMvc3RtbWFjX21haW4uYwppbmRleCBmZDU0YzdjODc0ODUu
+LmIxOWFiMDljYjE4ZiAxMDA2NDQKLS0tIGEvZHJpdmVycy9uZXQvZXRoZXJuZXQvc3RtaWNyby9z
+dG1tYWMvc3RtbWFjX21haW4uYworKysgYi9kcml2ZXJzL25ldC9ldGhlcm5ldC9zdG1pY3JvL3N0
+bW1hYy9zdG1tYWNfbWFpbi5jCkBAIC00NDUxLDEwICs0NDUxLDEyIEBAIGludCBzdG1tYWNfc3Vz
+cGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpCiAJaWYgKCFuZGV2IHx8ICFuZXRpZl9ydW5uaW5nKG5k
+ZXYpKQogCQlyZXR1cm4gMDsKIAotCXBoeWxpbmtfc3RvcChwcml2LT5waHlsaW5rKTsKLQogCW11
+dGV4X2xvY2soJnByaXYtPmxvY2spOwogCisJcnRubF9sb2NrKCk7CisJcGh5bGlua19zdG9wKHBy
+aXYtPnBoeWxpbmspOworCXJ0bmxfdW5sb2NrKCk7CisKIAluZXRpZl9kZXZpY2VfZGV0YWNoKG5k
+ZXYpOwogCXN0bW1hY19zdG9wX2FsbF9xdWV1ZXMocHJpdik7CiAKQEAgLTQ1NTgsOSArNDU2MCwx
+MSBAQCBpbnQgc3RtbWFjX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCiAKIAlzdG1tYWNfc3Rh
+cnRfYWxsX3F1ZXVlcyhwcml2KTsKIAotCW11dGV4X3VubG9jaygmcHJpdi0+bG9jayk7Ci0KKwly
+dG5sX2xvY2soKTsKIAlwaHlsaW5rX3N0YXJ0KHByaXYtPnBoeWxpbmspOworCXJ0bmxfdW5sb2Nr
+KCk7CisKKwltdXRleF91bmxvY2soJnByaXYtPmxvY2spOwogCiAJcmV0dXJuIDA7CiB9Ci0tIAoy
+LjIxLjAKCg==
+
+----Next_Part(Thu_Sep_19_14_07_00_2019_555)----
