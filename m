@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B97B8764
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E32B9B875F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392401AbfISWgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:36:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44234 "EHLO mail.kernel.org"
+        id S2405274AbfISWGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404008AbfISWGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:44 -0400
+        id S2405269AbfISWGq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:06:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEFB721907;
-        Thu, 19 Sep 2019 22:06:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E5E21920;
+        Thu, 19 Sep 2019 22:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930803;
-        bh=A96tY/4sS9HYUt1WTbvdvzg4QevFECvNRTBIpnu+yPA=;
+        s=default; t=1568930806;
+        bh=U4CHxSGHitHApCNjAH7iKIqHWmPLONJnYaP/Hq8Qqhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7y2YE4aSgnVM5o4q5zkqVixKPpxHsEJIjxwq+r003UgHcqZ82MF8ljbhZNfaE/4t
-         8EORPLnHEcvYo2IdOfASscn+a/av9jdzihGSDjE9jrfcXhgwVX6nw+xGlaEmrqlMSx
-         fXbRC9npwvX+e7voLVyTGUAalXu0agu2edtnrsvs=
+        b=kVSsixw5obFjMcBuEbwq0N7Esh6fIBgU9+/H+EdR4qsMkT0sU/BRlQ9Ig4mjXRjPQ
+         qFKmZmK9jJU5/ZyPW+VWtGf1dSOM1iTAf/gGr70rjnxqK13qftc/wjC0LON+ghgz0I
+         eazpQmLolwaa5wxX4lkl31+9k8fa6HFoNuSKP05w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 020/124] net: dsa: Fix load order between DSA drivers and taggers
-Date:   Fri, 20 Sep 2019 00:01:48 +0200
-Message-Id: <20190919214819.826331215@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Delco <delco@chromium.org>,
+        Jim Mattson <jmattson@google.com>,
+        syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.2 021/124] KVM: coalesced_mmio: add bounds checking
+Date:   Fri, 20 Sep 2019 00:01:49 +0200
+Message-Id: <20190919214819.854076035@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -43,39 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Matt Delco <delco@chromium.org>
 
-[ Upstream commit 23426a25e55a417dc104df08781b6eff95e65f3f ]
+commit b60fe990c6b07ef6d4df67bc0530c7c90a62623a upstream.
 
-The DSA core, DSA taggers and DSA drivers all make use of
-module_init(). Hence they get initialised at device_initcall() time.
-The ordering is non-deterministic. It can be a DSA driver is bound to
-a device before the needed tag driver has been initialised, resulting
-in the message:
+The first/last indexes are typically shared with a user app.
+The app can change the 'last' index that the kernel uses
+to store the next result.  This change sanity checks the index
+before using it for writing to a potentially arbitrary address.
 
-No tagger for this switch
+This fixes CVE-2019-14821.
 
-Rather than have this be fatal, return -EPROBE_DEFER so that it is
-tried again later once all the needed drivers have been loaded.
-
-Fixes: d3b8c04988ca ("dsa: Add boilerplate helper to register DSA tag driver modules")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 5f94c1741bdc ("KVM: Add coalesced MMIO support (common part)")
+Signed-off-by: Matt Delco <delco@chromium.org>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reported-by: syzbot+983c866c3dd6efa3662a@syzkaller.appspotmail.com
+[Use READ_ONCE. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/dsa/dsa2.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -577,6 +577,8 @@ static int dsa_port_parse_cpu(struct dsa
- 	tag_protocol = ds->ops->get_tag_protocol(ds, dp->index);
- 	tag_ops = dsa_tag_driver_get(tag_protocol);
- 	if (IS_ERR(tag_ops)) {
-+		if (PTR_ERR(tag_ops) == -ENOPROTOOPT)
-+			return -EPROBE_DEFER;
- 		dev_warn(ds->dev, "No tagger for this switch\n");
- 		return PTR_ERR(tag_ops);
+---
+ virt/kvm/coalesced_mmio.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -40,7 +40,7 @@ static int coalesced_mmio_in_range(struc
+ 	return 1;
+ }
+ 
+-static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev)
++static int coalesced_mmio_has_room(struct kvm_coalesced_mmio_dev *dev, u32 last)
+ {
+ 	struct kvm_coalesced_mmio_ring *ring;
+ 	unsigned avail;
+@@ -52,7 +52,7 @@ static int coalesced_mmio_has_room(struc
+ 	 * there is always one unused entry in the buffer
+ 	 */
+ 	ring = dev->kvm->coalesced_mmio_ring;
+-	avail = (ring->first - ring->last - 1) % KVM_COALESCED_MMIO_MAX;
++	avail = (ring->first - last - 1) % KVM_COALESCED_MMIO_MAX;
+ 	if (avail == 0) {
+ 		/* full */
+ 		return 0;
+@@ -67,25 +67,28 @@ static int coalesced_mmio_write(struct k
+ {
+ 	struct kvm_coalesced_mmio_dev *dev = to_mmio(this);
+ 	struct kvm_coalesced_mmio_ring *ring = dev->kvm->coalesced_mmio_ring;
++	__u32 insert;
+ 
+ 	if (!coalesced_mmio_in_range(dev, addr, len))
+ 		return -EOPNOTSUPP;
+ 
+ 	spin_lock(&dev->kvm->ring_lock);
+ 
+-	if (!coalesced_mmio_has_room(dev)) {
++	insert = READ_ONCE(ring->last);
++	if (!coalesced_mmio_has_room(dev, insert) ||
++	    insert >= KVM_COALESCED_MMIO_MAX) {
+ 		spin_unlock(&dev->kvm->ring_lock);
+ 		return -EOPNOTSUPP;
  	}
+ 
+ 	/* copy data in first free entry of the ring */
+ 
+-	ring->coalesced_mmio[ring->last].phys_addr = addr;
+-	ring->coalesced_mmio[ring->last].len = len;
+-	memcpy(ring->coalesced_mmio[ring->last].data, val, len);
+-	ring->coalesced_mmio[ring->last].pio = dev->zone.pio;
++	ring->coalesced_mmio[insert].phys_addr = addr;
++	ring->coalesced_mmio[insert].len = len;
++	memcpy(ring->coalesced_mmio[insert].data, val, len);
++	ring->coalesced_mmio[insert].pio = dev->zone.pio;
+ 	smp_wmb();
+-	ring->last = (ring->last + 1) % KVM_COALESCED_MMIO_MAX;
++	ring->last = (insert + 1) % KVM_COALESCED_MMIO_MAX;
+ 	spin_unlock(&dev->kvm->ring_lock);
+ 	return 0;
+ }
 
 
