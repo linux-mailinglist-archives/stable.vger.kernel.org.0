@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD947B86A1
+	by mail.lfdr.de (Postfix) with ESMTP id 4196DB86A0
 	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406169AbfISWPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55782 "EHLO mail.kernel.org"
+        id S2406213AbfISWPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406192AbfISWPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:15:46 -0400
+        id S2404416AbfISWPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:15:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AFC721907;
-        Thu, 19 Sep 2019 22:15:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D485321907;
+        Thu, 19 Sep 2019 22:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931345;
-        bh=hFYo/74gVn52eg42PNmX0qBZBecS71x9smF8rN55b5I=;
+        s=default; t=1568931348;
+        bh=9lb3SWxX/C1wWDSA+roIseZKqStn2Kk5e3tEe6Fhw1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTuHtbOKzeS/MkdDV3ck+Y0+iqc4uKshKrFMmkTNQpVJ4Ih68p7ODrAtNFrTpxVzg
-         dwe8kwaB65vwM5PRZpTSjDLpMKsLyRgjStxPHV42UZYMgiyAT+eGULqmV78lql8Ypu
-         2zcrOwEmKuUaFalima+tjMTSYPgTOPy4JOaDM7Tc=
+        b=ADRwd9C1vpXOa7k1UCKmDkxwmTlPRfXkBrFPgaecgtB/ZJSd55LIPhp/VSiQsl6dY
+         IMvk4dDnHHzSuMV9R6AOZgmlqpQLeoee1DySw8B0Gf9DTcBCKelgxB5ITQNGEHCYOR
+         TvFDhJHP4/AGAnSNa7PpX3t3Hfc/L0WrFZMVcfU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Huang <huangwenabc@gmail.com>,
-        Ganapathi Bhat <gbhat@marvell.comg>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 13/59] mwifiex: Fix three heap overflow at parsing element in cfg80211_ap_settings
-Date:   Fri, 20 Sep 2019 00:03:28 +0200
-Message-Id: <20190919214759.440150411@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Masashi Honma <masashi.honma@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 14/59] nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds
+Date:   Fri, 20 Sep 2019 00:03:29 +0200
+Message-Id: <20190919214759.601512597@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
 References: <20190919214755.852282682@linuxfoundation.org>
@@ -44,73 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Huang <huangwenabc@gmail.com>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-commit 7caac62ed598a196d6ddf8d9c121e12e082cac3a upstream.
+commit 4b2c5a14cd8005a900075f7dfec87473c6ee66fb upstream.
 
-mwifiex_update_vs_ie(),mwifiex_set_uap_rates() and
-mwifiex_set_wmm_params() call memcpy() without checking
-the destination size.Since the source is given from
-user-space, this may trigger a heap buffer overflow.
+commit 1222a1601488 ("nl80211: Fix possible Spectre-v1 for CQM
+RSSI thresholds") was incomplete and requires one more fix to
+prevent accessing to rssi_thresholds[n] because user can control
+rssi_thresholds[i] values to make i reach to n. For example,
+rssi_thresholds = {-400, -300, -200, -100} when last is -34.
 
-Fix them by putting the length check before performing memcpy().
-
-This fix addresses CVE-2019-14814,CVE-2019-14815,CVE-2019-14816.
-
-Signed-off-by: Wen Huang <huangwenabc@gmail.com>
-Acked-by: Ganapathi Bhat <gbhat@marvell.comg>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: stable@vger.kernel.org
+Fixes: 1222a1601488 ("nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Link: https://lore.kernel.org/r/20190908005653.17433-1-masashi.honma@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/ie.c      |    3 +++
- drivers/net/wireless/marvell/mwifiex/uap_cmd.c |    9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/ie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/ie.c
-@@ -241,6 +241,9 @@ static int mwifiex_update_vs_ie(const u8
- 		}
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -9753,9 +9753,11 @@ static int cfg80211_cqm_rssi_update(stru
+ 	hyst = wdev->cqm_config->rssi_hyst;
+ 	n = wdev->cqm_config->n_rssi_thresholds;
  
- 		vs_ie = (struct ieee_types_header *)vendor_ie;
-+		if (le16_to_cpu(ie->ie_length) + vs_ie->len + 2 >
-+			IEEE_MAX_IE_SIZE)
-+			return -EINVAL;
- 		memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
- 		       vs_ie, vs_ie->len + 2);
- 		le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
---- a/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
-+++ b/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
-@@ -265,6 +265,8 @@ mwifiex_set_uap_rates(struct mwifiex_uap
- 
- 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_SUPP_RATES, var_pos, len);
- 	if (rate_ie) {
-+		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES)
-+			return;
- 		memcpy(bss_cfg->rates, rate_ie + 1, rate_ie->len);
- 		rate_len = rate_ie->len;
- 	}
-@@ -272,8 +274,11 @@ mwifiex_set_uap_rates(struct mwifiex_uap
- 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
- 					   params->beacon.tail,
- 					   params->beacon.tail_len);
--	if (rate_ie)
-+	if (rate_ie) {
-+		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES - rate_len)
-+			return;
- 		memcpy(bss_cfg->rates + rate_len, rate_ie + 1, rate_ie->len);
+-	for (i = 0; i < n; i++)
++	for (i = 0; i < n; i++) {
++		i = array_index_nospec(i, n);
+ 		if (last < wdev->cqm_config->rssi_thresholds[i])
+ 			break;
 +	}
  
- 	return;
- }
-@@ -391,6 +396,8 @@ mwifiex_set_wmm_params(struct mwifiex_pr
- 					    params->beacon.tail_len);
- 	if (vendor_ie) {
- 		wmm_ie = vendor_ie;
-+		if (*(wmm_ie + 1) > sizeof(struct mwifiex_types_wmm_info))
-+			return;
- 		memcpy(&bss_cfg->wmm_info, wmm_ie +
- 		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
- 		priv->wmm_enabled = 1;
+ 	low_index = i - 1;
+ 	if (low_index >= 0) {
 
 
