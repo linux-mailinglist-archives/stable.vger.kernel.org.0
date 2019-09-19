@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 731BDB84B1
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA6AB854F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406026AbfISWNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52296 "EHLO mail.kernel.org"
+        id S1733263AbfISWTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:19:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393731AbfISWNN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:13:13 -0400
+        id S1731332AbfISWTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:19:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D99D21924;
-        Thu, 19 Sep 2019 22:13:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 728B420678;
+        Thu, 19 Sep 2019 22:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931192;
-        bh=f37VyrfJ+6B8a1BBEwyKuj1RitCm1kFr2ZZwpsJCCW8=;
+        s=default; t=1568931581;
+        bh=m3qCy2g8XdxYeuzfG9cR3BKMkKqjyOQEIvoc12ySV2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ll/URLjw4blxByFShrC4qYkdsrq92B0NJvcZKgKtE87YGBrUoxBCsufHjwmnHKlqX
-         XHa4ZbKRGYrpIHq/0zet0Ks5khfOP1r4EwerRadUmNHCGOHuGKYMW8rQBIL65h2LUA
-         O+W7WuQTzCL6sAnHggbnleHtVw8cXsIK0vkk91tw=
+        b=R68L0J8lpPmQoRWgotrNVHBbVvJ2/pI8DArYYDQWrh2s/MQeZ0a3HKdliy8wRiPh7
+         BkGCSpjyUvnrgvke5C1/sBv8grudzOLtCzeppWYBhj+GooDSpxZGwKGIw7xaNtmQv6
+         2euiAZAqf6Gll26bAIE9om0gneO2MQfp1eVFD6cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/79] netfilter: xt_nfacct: Fix alignment mismatch in xt_nfacct_match_info
+        syzbot+bc6297c11f19ee807dc2@syzkaller.appspotmail.com,
+        syzbot+041483004a7f45f1f20a@syzkaller.appspotmail.com,
+        syzbot+55be5f513bed37fc4367@syzkaller.appspotmail.com,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>, Terry Lam <vtlam@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 07/74] sch_hhf: ensure quantum and hhf_non_hh_weight are non-zero
 Date:   Fri, 20 Sep 2019 00:03:20 +0200
-Message-Id: <20190919214810.818333331@linuxfoundation.org>
+Message-Id: <20190919214802.500659970@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 89a26cd4b501e9511d3cd3d22327fc76a75a38b3 ]
+[ Upstream commit d4d6ec6dac07f263f06d847d6f732d6855522845 ]
 
-When running a 64-bit kernel with a 32-bit iptables binary, the size of
-the xt_nfacct_match_info struct diverges.
+In case of TCA_HHF_NON_HH_WEIGHT or TCA_HHF_QUANTUM is zero,
+it would make no progress inside the loop in hhf_dequeue() thus
+kernel would get stuck.
 
-    kernel: sizeof(struct xt_nfacct_match_info) : 40
-    iptables: sizeof(struct xt_nfacct_match_info)) : 36
+Fix this by checking this corner case in hhf_change().
 
-Trying to append nfacct related rules results in an unhelpful message.
-Although it is suggested to look for more information in dmesg, nothing
-can be found there.
-
-    # iptables -A <chain> -m nfacct --nfacct-name <acct-object>
-    iptables: Invalid argument. Run `dmesg' for more information.
-
-This patch fixes the memory misalignment by enforcing 8-byte alignment
-within the struct's first revision. This solution is often used in many
-other uapi netfilter headers.
-
-Signed-off-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 10239edf86f1 ("net-qdisc-hhf: Heavy-Hitter Filter (HHF) qdisc")
+Reported-by: syzbot+bc6297c11f19ee807dc2@syzkaller.appspotmail.com
+Reported-by: syzbot+041483004a7f45f1f20a@syzkaller.appspotmail.com
+Reported-by: syzbot+55be5f513bed37fc4367@syzkaller.appspotmail.com
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Terry Lam <vtlam@google.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/netfilter/xt_nfacct.h |  5 ++++
- net/netfilter/xt_nfacct.c                | 36 ++++++++++++++++--------
- 2 files changed, 30 insertions(+), 11 deletions(-)
+ net/sched/sch_hhf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/netfilter/xt_nfacct.h b/include/uapi/linux/netfilter/xt_nfacct.h
-index 5c8a4d760ee34..b5123ab8d54a8 100644
---- a/include/uapi/linux/netfilter/xt_nfacct.h
-+++ b/include/uapi/linux/netfilter/xt_nfacct.h
-@@ -11,4 +11,9 @@ struct xt_nfacct_match_info {
- 	struct nf_acct	*nfacct;
- };
+--- a/net/sched/sch_hhf.c
++++ b/net/sched/sch_hhf.c
+@@ -543,7 +543,7 @@ static int hhf_change(struct Qdisc *sch,
+ 		new_hhf_non_hh_weight = nla_get_u32(tb[TCA_HHF_NON_HH_WEIGHT]);
  
-+struct xt_nfacct_match_info_v1 {
-+	char		name[NFACCT_NAME_MAX];
-+	struct nf_acct	*nfacct __attribute__((aligned(8)));
-+};
-+
- #endif /* _XT_NFACCT_MATCH_H */
-diff --git a/net/netfilter/xt_nfacct.c b/net/netfilter/xt_nfacct.c
-index 6b56f4170860c..3241fee9f2a19 100644
---- a/net/netfilter/xt_nfacct.c
-+++ b/net/netfilter/xt_nfacct.c
-@@ -57,25 +57,39 @@ nfacct_mt_destroy(const struct xt_mtdtor_param *par)
- 	nfnl_acct_put(info->nfacct);
- }
+ 	non_hh_quantum = (u64)new_quantum * new_hhf_non_hh_weight;
+-	if (non_hh_quantum > INT_MAX)
++	if (non_hh_quantum == 0 || non_hh_quantum > INT_MAX)
+ 		return -EINVAL;
  
--static struct xt_match nfacct_mt_reg __read_mostly = {
--	.name       = "nfacct",
--	.family     = NFPROTO_UNSPEC,
--	.checkentry = nfacct_mt_checkentry,
--	.match      = nfacct_mt,
--	.destroy    = nfacct_mt_destroy,
--	.matchsize  = sizeof(struct xt_nfacct_match_info),
--	.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
--	.me         = THIS_MODULE,
-+static struct xt_match nfacct_mt_reg[] __read_mostly = {
-+	{
-+		.name       = "nfacct",
-+		.revision   = 0,
-+		.family     = NFPROTO_UNSPEC,
-+		.checkentry = nfacct_mt_checkentry,
-+		.match      = nfacct_mt,
-+		.destroy    = nfacct_mt_destroy,
-+		.matchsize  = sizeof(struct xt_nfacct_match_info),
-+		.usersize   = offsetof(struct xt_nfacct_match_info, nfacct),
-+		.me         = THIS_MODULE,
-+	},
-+	{
-+		.name       = "nfacct",
-+		.revision   = 1,
-+		.family     = NFPROTO_UNSPEC,
-+		.checkentry = nfacct_mt_checkentry,
-+		.match      = nfacct_mt,
-+		.destroy    = nfacct_mt_destroy,
-+		.matchsize  = sizeof(struct xt_nfacct_match_info_v1),
-+		.usersize   = offsetof(struct xt_nfacct_match_info_v1, nfacct),
-+		.me         = THIS_MODULE,
-+	},
- };
- 
- static int __init nfacct_mt_init(void)
- {
--	return xt_register_match(&nfacct_mt_reg);
-+	return xt_register_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
- }
- 
- static void __exit nfacct_mt_exit(void)
- {
--	xt_unregister_match(&nfacct_mt_reg);
-+	xt_unregister_matches(nfacct_mt_reg, ARRAY_SIZE(nfacct_mt_reg));
- }
- 
- module_init(nfacct_mt_init);
--- 
-2.20.1
-
+ 	sch_tree_lock(sch);
 
 
