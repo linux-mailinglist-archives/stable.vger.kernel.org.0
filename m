@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5206FB8668
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B171B861F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406552AbfISWSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59402 "EHLO mail.kernel.org"
+        id S2406716AbfISWVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404681AbfISWSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:18:00 -0400
+        id S2406712AbfISWVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:21:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CA3E21924;
-        Thu, 19 Sep 2019 22:17:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAEAF21924;
+        Thu, 19 Sep 2019 22:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931479;
-        bh=XoWVh8zkxqQBH7vyK96N6HQzgw676k1kvoxSzDKHeGA=;
+        s=default; t=1568931681;
+        bh=A7T8CFDm/h4B79sB4NYCgtnTg1DZ0ENRpvKZ03VCHAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ik+2BtCYHFsjS9srJRcR/5qMdnb/MSNG9Tt6DZ2vvvfj6O7Uxu7ZaKjJxHIi0kE4g
-         351V0jy7C/cCroMm/CoOu14efRsv7PVDb4qbUP6KnawX1LOC1ZLu3gSduXjt25Q0lP
-         FKdGjLFv2ElDyFbJGFC9POHJ5WNeqJPhm26Dj+80=
+        b=sz4F2ABUZ8qWaXeS96QeXf943jbqShfSPZOH2J+PWofB9ySNDlQNJjqlyHBM/yxNV
+         x2BgY5NKOTpp/CsHaT3r5T9xPJAlJfyqruWE2i0ovACYZZjLUlSj0aBhW3dnwlhDt5
+         S10Q6MGHiBtreseBgvIg5dxVCabuXMbY1KK5qAI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/59] cifs: Use kzfree() to zero out the password
-Date:   Fri, 20 Sep 2019 00:03:51 +0200
-Message-Id: <20190919214806.407908148@linuxfoundation.org>
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 39/74] xen-netfront: do not assume sk_buff_head list is empty in error handling
+Date:   Fri, 20 Sep 2019 00:03:52 +0200
+Message-Id: <20190919214808.712612375@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 478228e57f81f6cb60798d54fc02a74ea7dd267e ]
+[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
 
-It's safer to zero out the password so that it can never be disclosed.
+When skb_shinfo(skb) is not able to cache extra fragment (that is,
+skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
+the sk_buff_head list is already empty. As a result, cons is increased only
+by 1 and returns to error handling path in xennet_poll().
 
-Fixes: 0c219f5799c7 ("cifs: set domainName when a domain-key is used in multiuser")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
+set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
+buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
+already cleared to NULL. This leads to NULL pointer access in the next
+iteration to process rx ring buffer entries.
+
+Below is how xennet_poll() does error handling. All remaining entries in
+tmpq are accounted to queue->rx.rsp_cons without assuming how many
+outstanding skbs are remained in the list.
+
+ 985 static int xennet_poll(struct napi_struct *napi, int budget)
+... ...
+1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
+1033                   __skb_queue_head(&tmpq, skb);
+1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
+1035                   goto err;
+1036           }
+
+It is better to always have the error handling in the same way.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c | 2 +-
+ drivers/net/xen-netfront.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 699e763ea671a..f523a9ca9574f 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2662,7 +2662,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 			rc = -ENOMEM;
- 			kfree(vol->username);
- 			vol->username = NULL;
--			kfree(vol->password);
-+			kzfree(vol->password);
- 			vol->password = NULL;
- 			goto out_key_put;
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -907,7 +907,7 @@ static RING_IDX xennet_fill_frags(struct
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
  		}
--- 
-2.20.1
-
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons;
++			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+ 			return ~0U;
+ 		}
 
 
