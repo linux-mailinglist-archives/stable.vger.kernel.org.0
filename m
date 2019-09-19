@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 000C5B85E8
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F83B8618
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406966AbfISWXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
+        id S2394059AbfISWVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406961AbfISWXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:23:22 -0400
+        id S2389787AbfISWVk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:21:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9DA72196E;
-        Thu, 19 Sep 2019 22:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C983820678;
+        Thu, 19 Sep 2019 22:21:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931801;
-        bh=cF3MtTz0nl54vr9qdfCWKaugfJ7HGXcCO4z5/TrMAv4=;
+        s=default; t=1568931700;
+        bh=JYYdEn/FHh0Qp63iTxBnQEDPzotdp6ZEypjl8ByySCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OESvIapInBCV8eFrCDh+WXjOVhBbpXLGS4idQXM+BtcAEJpDKzCu4ffoMbHRUzrHS
-         tKbOwpWWsCJ6JVlhL1jJJoUqypFuzwiLXmDcwxU7fz5n9XfjTfnkR4aflOsCfDLbej
-         Sz2ImwXml3uhc1LE51MUp6cOwYpZHeOvuP1B7qcc=
+        b=YTMCv3M60RUis55ibpoKSUpxDThiDBwtOiqbu231Burdu0CjDT/JFWLwuq+OaqdaX
+         rtPEaIMo56VXzq2lR543MVFLMcCQRWc66NbKxB859rXn0ygjtGqZwRCco354SnDkY1
+         mOSnkI5WNiB73jjRUiT24fBy3aqnTfQM+A9wYWyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 45/56] NFSv2: Fix eof handling
+        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>, Kees Cook <keescook@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.9 73/74] media: technisat-usb2: break out of loop at end of buffer
 Date:   Fri, 20 Sep 2019 00:04:26 +0200
-Message-Id: <20190919214801.165500012@linuxfoundation.org>
+Message-Id: <20190919214811.498210608@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 71affe9be45a5c60b9772e1b2701710712637274 ]
+commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b upstream.
 
-If we received a reply from the server with a zero length read and
-no error, then that implies we are at eof.
+Ensure we do not access the buffer beyond the end if no 0xff byte
+is encountered.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/proc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/technisat-usb2.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
-index b417bbcd97046..80ecdf2ec8b6a 100644
---- a/fs/nfs/proc.c
-+++ b/fs/nfs/proc.c
-@@ -588,7 +588,8 @@ static int nfs_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
- 		/* Emulate the eof flag, which isn't normally needed in NFSv2
- 		 * as it is guaranteed to always return the file attributes
- 		 */
--		if (hdr->args.offset + hdr->res.count >= hdr->res.fattr->size)
-+		if ((hdr->res.count == 0 && hdr->args.count > 0) ||
-+		    hdr->args.offset + hdr->res.count >= hdr->res.fattr->size)
- 			hdr->res.eof = 1;
+--- a/drivers/media/usb/dvb-usb/technisat-usb2.c
++++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
+@@ -612,10 +612,9 @@ static int technisat_usb2_frontend_attac
+ static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+ {
+ 	struct technisat_usb2_state *state = d->priv;
+-	u8 *buf = state->buf;
+-	u8 *b;
+-	int ret;
+ 	struct ir_raw_event ev;
++	u8 *buf = state->buf;
++	int i, ret;
+ 
+ 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
+ 	buf[1] = 0x08;
+@@ -651,26 +650,25 @@ unlock:
+ 		return 0; /* no key pressed */
+ 
+ 	/* decoding */
+-	b = buf+1;
+ 
+ #if 0
+ 	deb_rc("RC: %d ", ret);
+-	debug_dump(b, ret, deb_rc);
++	debug_dump(buf + 1, ret, deb_rc);
+ #endif
+ 
+ 	ev.pulse = 0;
+-	while (1) {
+-		ev.pulse = !ev.pulse;
+-		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
+-		ir_raw_event_store(d->rc_dev, &ev);
+-
+-		b++;
+-		if (*b == 0xff) {
++	for (i = 1; i < ARRAY_SIZE(state->buf); i++) {
++		if (buf[i] == 0xff) {
+ 			ev.pulse = 0;
+ 			ev.duration = 888888*2;
+ 			ir_raw_event_store(d->rc_dev, &ev);
+ 			break;
+ 		}
++
++		ev.pulse = !ev.pulse;
++		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
++			       FIRMWARE_CLOCK_TICK) / 1000;
++		ir_raw_event_store(d->rc_dev, &ev);
  	}
- 	return 0;
--- 
-2.20.1
-
+ 
+ 	ir_raw_event_handle(d->rc_dev);
 
 
