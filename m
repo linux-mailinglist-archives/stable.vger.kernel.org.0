@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE370B84B4
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:13:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B71B8490
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404068AbfISWNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52462 "EHLO mail.kernel.org"
+        id S2393623AbfISWME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406044AbfISWNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:13:21 -0400
+        id S2405908AbfISWMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72E83218AF;
-        Thu, 19 Sep 2019 22:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B93821928;
+        Thu, 19 Sep 2019 22:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931201;
-        bh=UwkLOss8wkclcHBYiCRbmLPM4E55ZqOq/fuQyOTsQlY=;
+        s=default; t=1568931121;
+        bh=zaQyDGvOlbLfiZH2dhLlZf2hndqSXpFqWPdjiFSpuc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=130Hp2eTb0qVR1/hQs7024NQU6JqPk/bKh4HJ65NA0xnBV91FNPhGmYXS+/fUI4LL
-         SimcOWBSHTwJT6HlycGWHdVRIknBQcqt/zZlXnja0SAQhSMAvsI93bCZqGgZLoE8tS
-         GfGSbjzXbVQNSJGa9btsWnacIvEVaMJ/PTsJn1NQ=
+        b=n/I8K++HG8HhN2tGJ0wpd/7XZjAQiLgSMV3LOle3h2IjVPkNhZaDTZ1kVvMnAE5k5
+         vROCbhouVcFOyUo4c4wZOQjKO3/STwpydSumNyMxwAzR131+Ao59H7ZIK+87aAYyUX
+         qZopc6QXS2F+dVJNQPINOVgZcWANjsqCRXZrva+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 04/79] Input: elan_i2c - remove Lenovo Legion Y7000 PnpID
-Date:   Fri, 20 Sep 2019 00:02:49 +0200
-Message-Id: <20190919214808.140980058@linuxfoundation.org>
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 11/79] xen-netfront: do not assume sk_buff_head list is empty in error handling
+Date:   Fri, 20 Sep 2019 00:02:56 +0200
+Message-Id: <20190919214808.814103522@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
 References: <20190919214807.612593061@linuxfoundation.org>
@@ -44,36 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-commit 0c043d70d04711fe6c380df9065fdc44192c49bf upstream.
+[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
 
-Looks like the Bios of the Lenovo Legion Y7000 is using ELAN061B
-when the actual device is supposed to be used with hid-multitouch.
+When skb_shinfo(skb) is not able to cache extra fragment (that is,
+skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
+the sk_buff_head list is already empty. As a result, cons is increased only
+by 1 and returns to error handling path in xennet_poll().
 
-Remove it from the list of the supported device, hoping that
-no one will complain about the loss in functionality.
+However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
+set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
+buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
+already cleared to NULL. This leads to NULL pointer access in the next
+iteration to process rx ring buffer entries.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203467
-Fixes: 738c06d0e456 ("Input: elan_i2c - add hardware ID for multiple Lenovo laptops")
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Below is how xennet_poll() does error handling. All remaining entries in
+tmpq are accounted to queue->rx.rsp_cons without assuming how many
+outstanding skbs are remained in the list.
+
+ 985 static int xennet_poll(struct napi_struct *napi, int budget)
+... ...
+1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
+1033                   __skb_queue_head(&tmpq, skb);
+1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
+1035                   goto err;
+1036           }
+
+It is better to always have the error handling in the same way.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/mouse/elan_i2c_core.c |    2 +-
+ drivers/net/xen-netfront.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1358,7 +1358,7 @@ static const struct acpi_device_id elan_
- 	{ "ELAN0618", 0 },
- 	{ "ELAN0619", 0 },
- 	{ "ELAN061A", 0 },
--	{ "ELAN061B", 0 },
-+/*	{ "ELAN061B", 0 }, not working on the Lenovo Legion Y7000 */
- 	{ "ELAN061C", 0 },
- 	{ "ELAN061D", 0 },
- 	{ "ELAN061E", 0 },
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -909,7 +909,7 @@ static RING_IDX xennet_fill_frags(struct
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons;
++			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+ 			return ~0U;
+ 		}
 
 
