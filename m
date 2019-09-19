@@ -2,65 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7166AB815D
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D531B816D
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404422AbfISTZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 15:25:55 -0400
-Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:48207 "EHLO
-        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404419AbfISTZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 15:25:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1568921154; x=1600457154;
-  h=date:from:to:subject:message-id:mime-version;
-  bh=+SW9l7OSsW8indnPrZTGb9PIoiWsXbbY4wCLGLR3Pc8=;
-  b=oHiS+OXfRIbtKUILl5qAgwpmfDTLBdu7CQQQcr3UCPq0WfKVQ/5gqLmb
-   BzT7JB/lOAn+i2wF40nKBRwIkH0rsvw8uGgZIY7l1/H4oovwP/0jKpR+K
-   e03YA9wxAr+6X7kmTE/+TKwVnHBwtLu3WYv3y1wgTEWcg2Z67GdS9dqUP
-   A=;
-X-IronPort-AV: E=Sophos;i="5.64,524,1559520000"; 
-   d="scan'208";a="785880765"
-Received: from iad6-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2a-c5104f52.us-west-2.amazon.com) ([10.124.125.6])
-  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 19 Sep 2019 19:25:53 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
-        by email-inbound-relay-2a-c5104f52.us-west-2.amazon.com (Postfix) with ESMTPS id ED444A2091
-        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 19:25:52 +0000 (UTC)
-Received: from EX13D10UWA004.ant.amazon.com (10.43.160.64) by
- EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Thu, 19 Sep 2019 19:25:52 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
- EX13D10UWA004.ant.amazon.com (10.43.160.64) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Thu, 19 Sep 2019 19:25:51 +0000
-Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
- (172.23.141.97) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
- Server id 15.0.1367.3 via Frontend Transport; Thu, 19 Sep 2019 19:25:52 +0000
-Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 35746C130D; Thu, 19 Sep 2019 19:25:52 +0000 (UTC)
-Date:   Thu, 19 Sep 2019 19:25:52 +0000
-From:   Frank van der Linden <fllinden@amazon.com>
-To:     <stable@vger.kernel.org>
-Subject: binfmt_elf patch [4.14, 4.19]
-Message-ID: <20190919192552.GA7060@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com>
+        id S2390382AbfISTdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 15:33:12 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:47147 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390364AbfISTdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 15:33:12 -0400
+X-Originating-IP: 91.224.148.103
+Received: from localhost.localdomain (unknown [91.224.148.103])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 3AF66240006;
+        Thu, 19 Sep 2019 19:33:07 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Cc:     <linux-mtd@lists.infradead.org>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Schrempf Frieder <frieder.schrempf@kontron.de>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Mason Yang <masonccyang@mxic.com.tw>,
+        Julien Su <juliensu@mxic.com.tw>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 39/40] mtd: spinand: Fix OOB read
+Date:   Thu, 19 Sep 2019 21:31:39 +0200
+Message-Id: <20190919193141.7865-40-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190919193141.7865-1-miquel.raynal@bootlin.com>
+References: <20190919193141.7865-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+So far OOB have never been used in SPI-NAND, add the missing memcpy to
+make it work properly.
 
-Please include the following patch in 4.14 and 4.19, where it applies
-cleanly and has been tested by us.
+Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+---
+ drivers/mtd/nand/spi/core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-commit bbdc6076d2e5d07db44e74c11b01a3e27ab90b32 upstream
+diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
+index 314cbdad1462..f5d2fcae5e59 100644
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -383,6 +383,10 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
+ 		memcpy(req->databuf.in, spinand->databuf + req->dataoffs,
+ 		       req->datalen);
+ 
++	if (req->ooblen)
++		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
++		       req->ooblen);
++
+ 	return 0;
+ }
+ 
+-- 
+2.20.1
 
-("binfmt_elf: move brk out of mmap when doing direct loader exec")
-
-Thanks,
-
-- Frank
