@@ -2,111 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FD7B83B4
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 23:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82756B83C1
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 23:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733050AbfISVu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 17:50:29 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:55156 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733028AbfISVu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 17:50:29 -0400
-Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iB4Ji-00055W-Mw; Thu, 19 Sep 2019 21:50:22 +0000
-Date:   Thu, 19 Sep 2019 23:50:21 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     shuah <shuah@kernel.org>
-Cc:     keescook@chromium.org, luto@amacapital.net, jannh@google.com,
-        wad@chromium.org, ast@kernel.org, daniel@iogearbox.net,
-        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        Tycho Andersen <tycho@tycho.ws>,
-        Tyler Hicks <tyhicks@canonical.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1 3/3] seccomp: test SECCOMP_USER_NOTIF_FLAG_CONTINUE
-Message-ID: <20190919215020.7gfqwy44umxollou@wittgenstein>
-References: <20190919095903.19370-1-christian.brauner@ubuntu.com>
- <20190919095903.19370-4-christian.brauner@ubuntu.com>
- <ad7d2901-6639-3684-b71c-bdc1a6a020cc@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <ad7d2901-6639-3684-b71c-bdc1a6a020cc@kernel.org>
-User-Agent: NeoMutt/20180716
+        id S2389316AbfISVyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 17:54:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40140 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389212AbfISVyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 17:54:52 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D0A1208C0;
+        Thu, 19 Sep 2019 21:54:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568930091;
+        bh=KIhQ48U3dNoiHkDzOX49U/niastsj2CuhmI/VaL0iUU=;
+        h=Date:From:To:Subject:From;
+        b=k12L6nFSz9RFJBkDyKai2b7BqGfTUpBUK40dvS2ZusRtJGIgxiCtreRAQq5M/qEmj
+         4mUEBzPzEstxo4nEwBtPhrpK+vpMMr6UXI6A+XGcJF00Ug+yvufYvjpYqzAuoEY0/Y
+         XIddsW7DBGcsLmqCqQmEg8K+ZFZWy0/RsZ2vaQHg=
+Date:   Thu, 19 Sep 2019 14:54:50 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        minchan@kernel.org, markus@oberhumer.com, dave.rodgman@arm.com
+Subject:  + lib-lzo-fix-alignment-bug-in-lzo-rle.patch added to -mm
+ tree
+Message-ID: <20190919215450.AcDnN%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 19, 2019 at 11:13:46AM -0600, shuah wrote:
-> On 9/19/19 3:59 AM, Christian Brauner wrote:
-> > Test whether a syscall can be performed after having been intercepted by
-> > the seccomp notifier. The test uses dup() and kcmp() since it allows us to
-> > nicely test whether the dup() syscall actually succeeded by comparing whether
-> > the fds refer to the same underlying struct file.
-> > 
-> > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> > Cc: Kees Cook <keescook@chromium.org>
-> > Cc: Andy Lutomirski <luto@amacapital.net>
-> > Cc: Will Drewry <wad@chromium.org>
-> > Cc: Shuah Khan <shuah@kernel.org>
-> > Cc: Alexei Starovoitov <ast@kernel.org>
-> > Cc: Daniel Borkmann <daniel@iogearbox.net>
-> > Cc: Martin KaFai Lau <kafai@fb.com>
-> > Cc: Song Liu <songliubraving@fb.com>
-> > Cc: Yonghong Song <yhs@fb.com>
-> > Cc: Tycho Andersen <tycho@tycho.ws>
-> > CC: Tyler Hicks <tyhicks@canonical.com>
-> > Cc: stable@vger.kernel.org
-> > Cc: linux-kselftest@vger.kernel.org
-> > Cc: netdev@vger.kernel.org
-> > Cc: bpf@vger.kernel.org
-> > ---
-> > /* v1 */
-> > - Christian Brauner <christian.brauner@ubuntu.com>:
-> >    - adapt to new flag name SECCOMP_USER_NOTIF_FLAG_CONTINUE
-> > 
-> > /* v0 */
-> > Link: https://lore.kernel.org/r/20190918084833.9369-5-christian.brauner@ubuntu.com
-> > ---
-> >   tools/testing/selftests/seccomp/seccomp_bpf.c | 102 ++++++++++++++++++
-> >   1 file changed, 102 insertions(+)
-> > 
-> > diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> > index e996d7b7fd6e..b0966599acb5 100644
-> > --- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-> > +++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-> > @@ -44,6 +44,7 @@
-> >   #include <sys/times.h>
-> >   #include <sys/socket.h>
-> >   #include <sys/ioctl.h>
-> > +#include <linux/kcmp.h>
-> >   #include <unistd.h>
-> >   #include <sys/syscall.h>
-> > @@ -167,6 +168,10 @@ struct seccomp_metadata {
-> >   #define SECCOMP_RET_USER_NOTIF 0x7fc00000U
-> > +#ifndef SECCOMP_USER_NOTIF_FLAG_CONTINUE
-> > +#define SECCOMP_USER_NOTIF_FLAG_CONTINUE 0x00000001
-> > +#endif
-> > +
-> >   #define SECCOMP_IOC_MAGIC		'!'
-> >   #define SECCOMP_IO(nr)			_IO(SECCOMP_IOC_MAGIC, nr)
-> >   #define SECCOMP_IOR(nr, type)		_IOR(SECCOMP_IOC_MAGIC, nr, type)
-> > @@ -3481,6 +3486,103 @@ TEST(seccomp_get_notif_sizes)
-> >   	EXPECT_EQ(sizes.seccomp_notif_resp, sizeof(struct seccomp_notif_resp));
-> >   }
-> > +static int filecmp(pid_t pid1, pid_t pid2, int fd1, int fd2)
-> > +{
-> > +#ifdef __NR_kcmp
-> > +	return syscall(__NR_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2);
-> > +#else
-> > +	errno = ENOSYS;
-> > +	return -1;
-> 
-> This should be SKIP for kselftest so this isn't counted a failure.
-> In this case test can't be run because of a missing dependency.
 
-Right, I can just ifdef the whole test and report a skip.
+The patch titled
+     Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
+has been added to the -mm tree.  Its filename is
+     lib-lzo-fix-alignment-bug-in-lzo-rle.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/lib-lzo-fix-alignment-bug-in-lzo-rle.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/lib-lzo-fix-alignment-bug-in-lzo-rle.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Dave Rodgman <dave.rodgman@arm.com>
+Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
+
+Fix an unaligned access which breaks on platforms where this is not
+permitted (e.g., Sparc).
+
+Link: http://lkml.kernel.org/r/20190912145502.35229-1-dave.rodgman@arm.com
+Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ lib/lzo/lzo1x_compress.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+--- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-alignment-bug-in-lzo-rle
++++ a/lib/lzo/lzo1x_compress.c
+@@ -83,17 +83,19 @@ next:
+ 					ALIGN((uintptr_t)ir, 4)) &&
+ 					(ir < limit) && (*ir == 0))
+ 				ir++;
+-			for (; (ir + 4) <= limit; ir += 4) {
+-				dv = *((u32 *)ir);
+-				if (dv) {
++			if (IS_ALIGNED((uintptr_t)ir, 4)) {
++				for (; (ir + 4) <= limit; ir += 4) {
++					dv = *((u32 *)ir);
++					if (dv) {
+ #  if defined(__LITTLE_ENDIAN)
+-					ir += __builtin_ctz(dv) >> 3;
++						ir += __builtin_ctz(dv) >> 3;
+ #  elif defined(__BIG_ENDIAN)
+-					ir += __builtin_clz(dv) >> 3;
++						ir += __builtin_clz(dv) >> 3;
+ #  else
+ #    error "missing endian definition"
+ #  endif
+-					break;
++						break;
++					}
+ 				}
+ 			}
+ #endif
+_
+
+Patches currently in -mm which might be from dave.rodgman@arm.com are
+
+lib-lzo-fix-alignment-bug-in-lzo-rle.patch
+
