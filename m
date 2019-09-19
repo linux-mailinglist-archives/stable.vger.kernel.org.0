@@ -2,93 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38299B745D
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 09:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F2FB74F5
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 10:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729087AbfISHqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 03:46:06 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:47201 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727435AbfISHqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 03:46:06 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 5A56E8164C; Thu, 19 Sep 2019 09:45:48 +0200 (CEST)
-Date:   Thu, 19 Sep 2019 09:46:01 +0200
-From:   Pavel Machek <pavel@denx.de>
+        id S1731621AbfISISk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 04:18:40 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:37591 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728879AbfISISk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 04:18:40 -0400
+Received: by mail-lj1-f194.google.com with SMTP id l21so2654929lje.4;
+        Thu, 19 Sep 2019 01:18:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=bdKMehp6wxnbpllEkvXzzRnRrggViXMGu8demEwoja0=;
+        b=s3+xIIjcJ/yKr06fleC5N7Xl+qZPqho+MNGLZplQJ4q3QDY9+VxipGz9JaSb4yEWNz
+         UMEEdswfSwU3luu/XSpyE9oP9rauOg3tcSHRcmBxM9Q+FtM6WT63nFnD9uzxiVXirj82
+         cRTwgRU4QKW2J86f7qD8CRz9OwK1Pe/BYJjoPVMFrWGMtu0C2X1gJmXCFck3nMywvVOv
+         RqvmlejKi3rDEAxQi9MM14Tiqm6j+DlgkmWwUnC7q/IXw4geR66GAWB4cjZ3R0/dNIWC
+         XJt79+gYf+qlCf8Vwq6cFeW2flFUEQ4uiGKAME/U6rwWibYpOgJuy7i7DqU1xse/Go+v
+         +Heg==
+X-Gm-Message-State: APjAAAWKv/Lx9zN8RatHISx5cKY+iIGja4VWR3Wwaj8aohLMfp2GM1/i
+        1V/z4jFvj/1LodAVaO3fCws=
+X-Google-Smtp-Source: APXvYqzmEAZneyg861HpgqHOF2chTtJL7HveCo6ZXfOB8sYWTcdkQdNk3BPX32Ow62y5lFpj1RAkbw==
+X-Received: by 2002:a05:651c:1102:: with SMTP id d2mr4043271ljo.74.1568881118454;
+        Thu, 19 Sep 2019 01:18:38 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id h10sm1473716ljb.14.2019.09.19.01.18.36
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Sep 2019 01:18:37 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@xi.terra>)
+        id 1iAre8-0007vY-M7; Thu, 19 Sep 2019 10:18:36 +0200
+From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Drake <drake@endlessm.com>,
-        Ian W MORRISON <ianwmorrison@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 4.19 16/50] gpiolib: acpi: Add
- gpiolib_acpi_run_edge_events_on_boot option and blacklist
-Message-ID: <20190919074601.GA6968@amd>
-References: <20190918061223.116178343@linuxfoundation.org>
- <20190918061224.680169319@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 1/4] USB: legousbtower: fix slab info leak at probe
+Date:   Thu, 19 Sep 2019 10:18:12 +0200
+Message-Id: <20190919081815.30422-2-johan@kernel.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190919081815.30422-1-johan@kernel.org>
+References: <20190919081815.30422-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-In-Reply-To: <20190918061224.680169319@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Make sure to check for short transfers when retrieving the version
+information at probe to avoid leaking uninitialised slab data when
+logging it.
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/misc/legousbtower.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-On Wed 2019-09-18 08:18:59, Greg Kroah-Hartman wrote:
-> From: Hans de Goede <hdegoede@redhat.com>
->=20
-> commit 61f7f7c8f978b1c0d80e43c83b7d110ca0496eb4 upstream.
->=20
-> Another day; another DSDT bug we need to workaround...
->=20
-> Since commit ca876c7483b6 ("gpiolib-acpi: make sure we trigger edge events
-> at least once on boot") we call _AEI edge handlers at boot.
->=20
-> In some rare cases this causes problems. One example of this is the Minix
-> Neo Z83-4 mini PC, this device has a clear DSDT bug where it has some copy
-> and pasted code for dealing with Micro USB-B connector host/device role
-> switching, while the mini PC does not even have a micro-USB connector.
-> This code, which should not be there, messes with the DDC data pin from
-> the HDMI connector (switching it to GPIO mode) breaking HDMI support.
->=20
-> To avoid problems like this, this commit adds a new
-> gpiolib_acpi.run_edge_events_on_boot kernel commandline option, which
-> allows disabling the running of _AEI edge event handlers at boot.
+diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
+index 006cf13b2199..1db07d4dc738 100644
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -891,8 +891,10 @@ static int tower_probe (struct usb_interface *interface, const struct usb_device
+ 				  get_version_reply,
+ 				  sizeof(*get_version_reply),
+ 				  1000);
+-	if (result < 0) {
+-		dev_err(idev, "LEGO USB Tower get version control request failed\n");
++	if (result < sizeof(*get_version_reply)) {
++		if (result >= 0)
++			result = -EIO;
++		dev_err(idev, "get version request failed: %d\n", result);
+ 		retval = result;
+ 		goto error;
+ 	}
+-- 
+2.23.0
 
-So... apparently Windows does _not_ run _AEI edge event handlers at
-boot, otherwise Minix would realize that fault.
-
-Would it make sense not to do it by default, either?
-
-Best regards,
-								Pavel
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEUEARECAAYFAl2DMjkACgkQMOfwapXb+vI6ugCdEebfVH22q7FiPfHqC6qCzlnC
-CLMAliAngsZDT3SZdRjwMFvR/UPcfew=
-=Vg10
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
