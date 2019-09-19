@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 466D7B8747
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A27CEB874A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393216AbfISWH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:07:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45134 "EHLO mail.kernel.org"
+        id S2393240AbfISWHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393204AbfISWH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:07:26 -0400
+        id S2393235AbfISWHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCADA218AF;
-        Thu, 19 Sep 2019 22:07:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6539B21907;
+        Thu, 19 Sep 2019 22:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930846;
-        bh=UXVo+pU6qQRSRGMlASXtc2PBgkdgS/CgDw6gXYTmWk8=;
+        s=default; t=1568930851;
+        bh=hnqkJNqeU0GZH+MoozhkmudYBgC7N8oYscP95+s0Whg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4nlPGb+66Ilu/qcJbN+uOKj1VfTgb3Fkxa8AfE321E3lc7pDriYPYsEHEZ5WbOCb
-         2Ts14vhQv+NXlt2dCxJ4vjb1QV6EjFHR/PYjdB/nl6gg+GskInTPCBwPZ0SVfg/eOW
-         hnOuT0g3A7hScg2U2zkhEaStSJlQQIxkfWXT3oZg=
+        b=YPCW0hgUHljNZsu+3kFauwDF4yrvbPfNSr6RM7fi3DrJytcz5v4gwIOkDh5+4Niej
+         2uRhx+jnsjlBiIvCHpFPmRu6o1YY81zEOGlyNnTkDJiytRU8O6AlGcg0HT8IC2nAIX
+         jQ1D4OY5YEVPlXukTE8ZCZvMrvJge6QdbGINFynU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 008/124] SUNRPC: Handle connection breakages correctly in call_status()
-Date:   Fri, 20 Sep 2019 00:01:36 +0200
-Message-Id: <20190919214819.482284980@linuxfoundation.org>
+Subject: [PATCH 5.2 010/124] nfs: disable client side deduplication
+Date:   Fri, 20 Sep 2019 00:01:38 +0200
+Message-Id: <20190919214819.539230985@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -43,31 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit c82e5472c9980e0e483f4b689044150eefaca408 upstream.
+commit 9026b3a973b0b0b73c15ba40aff87cd0959fd0f3 upstream.
 
-If the connection breaks while we're waiting for a reply from the
-server, then we want to immediately try to reconnect.
+The NFS protocol doesn't support deduplication, so turn it off again.
 
-Fixes: ec6017d90359 ("SUNRPC fix regression in umount of a secure mount")
+Fixes: ce96e888fe48e ("Fix nfs4.2 return -EINVAL when do dedupe operation")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/clnt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4file.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2301,7 +2301,7 @@ call_status(struct rpc_task *task)
- 	case -ECONNABORTED:
- 	case -ENOTCONN:
- 		rpc_force_rebind(clnt);
--		/* fall through */
-+		break;
- 	case -EADDRINUSE:
- 		rpc_delay(task, 3*HZ);
- 		/* fall through */
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -187,7 +187,11 @@ static loff_t nfs42_remap_file_range(str
+ 	bool same_inode = false;
+ 	int ret;
+ 
+-	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
++	/* NFS does not support deduplication. */
++	if (remap_flags & REMAP_FILE_DEDUP)
++		return -EOPNOTSUPP;
++
++	if (remap_flags & ~REMAP_FILE_ADVISORY)
+ 		return -EINVAL;
+ 
+ 	/* check alignment w.r.t. clone_blksize */
 
 
