@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAAA3B8718
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F96B86DC
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405814AbfISWLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49542 "EHLO mail.kernel.org"
+        id S2393719AbfISWNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389407AbfISWK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:10:59 -0400
+        id S2391072AbfISWNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:13:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA850218AF;
-        Thu, 19 Sep 2019 22:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0415D21920;
+        Thu, 19 Sep 2019 22:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931058;
-        bh=sgpC2KLS/4Rjhn2ZMgXWoTc6xu05EmuS7/jOsnoo6nI=;
+        s=default; t=1568931195;
+        bh=bVOk13PRzIHQGBfYtVxop4HBf3WHR2t6grZQC+tJR1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwgA2yXphFnXjqScztzRSskqnC2D6a/RGhIHUfxRgIg2rCPiTiLwRMpIGaz0TBqrC
-         s3hJAUno/nwtVeD8pxmw62DBJodwoaYYNePOVA+IIPzyZaFpkh4IVqZg/VBA459Ydq
-         0xZdPoCC5UmI3nGie8uv8K0gieX2665emfiZg3QY=
+        b=PFSsNDOWEp33GdfKJM0NhIB72M+p7LEoWRL8fdRcgfin92iFKW1wXLnUiP1QvoqwY
+         i053Q5rcSBunG1ChVpWgR+UKks7nG7Y3qn6U+n/X9U7CMpNh9cT2X69q+sKGZPdLbI
+         bLdY7XXiL/0mAsOdki7XxSgKcGUlS26+yDA8OTg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jong Hyun Park <park.jonghyun@yonsei.ac.kr>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 113/124] x86/hyper-v: Fix overflow bug in fill_gva_list()
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/79] NFSv4: Fix return values for nfs4_file_open()
 Date:   Fri, 20 Sep 2019 00:03:21 +0200
-Message-Id: <20190919214823.298130011@linuxfoundation.org>
+Message-Id: <20190919214810.912059766@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,56 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 4030b4c585c41eeefec7bd20ce3d0e100a0f2e4d ]
+[ Upstream commit 90cf500e338ab3f3c0f126ba37e36fb6a9058441 ]
 
-When the 'start' parameter is >=  0xFF000000 on 32-bit
-systems, or >= 0xFFFFFFFF'FF000000 on 64-bit systems,
-fill_gva_list() gets into an infinite loop.
+Currently, we are translating RPC level errors such as timeouts,
+as well as interrupts etc into EOPENSTALE, which forces a single
+replay of the open attempt. What we actually want to do is
+force the replay only in the cases where the returned error
+indicates that the file may have changed on the server.
 
-With such inputs, 'cur' overflows after adding HV_TLB_FLUSH_UNIT
-and always compares as less than end.  Memory is filled with
-guest virtual addresses until the system crashes.
+So the fix is to spell out the exact set of errors where we want
+to return EOPENSTALE.
 
-Fix this by never incrementing 'cur' to be larger than 'end'.
-
-Reported-by: Jong Hyun Park <park.jonghyun@yonsei.ac.kr>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 2ffd9e33ce4a ("x86/hyper-v: Use hypercall for remote TLB flush")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/mmu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/nfs/nfs4file.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index e65d7fe6489f3..5208ba49c89a9 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -37,12 +37,14 @@ static inline int fill_gva_list(u64 gva_list[], int offset,
- 		 * Lower 12 bits encode the number of additional
- 		 * pages to flush (in addition to the 'cur' page).
- 		 */
--		if (diff >= HV_TLB_FLUSH_UNIT)
-+		if (diff >= HV_TLB_FLUSH_UNIT) {
- 			gva_list[gva_n] |= ~PAGE_MASK;
--		else if (diff)
-+			cur += HV_TLB_FLUSH_UNIT;
-+		}  else if (diff) {
- 			gva_list[gva_n] |= (diff - 1) >> PAGE_SHIFT;
-+			cur = end;
-+		}
- 
--		cur += HV_TLB_FLUSH_UNIT;
- 		gva_n++;
- 
- 	} while (cur < end);
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 61abbb087ed13..75d3cf86f1723 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -73,13 +73,13 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+ 		switch (err) {
+-		case -EPERM:
+-		case -EACCES:
+-		case -EDQUOT:
+-		case -ENOSPC:
+-		case -EROFS:
+-			goto out_put_ctx;
+ 		default:
++			goto out_put_ctx;
++		case -ENOENT:
++		case -ESTALE:
++		case -EISDIR:
++		case -ENOTDIR:
++		case -ELOOP:
+ 			goto out_drop;
+ 		}
+ 	}
 -- 
 2.20.1
 
