@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F14B8693
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E121AB86C1
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393111AbfISWQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57026 "EHLO mail.kernel.org"
+        id S2392206AbfISWOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:14:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392387AbfISWQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:16:31 -0400
+        id S2392166AbfISWOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:14:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A95CA2196F;
-        Thu, 19 Sep 2019 22:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A38F7218AF;
+        Thu, 19 Sep 2019 22:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931390;
-        bh=/H1UQgqN65q9BBVW3xkBwFzY5TksoC+U1I9ovRDPjtE=;
+        s=default; t=1568931252;
+        bh=RBiB+nszUOZlllJwJQPDLHwFxoOujyJoImu0eDIhmHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuHAoIDMbo89eNMh/PvD/ycSFAXRFVHjLqdRcuzzfXb1/nmGDvArniA+eC3hLwtbN
-         Myz6OzCaYOh19FDoolrUC8Tqn/y4JRq7CCY69AaX3rtAHghLADUepdvBzrxsOY4Qu9
-         YK5Nx/PJMFnRVGOnZ2kR2FQpOUkn0+2t9mfvAZ3Q=
+        b=U28ZDNA+DN3laqVcT6nCUiOsQ+eU8Ne8yyQvGwLM+Iue8tIgnfW0IVtFbW+LXjBvB
+         1kBfxcJOe1lcv2x3jpkJEYe5/7yxTAORxgz0FlF/HJBBXbN+Zkx9TOkvl7cyoqvB1E
+         sAllOh9/xSjhuGAr329sAJUgoxNwWNjoJFNJ6Xd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org,
+        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/59] batman-adv: Only read OGM2 tvlv_len after buffer len check
+Subject: [PATCH 4.19 58/79] i2c: designware: Synchronize IRQs when unregistering slave client
 Date:   Fri, 20 Sep 2019 00:03:43 +0200
-Message-Id: <20190919214805.304632339@linuxfoundation.org>
+Message-Id: <20190919214812.510175662@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-[ Upstream commit 0ff0f15a32c093381ad1abc06abe85afb561ab28 ]
+[ Upstream commit c486dcd2f1bbdd524a1e0149734b79e4ae329650 ]
 
-Multiple batadv_ogm2_packet can be stored in an skbuff. The functions
-batadv_v_ogm_send_to_if() uses batadv_v_ogm_aggr_packet() to check if there
-is another additional batadv_ogm2_packet in the skb or not before they
-continue processing the packet.
+Make sure interrupt handler i2c_dw_irq_handler_slave() has finished
+before clearing the the dev->slave pointer in i2c_dw_unreg_slave().
 
-The length for such an OGM2 is BATADV_OGM2_HLEN +
-batadv_ogm2_packet->tvlv_len. The check must first check that at least
-BATADV_OGM2_HLEN bytes are available before it accesses tvlv_len (which is
-part of the header. Otherwise it might try read outside of the currently
-available skbuff to get the content of tvlv_len.
+There is possibility for a race if i2c_dw_irq_handler_slave() is running
+on another CPU while clearing the dev->slave pointer.
 
-Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Reported-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_ogm.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-designware-slave.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/bat_v_ogm.c b/net/batman-adv/bat_v_ogm.c
-index 8be61734fc43c..e07f636160b67 100644
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -642,17 +642,23 @@ batadv_v_ogm_process_per_outif(struct batadv_priv *bat_priv,
-  * batadv_v_ogm_aggr_packet - checks if there is another OGM aggregated
-  * @buff_pos: current position in the skb
-  * @packet_len: total length of the skb
-- * @tvlv_len: tvlv length of the previously considered OGM
-+ * @ogm2_packet: potential OGM2 in buffer
-  *
-  * Return: true if there is enough space for another OGM, false otherwise.
-  */
--static bool batadv_v_ogm_aggr_packet(int buff_pos, int packet_len,
--				     __be16 tvlv_len)
-+static bool
-+batadv_v_ogm_aggr_packet(int buff_pos, int packet_len,
-+			 const struct batadv_ogm2_packet *ogm2_packet)
- {
- 	int next_buff_pos = 0;
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index e7f9305b2dd9f..f5f001738df5e 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -94,6 +94,7 @@ static int i2c_dw_unreg_slave(struct i2c_client *slave)
  
--	next_buff_pos += buff_pos + BATADV_OGM2_HLEN;
--	next_buff_pos += ntohs(tvlv_len);
-+	/* check if there is enough space for the header */
-+	next_buff_pos += buff_pos + sizeof(*ogm2_packet);
-+	if (next_buff_pos > packet_len)
-+		return false;
-+
-+	/* check if there is enough space for the optional TVLV */
-+	next_buff_pos += ntohs(ogm2_packet->tvlv_len);
+ 	dev->disable_int(dev);
+ 	dev->disable(dev);
++	synchronize_irq(dev->irq);
+ 	dev->slave = NULL;
+ 	pm_runtime_put(dev->dev);
  
- 	return (next_buff_pos <= packet_len) &&
- 	       (next_buff_pos <= BATADV_MAX_AGGREGATION_BYTES);
-@@ -829,7 +835,7 @@ int batadv_v_ogm_packet_recv(struct sk_buff *skb,
- 	ogm_packet = (struct batadv_ogm2_packet *)skb->data;
- 
- 	while (batadv_v_ogm_aggr_packet(ogm_offset, skb_headlen(skb),
--					ogm_packet->tvlv_len)) {
-+					ogm_packet)) {
- 		batadv_v_ogm_process(skb, ogm_offset, if_incoming);
- 
- 		ogm_offset += BATADV_OGM2_HLEN;
 -- 
 2.20.1
 
