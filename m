@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00F6FB8444
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF11B844A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405413AbfISWJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
+        id S2405460AbfISWJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405379AbfISWJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:24 -0400
+        id S2405454AbfISWJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:09:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75E1B21928;
-        Thu, 19 Sep 2019 22:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5845621D81;
+        Thu, 19 Sep 2019 22:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930964;
-        bh=xNd4kCXq6hUuyEVyhnEMc4+6Y/+LDdNmnahKeej3FwM=;
+        s=default; t=1568930974;
+        bh=TGRMB95YGQkQ03FI3rbztcHl2l8WMOmLww0pLVy6bpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NuwNSH4t7Ijvn+oYEBDQO8Z1bkiOikGqoAuNk0g5lQScuQ0e0hKLIsCM1I800qGHz
-         PoZkjBtSvcalwjReyvDdseZtW0PpVVK1+NOpRiz06Gm2OuaKcmpTZeRBGu+Vb6qqUX
-         oLy1/bv9CCeNMwNTz7GoXzOQ2sSRD0lsV+RpU79M=
+        b=x7lu99U37UaJvtZLQ711yU0rJFr0nuGETdQtLdTddp96IB/J+OHW5rDiWFEyfJNev
+         4ZzEHXQu/qL3CZf/8n3iVibD8t/azWDjy1rArFeJGedbpV6tlLESd/TV6lujK1BMLe
+         UHwZQv4JivAy2ZEdfxWHo1IZw5lHWe6ingYcfP9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Anup Patel <anup.patel@wdc.com>,
+        Alistair Francis <alistair.francis@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 079/124] cifs: set domainName when a domain-key is used in multiuser
-Date:   Fri, 20 Sep 2019 00:02:47 +0200
-Message-Id: <20190919214821.884661825@linuxfoundation.org>
+Subject: [PATCH 5.2 083/124] RISC-V: Fix FIXMAP area corruption on RV32 systems
+Date:   Fri, 20 Sep 2019 00:02:51 +0200
+Message-Id: <20190919214822.038690311@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -44,70 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Anup Patel <Anup.Patel@wdc.com>
 
-[ Upstream commit f2aee329a68f5a907bcff11a109dfe17c0b41aeb ]
+[ Upstream commit a256f2e329df0773022d28df2c3d206b9aaf1e61 ]
 
-RHBZ: 1710429
+Currently, various virtual memory areas of Linux RISC-V are organized
+in increasing order of their virtual addresses is as follows:
+1. User space area (This is lowest area and starts at 0x0)
+2. FIXMAP area
+3. VMALLOC area
+4. Kernel area (This is highest area and starts at PAGE_OFFSET)
 
-When we use a domain-key to authenticate using multiuser we must also set
-the domainnmame for the new volume as it will be used and passed to the server
-in the NTLMSSP Domain-name.
+The maximum size of user space aread is represented by TASK_SIZE.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+On RV32 systems, TASK_SIZE is defined as VMALLOC_START which causes the
+user space area to overlap the FIXMAP area. This allows user space apps
+to potentially corrupt the FIXMAP area and kernel OF APIs will crash
+whenever they access corrupted FDT in the FIXMAP area.
+
+On RV64 systems, TASK_SIZE is set to fixed 256GB and no other areas
+happen to overlap so we don't see any FIXMAP area corruptions.
+
+This patch fixes FIXMAP area corruption on RV32 systems by setting
+TASK_SIZE to FIXADDR_START. We also move FIXADDR_TOP, FIXADDR_SIZE,
+and FIXADDR_START defines to asm/pgtable.h so that we can avoid cyclic
+header includes.
+
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Tested-by: Alistair Francis <alistair.francis@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ arch/riscv/include/asm/fixmap.h  |  4 ----
+ arch/riscv/include/asm/pgtable.h | 12 ++++++++++--
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 18c7c6b2fe08a..2beaa14519f5d 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2961,6 +2961,7 @@ static int
- cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- {
- 	int rc = 0;
-+	int is_domain = 0;
- 	const char *delim, *payload;
- 	char *desc;
- 	ssize_t len;
-@@ -3008,6 +3009,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 			rc = PTR_ERR(key);
- 			goto out_err;
- 		}
-+		is_domain = 1;
- 	}
+diff --git a/arch/riscv/include/asm/fixmap.h b/arch/riscv/include/asm/fixmap.h
+index c207f6634b91c..15b3edaabc280 100644
+--- a/arch/riscv/include/asm/fixmap.h
++++ b/arch/riscv/include/asm/fixmap.h
+@@ -25,10 +25,6 @@ enum fixed_addresses {
+ 	__end_of_fixed_addresses
+ };
  
- 	down_read(&key->sem);
-@@ -3065,6 +3067,26 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 		goto out_key_put;
- 	}
+-#define FIXADDR_SIZE		(__end_of_fixed_addresses * PAGE_SIZE)
+-#define FIXADDR_TOP		(VMALLOC_START)
+-#define FIXADDR_START		(FIXADDR_TOP - FIXADDR_SIZE)
+-
+ #define FIXMAP_PAGE_IO		PAGE_KERNEL
  
-+	/*
-+	 * If we have a domain key then we must set the domainName in the
-+	 * for the request.
-+	 */
-+	if (is_domain && ses->domainName) {
-+		vol->domainname = kstrndup(ses->domainName,
-+					   strlen(ses->domainName),
-+					   GFP_KERNEL);
-+		if (!vol->domainname) {
-+			cifs_dbg(FYI, "Unable to allocate %zd bytes for "
-+				 "domain\n", len);
-+			rc = -ENOMEM;
-+			kfree(vol->username);
-+			vol->username = NULL;
-+			kfree(vol->password);
-+			vol->password = NULL;
-+			goto out_key_put;
-+		}
-+	}
+ #define __early_set_fixmap	__set_fixmap
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index f7c3f7de15f27..e6faa469c133b 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -408,14 +408,22 @@ static inline void pgtable_cache_init(void)
+ #define VMALLOC_END      (PAGE_OFFSET - 1)
+ #define VMALLOC_START    (PAGE_OFFSET - VMALLOC_SIZE)
+ 
++#define FIXADDR_TOP      VMALLOC_START
++#ifdef CONFIG_64BIT
++#define FIXADDR_SIZE     PMD_SIZE
++#else
++#define FIXADDR_SIZE     PGDIR_SIZE
++#endif
++#define FIXADDR_START    (FIXADDR_TOP - FIXADDR_SIZE)
 +
- out_key_put:
- 	up_read(&key->sem);
- 	key_put(key);
+ /*
+- * Task size is 0x40000000000 for RV64 or 0xb800000 for RV32.
++ * Task size is 0x4000000000 for RV64 or 0x9fc00000 for RV32.
+  * Note that PGDIR_SIZE must evenly divide TASK_SIZE.
+  */
+ #ifdef CONFIG_64BIT
+ #define TASK_SIZE (PGDIR_SIZE * PTRS_PER_PGD / 2)
+ #else
+-#define TASK_SIZE VMALLOC_START
++#define TASK_SIZE FIXADDR_START
+ #endif
+ 
+ #include <asm-generic/pgtable.h>
 -- 
 2.20.1
 
