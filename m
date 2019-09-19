@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6D3B867F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 356DCB857E
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406375AbfISWQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
+        id S2394071AbfISWVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404513AbfISWQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:16:50 -0400
+        id S1733140AbfISWTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:19:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8E9F21907;
-        Thu, 19 Sep 2019 22:16:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1247F20678;
+        Thu, 19 Sep 2019 22:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931409;
-        bh=9rTI+ECXDz6aoBl8w9ersEwiK2iS2GSObYGj5ltca24=;
+        s=default; t=1568931586;
+        bh=9Cb/7Dxwdgc3rSVccFfgH4ZMgneEXgFibVvzSzLCIyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKd654DTuRt7iN0ewvjP6pHdvp0SXv3IlY0SComgI5WZuvG13Slc6afLu5Lil/TrN
-         HT3mfBeM/kqWXS5s3ASQpRIi6uG9f9NmKJtHHAvSe890kaU3ZvxWHAUOUgdrTlHp/F
-         8M/7wxplD4UlSwhcnLGGG1lbQV1IiNohvq1Z0awM=
+        b=eVxNsJsP/82zj3yRy7Pxx2t+lbBaQ9/jhvGiZQfj40v9rb3r5ek6+yTG/oSEAJpsO
+         VHKK+8zNo2h7bppS/Xbo+jhWdn63PCh2cgdiopKP8onNYk55BBZsfxXeKbmpOZ6KXC
+         avcPtY5vacF1IZ6LEXgu2Xi/gz2t1xOOgCG7ap+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 06/59] media: tm6000: double free if usb disconnect while streaming
-Date:   Fri, 20 Sep 2019 00:03:21 +0200
-Message-Id: <20190919214757.686584149@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 09/74] sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
+Date:   Fri, 20 Sep 2019 00:03:22 +0200
+Message-Id: <20190919214803.931884674@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 699bf94114151aae4dceb2d9dbf1a6312839dcae upstream.
+[ Upstream commit 10eb56c582c557c629271f1ee31e15e7a9b2558b ]
 
-The usb_bulk_urb will kfree'd on disconnect, so ensure the pointer is set
-to NULL after each free.
+Transport should use its own pf_retrans to do the error_count
+check, instead of asoc's. Otherwise, it's meaningless to make
+pf_retrans per transport.
 
-stop stream
-urb killing
-urb buffer free
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start stream request tm6000_start_stream
-tm6000: pipe reset
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: IR URB failure: status: -71, length 0
-xhci_hcd 0000:00:14.0: ERROR unknown event type 37
-xhci_hcd 0000:00:14.0: ERROR unknown event type 37
-tm6000:  error tm6000_urb_received
-usb 1-2: USB disconnect, device number 5
-tm6000: disconnecting tm6000 #0
-==================================================================
-BUG: KASAN: use-after-free in dvb_fini+0x75/0x140 [tm6000_dvb]
-Read of size 8 at addr ffff888241044060 by task kworker/2:0/22
-
-CPU: 2 PID: 22 Comm: kworker/2:0 Tainted: G        W         5.3.0-rc4+ #1
-Hardware name: LENOVO 20KHCTO1WW/20KHCTO1WW, BIOS N23ET65W (1.40 ) 07/02/2019
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- dump_stack+0x9a/0xf0
- print_address_description.cold+0xae/0x34f
- __kasan_report.cold+0x75/0x93
- ? tm6000_fillbuf+0x390/0x3c0 [tm6000_alsa]
- ? dvb_fini+0x75/0x140 [tm6000_dvb]
- kasan_report+0xe/0x12
- dvb_fini+0x75/0x140 [tm6000_dvb]
- tm6000_close_extension+0x51/0x80 [tm6000]
- tm6000_usb_disconnect.cold+0xd4/0x105 [tm6000]
- usb_unbind_interface+0xe4/0x390
- device_release_driver_internal+0x121/0x250
- bus_remove_device+0x197/0x260
- device_del+0x268/0x550
- ? __device_links_no_driver+0xd0/0xd0
- ? usb_remove_ep_devs+0x30/0x3b
- usb_disable_device+0x122/0x400
- usb_disconnect+0x153/0x430
- hub_event+0x800/0x1e40
- ? trace_hardirqs_on_thunk+0x1a/0x20
- ? hub_port_debounce+0x1f0/0x1f0
- ? retint_kernel+0x10/0x10
- ? lock_is_held_type+0xf1/0x130
- ? hub_port_debounce+0x1f0/0x1f0
- ? process_one_work+0x4ae/0xa00
- process_one_work+0x4ba/0xa00
- ? pwq_dec_nr_in_flight+0x160/0x160
- ? do_raw_spin_lock+0x10a/0x1d0
- worker_thread+0x7a/0x5c0
- ? process_one_work+0xa00/0xa00
- kthread+0x1d5/0x200
- ? kthread_create_worker_on_cpu+0xd0/0xd0
- ret_from_fork+0x3a/0x50
-
-Allocated by task 2682:
- save_stack+0x1b/0x80
- __kasan_kmalloc.constprop.0+0xc2/0xd0
- usb_alloc_urb+0x28/0x60
- tm6000_start_feed+0x10a/0x300 [tm6000_dvb]
- dmx_ts_feed_start_filtering+0x86/0x120 [dvb_core]
- dvb_dmxdev_start_feed+0x121/0x180 [dvb_core]
- dvb_dmxdev_filter_start+0xcb/0x540 [dvb_core]
- dvb_demux_do_ioctl+0x7ed/0x890 [dvb_core]
- dvb_usercopy+0x97/0x1f0 [dvb_core]
- dvb_demux_ioctl+0x11/0x20 [dvb_core]
- do_vfs_ioctl+0x5d8/0x9d0
- ksys_ioctl+0x5e/0x90
- __x64_sys_ioctl+0x3d/0x50
- do_syscall_64+0x74/0xe0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 22:
- save_stack+0x1b/0x80
- __kasan_slab_free+0x12c/0x170
- kfree+0xfd/0x3a0
- xhci_giveback_urb_in_irq+0xfe/0x230
- xhci_td_cleanup+0x276/0x340
- xhci_irq+0x1129/0x3720
- __handle_irq_event_percpu+0x6e/0x420
- handle_irq_event_percpu+0x6f/0x100
- handle_irq_event+0x55/0x84
- handle_edge_irq+0x108/0x3b0
- handle_irq+0x2e/0x40
- do_IRQ+0x83/0x1a0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/media/usb/tm6000/tm6000-dvb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sctp/sm_sideeffect.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/tm6000/tm6000-dvb.c
-+++ b/drivers/media/usb/tm6000/tm6000-dvb.c
-@@ -105,6 +105,7 @@ static void tm6000_urb_received(struct u
- 			printk(KERN_ERR "tm6000:  error %s\n", __func__);
- 			kfree(urb->transfer_buffer);
- 			usb_free_urb(urb);
-+			dev->dvb->bulk_urb = NULL;
- 		}
- 	}
- }
-@@ -135,6 +136,7 @@ static int tm6000_start_stream(struct tm
- 	dvb->bulk_urb->transfer_buffer = kzalloc(size, GFP_KERNEL);
- 	if (dvb->bulk_urb->transfer_buffer == NULL) {
- 		usb_free_urb(dvb->bulk_urb);
-+		dvb->bulk_urb = NULL;
- 		printk(KERN_ERR "tm6000: couldn't allocate transfer buffer!\n");
- 		return -ENOMEM;
- 	}
-@@ -162,6 +164,7 @@ static int tm6000_start_stream(struct tm
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -509,7 +509,7 @@ static void sctp_do_8_2_transport_strike
+ 	if (net->sctp.pf_enable &&
+ 	   (transport->state == SCTP_ACTIVE) &&
+ 	   (transport->error_count < transport->pathmaxrxt) &&
+-	   (transport->error_count > asoc->pf_retrans)) {
++	   (transport->error_count > transport->pf_retrans)) {
  
- 		kfree(dvb->bulk_urb->transfer_buffer);
- 		usb_free_urb(dvb->bulk_urb);
-+		dvb->bulk_urb = NULL;
- 		return ret;
- 	}
- 
+ 		sctp_assoc_control_transport(asoc, transport,
+ 					     SCTP_TRANSPORT_PF,
 
 
