@@ -2,191 +2,258 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE59CB7523
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 10:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478CFB7588
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 10:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388341AbfISIa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 04:30:56 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34235 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387637AbfISIa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 04:30:56 -0400
-Received: by mail-lj1-f196.google.com with SMTP id j19so1193046lja.1;
-        Thu, 19 Sep 2019 01:30:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=gOw3dGTcmm1iVIPl96Li1eNYVJdVoD8Cu2D+Apy5uOg=;
-        b=VSXQm9rq2kEK26jy2gQMIrrjT+odDFyLBS05gM1R5FiDdWS5GMoYPYmNYA/g7o6oUZ
-         zeFQJ8h9R4C6jxm2K0yfuImkO1mFS1NtImhkFA/29TEi3zkjI8WnnmzhBb5NBpQBn1WE
-         9BKqZDAr7IQn9e3TEGshmvFA3zeoN5xLUf3J1pI0MTpPLeTnoq2AwtOxcLJfu9Efo4FR
-         yW5Po6fbIOEB+kTZe40zLtRlhdBMPuEfSMKGe9MHMw6TQXUzJNJl6c2McZODB4t2VTcT
-         ia53DhN1V2S5AmCWEMMhSJs/7pJqoFF4PpdDv3UuADO2UzEGlnhzTTUuMFUCEd6Zdl79
-         LTVQ==
-X-Gm-Message-State: APjAAAXwxM39orcJeRi0EA60QnqkNyG9A7y8ajwnCbHudnoib7A2kb/6
-        s8VAYyPF4+uOmWvsDpb2ejg=
-X-Google-Smtp-Source: APXvYqyWIQSjgHJuF5c2hJ/3S2Ghl17fi3f0cHmK25IEM9SRVN/sidVhGNKafEmPovwDTH1UmCxdHA==
-X-Received: by 2002:a2e:9cd3:: with SMTP id g19mr4730157ljj.150.1568881852452;
-        Thu, 19 Sep 2019 01:30:52 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id q19sm1636171lfj.9.2019.09.19.01.30.49
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Sep 2019 01:30:50 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@xi.terra>)
-        id 1iArpx-00083N-Rp; Thu, 19 Sep 2019 10:30:49 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Oliver Neukum <oneukum@suse.com>,
-        Juergen Stuber <starblue@users.sourceforge.net>,
-        legousb-devel@lists.sourceforge.net,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH RESEND 3/4] USB: legousbtower: fix potential NULL-deref on disconnect
-Date:   Thu, 19 Sep 2019 10:30:38 +0200
-Message-Id: <20190919083039.30898-4-johan@kernel.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919083039.30898-1-johan@kernel.org>
-References: <20190919083039.30898-1-johan@kernel.org>
+        id S1729813AbfISI6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 04:58:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730839AbfISI6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 04:58:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DD5721907;
+        Thu, 19 Sep 2019 08:58:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568883496;
+        bh=iVEj9EnXaU+WqmlUoLEpRYE1JvDrZGXFiflC2Of+4E4=;
+        h=Date:From:To:Cc:Subject:From;
+        b=VEWCLX/f6ArHjquyp4WehSNjqxuo9dhYbxG8DjZt/8eu7nezXY1YPu6ZMDXJj9gKN
+         uFeVPZ9WcO5MQE8fdPxbRSml19wrNM0He1XBTohE/cf8xWHmrZNtB3beoexFAkBHQr
+         TYrDZQDnLnRKI+a75e2WyUPLkHqdzMmuLd3+yLt4=
+Date:   Thu, 19 Sep 2019 10:58:13 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.14.145
+Message-ID: <20190919085813.GA2612736@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver is using its struct usb_device pointer as an inverted
-disconnected flag, but was setting it to NULL before making sure all
-completion handlers had run. This could lead to a NULL-pointer
-dereference in a number of dev_dbg and dev_err statements in the
-completion handlers which relies on said pointer.
 
-Fix this by unconditionally stopping all I/O and preventing
-resubmissions by poisoning the interrupt URBs at disconnect and using a
-dedicated disconnected flag.
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This also makes sure that all I/O has completed by the time the
-disconnect callback returns.
+I'm announcing the release of the 4.14.145 kernel.
 
-Fixes: 9d974b2a06e3 ("USB: legousbtower.c: remove err() usage")
-Fixes: fef526cae700 ("USB: legousbtower: remove custom debug macro")
-Fixes: 4dae99638097 ("USB: legotower: remove custom debug macro and module parameter")
-Cc: stable <stable@vger.kernel.org>     # 3.5
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/misc/legousbtower.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+All users of the 4.14 kernel series must upgrade.
 
-diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
-index 773e4188f336..4fa999882635 100644
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -190,6 +190,7 @@ struct lego_usb_tower {
- 	unsigned char		minor;		/* the starting minor number for this device */
- 
- 	int			open_count;	/* number of times this port has been opened */
-+	unsigned long		disconnected:1;
- 
- 	char*			read_buffer;
- 	size_t			read_buffer_length; /* this much came in */
-@@ -289,8 +290,6 @@ static inline void lego_usb_tower_debug_data(struct device *dev,
-  */
- static inline void tower_delete (struct lego_usb_tower *dev)
- {
--	tower_abort_transfers (dev);
--
- 	/* free data structures */
- 	usb_free_urb(dev->interrupt_in_urb);
- 	usb_free_urb(dev->interrupt_out_urb);
-@@ -430,7 +429,8 @@ static int tower_release (struct inode *inode, struct file *file)
- 		retval = -ENODEV;
- 		goto unlock_exit;
- 	}
--	if (dev->udev == NULL) {
-+
-+	if (dev->disconnected) {
- 		/* the device was unplugged before the file was released */
- 
- 		/* unlock here as tower_delete frees dev */
-@@ -466,10 +466,9 @@ static void tower_abort_transfers (struct lego_usb_tower *dev)
- 	if (dev->interrupt_in_running) {
- 		dev->interrupt_in_running = 0;
- 		mb();
--		if (dev->udev)
--			usb_kill_urb (dev->interrupt_in_urb);
-+		usb_kill_urb(dev->interrupt_in_urb);
- 	}
--	if (dev->interrupt_out_busy && dev->udev)
-+	if (dev->interrupt_out_busy)
- 		usb_kill_urb(dev->interrupt_out_urb);
- }
- 
-@@ -505,7 +504,7 @@ static __poll_t tower_poll (struct file *file, poll_table *wait)
- 
- 	dev = file->private_data;
- 
--	if (!dev->udev)
-+	if (dev->disconnected)
- 		return EPOLLERR | EPOLLHUP;
- 
- 	poll_wait(file, &dev->read_wait, wait);
-@@ -552,7 +551,7 @@ static ssize_t tower_read (struct file *file, char __user *buffer, size_t count,
- 	}
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto unlock_exit;
-@@ -638,7 +637,7 @@ static ssize_t tower_write (struct file *file, const char __user *buffer, size_t
- 	}
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto unlock_exit;
-@@ -748,7 +747,7 @@ static void tower_interrupt_in_callback (struct urb *urb)
- 
- resubmit:
- 	/* resubmit if we're still running */
--	if (dev->interrupt_in_running && dev->udev) {
-+	if (dev->interrupt_in_running) {
- 		retval = usb_submit_urb (dev->interrupt_in_urb, GFP_ATOMIC);
- 		if (retval)
- 			dev_err(&dev->udev->dev,
-@@ -813,6 +812,7 @@ static int tower_probe (struct usb_interface *interface, const struct usb_device
- 
- 	dev->udev = udev;
- 	dev->open_count = 0;
-+	dev->disconnected = 0;
- 
- 	dev->read_buffer = NULL;
- 	dev->read_buffer_length = 0;
-@@ -938,6 +938,10 @@ static void tower_disconnect (struct usb_interface *interface)
- 	/* give back our minor and prevent further open() */
- 	usb_deregister_dev (interface, &tower_class);
- 
-+	/* stop I/O */
-+	usb_poison_urb(dev->interrupt_in_urb);
-+	usb_poison_urb(dev->interrupt_out_urb);
-+
- 	mutex_lock(&dev->lock);
- 
- 	/* if the device is not opened, then we clean up right now */
-@@ -945,7 +949,7 @@ static void tower_disconnect (struct usb_interface *interface)
- 		mutex_unlock(&dev->lock);
- 		tower_delete (dev);
- 	} else {
--		dev->udev = NULL;
-+		dev->disconnected = 1;
- 		/* wake up pollers */
- 		wake_up_interruptible_all(&dev->read_wait);
- 		wake_up_interruptible_all(&dev->write_wait);
--- 
-2.23.0
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
 
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                               |    2=20
+ arch/mips/Kconfig                      |    3 -
+ arch/mips/include/asm/smp.h            |   12 +++++
+ arch/mips/sibyte/common/Makefile       |    1=20
+ arch/mips/sibyte/common/dma.c          |   14 ------
+ arch/mips/vdso/Makefile                |    4 +
+ arch/powerpc/include/asm/uaccess.h     |    1=20
+ arch/s390/kvm/interrupt.c              |   10 ++++
+ arch/s390/kvm/kvm-s390.c               |    2=20
+ arch/x86/Makefile                      |    1=20
+ arch/x86/kvm/vmx.c                     |    7 ++-
+ arch/x86/kvm/x86.c                     |    7 +++
+ drivers/base/core.c                    |   53 +++++++++++++++++++++++++-
+ drivers/bluetooth/btusb.c              |    5 --
+ drivers/clk/rockchip/clk-mmc-phase.c   |    4 -
+ drivers/crypto/talitos.c               |   67 ++++++++++++++++++++++++----=
+-----
+ drivers/firmware/ti_sci.c              |    8 +--
+ drivers/gpio/gpiolib-acpi.c            |   42 ++++++++++++++++++--
+ drivers/gpio/gpiolib.c                 |   20 ++++++---
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c |    5 +-
+ drivers/gpu/drm/meson/meson_plane.c    |   16 +++++++
+ drivers/isdn/capi/capi.c               |   10 ++++
+ drivers/mtd/nand/mtk_nand.c            |   21 ++++------
+ drivers/net/phy/phylink.c              |    6 +-
+ drivers/net/tun.c                      |   16 +++++--
+ drivers/net/usb/cdc_ether.c            |   13 ++++--
+ drivers/nvmem/core.c                   |   15 +++++--
+ drivers/pci/pci-driver.c               |    3 -
+ drivers/platform/x86/pmc_atom.c        |    8 +++
+ fs/btrfs/compression.c                 |   31 +++++++++++++++
+ fs/btrfs/compression.h                 |    3 +
+ fs/btrfs/props.c                       |    6 --
+ fs/btrfs/tree-log.c                    |    8 +--
+ fs/ubifs/tnc.c                         |   16 +++++--
+ include/uapi/linux/isdn/capicmd.h      |    1=20
+ kernel/irq/resend.c                    |    2=20
+ net/bridge/br_mdb.c                    |    2=20
+ net/core/dev.c                         |    2=20
+ net/core/skbuff.c                      |   19 +++++++++
+ net/ipv4/tcp_input.c                   |    2=20
+ net/ipv6/ping.c                        |    2=20
+ net/sched/sch_hhf.c                    |    2=20
+ net/sctp/protocol.c                    |    2=20
+ net/sctp/sm_sideeffect.c               |    2=20
+ net/tipc/name_distr.c                  |    3 -
+ 45 files changed, 365 insertions(+), 114 deletions(-)
+
+Alex Williamson (1):
+      PCI: Always allow probing with driver_override
+
+Andrew F. Davis (1):
+      firmware: ti_sci: Always request response from firmware
+
+Bj=F8rn Mork (1):
+      cdc_ether: fix rndis support for Mediatek based smartphones
+
+Christophe JAILLET (2):
+      ipv6: Fix the link time qualifier of 'ping_v6_proc_exit_net()'
+      sctp: Fix the link time qualifier of 'sctp_ctrlsock_exit()'
+
+Christophe Leroy (6):
+      crypto: talitos - check AES key size
+      crypto: talitos - fix CTR alg blocksize
+      crypto: talitos - check data blocksize in ablkcipher.
+      crypto: talitos - fix ECB algs ivsize
+      crypto: talitos - Do not modify req->cryptlen on decryption.
+      crypto: talitos - HMAC SNOOP NO AFEU mode requires SW icv checking.
+
+Cong Wang (1):
+      sch_hhf: ensure quantum and hhf_non_hh_weight are non-zero
+
+David Sterba (1):
+      btrfs: compression: add helper for type to string conversion
+
+Douglas Anderson (1):
+      clk: rockchip: Don't yell about bad mmc phases when getting
+
+Eric Biggers (1):
+      isdn/capi: check message length in capi_write()
+
+Filipe Manana (1):
+      Btrfs: fix assertion failure during fsync and use of stale transaction
+
+Fuqian Huang (1):
+      KVM: x86: work around leak of uninitialized stack contents
+
+Greg Kroah-Hartman (2):
+      Revert "MIPS: SiByte: Enable swiotlb for SWARM, LittleSur and BigSur"
+      Linux 4.14.145
+
+Hans de Goede (1):
+      gpiolib: acpi: Add gpiolib_acpi_run_edge_events_on_boot option and bl=
+acklist
+
+Jean Delvare (1):
+      nvmem: Use the same permissions for eeprom as for nvmem
+
+Johannes Thumshirn (1):
+      btrfs: correctly validate compression type
+
+Kent Gibson (2):
+      gpio: fix line flag validation in linehandle_create
+      gpio: fix line flag validation in lineevent_create
+
+Linus Torvalds (1):
+      x86/build: Add -Wnoaddress-of-packed-member to REALMODE_CFLAGS, to si=
+lence GCC9 build warning
+
+Mario Limonciello (1):
+      Revert "Bluetooth: btusb: driver to enable the usb-wakeup feature"
+
+Muchun Song (1):
+      driver core: Fix use-after-free and double free on glue directory
+
+Neal Cardwell (1):
+      tcp: fix tcp_ecn_withdraw_cwr() to clear TCP_ECN_QUEUE_CWR
+
+Neil Armstrong (1):
+      drm/meson: Add support for XBGR8888 & ABGR8888 formats
+
+Nicolas Dichtel (1):
+      bridge/mdb: remove wrong use of NLM_F_MULTI
+
+Nishka Dasgupta (1):
+      drm/mediatek: mtk_drm_drv.c: Add of_node_put() before goto
+
+Paolo Bonzini (1):
+      KVM: nVMX: handle page fault in vmread
+
+Paul Burton (2):
+      MIPS: VDSO: Prevent use of smp_processor_id()
+      MIPS: VDSO: Use same -m%-float cflag as the kernel proper
+
+Richard Weinberger (1):
+      ubifs: Correctly use tnc_next() in search_dh_cookie()
+
+Shmulik Ladkani (1):
+      net: gso: Fix skb_segment splat when splitting gso_size mangled skb h=
+aving linear-headed frag_list
+
+Stefan Chulski (1):
+      net: phylink: Fix flow control resolution
+
+Steffen Dirkwinkel (1):
+      platform/x86: pmc_atom: Add CB4063 Beckhoff Automation board to critc=
+lk_systems DMI table
+
+Subash Abhinov Kasiviswanathan (1):
+      net: Fix null de-reference of device refcount
+
+Suraj Jitindar Singh (1):
+      powerpc: Add barrier_nospec to raw_copy_in_user()
+
+Thomas Huth (1):
+      KVM: s390: Do not leak kernel stack data in the KVM_S390_INTERRUPT io=
+ctl
+
+Xiaolei Li (1):
+      mtd: rawnand: mtk: Fix wrongly assigned OOB buffer pointer issue
+
+Xin Long (2):
+      sctp: use transport pf_retrans in sctp_do_8_2_transport_strike
+      tipc: add NULL pointer check before calling kfree_rcu
+
+Yang Yingliang (1):
+      tun: fix use-after-free when register netdev failed
+
+Yunfeng Ye (1):
+      genirq: Prevent NULL pointer dereference in resend_irqs()
+
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl2DQyIACgkQONu9yGCS
+aT6EwBAAv6vOevDDyaPTv1wXrNciB791Al6O6QjwfMCk0HcZs9cTrBc7DEkCfGjH
+7E4TxCbUezeRDSbvNRiraNDa207j+iVDhxchv5ik+85rXO+bjPCT+BTiEaPQY60R
+3+SyDJA+6N+gKul+AOS/WN5jLEKosO+EHYm+pV6nycWNcV4C0Fs8NITyUrEAdaA6
+SsYA+keGB1T+eHEPhquQOjR0nGXGW+i8eWw2ZLVXHHitfeNHLZB/QS+LVeqq9JXT
+RI7JxilziZvA/6U6xpTBZqZReXZjB4c9qMR8K5yEiR8qp20TjnS0MD0GT7R/uhgz
+ZEjYAheJDEvDAx7RUdC8wnPVf4ZzCJ0mkBf/+9ANW8S9rCkwVlAwmGOClbONUEwN
+kh+BNfWYcPXBF81r5zBPCZx+tA8Y52L6f1DEhWSVCfOFv8ZRzNFeczVd48NwNpYD
+Itxf1EeU1e2C71F7HkNiSD0yqYT8SkNuSM7wphSSoh2bemSpCekb0A+i8M8FsjNJ
+tN1ZgwUaDvJE6Xj3/fU8DSXeyZFmgx7UHdyuB2dk836dwRWY7yzzqYiL/E6yWC6T
+uBu/acLKVx4Gh3RN9M1xiBvOwge5Epn5vYcyLAENxm8gVY4SE37r1Wo0hdRrvsoH
+VaiLycxQWq17mzjB6L4eIGiblaaBZ1xJIo5yOnKQG6sFHiLVYpc=
+=gcG+
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
