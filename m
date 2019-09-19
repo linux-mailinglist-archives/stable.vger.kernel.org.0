@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63797B8508
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF35B854D
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406355AbfISWQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57516 "EHLO mail.kernel.org"
+        id S2392547AbfISWTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:19:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404458AbfISWQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:16:45 -0400
+        id S2392803AbfISWTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:19:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E9BB21907;
-        Thu, 19 Sep 2019 22:16:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0F8221907;
+        Thu, 19 Sep 2019 22:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931404;
-        bh=hHpqv0RpIw5uSzS46FkoM8KdEvq3EyzTdM8OwFRdj+Q=;
+        s=default; t=1568931578;
+        bh=fVr10gUYFESRJOqOLQxyrTPlJq3CwBFHWabwd1psORE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCJER7yzWeb2CnCIqFkukm8o9jYSVfaQ+wDKO+jr+854mXDNdo6SaQAqoeBoxfOEE
-         6SVm//a+f/k44iMmKeZMOwLsSNaPbpDysehhvFB3S1tlxPjSPM+JRycnZLTy30KzSF
-         N7c6PTCbdm88HEm0XlIoW2/Tgx5yPyyRgBe5PUnQ=
+        b=D+xhU4w294VSEMl5TXRvykPUqW1vx4+RWsvB8pua+MAvysAOE8Ahq8oWUnENJBmMq
+         zv8Pk5H54iyT6Am/TNFND+p76Zm9Q8dCygdugktp35X9pwj7sri7mUbs1xW4gXjTg8
+         siUgQcEUe2zaTH4185IaYWI8FHgWAnQNxyeatfNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 04/59] USB: usbcore: Fix slab-out-of-bounds bug during device reset
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/74] net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list
 Date:   Fri, 20 Sep 2019 00:03:19 +0200
-Message-Id: <20190919214757.020836425@linuxfoundation.org>
+Message-Id: <20190919214802.102848604@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,112 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Shmulik Ladkani <shmulik@metanetworks.com>
 
-commit 3dd550a2d36596a1b0ee7955da3b611c031d3873 upstream.
+[ Upstream commit 3dcbdb134f329842a38f0e6797191b885ab00a00 ]
 
-The syzbot fuzzer provoked a slab-out-of-bounds error in the USB core:
+Historically, support for frag_list packets entering skb_segment() was
+limited to frag_list members terminating on exact same gso_size
+boundaries. This is verified with a BUG_ON since commit 89319d3801d1
+("net: Add frag_list support to skb_segment"), quote:
 
-BUG: KASAN: slab-out-of-bounds in memcmp+0xa6/0xb0 lib/string.c:904
-Read of size 1 at addr ffff8881d175bed6 by task kworker/0:3/2746
+    As such we require all frag_list members terminate on exact MSS
+    boundaries.  This is checked using BUG_ON.
+    As there should only be one producer in the kernel of such packets,
+    namely GRO, this requirement should not be difficult to maintain.
 
-CPU: 0 PID: 2746 Comm: kworker/0:3 Not tainted 5.3.0-rc5+ #28
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  memcmp+0xa6/0xb0 lib/string.c:904
-  memcmp include/linux/string.h:400 [inline]
-  descriptors_changed drivers/usb/core/hub.c:5579 [inline]
-  usb_reset_and_verify_device+0x564/0x1300 drivers/usb/core/hub.c:5729
-  usb_reset_device+0x4c1/0x920 drivers/usb/core/hub.c:5898
-  rt2x00usb_probe+0x53/0x7af
-drivers/net/wireless/ralink/rt2x00/rt2x00usb.c:806
+However, since commit 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper"),
+the "exact MSS boundaries" assumption no longer holds:
+An eBPF program using bpf_skb_change_proto() DOES modify 'gso_size', but
+leaves the frag_list members as originally merged by GRO with the
+original 'gso_size'. Example of such programs are bpf-based NAT46 or
+NAT64.
 
-The error occurs when the descriptors_changed() routine (called during
-a device reset) attempts to compare the old and new BOS and capability
-descriptors.  The length it uses for the comparison is the
-wTotalLength value stored in BOS descriptor, but this value is not
-necessarily the same as the length actually allocated for the
-descriptors.  If it is larger the routine will call memcmp() with a
-length that is too big, thus reading beyond the end of the allocated
-region and leading to this fault.
+This lead to a kernel BUG_ON for flows involving:
+ - GRO generating a frag_list skb
+ - bpf program performing bpf_skb_change_proto() or bpf_skb_adjust_room()
+ - skb_segment() of the skb
 
-The kernel reads the BOS descriptor twice: first to get the total
-length of all the capability descriptors, and second to read it along
-with all those other descriptors.  A malicious (or very faulty) device
-may send different values for the BOS descriptor fields each time.
-The memory area will be allocated using the wTotalLength value read
-the first time, but stored within it will be the value read the second
-time.
+See example BUG_ON reports in [0].
 
-To prevent this possibility from causing any errors, this patch
-modifies the BOS descriptor after it has been read the second time:
-It sets the wTotalLength field to the actual length of the descriptors
-that were read in and validated.  Then the memcpy() call, or any other
-code using these descriptors, will be able to rely on wTotalLength
-being valid.
+In commit 13acc94eff12 ("net: permit skb_segment on head_frag frag_list skb"),
+skb_segment() was modified to support the "gso_size mangling" case of
+a frag_list GRO'ed skb, but *only* for frag_list members having
+head_frag==true (having a page-fragment head).
 
-Reported-and-tested-by: syzbot+35f4d916c623118d576e@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909041154260.1722-100000@iolanthe.rowland.org
+Alas, GRO packets having frag_list members with a linear kmalloced head
+(head_frag==false) still hit the BUG_ON.
+
+This commit adds support to skb_segment() for a 'head_skb' packet having
+a frag_list whose members are *non* head_frag, with gso_size mangled, by
+disabling SG and thus falling-back to copying the data from the given
+'head_skb' into the generated segmented skbs - as suggested by Willem de
+Bruijn [1].
+
+Since this approach involves the penalty of skb_copy_and_csum_bits()
+when building the segments, care was taken in order to enable this
+solution only when required:
+ - untrusted gso_size, by testing SKB_GSO_DODGY is set
+   (SKB_GSO_DODGY is set by any gso_size mangling functions in
+    net/core/filter.c)
+ - the frag_list is non empty, its item is a non head_frag, *and* the
+   headlen of the given 'head_skb' does not match the gso_size.
+
+[0]
+https://lore.kernel.org/netdev/20190826170724.25ff616f@pixies/
+https://lore.kernel.org/netdev/9265b93f-253d-6b8c-f2b8-4b54eff1835c@fb.com/
+
+[1]
+https://lore.kernel.org/netdev/CA+FuTSfVsgNDi7c=GUU8nMg2hWxF2SjCNLXetHeVPdnxAW5K-w@mail.gmail.com/
+
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/core/config.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/core/skbuff.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -925,7 +925,7 @@ int usb_get_bos_descriptor(struct usb_de
- 	struct usb_bos_descriptor *bos;
- 	struct usb_dev_cap_header *cap;
- 	struct usb_ssp_cap_descriptor *ssp_cap;
--	unsigned char *buffer;
-+	unsigned char *buffer, *buffer0;
- 	int length, total_len, num, i, ssac;
- 	__u8 cap_type;
- 	int ret;
-@@ -970,10 +970,12 @@ int usb_get_bos_descriptor(struct usb_de
- 			ret = -ENOMSG;
- 		goto err;
- 	}
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3094,6 +3094,25 @@ struct sk_buff *skb_segment(struct sk_bu
+ 	int pos;
+ 	int dummy;
+ 
++	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
++	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
++		/* gso_size is untrusted, and we have a frag_list with a linear
++		 * non head_frag head.
++		 *
++		 * (we assume checking the first list_skb member suffices;
++		 * i.e if either of the list_skb members have non head_frag
++		 * head, then the first one has too).
++		 *
++		 * If head_skb's headlen does not fit requested gso_size, it
++		 * means that the frag_list members do NOT terminate on exact
++		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
++		 * sharing. Therefore we must fallback to copying the frag_list
++		 * skbs; we do so by disabling SG.
++		 */
++		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
++			features &= ~NETIF_F_SG;
++	}
 +
-+	buffer0 = buffer;
- 	total_len -= length;
-+	buffer += length;
- 
- 	for (i = 0; i < num; i++) {
--		buffer += length;
- 		cap = (struct usb_dev_cap_header *)buffer;
- 
- 		if (total_len < sizeof(*cap) || total_len < cap->bLength) {
-@@ -987,8 +989,6 @@ int usb_get_bos_descriptor(struct usb_de
- 			break;
- 		}
- 
--		total_len -= length;
--
- 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
- 			dev_warn(ddev, "descriptor type invalid, skip\n");
- 			continue;
-@@ -1023,7 +1023,11 @@ int usb_get_bos_descriptor(struct usb_de
- 		default:
- 			break;
- 		}
-+
-+		total_len -= length;
-+		buffer += length;
- 	}
-+	dev->bos->desc->wTotalLength = cpu_to_le16(buffer - buffer0);
- 
- 	return 0;
- 
+ 	__skb_push(head_skb, doffset);
+ 	proto = skb_network_protocol(head_skb, &dummy);
+ 	if (unlikely(!proto))
 
 
