@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5881AB86E4
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377B4B877A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389394AbfISWMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
+        id S2405304AbfISWg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:36:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393636AbfISWMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:12:33 -0400
+        id S2405075AbfISWF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:05:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7777E21929;
-        Thu, 19 Sep 2019 22:12:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C37A321920;
+        Thu, 19 Sep 2019 22:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931152;
-        bh=hepvH7SjapywPDPI2SBLLPFx6wumdhL0IWMJt9o1E0U=;
+        s=default; t=1568930757;
+        bh=uid3Os48d7nQhIFvTqDHrh3Vj11rA7fwL1JrzgyC0v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lH5X21L3ZCyjLQIfFvPH5Rl9AKpiAEOehJjj6t1b8pN6LmMfnjWbJ6HwpW1tqa/jv
-         y9BGDu9nZcFmWAVZ1qXt3M891674Joyfdj6cwVNuHd8bbCBWxhBpPwc0bKfxsB8xy3
-         Z6FEj6XQId+7hDUHFZPg1AXSdbw7Bnk+zkx2qVKc=
+        b=bGROXAVCElHbOaKkUZBemoazPM7VZQGNOXK0V7xtSGejqKTKK5j73MW43ZNGwTaT0
+         Tm03xnOj/ogHZcdEvY2YWrPDYZpXrWGyGat+Fv/P66t+Qz23/IVIWAM5XVSflls/Jf
+         biyIt9dgpXnbtSC2a4bhzYXlBvAlUBwKJ2t0S1H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/79] ARM: dts: am57xx: Disable voltage switching for SD card
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Davide Caratti <dcaratti@redhat.com>
+Subject: [PATCH 5.3 05/21] net/sched: fix race between deactivation and dequeue for NOLOCK qdisc
 Date:   Fri, 20 Sep 2019 00:03:06 +0200
-Message-Id: <20190919214809.863268663@linuxfoundation.org>
+Message-Id: <20190919214701.605942243@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
+References: <20190919214657.842130855@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,154 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit fb59ee37cfe20d10d19568899d1458a58361246c ]
+[ Upstream commit d518d2ed8640c1cbbbb6f63939e3e65471817367 ]
 
-If UHS speed modes are enabled, a compatible SD card switches down to
-1.8V during enumeration. If after this a software reboot/crash takes
-place and on-chip ROM tries to enumerate the SD card, the difference in
-IO voltages (host @ 3.3V and card @ 1.8V) may end up damaging the card.
+The test implemented by some_qdisc_is_busy() is somewhat loosy for
+NOLOCK qdisc, as we may hit the following scenario:
 
-The fix for this is to have support for power cycling the card in
-hardware (with a PORz/soft-reset line causing a power cycle of the
-card). Because the beaglebone X15 (rev A,B and C), am57xx-idks and
-am57xx-evms don't have this capability, disable voltage switching for
-these boards.
+CPU1						CPU2
+// in net_tx_action()
+clear_bit(__QDISC_STATE_SCHED...);
+						// in some_qdisc_is_busy()
+						val = (qdisc_is_running(q) ||
+						       test_bit(__QDISC_STATE_SCHED,
+								&q->state));
+						// here val is 0 but...
+qdisc_run(q)
+// ... CPU1 is going to run the qdisc next
 
-The major effect of this is that the maximum supported speed
-mode is now high speed(50 MHz) down from SDR104(200 MHz).
+As a conseguence qdisc_run() in net_tx_action() can race with qdisc_reset()
+in dev_qdisc_reset(). Such race is not possible for !NOLOCK qdisc as
+both the above bit operations are under the root qdisc lock().
 
-commit 88a748419b84 ("ARM: dts: am57xx-idk: Remove support for voltage
-switching for SD card") did this only for idk boards. Do it for all
-affected boards.
+After commit 021a17ed796b ("pfifo_fast: drop unneeded additional lock on dequeue")
+the race can cause use after free and/or null ptr dereference, but the root
+cause is likely older.
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch addresses the issue explicitly checking for deactivation under
+the seqlock for NOLOCK qdisc, so that the qdisc_run() in the critical
+scenario becomes a no-op.
+
+Note that the enqueue() op can still execute concurrently with dev_qdisc_reset(),
+but that is safe due to the skb_array() locking, and we can't avoid that
+for NOLOCK qdiscs.
+
+Fixes: 021a17ed796b ("pfifo_fast: drop unneeded additional lock on dequeue")
+Reported-by: Li Shuang <shuali@redhat.com>
+Reported-and-tested-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/am571x-idk.dts                | 7 +------
- arch/arm/boot/dts/am572x-idk.dts                | 7 +------
- arch/arm/boot/dts/am574x-idk.dts                | 7 +------
- arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi | 1 +
- arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts   | 7 +------
- arch/arm/boot/dts/am57xx-beagle-x15-revc.dts    | 7 +------
- 6 files changed, 6 insertions(+), 30 deletions(-)
+ include/net/pkt_sched.h |    7 ++++++-
+ net/core/dev.c          |   16 ++++++++++------
+ 2 files changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am571x-idk.dts b/arch/arm/boot/dts/am571x-idk.dts
-index d9a2049a1ea8a..6bebedfc0f35a 100644
---- a/arch/arm/boot/dts/am571x-idk.dts
-+++ b/arch/arm/boot/dts/am571x-idk.dts
-@@ -98,14 +98,9 @@
- };
+--- a/include/net/pkt_sched.h
++++ b/include/net/pkt_sched.h
+@@ -118,7 +118,12 @@ void __qdisc_run(struct Qdisc *q);
+ static inline void qdisc_run(struct Qdisc *q)
+ {
+ 	if (qdisc_run_begin(q)) {
+-		__qdisc_run(q);
++		/* NOLOCK qdisc must check 'state' under the qdisc seqlock
++		 * to avoid racing with dev_qdisc_reset()
++		 */
++		if (!(q->flags & TCQ_F_NOLOCK) ||
++		    likely(!test_bit(__QDISC_STATE_DEACTIVATED, &q->state)))
++			__qdisc_run(q);
+ 		qdisc_run_end(q);
+ 	}
+ }
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3467,18 +3467,22 @@ static inline int __dev_xmit_skb(struct
+ 	qdisc_calculate_pkt_len(skb, q);
  
- &mmc1 {
--	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
-+	pinctrl-names = "default", "hs";
- 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
- 	pinctrl-1 = <&mmc1_pins_hs>;
--	pinctrl-2 = <&mmc1_pins_sdr12>;
--	pinctrl-3 = <&mmc1_pins_sdr25>;
--	pinctrl-4 = <&mmc1_pins_sdr50>;
--	pinctrl-5 = <&mmc1_pins_ddr50_rev20 &mmc1_iodelay_ddr50_conf>;
--	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
- };
+ 	if (q->flags & TCQ_F_NOLOCK) {
+-		if (unlikely(test_bit(__QDISC_STATE_DEACTIVATED, &q->state))) {
+-			__qdisc_drop(skb, &to_free);
+-			rc = NET_XMIT_DROP;
+-		} else if ((q->flags & TCQ_F_CAN_BYPASS) && q->empty &&
+-			   qdisc_run_begin(q)) {
++		if ((q->flags & TCQ_F_CAN_BYPASS) && q->empty &&
++		    qdisc_run_begin(q)) {
++			if (unlikely(test_bit(__QDISC_STATE_DEACTIVATED,
++					      &q->state))) {
++				__qdisc_drop(skb, &to_free);
++				rc = NET_XMIT_DROP;
++				goto end_run;
++			}
+ 			qdisc_bstats_cpu_update(q, skb);
  
- &mmc2 {
-diff --git a/arch/arm/boot/dts/am572x-idk.dts b/arch/arm/boot/dts/am572x-idk.dts
-index 3ef9111d0e8ba..9235173edbd3a 100644
---- a/arch/arm/boot/dts/am572x-idk.dts
-+++ b/arch/arm/boot/dts/am572x-idk.dts
-@@ -20,14 +20,9 @@
- };
++			rc = NET_XMIT_SUCCESS;
+ 			if (sch_direct_xmit(skb, q, dev, txq, NULL, true))
+ 				__qdisc_run(q);
  
- &mmc1 {
--	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
-+	pinctrl-names = "default", "hs";
- 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
- 	pinctrl-1 = <&mmc1_pins_hs>;
--	pinctrl-2 = <&mmc1_pins_sdr12>;
--	pinctrl-3 = <&mmc1_pins_sdr25>;
--	pinctrl-4 = <&mmc1_pins_sdr50>;
--	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev20_conf>;
--	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
- };
- 
- &mmc2 {
-diff --git a/arch/arm/boot/dts/am574x-idk.dts b/arch/arm/boot/dts/am574x-idk.dts
-index 378dfa780ac17..ae43de3297f4f 100644
---- a/arch/arm/boot/dts/am574x-idk.dts
-+++ b/arch/arm/boot/dts/am574x-idk.dts
-@@ -24,14 +24,9 @@
- };
- 
- &mmc1 {
--	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
-+	pinctrl-names = "default", "hs";
- 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
- 	pinctrl-1 = <&mmc1_pins_hs>;
--	pinctrl-2 = <&mmc1_pins_default>;
--	pinctrl-3 = <&mmc1_pins_hs>;
--	pinctrl-4 = <&mmc1_pins_sdr50>;
--	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_conf>;
--	pinctrl-6 = <&mmc1_pins_ddr50 &mmc1_iodelay_sdr104_conf>;
- };
- 
- &mmc2 {
-diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-index ad953113cefbd..d53532b479475 100644
---- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-+++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-@@ -433,6 +433,7 @@
- 
- 	bus-width = <4>;
- 	cd-gpios = <&gpio6 27 GPIO_ACTIVE_LOW>; /* gpio 219 */
-+	no-1-8-v;
- };
- 
- &mmc2 {
-diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
-index 5a77b334923d0..34c69965821bb 100644
---- a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
-+++ b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
-@@ -19,14 +19,9 @@
- };
- 
- &mmc1 {
--	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
-+	pinctrl-names = "default", "hs";
- 	pinctrl-0 = <&mmc1_pins_default>;
- 	pinctrl-1 = <&mmc1_pins_hs>;
--	pinctrl-2 = <&mmc1_pins_sdr12>;
--	pinctrl-3 = <&mmc1_pins_sdr25>;
--	pinctrl-4 = <&mmc1_pins_sdr50>;
--	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev11_conf>;
--	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev11_conf>;
- 	vmmc-supply = <&vdd_3v3>;
- 	vqmmc-supply = <&ldo1_reg>;
- };
-diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
-index 17c41da3b55f1..ccd99160bbdfb 100644
---- a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
-+++ b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
-@@ -19,14 +19,9 @@
- };
- 
- &mmc1 {
--	pinctrl-names = "default", "hs", "sdr12", "sdr25", "sdr50", "ddr50", "sdr104";
-+	pinctrl-names = "default", "hs";
- 	pinctrl-0 = <&mmc1_pins_default>;
- 	pinctrl-1 = <&mmc1_pins_hs>;
--	pinctrl-2 = <&mmc1_pins_sdr12>;
--	pinctrl-3 = <&mmc1_pins_sdr25>;
--	pinctrl-4 = <&mmc1_pins_sdr50>;
--	pinctrl-5 = <&mmc1_pins_ddr50 &mmc1_iodelay_ddr_rev20_conf>;
--	pinctrl-6 = <&mmc1_pins_sdr104 &mmc1_iodelay_sdr104_rev20_conf>;
- 	vmmc-supply = <&vdd_3v3>;
- 	vqmmc-supply = <&ldo1_reg>;
- };
--- 
-2.20.1
-
++end_run:
+ 			qdisc_run_end(q);
+-			rc = NET_XMIT_SUCCESS;
+ 		} else {
+ 			rc = q->enqueue(skb, q, &to_free) & NET_XMIT_MASK;
+ 			qdisc_run(q);
 
 
