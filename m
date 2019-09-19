@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E42B8636
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39938B85F8
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390247AbfISWU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+        id S2406864AbfISWWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:22:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394026AbfISWUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:25 -0400
+        id S2406847AbfISWWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A59721907;
-        Thu, 19 Sep 2019 22:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0542021929;
+        Thu, 19 Sep 2019 22:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931624;
-        bh=h7bs5BaL3V7O2y9WW5ZRBJX0p8qiT4bHZLFJo4yFCI8=;
+        s=default; t=1568931751;
+        bh=baReVMH+d8hTxywRiG3exURrnZ/d6SLknoE6lUTdu7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4/KJKy5Eyw/kGjEyhKF0DroOgd3eiPoo4/+03yUY4VHKurHijqKK0Ux6yhHujNbf
-         3sSE5WWKfIC22GKht4MjSZs9RciWbJGlO3uFQ129TYbl6aVEHt4/bD5cGaQz8dNN9Q
-         Y/P+AvfnftFnrsAr5p5h6r+UC9NTyFykivNm9LQs=
+        b=HrqDNp33hI9lJr9ZgF6mSU3EUP5HLhY9E0ogX2MVv0Vgr94aUKgefsenM2AqDVx93
+         Ni1SSz9+ULrnPFZED0NyUpuodHwiR85US+j3JFVGqINm8jU+cO6jFFWIvUsgR0crzs
+         vVpvgzgiDg6MyOuG5u4l0g4ck6O2FMulxerxqDNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
-        Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 54/74] r8152: Set memory to all 0xFFs on failed reg reads
+        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 26/56] ARC: configs: Remove CONFIG_INITRAMFS_SOURCE from defconfigs
 Date:   Fri, 20 Sep 2019 00:04:07 +0200
-Message-Id: <20190919214810.052809203@linuxfoundation.org>
+Message-Id: <20190919214755.347842797@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
 
-[ Upstream commit f53a7ad189594a112167efaf17ea8d0242b5ac00 ]
+commit 64234961c145606b36eaa82c47b11be842b21049 upstream.
 
-get_registers() blindly copies the memory written to by the
-usb_control_msg() call even if the underlying urb failed.
+We used to have pre-set CONFIG_INITRAMFS_SOURCE with local path
+to intramfs in ARC defconfigs. This was quite convenient for
+in-house development but not that convenient for newcomers
+who obviusly don't have folders like "arc_initramfs" next to
+the Linux source tree. Which leads to quite surprising failure
+of defconfig building:
+------------------------------->8-----------------------------
+  ../scripts/gen_initramfs_list.sh: Cannot open '../../arc_initramfs_hs/'
+../usr/Makefile:57: recipe for target 'usr/initramfs_data.cpio.gz' failed
+make[2]: *** [usr/initramfs_data.cpio.gz] Error 1
+------------------------------->8-----------------------------
 
-This could lead to junk register values being read by the driver, since
-some indirect callers of get_registers() ignore the return values. One
-example is:
-  ocp_read_dword() ignores the return value of generic_ocp_read(), which
-  calls get_registers().
+So now when more and more people start to deal with our defconfigs
+let's make their life easier with removal of CONFIG_INITRAMFS_SOURCE.
 
-So, emulate PCI "Master Abort" behavior by setting the buffer to all
-0xFFs when usb_control_msg() fails.
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: Kevin Hilman <khilman@baylibre.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+[backport: Fix context conflicts, drop non-existing configuration files]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This patch is copied from the r8152 driver (v2.12.0) published by
-Realtek (www.realtek.com).
-
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Acked-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arc/configs/axs101_defconfig          |    1 -
+ arch/arc/configs/axs103_defconfig          |    1 -
+ arch/arc/configs/axs103_smp_defconfig      |    1 -
+ arch/arc/configs/nsim_700_defconfig        |    1 -
+ arch/arc/configs/nsim_hs_defconfig         |    1 -
+ arch/arc/configs/nsim_hs_smp_defconfig     |    1 -
+ arch/arc/configs/nsimosci_defconfig        |    1 -
+ arch/arc/configs/nsimosci_hs_defconfig     |    1 -
+ arch/arc/configs/nsimosci_hs_smp_defconfig |    1 -
+ 9 files changed, 9 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 02e29562d254e..15dc70c118579 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -689,8 +689,11 @@ int get_registers(struct r8152 *tp, u16 value, u16 index, u16 size, void *data)
- 	ret = usb_control_msg(tp->udev, usb_rcvctrlpipe(tp->udev, 0),
- 			      RTL8152_REQ_GET_REGS, RTL8152_REQT_READ,
- 			      value, index, tmp, size, 500);
-+	if (ret < 0)
-+		memset(data, 0xff, size);
-+	else
-+		memcpy(data, tmp, size);
- 
--	memcpy(data, tmp, size);
- 	kfree(tmp);
- 
- 	return ret;
--- 
-2.20.1
-
+--- a/arch/arc/configs/axs101_defconfig
++++ b/arch/arc/configs/axs101_defconfig
+@@ -11,7 +11,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs/"
+ CONFIG_EMBEDDED=y
+ CONFIG_PERF_EVENTS=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+--- a/arch/arc/configs/axs103_defconfig
++++ b/arch/arc/configs/axs103_defconfig
+@@ -11,7 +11,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../../arc_initramfs_hs/"
+ CONFIG_EMBEDDED=y
+ CONFIG_PERF_EVENTS=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+--- a/arch/arc/configs/axs103_smp_defconfig
++++ b/arch/arc/configs/axs103_smp_defconfig
+@@ -11,7 +11,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../../arc_initramfs_hs/"
+ CONFIG_EMBEDDED=y
+ CONFIG_PERF_EVENTS=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+--- a/arch/arc/configs/nsim_700_defconfig
++++ b/arch/arc/configs/nsim_700_defconfig
+@@ -11,7 +11,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs/"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_SLUB_DEBUG is not set
+--- a/arch/arc/configs/nsim_hs_defconfig
++++ b/arch/arc/configs/nsim_hs_defconfig
+@@ -12,7 +12,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs_hs/"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_SLUB_DEBUG is not set
+--- a/arch/arc/configs/nsim_hs_smp_defconfig
++++ b/arch/arc/configs/nsim_hs_smp_defconfig
+@@ -9,7 +9,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs_hs/"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_SLUB_DEBUG is not set
+--- a/arch/arc/configs/nsimosci_defconfig
++++ b/arch/arc/configs/nsimosci_defconfig
+@@ -12,7 +12,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs/"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_SLUB_DEBUG is not set
+--- a/arch/arc/configs/nsimosci_hs_defconfig
++++ b/arch/arc/configs/nsimosci_hs_defconfig
+@@ -12,7 +12,6 @@ CONFIG_NAMESPACES=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs_hs/"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_SLUB_DEBUG is not set
+--- a/arch/arc/configs/nsimosci_hs_smp_defconfig
++++ b/arch/arc/configs/nsimosci_hs_smp_defconfig
+@@ -9,7 +9,6 @@ CONFIG_IKCONFIG_PROC=y
+ # CONFIG_UTS_NS is not set
+ # CONFIG_PID_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+-CONFIG_INITRAMFS_SOURCE="../arc_initramfs_hs/"
+ # CONFIG_COMPAT_BRK is not set
+ CONFIG_KPROBES=y
+ CONFIG_MODULES=y
 
 
