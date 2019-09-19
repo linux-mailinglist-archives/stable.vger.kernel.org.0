@@ -2,152 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DFFB81FD
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A6FB8215
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 22:02:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390149AbfIST4c convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 19 Sep 2019 15:56:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:22746 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387854AbfIST4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 15:56:31 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 78FDA3082149
-        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 19:56:31 +0000 (UTC)
-Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 371875C1B5;
-        Thu, 19 Sep 2019 19:56:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2404553AbfISUCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 16:02:20 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44773 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404551AbfISUCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 16:02:20 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6FF3021B10;
+        Thu, 19 Sep 2019 16:02:19 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 19 Sep 2019 16:02:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=kvapmU7DHnYiNPT22Gz4c9jylOa
+        Goo+HY1DFacBlknA=; b=mCorCM+S7uXwwMI3gwY6BIX7HnN2WhfnBIABY6vJ2pp
+        Gvf+AhTrbP4MdEWI9h1rrpwSMfmxT92tVc+cE4SdbYUYesLCMYbZps4Is/0YYzrw
+        X30tFaV9QaEFUE8oViuAt84JD3E5tyRtSuUXigqGDQyvR8p7VS7so3GIy/xA682n
+        BMn1BCGadSlSF+GHt98VFBnVbzTw1UDLq9lnFLBna5dmtuBntzOcwixxWFfJvuFL
+        F+JgQqQyeNIGo6Gts8Prf7/4ORCd1xzqXhOiJMwmy+9oOrdbFQZdqh5o+qkPNeDf
+        ScEgkDG54UUP6i6Mu5Kwk5zTKJEHz+iK0fir/bu1wdg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kvapmU
+        7DHnYiNPT22Gz4c9jylOaGoo+HY1DFacBlknA=; b=1HbJg6zH9xMqfHRBL4BKg7
+        DZ4LHCUeLCwT73r1gmsQrhzS1kuBjvwWGYzL6IEPGWbjkqacpCLIkx2c3gvL6TMh
+        5HXxGw5+D+84WBiTJPCZrVjRDqxoM3ZNPfziUhK4h+wElldtWt8ZCBZKFjsqi8F0
+        aD7gWKN3LYiuMvAoORGIzSKfk0rYZx5NJSqRKn2e9jAF1xB7qcGjteV2GExFRdDD
+        Vr1+z5VH+3gF1ThMFKMLBVIVWw3+9OshzBymVJuszJedNO8kUgMsjcTNVZI8Obav
+        TH0sevVA4yRLVe5pKFL59ttR1iJkityiuxTnyUAWuLu+lN3FncXyXN5mB3TFPSTg
+        ==
+X-ME-Sender: <xms:y96DXVbRf6AwXUbqmn2jFQBcMXjRLO42g8Y0DgXSmr4xXQ2fDdRwPw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgddugeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:y96DXTrSoH3NTbbhLpILRcvx_EO_gQJzU5qUtFcTFlhJCOABv_hSVg>
+    <xmx:y96DXXdjMUBu_udC8uFtFF0n4nNR3gto0FrG7A0W2CKeWAHheDtIpQ>
+    <xmx:y96DXczLeaQKQ0imMLMGsW6qQFX16Hb3IQNjpq9dtfr-Auc0xBR5lw>
+    <xmx:y96DXfT6_E23fWVxtgPUG4PcMiSKpCtsVWUjpUh6kG-q-F01WC8ZGg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B7A6F8005C;
+        Thu, 19 Sep 2019 16:02:18 -0400 (EDT)
+Date:   Thu, 19 Sep 2019 22:02:16 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Frank van der Linden <fllinden@amazon.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: binfmt_elf patch [4.14, 4.19]
+Message-ID: <20190919200216.GA250963@kroah.com>
+References: <20190919192552.GA7060@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.C679103D4E.BLJOJTN7PS@redhat.com>
-X-Gitlab-Pipeline-ID: 174802
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/174802
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Thu, 19 Sep 2019 19:56:31 +0000 (UTC)
-Date:   Thu, 19 Sep 2019 15:56:31 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190919192552.GA7060@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 19, 2019 at 07:25:52PM +0000, Frank van der Linden wrote:
+> Hi,
+> 
+> Please include the following patch in 4.14 and 4.19, where it applies
+> cleanly and has been tested by us.
+> 
+> commit bbdc6076d2e5d07db44e74c11b01a3e27ab90b32 upstream
+> 
+> ("binfmt_elf: move brk out of mmap when doing direct loader exec")
 
-Hello,
+Nice catch, now queued up, thanks.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 1e2ba4a74fa7 - Linux 5.2.16
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/174802
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 1e2ba4a74fa7 - Linux 5.2.16
-
-
-We grabbed the 1f6dc2bee06f commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  usb-usbcore-fix-slab-out-of-bounds-bug-during-device-reset.patch
-  media-tm6000-double-free-if-usb-disconnect-while-streaming.patch
-  phy-renesas-rcar-gen3-usb2-disable-clearing-vbus-in-over-current.patch
-  net-hns3-adjust-hns3_uninit_phy-s-location-in-the-hns3_client_uninit.patch
-  netfilter-nf_flow_table-set-default-timeout-after-successful-insertion.patch
-  hid-wacom-generic-read-hid_dg_contactmax-from-any-feature-report.patch
-  input-elan_i2c-remove-lenovo-legion-y7000-pnpid.patch
-  sunrpc-handle-connection-breakages-correctly-in-call_status.patch
-  media-stm32-dcmi-fix-irq-0-case.patch
-  nfs-disable-client-side-deduplication.patch
-  powerpc-mm-radix-use-the-right-page-size-for-vmemmap-mapping.patch
-  scripts-decode_stacktrace-match-basepath-using-shell-prefix-operator-not-regex.patch
-  net-hns-fix-led-configuration-for-marvell-phy.patch
-  net-aquantia-fix-limit-of-vlan-filters.patch
-  ip6_gre-fix-a-dst-leak-in-ip6erspan_tunnel_xmit.patch
-  net-sched-fix-race-between-deactivation-and-dequeue-for-nolock-qdisc.patch
-  net_sched-let-qdisc_put-accept-null-pointer.patch
-  udp-correct-reuseport-selection-with-connected-sockets.patch
-  xen-netfront-do-not-assume-sk_buff_head-list-is-empty-in-error-handling.patch
-  net-dsa-fix-load-order-between-dsa-drivers-and-taggers.patch
-  kvm-coalesced_mmio-add-bounds-checking.patch
-  firmware-google-check-if-size-is-valid-when-decoding-vpd-data.patch
-  serial-sprd-correct-the-wrong-sequence-of-arguments.patch
-  tty-serial-atmel-reschedule-tx-after-rx-was-started.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  ppc64le:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+greg k-h
