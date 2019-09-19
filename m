@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41825B83FA
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5CAB83FC
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393081AbfISWGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44354 "EHLO mail.kernel.org"
+        id S2405283AbfISWGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:06:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393044AbfISWGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:06:49 -0400
+        id S2405279AbfISWGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:06:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 379F321D80;
-        Thu, 19 Sep 2019 22:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D668421907;
+        Thu, 19 Sep 2019 22:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930808;
-        bh=fwxLc1gvVOiwSg7+bOEMuYV6/ppNQ5qA39zjinu/lPA=;
+        s=default; t=1568930811;
+        bh=3tM0UaXpK9hyBLBvIYjqMgOquMudUYvPcuK67Ua82Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWZjtfnXdQRBbIX+nwiEiPB1q6iFp4VqzF8qV+oJtsiYK6mSz2X9HT0tIhkBCN9P3
-         vIRrE4jAsSHtwFuCnLt6NJsC9yWxNvKmfmT1nmJu6CI2F228b3kXXUz0kVuHEY5sH0
-         4NeVGWpBYuHriiqd5prFgdCPW8uraPUGWCT3pSXg=
+        b=1KR/zeiPMQwyJZ/80igVZbM4SkPQheJsIS5sHfOBlLa2TMUrYKG+ulYun+G/i5amR
+         chSH2ZjGFJdVeFEvuTHxpYNNBl5yYir0yfpHOpRyWJsrYprXAz0UuF16i+r2mn4K2C
+         FHEPhTpArt5mzSdPe+7sH+gt1yoFTuHyHAyb5FZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hung-Te Lin <hungte@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.2 022/124] firmware: google: check if size is valid when decoding VPD data
-Date:   Fri, 20 Sep 2019 00:01:50 +0200
-Message-Id: <20190919214819.882798472@linuxfoundation.org>
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Subject: [PATCH 5.2 023/124] serial: sprd: correct the wrong sequence of arguments
+Date:   Fri, 20 Sep 2019 00:01:51 +0200
+Message-Id: <20190919214819.912302822@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -44,158 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hung-Te Lin <hungte@chromium.org>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-commit 4b708b7b1a2c09fbdfff6b942ebe3a160213aacd upstream.
+commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
 
-The VPD implementation from Chromium Vital Product Data project used to
-parse data from untrusted input without checking if the meta data is
-invalid or corrupted. For example, the size from decoded content may
-be negative value, or larger than whole input buffer. Such invalid data
-may cause buffer overflow.
+The sequence of arguments which was passed to handle_lsr_errors() didn't
+match the parameters defined in that function, &lsr was passed to flag
+and &flag was passed to lsr, this patch fixed that.
 
-To fix that, the size parameters passed to vpd_decode functions should
-be changed to unsigned integer (u32) type, and the parsing of entry
-header should be refactored so every size field is correctly verified
-before starting to decode.
-
-Fixes: ad2ac9d5c5e0 ("firmware: Google VPD: import lib_vpd source files")
-Signed-off-by: Hung-Te Lin <hungte@chromium.org>
+Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20190830022402.214442-1-hungte@chromium.org
+Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/google/vpd.c        |    4 +-
- drivers/firmware/google/vpd_decode.c |   55 ++++++++++++++++++++---------------
- drivers/firmware/google/vpd_decode.h |    6 +--
- 3 files changed, 37 insertions(+), 28 deletions(-)
+ drivers/tty/serial/sprd_serial.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/google/vpd.c
-+++ b/drivers/firmware/google/vpd.c
-@@ -92,8 +92,8 @@ static int vpd_section_check_key_name(co
- 	return VPD_OK;
- }
+--- a/drivers/tty/serial/sprd_serial.c
++++ b/drivers/tty/serial/sprd_serial.c
+@@ -609,7 +609,7 @@ static inline void sprd_rx(struct uart_p
  
--static int vpd_section_attrib_add(const u8 *key, s32 key_len,
--				  const u8 *value, s32 value_len,
-+static int vpd_section_attrib_add(const u8 *key, u32 key_len,
-+				  const u8 *value, u32 value_len,
- 				  void *arg)
- {
- 	int ret;
---- a/drivers/firmware/google/vpd_decode.c
-+++ b/drivers/firmware/google/vpd_decode.c
-@@ -11,8 +11,8 @@
- 
- #include "vpd_decode.h"
- 
--static int vpd_decode_len(const s32 max_len, const u8 *in,
--			  s32 *length, s32 *decoded_len)
-+static int vpd_decode_len(const u32 max_len, const u8 *in,
-+			  u32 *length, u32 *decoded_len)
- {
- 	u8 more;
- 	int i = 0;
-@@ -32,18 +32,39 @@ static int vpd_decode_len(const s32 max_
- 	} while (more);
- 
- 	*decoded_len = i;
-+	return VPD_OK;
-+}
-+
-+static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
-+			    u32 *_consumed, const u8 **entry, u32 *entry_len)
-+{
-+	u32 decoded_len;
-+	u32 consumed = *_consumed;
- 
-+	if (vpd_decode_len(max_len - consumed, &input_buf[consumed],
-+			   entry_len, &decoded_len) != VPD_OK)
-+		return VPD_FAIL;
-+	if (max_len - consumed < decoded_len)
-+		return VPD_FAIL;
-+
-+	consumed += decoded_len;
-+	*entry = input_buf + consumed;
-+
-+	/* entry_len is untrusted data and must be checked again. */
-+	if (max_len - consumed < *entry_len)
-+		return VPD_FAIL;
-+
-+	consumed += decoded_len;
-+	*_consumed = consumed;
- 	return VPD_OK;
- }
- 
--int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
-+int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
- 		      vpd_decode_callback callback, void *callback_arg)
- {
- 	int type;
--	int res;
--	s32 key_len;
--	s32 value_len;
--	s32 decoded_len;
-+	u32 key_len;
-+	u32 value_len;
- 	const u8 *key;
- 	const u8 *value;
- 
-@@ -58,26 +79,14 @@ int vpd_decode_string(const s32 max_len,
- 	case VPD_TYPE_STRING:
- 		(*consumed)++;
- 
--		/* key */
--		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
--				     &key_len, &decoded_len);
--		if (res != VPD_OK || *consumed + decoded_len >= max_len)
-+		if (vpd_decode_entry(max_len, input_buf, consumed, &key,
-+				     &key_len) != VPD_OK)
- 			return VPD_FAIL;
- 
--		*consumed += decoded_len;
--		key = &input_buf[*consumed];
--		*consumed += key_len;
--
--		/* value */
--		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
--				     &value_len, &decoded_len);
--		if (res != VPD_OK || *consumed + decoded_len > max_len)
-+		if (vpd_decode_entry(max_len, input_buf, consumed, &value,
-+				     &value_len) != VPD_OK)
- 			return VPD_FAIL;
- 
--		*consumed += decoded_len;
--		value = &input_buf[*consumed];
--		*consumed += value_len;
--
- 		if (type == VPD_TYPE_STRING)
- 			return callback(key, key_len, value, value_len,
- 					callback_arg);
---- a/drivers/firmware/google/vpd_decode.h
-+++ b/drivers/firmware/google/vpd_decode.h
-@@ -25,8 +25,8 @@ enum {
- };
- 
- /* Callback for vpd_decode_string to invoke. */
--typedef int vpd_decode_callback(const u8 *key, s32 key_len,
--				const u8 *value, s32 value_len,
-+typedef int vpd_decode_callback(const u8 *key, u32 key_len,
-+				const u8 *value, u32 value_len,
- 				void *arg);
- 
- /*
-@@ -44,7 +44,7 @@ typedef int vpd_decode_callback(const u8
-  * If one entry is successfully decoded, sends it to callback and returns the
-  * result.
-  */
--int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
-+int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
- 		      vpd_decode_callback callback, void *callback_arg);
- 
- #endif  /* __VPD_DECODE_H */
+ 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
+ 			   SPRD_LSR_FE | SPRD_LSR_OE))
+-			if (handle_lsr_errors(port, &lsr, &flag))
++			if (handle_lsr_errors(port, &flag, &lsr))
+ 				continue;
+ 		if (uart_handle_sysrq_char(port, ch))
+ 			continue;
 
 
