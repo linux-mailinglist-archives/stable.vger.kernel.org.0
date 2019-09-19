@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F781B86A2
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC68B876F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406162AbfISWPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55538 "EHLO mail.kernel.org"
+        id S2404992AbfISWFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406152AbfISWPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:15:35 -0400
+        id S2404985AbfISWFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:05:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CF5F21907;
-        Thu, 19 Sep 2019 22:15:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A87A221907;
+        Thu, 19 Sep 2019 22:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931334;
-        bh=69sBRoNT7nFijGlVbMH7vzVAV5DSTj7/uo3LODtHMRg=;
+        s=default; t=1568930730;
+        bh=i59vVpsWme0l4E3I1ANgSvilDUw/eEg/54eOPwkejZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mn6SZqEqacp4Xub930xBgQqXKZ3AxvRL4kS0SNZ/J0Sj08+Ny1DCSArjE/c0yirun
-         kyTA+8u7ijH8QBYhrGezkkMG9VWZo9YQTn2V9Juomf3WRr2CId826/tR1Fjk0Z+6Ca
-         DIo37FMV5PGzEWRHsS/wAIcHtKlkOuD6BVWah0Rc=
+        b=hMEgEAjgPHocJXLmCsqeJyQwgTXRTAPcCPHZSSGu0laNzgQfgU1QARw7c0Hhxzs8P
+         IFSVI2zAlIqc6PU3nnKz8va0JM5Nbq+WovX0QphykyM+DlD5Gflr4CQu/W+X1VoJe1
+         cXfsiw4RXjYk9FBIvNZD6nho1/rtWcvqIvucduyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 01/59] HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report
+        Razvan Stefanescu <razvan.stefanescu@microchip.com>
+Subject: [PATCH 5.3 15/21] tty/serial: atmel: reschedule TX after RX was started
 Date:   Fri, 20 Sep 2019 00:03:16 +0200
-Message-Id: <20190919214756.170216569@linuxfoundation.org>
+Message-Id: <20190919214708.783116461@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
+References: <20190919214657.842130855@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,74 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Armstrong Skomra <skomra@gmail.com>
+From: Razvan Stefanescu <razvan.stefanescu@microchip.com>
 
-commit 184eccd40389df29abefab88092c4ff33191fd0c upstream.
+commit d2ace81bf902a9f11d52e59e5d232d2255a0e353 upstream.
 
-In the generic code path, HID_DG_CONTACTMAX was previously
-only read from the second byte of report 0x23.
+When half-duplex RS485 communication is used, after RX is started, TX
+tasklet still needs to be  scheduled tasklet. This avoids console freezing
+when more data is to be transmitted, if the serial communication is not
+closed.
 
-Another report (0x82) has the HID_DG_CONTACTMAX in the
-higher nibble of the third byte. We should support reading the
-value of HID_DG_CONTACTMAX no matter what report we are reading
-or which position that value is in.
-
-To do this we submit the feature report as a event report
-using hid_report_raw_event(). Our modified finger event path
-records the value of HID_DG_CONTACTMAX when it sees that usage.
-
-Fixes: 8ffffd5212846 ("HID: wacom: fix timeout on probe for some wacoms")
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 69646d7a3689 ("tty/serial: atmel: RS485 HD w/DMA: enable RX after TX is stopped")
+Signed-off-by: Razvan Stefanescu <razvan.stefanescu@microchip.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190813074025.16218-1-razvan.stefanescu@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_sys.c |   10 ++++++----
- drivers/hid/wacom_wac.c |    4 ++++
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/tty/serial/atmel_serial.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -125,14 +125,16 @@ static void wacom_feature_mapping(struct
- 		/* leave touch_max as is if predefined */
- 		if (!features->touch_max) {
- 			/* read manually */
--			data = kzalloc(2, GFP_KERNEL);
-+			n = hid_report_len(field->report);
-+			data = hid_alloc_report_buf(field->report, GFP_KERNEL);
- 			if (!data)
- 				break;
- 			data[0] = field->report->id;
- 			ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
--						data, 2, WAC_CMD_RETRIES);
--			if (ret == 2) {
--				features->touch_max = data[1];
-+					       data, n, WAC_CMD_RETRIES);
-+			if (ret == n) {
-+				ret = hid_report_raw_event(hdev,
-+					HID_FEATURE_REPORT, data, n, 0);
- 			} else {
- 				features->touch_max = 16;
- 				hid_warn(hdev, "wacom_feature_mapping: "
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2428,6 +2428,7 @@ static void wacom_wac_finger_event(struc
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
-+	struct wacom_features *features = &wacom->wacom_wac.features;
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -1400,7 +1400,6 @@ atmel_handle_transmit(struct uart_port *
  
- 	switch (equivalent_usage) {
- 	case HID_GD_X:
-@@ -2448,6 +2449,9 @@ static void wacom_wac_finger_event(struc
- 	case HID_DG_TIPSWITCH:
- 		wacom_wac->hid_data.tipswitch = value;
- 		break;
-+	case HID_DG_CONTACTMAX:
-+		features->touch_max = value;
-+		return;
- 	}
+ 			atmel_port->hd_start_rx = false;
+ 			atmel_start_rx(port);
+-			return;
+ 		}
  
- 
+ 		atmel_tasklet_schedule(atmel_port, &atmel_port->tasklet_tx);
 
 
