@@ -2,166 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCAEFB8114
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 20:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5953FB8118
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 20:58:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391896AbfISS4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 14:56:51 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:45909 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389098AbfISS4v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 14:56:51 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 58BBE20FBE;
-        Thu, 19 Sep 2019 14:56:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 19 Sep 2019 14:56:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PtRYfA
-        owYHjvHMB0i7kzMNOU4c4M7IC+VA5bh4EfjSE=; b=heU3APX09I/Z5n6MVIKVvt
-        uAJ3ADp75ZXc4WP1qrwx+Tx1abHzCMBMXkjjd/85d7USvHXFuEVtBfpgBQrcX2dc
-        WLUOfsGA+W86gwfgEZFL4nSMbIWUMLez5POVayMwb2fGCvVASpgOupcZa2WH3e2J
-        /rGK1qHg3vbLZSBLsQwR52WHKWuxEeQhwWE/iwnwgROL3EM6R5QkU+VjE91+Rpdk
-        fJC0I1SPccm5PngiVz/AE138rlV6VVvBhuIx9z82NhnoqI0/RwJ+LyuNfArL4250
-        bHgZlsm1OJT85nzzNlxtlbWS02D13TY9asLO4ZRbkU9hLlKMm3NWGBsoCxzMz/xg
-        ==
-X-ME-Sender: <xms:cs-DXdmbJPEibQpxgJRjg4Ggb5P2od4gD9pA5p7upDXloSCgmutU6g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgddufedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:cs-DXcFJCThQmzLOTzdlzzwyr_OvfXFXOfXbnh2-uVTdPzfT6WaFJQ>
-    <xmx:cs-DXbKpRhSk2kR2HeE7sLBbz3xiguzRLU5xF0BpWDEfSI5HkkbHDw>
-    <xmx:cs-DXbM_uez5tfEqOb8J5COUABgErcjoqa3LC8-02nrnWKHbI4kzGA>
-    <xmx:cs-DXcm6SXBPar1oribkaCJWPDPjfDp5Z801YKPZXA739zlDC2ri0A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A296E8005C;
-        Thu, 19 Sep 2019 14:56:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "arm64: Remove unnecessary ISBs from" failed to apply to 4.19-stable tree
-To:     will@kernel.org, mark.rutland@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 19 Sep 2019 20:56:48 +0200
-Message-ID: <156891940813244@kroah.com>
+        id S2392091AbfISS6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 14:58:24 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:33799 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388943AbfISS6Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 14:58:24 -0400
+Received: by mail-ot1-f65.google.com with SMTP id m19so2214302otp.1;
+        Thu, 19 Sep 2019 11:58:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=YMIQo0y0joi9ONCPZAMGxjNxNx6MRqPmS+7Wzb6NPMw=;
+        b=PdMcH7dAkOiUVObgzoR9D3iU41jNVLqhuajjaBVFwYrNpJtDABOoz75SpJQPYngU//
+         5DcHtHCLgYFS/AXF2zWerXUbAyZKCQpPactZrIWSwVGc4U02cJpbO7bRqRFnkYKe2ApS
+         mXZBH9X6OJjK8fg4uP4W/y2eM8G4JvPy2+4tJVfXG7ajjbxnJEpTYycFmkbShTnGJlBT
+         VYaLM+6B5/rzTtss7vo0gk+hJXLIGTCCPtwc0xxj3sC/eSvF7MD0sHefN8YQcs8BA9hY
+         lQudFnhYdMamD4OtNLLvirAoJrt6FDQ6D7Bw16hUijItmeYDdr0KtLEoY8gY0BLM0yVr
+         Zm4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YMIQo0y0joi9ONCPZAMGxjNxNx6MRqPmS+7Wzb6NPMw=;
+        b=ZqLxMdt/lWd31czs+1+dQ9+qq7gGDs3lzOlyFnWUa8330lGDwTiGAnnQcgXgAGXvZC
+         xMIspQdQEuXIej1TjfSlnOCwf+YIYuxSKFiRoWIvpoFgxTRRm3FhG+zcYxP/0D9MwxaL
+         0Fwr0MCuCi5kVT2QSfHdySpqCd6Sw23TorD/Kxx22c9w48dDOYT6OVq/36vCW0FiPGMh
+         8jL3IwN5tk5/gPZ7L54LpK5XEo5ZZSfGNCY1Upd6juYVFkTY56YxViPKw6xrJgKM88Ko
+         7FIHXxA26mciYLl+AbTl1NsZmVY3ybHes/w2RNn7ixtKcQcxLgAoGIiYX1Y3KVkcbU6q
+         wZdA==
+X-Gm-Message-State: APjAAAX9ni6ikF+Ml3VXHejcjMg2RcmfPmTwRFrp2PCeLfbYxFiftk2J
+        /Txe7xxLfbbGEFGwJmYvYTb6BUR3OzuVs82MGWA=
+X-Google-Smtp-Source: APXvYqxccIC05hsDwWUY5rbQWcSMLJsLpJN2oedXJT8dEp7TlRE79IMU082hbFlMCp4I4WwU4vEACd9GbZXs4zp4yno=
+X-Received: by 2002:a9d:5f10:: with SMTP id f16mr6999602oti.332.1568919503185;
+ Thu, 19 Sep 2019 11:58:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20190919151137.9960-1-TheSven73@gmail.com> <20190919182904.AF657207FC@mail.kernel.org>
+In-Reply-To: <20190919182904.AF657207FC@mail.kernel.org>
+From:   Sven Van Asbroeck <thesven73@gmail.com>
+Date:   Thu, 19 Sep 2019 14:58:12 -0400
+Message-ID: <CAGngYiW2bObc8L+mQJEMzYRe+QU7Xx1X_-So-o0RYAE7TWr3rg@mail.gmail.com>
+Subject: Re: [PATCH v1] power: supply: ltc2941-battery-gauge: fix use-after-free
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 19, 2019 at 2:29 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.2.15, v4.19.73, v4.14.144, v4.9.193, v4.4.193.
+>
+> v5.2.15: Build OK!
+> v4.19.73: Build OK!
+> v4.14.144: Build OK!
+> v4.9.193: Build OK!
+> v4.4.193: Failed to apply! Possible dependencies:
+>     Unable to calculate
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
+>
+> --
+> Thanks,
+> Sasha
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Doesn't apply on 4.4 because power supply drivers moved to a different
+directory (power/supply) between 4.4 and 4.9.
 
-thanks,
+I will post a patch with a fixed-up file path, marked as "[PATCH 4.4 v1]".
+If this should be addressed differently, please let me know.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From d0b7a302d58abe24ed0f32a0672dd4c356bb73db Mon Sep 17 00:00:00 2001
-From: Will Deacon <will@kernel.org>
-Date: Thu, 22 Aug 2019 14:58:37 +0100
-Subject: [PATCH] Revert "arm64: Remove unnecessary ISBs from
- set_{pte,pmd,pud}"
-
-This reverts commit 24fe1b0efad4fcdd32ce46cffeab297f22581707.
-
-Commit 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from
-set_{pte,pmd,pud}") removed ISB instructions immediately following updates
-to the page table, on the grounds that they are not required by the
-architecture and a DSB alone is sufficient to ensure that subsequent data
-accesses use the new translation:
-
-  DDI0487E_a, B2-128:
-
-  | ... no instruction that appears in program order after the DSB
-  | instruction can alter any state of the system or perform any part of
-  | its functionality until the DSB completes other than:
-  |
-  | * Being fetched from memory and decoded
-  | * Reading the general-purpose, SIMD and floating-point,
-  |   Special-purpose, or System registers that are directly or indirectly
-  |   read without causing side-effects.
-
-However, the same document also states the following:
-
-  DDI0487E_a, B2-125:
-
-  | DMB and DSB instructions affect reads and writes to the memory system
-  | generated by Load/Store instructions and data or unified cache
-  | maintenance instructions being executed by the PE. Instruction fetches
-  | or accesses caused by a hardware translation table access are not
-  | explicit accesses.
-
-which appears to claim that the DSB alone is insufficient.  Unfortunately,
-some CPU designers have followed the second clause above, whereas in Linux
-we've been relying on the first. This means that our mapping sequence:
-
-	MOV	X0, <valid pte>
-	STR	X0, [Xptep]	// Store new PTE to page table
-	DSB	ISHST
-	LDR	X1, [X2]	// Translates using the new PTE
-
-can actually raise a translation fault on the load instruction because the
-translation can be performed speculatively before the page table update and
-then marked as "faulting" by the CPU. For user PTEs, this is ok because we
-can handle the spurious fault, but for kernel PTEs and intermediate table
-entries this results in a panic().
-
-Revert the offending commit to reintroduce the missing barriers.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}")
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 5fdcfe237338..feda7294320c 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -220,8 +220,10 @@ static inline void set_pte(pte_t *ptep, pte_t pte)
- 	 * Only if the new pte is valid and kernel, otherwise TLB maintenance
- 	 * or update_mmu_cache() have the necessary barriers.
- 	 */
--	if (pte_valid_not_user(pte))
-+	if (pte_valid_not_user(pte)) {
- 		dsb(ishst);
-+		isb();
-+	}
- }
- 
- extern void __sync_icache_dcache(pte_t pteval);
-@@ -481,8 +483,10 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
- 
- 	WRITE_ONCE(*pmdp, pmd);
- 
--	if (pmd_valid(pmd))
-+	if (pmd_valid(pmd)) {
- 		dsb(ishst);
-+		isb();
-+	}
- }
- 
- static inline void pmd_clear(pmd_t *pmdp)
-@@ -540,8 +544,10 @@ static inline void set_pud(pud_t *pudp, pud_t pud)
- 
- 	WRITE_ONCE(*pudp, pud);
- 
--	if (pud_valid(pud))
-+	if (pud_valid(pud)) {
- 		dsb(ishst);
-+		isb();
-+	}
- }
- 
- static inline void pud_clear(pud_t *pudp)
-
+Sven
