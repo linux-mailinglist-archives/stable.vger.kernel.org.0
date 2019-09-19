@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B171B861F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2C5B8667
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406716AbfISWVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
+        id S2406561AbfISWSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406712AbfISWVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:21:21 -0400
+        id S2389941AbfISWSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:18:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAEAF21924;
-        Thu, 19 Sep 2019 22:21:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AABD21907;
+        Thu, 19 Sep 2019 22:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931681;
-        bh=A7T8CFDm/h4B79sB4NYCgtnTg1DZ0ENRpvKZ03VCHAc=;
+        s=default; t=1568931482;
+        bh=ahnRj9CrAKKpZqt1LnrLdaVtCpkOtW2N/SPvWQjSWnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sz4F2ABUZ8qWaXeS96QeXf943jbqShfSPZOH2J+PWofB9ySNDlQNJjqlyHBM/yxNV
-         x2BgY5NKOTpp/CsHaT3r5T9xPJAlJfyqruWE2i0ovACYZZjLUlSj0aBhW3dnwlhDt5
-         S10Q6MGHiBtreseBgvIg5dxVCabuXMbY1KK5qAI8=
+        b=y2RRBdglqTG2ACPSGuKGjMA5f8Zhbx3q7l659UxCfWd2sHQWKoBtoRzjLcKLzP/n2
+         mxSw/14mRGvZYnoIIjHzwrxtUqVcp2HTYmazW/lV4MhZ3edzq/0ZYWF67CUj5m83kx
+         CUmmrCg+3eG00cwlcPZBkMLRk2zbFHIeim1wTt5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 39/74] xen-netfront: do not assume sk_buff_head list is empty in error handling
+        stable@vger.kernel.org, Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/59] ARM: 8901/1: add a criteria for pfn_valid of arm
 Date:   Fri, 20 Sep 2019 00:03:52 +0200
-Message-Id: <20190919214808.712612375@linuxfoundation.org>
+Message-Id: <20190919214806.450934150@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: zhaoyang <huangzhaoyang@gmail.com>
 
-[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
+[ Upstream commit 5b3efa4f1479c91cb8361acef55f9c6662feba57 ]
 
-When skb_shinfo(skb) is not able to cache extra fragment (that is,
-skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
-the sk_buff_head list is already empty. As a result, cons is increased only
-by 1 and returns to error handling path in xennet_poll().
+pfn_valid can be wrong when parsing a invalid pfn whose phys address
+exceeds BITS_PER_LONG as the MSB will be trimed when shifted.
 
-However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
-set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
-buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
-already cleared to NULL. This leads to NULL pointer access in the next
-iteration to process rx ring buffer entries.
+The issue originally arise from bellowing call stack, which corresponding to
+an access of the /proc/kpageflags from userspace with a invalid pfn parameter
+and leads to kernel panic.
 
-Below is how xennet_poll() does error handling. All remaining entries in
-tmpq are accounted to queue->rx.rsp_cons without assuming how many
-outstanding skbs are remained in the list.
+[46886.723249] c7 [<c031ff98>] (stable_page_flags) from [<c03203f8>]
+[46886.723264] c7 [<c0320368>] (kpageflags_read) from [<c0312030>]
+[46886.723280] c7 [<c0311fb0>] (proc_reg_read) from [<c02a6e6c>]
+[46886.723290] c7 [<c02a6e24>] (__vfs_read) from [<c02a7018>]
+[46886.723301] c7 [<c02a6f74>] (vfs_read) from [<c02a778c>]
+[46886.723315] c7 [<c02a770c>] (SyS_pread64) from [<c0108620>]
+(ret_fast_syscall+0x0/0x28)
 
- 985 static int xennet_poll(struct napi_struct *napi, int budget)
-... ...
-1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
-1033                   __skb_queue_head(&tmpq, skb);
-1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
-1035                   goto err;
-1036           }
-
-It is better to always have the error handling in the same way.
-
-Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zhaoyang Huang <zhaoyang.huang@unisoc.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mm/init.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -907,7 +907,7 @@ static RING_IDX xennet_fill_frags(struct
- 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
- 		}
- 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
--			queue->rx.rsp_cons = ++cons;
-+			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
- 			kfree_skb(nskb);
- 			return ~0U;
- 		}
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index 4fa12fcf1f5d8..27a40101dd3a7 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -195,6 +195,11 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
+ #ifdef CONFIG_HAVE_ARCH_PFN_VALID
+ int pfn_valid(unsigned long pfn)
+ {
++	phys_addr_t addr = __pfn_to_phys(pfn);
++
++	if (__phys_to_pfn(addr) != pfn)
++		return 0;
++
+ 	return memblock_is_map_memory(__pfn_to_phys(pfn));
+ }
+ EXPORT_SYMBOL(pfn_valid);
+-- 
+2.20.1
+
 
 
