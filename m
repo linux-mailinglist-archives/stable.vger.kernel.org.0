@@ -2,104 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A6BB77A5
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 12:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F7FB77F2
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 12:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388165AbfISKmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 06:42:54 -0400
-Received: from vmicros1.altlinux.org ([194.107.17.57]:43728 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387520AbfISKmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 06:42:54 -0400
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id DA8F072CCAE;
-        Thu, 19 Sep 2019 13:42:51 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-        id CC39F7CCB47; Thu, 19 Sep 2019 13:42:51 +0300 (MSK)
-Date:   Thu, 19 Sep 2019 13:42:51 +0300
-From:   "Dmitry V. Levin" <ldv@altlinux.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Tyler Hicks <tyhicks@canonical.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        luto@amacapital.net, jannh@google.com, wad@chromium.org,
-        shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
-        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        Tycho Andersen <tycho@tycho.ws>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/4] seccomp: add two missing ptrace ifdefines
-Message-ID: <20190919104251.GA16834@altlinux.org>
-References: <20190918084833.9369-1-christian.brauner@ubuntu.com>
- <20190918084833.9369-3-christian.brauner@ubuntu.com>
- <20190918091512.GA5088@elm>
- <201909181031.1EE73B4@keescook>
+        id S2389518AbfISKyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 06:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387712AbfISKyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 06:54:36 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E30DB21929;
+        Thu, 19 Sep 2019 10:54:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568890475;
+        bh=rDgR/IXI3/KNnIOSsNKvBH94J0iAuZUG/sc3vnyuGDI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dL6NBBtdFOWNrEbiDMF7SAJ9/pmUh23uKcYzLxzNFIaTS1IBCOLPeSXqKuX8zudBn
+         JWOf1PtaVG6zMj+/KCuzk458potLQmEdee6I+Yxm5jpR8bOKoaxygZrU6pBmO9Y9j+
+         hZAky9zbjDHx0D8rC/Mq4PnsKuxlc7o5XHrdZl7Y=
+Date:   Thu, 19 Sep 2019 12:54:32 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Vineet Gupta <vineetg76@gmail.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        kbuild test robot <lkp@intel.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        arcml <linux-snps-arc@lists.infradead.org>
+Subject: Re: stable backport for dc8635b78cd8669
+Message-ID: <20190919105432.GA2809200@kroah.com>
+References: <efb68643-3750-e94b-8387-6e4cacb3a82a@gmail.com>
+ <20190918185633.GB1944551@kroah.com>
+ <6bcb935a-4dae-48cc-ad1e-88a51b9d6a5c@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <201909181031.1EE73B4@keescook>
+In-Reply-To: <6bcb935a-4dae-48cc-ad1e-88a51b9d6a5c@gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 10:33:09AM -0700, Kees Cook wrote:
-> On Wed, Sep 18, 2019 at 11:15:12AM +0200, Tyler Hicks wrote:
-> > On 2019-09-18 10:48:31, Christian Brauner wrote:
-> > > Add tw missing ptrace ifdefines to avoid compilation errors on systems
-> > > that do not provide PTRACE_EVENTMSG_SYSCALL_ENTRY or
-> > > PTRACE_EVENTMSG_SYSCALL_EXIT or:
-> > > 
-> > > gcc -Wl,-no-as-needed -Wall  seccomp_bpf.c -lpthread -o seccomp_bpf
-> > > In file included from seccomp_bpf.c:52:0:
-> > > seccomp_bpf.c: In function ‘tracer_ptrace’:
-> > > seccomp_bpf.c:1792:20: error: ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_CLONE’?
-> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
-> > >                     ^
-> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
-> > >   __typeof__(_expected) __exp = (_expected); \
-> > >              ^~~~~~~~~
-> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
-> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
-> > >   ^~~~~~~~~
-> > > seccomp_bpf.c:1792:20: note: each undeclared identifier is reported only once for each function it appears in
-> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
-> > >                     ^
-> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
-> > >   __typeof__(_expected) __exp = (_expected); \
-> > >              ^~~~~~~~~
-> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
-> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
-> > >   ^~~~~~~~~
-> > > seccomp_bpf.c:1793:6: error: ‘PTRACE_EVENTMSG_SYSCALL_EXIT’ undeclared (first use in this function); did you mean ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’?
-> > >     : PTRACE_EVENTMSG_SYSCALL_EXIT, msg);
-> > >       ^
-> > > ../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
-> > >   __typeof__(_expected) __exp = (_expected); \
-> > >              ^~~~~~~~~
-> > > seccomp_bpf.c:1792:2: note: in expansion of macro ‘EXPECT_EQ’
-> > >   EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
-> > >   ^~~~~~~~~
-> > > 
-> > > Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
-> > 
-> > I think this Fixes line is incorrect and should be changed to:
-> > 
-> > Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
-> > 
-> > With that changed,
-> > 
-> > Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+On Wed, Sep 18, 2019 at 01:10:04PM -0700, Vineet Gupta wrote:
+> On 9/18/19 11:56 AM, Greg Kroah-Hartman wrote:
+> > So is this only needed in 4.9.y and 4.4.y?
 > 
-> This is actually fixed in -next already (and, yes, with the Fixes line
-> Tyler has mentioned):
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git/commit/?h=next&id=69b2d3c5924273a0ae968d3818210fc57a1b9d07
+> Yes indeed !
 
-Excuse me, does it mean that you expect each selftest to be self-hosted?
-I was (and still is) under impression that selftests should be built
-with headers installed from the tree. Is it the case, or is it not?
+It doesn't apply there at all, can you provide a working backport for
+those kernels so that I can queue it up?
 
+thanks,
 
--- 
-ldv
+greg k-h
