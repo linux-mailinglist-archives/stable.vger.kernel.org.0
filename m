@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40562B8738
+	by mail.lfdr.de (Postfix) with ESMTP id 1279BB8737
 	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393455AbfISWIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46578 "EHLO mail.kernel.org"
+        id S2404996AbfISWI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393451AbfISWIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:08:37 -0400
+        id S2393502AbfISWI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:08:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23A1B21907;
-        Thu, 19 Sep 2019 22:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8994821927;
+        Thu, 19 Sep 2019 22:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930916;
-        bh=ep+37ZmQaFe9khzB1Ublxq7aT04QtrRwFlS7AmDIN7w=;
+        s=default; t=1568930937;
+        bh=Au2opSr7JKBzP5lhHQCa+HofEwWR2Wj4MUH/7+LDhsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/kD/85Dj/Ulnvf9UKmKb+vXNlCuZPNSPtknzpklr+UHdoSveUWE2O/fdIeLGlXQL
-         zW843VI5EU8MKMDrcGvgaNxrlLrFrhrIYgwkOFKDHXSbmtVyd5Vsf0nRVuyTSeNafN
-         RIcwsOr9b7m6Apk9VileJF7rteE/sXBf/jtH+usQ=
+        b=s+3Hw9Gl1RbtjkEqbJE12t8jEM2k+NVxbov4cEJS3m2tmBM2ob+Hr1tD8NFNDGDtp
+         z3I02KX7UOqZK7NWAPwzTA4QuTUhK9m/QSSEmkjfd/AJwDfv6hKkXm7uCAGrRpabEU
+         PdV3aPSAAjV24X69GEepqM7583Z4dkJ3WcUeXKsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Peng Fan <peng.fan@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 061/124] ARM: 8874/1: mm: only adjust sections of valid mm structures
-Date:   Fri, 20 Sep 2019 00:02:29 +0200
-Message-Id: <20190919214821.217421318@linuxfoundation.org>
+Subject: [PATCH 5.2 067/124] pNFS/flexfiles: Dont time out requests on hard mounts
+Date:   Fri, 20 Sep 2019 00:02:35 +0200
+Message-Id: <20190919214821.437000252@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -52,50 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit c51bc12d06b3a5494fbfcbd788a8e307932a06e9 ]
+[ Upstream commit 7af46292dadcf8870946916f79fdddf79bd7267f ]
 
-A timing hazard exists when an early fork/exec thread begins
-exiting and sets its mm pointer to NULL while a separate core
-tries to update the section information.
+If the mount is hard, we should ignore the 'io_maxretrans' module
+parameter so that we always keep retrying.
 
-This commit ensures that the mm pointer is not NULL before
-setting its section parameters. The arguments provided by
-commit 11ce4b33aedc ("ARM: 8672/1: mm: remove tasklist locking
-from update_sections_early()") are equally valid for not
-requiring grabbing the task_lock around this check.
-
-Fixes: 08925c2f124f ("ARM: 8464/1: Update all mm structures with section adjustments")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Laura Abbott <labbott@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/flexfilelayout/flexfilelayout.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 749a5a6f61433..8e793cddac661 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -613,7 +613,8 @@ static void update_sections_early(struct section_perm perms[], int n)
- 		if (t->flags & PF_KTHREAD)
- 			continue;
- 		for_each_thread(t, s)
--			set_section_perms(perms, n, true, s->mm);
-+			if (s->mm)
-+				set_section_perms(perms, n, true, s->mm);
+diff --git a/fs/nfs/flexfilelayout/flexfilelayout.c b/fs/nfs/flexfilelayout/flexfilelayout.c
+index c67cdbb36ce7c..38d9158142219 100644
+--- a/fs/nfs/flexfilelayout/flexfilelayout.c
++++ b/fs/nfs/flexfilelayout/flexfilelayout.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <linux/nfs_fs.h>
++#include <linux/nfs_mount.h>
+ #include <linux/nfs_page.h>
+ #include <linux/module.h>
+ #include <linux/sched/mm.h>
+@@ -928,7 +929,9 @@ retry:
+ 	pgm = &pgio->pg_mirrors[0];
+ 	pgm->pg_bsize = mirror->mirror_ds->ds_versions[0].rsize;
+ 
+-	pgio->pg_maxretrans = io_maxretrans;
++	if (NFS_SERVER(pgio->pg_inode)->flags &
++			(NFS_MOUNT_SOFT|NFS_MOUNT_SOFTERR))
++		pgio->pg_maxretrans = io_maxretrans;
+ 	return;
+ out_nolseg:
+ 	if (pgio->pg_error < 0)
+@@ -936,6 +939,7 @@ out_nolseg:
+ out_mds:
+ 	pnfs_put_lseg(pgio->pg_lseg);
+ 	pgio->pg_lseg = NULL;
++	pgio->pg_maxretrans = 0;
+ 	nfs_pageio_reset_read_mds(pgio);
+ }
+ 
+@@ -996,12 +1000,15 @@ retry:
+ 		pgm->pg_bsize = mirror->mirror_ds->ds_versions[0].wsize;
  	}
- 	set_section_perms(perms, n, true, current->active_mm);
- 	set_section_perms(perms, n, true, &init_mm);
+ 
+-	pgio->pg_maxretrans = io_maxretrans;
++	if (NFS_SERVER(pgio->pg_inode)->flags &
++			(NFS_MOUNT_SOFT|NFS_MOUNT_SOFTERR))
++		pgio->pg_maxretrans = io_maxretrans;
+ 	return;
+ 
+ out_mds:
+ 	pnfs_put_lseg(pgio->pg_lseg);
+ 	pgio->pg_lseg = NULL;
++	pgio->pg_maxretrans = 0;
+ 	nfs_pageio_reset_write_mds(pgio);
+ }
+ 
 -- 
 2.20.1
 
