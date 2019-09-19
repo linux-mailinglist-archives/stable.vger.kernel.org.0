@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B71B8490
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5827BB8492
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393623AbfISWME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:12:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
+        id S2405914AbfISWMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405908AbfISWMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:12:01 -0400
+        id S2391157AbfISWME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B93821928;
-        Thu, 19 Sep 2019 22:12:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EDBE218AF;
+        Thu, 19 Sep 2019 22:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931121;
-        bh=zaQyDGvOlbLfiZH2dhLlZf2hndqSXpFqWPdjiFSpuc4=;
+        s=default; t=1568931124;
+        bh=/EmtKW4tpK2ojcvdokiGTkFfuEyfUDdeeGHGxkYQbhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/I8K++HG8HhN2tGJ0wpd/7XZjAQiLgSMV3LOle3h2IjVPkNhZaDTZ1kVvMnAE5k5
-         vROCbhouVcFOyUo4c4wZOQjKO3/STwpydSumNyMxwAzR131+Ao59H7ZIK+87aAYyUX
-         qZopc6QXS2F+dVJNQPINOVgZcWANjsqCRXZrva+0=
+        b=OV+B18kW4T5piAGmtM1ulJzbEwzGYGesJFhr16+27DNybmniEzfkkHf8CqXhvMUrX
+         rLpm79ys+qKKRks5hC4KKa2lcyYAurUixxBmR2w4LMuuaNBDHmgonLoppXboNUCPUl
+         gJ9r7JY1f1RQhrPk9YYLohBqIJBKmj/bunLEHJOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+d5870a903591faaca4ae@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 11/79] xen-netfront: do not assume sk_buff_head list is empty in error handling
-Date:   Fri, 20 Sep 2019 00:02:56 +0200
-Message-Id: <20190919214808.814103522@linuxfoundation.org>
+Subject: [PATCH 4.19 12/79] net_sched: let qdisc_put() accept NULL pointer
+Date:   Fri, 20 Sep 2019 00:02:57 +0200
+Message-Id: <20190919214808.894122058@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
 References: <20190919214807.612593061@linuxfoundation.org>
@@ -43,53 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
+[ Upstream commit 6efb971ba8edfbd80b666f29de12882852f095ae ]
 
-When skb_shinfo(skb) is not able to cache extra fragment (that is,
-skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
-the sk_buff_head list is already empty. As a result, cons is increased only
-by 1 and returns to error handling path in xennet_poll().
+When tcf_block_get() fails in sfb_init(), q->qdisc is still a NULL
+pointer which leads to a crash in sfb_destroy(). Similar for
+sch_dsmark.
 
-However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
-set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
-buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
-already cleared to NULL. This leads to NULL pointer access in the next
-iteration to process rx ring buffer entries.
+Instead of fixing each separately, Linus suggested to just accept
+NULL pointer in qdisc_put(), which would make callers easier.
 
-Below is how xennet_poll() does error handling. All remaining entries in
-tmpq are accounted to queue->rx.rsp_cons without assuming how many
-outstanding skbs are remained in the list.
+(For sch_dsmark, the bug probably exists long before commit
+6529eaba33f0.)
 
- 985 static int xennet_poll(struct napi_struct *napi, int budget)
-... ...
-1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
-1033                   __skb_queue_head(&tmpq, skb);
-1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
-1035                   goto err;
-1036           }
-
-It is better to always have the error handling in the same way.
-
-Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
+Reported-by: syzbot+d5870a903591faaca4ae@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_generic.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -909,7 +909,7 @@ static RING_IDX xennet_fill_frags(struct
- 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
- 		}
- 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
--			queue->rx.rsp_cons = ++cons;
-+			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
- 			kfree_skb(nskb);
- 			return ~0U;
- 		}
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -950,6 +950,9 @@ void qdisc_destroy(struct Qdisc *qdisc)
+ 	const struct Qdisc_ops  *ops = qdisc->ops;
+ 	struct sk_buff *skb, *tmp;
+ 
++	if (!qdisc)
++		return;
++
+ 	if (qdisc->flags & TCQ_F_BUILTIN ||
+ 	    !refcount_dec_and_test(&qdisc->refcnt))
+ 		return;
 
 
