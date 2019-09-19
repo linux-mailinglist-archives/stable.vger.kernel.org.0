@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA74B8771
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B585B86F0
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405026AbfISWFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
+        id S1725887AbfISWc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:32:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405021AbfISWFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:05:44 -0400
+        id S2405965AbfISWMV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:12:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0670D21920;
-        Thu, 19 Sep 2019 22:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38AD721920;
+        Thu, 19 Sep 2019 22:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930743;
-        bh=uXApcOOq8pqdlMRIhJGKNROJNJSxxs2fvJOtJZSJMgY=;
+        s=default; t=1568931140;
+        bh=akX1siLFCk+copmFe3BgnSzscjzDRnUliKegBLJAXSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBC7QZiIZl6b6VMQM30+177Dsvk//n0o5/oX3ImH5csWJeI2qFsesIBDNXkl+cV4y
-         g3bEPyKqWHCEjEIzgejb6VurWt1xO0osF9ze1ulGcfP9ByflDuz53MDuQFhVNkC/R+
-         0BSyIrQDURdqwrjMeR7ymJygfdOY8XkHXK2AIHpo=
+        b=gdgd8PeVzGqbTywy6J9knW2fjGnibZX3SeVAPygoFuVMUPq9sLWiJEdGABu2WHR6a
+         IENkgyj81kadQ8W/WYCQP8/Z/5Jt/CmF24kbtgjLEs8fXa2z6IRlCr1dj7iaODW9SC
+         6ke+a3TQSZ3PWgbn1ZX0PVwZNJUKPamygMPyU/Qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 02/21] media: tm6000: double free if usb disconnect while streaming
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Masashi Honma <masashi.honma@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 18/79] nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds
 Date:   Fri, 20 Sep 2019 00:03:03 +0200
-Message-Id: <20190919214659.093752887@linuxfoundation.org>
+Message-Id: <20190919214809.383428098@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
-References: <20190919214657.842130855@linuxfoundation.org>
+In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
+References: <20190919214807.612593061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-commit 699bf94114151aae4dceb2d9dbf1a6312839dcae upstream.
+commit 4b2c5a14cd8005a900075f7dfec87473c6ee66fb upstream.
 
-The usb_bulk_urb will kfree'd on disconnect, so ensure the pointer is set
-to NULL after each free.
-
-stop stream
-urb killing
-urb buffer free
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start stream request tm6000_start_stream
-tm6000: pipe reset
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: got start feed request tm6000_start_feed
-tm6000: IR URB failure: status: -71, length 0
-xhci_hcd 0000:00:14.0: ERROR unknown event type 37
-xhci_hcd 0000:00:14.0: ERROR unknown event type 37
-tm6000:  error tm6000_urb_received
-usb 1-2: USB disconnect, device number 5
-tm6000: disconnecting tm6000 #0
-==================================================================
-BUG: KASAN: use-after-free in dvb_fini+0x75/0x140 [tm6000_dvb]
-Read of size 8 at addr ffff888241044060 by task kworker/2:0/22
-
-CPU: 2 PID: 22 Comm: kworker/2:0 Tainted: G        W         5.3.0-rc4+ #1
-Hardware name: LENOVO 20KHCTO1WW/20KHCTO1WW, BIOS N23ET65W (1.40 ) 07/02/2019
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- dump_stack+0x9a/0xf0
- print_address_description.cold+0xae/0x34f
- __kasan_report.cold+0x75/0x93
- ? tm6000_fillbuf+0x390/0x3c0 [tm6000_alsa]
- ? dvb_fini+0x75/0x140 [tm6000_dvb]
- kasan_report+0xe/0x12
- dvb_fini+0x75/0x140 [tm6000_dvb]
- tm6000_close_extension+0x51/0x80 [tm6000]
- tm6000_usb_disconnect.cold+0xd4/0x105 [tm6000]
- usb_unbind_interface+0xe4/0x390
- device_release_driver_internal+0x121/0x250
- bus_remove_device+0x197/0x260
- device_del+0x268/0x550
- ? __device_links_no_driver+0xd0/0xd0
- ? usb_remove_ep_devs+0x30/0x3b
- usb_disable_device+0x122/0x400
- usb_disconnect+0x153/0x430
- hub_event+0x800/0x1e40
- ? trace_hardirqs_on_thunk+0x1a/0x20
- ? hub_port_debounce+0x1f0/0x1f0
- ? retint_kernel+0x10/0x10
- ? lock_is_held_type+0xf1/0x130
- ? hub_port_debounce+0x1f0/0x1f0
- ? process_one_work+0x4ae/0xa00
- process_one_work+0x4ba/0xa00
- ? pwq_dec_nr_in_flight+0x160/0x160
- ? do_raw_spin_lock+0x10a/0x1d0
- worker_thread+0x7a/0x5c0
- ? process_one_work+0xa00/0xa00
- kthread+0x1d5/0x200
- ? kthread_create_worker_on_cpu+0xd0/0xd0
- ret_from_fork+0x3a/0x50
-
-Allocated by task 2682:
- save_stack+0x1b/0x80
- __kasan_kmalloc.constprop.0+0xc2/0xd0
- usb_alloc_urb+0x28/0x60
- tm6000_start_feed+0x10a/0x300 [tm6000_dvb]
- dmx_ts_feed_start_filtering+0x86/0x120 [dvb_core]
- dvb_dmxdev_start_feed+0x121/0x180 [dvb_core]
- dvb_dmxdev_filter_start+0xcb/0x540 [dvb_core]
- dvb_demux_do_ioctl+0x7ed/0x890 [dvb_core]
- dvb_usercopy+0x97/0x1f0 [dvb_core]
- dvb_demux_ioctl+0x11/0x20 [dvb_core]
- do_vfs_ioctl+0x5d8/0x9d0
- ksys_ioctl+0x5e/0x90
- __x64_sys_ioctl+0x3d/0x50
- do_syscall_64+0x74/0xe0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 22:
- save_stack+0x1b/0x80
- __kasan_slab_free+0x12c/0x170
- kfree+0xfd/0x3a0
- xhci_giveback_urb_in_irq+0xfe/0x230
- xhci_td_cleanup+0x276/0x340
- xhci_irq+0x1129/0x3720
- __handle_irq_event_percpu+0x6e/0x420
- handle_irq_event_percpu+0x6f/0x100
- handle_irq_event+0x55/0x84
- handle_edge_irq+0x108/0x3b0
- handle_irq+0x2e/0x40
- do_IRQ+0x83/0x1a0
+commit 1222a1601488 ("nl80211: Fix possible Spectre-v1 for CQM
+RSSI thresholds") was incomplete and requires one more fix to
+prevent accessing to rssi_thresholds[n] because user can control
+rssi_thresholds[i] values to make i reach to n. For example,
+rssi_thresholds = {-400, -300, -200, -100} when last is -34.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 1222a1601488 ("nl80211: Fix possible Spectre-v1 for CQM RSSI thresholds")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Link: https://lore.kernel.org/r/20190908005653.17433-1-masashi.honma@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/tm6000/tm6000-dvb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/wireless/nl80211.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/tm6000/tm6000-dvb.c
-+++ b/drivers/media/usb/tm6000/tm6000-dvb.c
-@@ -97,6 +97,7 @@ static void tm6000_urb_received(struct u
- 			printk(KERN_ERR "tm6000:  error %s\n", __func__);
- 			kfree(urb->transfer_buffer);
- 			usb_free_urb(urb);
-+			dev->dvb->bulk_urb = NULL;
- 		}
- 	}
- }
-@@ -127,6 +128,7 @@ static int tm6000_start_stream(struct tm
- 	dvb->bulk_urb->transfer_buffer = kzalloc(size, GFP_KERNEL);
- 	if (!dvb->bulk_urb->transfer_buffer) {
- 		usb_free_urb(dvb->bulk_urb);
-+		dvb->bulk_urb = NULL;
- 		return -ENOMEM;
- 	}
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10270,9 +10270,11 @@ static int cfg80211_cqm_rssi_update(stru
+ 	hyst = wdev->cqm_config->rssi_hyst;
+ 	n = wdev->cqm_config->n_rssi_thresholds;
  
-@@ -153,6 +155,7 @@ static int tm6000_start_stream(struct tm
+-	for (i = 0; i < n; i++)
++	for (i = 0; i < n; i++) {
++		i = array_index_nospec(i, n);
+ 		if (last < wdev->cqm_config->rssi_thresholds[i])
+ 			break;
++	}
  
- 		kfree(dvb->bulk_urb->transfer_buffer);
- 		usb_free_urb(dvb->bulk_urb);
-+		dvb->bulk_urb = NULL;
- 		return ret;
- 	}
- 
+ 	low_index = i - 1;
+ 	if (low_index >= 0) {
 
 
