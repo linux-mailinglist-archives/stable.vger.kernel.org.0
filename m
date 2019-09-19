@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B31ABB86F8
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0AEB876E
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391578AbfISWL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50094 "EHLO mail.kernel.org"
+        id S2404973AbfISWF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393587AbfISWLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:11:25 -0400
+        id S2404932AbfISWF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:05:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5BA21907;
-        Thu, 19 Sep 2019 22:11:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C93621927;
+        Thu, 19 Sep 2019 22:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931084;
-        bh=HaJIQUt1q4yjUOn3fBZcxEDzdsuOckbpaxjgOjv2+7k=;
+        s=default; t=1568930724;
+        bh=hngQZYp/6y06Wbwv3RjUlIoY1JTZKc7nesyrMASS1pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQTUqJb1ys9BOABweHm2WY89EHZpVgZfnQkgU2kyf2mN3Z9hp13zloI42CZQ/zhwa
-         kZT9ICgT9FQeEE3k0pd4NTlInonOQatwXjkVYdN5FCdK7jmkHakznS2li+5B/LKO0Z
-         a67O85HOy/wieQCKkKZRJ5Jre6ffOvw64wIia1wc=
+        b=gV0DnXHvvPwsqJ02RwKH6/5hh8bg5Pa69os4FocIn/+5J3MmucOAgKRanr87+wdbx
+         ZMwWTOgnrjvqgEByu1ARYUknFFV5q/wC+Z2YA8qjXOsE+eo5gRFcZjB1alpCfy8oDR
+         hRflgjTSW6otzh7ZPJYj3rTPGZZ13RNn8MXc6Ym4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Russkikh <igor.russkikh@aquantia.com>,
-        Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 105/124] net: aquantia: fix out of memory condition on rx side
-Date:   Fri, 20 Sep 2019 00:03:13 +0200
-Message-Id: <20190919214823.020732439@linuxfoundation.org>
+        stable@vger.kernel.org, Hung-Te Lin <hungte@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.3 13/21] firmware: google: check if size is valid when decoding VPD data
+Date:   Fri, 20 Sep 2019 00:03:14 +0200
+Message-Id: <20190919214707.667402544@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
+References: <20190919214657.842130855@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
+From: Hung-Te Lin <hungte@chromium.org>
 
-[ Upstream commit be6cef69ba570ebb327eba1ef6438f7af49aaf86 ]
+commit 4b708b7b1a2c09fbdfff6b942ebe3a160213aacd upstream.
 
-On embedded environments with hard memory limits it is a normal although
-rare case when skb can't be allocated on rx part under high traffic.
+The VPD implementation from Chromium Vital Product Data project used to
+parse data from untrusted input without checking if the meta data is
+invalid or corrupted. For example, the size from decoded content may
+be negative value, or larger than whole input buffer. Such invalid data
+may cause buffer overflow.
 
-In such OOM cases napi_complete_done() was not called.
-So the napi object became in an invalid state like it is "scheduled".
-Kernel do not re-schedules the poll of that napi object.
+To fix that, the size parameters passed to vpd_decode functions should
+be changed to unsigned integer (u32) type, and the parsing of entry
+header should be refactored so every size field is correctly verified
+before starting to decode.
 
-Consequently, kernel can not remove that object the system hangs on
-`ifconfig down` waiting for a poll.
+Fixes: ad2ac9d5c5e0 ("firmware: Google VPD: import lib_vpd source files")
+Signed-off-by: Hung-Te Lin <hungte@chromium.org>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20190830022402.214442-1-hungte@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-We are fixing this by gracefully closing napi poll routine with correct
-invocation of napi_complete_done.
-
-This was reproduced with artificially failing the allocation of skb to
-simulate an "out of memory" error case and check that traffic does
-not get stuck.
-
-Fixes: 970a2e9864b0 ("net: ethernet: aquantia: Vector operations")
-Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
-Signed-off-by: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_vec.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/firmware/google/vpd.c        |    4 +-
+ drivers/firmware/google/vpd_decode.c |   55 ++++++++++++++++++++---------------
+ drivers/firmware/google/vpd_decode.h |    6 +--
+ 3 files changed, 37 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-index 715685aa48c39..28892b8acd0e1 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-@@ -86,6 +86,7 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
- 			}
- 		}
- 
-+err_exit:
- 		if (!was_tx_cleaned)
- 			work_done = budget;
- 
-@@ -95,7 +96,7 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
- 					1U << self->aq_ring_param.vec_idx);
- 		}
- 	}
--err_exit:
-+
- 	return work_done;
+--- a/drivers/firmware/google/vpd.c
++++ b/drivers/firmware/google/vpd.c
+@@ -92,8 +92,8 @@ static int vpd_section_check_key_name(co
+ 	return VPD_OK;
  }
  
--- 
-2.20.1
-
+-static int vpd_section_attrib_add(const u8 *key, s32 key_len,
+-				  const u8 *value, s32 value_len,
++static int vpd_section_attrib_add(const u8 *key, u32 key_len,
++				  const u8 *value, u32 value_len,
+ 				  void *arg)
+ {
+ 	int ret;
+--- a/drivers/firmware/google/vpd_decode.c
++++ b/drivers/firmware/google/vpd_decode.c
+@@ -9,8 +9,8 @@
+ 
+ #include "vpd_decode.h"
+ 
+-static int vpd_decode_len(const s32 max_len, const u8 *in,
+-			  s32 *length, s32 *decoded_len)
++static int vpd_decode_len(const u32 max_len, const u8 *in,
++			  u32 *length, u32 *decoded_len)
+ {
+ 	u8 more;
+ 	int i = 0;
+@@ -30,18 +30,39 @@ static int vpd_decode_len(const s32 max_
+ 	} while (more);
+ 
+ 	*decoded_len = i;
++	return VPD_OK;
++}
++
++static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
++			    u32 *_consumed, const u8 **entry, u32 *entry_len)
++{
++	u32 decoded_len;
++	u32 consumed = *_consumed;
+ 
++	if (vpd_decode_len(max_len - consumed, &input_buf[consumed],
++			   entry_len, &decoded_len) != VPD_OK)
++		return VPD_FAIL;
++	if (max_len - consumed < decoded_len)
++		return VPD_FAIL;
++
++	consumed += decoded_len;
++	*entry = input_buf + consumed;
++
++	/* entry_len is untrusted data and must be checked again. */
++	if (max_len - consumed < *entry_len)
++		return VPD_FAIL;
++
++	consumed += decoded_len;
++	*_consumed = consumed;
+ 	return VPD_OK;
+ }
+ 
+-int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
++int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
+ 		      vpd_decode_callback callback, void *callback_arg)
+ {
+ 	int type;
+-	int res;
+-	s32 key_len;
+-	s32 value_len;
+-	s32 decoded_len;
++	u32 key_len;
++	u32 value_len;
+ 	const u8 *key;
+ 	const u8 *value;
+ 
+@@ -56,26 +77,14 @@ int vpd_decode_string(const s32 max_len,
+ 	case VPD_TYPE_STRING:
+ 		(*consumed)++;
+ 
+-		/* key */
+-		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
+-				     &key_len, &decoded_len);
+-		if (res != VPD_OK || *consumed + decoded_len >= max_len)
++		if (vpd_decode_entry(max_len, input_buf, consumed, &key,
++				     &key_len) != VPD_OK)
+ 			return VPD_FAIL;
+ 
+-		*consumed += decoded_len;
+-		key = &input_buf[*consumed];
+-		*consumed += key_len;
+-
+-		/* value */
+-		res = vpd_decode_len(max_len - *consumed, &input_buf[*consumed],
+-				     &value_len, &decoded_len);
+-		if (res != VPD_OK || *consumed + decoded_len > max_len)
++		if (vpd_decode_entry(max_len, input_buf, consumed, &value,
++				     &value_len) != VPD_OK)
+ 			return VPD_FAIL;
+ 
+-		*consumed += decoded_len;
+-		value = &input_buf[*consumed];
+-		*consumed += value_len;
+-
+ 		if (type == VPD_TYPE_STRING)
+ 			return callback(key, key_len, value, value_len,
+ 					callback_arg);
+--- a/drivers/firmware/google/vpd_decode.h
++++ b/drivers/firmware/google/vpd_decode.h
+@@ -25,8 +25,8 @@ enum {
+ };
+ 
+ /* Callback for vpd_decode_string to invoke. */
+-typedef int vpd_decode_callback(const u8 *key, s32 key_len,
+-				const u8 *value, s32 value_len,
++typedef int vpd_decode_callback(const u8 *key, u32 key_len,
++				const u8 *value, u32 value_len,
+ 				void *arg);
+ 
+ /*
+@@ -44,7 +44,7 @@ typedef int vpd_decode_callback(const u8
+  * If one entry is successfully decoded, sends it to callback and returns the
+  * result.
+  */
+-int vpd_decode_string(const s32 max_len, const u8 *input_buf, s32 *consumed,
++int vpd_decode_string(const u32 max_len, const u8 *input_buf, u32 *consumed,
+ 		      vpd_decode_callback callback, void *callback_arg);
+ 
+ #endif  /* __VPD_DECODE_H */
 
 
