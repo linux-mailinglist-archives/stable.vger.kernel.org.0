@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B415CB872A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240A1B872D
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405430AbfISWJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S2394404AbfISWes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:34:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405379AbfISWJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:28 -0400
+        id S2405429AbfISWJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:09:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3801C2196F;
-        Thu, 19 Sep 2019 22:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E880221928;
+        Thu, 19 Sep 2019 22:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930966;
-        bh=NCKSJd3yW93ThPjxg8k5p+Y2bbx7TMPopGxJbJ3B2/o=;
+        s=default; t=1568930969;
+        bh=lQYj4NUXHSkeIRtL2lZVGzZ2tZyvwgqLTUTTjnchcWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUWvBmaNpbcbzjI0joxOYLLuDJiYK3Oea32k1MdG0y4x2GMQ/yDIlK6mARkLKVkVN
-         CFkyAmR/UUw4/MBe0lexp2ByT849dMkYt0r3J9QUd2Svetxjh1LBIOKEKNdaf7ntrL
-         GxpkFzmlpmqyinc4BnJvvw66G80h5J90ejjrVeBc=
+        b=c30OzBzbBzJsIbKqN1iFffRxUnmbGuOeHE3v8nUEX7IgYQzfbt3nm59v/yCxk/XKa
+         ODIVHC+0G1igSqUxMTvuIjweOyYnm+NE8Whz2pb4/qnB88qiCb2ijWgfluUPXwTt4K
+         DurdW+MqqU9NnQI96My+Vz5dDuDUPBu5naaVdqFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 080/124] cifs: Use kzfree() to zero out the password
-Date:   Fri, 20 Sep 2019 00:02:48 +0200
-Message-Id: <20190919214821.922337244@linuxfoundation.org>
+Subject: [PATCH 5.2 081/124] libceph: dont call crypto_free_sync_skcipher() on a NULL tfm
+Date:   Fri, 20 Sep 2019 00:02:49 +0200
+Message-Id: <20190919214821.960015249@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -44,33 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 478228e57f81f6cb60798d54fc02a74ea7dd267e ]
+[ Upstream commit e8c99200b4d117c340c392ebd5e62d85dfeed027 ]
 
-It's safer to zero out the password so that it can never be disclosed.
+In set_secret(), key->tfm is assigned to NULL on line 55, and then
+ceph_crypto_key_destroy(key) is executed.
 
-Fixes: 0c219f5799c7 ("cifs: set domainName when a domain-key is used in multiuser")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+ceph_crypto_key_destroy(key)
+  crypto_free_sync_skcipher(key->tfm)
+    crypto_free_skcipher(&tfm->base);
+
+This happens to work because crypto_sync_skcipher is a trivial wrapper
+around crypto_skcipher: &tfm->base is still 0 and crypto_free_skcipher()
+handles that.  Let's not rely on the layout of crypto_sync_skcipher.
+
+This bug is found by a static analysis tool STCheck written by us.
+
+Fixes: 69d6302b65a8 ("libceph: Remove VLA usage of skcipher").
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ceph/crypto.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 2beaa14519f5d..85b2107e8a3d7 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3081,7 +3081,7 @@ cifs_set_cifscreds(struct smb_vol *vol, struct cifs_ses *ses)
- 			rc = -ENOMEM;
- 			kfree(vol->username);
- 			vol->username = NULL;
--			kfree(vol->password);
-+			kzfree(vol->password);
- 			vol->password = NULL;
- 			goto out_key_put;
- 		}
+diff --git a/net/ceph/crypto.c b/net/ceph/crypto.c
+index 5d6724cee38f9..4f75df40fb121 100644
+--- a/net/ceph/crypto.c
++++ b/net/ceph/crypto.c
+@@ -136,8 +136,10 @@ void ceph_crypto_key_destroy(struct ceph_crypto_key *key)
+ 	if (key) {
+ 		kfree(key->key);
+ 		key->key = NULL;
+-		crypto_free_sync_skcipher(key->tfm);
+-		key->tfm = NULL;
++		if (key->tfm) {
++			crypto_free_sync_skcipher(key->tfm);
++			key->tfm = NULL;
++		}
+ 	}
+ }
+ 
 -- 
 2.20.1
 
