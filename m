@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE370B843B
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89658B841B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393497AbfISWJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
+        id S2393303AbfISWH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:07:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393461AbfISWJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:05 -0400
+        id S2393310AbfISWH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:07:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A03C218AF;
-        Thu, 19 Sep 2019 22:09:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2060821929;
+        Thu, 19 Sep 2019 22:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930945;
-        bh=2GL256L2/6vJG33uyRE6ssbbk6KXwoAxkQYI36Ywbvg=;
+        s=default; t=1568930878;
+        bh=5Gw7uWbkjG4eU9AQngmmoe93HSJtU1VEZC9Nxv8XPAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5Du6DjrBYY5zQWENrYjVOwXkwCTKm3pkPQfW0W2KasooGsUKcsUiWuONs+TBlXs3
-         p0Tx5sOCKQITHM+JRTEWrgnNx8qD5XBz1ykxRTXzDUEoeDEuDLSwE4fYuyo5mdZj7T
-         B7PlDenQFpASViVEciYdCgdjuRkGltPglnySDg/s=
+        b=nG/K5VTPj5WxmGGvWHvgLkzT2ebWVam3iORFOLiEoALCSXjkOaMp2Degep585xHM6
+         Y/vKxLKNYyqQTB2+tUzcH4wPphvbnBRXlXPPIY/64mEkiwGak+agemAAB9r9DJwtZg
+         VR7iF83hgifAgxcuvyta/kc0L6tu60+n2A9KPi+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 040/124] ARM: OMAP1: ams-delta-fiq: Fix missing irq_ack
-Date:   Fri, 20 Sep 2019 00:02:08 +0200
-Message-Id: <20190919214820.466235900@linuxfoundation.org>
+Subject: [PATCH 5.2 048/124] netfilter: nft_flow_offload: missing netlink attribute policy
+Date:   Fri, 20 Sep 2019 00:02:16 +0200
+Message-Id: <20190919214820.749911965@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -44,63 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit fa8397e45c64e60c80373bc19ee56e42a6bed9b6 ]
+[ Upstream commit 14c415862c0630e01712a4eeaf6159a2b1b6d2a4 ]
 
-Non-serio path of Amstrad Delta FIQ deferred handler depended on
-irq_ack() method provided by OMAP GPIO driver.  That method has been
-removed by commit 693de831c6e5 ("gpio: omap: remove irq_ack method").
-Remove useless code from the deferred handler and reimplement the
-missing operation inside the base FIQ handler.
+The netlink attribute policy for NFTA_FLOW_TABLE_NAME is missing.
 
-Should another dependency - irq_unmask() - be ever removed from the OMAP
-GPIO driver, WARN once if missing.
-
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: a3c90f7a2323 ("netfilter: nf_tables: flow offload expression")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/ams-delta-fiq-handler.S | 3 ++-
- arch/arm/mach-omap1/ams-delta-fiq.c         | 4 +---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ net/netfilter/nft_flow_offload.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/mach-omap1/ams-delta-fiq-handler.S b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-index 81159af44862e..14a6c3eb32985 100644
---- a/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-+++ b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
-@@ -126,6 +126,8 @@ restart:
- 	orr r11, r11, r13			@ mask all requested interrupts
- 	str r11, [r12, #OMAP1510_GPIO_INT_MASK]
+diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
+index 060a4ed46d5e6..01705ad74a9aa 100644
+--- a/net/netfilter/nft_flow_offload.c
++++ b/net/netfilter/nft_flow_offload.c
+@@ -149,6 +149,11 @@ static int nft_flow_offload_validate(const struct nft_ctx *ctx,
+ 	return nft_chain_validate_hooks(ctx->chain, hook_mask);
+ }
  
-+	str r13, [r12, #OMAP1510_GPIO_INT_STATUS] @ ack all requested interrupts
++static const struct nla_policy nft_flow_offload_policy[NFTA_FLOW_MAX + 1] = {
++	[NFTA_FLOW_TABLE_NAME]	= { .type = NLA_STRING,
++				    .len = NFT_NAME_MAXLEN - 1 },
++};
 +
- 	ands r10, r13, #KEYBRD_CLK_MASK		@ extract keyboard status - set?
- 	beq hksw				@ no - try next source
- 
-@@ -133,7 +135,6 @@ restart:
- 	@@@@@@@@@@@@@@@@@@@@@@
- 	@ Keyboard clock FIQ mode interrupt handler
- 	@ r10 now contains KEYBRD_CLK_MASK, use it
--	str r10, [r12, #OMAP1510_GPIO_INT_STATUS]	@ ack the interrupt
- 	bic r11, r11, r10				@ unmask it
- 	str r11, [r12, #OMAP1510_GPIO_INT_MASK]
- 
-diff --git a/arch/arm/mach-omap1/ams-delta-fiq.c b/arch/arm/mach-omap1/ams-delta-fiq.c
-index 0af2bf6f99331..fd87382a3f183 100644
---- a/arch/arm/mach-omap1/ams-delta-fiq.c
-+++ b/arch/arm/mach-omap1/ams-delta-fiq.c
-@@ -69,9 +69,7 @@ static irqreturn_t deferred_fiq(int irq, void *dev_id)
- 			 * interrupts default to since commit 80ac93c27441
- 			 * requires interrupt already acked and unmasked.
- 			 */
--			if (irq_chip->irq_ack)
--				irq_chip->irq_ack(d);
--			if (irq_chip->irq_unmask)
-+			if (!WARN_ON_ONCE(!irq_chip->irq_unmask))
- 				irq_chip->irq_unmask(d);
- 		}
- 		for (; irq_counter[gpio] < fiq_count; irq_counter[gpio]++)
+ static int nft_flow_offload_init(const struct nft_ctx *ctx,
+ 				 const struct nft_expr *expr,
+ 				 const struct nlattr * const tb[])
+@@ -207,6 +212,7 @@ static const struct nft_expr_ops nft_flow_offload_ops = {
+ static struct nft_expr_type nft_flow_offload_type __read_mostly = {
+ 	.name		= "flow_offload",
+ 	.ops		= &nft_flow_offload_ops,
++	.policy		= nft_flow_offload_policy,
+ 	.maxattr	= NFTA_FLOW_MAX,
+ 	.owner		= THIS_MODULE,
+ };
 -- 
 2.20.1
 
