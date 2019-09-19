@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E90EB8721
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86080B871D
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405508AbfISWJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48184 "EHLO mail.kernel.org"
+        id S2404202AbfISWKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405505AbfISWJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:09:52 -0400
+        id S2405493AbfISWJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:09:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 330AF21924;
-        Thu, 19 Sep 2019 22:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB1BE21920;
+        Thu, 19 Sep 2019 22:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930991;
-        bh=48NONwleXv7yulCxjWwTzPAFeGowSucCtbVQ7QAI4IA=;
+        s=default; t=1568930997;
+        bh=YTk7WT15d0Y8PLniGSxM2yMCqXNLzL1Es1fkvcZq1Wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvYkM2fQgxreh/LAesjwnixLztADdYdbNRTcSnpJhhfE11uvced1pSfFxqwjoObga
-         oojeLF+drjCoBnAmnt8JEaTOtr42ToljFispc/cxRBOxl5K/PdBMTx8cXCLKFHwnk/
-         j90uPbTsN6DhkWKrWfWIRgXlMkYml/q+PG019rcA=
+        b=nrN24fLiKVSAY+Q0GsujzDHz9Ei9oUaUi5AM2VjfnsNfJYoGdbUz2iRm+WW95ZY2p
+         hqJshRvE940eannHSsgH4xmO9Bc8SBoCkU2pRHoGAMckklg12j480eFQlz2zFwU/Kc
+         ClojkjefNyVaGxr3FKT+79+5RlHS8EnWcD1ZnK4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, acme@kernel.org,
-        Josh Hunt <johunt@akamai.com>, bpuranda@akamai.com,
-        mingo@redhat.com, jolsa@redhat.com, tglx@linutronix.de,
-        namhyung@kernel.org, alexander.shishkin@linux.intel.com,
+        stable@vger.kernel.org, Lori Hikichi <lori.hikichi@broadcom.com>,
+        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 088/124] perf/x86/intel: Restrict period on Nehalem
-Date:   Fri, 20 Sep 2019 00:02:56 +0200
-Message-Id: <20190919214822.235807874@linuxfoundation.org>
+Subject: [PATCH 5.2 090/124] i2c: iproc: Stop advertising support of SMBUS quick cmd
+Date:   Fri, 20 Sep 2019 00:02:58 +0200
+Message-Id: <20190919214822.313642904@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -47,92 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Hunt <johunt@akamai.com>
+From: Lori Hikichi <lori.hikichi@broadcom.com>
 
-[ Upstream commit 44d3bbb6f5e501b873218142fe08cdf62a4ac1f3 ]
+[ Upstream commit b3d604d405166edfd4e1e6053409b85008f4f56d ]
 
-We see our Nehalem machines reporting 'perfevents: irq loop stuck!' in
-some cases when using perf:
+The driver does not support the SMBUS Quick command so remove the
+flag that indicates that level of support.
+By default the i2c_detect tool uses the quick command to try and
+detect devices at some bus addresses.  If the quick command is used
+then we will not detect the device, even though it is present.
 
-perfevents: irq loop stuck!
-WARNING: CPU: 0 PID: 3485 at arch/x86/events/intel/core.c:2282 intel_pmu_handle_irq+0x37b/0x530
-...
-RIP: 0010:intel_pmu_handle_irq+0x37b/0x530
-...
-Call Trace:
-<NMI>
-? perf_event_nmi_handler+0x2e/0x50
-? intel_pmu_save_and_restart+0x50/0x50
-perf_event_nmi_handler+0x2e/0x50
-nmi_handle+0x6e/0x120
-default_do_nmi+0x3e/0x100
-do_nmi+0x102/0x160
-end_repeat_nmi+0x16/0x50
-...
-? native_write_msr+0x6/0x20
-? native_write_msr+0x6/0x20
-</NMI>
-intel_pmu_enable_event+0x1ce/0x1f0
-x86_pmu_start+0x78/0xa0
-x86_pmu_enable+0x252/0x310
-__perf_event_task_sched_in+0x181/0x190
-? __switch_to_asm+0x41/0x70
-? __switch_to_asm+0x35/0x70
-? __switch_to_asm+0x41/0x70
-? __switch_to_asm+0x35/0x70
-finish_task_switch+0x158/0x260
-__schedule+0x2f6/0x840
-? hrtimer_start_range_ns+0x153/0x210
-schedule+0x32/0x80
-schedule_hrtimeout_range_clock+0x8a/0x100
-? hrtimer_init+0x120/0x120
-ep_poll+0x2f7/0x3a0
-? wake_up_q+0x60/0x60
-do_epoll_wait+0xa9/0xc0
-__x64_sys_epoll_wait+0x1a/0x20
-do_syscall_64+0x4e/0x110
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fdeb1e96c03
-...
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: acme@kernel.org
-Cc: Josh Hunt <johunt@akamai.com>
-Cc: bpuranda@akamai.com
-Cc: mingo@redhat.com
-Cc: jolsa@redhat.com
-Cc: tglx@linutronix.de
-Cc: namhyung@kernel.org
-Cc: alexander.shishkin@linux.intel.com
-Link: https://lkml.kernel.org/r/1566256411-18820-1-git-send-email-johunt@akamai.com
+Fixes: e6e5dd3566e0 (i2c: iproc: Add Broadcom iProc I2C Driver)
+Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 6179be624f357..2369ea1a1db79 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -3572,6 +3572,11 @@ static u64 bdw_limit_period(struct perf_event *event, u64 left)
- 	return left;
- }
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index ad1681872e39d..b99322d83f483 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -801,7 +801,10 @@ static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
  
-+static u64 nhm_limit_period(struct perf_event *event, u64 left)
-+{
-+	return max(left, 32ULL);
-+}
+ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
+ {
+-	u32 val = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	u32 val;
 +
- PMU_FORMAT_ATTR(event,	"config:0-7"	);
- PMU_FORMAT_ATTR(umask,	"config:8-15"	);
- PMU_FORMAT_ATTR(edge,	"config:18"	);
-@@ -4550,6 +4555,7 @@ __init int intel_pmu_init(void)
- 		x86_pmu.pebs_constraints = intel_nehalem_pebs_event_constraints;
- 		x86_pmu.enable_all = intel_pmu_nhm_enable_all;
- 		x86_pmu.extra_regs = intel_nehalem_extra_regs;
-+		x86_pmu.limit_period = nhm_limit_period;
++	/* We do not support the SMBUS Quick command */
++	val = I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
  
- 		mem_attr = nhm_mem_events_attrs;
- 
+ 	if (adap->algo->reg_slave)
+ 		val |= I2C_FUNC_SLAVE;
 -- 
 2.20.1
 
