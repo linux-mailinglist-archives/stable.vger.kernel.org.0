@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81939B8676
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B76B855F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404331AbfISW3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:29:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58870 "EHLO mail.kernel.org"
+        id S1732785AbfISWU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406496AbfISWRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:17:38 -0400
+        id S2394032AbfISWU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:20:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7176D20678;
-        Thu, 19 Sep 2019 22:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBD97217D6;
+        Thu, 19 Sep 2019 22:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931457;
-        bh=jiWQb9vIJcyuQQYnH8FA+Q2/8IDnSEMWoxN1zIuW1pQ=;
+        s=default; t=1568931627;
+        bh=zMZ3NN5Ec3j2NtL7lZrB4gu39QodgcLY7Q9IEA1DIFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzQQ+wxEuthAyvifT2k9MGaeR4xr+y/b+bR9lIaDFuxEPlcO63zdpTI4+q075tkxS
-         Mn8ts7CJhG5bqpCbbyC65xq7nQYar+R1A+bG6nQCq+05fMlA9g43iy9uYyOcRA+MIv
-         eRTRw75kARO4xvdcjgUEO/l2a47Qj+mlzVNwOju8=
+        b=apl3mXN5zkhRAE5zp7w4A6Ebl+dB8BR6uPTRXsfKkxNprPFA4lKUBK4QRvdTQAJcl
+         FBl8KigGDRB01Is7EOHj0oE2xh7T1fQ6K9nPDhpxEjeBpH/PWOVwwMrHMaej2nAaEA
+         +NIk9ZtbFbIExCp379lQ7Jgj7S0/Yu3L3CVevPvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 53/59] iommu/amd: Fix race in increase_address_space()
+        stable@vger.kernel.org,
+        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, alan@linux.intel.com,
+        bp@alien8.de, cheol.yong.kim@intel.com, qi-ming.wu@intel.com,
+        rahul.tanwar@intel.com, rppt@linux.ibm.com, tony.luck@intel.com,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 55/74] x86/apic: Fix arch_dynirq_lower_bound() bug for DT enabled machines
 Date:   Fri, 20 Sep 2019 00:04:08 +0200
-Message-Id: <20190919214808.119566137@linuxfoundation.org>
+Message-Id: <20190919214810.108283855@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
-References: <20190919214755.852282682@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+References: <20190919214800.519074117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
+[ Upstream commit 3e5bedc2c258341702ddffbd7688c5e6eb01eafa ]
 
-After the conversion to lock-less dma-api call the
-increase_address_space() function can be called without any
-locking. Multiple CPUs could potentially race for increasing
-the address space, leading to invalid domain->mode settings
-and invalid page-tables. This has been happening in the wild
-under high IO load and memory pressure.
+Rahul Tanwar reported the following bug on DT systems:
 
-Fix the race by locking this operation. The function is
-called infrequently so that this does not introduce
-a performance regression in the dma-api path again.
+> 'ioapic_dynirq_base' contains the virtual IRQ base number. Presently, it is
+> updated to the end of hardware IRQ numbers but this is done only when IOAPIC
+> configuration type is IOAPIC_DOMAIN_LEGACY or IOAPIC_DOMAIN_STRICT. There is
+> a third type IOAPIC_DOMAIN_DYNAMIC which applies when IOAPIC configuration
+> comes from devicetree.
+>
+> See dtb_add_ioapic() in arch/x86/kernel/devicetree.c
+>
+> In case of IOAPIC_DOMAIN_DYNAMIC (DT/OF based system), 'ioapic_dynirq_base'
+> remains to zero initialized value. This means that for OF based systems,
+> virtual IRQ base will get set to zero.
 
-Reported-by: Qian Cai <cai@lca.pw>
-Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Such systems will very likely not even boot.
+
+For DT enabled machines ioapic_dynirq_base is irrelevant and not
+updated, so simply map the IRQ base 1:1 instead.
+
+Reported-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
+Tested-by: Rahul Tanwar <rahul.tanwar@linux.intel.com>
+Tested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: alan@linux.intel.com
+Cc: bp@alien8.de
+Cc: cheol.yong.kim@intel.com
+Cc: qi-ming.wu@intel.com
+Cc: rahul.tanwar@intel.com
+Cc: rppt@linux.ibm.com
+Cc: tony.luck@intel.com
+Link: http://lkml.kernel.org/r/20190821081330.1187-1-rahul.tanwar@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/x86/kernel/apic/io_apic.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 822c85226a29f..a1174e61daf4e 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1337,18 +1337,21 @@ static void domain_flush_devices(struct protection_domain *domain)
-  * another level increases the size of the address space by 9 bits to a size up
-  * to 64 bits.
-  */
--static bool increase_address_space(struct protection_domain *domain,
-+static void increase_address_space(struct protection_domain *domain,
- 				   gfp_t gfp)
- {
-+	unsigned long flags;
- 	u64 *pte;
- 
--	if (domain->mode == PAGE_MODE_6_LEVEL)
-+	spin_lock_irqsave(&domain->lock, flags);
-+
-+	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
- 		/* address space already 64 bit large */
--		return false;
-+		goto out;
- 
- 	pte = (void *)get_zeroed_page(gfp);
- 	if (!pte)
--		return false;
-+		goto out;
- 
- 	*pte             = PM_LEVEL_PDE(domain->mode,
- 					iommu_virt_to_phys(domain->pt_root));
-@@ -1356,7 +1359,10 @@ static bool increase_address_space(struct protection_domain *domain,
- 	domain->mode    += 1;
- 	domain->updated  = true;
- 
--	return true;
-+out:
-+	spin_unlock_irqrestore(&domain->lock, flags);
-+
-+	return;
+diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
+index d34629d70421f..09dd95cabfc28 100644
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2346,7 +2346,13 @@ unsigned int arch_dynirq_lower_bound(unsigned int from)
+ 	 * dmar_alloc_hwirq() may be called before setup_IO_APIC(), so use
+ 	 * gsi_top if ioapic_dynirq_base hasn't been initialized yet.
+ 	 */
+-	return ioapic_initialized ? ioapic_dynirq_base : gsi_top;
++	if (!ioapic_initialized)
++		return gsi_top;
++	/*
++	 * For DT enabled machines ioapic_dynirq_base is irrelevant and not
++	 * updated. So simply return @from if ioapic_dynirq_base == 0.
++	 */
++	return ioapic_dynirq_base ? : from;
  }
  
- static u64 *alloc_pte(struct protection_domain *domain,
+ #ifdef CONFIG_X86_32
 -- 
 2.20.1
 
