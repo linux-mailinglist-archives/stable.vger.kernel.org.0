@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D480AB862E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E483EB85F5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733115AbfISWUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34678 "EHLO mail.kernel.org"
+        id S2406834AbfISWWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733201AbfISWUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:35 -0400
+        id S2406910AbfISWWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:22:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0261A21907;
-        Thu, 19 Sep 2019 22:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C89A21920;
+        Thu, 19 Sep 2019 22:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931635;
-        bh=AHZGMLGH7p3cXTEIIRUUmKB1ISTKB3Aln3YLCJhurA8=;
+        s=default; t=1568931765;
+        bh=suureZVG+145knog9Eb2+hj7W8Jxe3Kfoq+zWj6Ufn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Db50uBLh5s6Q57MAY7PA/r9vCjBDGPg0fufedSnhoYAF+S8JEU9I3XDx+jL+fgDcV
-         LFi4fuZYywd+c/wdi+9NR1qCc+RgcW43esHPTNeFB3kQ0Ra3CPsDMkJ6EyNq8ebURf
-         qiWm/60rTsby3v8F2qSfb0NpErwvLffya17jXTa0=
+        b=W1a+jjfptd5PxLGfdFthEORsP2GlbVOj14VzSmL3ymKIxBCs3tfxWK5VQTdcPRGhG
+         1zGp1s4gp0tqijqss+vPZ1B1gSxXceLgZ4/5V2ZO/O4Ww5lKn/GhL8sfUYBatoxg82
+         bKUBPuE3YfcDnDzgQI29NTHjUoTNpdWQA6+j+UGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 58/74] NFSv2: Fix write regression
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 30/56] xen-netfront: do not assume sk_buff_head list is empty in error handling
 Date:   Fri, 20 Sep 2019 00:04:11 +0200
-Message-Id: <20190919214810.292739132@linuxfoundation.org>
+Message-Id: <20190919214756.708114014@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit d33d4beb522987d1c305c12500796f9be3687dee ]
+[ Upstream commit 00b368502d18f790ab715e055869fd4bb7484a9b ]
 
-Ensure we update the write result count on success, since the
-RPC call itself does not do so.
+When skb_shinfo(skb) is not able to cache extra fragment (that is,
+skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS), xennet_fill_frags() assumes
+the sk_buff_head list is already empty. As a result, cons is increased only
+by 1 and returns to error handling path in xennet_poll().
 
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, if the sk_buff_head list is not empty, queue->rx.rsp_cons may be
+set incorrectly. That is, queue->rx.rsp_cons would point to the rx ring
+buffer entries whose queue->rx_skbs[i] and queue->grant_rx_ref[i] are
+already cleared to NULL. This leads to NULL pointer access in the next
+iteration to process rx ring buffer entries.
+
+Below is how xennet_poll() does error handling. All remaining entries in
+tmpq are accounted to queue->rx.rsp_cons without assuming how many
+outstanding skbs are remained in the list.
+
+ 985 static int xennet_poll(struct napi_struct *napi, int budget)
+... ...
+1032           if (unlikely(xennet_set_skb_gso(skb, gso))) {
+1033                   __skb_queue_head(&tmpq, skb);
+1034                   queue->rx.rsp_cons += skb_queue_len(&tmpq);
+1035                   goto err;
+1036           }
+
+It is better to always have the error handling in the same way.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/proc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/xen-netfront.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
-index f3e8bcbd29a09..06e72229be123 100644
---- a/fs/nfs/proc.c
-+++ b/fs/nfs/proc.c
-@@ -610,8 +610,10 @@ static int nfs_proc_pgio_rpc_prepare(struct rpc_task *task,
- 
- static int nfs_write_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
- {
--	if (task->tk_status >= 0)
-+	if (task->tk_status >= 0) {
-+		hdr->res.count = hdr->args.count;
- 		nfs_writeback_update_inode(hdr);
-+	}
- 	return 0;
- }
- 
--- 
-2.20.1
-
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -893,7 +893,7 @@ static RING_IDX xennet_fill_frags(struct
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons;
++			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+ 			return ~0U;
+ 		}
 
 
