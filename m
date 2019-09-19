@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DBFB8582
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B94BB8656
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393077AbfISWVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:21:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
+        id S2406568AbfISWSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:18:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394093AbfISWVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:21:52 -0400
+        id S2406562AbfISWSF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:18:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9502E21929;
-        Thu, 19 Sep 2019 22:21:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA9E21D7C;
+        Thu, 19 Sep 2019 22:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931710;
-        bh=bRsAxFnPqRa/ULryThKuGPhEruKmIEKhenR1lgj5BM4=;
+        s=default; t=1568931485;
+        bh=mP0K/uEJqx8+BnvBniqIy2bLIgX7+uy59FBpsDE/IJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVLxWenULCxvlcCo5GvKokJp7bwm/vtrjcghlzbXmADekdCMGMnhWEK+r5hv+oUIU
-         BDNYllNd/7aQY9IgsfkmBIH9YLr5QqoQJZUd1ZKDhb3gr7tyjC7+EteZn+ruMHEF9P
-         05TRkVJ4smQO9M9R4ZgDMKgKZ/hBetHtny6wZSr0=
+        b=YDvhAMxpAYYPAxLRKQkivAZ1BAEVH+tNGFYe5S6idw2qFKRrLKBQR5h2qWdxVWdmj
+         ykuy7/Rhx3ozZPHX1sajMi1U7M35tTSofAFJcbjAbHAVdWN2GxyTSH3YWbixbzXrFD
+         r+H7Cd76IAbMZIS6sbo/cmuoGhvOAaja2WbRr4B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "Maciej W. Rozycki" <macro@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/56] Revert "MIPS: SiByte: Enable swiotlb for SWARM, LittleSur and BigSur"
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, SteveM <swm@swm1.com>
+Subject: [PATCH 4.14 38/59] sky2: Disable MSI on yet another ASUS boards (P6Xxxx)
 Date:   Fri, 20 Sep 2019 00:03:53 +0200
-Message-Id: <20190919214750.343452262@linuxfoundation.org>
+Message-Id: <20190919214806.539597792@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
-References: <20190919214742.483643642@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-This reverts commit c890a458e27210d1a749a18941047a9e4209fa93 which is
-commit e4849aff1e169b86c561738daf8ff020e9de1011 upstream
+[ Upstream commit 189308d5823a089b56e2299cd96589507dac7319 ]
 
-Guenter writes:
-	Upstream commit e4849aff1e16 ("MIPS: SiByte: Enable swiotlb for SWARM,
-	LittleSur and BigSur") results in build failures in v4.4.y and v4.14.y.
+A similar workaround for the suspend/resume problem is needed for yet
+another ASUS machines, P6X models.  Like the previous fix, the BIOS
+doesn't provide the standard DMI_SYS_* entry, so again DMI_BOARD_*
+entries are used instead.
 
-	make bigsur_defconfig:
-
-	warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_BOARD)
-	warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_BOARD)
-
-	and the actual build:
-
-	lib/swiotlb.o: In function `swiotlb_tbl_map_single':
-	(.text+0x1c0): undefined reference to `iommu_is_span_boundary'
-	Makefile:1021: recipe for target 'vmlinux' failed
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Maciej W. Rozycki <macro@linux-mips.org>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: SteveM <swm@swm1.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig                |    3 ---
- arch/mips/sibyte/common/Makefile |    1 -
- arch/mips/sibyte/common/dma.c    |   14 --------------
- 3 files changed, 18 deletions(-)
- delete mode 100644 arch/mips/sibyte/common/dma.c
+ drivers/net/ethernet/marvell/sky2.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -761,7 +761,6 @@ config SIBYTE_SWARM
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
- 	select ZONE_DMA32 if 64BIT
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
+diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
+index 7b239af6cc040..5046efdad5390 100644
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -4954,6 +4954,13 @@ static const struct dmi_system_id msi_blacklist[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "P6T"),
+ 		},
+ 	},
++	{
++		.ident = "ASUS P6X",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "P6X"),
++		},
++	},
+ 	{}
+ };
  
- config SIBYTE_LITTLESUR
- 	bool "Sibyte BCM91250C2-LittleSur"
-@@ -784,7 +783,6 @@ config SIBYTE_SENTOSA
- 	select SYS_HAS_CPU_SB1
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
- 
- config SIBYTE_BIGSUR
- 	bool "Sibyte BCM91480B-BigSur"
-@@ -798,7 +796,6 @@ config SIBYTE_BIGSUR
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
- 	select ZONE_DMA32 if 64BIT
--	select SWIOTLB if ARCH_DMA_ADDR_T_64BIT && PCI
- 
- config SNI_RM
- 	bool "SNI RM200/300/400"
---- a/arch/mips/sibyte/common/Makefile
-+++ b/arch/mips/sibyte/common/Makefile
-@@ -1,5 +1,4 @@
- obj-y := cfe.o
--obj-$(CONFIG_SWIOTLB)			+= dma.o
- obj-$(CONFIG_SIBYTE_BUS_WATCHER)	+= bus_watcher.o
- obj-$(CONFIG_SIBYTE_CFE_CONSOLE)	+= cfe_console.o
- obj-$(CONFIG_SIBYTE_TBPROF)		+= sb_tbprof.o
---- a/arch/mips/sibyte/common/dma.c
-+++ /dev/null
-@@ -1,14 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0+
--/*
-- *	DMA support for Broadcom SiByte platforms.
-- *
-- *	Copyright (c) 2018  Maciej W. Rozycki
-- */
--
--#include <linux/swiotlb.h>
--#include <asm/bootinfo.h>
--
--void __init plat_swiotlb_setup(void)
--{
--	swiotlb_init(1);
--}
+-- 
+2.20.1
+
 
 
