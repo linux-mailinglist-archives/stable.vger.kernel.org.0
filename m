@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6ABB8424
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:08:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE370B843B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393380AbfISWIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:08:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46142 "EHLO mail.kernel.org"
+        id S2393497AbfISWJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:09:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393369AbfISWIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:08:16 -0400
+        id S2393461AbfISWJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:09:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62225218AF;
-        Thu, 19 Sep 2019 22:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A03C218AF;
+        Thu, 19 Sep 2019 22:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568930894;
-        bh=YGUky5l4b/jTQwvCUKgf0yLafhrXcctKofNMlj9R7Ao=;
+        s=default; t=1568930945;
+        bh=2GL256L2/6vJG33uyRE6ssbbk6KXwoAxkQYI36Ywbvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gENUcj9LB1VQbGdpoY2RT4k0vgcXDIeyJBNc1P3PHs7N/eGqM6uqyBJkjBxPAbSp3
-         s9VDCsukmGFARzqegasoY1+wCEh5kTc0h+SNsirvGo/v1ugZr7w9dGkkueFrqEjyby
-         0lTvxN4wB0bDvbyvUTMO7jFtTCBMNedU2ax/EHgU=
+        b=s5Du6DjrBYY5zQWENrYjVOwXkwCTKm3pkPQfW0W2KasooGsUKcsUiWuONs+TBlXs3
+         p0Tx5sOCKQITHM+JRTEWrgnNx8qD5XBz1ykxRTXzDUEoeDEuDLSwE4fYuyo5mdZj7T
+         B7PlDenQFpASViVEciYdCgdjuRkGltPglnySDg/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 036/124] s390/bpf: fix lcgr instruction encoding
-Date:   Fri, 20 Sep 2019 00:02:04 +0200
-Message-Id: <20190919214820.329463470@linuxfoundation.org>
+Subject: [PATCH 5.2 040/124] ARM: OMAP1: ams-delta-fiq: Fix missing irq_ack
+Date:   Fri, 20 Sep 2019 00:02:08 +0200
+Message-Id: <20190919214820.466235900@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
 References: <20190919214819.198419517@linuxfoundation.org>
@@ -45,41 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
+[ Upstream commit fa8397e45c64e60c80373bc19ee56e42a6bed9b6 ]
 
-"masking, test in bounds 3" fails on s390, because
-BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
-BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
-The associated comment indicates that the code was intended to
-emit lcgr in the first place, it's just that the wrong opcode
-was used.
+Non-serio path of Amstrad Delta FIQ deferred handler depended on
+irq_ack() method provided by OMAP GPIO driver.  That method has been
+removed by commit 693de831c6e5 ("gpio: omap: remove irq_ack method").
+Remove useless code from the deferred handler and reimplement the
+missing operation inside the base FIQ handler.
 
-Fix by using the correct opcode.
+Should another dependency - irq_unmask() - be ever removed from the OMAP
+GPIO driver, WARN once if missing.
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap1/ams-delta-fiq-handler.S | 3 ++-
+ arch/arm/mach-omap1/ams-delta-fiq.c         | 4 +---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 5e7c630331590..9a711472cbdc0 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -853,7 +853,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		break;
- 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
- 		/* lcgr %dst,%dst */
--		EMIT4(0xb9130000, dst_reg, dst_reg);
-+		EMIT4(0xb9030000, dst_reg, dst_reg);
- 		break;
- 	/*
- 	 * BPF_FROM_BE/LE
+diff --git a/arch/arm/mach-omap1/ams-delta-fiq-handler.S b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
+index 81159af44862e..14a6c3eb32985 100644
+--- a/arch/arm/mach-omap1/ams-delta-fiq-handler.S
++++ b/arch/arm/mach-omap1/ams-delta-fiq-handler.S
+@@ -126,6 +126,8 @@ restart:
+ 	orr r11, r11, r13			@ mask all requested interrupts
+ 	str r11, [r12, #OMAP1510_GPIO_INT_MASK]
+ 
++	str r13, [r12, #OMAP1510_GPIO_INT_STATUS] @ ack all requested interrupts
++
+ 	ands r10, r13, #KEYBRD_CLK_MASK		@ extract keyboard status - set?
+ 	beq hksw				@ no - try next source
+ 
+@@ -133,7 +135,6 @@ restart:
+ 	@@@@@@@@@@@@@@@@@@@@@@
+ 	@ Keyboard clock FIQ mode interrupt handler
+ 	@ r10 now contains KEYBRD_CLK_MASK, use it
+-	str r10, [r12, #OMAP1510_GPIO_INT_STATUS]	@ ack the interrupt
+ 	bic r11, r11, r10				@ unmask it
+ 	str r11, [r12, #OMAP1510_GPIO_INT_MASK]
+ 
+diff --git a/arch/arm/mach-omap1/ams-delta-fiq.c b/arch/arm/mach-omap1/ams-delta-fiq.c
+index 0af2bf6f99331..fd87382a3f183 100644
+--- a/arch/arm/mach-omap1/ams-delta-fiq.c
++++ b/arch/arm/mach-omap1/ams-delta-fiq.c
+@@ -69,9 +69,7 @@ static irqreturn_t deferred_fiq(int irq, void *dev_id)
+ 			 * interrupts default to since commit 80ac93c27441
+ 			 * requires interrupt already acked and unmasked.
+ 			 */
+-			if (irq_chip->irq_ack)
+-				irq_chip->irq_ack(d);
+-			if (irq_chip->irq_unmask)
++			if (!WARN_ON_ONCE(!irq_chip->irq_unmask))
+ 				irq_chip->irq_unmask(d);
+ 		}
+ 		for (; irq_counter[gpio] < fiq_count; irq_counter[gpio]++)
 -- 
 2.20.1
 
