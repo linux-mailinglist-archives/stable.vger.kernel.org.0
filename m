@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC37BB8495
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB6DB845C
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405937AbfISWMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
+        id S2405635AbfISWKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:10:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405933AbfISWMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:12:12 -0400
+        id S2405627AbfISWKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:10:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC2AC21924;
-        Thu, 19 Sep 2019 22:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEC7D218AF;
+        Thu, 19 Sep 2019 22:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931132;
-        bh=7DQABrK4MLrfjFn0Sqnu+KV9mVdn2QBeKchHdVhAiY4=;
+        s=default; t=1568931014;
+        bh=rB60oEYgCyg+9soH/TdumL1Wm7jIh7jsADvD/I5McB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjEysxt/3GMLOC+8/73O2k/aQdfqnE48E8M8clTucXqBbgom+XO145jeUE8JelSNu
-         1UsrpVn2Kmcqvn7nm0NGWeCdVaha6gd68A5mecISjFqF94RIhjv24dEQJ4KoLWg9e5
-         Vy2oAiS4RATy0HMuTDlM6fj/F5AXrwkzSObQglXo=
+        b=MtsP5PTtXl0DZ4eAzGZlcnNSocpoZ46kpUsoeycy4gqge1zUdiUA7gKOrKbrSzvJg
+         7dzNvyIgFAxHsLokoDzHL9kRXv61RTZ+od9NU6eACHjga928S6VYH9KAydSNfAf5mF
+         7Ss3LqIv1Xf+6Rq9NriWCG7x1S18dABexsdalu9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Subject: [PATCH 4.19 15/79] serial: sprd: correct the wrong sequence of arguments
-Date:   Fri, 20 Sep 2019 00:03:00 +0200
-Message-Id: <20190919214809.178684927@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 096/124] tools/power turbostat: fix leak of file descriptor on error return path
+Date:   Fri, 20 Sep 2019 00:03:04 +0200
+Message-Id: <20190919214822.548475916@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-References: <20190919214807.612593061@linuxfoundation.org>
+In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
+References: <20190919214819.198419517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 9c801e313195addaf11c16e155f50789d6ebfd19 upstream.
+[ Upstream commit 15423b958f33132152e209e98df0dedc7a78f22c ]
 
-The sequence of arguments which was passed to handle_lsr_errors() didn't
-match the parameters defined in that function, &lsr was passed to flag
-and &flag was passed to lsr, this patch fixed that.
+Currently the error return path does not close the file fp and leaks
+a file descriptor. Fix this by closing the file.
 
-Fixes: b7396a38fb28 ("tty/serial: Add Spreadtrum sc9836-uart driver support")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190905074151.5268-1-zhang.lyra@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 5ea7647b333f ("tools/power turbostat: Warn on bad ACPI LPIT data")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sprd_serial.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/power/x86/turbostat/turbostat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -232,7 +232,7 @@ static inline void sprd_rx(struct uart_p
- 
- 		if (lsr & (SPRD_LSR_BI | SPRD_LSR_PE |
- 			SPRD_LSR_FE | SPRD_LSR_OE))
--			if (handle_lsr_errors(port, &lsr, &flag))
-+			if (handle_lsr_errors(port, &flag, &lsr))
- 				continue;
- 		if (uart_handle_sysrq_char(port, ch))
- 			continue;
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 1cd28ebf8443b..efc8d07364c61 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -2938,6 +2938,7 @@ int snapshot_sys_lpi_us(void)
+ 	if (retval != 1) {
+ 		fprintf(stderr, "Disabling Low Power Idle System output\n");
+ 		BIC_NOT_PRESENT(BIC_SYS_LPI);
++		fclose(fp);
+ 		return -1;
+ 	}
+ 	fclose(fp);
+-- 
+2.20.1
+
 
 
