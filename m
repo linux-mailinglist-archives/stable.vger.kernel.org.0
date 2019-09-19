@@ -2,80 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9CBB8128
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:04:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C9BB812C
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392198AbfISTEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 15:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52190 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392196AbfISTEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 15:04:24 -0400
+        id S2392223AbfISTG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 15:06:27 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:55197 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2392222AbfISTG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 15:06:26 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9C33A2108A;
+        Thu, 19 Sep 2019 15:06:25 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 19 Sep 2019 15:06:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=B5/xPx
+        sHwS2Cve6UV+6zEqiZbnLDEvhmyk42pCW0grg=; b=Nw4rLoStMiHs+wSZK+X/Ob
+        BsY42hO9pKrKJp2lD9sgBMp1+7O1nDYbBBn/W3qnLXpLFcKsYrEC/2y02LqNv8uq
+        Q+obsKXWuKAHGg9IACdyVD9LxBMVv7BfIP1G6oLZKuHOf4Dm9C1/+6tyquEhTP3T
+        iEvG2bDLPNmZmZ8IGMzjcE7GexOGLOX+VsgQxoa5aY/sZ3eU92YzdTG+f7VwtKDv
+        eW8u4OO55T0zPRc3nnFF4tt4GggIem+sYg4i2YkSi1Bm522gcVtQlE+/qM+PZKum
+        Ag1BDoBG1wDsIjyFCftPItjTichdu5XmZrvh+DHywvFpkHFIp4D5q4R96b2+0kHQ
+        ==
+X-ME-Sender: <xms:sNGDXRvB3eJMFPQmoPapF8eYVB6bbtIwzmh6DpVPuxD1km2u5nhA8Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgddufeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:sdGDXZf51BjcuoAqjI7SLJeT-z3MlNZqGaAlDbp0PHw_rY1MxRbBPw>
+    <xmx:sdGDXU7Pe51rROHf9Zc_wdqs4wImEg7lsAiWCzHxHQST_WWIZ0yrgw>
+    <xmx:sdGDXak_bnglNBcUS_BRJ4qczZL_8FGNzP1ZW4iSuHMIbjwbzhUnjw>
+    <xmx:sdGDXbfe9wxXmGHxgoUWnYIkgXlOO3tr6ZaE79Mmnpb2KzzTHgZmlg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 084BD2067B;
-        Thu, 19 Sep 2019 19:04:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568919862;
-        bh=Rmn1JiN1N4HM/Q7+e5y+1ogOJoUuotKY8vvho2xkxts=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eSrDCgE1dQTDYfB+9cjq89fjEwNY4Ot8tZKpKMlb1Zq3WM469h5+yAuLQxIlKAqcs
-         K1LyMZ1tprjQhK5amJffqEjxNxKOzkLq95Yk8c3IfyhBSF4JTnr8wsymoTMbSZc5tq
-         y0/cajf0K4A9MXjL5rK7dCEFWxV215yS6DzqYNB8=
-Date:   Thu, 19 Sep 2019 21:04:20 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        overlayfs <linux-unionfs@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
- ioctls" failed to apply to 5.1-stable tree
-Message-ID: <20190919190420.GA4183040@kroah.com>
-References: <1560073529193139@kroah.com>
- <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
- <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
- <20190623010345.GJ2226@sasha-vm>
- <20190623202916.GA10957@kroah.com>
- <20190624003409.GO2226@sasha-vm>
- <CAOQ4uxiz5CkGojr5yquUd__TS_eae+ZapqyGaojiOUGniFPMsg@mail.gmail.com>
- <20190724115714.GA3244@kroah.com>
- <CAOQ4uxiEVsBp6qojO9K1TqzpETtdqDPzqTaFQGjr8woJ2WQP=g@mail.gmail.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 94CE280062;
+        Thu, 19 Sep 2019 15:06:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] phy: qcom-qmp: Correct ready status, again" failed to apply to 5.2-stable tree
+To:     bjorn.andersson@linaro.org, evgreen@chromium.org, kishon@ti.com,
+        marc.w.gonzalez@free.fr, niklas.cassel@linaro.org,
+        vivek.gautam@codeaurora.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 19 Sep 2019 21:06:23 +0200
+Message-ID: <1568919983199175@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxiEVsBp6qojO9K1TqzpETtdqDPzqTaFQGjr8woJ2WQP=g@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 04:46:36PM +0300, Amir Goldstein wrote:
-> > > I don't think syzkaller ones are more relevant to 5.1 then the rest of
-> > > the patches applied to 4.19. If anything, its the other way around.
-> > > According to syzbot dashboard, it is being run on LTS kernels, not on
-> > > latest stable.
-> > >
-> > > Please forgive me if my language caused confusion, when I said
-> > > "please apply to 4.19" I meant 4.19+.
-> >
-> > So is anything else needed to be done here, or are we all caught up and
-> > everything merged properly?
-> >
-> 
-> All the needed patches have been merged, but
-> Upstream commit 146d62e5a5867fbf84490d82455718bfb10fe824
-> ("ovl: detect overlapping layers") did introduce a regression to
-> docker and friends into stable kernels :-/
-> 
-> The fix commit is already tested and waiting in linux-next:
-> 0be0bfd2de9d ("ovl: fix regression caused by overlapping layers detection")
-> but did not hit upstream yet. When it does, will need to apply it to v4.19+
 
-That is now in Linus's tree and I've queued it up now.
+The patch below does not apply to the 5.2-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 14ced7e3a1ae9bed7051df3718c8c7b583854a5c Mon Sep 17 00:00:00 2001
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Date: Mon, 5 Aug 2019 17:42:56 -0700
+Subject: [PATCH] phy: qcom-qmp: Correct ready status, again
+
+Despite extensive testing of commit 885bd765963b ("phy: qcom-qmp: Correct
+READY_STATUS poll break condition") I failed to conclude that the
+PHYSTATUS bit of the PCS_STATUS register used in PCIe and USB3 falls as
+the PHY gets ready. Similar to the prior bug with UFS the code will
+generally get past the check before the transition and thereby
+"succeed".
+
+Correct the name of the register used PCIe and USB3 PHYs, replace
+mask_pcs_ready with a constant expression depending on the type of the
+PHY and check for the appropriate ready state.
+
+Cc: stable@vger.kernel.org
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Niklas Cassel <niklas.cassel@linaro.org>
+Reported-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Fixes: 885bd765963b ("phy: qcom-qmp: Correct READY_STATUS poll break condition")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Tested-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+index e7b8283acce8..39e8deb8001e 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -35,7 +35,7 @@
+ #define PLL_READY_GATE_EN			BIT(3)
+ /* QPHY_PCS_STATUS bit */
+ #define PHYSTATUS				BIT(6)
+-/* QPHY_COM_PCS_READY_STATUS bit */
++/* QPHY_PCS_READY_STATUS & QPHY_COM_PCS_READY_STATUS bit */
+ #define PCS_READY				BIT(0)
+ 
+ /* QPHY_V3_DP_COM_RESET_OVRD_CTRL register bits */
+@@ -115,6 +115,7 @@ enum qphy_reg_layout {
+ 	QPHY_SW_RESET,
+ 	QPHY_START_CTRL,
+ 	QPHY_PCS_READY_STATUS,
++	QPHY_PCS_STATUS,
+ 	QPHY_PCS_AUTONOMOUS_MODE_CTRL,
+ 	QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR,
+ 	QPHY_PCS_LFPS_RXTERM_IRQ_STATUS,
+@@ -133,7 +134,7 @@ static const unsigned int pciephy_regs_layout[] = {
+ 	[QPHY_FLL_MAN_CODE]		= 0xd4,
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x174,
++	[QPHY_PCS_STATUS]		= 0x174,
+ };
+ 
+ static const unsigned int usb3phy_regs_layout[] = {
+@@ -144,7 +145,7 @@ static const unsigned int usb3phy_regs_layout[] = {
+ 	[QPHY_FLL_MAN_CODE]		= 0xd0,
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x17c,
++	[QPHY_PCS_STATUS]		= 0x17c,
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d4,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x178,
+@@ -153,7 +154,7 @@ static const unsigned int usb3phy_regs_layout[] = {
+ static const unsigned int qmp_v3_usb3phy_regs_layout[] = {
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x174,
++	[QPHY_PCS_STATUS]		= 0x174,
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0dc,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x170,
+@@ -911,7 +912,6 @@ struct qmp_phy_cfg {
+ 
+ 	unsigned int start_ctrl;
+ 	unsigned int pwrdn_ctrl;
+-	unsigned int mask_pcs_ready;
+ 	unsigned int mask_com_pcs_ready;
+ 
+ 	/* true, if PHY has a separate PHY_COM control block */
+@@ -1074,7 +1074,6 @@ static const struct qmp_phy_cfg msm8996_pciephy_cfg = {
+ 
+ 	.start_ctrl		= PCS_START | PLL_READY_GATE_EN,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 	.mask_com_pcs_ready	= PCS_READY,
+ 
+ 	.has_phy_com_ctrl	= true,
+@@ -1106,7 +1105,6 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ };
+ 
+ /* list of resets */
+@@ -1136,7 +1134,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_phy_com_ctrl	= false,
+ 	.has_lane_rst		= false,
+@@ -1167,7 +1164,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
+@@ -1199,7 +1195,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
+@@ -1226,7 +1221,6 @@ static const struct qmp_phy_cfg sdm845_ufsphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PCS_READY,
+ 
+ 	.is_dual_lane_phy	= true,
+ 	.no_pcs_sw_reset	= true,
+@@ -1254,7 +1248,6 @@ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+ 
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
+@@ -1279,7 +1272,6 @@ static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
+ 
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl             = SW_PWRDN,
+-	.mask_pcs_ready         = PHYSTATUS,
+ 
+ 	.is_dual_lane_phy       = true,
+ };
+@@ -1457,7 +1449,7 @@ static int qcom_qmp_phy_enable(struct phy *phy)
+ 	void __iomem *pcs = qphy->pcs;
+ 	void __iomem *dp_com = qmp->dp_com;
+ 	void __iomem *status;
+-	unsigned int mask, val;
++	unsigned int mask, val, ready;
+ 	int ret;
+ 
+ 	dev_vdbg(qmp->dev, "Initializing QMP phy\n");
+@@ -1545,10 +1537,17 @@ static int qcom_qmp_phy_enable(struct phy *phy)
+ 	/* start SerDes and Phy-Coding-Sublayer */
+ 	qphy_setbits(pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
+ 
+-	status = pcs + cfg->regs[QPHY_PCS_READY_STATUS];
+-	mask = cfg->mask_pcs_ready;
++	if (cfg->type == PHY_TYPE_UFS) {
++		status = pcs + cfg->regs[QPHY_PCS_READY_STATUS];
++		mask = PCS_READY;
++		ready = PCS_READY;
++	} else {
++		status = pcs + cfg->regs[QPHY_PCS_STATUS];
++		mask = PHYSTATUS;
++		ready = 0;
++	}
+ 
+-	ret = readl_poll_timeout(status, val, val & mask, 10,
++	ret = readl_poll_timeout(status, val, (val & mask) == ready, 10,
+ 				 PHY_INIT_COMPLETE_TIMEOUT);
+ 	if (ret) {
+ 		dev_err(qmp->dev, "phy initialization timed-out\n");
+
