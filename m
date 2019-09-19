@@ -2,133 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E342B8159
-	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7166AB815D
+	for <lists+stable@lfdr.de>; Thu, 19 Sep 2019 21:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404363AbfISTYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 15:24:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33670 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404328AbfISTYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 15:24:02 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EA632053B;
-        Thu, 19 Sep 2019 19:23:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568921039;
-        bh=xAWSuDsna1+cgBRwZape3d7wA4r45lyjcxXafUA0+xk=;
-        h=Date:From:To:Subject:From;
-        b=ygdXpCBx0RoHQcUc4N0oeBbmjySGBlHgvX6wLEg3UKgH4+1kkWYYXCCvRuFfM4K4F
-         1p61U/GAaBNCLZa6KGCMXkHa2gsWjjOMqSWocVr5tEYYvRx+bocMLeFSw0uWymKfN7
-         WK8J7NEqkbvtl51ohLcThOwGQtxJJ9tR8jZlxqpg=
-Date:   Thu, 19 Sep 2019 12:23:59 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        shakeelb@google.com, markus.linnala@gmail.com,
-        henrywolfeburns@gmail.com, ddstreet@ieee.org, vitalywool@gmail.com
-Subject:  + z3fold-fix-memory-leak-in-kmem-cache.patch added to -mm
- tree
-Message-ID: <20190919192359.hYIdQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.11
+        id S2404422AbfISTZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 15:25:55 -0400
+Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:48207 "EHLO
+        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404419AbfISTZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Sep 2019 15:25:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1568921154; x=1600457154;
+  h=date:from:to:subject:message-id:mime-version;
+  bh=+SW9l7OSsW8indnPrZTGb9PIoiWsXbbY4wCLGLR3Pc8=;
+  b=oHiS+OXfRIbtKUILl5qAgwpmfDTLBdu7CQQQcr3UCPq0WfKVQ/5gqLmb
+   BzT7JB/lOAn+i2wF40nKBRwIkH0rsvw8uGgZIY7l1/H4oovwP/0jKpR+K
+   e03YA9wxAr+6X7kmTE/+TKwVnHBwtLu3WYv3y1wgTEWcg2Z67GdS9dqUP
+   A=;
+X-IronPort-AV: E=Sophos;i="5.64,524,1559520000"; 
+   d="scan'208";a="785880765"
+Received: from iad6-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2a-c5104f52.us-west-2.amazon.com) ([10.124.125.6])
+  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 19 Sep 2019 19:25:53 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2a-c5104f52.us-west-2.amazon.com (Postfix) with ESMTPS id ED444A2091
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 19:25:52 +0000 (UTC)
+Received: from EX13D10UWA004.ant.amazon.com (10.43.160.64) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Thu, 19 Sep 2019 19:25:52 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
+ EX13D10UWA004.ant.amazon.com (10.43.160.64) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Thu, 19 Sep 2019 19:25:51 +0000
+Received: from dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
+ (172.23.141.97) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
+ Server id 15.0.1367.3 via Frontend Transport; Thu, 19 Sep 2019 19:25:52 +0000
+Received: by dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com (Postfix, from userid 6262777)
+        id 35746C130D; Thu, 19 Sep 2019 19:25:52 +0000 (UTC)
+Date:   Thu, 19 Sep 2019 19:25:52 +0000
+From:   Frank van der Linden <fllinden@amazon.com>
+To:     <stable@vger.kernel.org>
+Subject: binfmt_elf patch [4.14, 4.19]
+Message-ID: <20190919192552.GA7060@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch titled
-     Subject: z3fold: fix memory leak in kmem cache
-has been added to the -mm tree.  Its filename is
-     z3fold-fix-memory-leak-in-kmem-cache.patch
+Please include the following patch in 4.14 and 4.19, where it applies
+cleanly and has been tested by us.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/z3fold-fix-memory-leak-in-kmem-cache.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/z3fold-fix-memory-leak-in-kmem-cache.patch
+commit bbdc6076d2e5d07db44e74c11b01a3e27ab90b32 upstream
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+("binfmt_elf: move brk out of mmap when doing direct loader exec")
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Thanks,
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Vitaly Wool <vitalywool@gmail.com>
-Subject: z3fold: fix memory leak in kmem cache
-
-Currently there is a leak in init_z3fold_page() -- it allocates handles
-from kmem cache even for headless pages, but then they are never used and
-never freed, so eventually kmem cache may get exhausted.  This patch
-provides a fix for that.
-
-Link: http://lkml.kernel.org/r/20190917185352.44cf285d3ebd9e64548de5de@gmail.com
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Reported-by: Markus Linnala <markus.linnala@gmail.com>
-Tested-by: Markus Linnala <markus.linnala@gmail.com>
-Cc: Dan Streetman <ddstreet@ieee.org>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/z3fold.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
---- a/mm/z3fold.c~z3fold-fix-memory-leak-in-kmem-cache
-+++ a/mm/z3fold.c
-@@ -295,14 +295,11 @@ static void z3fold_unregister_migration(
-  }
- 
- /* Initializes the z3fold header of a newly allocated z3fold page */
--static struct z3fold_header *init_z3fold_page(struct page *page,
-+static struct z3fold_header *init_z3fold_page(struct page *page, bool headless,
- 					struct z3fold_pool *pool, gfp_t gfp)
- {
- 	struct z3fold_header *zhdr = page_address(page);
--	struct z3fold_buddy_slots *slots = alloc_slots(pool, gfp);
--
--	if (!slots)
--		return NULL;
-+	struct z3fold_buddy_slots *slots;
- 
- 	INIT_LIST_HEAD(&page->lru);
- 	clear_bit(PAGE_HEADLESS, &page->private);
-@@ -310,6 +307,12 @@ static struct z3fold_header *init_z3fold
- 	clear_bit(NEEDS_COMPACTING, &page->private);
- 	clear_bit(PAGE_STALE, &page->private);
- 	clear_bit(PAGE_CLAIMED, &page->private);
-+	if (headless)
-+		return zhdr;
-+
-+	slots = alloc_slots(pool, gfp);
-+	if (!slots)
-+		return NULL;
- 
- 	spin_lock_init(&zhdr->page_lock);
- 	kref_init(&zhdr->refcount);
-@@ -930,7 +933,7 @@ retry:
- 	if (!page)
- 		return -ENOMEM;
- 
--	zhdr = init_z3fold_page(page, pool, gfp);
-+	zhdr = init_z3fold_page(page, bud == HEADLESS, pool, gfp);
- 	if (!zhdr) {
- 		__free_page(page);
- 		return -ENOMEM;
-_
-
-Patches currently in -mm which might be from vitalywool@gmail.com are
-
-revert-mm-z3foldc-fix-race-between-migration-and-destruction.patch
-z3fold-fix-retry-mechanism-in-page-reclaim.patch
-z3fold-fix-memory-leak-in-kmem-cache.patch
-
+- Frank
