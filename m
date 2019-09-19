@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F019B871B
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD947B86A1
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405879AbfISWdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:33:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49892 "EHLO mail.kernel.org"
+        id S2406169AbfISWPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:15:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393549AbfISWLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:11:14 -0400
+        id S2406192AbfISWPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:15:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B74F7218AF;
-        Thu, 19 Sep 2019 22:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AFC721907;
+        Thu, 19 Sep 2019 22:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931074;
-        bh=M8QDHlclBiqqcG4kczDfCX8BbuxFzi0ECb4PydXMguo=;
+        s=default; t=1568931345;
+        bh=hFYo/74gVn52eg42PNmX0qBZBecS71x9smF8rN55b5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHkd+9i1cDpkMZKg2D2AvyqxwLMUBaaERLTyE52WzUg6oN+4dG9JZZTzguIIyynxz
-         lMXt0YmOTXZk9EfQtSa5v7UvLZYj1wOJLovPy8iF8DCrvQd/ikC+dKDi+3kEXO/g1S
-         8zBS3Cz8NGKPPs03pWS1l5LXQiN4ac39EkLLZHvo=
+        b=VTuHtbOKzeS/MkdDV3ck+Y0+iqc4uKshKrFMmkTNQpVJ4Ih68p7ODrAtNFrTpxVzg
+         dwe8kwaB65vwM5PRZpTSjDLpMKsLyRgjStxPHV42UZYMgiyAT+eGULqmV78lql8Ypu
+         2zcrOwEmKuUaFalima+tjMTSYPgTOPy4JOaDM7Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 119/124] iommu/amd: Fix race in increase_address_space()
-Date:   Fri, 20 Sep 2019 00:03:27 +0200
-Message-Id: <20190919214823.506454697@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Huang <huangwenabc@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.comg>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 13/59] mwifiex: Fix three heap overflow at parsing element in cfg80211_ap_settings
+Date:   Fri, 20 Sep 2019 00:03:28 +0200
+Message-Id: <20190919214759.440150411@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-References: <20190919214819.198419517@linuxfoundation.org>
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+References: <20190919214755.852282682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Wen Huang <huangwenabc@gmail.com>
 
-[ Upstream commit 754265bcab78a9014f0f99cd35e0d610fcd7dfa7 ]
+commit 7caac62ed598a196d6ddf8d9c121e12e082cac3a upstream.
 
-After the conversion to lock-less dma-api call the
-increase_address_space() function can be called without any
-locking. Multiple CPUs could potentially race for increasing
-the address space, leading to invalid domain->mode settings
-and invalid page-tables. This has been happening in the wild
-under high IO load and memory pressure.
+mwifiex_update_vs_ie(),mwifiex_set_uap_rates() and
+mwifiex_set_wmm_params() call memcpy() without checking
+the destination size.Since the source is given from
+user-space, this may trigger a heap buffer overflow.
 
-Fix the race by locking this operation. The function is
-called infrequently so that this does not introduce
-a performance regression in the dma-api path again.
+Fix them by putting the length check before performing memcpy().
 
-Reported-by: Qian Cai <cai@lca.pw>
-Fixes: 256e4621c21a ('iommu/amd: Make use of the generic IOVA allocator')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix addresses CVE-2019-14814,CVE-2019-14815,CVE-2019-14816.
+
+Signed-off-by: Wen Huang <huangwenabc@gmail.com>
+Acked-by: Ganapathi Bhat <gbhat@marvell.comg>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/amd_iommu.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/ie.c      |    3 +++
+ drivers/net/wireless/marvell/mwifiex/uap_cmd.c |    9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index b265062edf6c8..3e687f18b203a 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1425,18 +1425,21 @@ static void free_pagetable(struct protection_domain *domain)
-  * another level increases the size of the address space by 9 bits to a size up
-  * to 64 bits.
-  */
--static bool increase_address_space(struct protection_domain *domain,
-+static void increase_address_space(struct protection_domain *domain,
- 				   gfp_t gfp)
- {
-+	unsigned long flags;
- 	u64 *pte;
+--- a/drivers/net/wireless/marvell/mwifiex/ie.c
++++ b/drivers/net/wireless/marvell/mwifiex/ie.c
+@@ -241,6 +241,9 @@ static int mwifiex_update_vs_ie(const u8
+ 		}
  
--	if (domain->mode == PAGE_MODE_6_LEVEL)
-+	spin_lock_irqsave(&domain->lock, flags);
-+
-+	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
- 		/* address space already 64 bit large */
--		return false;
-+		goto out;
+ 		vs_ie = (struct ieee_types_header *)vendor_ie;
++		if (le16_to_cpu(ie->ie_length) + vs_ie->len + 2 >
++			IEEE_MAX_IE_SIZE)
++			return -EINVAL;
+ 		memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
+ 		       vs_ie, vs_ie->len + 2);
+ 		le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
+--- a/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
++++ b/drivers/net/wireless/marvell/mwifiex/uap_cmd.c
+@@ -265,6 +265,8 @@ mwifiex_set_uap_rates(struct mwifiex_uap
  
- 	pte = (void *)get_zeroed_page(gfp);
- 	if (!pte)
--		return false;
-+		goto out;
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_SUPP_RATES, var_pos, len);
+ 	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES)
++			return;
+ 		memcpy(bss_cfg->rates, rate_ie + 1, rate_ie->len);
+ 		rate_len = rate_ie->len;
+ 	}
+@@ -272,8 +274,11 @@ mwifiex_set_uap_rates(struct mwifiex_uap
+ 	rate_ie = (void *)cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
+ 					   params->beacon.tail,
+ 					   params->beacon.tail_len);
+-	if (rate_ie)
++	if (rate_ie) {
++		if (rate_ie->len > MWIFIEX_SUPPORTED_RATES - rate_len)
++			return;
+ 		memcpy(bss_cfg->rates + rate_len, rate_ie + 1, rate_ie->len);
++	}
  
- 	*pte             = PM_LEVEL_PDE(domain->mode,
- 					iommu_virt_to_phys(domain->pt_root));
-@@ -1444,7 +1447,10 @@ static bool increase_address_space(struct protection_domain *domain,
- 	domain->mode    += 1;
- 	domain->updated  = true;
- 
--	return true;
-+out:
-+	spin_unlock_irqrestore(&domain->lock, flags);
-+
-+	return;
+ 	return;
  }
- 
- static u64 *alloc_pte(struct protection_domain *domain,
--- 
-2.20.1
-
+@@ -391,6 +396,8 @@ mwifiex_set_wmm_params(struct mwifiex_pr
+ 					    params->beacon.tail_len);
+ 	if (vendor_ie) {
+ 		wmm_ie = vendor_ie;
++		if (*(wmm_ie + 1) > sizeof(struct mwifiex_types_wmm_info))
++			return;
+ 		memcpy(&bss_cfg->wmm_info, wmm_ie +
+ 		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
+ 		priv->wmm_enabled = 1;
 
 
