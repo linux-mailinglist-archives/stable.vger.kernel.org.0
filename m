@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3ADB8569
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29EFB85D6
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 00:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390183AbfISWUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Sep 2019 18:20:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34990 "EHLO mail.kernel.org"
+        id S2407098AbfISWYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Sep 2019 18:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394045AbfISWUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Sep 2019 18:20:50 -0400
+        id S2407096AbfISWYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Sep 2019 18:24:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5487621907;
-        Thu, 19 Sep 2019 22:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EF9021920;
+        Thu, 19 Sep 2019 22:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1568931649;
-        bh=ZRhVAY8poZIYQ3cm+G/7kvP4iN1cLutesGG83mvRrbE=;
+        s=default; t=1568931841;
+        bh=oAccNfbSXfw152/LAL/LhbXvHUYErX5skTH3a8n2azk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAw7GchxMfuskaqOkw7QnfhxgJ+JNlY6egVRaiPyqi+gbAQd3rxLNcW89uCpUpymq
-         S71XYpvu/Dq1+O4qb+mOW5P7F0SnNE2lMGJkaY1XUnLugvi4y9qRGL6Lvo/37GiO9i
-         pdsJMRNLwoe256q0jAVbM7ZH/hzhHoRM/uTFb3Oc=
+        b=ZBRXdJP9P+4gJGkzlk7xpRVpXpY1FrRnrR/brT7T4o5uaepfUbZPCibx6vtuwvjB+
+         fSvkESuc6aDcWWLEozbEhao9LavcTNvrnkETGbNlabefShg6fixRyL37LTxBkKbPGF
+         SkaYZd56UnuDqf2/7/0JcH3/8BP+SuXV+X/Xjv3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, acme@kernel.org,
-        Josh Hunt <johunt@akamai.com>, bpuranda@akamai.com,
-        mingo@redhat.com, jolsa@redhat.com, tglx@linutronix.de,
-        namhyung@kernel.org, alexander.shishkin@linux.intel.com,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 63/74] perf/x86/intel: Restrict period on Nehalem
+Subject: [PATCH 4.4 35/56] s390/bpf: fix lcgr instruction encoding
 Date:   Fri, 20 Sep 2019 00:04:16 +0200
-Message-Id: <20190919214810.717652529@linuxfoundation.org>
+Message-Id: <20190919214757.771079796@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
-References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214742.483643642@linuxfoundation.org>
+References: <20190919214742.483643642@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Hunt <johunt@akamai.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 44d3bbb6f5e501b873218142fe08cdf62a4ac1f3 ]
+[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
 
-We see our Nehalem machines reporting 'perfevents: irq loop stuck!' in
-some cases when using perf:
+"masking, test in bounds 3" fails on s390, because
+BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
+BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
+The associated comment indicates that the code was intended to
+emit lcgr in the first place, it's just that the wrong opcode
+was used.
 
-perfevents: irq loop stuck!
-WARNING: CPU: 0 PID: 3485 at arch/x86/events/intel/core.c:2282 intel_pmu_handle_irq+0x37b/0x530
-...
-RIP: 0010:intel_pmu_handle_irq+0x37b/0x530
-...
-Call Trace:
-<NMI>
-? perf_event_nmi_handler+0x2e/0x50
-? intel_pmu_save_and_restart+0x50/0x50
-perf_event_nmi_handler+0x2e/0x50
-nmi_handle+0x6e/0x120
-default_do_nmi+0x3e/0x100
-do_nmi+0x102/0x160
-end_repeat_nmi+0x16/0x50
-...
-? native_write_msr+0x6/0x20
-? native_write_msr+0x6/0x20
-</NMI>
-intel_pmu_enable_event+0x1ce/0x1f0
-x86_pmu_start+0x78/0xa0
-x86_pmu_enable+0x252/0x310
-__perf_event_task_sched_in+0x181/0x190
-? __switch_to_asm+0x41/0x70
-? __switch_to_asm+0x35/0x70
-? __switch_to_asm+0x41/0x70
-? __switch_to_asm+0x35/0x70
-finish_task_switch+0x158/0x260
-__schedule+0x2f6/0x840
-? hrtimer_start_range_ns+0x153/0x210
-schedule+0x32/0x80
-schedule_hrtimeout_range_clock+0x8a/0x100
-? hrtimer_init+0x120/0x120
-ep_poll+0x2f7/0x3a0
-? wake_up_q+0x60/0x60
-do_epoll_wait+0xa9/0xc0
-__x64_sys_epoll_wait+0x1a/0x20
-do_syscall_64+0x4e/0x110
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fdeb1e96c03
-...
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: acme@kernel.org
-Cc: Josh Hunt <johunt@akamai.com>
-Cc: bpuranda@akamai.com
-Cc: mingo@redhat.com
-Cc: jolsa@redhat.com
-Cc: tglx@linutronix.de
-Cc: namhyung@kernel.org
-Cc: alexander.shishkin@linux.intel.com
-Link: https://lkml.kernel.org/r/1566256411-18820-1-git-send-email-johunt@akamai.com
+Fix by using the correct opcode.
+
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index e98e238d37750..55e362f9dbfaa 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -3075,6 +3075,11 @@ static u64 bdw_limit_period(struct perf_event *event, u64 left)
- 	return left;
- }
- 
-+static u64 nhm_limit_period(struct perf_event *event, u64 left)
-+{
-+	return max(left, 32ULL);
-+}
-+
- PMU_FORMAT_ATTR(event,	"config:0-7"	);
- PMU_FORMAT_ATTR(umask,	"config:8-15"	);
- PMU_FORMAT_ATTR(edge,	"config:18"	);
-@@ -3734,6 +3739,7 @@ __init int intel_pmu_init(void)
- 		x86_pmu.pebs_constraints = intel_nehalem_pebs_event_constraints;
- 		x86_pmu.enable_all = intel_pmu_nhm_enable_all;
- 		x86_pmu.extra_regs = intel_nehalem_extra_regs;
-+		x86_pmu.limit_period = nhm_limit_period;
- 
- 		x86_pmu.cpu_events = nhm_events_attrs;
- 
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 727693e283da2..e53d410e88703 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -886,7 +886,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		break;
+ 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
+ 		/* lcgr %dst,%dst */
+-		EMIT4(0xb9130000, dst_reg, dst_reg);
++		EMIT4(0xb9030000, dst_reg, dst_reg);
+ 		break;
+ 	/*
+ 	 * BPF_FROM_BE/LE
 -- 
 2.20.1
 
