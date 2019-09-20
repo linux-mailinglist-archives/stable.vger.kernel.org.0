@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EA6B91BE
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14EBB91C1
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388441AbfITOZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:25:17 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36938 "EHLO
+        id S2388451AbfITOZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:19 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36976 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388415AbfITOZR (ORCPT
+        by vger.kernel.org with ESMTP id S2388430AbfITOZR (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:17 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqT-0004xy-Jl; Fri, 20 Sep 2019 15:25:13 +0100
+        id 1iBJqU-0004xX-4H; Fri, 20 Sep 2019 15:25:14 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqE-0007tx-T1; Fri, 20 Sep 2019 15:24:58 +0100
+        id 1iBJqE-0007sF-3Q; Fri, 20 Sep 2019 15:24:58 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ladislav Michl" <ladis@linux-mips.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Oliver Neukum" <oneukum@suse.com>
+        "Miklos Szeredi" <mszeredi@redhat.com>,
+        "Antonio SJ Musumeci" <trapexit@spawn.link>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.572119509@decadent.org.uk>
+Message-ID: <lsq.1568989415.396561282@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 067/132] cdc-acm: store in and out pipes in acm structure
+Subject: [PATCH 3.16 046/132] fuse: fix writepages on 32bit
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,100 +46,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ladislav Michl <ladis@linux-mips.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 74bccc9b71dc41d37e73fcdbcbec85310a670751 upstream.
+commit 9de5be06d0a89ca97b5ab902694d42dfd2bb77d2 upstream.
 
-Clearing stall needs pipe descriptor, store it in acm structure.
+Writepage requests were cropped to i_size & 0xffffffff, which meant that
+mmaped writes to any file larger than 4G might be silently discarded.
 
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by storing the file size in a properly sized variable (loff_t instead
+of size_t).
+
+Reported-by: Antonio SJ Musumeci <trapexit@spawn.link>
+Fixes: 6eaf4782eb09 ("fuse: writepages: crop secondary requests")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/class/cdc-acm.c | 33 +++++++++++++++++----------------
- drivers/usb/class/cdc-acm.h |  1 +
- 2 files changed, 18 insertions(+), 16 deletions(-)
+ fs/fuse/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1355,8 +1355,16 @@ made_compressed_probe:
- 	spin_lock_init(&acm->read_lock);
- 	mutex_init(&acm->mutex);
- 	acm->is_int_ep = usb_endpoint_xfer_int(epread);
--	if (acm->is_int_ep)
-+	if (acm->is_int_ep) {
- 		acm->bInterval = epread->bInterval;
-+		acm->in = usb_rcvintpipe(usb_dev, epread->bEndpointAddress);
-+	} else {
-+		acm->in = usb_rcvbulkpipe(usb_dev, epread->bEndpointAddress);
-+	}
-+	if (usb_endpoint_xfer_int(epwrite))
-+		acm->out = usb_sndintpipe(usb_dev, epwrite->bEndpointAddress);
-+	else
-+		acm->out = usb_sndbulkpipe(usb_dev, epwrite->bEndpointAddress);
- 	tty_port_init(&acm->port);
- 	acm->port.ops = &acm_port_ops;
- 	init_usb_anchor(&acm->delayed);
-@@ -1401,20 +1409,15 @@ made_compressed_probe:
- 		}
- 		urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
- 		urb->transfer_dma = rb->dma;
--		if (acm->is_int_ep) {
--			usb_fill_int_urb(urb, acm->dev,
--					 usb_rcvintpipe(usb_dev, epread->bEndpointAddress),
--					 rb->base,
-+		if (acm->is_int_ep)
-+			usb_fill_int_urb(urb, acm->dev, acm->in, rb->base,
- 					 acm->readsize,
- 					 acm_read_bulk_callback, rb,
- 					 acm->bInterval);
--		} else {
--			usb_fill_bulk_urb(urb, acm->dev,
--					  usb_rcvbulkpipe(usb_dev, epread->bEndpointAddress),
--					  rb->base,
-+		else
-+			usb_fill_bulk_urb(urb, acm->dev, acm->in, rb->base,
- 					  acm->readsize,
- 					  acm_read_bulk_callback, rb);
--		}
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1597,7 +1597,7 @@ __acquires(fc->lock)
+ {
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 	struct fuse_inode *fi = get_fuse_inode(inode);
+-	size_t crop = i_size_read(inode);
++	loff_t crop = i_size_read(inode);
+ 	struct fuse_req *req;
  
- 		acm->read_urbs[i] = urb;
- 		__set_bit(i, &acm->read_urbs_free);
-@@ -1430,12 +1433,10 @@ made_compressed_probe:
- 		}
- 
- 		if (usb_endpoint_xfer_int(epwrite))
--			usb_fill_int_urb(snd->urb, usb_dev,
--				usb_sndintpipe(usb_dev, epwrite->bEndpointAddress),
-+			usb_fill_int_urb(snd->urb, usb_dev, acm->out,
- 				NULL, acm->writesize, acm_write_bulk, snd, epwrite->bInterval);
- 		else
--			usb_fill_bulk_urb(snd->urb, usb_dev,
--				usb_sndbulkpipe(usb_dev, epwrite->bEndpointAddress),
-+			usb_fill_bulk_urb(snd->urb, usb_dev, acm->out,
- 				NULL, acm->writesize, acm_write_bulk, snd);
- 		snd->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
- 		if (quirks & SEND_ZERO_PACKET)
-@@ -1504,8 +1505,8 @@ skip_countries:
- 	}
- 
- 	if (quirks & CLEAR_HALT_CONDITIONS) {
--		usb_clear_halt(usb_dev, usb_rcvbulkpipe(usb_dev, epread->bEndpointAddress));
--		usb_clear_halt(usb_dev, usb_sndbulkpipe(usb_dev, epwrite->bEndpointAddress));
-+		usb_clear_halt(usb_dev, acm->in);
-+		usb_clear_halt(usb_dev, acm->out);
- 	}
- 
- 	return 0;
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -83,6 +83,7 @@ struct acm {
- 	struct usb_device *dev;				/* the corresponding usb device */
- 	struct usb_interface *control;			/* control interface */
- 	struct usb_interface *data;			/* data interface */
-+	unsigned in, out;				/* i/o pipes */
- 	struct tty_port port;			 	/* our tty port data */
- 	struct urb *ctrlurb;				/* urbs */
- 	u8 *ctrl_buffer;				/* buffers of urbs */
+ 	while (fi->writectr >= 0 && !list_empty(&fi->queued_writes)) {
 
