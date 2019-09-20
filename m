@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E3AB9281
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4664B928B
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389795AbfITOc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:32:56 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36420 "EHLO
+        id S2391569AbfITOdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:33:40 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36332 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388259AbfITOZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:09 -0400
+        by vger.kernel.org with ESMTP id S2388235AbfITOZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-00051F-U6; Fri, 20 Sep 2019 15:25:02 +0100
+        id 1iBJqL-00051F-2b; Fri, 20 Sep 2019 15:25:05 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007yD-62; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqH-0007yw-FZ; Fri, 20 Sep 2019 15:25:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "ruippan" <ruippan@tencent.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "yongduan" <yongduan@tencent.com>,
-        "Tyler Hicks" <tyhicks@canonical.com>,
-        "Lidong Chen" <lidongchen@tencent.com>
+        "Oliver Neukum" <oneukum@suse.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.700934050@decadent.org.uk>
+Message-ID: <lsq.1568989415.19241258@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 112/132] vhost: make sure log_num < in_num
+Subject: [PATCH 3.16 121/132] USB: sisusbvga: fix oops in error path of
+ sisusb_probe
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,52 +48,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: yongduan <yongduan@tencent.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4 upstream.
+commit 9a5729f68d3a82786aea110b1bfe610be318f80a upstream.
 
-The code assumes log_num < in_num everywhere, and that is true as long as
-in_num is incremented by descriptor iov count, and log_num by 1. However
-this breaks if there's a zero sized descriptor.
+The pointer used to log a failure of usb_register_dev() must
+be set before the error is logged.
 
-As a result, if a malicious guest creates a vring desc with desc.len = 0,
-it may cause the host kernel to crash by overflowing the log array. This
-bug can be triggered during the VM migration.
+v2: fix that minor is not available before registration
 
-There's no need to log when desc.len = 0, so just don't increment log_num
-in this case.
-
-Fixes: 3a4d5c94e959 ("vhost_net: a kernel-level virtio server")
-Reviewed-by: Lidong Chen <lidongchen@tencent.com>
-Signed-off-by: ruippan <ruippan@tencent.com>
-Signed-off-by: yongduan <yongduan@tencent.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-[bwh: Backported to 3.16: adjust context]
+Signed-off-by: oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
+Fixes: 7b5cd5fefbe02 ("USB: SisUSB2VGA: Convert printk to dev_* macros")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/vhost/vhost.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/misc/sisusbvga/sisusb.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1194,7 +1194,7 @@ static int get_indirect(struct vhost_vir
- 		/* If this is an input descriptor, increment that count. */
- 		if (desc.flags & VRING_DESC_F_WRITE) {
- 			*in_num += ret;
--			if (unlikely(log)) {
-+			if (unlikely(log && ret)) {
- 				log[*log_num].addr = desc.addr;
- 				log[*log_num].len = desc.len;
- 				++*log_num;
-@@ -1317,7 +1317,7 @@ int vhost_get_vq_desc(struct vhost_virtq
- 			/* If this is an input descriptor,
- 			 * increment that count. */
- 			*in_num += ret;
--			if (unlikely(log)) {
-+			if (unlikely(log && ret)) {
- 				log[*log_num].addr = desc.addr;
- 				log[*log_num].len = desc.len;
- 				++*log_num;
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -3093,6 +3093,13 @@ static int sisusb_probe(struct usb_inter
+ 
+ 	mutex_init(&(sisusb->lock));
+ 
++	sisusb->sisusb_dev = dev;
++	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
++	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
++	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
++	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
++	/* Everything else is zero */
++
+ 	/* Register device */
+ 	if ((retval = usb_register_dev(intf, &usb_sisusb_class))) {
+ 		dev_err(&sisusb->sisusb_dev->dev, "Failed to get a minor for device %d\n",
+@@ -3101,13 +3108,7 @@ static int sisusb_probe(struct usb_inter
+ 		goto error_1;
+ 	}
+ 
+-	sisusb->sisusb_dev = dev;
+-	sisusb->minor      = intf->minor;
+-	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
+-	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
+-	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
+-	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
+-	/* Everything else is zero */
++	sisusb->minor = intf->minor;
+ 
+ 	/* Allocate buffers */
+ 	sisusb->ibufsize = SISUSB_IBUF_SIZE;
 
