@@ -2,285 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 968EAB8AF3
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 08:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7023B8B3E
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 08:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394796AbfITGR4 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 20 Sep 2019 02:17:56 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55330 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394795AbfITGR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Sep 2019 02:17:56 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BFA0D30821EC
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 06:17:55 +0000 (UTC)
-Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4B1C65C1B5;
-        Fri, 20 Sep 2019 06:17:53 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1732507AbfITGsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 02:48:51 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35126 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732492AbfITGsv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 02:48:51 -0400
+Received: by mail-lj1-f193.google.com with SMTP id m7so6005428lji.2
+        for <stable@vger.kernel.org>; Thu, 19 Sep 2019 23:48:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=173BRYZ9x6alpIPcRk5BJ9zuLWX/VdslH4Vu4ViMU1Y=;
+        b=lbD1WO7yB7R0dOyl7OmpRWseR1LK7WwUOgSugKroU0fSXGSeZ1Dlk+VAzDSRFbQVwD
+         SlblZ8+sDwPbsEmvVhpD/mPFN4SYlJcFbDpH8IUpKLWcCKWL7jHVSbCFuiMlWdrO7KRU
+         xdDi4MZTA/kevzKBc7/hdNiR903uJlSS3kWLhDpFI3kALsHwFlFnlEEnCBKrswZA5pGb
+         AJbPp12YrXk2nCYfRDOeA2BwZ7moqQi4LWb0RGLx/WDCzgbF7gUcM+amuBLaoCv+Cg3s
+         oZReIH4ghk6uP4WtG5+DTOmAzBfQ80GUrSipGL3XPQKGl/Ww0nCHHAHNfN13/37lCqS0
+         Frqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=173BRYZ9x6alpIPcRk5BJ9zuLWX/VdslH4Vu4ViMU1Y=;
+        b=YUgFLCK2IJNHhhLegEYzmAgkcP+zAwBQoNM1vm0rFtKZbwU3BDJ4Rr5mncsisSiO3T
+         6aM1bQPWSd7m+PGyNmL8vIqdm2BOf/yryMuufkf2vto1Ag6bbETlcUK0W/vEeoPY3Zzk
+         61V3er//7qShSoYvCPM2C1UzK78klgn2XFOda7Vg3H5pFkT8CRkJ0o5YZgLFR1o86US2
+         X7xIN1zMdamIMPigjdpTcwzsrh10JXqlhMVcxGa/24oHo2fD3MlIkMJ6MoGLYDhC2jiW
+         3pF3D9ivvOEuQVsrCPUlTw26aPg5rnwvgGjrgbw3CXLWmjYrQzrFLbbMf8Bc9/f9/YqU
+         /3EA==
+X-Gm-Message-State: APjAAAUeBbR/43A4aqOV6z0WTUEXEDFzalmECik7XApE77uYZ/lYde1g
+        cVacalS0hIxt3Que9ZObqLeEEQ2lwwjIYlkIgcz4QCzCDlQ=
+X-Google-Smtp-Source: APXvYqy/EI/T6YZeS+T/wiUshJbbv0BS+oknh5gi9c07Kohq2IOkrIK8RpvPqb0wVdusqLrUrRHO6ouMOf3JGWpsZ1c=
+X-Received: by 2002:a2e:a178:: with SMTP id u24mr7912665ljl.149.1568962127988;
+ Thu, 19 Sep 2019 23:48:47 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
-Message-ID: <cki.48E53F3DD7.27SXVY8THK@redhat.com>
-X-Gitlab-Pipeline-ID: 175429
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/175429
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 20 Sep 2019 06:17:55 +0000 (UTC)
-Date:   Fri, 20 Sep 2019 02:17:56 -0400
+References: <20190919214800.519074117@linuxfoundation.org>
+In-Reply-To: <20190919214800.519074117@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 20 Sep 2019 12:18:36 +0530
+Message-ID: <CA+G9fYuxXBBPU6HfQBa+zhQRzTS+DzUcXvw4zt6-Fz_fBS0wiQ@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/74] 4.9.194-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 20 Sep 2019 at 03:50, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.194 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.194-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Hello,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Summary
+------------------------------------------------------------------------
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 1e2ba4a74fa7 - Linux 5.2.16
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/175429
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 1e2ba4a74fa7 - Linux 5.2.16
-
-
-We grabbed the 0f46b1a42fe1 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  usb-usbcore-fix-slab-out-of-bounds-bug-during-device-reset.patch
-  media-tm6000-double-free-if-usb-disconnect-while-streaming.patch
-  phy-renesas-rcar-gen3-usb2-disable-clearing-vbus-in-over-current.patch
-  net-hns3-adjust-hns3_uninit_phy-s-location-in-the-hns3_client_uninit.patch
-  netfilter-nf_flow_table-set-default-timeout-after-successful-insertion.patch
-  hid-wacom-generic-read-hid_dg_contactmax-from-any-feature-report.patch
-  input-elan_i2c-remove-lenovo-legion-y7000-pnpid.patch
-  sunrpc-handle-connection-breakages-correctly-in-call_status.patch
-  media-stm32-dcmi-fix-irq-0-case.patch
-  nfs-disable-client-side-deduplication.patch
-  powerpc-mm-radix-use-the-right-page-size-for-vmemmap-mapping.patch
-  scripts-decode_stacktrace-match-basepath-using-shell-prefix-operator-not-regex.patch
-  net-hns-fix-led-configuration-for-marvell-phy.patch
-  net-aquantia-fix-limit-of-vlan-filters.patch
-  ip6_gre-fix-a-dst-leak-in-ip6erspan_tunnel_xmit.patch
-  net-sched-fix-race-between-deactivation-and-dequeue-for-nolock-qdisc.patch
-  net_sched-let-qdisc_put-accept-null-pointer.patch
-  udp-correct-reuseport-selection-with-connected-sockets.patch
-  xen-netfront-do-not-assume-sk_buff_head-list-is-empty-in-error-handling.patch
-  net-dsa-fix-load-order-between-dsa-drivers-and-taggers.patch
-  kvm-coalesced_mmio-add-bounds-checking.patch
-  firmware-google-check-if-size-is-valid-when-decoding-vpd-data.patch
-  serial-sprd-correct-the-wrong-sequence-of-arguments.patch
-  tty-serial-atmel-reschedule-tx-after-rx-was-started.patch
-  mwifiex-fix-three-heap-overflow-at-parsing-element-in-cfg80211_ap_settings.patch
-  nl80211-fix-possible-spectre-v1-for-cqm-rssi-thresholds.patch
-  ieee802154-hwsim-fix-error-handle-path-in-hwsim_init.patch
-  ieee802154-hwsim-unregister-hw-while-hwsim_subscribe.patch
-  arm-dts-am57xx-disable-voltage-switching-for-sd-card.patch
-  arm-omap2-fix-missing-sysc_has_reset_status-for-dra7.patch
-  bus-ti-sysc-fix-handling-of-forced-idle.patch
-  bus-ti-sysc-fix-using-configured-sysc-mask-value.patch
-  arm-dts-fix-flags-for-gpio7.patch
-  arm-dts-fix-incorrect-dcan-register-mapping-for-am3-.patch
-  arm64-dts-meson-g12a-add-missing-dwc2-phy-names.patch
-  s390-bpf-fix-lcgr-instruction-encoding.patch
-  arm-omap2-fix-omap4-errata-warning-on-other-socs.patch
-  arm-dts-am335x-fix-uarts-length.patch
-  arm-dts-dra74x-fix-iodelay-configuration-for-mmc3.patch
-  arm-omap1-ams-delta-fiq-fix-missing-irq_ack.patch
-  bus-ti-sysc-simplify-cleanup-upon-failures-in-sysc_p.patch
-  arm-dts-fix-incomplete-dts-data-for-am3-and-am4-mmc.patch
-  s390-bpf-use-32-bit-index-for-tail-calls.patch
-  selftests-bpf-fix-bind-4-6-deny-specific-ip-port-on-.patch
-  tools-bpftool-close-prog-fd-before-exit-on-showing-a.patch
-  fpga-altera-ps-spi-fix-getting-of-optional-confd-gpi.patch
-  netfilter-ebtables-fix-argument-order-to-add_counter.patch
-  netfilter-nft_flow_offload-missing-netlink-attribute.patch
-  netfilter-xt_nfacct-fix-alignment-mismatch-in-xt_nfa.patch
-  nfsv4-fix-return-values-for-nfs4_file_open.patch
-  nfsv4-fix-return-value-in-nfs_finish_open.patch
-  nfs-fix-initialisation-of-i-o-result-struct-in-nfs_p.patch
-  nfs-on-fatal-writeback-errors-we-need-to-call-nfs_in.patch
-  kconfig-fix-the-reference-to-the-idt77105-phy-driver.patch
-  xdp-unpin-xdp-umem-pages-in-error-path.patch
-  selftests-bpf-fix-test_cgroup_storage-on-s390.patch
-  selftests-bpf-add-config-fragment-bpf_jit.patch
-  qed-add-cleanup-in-qed_slowpath_start.patch
-  drm-omap-fix-port-lookup-for-sdi-output.patch
-  drm-virtio-use-virtio_max_dma_size.patch
-  arm-8874-1-mm-only-adjust-sections-of-valid-mm-struc.patch
-  batman-adv-only-read-ogm2-tvlv_len-after-buffer-len-.patch
-  flow_dissector-fix-potential-use-after-free-on-bpf_p.patch
-  bpf-allow-narrow-loads-of-some-sk_reuseport_md-field.patch
-  r8152-set-memory-to-all-0xffs-on-failed-reg-reads.patch
-  x86-apic-fix-arch_dynirq_lower_bound-bug-for-dt-enab.patch
-  pnfs-flexfiles-don-t-time-out-requests-on-hard-mount.patch
-  nfs-fix-spurious-eio-read-errors.patch
-  nfs-fix-writepage-s-error-handling-to-not-report-err.patch
-  drm-amdgpu-fix-dma_fence_wait-without-reference.patch
-  netfilter-xt_physdev-fix-spurious-error-message-in-p.patch
-  netfilter-nf_conntrack_ftp-fix-debug-output.patch
-  nfsv2-fix-eof-handling.patch
-  nfsv2-fix-write-regression.patch
-  nfs-remove-set-but-not-used-variable-mapping.patch
-  kallsyms-don-t-let-kallsyms_lookup_size_offset-fail-.patch
-  netfilter-conntrack-make-sysctls-per-namespace-again.patch
-  drm-amd-powerplay-correct-vega20-dpm-level-related-s.patch
-  cifs-set-domainname-when-a-domain-key-is-used-in-mul.patch
-  cifs-use-kzfree-to-zero-out-the-password.patch
-  libceph-don-t-call-crypto_free_sync_skcipher-on-a-nu.patch
-  usb-host-xhci-tegra-set-dma-mask-correctly.patch
-  risc-v-fix-fixmap-area-corruption-on-rv32-systems.patch
-  arm-8901-1-add-a-criteria-for-pfn_valid-of-arm.patch
-  ibmvnic-do-not-process-reset-during-or-after-device-.patch
-  sky2-disable-msi-on-yet-another-asus-boards-p6xxxx.patch
-  i2c-designware-synchronize-irqs-when-unregistering-s.patch
-  perf-x86-intel-restrict-period-on-nehalem.patch
-  perf-x86-amd-ibs-fix-sample-bias-for-dispatched-micr.patch
-  i2c-iproc-stop-advertising-support-of-smbus-quick-cm.patch
-  i2c-mediatek-disable-zero-length-transfers-for-mt818.patch
-  amd-xgbe-fix-error-path-in-xgbe_mod_init.patch
-  netfilter-nf_flow_table-clear-skb-tstamp-before-xmit.patch
-  tools-power-x86_energy_perf_policy-fix-uninitialized.patch
-  tools-power-x86_energy_perf_policy-fix-argument-pars.patch
-  tools-power-turbostat-fix-leak-of-file-descriptor-on.patch
-  tools-power-turbostat-fix-file-descriptor-leaks.patch
-  tools-power-turbostat-fix-buffer-overrun.patch
-  tools-power-turbostat-fix-haswell-core-systems.patch
-  tools-power-turbostat-add-ice-lake-nnpi-support.patch
-  tools-power-turbostat-fix-cpu-c1-display-value.patch
-  net-aquantia-fix-removal-of-vlan-0.patch
-  net-aquantia-reapply-vlan-filters-on-up.patch
-  net-aquantia-linkstate-irq-should-be-oneshot.patch
-  net-aquantia-fix-out-of-memory-condition-on-rx-side.patch
-  net-dsa-microchip-add-ksz8563-compatibility-string.patch
-  enetc-add-missing-call-to-pci_free_irq_vectors-in-pr.patch
-  net-seeq-fix-the-function-used-to-release-some-memor.patch
-  arm64-dts-renesas-r8a77995-draak-fix-backlight-regul.patch
-  dmaengine-ti-dma-crossbar-fix-a-memory-leak-bug.patch
-  dmaengine-ti-omap-dma-add-cleanup-in-omap_dma_probe.patch
-  x86-uaccess-don-t-leak-the-ac-flags-into-__get_user-.patch
-  x86-hyper-v-fix-overflow-bug-in-fill_gva_list.patch
-  iommu-vt-d-remove-global-page-flush-support.patch
-  dmaengine-sprd-fix-the-dma-link-list-configuration.patch
-  dmaengine-rcar-dmac-fix-dmachclr-handling-if-iommu-i.patch
-  keys-fix-missing-null-pointer-check-in-request_key_a.patch
-  iommu-amd-flush-old-domains-in-kdump-kernel.patch
-  iommu-amd-fix-race-in-increase_address_space.patch
-  revert-arm64-remove-unnecessary-isbs-from-set_-pte-pmd-pud.patch
-  ovl-fix-regression-caused-by-overlapping-layers-detection.patch
-  floppy-fix-usercopy-direction.patch
-  media-technisat-usb2-break-out-of-loop-at-end-of-buffer.patch
-  vfs-fix-refcounting-of-filenames-in-fs_parser.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+kernel: 4.9.194-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: febb363e252bd50629d7efc675ba30286a33f209
+git describe: v4.9.193-75-gfebb363e252b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.193-75-gfebb363e252b
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+No regressions (compared to build v4.9.193)
 
-  aarch64:
-      Host 1:
 
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
+No fixes (compared to build v4.9.193)
 
-         ⚡⚡⚡ Boot test
-         ⚡⚡⚡ xfstests: xfs
-         ⚡⚡⚡ selinux-policy: serge-testsuite
-         🚧 ⚡⚡⚡ Storage blktests
+Ran 21866 total tests in the following environments and test suites.
 
-      Host 2:
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* perf
+* kvm-unit-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
 
-         ⚡⚡⚡ Boot test
-         ⚡⚡⚡ Podman system integration test (as root)
-         ⚡⚡⚡ Podman system integration test (as user)
-         ⚡⚡⚡ Loopdev Sanity
-         ⚡⚡⚡ jvm test suite
-         ⚡⚡⚡ AMTU (Abstract Machine Test Utility)
-         ⚡⚡⚡ LTP: openposix test suite
-         ⚡⚡⚡ Ethernet drivers sanity
-         ⚡⚡⚡ Networking socket: fuzz
-         ⚡⚡⚡ Networking UDP: socket
-         ⚡⚡⚡ Networking tunnel: gre basic
-         ⚡⚡⚡ audit: audit testsuite test
-         ⚡⚡⚡ httpd: mod_ssl smoke sanity
-         ⚡⚡⚡ iotop: sanity
-         ⚡⚡⚡ tuned: tune-processes-through-perf
-         ⚡⚡⚡ Usex - version 1.9-29
-         ⚡⚡⚡ stress: stress-ng
-         🚧 ⚡⚡⚡ LTP lite
-         🚧 ⚡⚡⚡ CIFS Connectathon
-         🚧 ⚡⚡⚡ Networking bridge: sanity
-
-  ppc64le:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+--=20
+Linaro LKFT
+https://lkft.linaro.org
