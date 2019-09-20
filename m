@@ -2,115 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A589AB94A1
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 17:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E562CB94CB
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 18:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404637AbfITPzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 11:55:39 -0400
-Received: from mo4-p02-ob.smtp.rzone.de ([85.215.255.82]:10280 "EHLO
-        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404245AbfITPzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 11:55:39 -0400
-X-Greylist: delayed 327 seconds by postgrey-1.27 at vger.kernel.org; Fri, 20 Sep 2019 11:55:37 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1568994936;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=uUMbCnYSLXnGdgjLVbP4VbN11g3hGGb6cdy/jR7kWKU=;
-        b=YYnvNrszAMBNzWybl7WI00EEtYBWeVGt0g9xswUI0lSgDvbVY3nxU9Uj0bHS9xq9pi
-        rLgBeZYj2scIo9MGFIfW7AFFh1XEY0f4Zmu9MS75s/p3KQhx6RKsos3O1IRRQDFbyU5k
-        eysXpSbr37FEUr2Wuq6uk/eV0nPnx7WTkERCpvlIeYyg78EcWsPLElOMJ52fmJxjz8/b
-        /Oz7nOo6rDL1Ppv4Xemnb+FEujTJwu2TMIm1cwQr6x3V4PsfCSOIjVDKY7L4DbwYIsU+
-        Ms+cmPgr7LnLAyrb9x8hy8P2DWceoVBnbjRDJUT7a5CoMrFb/oPfb9s6NajusmRuhYrC
-        awAQ==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrpwDCpeWQ="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 44.27.0 DYNA|AUTH)
-        with ESMTPSA id u036f9v8KFtUpEA
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
-        (Client did not present a certificate);
-        Fri, 20 Sep 2019 17:55:30 +0200 (CEST)
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <96E62EC2-2A3E-4722-A9DE-3F320B0A98B0@goldelico.com>
-Date:   Fri, 20 Sep 2019 17:55:30 +0200
-Cc:     Andreas Kemnade <andreas@kemnade.info>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
-        Linux-OMAP <linux-omap@vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <9FCCE3A0-6223-44EC-868D-76018B6F5CD5@goldelico.com>
-References: <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com> <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com> <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com> <20190831084852.5e726cfa@aktux> <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com> <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com> <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com> <CACRpkdZvpPOM1Ug-=GHf7Z-2VEbJz3Cuo7+0yDFuNm5ShXK8=Q@mail.gmail.com> <7DF102BC-C818-4D27-988F-150C7527E6CC@goldelico.com> <20190920142059.GO5610@atomide.com> <633E7AD9-A909-4619-BBD7-8CFD965FDFF7@goldelico.com> <20190920172947.51c1fdec@aktux> <96E62EC2-2A3E-4722-A9DE-3F320B0A98B0@goldelico.com>
-To:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>
-X-Mailer: Apple Mail (2.3124)
+        id S1729279AbfITQBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 12:01:40 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:11671 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727529AbfITQBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 12:01:40 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d84f7e90000>; Fri, 20 Sep 2019 09:01:45 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 20 Sep 2019 09:01:39 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 20 Sep 2019 09:01:39 -0700
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 20 Sep
+ 2019 16:01:39 +0000
+Received: from [10.21.132.148] (172.20.13.39) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 20 Sep
+ 2019 16:01:37 +0000
+Subject: Re: [PATCH 5.3 00/21] 5.3.1-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190919214657.842130855@linuxfoundation.org>
+ <572eca6e-47a9-c554-c6b2-bafd4c5df18b@nvidia.com>
+ <20190920142432.GA601228@kroah.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <773b556a-acc2-c3e0-14e6-956a6d0b3bed@nvidia.com>
+Date:   Fri, 20 Sep 2019 17:01:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+MIME-Version: 1.0
+In-Reply-To: <20190920142432.GA601228@kroah.com>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1568995305; bh=EPR13tILB3K8Yx+WgxSj+hc46Ns/lHPYAWSp7VVIJJI=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=CCA7MsxHdNMhwXukhCp4TyXgwfOTT/a9Miro5qHbLhq2Nf8Uz3EXaKHNt/ItQULwy
+         1LFJqJdei6sM5d4zidDc3lQuFuoxeLN8z3AAnsLR3Rdl7XZycFLdZ6nUQS2OnlwrMt
+         kCoFTxvhjy3lsn1IDXexckeTADH8HZFqpuhwv29Q3bBPEV6YVLAvZVKaTBHbme/0Gb
+         Rcaje/gXs5YssoOUteszu8MKBR9rDZlERZV2tdAdW6LsP8tD+KMmXazL4Gzzto6a6H
+         q7k+1Z3L4D3ANzswapSTLsm4hS5gS0sJKj3V4OQXcne/XHXh2xLMxnmilViGQdGf4+
+         zoyXAHQpAVSDQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-> Am 20.09.2019 um 17:50 schrieb H. Nikolaus Schaller =
-<hns@goldelico.com>:
->=20
->=20
->> Am 20.09.2019 um 17:29 schrieb Andreas Kemnade =
-<andreas@kemnade.info>:
->>=20
->> On Fri, 20 Sep 2019 16:54:18 +0200
->> "H. Nikolaus Schaller" <hns@goldelico.com> wrote:
->>=20
->>>> Am 20.09.2019 um 16:20 schrieb Tony Lindgren <tony@atomide.com>:
->>>>=20
->>>> * H. Nikolaus Schaller <hns@goldelico.com> [190920 09:19]: =20
->>>>>> Am 20.09.2019 um 10:55 schrieb Linus Walleij =
-<linus.walleij@linaro.org>:
->>>>>> I suggest to go both way:
->>>>>> apply this oneliner and tag for stable so that GTA04 works
->>>>>> again.
->>>>>>=20
->>>>>> Then for the next kernel think about a possible more abitious
->>>>>> whitelist solution and after adding that remove *all* =
-"spi-cs-high"
->>>>>> flags from all device trees in the kernel after fixing them
->>>>>> all up. =20
->>>>>=20
->>>>> Ok, that looks like a viable path. =20
->>>>=20
->>>> Please repost the oneline so people can ack easily. At least
->>>> I've already lost track of this thread. =20
->>>=20
->>> It is all here:
->>>=20
->>> https://patchwork.kernel.org/patch/11035253/
->>>=20
->> It is the full one (incl. documentation), not the oneline and does =
-not
->> apply.
->=20
-> Looks as if it was sitting too long in the queue and linux-next has =
-changed
-> the basis in the meantime, while v5.3 has not yet.
->=20
-> Documentation/devicetree/bindings/spi/spi-bus.txt -> =
-spi-controller.yaml
->=20
-> So it should still apply for v5.3.1 and earlier and we need both =
-versions.
-> One for stable and one for linux-next. I don't know how to handle such =
-cases.
+On 20/09/2019 15:24, Greg Kroah-Hartman wrote:
+> On Fri, Sep 20, 2019 at 02:54:26PM +0100, Jon Hunter wrote:
+>>
+>> On 19/09/2019 23:03, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.3.1 release.
+>>> There are 21 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.1-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> No new regressions* for Tegra ...
+>>
+>> Test results for stable-v5.3:
+>>     12 builds:	12 pass, 0 fail
+>>     22 boots:	22 pass, 0 fail
+>>     38 tests:	37 pass, 1 fail
+>>
+>> Linux version:	5.3.1-rc1-g0aa7f3d6baae
+>> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>>                 tegra194-p2972-0000, tegra20-ventana,
+>>                 tegra210-p2371-2180, tegra30-cardhu-a04
+>>
+>> * Note we had one regression in v5.3 for a warnings test for Tegra194
+>>   causing the above test failure. This has since been fixed by the
+>>   following commits [0] but given it is just a warning, I have not
+>>   bothered CC'ing for stable.
+>>
+>> Cheers
+>> Jon
+>>
+>> [0] https://lkml.org/lkml/2019/8/21/602
+> 
+> I'll be glad to take this in stable for 5.3.y, what is the git commit
+> id?
 
-Ok, here is a correction of this statement:
+OK, that would be great. The IDs are ...
 
-It applies fine to v5.2 and v5.3 already uses the spi-controller.yaml
+commit 763719771e84b8c8c2f53af668cdc905faa608de
+Author: Jon Hunter <jonathanh@nvidia.com>
+Date:   Wed Aug 21 16:02:40 2019 +0100
 
+    clocksource/drivers/timer-of: Do not warn on deferred probe
+
+
+commit 14e019df1e64c8b19ce8e0b3da25b6f40c8716be
+Author: Jon Hunter <jonathanh@nvidia.com>
+Date:   Wed Aug 21 16:02:41 2019 +0100
+
+    clocksource/drivers: Do not warn on probe defer
+
+
+> Also, thanks for testing all of these and letting me know.
+
+No problem!
+
+Cheers
+Jon
+
+-- 
+nvpublic
