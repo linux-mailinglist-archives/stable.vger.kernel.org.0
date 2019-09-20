@@ -2,80 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 608A7B8EC3
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 13:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8715B8EE5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 13:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438136AbfITLCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 07:02:15 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:59282 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2438135AbfITLCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 07:02:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=TvSJPXCNUj0sKtwLV+ZZRK3DKaY/Th/BDTAKK7SPRmI=; b=tFnaNCfFVD5quhenDzNWlPLBG
-        H1xR7Ud+5LuOoeOUM1tufkeG1zX+z7B13lZOVDrq0n/h50BtlvgUZbCNfLo71wEfUnHvJylKDJnKH
-        JVPaH2d6OIxUuxi3/Y8tZob3xE5cXJnuxTmfZ2uYN9+5Thph8DtRipWc/HVyLQ27OCZPc=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iBGfv-0001bE-Nx; Fri, 20 Sep 2019 11:02:07 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id D53BD274293C; Fri, 20 Sep 2019 12:02:06 +0100 (BST)
-Date:   Fri, 20 Sep 2019 12:02:06 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Mason Yang <masonccyang@mxic.com.tw>,
-        Julien Su <juliensu@mxic.com.tw>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] spi: mxic: Fix transmit path
-Message-ID: <20190920110206.GC3822@sirena.co.uk>
-References: <20190919202504.9619-1-miquel.raynal@bootlin.com>
+        id S2392182AbfITLUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 07:20:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:57778 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392160AbfITLUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 07:20:53 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 0657D80E74; Fri, 20 Sep 2019 13:20:36 +0200 (CEST)
+Date:   Fri, 20 Sep 2019 13:20:51 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Igor Russkikh <igor.russkikh@aquantia.com>,
+        Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 65/79] net: aquantia: fix out of memory condition on
+ rx side
+Message-ID: <20190920112051.GA7865@amd>
+References: <20190919214807.612593061@linuxfoundation.org>
+ <20190919214813.375849733@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
 Content-Disposition: inline
-In-Reply-To: <20190919202504.9619-1-miquel.raynal@bootlin.com>
-X-Cookie: Stay away from hurricanes for a while.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190919214813.375849733@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---TYecfFk8j8mZq+dy
+--k+w/mQv8wyuph6w0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 19, 2019 at 10:25:01PM +0200, Miquel Raynal wrote:
-> In certain circumstances, it is needed to check INT_TX_EMPTY and
-> INT_RX_NOT_EMPTY in the transmit path, not only in the receive
-> path. In both cases, the delay penalty is negligible.
+Hi!
 
-In which circumstances and why is this required?
+> [ Upstream commit be6cef69ba570ebb327eba1ef6438f7af49aaf86 ]
+>=20
+> On embedded environments with hard memory limits it is a normal although
+> rare case when skb can't be allocated on rx part under high traffic.
+>=20
+> In such OOM cases napi_complete_done() was not called.
+> So the napi object became in an invalid state like it is "scheduled".
+> Kernel do not re-schedules the poll of that napi object.
+>=20
+> Consequently, kernel can not remove that object the system hangs on
+> `ifconfig down` waiting for a poll.
+>=20
+> We are fixing this by gracefully closing napi poll routine with correct
+> invocation of napi_complete_done.
+>=20
+> This was reproduced with artificially failing the allocation of skb to
+> simulate an "out of memory" error case and check that traffic does
+> not get stuck.
 
---TYecfFk8j8mZq+dy
+
+> --- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
+> +++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
+> @@ -89,6 +89,7 @@ static int aq_vec_poll(struct napi_struct *napi, int bu=
+dget)
+>  			}
+>  		}
+> =20
+> +err_exit:
+>  		if (!was_tx_cleaned)
+>  			work_done =3D budget;
+> =20
+
+This results in some... really "interesting" code that could use some
+refactoring.
+
+First, "goto err_exit" is now same as break.
+
+Second, if (!self) now sets variable that is never used. "if (!self)
+return 0;" would be more readable and would allow for less confusing
+indentation.
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--k+w/mQv8wyuph6w0
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2Esa0ACgkQJNaLcl1U
-h9AgbAf/WGzhQIKCPqtpT234KXwcBHp9ZJZEvag3OQYnGwCZ2HTkbFi2GxY82UT4
-FnSIj9o6IaTk1y4lFcXSoVfYJFm6ik+CksaPPCOKp/yX6Wdh+zcszod8nYGb9MDH
-8JodKY8SteqX+PB9bxuZzip9vNkX6VaS+4ZA7Z/y+645Jmjo8FS1Yk83J/H87FJg
-FroH17yf9TsGUgggStqTfz10e7sT17uPFpF6e3s/rGU3GVYqaYgtQS65vM2ARXbR
-1OLvYa+4ogLGFE/JfxVFbyHDUQa7dQKZ/3fxlEXN4huhVJ9vRR0kPztathlfdX46
-3TqFUQ7tJLD/tzeEt7hfU6OMdItB0A==
-=717f
+iEYEARECAAYFAl2EthMACgkQMOfwapXb+vJiLgCgvR/dsXLl7RIL25aTTMbMnIcm
+mesAnRrHpjtVksxLg5V+89Mhlzx77MkC
+=wJAn
 -----END PGP SIGNATURE-----
 
---TYecfFk8j8mZq+dy--
+--k+w/mQv8wyuph6w0--
