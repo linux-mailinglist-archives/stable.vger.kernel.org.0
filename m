@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12473B9157
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:04:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8BFB9158
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728925AbfITOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:03:59 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:36822 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727904AbfITOD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:03:58 -0400
-Received: by mail-pl1-f196.google.com with SMTP id f19so3239706plr.3
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 07:03:58 -0700 (PDT)
+        id S1728926AbfITOEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:04:00 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:42173 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727904AbfITOEA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:04:00 -0400
+Received: by mail-pl1-f194.google.com with SMTP id e5so3228900pls.9
+        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 07:04:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=na0uArJnXROHfqUkRT3i4m1p89imfG3hiUyVo7V9aMI=;
-        b=gpdqdMzlOwj0+hw6qAItsR0hEnBJvBexyvoZTVyb8V1KsErBxMZx4Z9JBKqzmmxnCs
-         hBExO+i8QYL7dO14LZXDHNEIxCN0dgLBn81RjDSM6MWiAPtoAJIX0CDbbvruXEIMdavM
-         Ajd1qJHtYJXEtzkpOWSPdpesFlEAqXcud/PbDFmXYyXE48NA7yqwICTuJvjA1fw8iU76
-         JJZZdaxDkqDX+omuGMoBRp4EZGSyECdcE/BzEX9ciEat7oenCLzw5hzVdA0/uU2t8yD1
-         4La6YOVwjFLF6VvebUVpmsDXfeGcYaI9KPT6vWuwLNRm/Y2FBATD9pdPQ7ME11jAe39i
-         YRtA==
+        bh=Om1JqaE5KxgQvQwZzqNbgCMsa6iHsu4Wwmv1NUU4z3k=;
+        b=JMA0k9vy3SykO/9xluzAh946vrLbwimrgakldlb5SW4povusBp4vRncxdzhtAWOP9h
+         CZ8IySj7kq5gI9tKZobIAzUoO76esEkiQQ2nttKnq7uXxoHMjcdnn5amZnLk3AwznzVB
+         j9eR2hX3ApbqRziAfBFfKVSl28s3GyKQxXWqPJ7B26RlcXU6q+nMSFg3KTUHCiAGwqg6
+         +sXGRAJI4aP+tYVtyCIWgziAq8ZkB1iJfXuzATFcNvILsi8vrw1nD2Mh780nlZoV+n5i
+         NnMqQgMRuE5E7J6+1eaEUnEfKR6E7tr4FkIpa7YiModXs1On7w7U0L9qGYnljTicTXo8
+         2z9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=na0uArJnXROHfqUkRT3i4m1p89imfG3hiUyVo7V9aMI=;
-        b=qRS+veJcqbWvstY6AzMs46u23/EP31TVorU7c3cKwWtGyk1vloaD2hpBuP3gmXlcOz
-         uDcTxTTCPyqF9QrDR3Yi91jt8/rCAgAUtUVl4I4F+Byd1hYst7rfAe75oDiaxGZuESYf
-         SafacUYEQTT9a8cPgsXOTjv8cLSL/y7C6o6SqzhczBc1cPMJCVAaE8Fr4XsIxasNSsy1
-         Vnj34pnw1OjIKFYgRKLhqguTodk4V4/+Oi9m0mqDYsGdmeENTro1nkQP71Q01jSofARd
-         OZ0SXczFXxkaA349SRGbH40Ui6rqXCsi1wW/JxfsKijw5pVHO1sOWbTLkyfUi4YQzVLj
-         Op9A==
-X-Gm-Message-State: APjAAAXdAJUvPZf3FqCk6tUomD1HpzzrXRBCJtvg0jRjA6jL7BOu4gzI
-        o+gBRaIgMzJlLd8dKMYoLgTrEECa
-X-Google-Smtp-Source: APXvYqx46bfoN4r3xbaYF2Ia2x48hb/+XmnHYmbHAMe7VAqupMS1Kn1SRCcK/EEesO8dyN8sxhjq8Q==
-X-Received: by 2002:a17:902:b58f:: with SMTP id a15mr17043523pls.81.1568988237416;
-        Fri, 20 Sep 2019 07:03:57 -0700 (PDT)
+        bh=Om1JqaE5KxgQvQwZzqNbgCMsa6iHsu4Wwmv1NUU4z3k=;
+        b=HYGAvo5Ha9iF67vPxLvppl5M/52Igu03ojuDVhtw8xOfhI2hzXevUChdqfEJ64VmXv
+         XAhDqEH5NaZrNR9v0ltcA8n16tOcQ0B0YMQomJCi2DvPd6ha6WIgSAcK5DkslD3aycdP
+         0CDd17bOF/RdiF10RdpL7woCjc3gb2xngUZW0/VeEQz/5mu9bpvbwnR/cGsTV7DpTeF8
+         yYRhocspag3IXp3bytcAjFWAHMS5r4xJxkANOsiJm9DqooDlZPUeebnT0XdKOTjRcYmY
+         Z4Qaejg3KnGYJHTIjFZPWVJAQXI37M+/lNyNyyGcRwOLSB+RH4PtByJgzhpGoDEhEWVq
+         he9Q==
+X-Gm-Message-State: APjAAAWob0+hDklZ+EMwCAxgRLIchmDmOs/uVQEq0tdMuU2cOcoTuEj6
+        GGcNpKqAF5jUABtpPJTPmrLqiElC
+X-Google-Smtp-Source: APXvYqwI1LYDgdKoAiR9Ns6HqncBaemLJl5jEXfbACUTpLyz6WHi2qM9jysGpASo+Kk+9JQEVqrYag==
+X-Received: by 2002:a17:902:7d92:: with SMTP id a18mr16896394plm.243.1568988239048;
+        Fri, 20 Sep 2019 07:03:59 -0700 (PDT)
 Received: from localhost.localdomain ([71.219.73.178])
-        by smtp.gmail.com with ESMTPSA id 8sm2232180pgd.87.2019.09.20.07.03.55
+        by smtp.gmail.com with ESMTPSA id 8sm2232180pgd.87.2019.09.20.07.03.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Sep 2019 07:03:56 -0700 (PDT)
+        Fri, 20 Sep 2019 07:03:58 -0700 (PDT)
 From:   Alex Deucher <alexdeucher@gmail.com>
 X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
 To:     stable@vger.kernel.org
 Cc:     nicholas.kazlauskas@amd.com,
         Alex Deucher <alexander.deucher@amd.com>,
         David Francis <david.francis@amd.com>
-Subject: [PATCH 1/3] drm/amd/display: Allow cursor async updates for framebuffer swaps
-Date:   Fri, 20 Sep 2019 09:03:36 -0500
-Message-Id: <20190920140338.3172-2-alexander.deucher@amd.com>
+Subject: [PATCH 2/3] drm/amd/display: Skip determining update type for async updates
+Date:   Fri, 20 Sep 2019 09:03:37 -0500
+Message-Id: <20190920140338.3172-3-alexander.deucher@amd.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190920140338.3172-1-alexander.deucher@amd.com>
 References: <20190920140338.3172-1-alexander.deucher@amd.com>
@@ -66,60 +66,75 @@ X-Mailing-List: stable@vger.kernel.org
 From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
 [Why]
-We previously allowed framebuffer swaps as async updates for cursor
-planes but had to disable them due to a bug in DRM with async update
-handling and incorrect ref counting. The check to block framebuffer
-swaps has been added to DRM for a while now, so this check is redundant.
+By passing through the dm_determine_update_type_for_commit for atomic
+commits that can be done asynchronously we are incurring a
+performance penalty by locking access to the global private object
+and holding that access until the end of the programming sequence.
 
-The real fix that allows this to properly in DRM has also finally been
-merged and is getting backported into stable branches, so dropping
-this now seems to be the right time to do so.
+This is also allocating a new large dc_state on every access in addition
+to retaining all the references on each stream and plane until the end
+of the programming sequence.
 
 [How]
-Drop the redundant check for old_fb != new_fb.
-
-With the proper fix in DRM, this should also fix some cursor stuttering
-issues with xf86-video-amdgpu since it double buffers the cursor.
-
-IGT tests that swap framebuffers (-varying-size for example) should
-also pass again.
+Shift the determination for async update before validation. Return early
+if it's going to be an async update.
 
 Bug: https://bugzilla.kernel.org/show_bug.cgi?id=204181
 Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 Acked-by: Alex Deucher <alexander.deucher@amd.com>
 Reviewed-by: David Francis <david.francis@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-(cherry picked from commit e16e37efb4c9eb7bcb9dab756c975040c5257e98)
+(cherry picked from commit 43d10d30df156f7834fa91aecb69614fefc8bb0a)
 Cc: stable@vger.kernel.org
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 27 ++++++++++++++-----
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 45be7a2132bb..ab341fca9647 100644
+index ab341fca9647..8df49740518e 100644
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4548,20 +4548,10 @@ static int dm_plane_atomic_check(struct drm_plane *plane,
- static int dm_plane_atomic_async_check(struct drm_plane *plane,
- 				       struct drm_plane_state *new_plane_state)
- {
--	struct drm_plane_state *old_plane_state =
--		drm_atomic_get_old_plane_state(new_plane_state->state, plane);
--
- 	/* Only support async updates on cursor planes. */
- 	if (plane->type != DRM_PLANE_TYPE_CURSOR)
- 		return -EINVAL;
+@@ -7274,6 +7274,26 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 	if (ret)
+ 		goto fail;
  
--	/*
--	 * DRM calls prepare_fb and cleanup_fb on new_plane_state for
--	 * async commits so don't allow fb changes.
--	 */
--	if (old_plane_state->fb != new_plane_state->fb)
--		return -EINVAL;
--
- 	return 0;
- }
++	if (state->legacy_cursor_update) {
++		/*
++		 * This is a fast cursor update coming from the plane update
++		 * helper, check if it can be done asynchronously for better
++		 * performance.
++		 */
++		state->async_update =
++			!drm_atomic_helper_async_check(dev, state);
++
++		/*
++		 * Skip the remaining global validation if this is an async
++		 * update. Cursor updates can be done without affecting
++		 * state or bandwidth calcs and this avoids the performance
++		 * penalty of locking the private state object and
++		 * allocating a new dc_state.
++		 */
++		if (state->async_update)
++			return 0;
++	}
++
+ 	/* Check scaling and underscan changes*/
+ 	/* TODO Removed scaling changes validation due to inability to commit
+ 	 * new stream into context w\o causing full reset. Need to
+@@ -7326,13 +7346,6 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 			ret = -EINVAL;
+ 			goto fail;
+ 		}
+-	} else if (state->legacy_cursor_update) {
+-		/*
+-		 * This is a fast cursor update coming from the plane update
+-		 * helper, check if it can be done asynchronously for better
+-		 * performance.
+-		 */
+-		state->async_update = !drm_atomic_helper_async_check(dev, state);
+ 	}
  
+ 	/* Must be success */
 -- 
 2.20.1
 
