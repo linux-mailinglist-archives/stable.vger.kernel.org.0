@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87174B9264
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46374B9253
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388297AbfITOZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:25:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36446 "EHLO
+        id S2388363AbfITOZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36662 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388268AbfITOZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:09 -0400
+        by vger.kernel.org with ESMTP id S2388321AbfITOZM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:12 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqN-0004y7-6H; Fri, 20 Sep 2019 15:25:07 +0100
+        id 1iBJqO-0004xX-Ms; Fri, 20 Sep 2019 15:25:08 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007yS-9c; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqG-0007vj-2O; Fri, 20 Sep 2019 15:25:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
-        "Luke Nowakowski-Krijger" <lnowakow@eng.ucsd.edu>,
-        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>
+        "Tetsuo Handa" <penguin-kernel@i-love.sakura.ne.jp>,
+        "Pablo Neira Ayuso" <pablo@netfilter.org>,
+        "Florian Westphal" <fw@strlen.de>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.791343078@decadent.org.uk>
+Message-ID: <lsq.1568989415.567505558@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 115/132] media: radio-raremono: change devm_k*alloc
- to k*alloc
+Subject: [PATCH 3.16 089/132] netfilter: ebtables: CONFIG_COMPAT: reject
+ trailing data after last rule
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,107 +48,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+From: Florian Westphal <fw@strlen.de>
 
-commit c666355e60ddb4748ead3bdd983e3f7f2224aaf0 upstream.
+commit 680f6af5337c98d116e4f127cea7845339dba8da upstream.
 
-Change devm_k*alloc to k*alloc to manually allocate memory
+If userspace provides a rule blob with trailing data after last target,
+we trigger a splat, then convert ruleset to 64bit format (with trailing
+data), then pass that to do_replace_finish() which then returns -EINVAL.
 
-The manual allocation and freeing of memory is necessary because when
-the USB radio is disconnected, the memory associated with devm_k*alloc
-is freed. Meaning if we still have unresolved references to the radio
-device, then we get use-after-free errors.
+Erroring out right away avoids the splat plus unneeded translation and
+error unwind.
 
-This patch fixes this by manually allocating memory, and freeing it in
-the v4l2.release callback that gets called when the last radio device
-exits.
-
-Reported-and-tested-by: syzbot+a4387f5b6b799f6becbf@syzkaller.appspotmail.com
-
-Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: cleaned up two small checkpatch.pl warnings]
-[hverkuil-cisco@xs4all.nl: prefix subject with driver name]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-[bwh: Backported to 3.16: adjust context]
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/radio/radio-raremono.c | 30 +++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/radio/radio-raremono.c
-+++ b/drivers/media/radio/radio-raremono.c
-@@ -283,6 +283,14 @@ static int vidioc_g_frequency(struct fil
- 	return 0;
- }
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2139,7 +2139,9 @@ static int compat_copy_entries(unsigned
+ 	if (ret < 0)
+ 		return ret;
  
-+static void raremono_device_release(struct v4l2_device *v4l2_dev)
-+{
-+	struct raremono_device *radio = to_raremono_dev(v4l2_dev);
+-	WARN_ON(size_remaining);
++	if (size_remaining)
++		return -EINVAL;
 +
-+	kfree(radio->buffer);
-+	kfree(radio);
-+}
-+
- /* File system interface */
- static const struct v4l2_file_operations usb_raremono_fops = {
- 	.owner		= THIS_MODULE,
-@@ -307,12 +315,14 @@ static int usb_raremono_probe(struct usb
- 	struct raremono_device *radio;
- 	int retval = 0;
- 
--	radio = devm_kzalloc(&intf->dev, sizeof(struct raremono_device), GFP_KERNEL);
--	if (radio)
--		radio->buffer = devm_kmalloc(&intf->dev, BUFFER_LENGTH, GFP_KERNEL);
--
--	if (!radio || !radio->buffer)
-+	radio = kzalloc(sizeof(*radio), GFP_KERNEL);
-+	if (!radio)
-+		return -ENOMEM;
-+	radio->buffer = kmalloc(BUFFER_LENGTH, GFP_KERNEL);
-+	if (!radio->buffer) {
-+		kfree(radio);
- 		return -ENOMEM;
-+	}
- 
- 	radio->usbdev = interface_to_usbdev(intf);
- 	radio->intf = intf;
-@@ -336,7 +346,8 @@ static int usb_raremono_probe(struct usb
- 	if (retval != 3 ||
- 	    (get_unaligned_be16(&radio->buffer[1]) & 0xfff) == 0x0242) {
- 		dev_info(&intf->dev, "this is not Thanko's Raremono.\n");
--		return -ENODEV;
-+		retval = -ENODEV;
-+		goto free_mem;
- 	}
- 
- 	dev_info(&intf->dev, "Thanko's Raremono connected: (%04X:%04X)\n",
-@@ -345,7 +356,7 @@ static int usb_raremono_probe(struct usb
- 	retval = v4l2_device_register(&intf->dev, &radio->v4l2_dev);
- 	if (retval < 0) {
- 		dev_err(&intf->dev, "couldn't register v4l2_device\n");
--		return retval;
-+		goto free_mem;
- 	}
- 
- 	mutex_init(&radio->lock);
-@@ -357,6 +368,7 @@ static int usb_raremono_probe(struct usb
- 	radio->vdev.ioctl_ops = &usb_raremono_ioctl_ops;
- 	radio->vdev.lock = &radio->lock;
- 	radio->vdev.release = video_device_release_empty;
-+	radio->v4l2_dev.release = raremono_device_release;
- 
- 	usb_set_intfdata(intf, &radio->v4l2_dev);
- 
-@@ -373,6 +385,10 @@ static int usb_raremono_probe(struct usb
- 	}
- 	dev_err(&intf->dev, "could not register video device\n");
- 	v4l2_device_unregister(&radio->v4l2_dev);
-+
-+free_mem:
-+	kfree(radio->buffer);
-+	kfree(radio);
- 	return retval;
+ 	return state->buf_kern_offset;
  }
  
 
