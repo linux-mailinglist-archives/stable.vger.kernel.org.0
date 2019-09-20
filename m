@@ -2,71 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1A9B918D
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92794B91B9
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387853AbfITOVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:21:03 -0400
-Received: from muru.com ([72.249.23.125]:33990 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387817AbfITOVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Sep 2019 10:21:03 -0400
-Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id D36A980AA;
-        Fri, 20 Sep 2019 14:21:33 +0000 (UTC)
-Date:   Fri, 20 Sep 2019 07:20:59 -0700
-From:   Tony Lindgren <tony@atomide.com>
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Discussions about the Letux Kernel 
-        <letux-kernel@openphoenux.org>, Rob Herring <robh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>
-Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy
- spi-cs-high to make display work again
-Message-ID: <20190920142059.GO5610@atomide.com>
-References: <20190724194259.GA25847@bogus>
- <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com>
- <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com>
- <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com>
- <20190831084852.5e726cfa@aktux>
- <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com>
- <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com>
- <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com>
- <CACRpkdZvpPOM1Ug-=GHf7Z-2VEbJz3Cuo7+0yDFuNm5ShXK8=Q@mail.gmail.com>
- <7DF102BC-C818-4D27-988F-150C7527E6CC@goldelico.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        id S2388379AbfITOZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:14 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36722 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388343AbfITOZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:13 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBJqQ-00051C-50; Fri, 20 Sep 2019 15:25:10 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBJqF-0007v5-MH; Fri, 20 Sep 2019 15:24:59 +0100
+Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
-In-Reply-To: <7DF102BC-C818-4D27-988F-150C7527E6CC@goldelico.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Christoph Probst" <kernel@probst.it>,
+        "Steve French" <stfrench@microsoft.com>,
+        "Pavel Shilovsky" <pshilov@microsoft.com>
+Date:   Fri, 20 Sep 2019 15:23:35 +0100
+Message-ID: <lsq.1568989415.242105668@decadent.org.uk>
+X-Mailer: LinuxStableQueue (scripts by bwh)
+X-Patchwork-Hint: ignore
+Subject: [PATCH 3.16 081/132] cifs: fix strcat buffer overflow and reduce
+ raciness in smb21_set_oplock_level()
+In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* H. Nikolaus Schaller <hns@goldelico.com> [190920 09:19]:
-> > Am 20.09.2019 um 10:55 schrieb Linus Walleij <linus.walleij@linaro.org>:
-> > I suggest to go both way:
-> > apply this oneliner and tag for stable so that GTA04 works
-> > again.
-> > 
-> > Then for the next kernel think about a possible more abitious
-> > whitelist solution and after adding that remove *all* "spi-cs-high"
-> > flags from all device trees in the kernel after fixing them
-> > all up.
-> 
-> Ok, that looks like a viable path.
+3.16.74-rc1 review patch.  If anyone has any objections, please let me know.
 
-Please repost the oneline so people can ack easily. At least
-I've already lost track of this thread.
+------------------
 
-Regards,
+From: Christoph Probst <kernel@probst.it>
 
-Tony
+commit 6a54b2e002c9d00b398d35724c79f9fe0d9b38fb upstream.
+
+Change strcat to strncpy in the "None" case to fix a buffer overflow
+when cinode->oplock is reset to 0 by another thread accessing the same
+cinode. It is never valid to append "None" to any other message.
+
+Consolidate multiple writes to cinode->oplock to reduce raciness.
+
+Signed-off-by: Christoph Probst <kernel@probst.it>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ fs/cifs/smb2ops.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1000,26 +1000,28 @@ smb21_set_oplock_level(struct cifsInodeI
+ 		       unsigned int epoch, bool *purge_cache)
+ {
+ 	char message[5] = {0};
++	unsigned int new_oplock = 0;
+ 
+ 	oplock &= 0xFF;
+ 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
+ 		return;
+ 
+-	cinode->oplock = 0;
+ 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_READ_FLG;
++		new_oplock |= CIFS_CACHE_READ_FLG;
+ 		strcat(message, "R");
+ 	}
+ 	if (oplock & SMB2_LEASE_HANDLE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_HANDLE_FLG;
++		new_oplock |= CIFS_CACHE_HANDLE_FLG;
+ 		strcat(message, "H");
+ 	}
+ 	if (oplock & SMB2_LEASE_WRITE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_WRITE_FLG;
++		new_oplock |= CIFS_CACHE_WRITE_FLG;
+ 		strcat(message, "W");
+ 	}
+-	if (!cinode->oplock)
+-		strcat(message, "None");
++	if (!new_oplock)
++		strncpy(message, "None", sizeof(message));
++
++	cinode->oplock = new_oplock;
+ 	cifs_dbg(FYI, "%s Lease granted on inode %p\n", message,
+ 		 &cinode->vfs_inode);
+ }
+
