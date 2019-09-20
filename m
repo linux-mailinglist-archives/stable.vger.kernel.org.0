@@ -2,71 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89780B96ED
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 20:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE133B9749
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 20:36:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406165AbfITSEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 14:04:44 -0400
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:33821 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404970AbfITSEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 14:04:44 -0400
-Received: by mail-yw1-f66.google.com with SMTP id h73so2803785ywa.1
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 11:04:44 -0700 (PDT)
+        id S2389956AbfITSgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 14:36:47 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:40911 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389097AbfITSgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 14:36:46 -0400
+Received: by mail-pg1-f194.google.com with SMTP id w10so4297209pgj.7;
+        Fri, 20 Sep 2019 11:36:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=k0Y0GF7CWffYLFYvXkG19jRHoysz5ieFFQqfxyNFMSU=;
-        b=ZBpCjUL+IbUWfA0wlluxXmweIe5dXQBvfGbelgOXDfLbQTe0/ERgdkQNzI1Tb5ztIB
-         +oZj2Ps883y6DktQ6EPu/S2IE4aOgUgDuRCKVGGQmEnKuNjPI4sXqyy53UZNGUmc3OBw
-         e1YGsrSXdSw4ICfX9yG/EvkXKFDYWUQwFI6OqRWol3SC9OQEjV99mk4Pnt51QqPAhUyU
-         IJfeH1IlJ0atdwNbUZThKVqeLtocpI6LpxTbn4DSDZKS+dCCTYp4NDpJIFvlRo1sHquz
-         uVPLkxJLkKvLHxnhPfUG5EO46zNffKR8OkIabLU4uuprGJHiUl639aO9h6D/XUSpR2Eq
-         VkTA==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=3GXQgaaS2sy1W5W2FLcg/NQNEU0JYHdyJXAPPdzLI4Y=;
+        b=USxMSiwpFxpY4Vf5CqRHZ8w4WLouzZeewcNademphQzyr8A1WXvVNCwesEABUumyOA
+         iFMG+ELYyc2ZfP0SxOKUwX84v4pls8VgcklQynY3N93UvvrlaH/Oj9oapdHp75eZe+gh
+         JV12MIx00gFZJEpsIsg8v8EHdixsnfCGUEtRj10Nmx8VKCLUNIwWNpjXoeLM4EQuW/xH
+         +w6LC6F71smfZUq9X7IlIIEU4wuevAwEiCyERRnfYp1SfjeDoadMi0tFsmfcEim7jQFa
+         wZ4kwAmDG5doGK9jTpmd85PT5B2l1suxIifzcJpW/mvxTh0+IeejIPWzuQXkPp0HJRtV
+         yP5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=k0Y0GF7CWffYLFYvXkG19jRHoysz5ieFFQqfxyNFMSU=;
-        b=qMm6fkoPtsO/0ODAod01eJ0hGIMhNCBlcYH2Xv2AXCxVLR3aWUH5wCVd3hBSdSfPfV
-         qeo9/GmNEMsiuazlEqrQHzy7O/glEkDIRSm8K5YQA4w7xaNbONjUA9r0ES0Q/RICaywW
-         UhL05/9wgi/SvoOUIdZeECH2u+eUJarDHrMJ6s6mHeKS2h0LQx30F9h1p6s9fIqawGTW
-         gN/93iEX1NNUl2QtslrB1naLsTpj14ne5WUucwGgxg9TysLhbPrGHmaxbr07EMrxBhoa
-         uR9DQ+xl1ez20bO47oiObaBQk7b5Riu7En7+dNNLs+Ouf5i9UyNDdnc+OeNqxmy4fiCM
-         CZ7Q==
-X-Gm-Message-State: APjAAAVOKMdNzc7REWbhVxWYuBfcVQEjIKnO8n6/yc0iWLm25yXCQcOg
-        XvzNeZPSdmWpGgITzOT5c4NZSp2A/LmQMcflBqs=
-X-Google-Smtp-Source: APXvYqwHXpQ6PK3m7rp2YnrbLARhxJHZ1WKJwPCXHdKlBDh3uLUk2sN7BTkMhcLdddo3WLy6hvEV/iuxc0QlulK4cU8=
-X-Received: by 2002:a0d:df44:: with SMTP id i65mr13860073ywe.83.1569002683773;
- Fri, 20 Sep 2019 11:04:43 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=3GXQgaaS2sy1W5W2FLcg/NQNEU0JYHdyJXAPPdzLI4Y=;
+        b=KB3MsHg7GEsg/oVbHT7YsLkNpsWTSBSJ9SMeGD1uz2hUB5nP9jKr8CBMec5JTt38Lw
+         LUmTuMNK/NOU3NhylM/XShni0T27zIJSlAJ8gtt4K84Fh6beEOKtShuohkjnhvuqKw6n
+         gQPE9L3O9rg0CWgaUl3Yty6clwn97niRDavVFhnzU3VneAc3Hz8a8iolqIkJ3E1oVvrr
+         ChrNQ/Rs8Wv0dZ6Q/KkJk+dXamy+zdcXOkHG0rb9OtEI9BekoLBy36uTe+rFT0H6VfrJ
+         vsmnzS88s01VwphERQhGcUUQDau6iZGTo9+A9MvfLEgNyl0JK9/vZ1fF6BXER9zLv0av
+         D5Kw==
+X-Gm-Message-State: APjAAAW8E/UFfFgw0fGflwvdbmbS2hln0uuyQDj1kNOTzNrOLaioof2N
+        m8q8NDD8N0hsEX+Yavre/SxqOThP
+X-Google-Smtp-Source: APXvYqzr30rEmTGmGhPf6t4we0ciT+x4zAqAomPGop3jZS/WWGCGOM8VUVcpCu02yqHWSHK432rdZg==
+X-Received: by 2002:a17:90a:3462:: with SMTP id o89mr6344677pjb.2.1569004606018;
+        Fri, 20 Sep 2019 11:36:46 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o67sm2956545pje.17.2019.09.20.11.36.44
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 20 Sep 2019 11:36:44 -0700 (PDT)
+Date:   Fri, 20 Sep 2019 11:36:43 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/59] 4.14.146-stable review
+Message-ID: <20190920183643.GA22818@roeck-us.net>
+References: <20190919214755.852282682@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a25:bce:0:0:0:0:0 with HTTP; Fri, 20 Sep 2019 11:04:43 -0700 (PDT)
-Reply-To: gredamondays@gmail.com
-From:   Rebecca Udarra <charityorkss@gmail.com>
-Date:   Fri, 20 Sep 2019 20:04:43 +0200
-Message-ID: <CACtY+oOOvKO5UUgeDB7pJnBC3u0uf04X7npdcnb1kaj4ShksDA@mail.gmail.com>
-Subject: If you can honestly be of assistance
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190919214755.852282682@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day Dear
-It is my pleasure to contact you for a business venture which my Son
-and I intend to establish in your country, though I have not met with
-you before  but I believe, one has to risk confiding in someone to
-succeed some times  in life,  base on the situation we find ourselves.
-There is this amount of money which my late Husband kept for us here
-in Cote d'Ivoire before his  death. Now my son and I have decided to
-invest this money anywhere safe enough outside our Country for my
-son=E2=80=99s study and future.We want to  transfer and invest this fund in
-any lucrative business were tax will not be too much. If you can
-honestly be of assistance to us we will be pleased  to work with you
-while you manage the investment for us. It is very urgent and I await
-your immediate response.
-Sincerely yours,
-Mrs.Rebecca Udarra
+On Fri, Sep 20, 2019 at 12:03:15AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.146 release.
+> There are 59 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
+> Anything received after that time might be too late.
+> 
+
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 372 pass: 372 fail: 0
+
+Guenter
