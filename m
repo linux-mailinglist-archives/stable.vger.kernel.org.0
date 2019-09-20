@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD93B932A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB15B92D7
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392623AbfITOiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:38:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35702 "EHLO
+        id S2392286AbfITOft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:35:49 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35914 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387993AbfITOY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:24:59 -0400
+        by vger.kernel.org with ESMTP id S2388080AbfITOZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:01 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqD-0004wk-3z; Fri, 20 Sep 2019 15:24:57 +0100
+        id 1iBJqE-0004y6-Ow; Fri, 20 Sep 2019 15:24:58 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0007qA-JG; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqE-0007s1-1W; Fri, 20 Sep 2019 15:24:58 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,18 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "=?UTF-8?q?Stefan=20M=C3=A4tje?=" <stefan.maetje@esd.eu>,
-        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
-        "Bjorn Helgaas" <bhelgaas@google.com>
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Ingo Molnar" <mingo@kernel.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        "kbuild test robot" <lkp@intel.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
+        "Peter Zijlstra" <peterz@infradead.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.605726088@decadent.org.uk>
+Message-ID: <lsq.1568989415.132244312@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 020/132] PCI: Factor out pcie_retrain_link() function
+Subject: [PATCH 3.16 043/132] smpboot: Place the __percpu annotation correctly
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,82 +51,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Stefan Mätje <stefan.maetje@esd.eu>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 86fa6a344209d9414ea962b1f1ac6ade9dd7563a upstream.
+commit d4645d30b50d1691c26ff0f8fa4e718b08f8d3bb upstream.
 
-Factor out pcie_retrain_link() to use for Pericom Retrain Link quirk.  No
-functional change intended.
+The test robot reported a wrong assignment of a per-CPU variable which
+it detected by using sparse and sent a report. The assignment itself is
+correct. The annotation for sparse was wrong and hence the report.
+The first pointer is a "normal" pointer and points to the per-CPU memory
+area. That means that the __percpu annotation has to be moved.
 
-Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Move the __percpu annotation to pointer which points to the per-CPU
+area. This change affects only the sparse tool (and is ignored by the
+compiler).
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: f97f8f06a49fe ("smpboot: Provide infrastructure for percpu hotplug threads")
+Link: http://lkml.kernel.org/r/20190424085253.12178-1-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/pci/pcie/aspm.c | 40 ++++++++++++++++++++++++----------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ include/linux/smpboot.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -175,6 +175,29 @@ static void pcie_clkpm_cap_init(struct p
- 	link->clkpm_capable = (blacklist) ? 0 : capable;
- }
- 
-+static bool pcie_retrain_link(struct pcie_link_state *link)
-+{
-+	struct pci_dev *parent = link->pdev;
-+	unsigned long start_jiffies;
-+	u16 reg16;
-+
-+	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
-+	reg16 |= PCI_EXP_LNKCTL_RL;
-+	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
-+
-+	/* Wait for link training end. Break out after waiting for timeout */
-+	start_jiffies = jiffies;
-+	for (;;) {
-+		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
-+		if (!(reg16 & PCI_EXP_LNKSTA_LT))
-+			break;
-+		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
-+			break;
-+		msleep(1);
-+	}
-+	return !(reg16 & PCI_EXP_LNKSTA_LT);
-+}
-+
- /*
-  * pcie_aspm_configure_common_clock: check if the 2 ends of a link
-  *   could use common clock. If they are, configure them to use the
-@@ -184,7 +207,6 @@ static void pcie_aspm_configure_common_c
- {
- 	int same_clock = 1;
- 	u16 reg16, parent_reg, child_reg[8];
--	unsigned long start_jiffies;
- 	struct pci_dev *child, *parent = link->pdev;
- 	struct pci_bus *linkbus = parent->subordinate;
- 	/*
-@@ -224,21 +246,7 @@ static void pcie_aspm_configure_common_c
- 		reg16 &= ~PCI_EXP_LNKCTL_CCC;
- 	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
- 
--	/* Retrain link */
--	reg16 |= PCI_EXP_LNKCTL_RL;
--	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
--
--	/* Wait for link training end. Break out after waiting for timeout */
--	start_jiffies = jiffies;
--	for (;;) {
--		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
--		if (!(reg16 & PCI_EXP_LNKSTA_LT))
--			break;
--		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
--			break;
--		msleep(1);
--	}
--	if (!(reg16 & PCI_EXP_LNKSTA_LT))
-+	if (pcie_retrain_link(link))
- 		return;
- 
- 	/* Training failed. Restore common clock configurations */
+--- a/include/linux/smpboot.h
++++ b/include/linux/smpboot.h
+@@ -31,7 +31,7 @@ struct smpboot_thread_data;
+  * @thread_comm:	The base name of the thread
+  */
+ struct smp_hotplug_thread {
+-	struct task_struct __percpu	**store;
++	struct task_struct		* __percpu *store;
+ 	struct list_head		list;
+ 	int				(*thread_should_run)(unsigned int cpu);
+ 	void				(*thread_fn)(unsigned int cpu);
 
