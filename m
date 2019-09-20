@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4122B9325
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09FECB924A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388014AbfITOY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:24:59 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35636 "EHLO
+        id S2388390AbfITOZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:15 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36752 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728952AbfITOY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:24:58 -0400
+        by vger.kernel.org with ESMTP id S2388356AbfITOZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:14 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0004wS-Io; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqR-0004xe-PR; Fri, 20 Sep 2019 15:25:11 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0007pa-38; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqF-0007uC-2S; Fri, 20 Sep 2019 15:24:59 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>,
-        "Dan Carpenter" <dan.carpenter@oracle.com>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
+        "Oliver Neukum" <oneukum@suse.com>,
+        "Johan Hovold" <johan@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.650123541@decadent.org.uk>
+Message-ID: <lsq.1568989415.752564858@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 013/132] media: wl128x: prevent two potential buffer
- overflows
+Subject: [PATCH 3.16 070/132] USB: cdc-acm: fix unthrottle races
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,57 +47,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9c2ccc324b3a6cbc865ab8b3e1a09e93d3c8ade9 upstream.
+commit 764478f41130f1b8d8057575b89e69980a0f600d upstream.
 
-Smatch marks skb->data as untrusted so it warns that "evt_hdr->dlen"
-can copy up to 255 bytes and we only have room for two bytes.  Even
-if this comes from the firmware and we trust it, the new policy
-generally is just to fix it as kernel hardenning.
+Fix two long-standing bugs which could potentially lead to memory
+corruption or leave the port throttled until it is reopened (on weakly
+ordered systems), respectively, when read-URB completion races with
+unthrottle().
 
-I can't test this code so I tried to be very conservative.  I considered
-not allowing "evt_hdr->dlen == 1" because it doesn't initialize the
-whole variable but in the end I decided to allow it and manually
-initialized "asic_id" and "asic_ver" to zero.
+First, the URB must not be marked as free before processing is complete
+to prevent it from being submitted by unthrottle() on another CPU.
 
-Fixes: e8454ff7b9a4 ("[media] drivers:media:radio: wl128x: FM Driver Common sources")
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  process_urb();
+	  smp_mb__before_atomic();
+	  set_bit(i, free);		  if (test_and_clear_bit(i, free))
+						  submit_urb();
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Second, the URB must be marked as free before checking the throttled
+flag to prevent unthrottle() on another CPU from failing to observe that
+the URB needs to be submitted if complete() sees that the throttled flag
+is set.
+
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  set_bit(i, free);		  throttled = 0;
+	  smp_mb__after_atomic();	  smp_mb();
+	  if (throttled)		  if (test_and_clear_bit(i, free))
+		  return;			  submit_urb();
+
+Note that test_and_clear_bit() only implies barriers when the test is
+successful. To handle the case where the URB is still in use an explicit
+barrier needs to be added to unthrottle() for the second race condition.
+
+Also note that the first race was fixed by 36e59e0d70d6 ("cdc-acm: fix
+race between callback and unthrottle") back in 2015, but the bug was
+reintroduced a year later.
+
+Fixes: 1aba579f3cf5 ("cdc-acm: handle read pipe errors")
+Fixes: 088c64f81284 ("USB: cdc-acm: re-write read processing")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 [bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/media/radio/wl128x/fmdrv_common.c
-+++ b/drivers/media/radio/wl128x/fmdrv_common.c
-@@ -494,7 +494,8 @@ int fmc_send_cmd(struct fmdev *fmdev, u8
- 		return -EIO;
- 	}
- 	/* Send response data to caller */
--	if (response != NULL && response_len != NULL && evt_hdr->dlen) {
-+	if (response != NULL && response_len != NULL && evt_hdr->dlen &&
-+	    evt_hdr->dlen <= payload_len) {
- 		/* Skip header info and copy only response data */
- 		skb_pull(skb, sizeof(struct fm_event_msg_hdr));
- 		memcpy(response, skb->data, evt_hdr->dlen);
-@@ -590,6 +591,8 @@ static void fm_irq_handle_flag_getcmd_re
+ drivers/usb/class/cdc-acm.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
+
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -420,12 +420,12 @@ static void acm_read_bulk_callback(struc
+ 	struct acm *acm = rb->instance;
+ 	unsigned long flags;
+ 	int status = urb->status;
++	bool stopped = false;
++	bool stalled = false;
+ 
+ 	dev_vdbg(&acm->data->dev, "%s - urb %d, len %d\n", __func__,
+ 					rb->index, urb->actual_length);
+ 
+-	set_bit(rb->index, &acm->read_urbs_free);
+-
+ 	if (!acm->dev) {
+ 		dev_dbg(&acm->data->dev, "%s - disconnected\n", __func__);
  		return;
+@@ -438,15 +438,16 @@ static void acm_read_bulk_callback(struc
+ 		break;
+ 	case -EPIPE:
+ 		set_bit(EVENT_RX_STALL, &acm->flags);
+-		schedule_work(&acm->work);
+-		return;
++		stalled = true;
++		break;
+ 	case -ENOENT:
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
+ 		dev_dbg(&acm->data->dev,
+ 			"%s - urb shutting down with status: %d\n",
+ 			__func__, status);
+-		return;
++		stopped = true;
++		break;
+ 	default:
+ 		dev_dbg(&acm->data->dev,
+ 			"%s - nonzero urb status received: %d\n",
+@@ -455,10 +456,24 @@ static void acm_read_bulk_callback(struc
+ 	}
  
- 	fm_evt_hdr = (void *)skb->data;
-+	if (fm_evt_hdr->dlen > sizeof(fmdev->irq_info.flag))
+ 	/*
+-	 * Unthrottle may run on another CPU which needs to see events
+-	 * in the same order. Submission has an implict barrier
++	 * Make sure URB processing is done before marking as free to avoid
++	 * racing with unthrottle() on another CPU. Matches the barriers
++	 * implied by the test_and_clear_bit() in acm_submit_read_urb().
+ 	 */
+ 	smp_mb__before_atomic();
++	set_bit(rb->index, &acm->read_urbs_free);
++	/*
++	 * Make sure URB is marked as free before checking the throttled flag
++	 * to avoid racing with unthrottle() on another CPU. Matches the
++	 * smp_mb() in unthrottle().
++	 */
++	smp_mb__after_atomic();
++
++	if (stopped || stalled) {
++		if (stalled)
++			schedule_work(&acm->work);
 +		return;
++	}
  
- 	/* Skip header info and copy only response data */
- 	skb_pull(skb, sizeof(struct fm_event_msg_hdr));
-@@ -1318,7 +1321,8 @@ static int load_default_rx_configuration
- /* Does FM power on sequence */
- static int fm_power_up(struct fmdev *fmdev, u8 mode)
- {
--	u16 payload, asic_id, asic_ver;
-+	u16 payload;
-+	__be16 asic_id = 0, asic_ver = 0;
- 	int resp_len, ret;
- 	u8 fw_name[50];
+ 	/* throttle device if requested by tty */
+ 	spin_lock_irqsave(&acm->read_lock, flags);
+@@ -807,6 +822,9 @@ static void acm_tty_unthrottle(struct tt
+ 	acm->throttle_req = 0;
+ 	spin_unlock_irq(&acm->read_lock);
  
++	/* Matches the smp_mb__after_atomic() in acm_read_bulk_callback(). */
++	smp_mb();
++
+ 	if (was_throttled)
+ 		acm_submit_read_urbs(acm, GFP_KERNEL);
+ }
 
