@@ -2,145 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D57B9167
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27531B916C
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387602AbfITOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:08:35 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:55629 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727273AbfITOIe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:08:34 -0400
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1iBJaI-0005V1-Fd; Fri, 20 Sep 2019 16:08:30 +0200
-Received: from ukl by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1iBJaG-00036I-EW; Fri, 20 Sep 2019 16:08:28 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     netdev@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] arcnet: provide a buffer big enough to actually receive packets
-Date:   Fri, 20 Sep 2019 16:08:21 +0200
-Message-Id: <20190920140821.11876-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.23.0
+        id S2387615AbfITOLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:11:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387562AbfITOLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Sep 2019 10:11:40 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 158B220644;
+        Fri, 20 Sep 2019 14:11:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568988699;
+        bh=CvUKc5KI+bhP5yt2KDmp4Ddv0A7NljjJ88GhdwlLuzc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KgwlSVjJlhsh6EA1k0iJn2qJ7yftAmfCilNcD0kPVQIdYy2bDk88QgH4tONY/eeD4
+         X1p8NEaGLgyI84/Q6cqjZclJeqzZFw87Smu3C3BSauknKVUUqFN4ugnA7t6DMiPJCe
+         1KAm6HKWGAd3krFVTi6PkT2ACLVVN1P++yCv6VAI=
+Date:   Fri, 20 Sep 2019 16:11:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alex Deucher <alexdeucher@gmail.com>
+Cc:     stable@vger.kernel.org, nicholas.kazlauskas@amd.com,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: Re: [PATCH 0/3] amdgpu DC fixes for stable
+Message-ID: <20190920141135.GA588297@kroah.com>
+References: <20190920140338.3172-1-alexander.deucher@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190920140338.3172-1-alexander.deucher@amd.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-struct archdr is only big enough to hold the header of various types of
-arcnet packets. So to provide enough space to hold the data read from
-hardware provide a buffer large enough to hold a packet with maximal
-size.
+On Fri, Sep 20, 2019 at 09:03:35AM -0500, Alex Deucher wrote:
+> This set of patches is cherry-picked from 5.4 to stable to fix:
+> https://bugzilla.kernel.org/show_bug.cgi?id=204181
+> 
+> Please apply!
 
-The problem was noticed by the stack protector which makes the kernel
-oops.
+What stable tree(s) do you wish to see this applied to?
 
-Cc: stable@vger.kernel.org # v2.4.0+
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
-Hello,
+thanks,
 
-the problem exists in v2.4.0 already, I didn't look further to identify
-the offending commit.
-
-Best regards
-Uwe
----
- drivers/net/arcnet/arcnet.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/net/arcnet/arcnet.c b/drivers/net/arcnet/arcnet.c
-index 0efef7aa5b89..2b8cf58e4de0 100644
---- a/drivers/net/arcnet/arcnet.c
-+++ b/drivers/net/arcnet/arcnet.c
-@@ -1063,31 +1063,34 @@ EXPORT_SYMBOL(arcnet_interrupt);
- static void arcnet_rx(struct net_device *dev, int bufnum)
- {
- 	struct arcnet_local *lp = netdev_priv(dev);
--	struct archdr pkt;
-+	union {
-+		struct archdr pkt;
-+		char buf[512];
-+	} rxdata;
- 	struct arc_rfc1201 *soft;
- 	int length, ofs;
- 
--	soft = &pkt.soft.rfc1201;
-+	soft = &rxdata.pkt.soft.rfc1201;
- 
--	lp->hw.copy_from_card(dev, bufnum, 0, &pkt, ARC_HDR_SIZE);
--	if (pkt.hard.offset[0]) {
--		ofs = pkt.hard.offset[0];
-+	lp->hw.copy_from_card(dev, bufnum, 0, &rxdata.pkt, ARC_HDR_SIZE);
-+	if (rxdata.pkt.hard.offset[0]) {
-+		ofs = rxdata.pkt.hard.offset[0];
- 		length = 256 - ofs;
- 	} else {
--		ofs = pkt.hard.offset[1];
-+		ofs = rxdata.pkt.hard.offset[1];
- 		length = 512 - ofs;
- 	}
- 
- 	/* get the full header, if possible */
--	if (sizeof(pkt.soft) <= length) {
--		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(pkt.soft));
-+	if (sizeof(rxdata.pkt.soft) <= length) {
-+		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(rxdata.pkt.soft));
- 	} else {
--		memset(&pkt.soft, 0, sizeof(pkt.soft));
-+		memset(&rxdata.pkt.soft, 0, sizeof(rxdata.pkt.soft));
- 		lp->hw.copy_from_card(dev, bufnum, ofs, soft, length);
- 	}
- 
- 	arc_printk(D_DURING, dev, "Buffer #%d: received packet from %02Xh to %02Xh (%d+4 bytes)\n",
--		   bufnum, pkt.hard.source, pkt.hard.dest, length);
-+		   bufnum, rxdata.pkt.hard.source, rxdata.pkt.hard.dest, length);
- 
- 	dev->stats.rx_packets++;
- 	dev->stats.rx_bytes += length + ARC_HDR_SIZE;
-@@ -1096,13 +1099,13 @@ static void arcnet_rx(struct net_device *dev, int bufnum)
- 	if (arc_proto_map[soft->proto]->is_ip) {
- 		if (BUGLVL(D_PROTO)) {
- 			struct ArcProto
--			*oldp = arc_proto_map[lp->default_proto[pkt.hard.source]],
-+			*oldp = arc_proto_map[lp->default_proto[rxdata.pkt.hard.source]],
- 			*newp = arc_proto_map[soft->proto];
- 
- 			if (oldp != newp) {
- 				arc_printk(D_PROTO, dev,
- 					   "got protocol %02Xh; encap for host %02Xh is now '%c' (was '%c')\n",
--					   soft->proto, pkt.hard.source,
-+					   soft->proto, rxdata.pkt.hard.source,
- 					   newp->suffix, oldp->suffix);
- 			}
- 		}
-@@ -1111,10 +1114,10 @@ static void arcnet_rx(struct net_device *dev, int bufnum)
- 		lp->default_proto[0] = soft->proto;
- 
- 		/* in striking contrast, the following isn't a hack. */
--		lp->default_proto[pkt.hard.source] = soft->proto;
-+		lp->default_proto[rxdata.pkt.hard.source] = soft->proto;
- 	}
- 	/* call the protocol-specific receiver. */
--	arc_proto_map[soft->proto]->rx(dev, bufnum, &pkt, length);
-+	arc_proto_map[soft->proto]->rx(dev, bufnum, &rxdata.pkt, length);
- }
- 
- static void null_rx(struct net_device *dev, int bufnum,
--- 
-2.23.0
-
+greg k-h
