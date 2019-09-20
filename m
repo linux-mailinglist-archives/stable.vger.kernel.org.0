@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF2CB92D4
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561CAB9276
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392289AbfITOft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:35:49 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35892 "EHLO
+        id S2389090AbfITOcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:32:55 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36426 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388073AbfITOZB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:01 -0400
+        by vger.kernel.org with ESMTP id S2388260AbfITOZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:09 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqD-0004wr-Cv; Fri, 20 Sep 2019 15:24:57 +0100
+        id 1iBJqN-0004y6-4X; Fri, 20 Sep 2019 15:25:07 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0007qU-PV; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqG-0007wv-LN; Fri, 20 Sep 2019 15:25:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,20 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Tim Chen" <tim.c.chen@linux.intel.com>,
-        "Herbert Xu" <herbert@gondor.apana.org.au>,
-        "Eric Biggers" <ebiggers@google.com>
+        "Borislav Petkov" <bp@suse.de>, "Ingo Molnar" <mingo@kernel.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Frederic Weisbecker" <frederic@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Jon Masters" <jcm@redhat.com>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.220750729@decadent.org.uk>
+Message-ID: <lsq.1568989415.794842715@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 024/132] crypto: x86/crct10dif-pcl - fix use via
- crypto_shash_digest()
+Subject: [PATCH 3.16 101/132] x86/speculation/mds: Improve CPU buffer
+ clear documentation
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,66 +53,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Biggers <ebiggers@google.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit dec3d0b1071a0f3194e66a83d26ecf4aa8c5910e upstream.
+commit 9d8d0294e78a164d407133dea05caf4b84247d6a upstream.
 
-The ->digest() method of crct10dif-pclmul reads the current CRC value
-from the shash_desc context.  But this value is uninitialized, causing
-crypto_shash_digest() to compute the wrong result.  Fix it.
+On x86_64, all returns to usermode go through
+prepare_exit_to_usermode(), with the sole exception of do_nmi().
+This even includes machine checks -- this was added several years
+ago to support MCE recovery.  Update the documentation.
 
-Probably this wasn't noticed before because lib/crc-t10dif.c only uses
-crypto_shash_update(), not crypto_shash_digest().  Likewise,
-crypto_shash_digest() is not yet tested by the crypto self-tests because
-those only test the ahash API which only uses shash init/update/final.
-
-Fixes: 0b95a7f85718 ("crypto: crct10dif - Glue code to cast accelerated CRCT10DIF assembly as a crypto transform")
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[bwh: Backported to 3.16: adjust context]
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
+Link: http://lkml.kernel.org/r/999fa9e126ba6a48e9d214d2f18dbde5c62ac55c.1557865329.git.luto@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/crypto/crct10dif-pclmul_glue.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ Documentation/x86/mds.rst | 39 +++++++--------------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
 
---- a/arch/x86/crypto/crct10dif-pclmul_glue.c
-+++ b/arch/x86/crypto/crct10dif-pclmul_glue.c
-@@ -76,15 +76,14 @@ static int chksum_final(struct shash_des
- 	return 0;
- }
+--- a/Documentation/x86/mds.rst
++++ b/Documentation/x86/mds.rst
+@@ -142,38 +142,13 @@ Mitigation points
+    mds_user_clear.
  
--static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
--			u8 *out)
-+static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
- {
- 	if (irq_fpu_usable()) {
- 		kernel_fpu_begin();
--		*(__u16 *)out = crc_t10dif_pcl(*crcp, data, len);
-+		*(__u16 *)out = crc_t10dif_pcl(crc, data, len);
- 		kernel_fpu_end();
- 	} else
--		*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
-+		*(__u16 *)out = crc_t10dif_generic(crc, data, len);
- 	return 0;
- }
- 
-@@ -93,15 +92,13 @@ static int chksum_finup(struct shash_des
- {
- 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
- 
--	return __chksum_finup(&ctx->crc, data, len, out);
-+	return __chksum_finup(ctx->crc, data, len, out);
- }
- 
- static int chksum_digest(struct shash_desc *desc, const u8 *data,
- 			 unsigned int length, u8 *out)
- {
--	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+    The mitigation is invoked in prepare_exit_to_usermode() which covers
+-   most of the kernel to user space transitions. There are a few exceptions
+-   which are not invoking prepare_exit_to_usermode() on return to user
+-   space. These exceptions use the paranoid exit code.
 -
--	return __chksum_finup(&ctx->crc, data, length, out);
-+	return __chksum_finup(0, data, length, out);
- }
+-   - Non Maskable Interrupt (NMI):
+-
+-     Access to sensible data like keys, credentials in the NMI context is
+-     mostly theoretical: The CPU can do prefetching or execute a
+-     misspeculated code path and thereby fetching data which might end up
+-     leaking through a buffer.
+-
+-     But for mounting other attacks the kernel stack address of the task is
+-     already valuable information. So in full mitigation mode, the NMI is
+-     mitigated on the return from do_nmi() to provide almost complete
+-     coverage.
+-
+-   - Machine Check Exception (#MC):
+-
+-     Another corner case is a #MC which hits between the CPU buffer clear
+-     invocation and the actual return to user. As this still is in kernel
+-     space it takes the paranoid exit path which does not clear the CPU
+-     buffers. So the #MC handler repopulates the buffers to some
+-     extent. Machine checks are not reliably controllable and the window is
+-     extremly small so mitigation would just tick a checkbox that this
+-     theoretical corner case is covered. To keep the amount of special
+-     cases small, ignore #MC.
+-
+-   - Debug Exception (#DB):
+-
+-     This takes the paranoid exit path only when the INT1 breakpoint is in
+-     kernel space. #DB on a user space address takes the regular exit path,
+-     so no extra mitigation required.
++   all but one of the kernel to user space transitions.  The exception
++   is when we return from a Non Maskable Interrupt (NMI), which is
++   handled directly in do_nmi().
++
++   (The reason that NMI is special is that prepare_exit_to_usermode() can
++    enable IRQs.  In NMI context, NMIs are blocked, and we don't want to
++    enable IRQs with NMIs blocked.)
  
- static struct shash_alg alg = {
+ 
+ 2. C-State transition
 
