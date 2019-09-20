@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC18B931B
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E80AB92A5
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388044AbfITOZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:25:00 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35698 "EHLO
+        id S2391697AbfITOe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:34:27 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36300 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387889AbfITOZA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:00 -0400
+        by vger.kernel.org with ESMTP id S2388215AbfITOZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0004wb-Sc; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqK-00051C-Rg; Fri, 20 Sep 2019 15:25:04 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0007pv-GY; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqH-0007zR-NL; Fri, 20 Sep 2019 15:25:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Andrew Vasquez" <andrewv@marvell.com>,
-        "Himanshu Madhani" <hmadhani@marvell.com>
+        "Loic Poulain" <loic.poulain@intel.com>,
+        "Marcel Holtmann" <marcel@holtmann.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.752694848@decadent.org.uk>
+Message-ID: <lsq.1568989415.915776834@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 017/132] scsi: qla2xxx: Fix incorrect region-size
- setting in optrom SYSFS routines
+Subject: [PATCH 3.16 127/132] Bluetooth: hci_ldisc: Fix null pointer
+ derefence in case of early data
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,42 +47,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Andrew Vasquez <andrewv@marvell.com>
+From: Loic Poulain <loic.poulain@intel.com>
 
-commit 5cbdae10bf11f96e30b4d14de7b08c8b490e903c upstream.
+commit 84cb3df02aea4b00405521e67c4c67c2d525c364 upstream.
 
-Commit e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs
-code") incorrectly set 'optrom_region_size' to 'start+size', which can
-overflow option-rom boundaries when 'start' is non-zero.  Continue setting
-optrom_region_size to the proper adjusted value of 'size'.
+HCI_UART_PROTO_SET flag is set before hci_uart_set_proto call. If we
+receive data from tty layer during this procedure, proto pointer may
+not be assigned yet, leading to null pointer dereference in rx method
+hci_uart_tty_receive.
 
-Fixes: e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs code")
-Signed-off-by: Andrew Vasquez <andrewv@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch fixes this issue by introducing HCI_UART_PROTO_READY flag in
+order to avoid any proto operation before proto opening and assignment.
+
+Signed-off-by: Loic Poulain <loic.poulain@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/scsi/qla2xxx/qla_attr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_ldisc.c | 11 +++++++----
+ drivers/bluetooth/hci_uart.h  |  1 +
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -423,7 +423,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -225,7 +225,7 @@ static int hci_uart_flush(struct hci_dev
+ 	tty_ldisc_flush(tty);
+ 	tty_driver_flush_buffer(tty);
+ 
+-	if (test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		hu->proto->flush(hu);
+ 
+ 	return 0;
+@@ -342,7 +342,7 @@ static void hci_uart_tty_close(struct tt
+ 
+ 	cancel_work_sync(&hu->write_work);
+ 
+-	if (test_and_clear_bit(HCI_UART_PROTO_SET, &hu->flags)) {
++	if (test_and_clear_bit(HCI_UART_PROTO_READY, &hu->flags)) {
+ 		if (hdev) {
+ 			if (test_bit(HCI_UART_REGISTERED, &hu->flags))
+ 				hci_unregister_dev(hdev);
+@@ -350,6 +350,7 @@ static void hci_uart_tty_close(struct tt
  		}
+ 		hu->proto->close(hu);
+ 	}
++	clear_bit(HCI_UART_PROTO_SET, &hu->flags);
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+ 	kfree(hu);
+ }
+@@ -376,7 +377,7 @@ static void hci_uart_tty_wakeup(struct t
+ 	if (tty != hu->tty)
+ 		return;
  
- 		ha->optrom_state = QLA_SREADING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-@@ -495,7 +495,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+-	if (test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		hci_uart_tx_wakeup(hu);
+ }
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+@@ -399,7 +400,7 @@ static void hci_uart_tty_receive(struct
+ 	if (!hu || tty != hu->tty)
+ 		return;
  
- 		ha->optrom_state = QLA_SWRITING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+-	if (!test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (!test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		return;
+ 
+ 	spin_lock(&hu->rx_lock);
+@@ -476,9 +477,11 @@ static int hci_uart_set_proto(struct hci
+ 		return err;
+ 
+ 	hu->proto = p;
++	set_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 
+ 	err = hci_uart_register_dev(hu);
+ 	if (err) {
++		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 		p->close(hu);
+ 		return err;
+ 	}
+--- a/drivers/bluetooth/hci_uart.h
++++ b/drivers/bluetooth/hci_uart.h
+@@ -81,6 +81,7 @@ struct hci_uart {
+ /* HCI_UART proto flag bits */
+ #define HCI_UART_PROTO_SET	0
+ #define HCI_UART_REGISTERED	1
++#define HCI_UART_PROTO_READY	2
+ 
+ /* TX states  */
+ #define HCI_UART_SENDING	1
 
