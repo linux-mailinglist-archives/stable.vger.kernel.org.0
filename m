@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB77CB930C
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D81AB924E
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391900AbfITOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:36:19 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35836 "EHLO
+        id S2388367AbfITOZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:14 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36708 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388055AbfITOZB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:01 -0400
+        by vger.kernel.org with ESMTP id S2388340AbfITOZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:13 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqD-0004xC-Vu; Fri, 20 Sep 2019 15:24:58 +0100
+        id 1iBJqQ-00051H-8w; Fri, 20 Sep 2019 15:25:10 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqD-0007rD-2D; Fri, 20 Sep 2019 15:24:57 +0100
+        id 1iBJqF-0007uW-9o; Fri, 20 Sep 2019 15:24:59 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Guenter Roeck" <linux@roeck-us.net>
+        "S.j. Wang" <shengjiu.wang@nxp.com>,
+        "Mark Brown" <broonie@kernel.org>,
+        "Nicolin Chen" <nicoleotsuka@gmail.com>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.800348046@decadent.org.uk>
+Message-ID: <lsq.1568989415.957852696@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 033/132] hwmon: (vt1211) Use request_muxed_region for
- Super-IO accesses
+Subject: [PATCH 3.16 074/132] ASoC: fsl_esai: Fix missing break in switch
+ statement
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,66 +48,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: "S.j. Wang" <shengjiu.wang@nxp.com>
 
-commit 14b97ba5c20056102b3dd22696bf17b057e60976 upstream.
+commit 903c220b1ece12f17c868e43f2243b8f81ff2d4c upstream.
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+case ESAI_HCKT_EXTAL and case ESAI_HCKR_EXTAL should be
+independent of each other, so replace fall-through with break.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
-
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
-
-Fixes: 2219cd81a6cd ("hwmon/vt1211: Add probing of alternate config index port")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 43d24e76b698 ("ASoC: fsl_esai: Add ESAI CPU DAI driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/hwmon/vt1211.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
-
---- a/drivers/hwmon/vt1211.c
-+++ b/drivers/hwmon/vt1211.c
-@@ -226,15 +226,21 @@ static inline void superio_select(int si
- 	outb(ldn, sio_cip + 1);
- }
- 
--static inline void superio_enter(int sio_cip)
-+static inline int superio_enter(int sio_cip)
- {
-+	if (!request_muxed_region(sio_cip, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x87, sio_cip);
- 	outb(0x87, sio_cip);
-+
-+	return 0;
- }
- 
- static inline void superio_exit(int sio_cip)
- {
- 	outb(0xaa, sio_cip);
-+	release_region(sio_cip, 2);
- }
- 
- /* ---------------------------------------------------------------------
-@@ -1280,11 +1286,14 @@ EXIT:
- 
- static int __init vt1211_find(int sio_cip, unsigned short *address)
- {
--	int err = -ENODEV;
-+	int err;
- 	int devid;
- 
--	superio_enter(sio_cip);
-+	err = superio_enter(sio_cip);
-+	if (err)
-+		return err;
- 
-+	err = -ENODEV;
- 	devid = force_id ? force_id : superio_inb(sio_cip, SIO_VT1211_DEVID);
- 	if (devid != SIO_VT1211_ID)
- 		goto EXIT;
+--- a/sound/soc/fsl/fsl_esai.c
++++ b/sound/soc/fsl/fsl_esai.c
+@@ -245,6 +245,7 @@ static int fsl_esai_set_dai_sysclk(struc
+ 		break;
+ 	case ESAI_HCKT_EXTAL:
+ 		ecr |= ESAI_ECR_ETI;
++		break;
+ 	case ESAI_HCKR_EXTAL:
+ 		ecr |= ESAI_ECR_ERI;
+ 		break;
 
