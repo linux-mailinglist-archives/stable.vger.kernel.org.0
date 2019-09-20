@@ -2,75 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EC7B8D9A
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 11:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CBF6B8E34
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 12:02:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408474AbfITJZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 05:25:26 -0400
-Received: from mail-vs1-f66.google.com ([209.85.217.66]:33180 "EHLO
-        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2408467AbfITJZ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 05:25:26 -0400
-Received: by mail-vs1-f66.google.com with SMTP id p13so4258242vso.0
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 02:25:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=tc9aX7Tjv2WQn2C3iuDLjEgw+Yk8v3ESykmpOr0ooVc=;
-        b=rshXK5LTe0fREm43NaPGllC+wnn0Lq1++dd+IBBsi9dD9gUf7a7yI2VEwGimcYIr3n
-         f6uZjeI4B5D9cc7ySodD6+ByLPKWohkg9+DBTkx8rMXj1w+mbe0pXClBDZVuGNwaK8lg
-         XyC9BVj3UYnspXdQp7BShRXjTX2Qw97VBxDFFRjRx7SAul18iXCoaJwBesTTMRZnlyqo
-         +lzBU/miPgN6+vMnOthBUCAIVAVhzRYIP/FZEgDsIt0DXHri9H4OQsIc8/oMF/KPWwWB
-         KMPJxCefDRLm7TqdBDl/yDyPHAVkX0RnlnUYDh8dv1RL8tyUf9b6hw+pdt6RxRwMdVxX
-         l3pA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=tc9aX7Tjv2WQn2C3iuDLjEgw+Yk8v3ESykmpOr0ooVc=;
-        b=OHWKE6BKsrm0Q6s6Ks9i/nTWo8/nAcyx5vO3vM9aQDKtIMp43U09tGpWrG4MUbZugG
-         RvM2bCNjCYx8KD00Tba0kEvhrSX4ijMZ70QppECmoXhFl8MGCzH+pcQNSaiDgxz+xD7l
-         WeHj+czejAcSvXYPEd+PEJauFr9NiP/aVnTEsY4k7LkSptqyRZmIUv2W7hPjuBoEAN0x
-         m8K9mM4vxgfi+IktIgDWlJEMv5ftujXrp0Y43XDcfCGXAjq4jas9Y6b/ws4buoiDdWaH
-         OlIlmNymw1gXXk6hTymLN+ekwVztUqnyb+eWg8O0KmsCH0/uQg/Iv0P3H3oq/V7JPfs1
-         GGwQ==
-X-Gm-Message-State: APjAAAWEuHLSPxsKdvFxtYCaiET9lf6LQl50PXZidcFYcdRKyJnJrmi6
-        +Tr8w9z10fpnTrAhWQ++e7MWZxfe9xRd7gKxnNY=
-X-Google-Smtp-Source: APXvYqznGgY8/dn8EjGMWoDaWA9Dc8dgMQLGOXRoRKvJ6PVmqB4PyIn+gsgPYZ1n1VwLlc5xY+hbEqpvjaN/JRuiGaY=
-X-Received: by 2002:a67:c319:: with SMTP id r25mr996169vsj.139.1568971525252;
- Fri, 20 Sep 2019 02:25:25 -0700 (PDT)
+        id S2405903AbfITKCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 06:02:37 -0400
+Received: from mga04.intel.com ([192.55.52.120]:58443 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405850AbfITKCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Sep 2019 06:02:37 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Sep 2019 03:02:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,528,1559545200"; 
+   d="scan'208";a="202476935"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 20 Sep 2019 03:02:35 -0700
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy@infradead.org>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] platform/x86: i2c-multi-instantiate: Derive the device name from parent
+Date:   Fri, 20 Sep 2019 13:02:33 +0300
+Message-Id: <20190920100233.12829-1-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Received: by 2002:ab0:1841:0:0:0:0:0 with HTTP; Fri, 20 Sep 2019 02:25:24
- -0700 (PDT)
-Reply-To: mr_abayo@outlook.com
-From:   UNITED BANK FOR AFRICA <mrabayouba@gmail.com>
-Date:   Fri, 20 Sep 2019 10:25:24 +0100
-Message-ID: <CAP1o4vny0WZ=W_FPH+NbWmivuHDwcKT_tNC70di2+idY2eqe+Q@mail.gmail.com>
-Subject: Attention: Fund Beneficiary
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention:Fund Beneficiary
+When naming the new devices, instead of using the ACPI ID in
+the name as base, using the parent device's name. That makes
+it possible to support multiple multi-instance i2c devices
+of the same type in the same system.
 
+This fixes an issue seen on some Intel Kaby Lake based
+boards:
 
-This is to inform you that your payment file was directed to us by
-WORLD BANK OFFICE UNITED STATES OF AMERICA SIGNED JIM YONG KIM WORLD
-BANK GROUP PRESIDENT to immediately carry out the transfer of your
-$10.5M to you
+sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-INT3515-tps6598x.0'
 
-However sequel to this directive we are ready to proceed on the
-transfer but you have to comply and follows all our instruction for
-the smooth success of your fund
+Fixes: 2336dfadfb1e ("platform/x86: i2c-multi-instantiate: Allow to have same slaves")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+---
+ drivers/platform/x86/i2c-multi-instantiate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Kindly send us copy of your identification  your Mobile contact phone number
-Your your occupation
-Note there are rules and procedures
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 61fe341a85aa..ea68f6ed66ae 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -90,7 +90,7 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+-		snprintf(name, sizeof(name), "%s-%s.%d", match->id,
++		snprintf(name, sizeof(name), "%s-%s.%d", dev_name(dev),
+ 			 inst_data[i].type, i);
+ 		board_info.dev_name = name;
+ 		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
+-- 
+2.23.0
 
-yours Sincerely
-MR ABAYO .W
-TELEX DIRECTOR
-UNITED BANK FOR AFRICA
