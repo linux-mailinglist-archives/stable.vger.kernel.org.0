@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9471B926D
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F81B925A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389441AbfITOcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:32:32 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36498 "EHLO
+        id S2391305AbfITObw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:31:52 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36700 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388283AbfITOZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:10 -0400
+        by vger.kernel.org with ESMTP id S2388339AbfITOZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:13 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqN-000514-G2; Fri, 20 Sep 2019 15:25:07 +0100
+        id 1iBJqQ-000514-55; Fri, 20 Sep 2019 15:25:10 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqG-0007wH-CX; Fri, 20 Sep 2019 15:25:00 +0100
+        id 1iBJqF-0007ul-DX; Fri, 20 Sep 2019 15:24:59 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        "Veaceslav Falico" <vfalico@gmail.com>,
-        "Jarod Wilson" <jarod@redhat.com>,
-        "Jay Vosburgh" <j.vosburgh@gmail.com>,
-        "Andy Gospodarek" <andy@greyhouse.net>,
-        "Jay Vosburgh" <jay.vosburgh@canonical.com>
+        "David S. Miller" <davem@davemloft.net>,
+        "Christophe Leroy" <christophe.leroy@c-s.fr>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.519584410@decadent.org.uk>
+Message-ID: <lsq.1568989415.363256774@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 095/132] bonding: fix arp_validate toggling in
- active-backup mode
+Subject: [PATCH 3.16 077/132] net: ucc_geth - fix Oops when changing
+ number of buffers in the ring
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,78 +47,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 upstream.
+commit ee0df19305d9fabd9479b785918966f6e25b733b upstream.
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+When changing the number of buffers in the RX ring while the interface
+is running, the following Oops is encountered due to the new number
+of buffers being taken into account immediately while their allocation
+is done when opening the device only.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
+[   69.882706] Unable to handle kernel paging request for data at address 0xf0000100
+[   69.890172] Faulting instruction address: 0xc033e164
+[   69.895122] Oops: Kernel access of bad area, sig: 11 [#1]
+[   69.900494] BE PREEMPT CMPCPRO
+[   69.907120] CPU: 0 PID: 0 Comm: swapper Not tainted 4.14.115-00006-g179ade8ce3-dirty #269
+[   69.915956] task: c0684310 task.stack: c06da000
+[   69.920470] NIP:  c033e164 LR: c02e44d0 CTR: c02e41fc
+[   69.925504] REGS: dfff1e20 TRAP: 0300   Not tainted  (4.14.115-00006-g179ade8ce3-dirty)
+[   69.934161] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 22004428  XER: 20000000
+[   69.940869] DAR: f0000100 DSISR: 20000000
+[   69.940869] GPR00: c0352d70 dfff1ed0 c0684310 f00000a4 00000040 dfff1f68 00000000 0000001f
+[   69.940869] GPR08: df53f410 1cc00040 00000021 c0781640 42004424 100c82b6 f00000a4 df53f5b0
+[   69.940869] GPR16: df53f6c0 c05daf84 00000040 00000000 00000040 c0782be4 00000000 00000001
+[   69.940869] GPR24: 00000000 df53f400 000001b0 df53f410 df53f000 0000003f df708220 1cc00044
+[   69.978348] NIP [c033e164] skb_put+0x0/0x5c
+[   69.982528] LR [c02e44d0] ucc_geth_poll+0x2d4/0x3f8
+[   69.987384] Call Trace:
+[   69.989830] [dfff1ed0] [c02e4554] ucc_geth_poll+0x358/0x3f8 (unreliable)
+[   69.996522] [dfff1f20] [c0352d70] net_rx_action+0x248/0x30c
+[   70.002099] [dfff1f80] [c04e93e4] __do_softirq+0xfc/0x310
+[   70.007492] [dfff1fe0] [c0021124] irq_exit+0xd0/0xd4
+[   70.012458] [dfff1ff0] [c000e7e0] call_do_irq+0x24/0x3c
+[   70.017683] [c06dbe80] [c0006bac] do_IRQ+0x64/0xc4
+[   70.022474] [c06dbea0] [c001097c] ret_from_except+0x0/0x14
+[   70.027964] --- interrupt: 501 at rcu_idle_exit+0x84/0x90
+[   70.027964]     LR = rcu_idle_exit+0x74/0x90
+[   70.037585] [c06dbf60] [20000000] 0x20000000 (unreliable)
+[   70.042984] [c06dbf80] [c004bb0c] do_idle+0xb4/0x11c
+[   70.047945] [c06dbfa0] [c004bd14] cpu_startup_entry+0x18/0x1c
+[   70.053682] [c06dbfb0] [c05fb034] start_kernel+0x370/0x384
+[   70.059153] [c06dbff0] [00003438] 0x3438
+[   70.063062] Instruction dump:
+[   70.066023] 38a00000 38800000 90010014 4bfff015 80010014 7c0803a6 3123ffff 7c691910
+[   70.073767] 38210010 4e800020 38600000 4e800020 <80e3005c> 80c30098 3107ffff 7d083910
+[   70.081690] ---[ end trace be7ccd9c1e1a9f12 ]---
 
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
+This patch forbids the modification of the number of buffers in the
+ring while the interface is running.
 
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: ac421852b3a0 ("ucc_geth: add ethtool support")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/bonding/bond_options.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/net/ethernet/freescale/ucc_geth_ethtool.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1068,13 +1068,6 @@ static int bond_option_arp_validate_set(
- {
- 	pr_info("%s: Setting arp_validate to %s (%llu)\n",
- 		bond->dev->name, newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+--- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
++++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
+@@ -253,14 +253,12 @@ uec_set_ringparam(struct net_device *net
+ 		return -EINVAL;
+ 	}
  
- 	return 0;
++	if (netif_running(netdev))
++		return -EBUSY;
++
+ 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
+ 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
+ 
+-	if (netif_running(netdev)) {
+-		/* FIXME: restart automatically */
+-		netdev_info(netdev, "Please re-open the interface\n");
+-	}
+-
+ 	return ret;
+ }
+ 
 
