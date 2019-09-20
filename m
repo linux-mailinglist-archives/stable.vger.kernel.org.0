@@ -2,111 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5A4B96E7
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 20:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89780B96ED
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 20:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404951AbfITSDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 14:03:44 -0400
-Received: from mail-wm1-f53.google.com ([209.85.128.53]:35846 "EHLO
-        mail-wm1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404946AbfITSDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 14:03:44 -0400
-Received: by mail-wm1-f53.google.com with SMTP id m18so3137718wmc.1
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 11:03:42 -0700 (PDT)
+        id S2406165AbfITSEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 14:04:44 -0400
+Received: from mail-yw1-f66.google.com ([209.85.161.66]:33821 "EHLO
+        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404970AbfITSEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 14:04:44 -0400
+Received: by mail-yw1-f66.google.com with SMTP id h73so2803785ywa.1
+        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 11:04:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=R5FJonxqC/9LJd67EGSb54AmKcWkkmq3fZh1GQxS5jc=;
-        b=Yf9iK8asOklK1rk3PuFO3w5HG689p6Eef1L3Qc6NDqVcGOW8w2tdO41pBjIbUvOgwi
-         MzEs03AigwSTOQTO1qmNmUuogp5DIVfLYLABz+Ua5A4POwmm3DTjr6RKhBtCRPX3AMTV
-         ZFRICz+fhGuN28ilT7dpHfycR4OYMw8Uq+S7K0A0jbCpsYTNQbAkN8d3zkGVi6xPJZoH
-         h52Q6Wiub0moBKQr0v2mSmDVCcynTY3Hy3Yt4+fzq6HpQ52KAja4ub9Q3fj5vnkpMjnY
-         XRY1RJvwvVgAeA4ytRabSMHd4BoMqfDZRRrXaEulhRlmp3C4Io6dRm2wbb00+SExq54z
-         mcDQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=k0Y0GF7CWffYLFYvXkG19jRHoysz5ieFFQqfxyNFMSU=;
+        b=ZBpCjUL+IbUWfA0wlluxXmweIe5dXQBvfGbelgOXDfLbQTe0/ERgdkQNzI1Tb5ztIB
+         +oZj2Ps883y6DktQ6EPu/S2IE4aOgUgDuRCKVGGQmEnKuNjPI4sXqyy53UZNGUmc3OBw
+         e1YGsrSXdSw4ICfX9yG/EvkXKFDYWUQwFI6OqRWol3SC9OQEjV99mk4Pnt51QqPAhUyU
+         IJfeH1IlJ0atdwNbUZThKVqeLtocpI6LpxTbn4DSDZKS+dCCTYp4NDpJIFvlRo1sHquz
+         uVPLkxJLkKvLHxnhPfUG5EO46zNffKR8OkIabLU4uuprGJHiUl639aO9h6D/XUSpR2Eq
+         VkTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=R5FJonxqC/9LJd67EGSb54AmKcWkkmq3fZh1GQxS5jc=;
-        b=kAAp9hRcC46BQ58QACu8WbGWN+5L/zxelEloSX2r9WYHpNxVaBzzkS6nU5tsYVkQIx
-         O1b2ZIPGYkfcXPKvHpIY+VxbcgF9nvxNlnPO/qVUR/XyNFBdQay10NVgG5UEA8tLejJc
-         4TLyEYF+GPNrHDl6ZJAd3AajXIHX6dems+mYVsRMEbkPkepGLMbBZjliVsEHLlQOFoQ3
-         xT+QrgbZzvuHHHwuNzOjrRi1uYBkNL2BxNhL3NpKHNJqvYW4HpAgcYZHqm0v9mx2AsV+
-         3FKCoNsL4tm12TpqroML0fI+hW7rcJ0rKzc10NJANqLmsCEW88iymbXsodYiKxYW09y2
-         qI/w==
-X-Gm-Message-State: APjAAAV7Eza0lPZ3Hjj1pf9Wazw5HIDYgJarYxi7PymURJJQHNlIs3PG
-        dQdMSBOHGZZG4ub93E31ZY9vm5dJCVcPTA==
-X-Google-Smtp-Source: APXvYqzZCFPV2jEcQ7skLR0HZNZtKTrCKKJglm+xAF+1sll9fR0nqLqAGver5TRqgSavURQe9uAr2A==
-X-Received: by 2002:a7b:c045:: with SMTP id u5mr4429390wmc.139.1569002621488;
-        Fri, 20 Sep 2019 11:03:41 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f15sm2031318wmh.4.2019.09.20.11.03.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 20 Sep 2019 11:03:39 -0700 (PDT)
-Message-ID: <5d85147b.1c69fb81.3086e.a905@mx.google.com>
-Date:   Fri, 20 Sep 2019 11:03:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=k0Y0GF7CWffYLFYvXkG19jRHoysz5ieFFQqfxyNFMSU=;
+        b=qMm6fkoPtsO/0ODAod01eJ0hGIMhNCBlcYH2Xv2AXCxVLR3aWUH5wCVd3hBSdSfPfV
+         qeo9/GmNEMsiuazlEqrQHzy7O/glEkDIRSm8K5YQA4w7xaNbONjUA9r0ES0Q/RICaywW
+         UhL05/9wgi/SvoOUIdZeECH2u+eUJarDHrMJ6s6mHeKS2h0LQx30F9h1p6s9fIqawGTW
+         gN/93iEX1NNUl2QtslrB1naLsTpj14ne5WUucwGgxg9TysLhbPrGHmaxbr07EMrxBhoa
+         uR9DQ+xl1ez20bO47oiObaBQk7b5Riu7En7+dNNLs+Ouf5i9UyNDdnc+OeNqxmy4fiCM
+         CZ7Q==
+X-Gm-Message-State: APjAAAVOKMdNzc7REWbhVxWYuBfcVQEjIKnO8n6/yc0iWLm25yXCQcOg
+        XvzNeZPSdmWpGgITzOT5c4NZSp2A/LmQMcflBqs=
+X-Google-Smtp-Source: APXvYqwHXpQ6PK3m7rp2YnrbLARhxJHZ1WKJwPCXHdKlBDh3uLUk2sN7BTkMhcLdddo3WLy6hvEV/iuxc0QlulK4cU8=
+X-Received: by 2002:a0d:df44:: with SMTP id i65mr13860073ywe.83.1569002683773;
+ Fri, 20 Sep 2019 11:04:43 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a25:bce:0:0:0:0:0 with HTTP; Fri, 20 Sep 2019 11:04:43 -0700 (PDT)
+Reply-To: gredamondays@gmail.com
+From:   Rebecca Udarra <charityorkss@gmail.com>
+Date:   Fri, 20 Sep 2019 20:04:43 +0200
+Message-ID: <CACtY+oOOvKO5UUgeDB7pJnBC3u0uf04X7npdcnb1kaj4ShksDA@mail.gmail.com>
+Subject: If you can honestly be of assistance
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.145-60-g6ee21d3e1811
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 123 boots: 0 failed,
- 114 passed with 8 offline, 1 untried/unknown (v4.14.145-60-g6ee21d3e1811)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 123 boots: 0 failed, 114 passed with 8 offline=
-, 1 untried/unknown (v4.14.145-60-g6ee21d3e1811)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.145-60-g6ee21d3e1811/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.145-60-g6ee21d3e1811/
-
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.145-60-g6ee21d3e1811
-Git Commit: 6ee21d3e1811973deadaad1626ecb14a42faa01f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 22 SoC families, 14 builds out of 201
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Good day Dear
+It is my pleasure to contact you for a business venture which my Son
+and I intend to establish in your country, though I have not met with
+you before  but I believe, one has to risk confiding in someone to
+succeed some times  in life,  base on the situation we find ourselves.
+There is this amount of money which my late Husband kept for us here
+in Cote d'Ivoire before his  death. Now my son and I have decided to
+invest this money anywhere safe enough outside our Country for my
+son=E2=80=99s study and future.We want to  transfer and invest this fund in
+any lucrative business were tax will not be too much. If you can
+honestly be of assistance to us we will be pleased  to work with you
+while you manage the investment for us. It is very urgent and I await
+your immediate response.
+Sincerely yours,
+Mrs.Rebecca Udarra
