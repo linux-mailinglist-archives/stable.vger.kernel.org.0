@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C7FB9250
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95FCFB9290
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390868AbfITObX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:31:23 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36800 "EHLO
+        id S2391571AbfITOdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:33:41 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36340 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388365AbfITOZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:14 -0400
+        by vger.kernel.org with ESMTP id S2388238AbfITOZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqR-0004y2-Hm; Fri, 20 Sep 2019 15:25:11 +0100
+        id 1iBJqM-0004xX-3Q; Fri, 20 Sep 2019 15:25:06 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqF-0007uH-4Y; Fri, 20 Sep 2019 15:24:59 +0100
+        id 1iBJqH-0007ym-CS; Fri, 20 Sep 2019 15:25:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Oliver Neukum" <oneukum@suse.com>,
-        "Johan Hovold" <johan@kernel.org>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "kbuild test robot" <lkp@intel.com>,
+        "Alan Stern" <stern@rowland.harvard.edu>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.692470111@decadent.org.uk>
+Message-ID: <lsq.1568989415.935204598@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 071/132] USB: serial: use variable for status
+Subject: [PATCH 3.16 119/132] media: usb: siano: Fix false-positive
+ "uninitialized variable" warning
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,91 +48,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 3161da970d38cd6ed2ba8cadec93874d1d06e11e upstream.
+commit 45457c01171fd1488a7000d1751c06ed8560ee38 upstream.
 
-This patch turns status in a variable read once from the URB.
-The long term plan is to deliver status to the callback.
-In addition it makes the code a bit more elegant.
+GCC complains about an apparently uninitialized variable recently
+added to smsusb_init_device().  It's a false positive, but to silence
+the warning this patch adds a trivial initialization.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/serial/generic.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/media/usb/siano/smsusb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/generic.c
-+++ b/drivers/usb/serial/generic.c
-@@ -350,6 +350,7 @@ void usb_serial_generic_read_bulk_callba
- 	struct usb_serial_port *port = urb->context;
- 	unsigned char *data = urb->transfer_buffer;
- 	unsigned long flags;
-+	int status = urb->status;
- 	int i;
+--- a/drivers/media/usb/siano/smsusb.c
++++ b/drivers/media/usb/siano/smsusb.c
+@@ -359,7 +359,7 @@ static int smsusb_init_device(struct usb
+ 	struct smsdevice_params_t params;
+ 	struct smsusb_device_t *dev;
+ 	int i, rc;
+-	int in_maxp;
++	int in_maxp = 0;
  
- 	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i) {
-@@ -360,22 +361,22 @@ void usb_serial_generic_read_bulk_callba
- 
- 	dev_dbg(&port->dev, "%s - urb %d, len %d\n", __func__, i,
- 							urb->actual_length);
--	switch (urb->status) {
-+	switch (status) {
- 	case 0:
- 		break;
- 	case -ENOENT:
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
- 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		return;
- 	case -EPIPE:
- 		dev_err(&port->dev, "%s - urb stopped: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		return;
- 	default:
- 		dev_dbg(&port->dev, "%s - nonzero urb status: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		goto resubmit;
- 	}
- 
-@@ -399,6 +400,7 @@ void usb_serial_generic_write_bulk_callb
- {
- 	unsigned long flags;
- 	struct usb_serial_port *port = urb->context;
-+	int status = urb->status;
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(port->write_urbs); ++i) {
-@@ -410,22 +412,22 @@ void usb_serial_generic_write_bulk_callb
- 	set_bit(i, &port->write_urbs_free);
- 	spin_unlock_irqrestore(&port->lock, flags);
- 
--	switch (urb->status) {
-+	switch (status) {
- 	case 0:
- 		break;
- 	case -ENOENT:
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
- 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		return;
- 	case -EPIPE:
- 		dev_err_console(port, "%s - urb stopped: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		return;
- 	default:
- 		dev_err_console(port, "%s - nonzero urb status: %d\n",
--							__func__, urb->status);
-+							__func__, status);
- 		goto resubmit;
- 	}
- 
+ 	/* create device object */
+ 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
 
