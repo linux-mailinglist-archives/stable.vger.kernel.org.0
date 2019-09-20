@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4ACB92AC
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4122B9325
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387735AbfITOe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:34:26 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36334 "EHLO
+        id S2388014AbfITOY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:24:59 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35636 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388234AbfITOZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:07 -0400
+        by vger.kernel.org with ESMTP id S1728952AbfITOY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:24:58 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqL-00051H-2x; Fri, 20 Sep 2019 15:25:05 +0100
+        id 1iBJqC-0004wS-Io; Fri, 20 Sep 2019 15:24:56 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007yr-DA; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqC-0007pa-38; Fri, 20 Sep 2019 15:24:56 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>,
+        "Dan Carpenter" <dan.carpenter@oracle.com>,
         "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.716175846@decadent.org.uk>
+Message-ID: <lsq.1568989415.650123541@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 120/132] media: smsusb: better handle optional alignment
+Subject: [PATCH 3.16 013/132] media: wl128x: prevent two potential buffer
+ overflows
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,70 +48,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a47686636d84eaec5c9c6e84bd5f96bed34d526d upstream.
+commit 9c2ccc324b3a6cbc865ab8b3e1a09e93d3c8ade9 upstream.
 
-Most Siano devices require an alignment for the response.
+Smatch marks skb->data as untrusted so it warns that "evt_hdr->dlen"
+can copy up to 255 bytes and we only have room for two bytes.  Even
+if this comes from the firmware and we trust it, the new policy
+generally is just to fix it as kernel hardenning.
 
-Changeset f3be52b0056a ("media: usb: siano: Fix general protection fault in smsusb")
-changed the logic with gets such aligment, but it now produces a
-sparce warning:
+I can't test this code so I tried to be very conservative.  I considered
+not allowing "evt_hdr->dlen == 1" because it doesn't initialize the
+whole variable but in the end I decided to allow it and manually
+initialized "asic_id" and "asic_ver" to zero.
 
-drivers/media/usb/siano/smsusb.c: In function 'smsusb_init_device':
-drivers/media/usb/siano/smsusb.c:447:37: warning: 'in_maxp' may be used uninitialized in this function [-Wmaybe-uninitialized]
-  447 |   dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-      |                             ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fixes: e8454ff7b9a4 ("[media] drivers:media:radio: wl128x: FM Driver Common sources")
 
-The sparse message itself is bogus, but a broken (or fake) USB
-eeprom could produce a negative value for response_alignment.
-
-So, change the code in order to check if the result is not
-negative.
-
-Fixes: 31e0456de5be ("media: usb: siano: Fix general protection fault in smsusb")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/usb/siano/smsusb.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -359,7 +359,7 @@ static int smsusb_init_device(struct usb
- 	struct smsdevice_params_t params;
- 	struct smsusb_device_t *dev;
- 	int i, rc;
--	int in_maxp = 0;
-+	int align = 0;
- 
- 	/* create device object */
- 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
-@@ -379,14 +379,14 @@ static int smsusb_init_device(struct usb
- 
- 		if (desc->bEndpointAddress & USB_DIR_IN) {
- 			dev->in_ep = desc->bEndpointAddress;
--			in_maxp = usb_endpoint_maxp(desc);
-+			align = usb_endpoint_maxp(desc) - sizeof(struct sms_msg_hdr);
- 		} else {
- 			dev->out_ep = desc->bEndpointAddress;
- 		}
+--- a/drivers/media/radio/wl128x/fmdrv_common.c
++++ b/drivers/media/radio/wl128x/fmdrv_common.c
+@@ -494,7 +494,8 @@ int fmc_send_cmd(struct fmdev *fmdev, u8
+ 		return -EIO;
  	}
+ 	/* Send response data to caller */
+-	if (response != NULL && response_len != NULL && evt_hdr->dlen) {
++	if (response != NULL && response_len != NULL && evt_hdr->dlen &&
++	    evt_hdr->dlen <= payload_len) {
+ 		/* Skip header info and copy only response data */
+ 		skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+ 		memcpy(response, skb->data, evt_hdr->dlen);
+@@ -590,6 +591,8 @@ static void fm_irq_handle_flag_getcmd_re
+ 		return;
  
- 	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
--	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
-+	if (!dev->in_ep || !dev->out_ep || align < 0) {  /* Missing endpoints? */
- 		smsusb_term_device(intf);
- 		return -ENODEV;
- 	}
-@@ -405,7 +405,7 @@ static int smsusb_init_device(struct usb
- 		/* fall-thru */
- 	default:
- 		dev->buffer_size = USB2_BUFFER_SIZE;
--		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-+		dev->response_alignment = align;
+ 	fm_evt_hdr = (void *)skb->data;
++	if (fm_evt_hdr->dlen > sizeof(fmdev->irq_info.flag))
++		return;
  
- 		params.flags |= SMS_DEVICE_FAMILY2;
- 		break;
+ 	/* Skip header info and copy only response data */
+ 	skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+@@ -1318,7 +1321,8 @@ static int load_default_rx_configuration
+ /* Does FM power on sequence */
+ static int fm_power_up(struct fmdev *fmdev, u8 mode)
+ {
+-	u16 payload, asic_id, asic_ver;
++	u16 payload;
++	__be16 asic_id = 0, asic_ver = 0;
+ 	int resp_len, ret;
+ 	u8 fw_name[50];
+ 
 
