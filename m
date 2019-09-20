@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D66B91C0
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF00BB91BD
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388449AbfITOZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:25:19 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36962 "EHLO
+        id S2388409AbfITOZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:25:16 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36780 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388421AbfITOZR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:17 -0400
+        by vger.kernel.org with ESMTP id S2388362AbfITOZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:14 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqT-0004y5-Ot; Fri, 20 Sep 2019 15:25:13 +0100
+        id 1iBJqQ-00050v-9E; Fri, 20 Sep 2019 15:25:10 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqE-0007sz-HB; Fri, 20 Sep 2019 15:24:58 +0100
+        id 1iBJqF-0007uR-8E; Fri, 20 Sep 2019 15:24:59 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Marcel Holtmann" <marcel@holtmann.org>
+        "Rob Herring" <robh@kernel.org>,
+        "Nick Desaulniers" <ndesaulniers@google.com>,
+        "David Laight" <David.Laight@ACULAB.COM>,
+        "Phong Tran" <tranmanphong@gmail.com>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.829214272@decadent.org.uk>
+Message-ID: <lsq.1568989415.920663841@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 055/132] Bluetooth: Fix regression with minimum
- encryption key size alignment
+Subject: [PATCH 3.16 073/132] of: fix clang -Wunsequenced for be32_to_cpu()
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,149 +48,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Phong Tran <tranmanphong@gmail.com>
 
-commit 693cd8ce3f882524a5d06f7800dd8492411877b3 upstream.
+commit 440868661f36071886ed360d91de83bd67c73b4f upstream.
 
-When trying to align the minimum encryption key size requirement for
-Bluetooth connections, it turns out doing this in a central location in
-the HCI connection handling code is not possible.
+Now, make the loop explicit to avoid clang warning.
 
-Original Bluetooth version up to 2.0 used a security model where the
-L2CAP service would enforce authentication and encryption.  Starting
-with Bluetooth 2.1 and Secure Simple Pairing that model has changed into
-that the connection initiator is responsible for providing an encrypted
-ACL link before any L2CAP communication can happen.
+./include/linux/of.h:238:37: warning: multiple unsequenced modifications
+to 'cell' [-Wunsequenced]
+                r = (r << 32) | be32_to_cpu(*(cell++));
+                                                  ^~
+./include/linux/byteorder/generic.h:95:21: note: expanded from macro
+'be32_to_cpu'
+                    ^
+./include/uapi/linux/byteorder/little_endian.h:40:59: note: expanded
+from macro '__be32_to_cpu'
+                                                          ^
+./include/uapi/linux/swab.h:118:21: note: expanded from macro '__swab32'
+        ___constant_swab32(x) :                 \
+                           ^
+./include/uapi/linux/swab.h:18:12: note: expanded from macro
+'___constant_swab32'
+        (((__u32)(x) & (__u32)0x000000ffUL) << 24) |            \
+                  ^
 
-Now connecting Bluetooth 2.1 or later devices with Bluetooth 2.0 and
-before devices are causing a regression.  The encryption key size check
-needs to be moved out of the HCI connection handling into the L2CAP
-channel setup.
-
-To achieve this, the current check inside hci_conn_security() has been
-moved into l2cap_check_enc_key_size() helper function and then called
-from four decisions point inside L2CAP to cover all combinations of
-Secure Simple Pairing enabled devices and device using legacy pairing
-and legacy service security model.
-
-Fixes: d5bb334a8e17 ("Bluetooth: Align minimum encryption key size for LE and BR/EDR connections")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203643
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[bwh: Backported to 3.16:
- - Encryption flag is in hci_conn::link_mode not hci_conn::flags
- - Adjust context, indentation]
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/460
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[robh: fix up whitespace]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/bluetooth/hci_conn.c   | 18 +++++++++---------
- net/bluetooth/l2cap_core.c | 33 ++++++++++++++++++++++++++++-----
- 2 files changed, 37 insertions(+), 14 deletions(-)
+ include/linux/of.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -868,14 +868,6 @@ int hci_conn_check_link_mode(struct hci_
- 	if (hci_conn_ssp_enabled(conn) && !(conn->link_mode & HCI_LM_ENCRYPT))
- 		return 0;
- 
--	/* The minimum encryption key size needs to be enforced by the
--	 * host stack before establishing any L2CAP connections. The
--	 * specification in theory allows a minimum of 1, but to align
--	 * BR/EDR and LE transports, a minimum of 7 is chosen.
--	 */
--	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
--		return 0;
--
- 	return 1;
- }
- 
-@@ -988,8 +980,16 @@ auth:
- 		return 0;
- 
- encrypt:
--	if (conn->link_mode & HCI_LM_ENCRYPT)
-+	if (conn->link_mode & HCI_LM_ENCRYPT) {
-+		/* Ensure that the encryption key size has been read,
-+		 * otherwise stall the upper layer responses.
-+		 */
-+		if (!conn->enc_key_size)
-+			return 0;
-+
-+		/* Nothing else needed, all requirements are met */
- 		return 1;
-+	}
- 
- 	hci_conn_encrypt(conn);
- 	return 0;
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1260,6 +1260,21 @@ static void l2cap_start_connection(struc
- 	}
- }
- 
-+static bool l2cap_check_enc_key_size(struct hci_conn *hcon)
-+{
-+	/* The minimum encryption key size needs to be enforced by the
-+	 * host stack before establishing any L2CAP connections. The
-+	 * specification in theory allows a minimum of 1, but to align
-+	 * BR/EDR and LE transports, a minimum of 7 is chosen.
-+	 *
-+	 * This check might also be called for unencrypted connections
-+	 * that have no key size requirements. Ensure that the link is
-+	 * actually encrypted before enforcing a key size.
-+	 */
-+	return (!(hcon->link_mode & HCI_LM_ENCRYPT) ||
-+		hcon->enc_key_size > HCI_MIN_ENC_KEY_SIZE);
-+}
-+
- static void l2cap_do_start(struct l2cap_chan *chan)
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -171,8 +171,8 @@ extern struct device_node *of_find_all_n
+ static inline u64 of_read_number(const __be32 *cell, int size)
  {
- 	struct l2cap_conn *conn = chan->conn;
-@@ -1273,10 +1288,14 @@ static void l2cap_do_start(struct l2cap_
- 		if (!(conn->info_state & L2CAP_INFO_FEAT_MASK_REQ_DONE))
- 			return;
+ 	u64 r = 0;
+-	while (size--)
+-		r = (r << 32) | be32_to_cpu(*(cell++));
++	for (; size--; cell++)
++		r = (r << 32) | be32_to_cpu(*cell);
+ 	return r;
+ }
  
--		if (l2cap_chan_check_security(chan) &&
--		    __l2cap_no_conn_pending(chan)) {
-+		if (!l2cap_chan_check_security(chan) ||
-+		    !__l2cap_no_conn_pending(chan))
-+			return;
-+
-+		if (l2cap_check_enc_key_size(conn->hcon))
- 			l2cap_start_connection(chan);
--		}
-+		else
-+			__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
- 	} else {
- 		struct l2cap_info_req req;
- 		req.type = cpu_to_le16(L2CAP_IT_FEAT_MASK);
-@@ -1366,7 +1385,10 @@ static void l2cap_conn_start(struct l2ca
- 				continue;
- 			}
- 
--			l2cap_start_connection(chan);
-+			if (l2cap_check_enc_key_size(conn->hcon))
-+				l2cap_start_connection(chan);
-+			else
-+				l2cap_chan_close(chan, ECONNREFUSED);
- 
- 		} else if (chan->state == BT_CONNECT2) {
- 			struct l2cap_conn_rsp rsp;
-@@ -7352,7 +7374,7 @@ int l2cap_security_cfm(struct hci_conn *
- 		}
- 
- 		if (chan->state == BT_CONNECT) {
--			if (!status)
-+			if (!status && l2cap_check_enc_key_size(hcon))
- 				l2cap_start_connection(chan);
- 			else
- 				__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
-@@ -7360,7 +7382,7 @@ int l2cap_security_cfm(struct hci_conn *
- 			struct l2cap_conn_rsp rsp;
- 			__u16 res, stat;
- 
--			if (!status) {
-+			if (!status && l2cap_check_enc_key_size(hcon)) {
- 				if (test_bit(FLAG_DEFER_SETUP, &chan->flags)) {
- 					res = L2CAP_CR_PEND;
- 					stat = L2CAP_CS_AUTHOR_PEND;
 
