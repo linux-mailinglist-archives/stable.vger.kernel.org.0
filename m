@@ -2,166 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 749D1B8D36
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C47B8D45
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405346AbfITIvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 04:51:15 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:37784 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405494AbfITIvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:51:14 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w67so4478766lff.4
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 01:51:12 -0700 (PDT)
+        id S2437878AbfITIzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 04:55:38 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33932 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2408389AbfITIzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:55:38 -0400
+Received: by mail-lf1-f65.google.com with SMTP id r22so4493508lfm.1
+        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 01:55:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zIK1gtR2VAgqI25bOAo9P0A+M/0NEfNWxEFQpC0ed4g=;
-        b=IL2YeVVOQFHRdWlofI9jH/napiLP/qrH7Ep+y9faHSgo7WQEIKTUdAzpuaQA8SqkY1
-         scHjmFrFGgRc8tQhjHg3NT7myRyx+8zO+VvvFLRWckOHUqWDotd+jCuAZA3HI2eoA+Lt
-         Sj9pi0lv7bBTGFlpxGvCtVQ1PDbnkhLqIkSNL7/0y5GU9rcD3LafVlRyAH5U/U6NL3//
-         BdlSb2lSdTuL2HwmPGUt0UUejIgAtXwu3QAgavvSUCr90mcJh9j/AR/mO4VqIIGmw85P
-         M9X+Akh6tnZ6XoZe+3lLLzJYmjyHgGrBIaIIFK7Uxjz/zJXRsaoXNu3xHKpIggDR3UuZ
-         oSsQ==
+         :cc;
+        bh=agjOW8fEWWSUH9GPuMddR7LZQGwwWJK0R3sCAqQNNUM=;
+        b=riWHbheMlhjS0/BRj5Q0HX6KJlVe8YW2UdvSV/+r2JXEB0QY8iWQ5mMbZYwZ0qG6+C
+         S+Pla7kA81GEVyOfGdrHTxtIes3FzIt+uT60WnVIcEWpZnwijCccvhPYa7cQ+IMPuYmt
+         quZVESx8r3C39VFLu5OMRE00LUtyGF9V9y/KC0Qjbm4hnsL71TaBhIDFcMG3yOtCuyeG
+         XYOVJYNlvv4smxbmqOr8BCLzpa4O3LW2BA8tH+P12KmYiMl0DXrAs5eXVQTwTAOZtcgX
+         TcX1N92zSaG4zUGVc2FPaeWzeTWLUCoUaZIpda/cLgMS3WjMzUoofWDvtk+Lob8/+nak
+         /hmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zIK1gtR2VAgqI25bOAo9P0A+M/0NEfNWxEFQpC0ed4g=;
-        b=CP0JIbQUdvioGqIH/jCgzzTD/C0eOakGzqN99uDEXsqn7jPPcoYltgjjQ0oI/UqVn+
-         yNJKbylXhswSkjtXuFz98lHGqmT137qlvDMxzbWJ05bNTyk8Tk7ZqEC5cJ5gfPtnseK7
-         XP6lAGgXEBPT7bCDXc0obd29tXvfmxt3P6QWWDRtE2NOqK/Mah2CGpTVw9EdPtWg8AE0
-         SZI8wq39Aw9ond4xzeqL59/zbD/sw01gltePcBh1qfgBfypi8nGxQTm/ONVX3nzipAf4
-         TW4Dzhc/qQh1dhWLC8ewWZ8pWHOKcn7AaUZsvY+PwurqWg0BmnYkd/uHLuyKqwOOMFjH
-         eeig==
-X-Gm-Message-State: APjAAAVff2pAjFCBzCQ2Ezdj9tCJtoUEyLfiE6e9077bd3ok18ImF5Hf
-        UGZ/6VdBCiWBnIo/6XTVQ7IY/366S16awRtgc7XVWg==
-X-Google-Smtp-Source: APXvYqzbbTB32LmFOnnaWg0hpAl48UhlO/D6hLTKcniCdSi+QI6Ez7Rr3AFYweJqmrlLoL0DbkygDkqR35iMC/3w/+s=
-X-Received: by 2002:ac2:48af:: with SMTP id u15mr8312303lfg.75.1568969471206;
- Fri, 20 Sep 2019 01:51:11 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=agjOW8fEWWSUH9GPuMddR7LZQGwwWJK0R3sCAqQNNUM=;
+        b=b75zdDhaxNd14fQW4+Jy32vw9SJbcgM1C9dB3lc+asmMMvDG+vOHyLzvdHAfyEj/fy
+         6WZbWoQpbArTAQWlRZ12f9b0nmeyOj50gn1M3M4CVcIvb987iaz0KUZOYBvyR9KEBIQY
+         K6HssDDL2sw1k7pKx9iG4O7YAOj33k6rr5sBZKgdd8s5FnVY6rFXFLBAztjqmREcHsJ6
+         oyMHk58ZD8qeg/yxKXUsZEHFdvchM7vr6f4b5W00/DLsDYTzX4qiFxPA173hKDnd8vbN
+         /F6VAIJpDd5TB2be78rfgkihf5Ptv6ShVx05V6iApphHmDMoJirzhWEgqADdA7uo1Gyq
+         4yrQ==
+X-Gm-Message-State: APjAAAVlSVUEJTnH7dE6aiOeW7ehWgcTpnB4ojeMblAYXWQK9wyp+iaE
+        xT5zfa+WdPKslXTrE9lxPcKJerj3WYUN9Uu9PYGfIA==
+X-Google-Smtp-Source: APXvYqzdv/WKlLJKAfAI4o8MIqgF26BHmG4sQZMrQ74tDgEzNegyR5ACtMU3sDtEHscw5drG+ZTqWly3lmqBUcL6nbo=
+X-Received: by 2002:a19:48c3:: with SMTP id v186mr8211999lfa.141.1568969736324;
+ Fri, 20 Sep 2019 01:55:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190919214807.612593061@linuxfoundation.org>
-In-Reply-To: <20190919214807.612593061@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Sep 2019 14:21:00 +0530
-Message-ID: <CA+G9fYsdAOWeRSxnrWOJVaw1tp7QVgOgHw-i58Ek7hknAEq0cA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/79] 4.19.75-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+References: <cover.1562597164.git.hns@goldelico.com> <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com>
+ <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com>
+ <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com>
+ <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com>
+ <20190831084852.5e726cfa@aktux> <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com>
+ <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com> <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com>
+In-Reply-To: <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 20 Sep 2019 10:55:24 +0200
+Message-ID: <CACRpkdZvpPOM1Ug-=GHf7Z-2VEbJz3Cuo7+0yDFuNm5ShXK8=Q@mail.gmail.com>
+Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy
+ spi-cs-high to make display work again
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>,
+        Rob Herring <robh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Sep 2019 at 03:43, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Tue, Sep 17, 2019 at 4:26 PM H. Nikolaus Schaller <hns@goldelico.com> wrote:
+> > Am 17.09.2019 um 00:52 schrieb Linus Walleij <linus.walleij@linaro.org>:
+> > On Mon, Sep 16, 2019 at 12:59 PM H. Nikolaus Schaller <hns@goldelico.com> wrote:
+> >
+> >> ping.
+> >>
+> >> Device omap3-gta04 is neither working with v5.3 nor linux-next quite a while and we need a solution.
+> >
+> > Can't we just apply the last part of the patch in this thread:
+> >
+> > diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi
+> > b/arch/arm/boot/dts/omap3-gta04.dtsi
+> > index 9a9a29fe88ec..47bab8e1040e 100644
+> > --- a/arch/arm/boot/dts/omap3-gta04.dtsi
+> > +++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+> > @@ -124,6 +124,7 @@
+> >                        spi-max-frequency = <100000>;
+> >                        spi-cpol;
+> >                        spi-cpha;
+> > +                       spi-cs-high;
+> >
+> >                        backlight= <&backlight>;
+> >                        label = "lcd";
+> >
+> >
+> > Surely this fixes the problem?
 >
-> This is the start of the stable review cycle for the 4.19.75 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.75-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> yes, it is a workaround, but appears to violate some policies.
+> E.g. the spi-cs-high; is undocumented but DT bindings maintainer
+> seems to be against documenting it as I had proposed in my
+> other patch.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+It is documented as a boolean in
+Documentation/devicetree/bindings/spi/spi-controller.yaml
+with the following description:
 
-Summary
-------------------------------------------------------------------------
+      spi-cs-high:
+        $ref: /schemas/types.yaml#/definitions/flag
+        description:
+          The device requires the chip select active high.
 
-kernel: 4.19.75-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 42a609acc1b2b5a744dd9ad3d3eb6a71906e4bcc
-git describe: v4.19.74-80-g42a609acc1b2
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.74-80-g42a609acc1b2
+So I don't think it is about it being undocumented.
 
+> Rather he seems to have proposed a white-list in the driver code.
+> So that the legacy mode is only becoming active for those systems
+> which really need the legacy mode instead of everyone.
 
-No regressions (compared to build v4.19.74)
+Yeah that seems like a plausible way forward if we want to
+move away from the legacy way of specifying polarity.
 
-No fixes (compared to build v4.19.74)
+> Then, we do not need this patch for GTA04.
 
+We don't need to implement the perfect solution up front.
+We can aim for that in the long run. I usually go by the IETF
+motto "rough consensus and running code".
 
-Ran 21908 total tests in the following environments and test suites.
+> So its up to you to decide which way to go. We are happy with
+> any one that makes mainline work again asap...
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+I suggest to go both way:
+apply this oneliner and tag for stable so that GTA04 works
+again.
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* libgpiod
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+Then for the next kernel think about a possible more abitious
+whitelist solution and after adding that remove *all* "spi-cs-high"
+flags from all device trees in the kernel after fixing them
+all up.
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Yours,
+Linus Walleij
