@@ -2,166 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B370EB9159
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D57B9167
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728930AbfITOEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:04:02 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44362 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727904AbfITOEC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:04:02 -0400
-Received: by mail-pl1-f193.google.com with SMTP id q15so3216548pll.11
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 07:04:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=lTw5XUGJVR48uPMVk5aXIBlvJhVRgMUDCJD05MX4Aw4=;
-        b=poviuBVe8r0VI/3t1rC05aha1Km8QPTpMxsQh+lSRV7dkF/J935t3tM/J++EPQJIN7
-         MzosHaE5Jc/7vRQLzG6zh8fahxc468lGs255iX/2+6Wkq2e3QAf5Cb8Khe4BaDLBeuJl
-         xJbTwdbW6dfm2mrWKfGYWHOnWCn40ytONZURhzeQi6OOR+dqfiN/K9TnAxfxABqySJSa
-         HMURd1COcz7S7/MpVXasaPRduAL0QShSpcSlduJac5JPSxStZuWzqkSZoifccKy2DAYv
-         2gzn+azO9/jTyrMOvhGBmkWCp1DgghK8zNKC0yY/Tj31lvaMF65neNAaQHVt3lg3UvFX
-         zQCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=lTw5XUGJVR48uPMVk5aXIBlvJhVRgMUDCJD05MX4Aw4=;
-        b=nr1ESdM5Xe5PR0PJCr1gqSBdnn9HJlWpI1ruQ4xXqDen9LYbfOqliauKoFsdyvvGO1
-         wsVK+BHp7oDC4t2gSkAu777T5wkP5KPGl0yrc4b6FI+pZiUBt7ZDWBuPF04C4JA8sXDT
-         cxBDYG97V46POJYa1b6mB/8wp8XfQdfL7Cyjfa1v/QPDIVE48VMVCsEYrDm29IUwu4xg
-         pDaFWEJfgwxrMXcI5A1BSBO1J7kQmWjWZNSePZGZX2tcvKZhiEiADsh2XhGLwdnTKLhh
-         1hm5g8LAbsraqF6ay4PJsMa0o9acBDQotZVUFM9rl9TEV0ak2rzekIud4m5oc9TxKGZ9
-         OcLw==
-X-Gm-Message-State: APjAAAUD2kSvJyl1COmP5dPvlRexVx2PBav4JHUpddPM28BltBuBmbLO
-        +N9soq6itKSxpZ4eFyvWh729tbgU
-X-Google-Smtp-Source: APXvYqzAxxMvfkNZ2pV7rWnSdR2rhtdpdcrnIxGJGsvIJZXkc0iVgBOYVKPGTIT0W2d1nt3ENSk8nw==
-X-Received: by 2002:a17:902:8f88:: with SMTP id z8mr3058285plo.232.1568988241221;
-        Fri, 20 Sep 2019 07:04:01 -0700 (PDT)
-Received: from localhost.localdomain ([71.219.73.178])
-        by smtp.gmail.com with ESMTPSA id 8sm2232180pgd.87.2019.09.20.07.03.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Sep 2019 07:04:00 -0700 (PDT)
-From:   Alex Deucher <alexdeucher@gmail.com>
-X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
-To:     stable@vger.kernel.org
-Cc:     nicholas.kazlauskas@amd.com,
-        Alex Deucher <alexander.deucher@amd.com>,
-        David Francis <david.francis@amd.com>
-Subject: [PATCH 3/3] drm/amd/display: Don't replace the dc_state for fast updates
-Date:   Fri, 20 Sep 2019 09:03:38 -0500
-Message-Id: <20190920140338.3172-4-alexander.deucher@amd.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190920140338.3172-1-alexander.deucher@amd.com>
-References: <20190920140338.3172-1-alexander.deucher@amd.com>
+        id S2387602AbfITOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:08:35 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:55629 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727273AbfITOIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:08:34 -0400
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1iBJaI-0005V1-Fd; Fri, 20 Sep 2019 16:08:30 +0200
+Received: from ukl by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1iBJaG-00036I-EW; Fri, 20 Sep 2019 16:08:28 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>
+Cc:     netdev@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] arcnet: provide a buffer big enough to actually receive packets
+Date:   Fri, 20 Sep 2019 16:08:21 +0200
+Message-Id: <20190920140821.11876-1-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+struct archdr is only big enough to hold the header of various types of
+arcnet packets. So to provide enough space to hold the data read from
+hardware provide a buffer large enough to hold a packet with maximal
+size.
 
-[Why]
-DRM private objects have no hw_done/flip_done fencing mechanism on their
-own and cannot be used to sequence commits accordingly.
+The problem was noticed by the stack protector which makes the kernel
+oops.
 
-When issuing commits that don't touch the same set of hardware resources
-like page-flips on different CRTCs we can run into the issue below
-because of this:
-
-1. Client requests non-blocking Commit #1, has a new dc_state #1,
-state is swapped, commit tail is deferred to work queue
-
-2. Client requests non-blocking Commit #2, has a new dc_state #2,
-state is swapped, commit tail is deferred to work queue
-
-3. Commit #2 work starts, commit tail finishes,
-atomic state is cleared, dc_state #1 is freed
-
-4. Commit #1 work starts,
-commit tail encounters null pointer deref on dc_state #1
-
-In order to change the DC state as in the private object we need to
-ensure that we wait for all outstanding commits to finish and that
-any other pending commits must wait for the current one to finish as
-well.
-
-We do this for MEDIUM and FULL updates. But not for FAST updates, nor
-would we want to since it would cause stuttering from the delays.
-
-FAST updates that go through dm_determine_update_type_for_commit always
-create a new dc_state and lock the DRM private object if there are
-any changed planes.
-
-We need the old state to validate, but we don't actually need the new
-state here.
-
-[How]
-If the commit isn't a full update then the use after free can be
-resolved by simply discarding the new state entirely and retaining
-the existing one instead.
-
-With this change the sequence above can be reexamined. Commit #2 will
-still free Commit #1's reference, but before this happens we actually
-added an additional reference as part of Commit #2.
-
-If an update comes in during this that needs to change the dc_state
-it will need to wait on Commit #1 and Commit #2 to finish. Then it'll
-swap the state, finish the work in commit tail and drop the last
-reference on Commit #2's dc_state.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204181
-Fixes: 004b3938e637 ("drm/amd/display: Check scaling info when determing update type")
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=204181
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: David Francis <david.francis@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-(cherry picked from commit bd200d190f45b62c006d1ad0a63eeffd87db7a47)
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # v2.4.0+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 23 +++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Hello,
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 8df49740518e..beb2d268d1ef 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7346,6 +7346,29 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 			ret = -EINVAL;
- 			goto fail;
- 		}
-+	} else {
-+		/*
-+		 * The commit is a fast update. Fast updates shouldn't change
-+		 * the DC context, affect global validation, and can have their
-+		 * commit work done in parallel with other commits not touching
-+		 * the same resource. If we have a new DC context as part of
-+		 * the DM atomic state from validation we need to free it and
-+		 * retain the existing one instead.
-+		 */
-+		struct dm_atomic_state *new_dm_state, *old_dm_state;
-+
-+		new_dm_state = dm_atomic_get_new_state(state);
-+		old_dm_state = dm_atomic_get_old_state(state);
-+
-+		if (new_dm_state && old_dm_state) {
-+			if (new_dm_state->context)
-+				dc_release_state(new_dm_state->context);
-+
-+			new_dm_state->context = old_dm_state->context;
-+
-+			if (old_dm_state->context)
-+				dc_retain_state(old_dm_state->context);
-+		}
+the problem exists in v2.4.0 already, I didn't look further to identify
+the offending commit.
+
+Best regards
+Uwe
+---
+ drivers/net/arcnet/arcnet.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/net/arcnet/arcnet.c b/drivers/net/arcnet/arcnet.c
+index 0efef7aa5b89..2b8cf58e4de0 100644
+--- a/drivers/net/arcnet/arcnet.c
++++ b/drivers/net/arcnet/arcnet.c
+@@ -1063,31 +1063,34 @@ EXPORT_SYMBOL(arcnet_interrupt);
+ static void arcnet_rx(struct net_device *dev, int bufnum)
+ {
+ 	struct arcnet_local *lp = netdev_priv(dev);
+-	struct archdr pkt;
++	union {
++		struct archdr pkt;
++		char buf[512];
++	} rxdata;
+ 	struct arc_rfc1201 *soft;
+ 	int length, ofs;
+ 
+-	soft = &pkt.soft.rfc1201;
++	soft = &rxdata.pkt.soft.rfc1201;
+ 
+-	lp->hw.copy_from_card(dev, bufnum, 0, &pkt, ARC_HDR_SIZE);
+-	if (pkt.hard.offset[0]) {
+-		ofs = pkt.hard.offset[0];
++	lp->hw.copy_from_card(dev, bufnum, 0, &rxdata.pkt, ARC_HDR_SIZE);
++	if (rxdata.pkt.hard.offset[0]) {
++		ofs = rxdata.pkt.hard.offset[0];
+ 		length = 256 - ofs;
+ 	} else {
+-		ofs = pkt.hard.offset[1];
++		ofs = rxdata.pkt.hard.offset[1];
+ 		length = 512 - ofs;
  	}
  
- 	/* Must be success */
+ 	/* get the full header, if possible */
+-	if (sizeof(pkt.soft) <= length) {
+-		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(pkt.soft));
++	if (sizeof(rxdata.pkt.soft) <= length) {
++		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(rxdata.pkt.soft));
+ 	} else {
+-		memset(&pkt.soft, 0, sizeof(pkt.soft));
++		memset(&rxdata.pkt.soft, 0, sizeof(rxdata.pkt.soft));
+ 		lp->hw.copy_from_card(dev, bufnum, ofs, soft, length);
+ 	}
+ 
+ 	arc_printk(D_DURING, dev, "Buffer #%d: received packet from %02Xh to %02Xh (%d+4 bytes)\n",
+-		   bufnum, pkt.hard.source, pkt.hard.dest, length);
++		   bufnum, rxdata.pkt.hard.source, rxdata.pkt.hard.dest, length);
+ 
+ 	dev->stats.rx_packets++;
+ 	dev->stats.rx_bytes += length + ARC_HDR_SIZE;
+@@ -1096,13 +1099,13 @@ static void arcnet_rx(struct net_device *dev, int bufnum)
+ 	if (arc_proto_map[soft->proto]->is_ip) {
+ 		if (BUGLVL(D_PROTO)) {
+ 			struct ArcProto
+-			*oldp = arc_proto_map[lp->default_proto[pkt.hard.source]],
++			*oldp = arc_proto_map[lp->default_proto[rxdata.pkt.hard.source]],
+ 			*newp = arc_proto_map[soft->proto];
+ 
+ 			if (oldp != newp) {
+ 				arc_printk(D_PROTO, dev,
+ 					   "got protocol %02Xh; encap for host %02Xh is now '%c' (was '%c')\n",
+-					   soft->proto, pkt.hard.source,
++					   soft->proto, rxdata.pkt.hard.source,
+ 					   newp->suffix, oldp->suffix);
+ 			}
+ 		}
+@@ -1111,10 +1114,10 @@ static void arcnet_rx(struct net_device *dev, int bufnum)
+ 		lp->default_proto[0] = soft->proto;
+ 
+ 		/* in striking contrast, the following isn't a hack. */
+-		lp->default_proto[pkt.hard.source] = soft->proto;
++		lp->default_proto[rxdata.pkt.hard.source] = soft->proto;
+ 	}
+ 	/* call the protocol-specific receiver. */
+-	arc_proto_map[soft->proto]->rx(dev, bufnum, &pkt, length);
++	arc_proto_map[soft->proto]->rx(dev, bufnum, &rxdata.pkt, length);
+ }
+ 
+ static void null_rx(struct net_device *dev, int bufnum,
 -- 
-2.20.1
+2.23.0
 
