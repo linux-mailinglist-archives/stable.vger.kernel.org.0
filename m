@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF2DB9336
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44FD4B9312
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbfITOY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:24:58 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35592 "EHLO
+        id S2392784AbfITOhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:37:32 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35788 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728923AbfITOY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:24:57 -0400
+        by vger.kernel.org with ESMTP id S2388031AbfITOZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:00 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqA-0004va-Rk; Fri, 20 Sep 2019 15:24:54 +0100
+        id 1iBJqE-0004x6-1e; Fri, 20 Sep 2019 15:24:58 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqA-0007od-8Z; Fri, 20 Sep 2019 15:24:54 +0100
+        id 1iBJqC-0007qo-UQ; Fri, 20 Sep 2019 15:24:56 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Geert Uytterhoeven" <geert+renesas@glider.be>,
-        "Mark Brown" <broonie@kernel.org>
+        "John Garry" <john.garry@huawei.com>,
+        "Kefeng Wang" <wangkefeng.wang@huawei.com>,
+        "Guenter Roeck" <linux@roeck-us.net>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.278574693@decadent.org.uk>
+Message-ID: <lsq.1568989415.32155718@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 001/132] spi: rspi: Fix register initialization while
- runtime-suspended
+Subject: [PATCH 3.16 028/132] hwmon: (f71805f) Use request_muxed_region
+ for Super-IO accesses
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,108 +48,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 42bdaaece121b3bb50fd4d1203d6d0170279f9fa upstream.
+commit 73e6ff71a7ea924fb7121d576a2d41e3be3fc6b5 upstream.
 
-The Renesas RSPI/QSPI driver performs SPI controller register
-initialization in its spi_operations.setup() callback, without calling
-pm_runtime_get_sync() first, which may cause spurious failures.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-So far this went unnoticed, as this SPI controller is typically used
-with a single SPI NOR FLASH containing the boot loader:
-  1. If the device's module clock is still enabled (left enabled by the
-     bootloader, and not yet disabled by the clk_disable_unused() late
-     initcall), register initialization succeeds,
-  2. If the device's module clock is disabled, register writes don't
-     seem to cause lock-ups or crashes.
-     Data received in the first SPI message may be corrupted, though.
-     Subsequent SPI messages seem to be OK.
-     E.g. on r8a7791/koelsch, one bit is lost while receiving the 6th
-     byte of the JEDEC ID for the s25fl512s FLASH, corrupting that byte
-     and all later bytes.  But until commit a2126b0a010905e5 ("mtd:
-     spi-nor: refine Spansion S25FL512S ID"), the 6th byte was not
-     considered for FLASH identification.
+Unable to handle kernel paging request at virtual address ffffffbffee0002e
+pgd = ffffffc1d68d4000
+[ffffffbffee0002e] *pgd=0000000000000000, *pud=0000000000000000
+Internal error: Oops: 94000046 [#1] PREEMPT SMP
+Modules linked in: f71805f(+) hwmon
+CPU: 3 PID: 1659 Comm: insmod Not tainted 4.5.0+ #88
+Hardware name: linux,dummy-virt (DT)
+task: ffffffc1f6665400 ti: ffffffc1d6418000 task.ti: ffffffc1d6418000
+PC is at f71805f_find+0x6c/0x358 [f71805f]
 
-Fix this by moving all initialization from the .setup() to the
-.prepare_message() callback.  The latter is always called after the
-device has been runtime-resumed by the SPI core.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-This also makes the driver follow the rule that .setup() must not change
-global driver state or register values, as that might break a transfer
-in progress.
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple
+drivers is synchronized.
 
-Fixes: 490c97747d5dc77d ("spi: rspi: Add runtime PM support, using spi core auto_runtime_pm")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[bwh: Backported to 3.16: s/(controller|ctlr)/master/g]
+Fixes: e53004e20a58e ("hwmon: New f71805f driver")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/spi/spi-rspi.c | 39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/hwmon/f71805f.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -726,28 +726,6 @@ static int qspi_transfer_one(struct spi_
- 	}
+--- a/drivers/hwmon/f71805f.c
++++ b/drivers/hwmon/f71805f.c
+@@ -96,17 +96,23 @@ superio_select(int base, int ld)
+ 	outb(ld, base + 1);
  }
  
--static int rspi_setup(struct spi_device *spi)
--{
--	struct rspi_data *rspi = spi_master_get_devdata(spi->master);
--
--	rspi->max_speed_hz = spi->max_speed_hz;
--
--	rspi->spcmd = SPCMD_SSLKP;
--	if (spi->mode & SPI_CPOL)
--		rspi->spcmd |= SPCMD_CPOL;
--	if (spi->mode & SPI_CPHA)
--		rspi->spcmd |= SPCMD_CPHA;
--
--	/* CMOS output mode and MOSI signal from previous transfer */
--	rspi->sppcr = 0;
--	if (spi->mode & SPI_LOOP)
--		rspi->sppcr |= SPPCR_SPLP;
--
--	set_config_register(rspi, 8);
--
--	return 0;
--}
--
- static u16 qspi_transfer_mode(const struct spi_transfer *xfer)
+-static inline void
++static inline int
+ superio_enter(int base)
  {
- 	if (xfer->tx_buf)
-@@ -817,8 +795,24 @@ static int rspi_prepare_message(struct s
- 				struct spi_message *msg)
++	if (!request_muxed_region(base, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x87, base);
+ 	outb(0x87, base);
++
++	return 0;
+ }
+ 
+ static inline void
+ superio_exit(int base)
  {
- 	struct rspi_data *rspi = spi_master_get_devdata(master);
-+	struct spi_device *spi = msg->spi;
- 	int ret;
+ 	outb(0xaa, base);
++	release_region(base, 2);
+ }
  
-+	rspi->max_speed_hz = spi->max_speed_hz;
-+
-+	rspi->spcmd = SPCMD_SSLKP;
-+	if (spi->mode & SPI_CPOL)
-+		rspi->spcmd |= SPCMD_CPOL;
-+	if (spi->mode & SPI_CPHA)
-+		rspi->spcmd |= SPCMD_CPHA;
-+
-+	/* CMOS output mode and MOSI signal from previous transfer */
-+	rspi->sppcr = 0;
-+	if (spi->mode & SPI_LOOP)
-+		rspi->sppcr |= SPPCR_SPLP;
-+
-+	set_config_register(rspi, 8);
-+
- 	if (msg->spi->mode &
- 	    (SPI_TX_DUAL | SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD)) {
- 		/* Setup sequencer for messages with multiple transfer modes */
-@@ -1119,7 +1113,6 @@ static int rspi_probe(struct platform_de
- 	init_waitqueue_head(&rspi->wait);
+ /*
+@@ -1562,7 +1568,7 @@ exit:
+ static int __init f71805f_find(int sioaddr, unsigned short *address,
+ 			       struct f71805f_sio_data *sio_data)
+ {
+-	int err = -ENODEV;
++	int err;
+ 	u16 devid;
  
- 	master->bus_num = pdev->id;
--	master->setup = rspi_setup;
- 	master->auto_runtime_pm = true;
- 	master->transfer_one = ops->transfer_one;
- 	master->prepare_message = rspi_prepare_message;
+ 	static const char * const names[] = {
+@@ -1570,8 +1576,11 @@ static int __init f71805f_find(int sioad
+ 		"F71872F/FG or F71806F/FG",
+ 	};
+ 
+-	superio_enter(sioaddr);
++	err = superio_enter(sioaddr);
++	if (err)
++		return err;
+ 
++	err = -ENODEV;
+ 	devid = superio_inw(sioaddr, SIO_REG_MANID);
+ 	if (devid != SIO_FINTEK_ID)
+ 		goto exit;
 
