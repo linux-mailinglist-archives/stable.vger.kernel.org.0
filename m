@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7898B92B7
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9488B923F
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388185AbfITOZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:25:05 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36114 "EHLO
+        id S2390925AbfITOa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:30:57 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36960 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388144AbfITOZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:04 -0400
+        by vger.kernel.org with ESMTP id S2388425AbfITOZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:17 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-00051H-Ug; Fri, 20 Sep 2019 15:25:02 +0100
+        id 1iBJqT-00050x-LV; Fri, 20 Sep 2019 15:25:13 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007yJ-87; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqE-0007su-G0; Fri, 20 Sep 2019 15:24:58 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Hui Peng" <benquike@gmail.com>, "Takashi Iwai" <tiwai@suse.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Mathias Payer" <mathias.payer@nebelwelt.net>
+        "Johan Hedberg" <johan.hedberg@intel.com>,
+        "Marcel Holtmann" <marcel@holtmann.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.695753136@decadent.org.uk>
+Message-ID: <lsq.1568989415.203002686@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 113/132] ALSA: usb-audio: Fix an OOB bug in
- parse_audio_mixer_unit
+Subject: [PATCH 3.16 054/132] Bluetooth: Align minimum encryption key size
+ for LE and BR/EDR connections
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,50 +47,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Hui Peng <benquike@gmail.com>
+From: Marcel Holtmann <marcel@holtmann.org>
 
-commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
+commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
 
-The `uac_mixer_unit_descriptor` shown as below is read from the
-device side. In `parse_audio_mixer_unit`, `baSourceID` field is
-accessed from index 0 to `bNrInPins` - 1, the current implementation
-assumes that descriptor is always valid (the length  of descriptor
-is no shorter than 5 + `bNrInPins`). If a descriptor read from
-the device side is invalid, it may trigger out-of-bound memory
-access.
+The minimum encryption key size for LE connections is 56 bits and to
+align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
+BR/EDR connections as well.
 
-```
-struct uac_mixer_unit_descriptor {
-	__u8 bLength;
-	__u8 bDescriptorType;
-	__u8 bDescriptorSubtype;
-	__u8 bUnitID;
-	__u8 bNrInPins;
-	__u8 baSourceID[];
-}
-```
-
-This patch fixes the bug by add a sanity check on the length of
-the descriptor.
-
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/usb/mixer.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/bluetooth/hci_core.h | 3 +++
+ net/bluetooth/hci_conn.c         | 8 ++++++++
+ 2 files changed, 11 insertions(+)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1594,6 +1594,7 @@ static int parse_audio_mixer_unit(struct
- 	int pin, ich, err;
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -142,6 +142,9 @@ struct oob_data {
  
- 	if (desc->bLength < 11 || !(input_pins = desc->bNrInPins) ||
-+	    desc->bLength < sizeof(*desc) + desc->bNrInPins ||
- 	    !(num_outs = uac_mixer_unit_bNrChannels(desc))) {
- 		usb_audio_err(state->chip,
- 			      "invalid MIXER UNIT descriptor %d\n",
+ #define HCI_MAX_SHORT_NAME_LENGTH	10
+ 
++/* Min encryption key size to match with SMP */
++#define HCI_MIN_ENC_KEY_SIZE		7
++
+ /* Default LE RPA expiry time, 15 minutes */
+ #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
+ 
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -868,6 +868,14 @@ int hci_conn_check_link_mode(struct hci_
+ 	if (hci_conn_ssp_enabled(conn) && !(conn->link_mode & HCI_LM_ENCRYPT))
+ 		return 0;
+ 
++	/* The minimum encryption key size needs to be enforced by the
++	 * host stack before establishing any L2CAP connections. The
++	 * specification in theory allows a minimum of 1, but to align
++	 * BR/EDR and LE transports, a minimum of 7 is chosen.
++	 */
++	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
++		return 0;
++
+ 	return 1;
+ }
+ 
 
