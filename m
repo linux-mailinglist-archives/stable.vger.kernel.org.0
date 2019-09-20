@@ -2,167 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9DFB934F
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AB4CB9378
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393018AbfITOls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:41:48 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:44367 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393014AbfITOls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:41:48 -0400
-Received: by mail-lj1-f193.google.com with SMTP id m13so7280127ljj.11
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 07:41:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/xQU0I14POU1160/0iVOcIzVuskH7tOT6JeJXF9wHh8=;
-        b=iLzcF1bC+A7Ay72n5F4STM04JWspeI8LAlSp0+5y3xx/ASpzrb9u/YBy2T86K+MLTp
-         w4hUfC5jOkS/jvGhpe1DMoJT1Hz3IEiFLd4E0wP0+pqXvEyqICe5JCZeDYq3FahFeq24
-         qQLIC5Jx/ms6y6IBysPIPL7e/HyaA0+dBjdVi45EdkaRbNCJGvhUeFuaYVdp3tXK/PhT
-         MdFfrAUHcQ3parxYJmUYxmuBk7/KeuVp4P5pQ5BXAncruBnaAi03s3VTKQhF/nxe16T2
-         JcLs0+SeZtEkdvkkTK1ud++wWdqcowUypVKoNEIM87Ms8byShC81wwJm7OqPapTHvUpP
-         A7zw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/xQU0I14POU1160/0iVOcIzVuskH7tOT6JeJXF9wHh8=;
-        b=djn4xZ9wGb3KTKZErNWqIxAiGSeEg+tCdbSlyOj3Ht9hHdMM3gtf08QUOX68/wjm6W
-         DAWsRQAUh8YPMDLuvBqyu6nFHMvu3IMdGcOUz/2sTOD/Yr088K6n9qU03yHqXRcET/9w
-         +zvSqO6l46kkVq131JRd8cWrmpgvJ+HYjN4xiA+7jfXKBvV85zx5kDpB+1Q6vdyl7fvO
-         6bpxtCCHAZ9U3t6VEh8q/781uYxdqq0zV929UZ3F4iglovbbaxE2afTM4muxRMAMHCNN
-         q4CyMbC/H3ak7btLWnuN1Sy+bPVt7vvCQwHxakeX1ZqHySd1ZUXCgNm8rYxbXGQ4ZtWY
-         iEYw==
-X-Gm-Message-State: APjAAAWstYCicFQ6rLqWiEEh/GA+ahsqvAFsu55PMnGrdg8V0kEmgKWw
-        +nzan8azSxEglBXAw7nUi+2T2P23uZ6y3y3TbPtzvQ==
-X-Google-Smtp-Source: APXvYqzrR41AiPf2yHALsv/Q9ZxssKyD6wNwc2On4OM6CIP/fvhDUmcGj68P8ub2ZY03APCL5lGodtepOml2+YY7Wgo=
-X-Received: by 2002:a2e:94cd:: with SMTP id r13mr9418176ljh.24.1568990506087;
- Fri, 20 Sep 2019 07:41:46 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190919214657.842130855@linuxfoundation.org>
-In-Reply-To: <20190919214657.842130855@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Sep 2019 20:11:35 +0530
-Message-ID: <CA+G9fYtPMOK8WzhpQTMBZTtz3T9Hzf2aOusFDJF0cr0bKKo6cA@mail.gmail.com>
-Subject: Re: [PATCH 5.3 00/21] 5.3.1-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S2388463AbfITOyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:54:23 -0400
+Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.53]:22719 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387967AbfITOyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:54:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1568991261;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=zlI+sG/w2ccshOLWrb2MvMajGz31uouLUfoFlWo0kvs=;
+        b=KLOx5yaNVi8t93VCckMAH4sgFd6/aSOXBlggWxb9RcKw0JyH3Nj2XF9KL0RVb56Oj2
+        TOh/w/DSYhi62uTrTcmHcb38NSIebO3ofgP8mQ8NfvEgYcWhLgYfn6sELkLbNJxlwaKf
+        rh9v3S9Qp9sTUdEtlTaCycw+cAV95NfaPCnRSDCdPRz4AcoZsuMNNnzTjflfUqk5PkTN
+        9utmoTrICbw0MCM0BSxnL4xVfoxhQYNz4lo9bYbW+zfbzP5fV8ZLiEjaGwJxEqUJqphM
+        YYEpIqROrbRQQZUPnAElSzQbb1E+t+RyHtWBhtFbGiNw2EB4LwpJ/IpLmXpCCh73NFtE
+        ghiA==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrpwDCpeWQ="
+X-RZG-CLASS-ID: mo00
+Received: from imac.fritz.box
+        by smtp.strato.de (RZmta 44.27.0 DYNA|AUTH)
+        with ESMTPSA id u036f9v8KEsJp0V
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
+        (Client did not present a certificate);
+        Fri, 20 Sep 2019 16:54:19 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Subject: Re: [Letux-kernel] [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <20190920142059.GO5610@atomide.com>
+Date:   Fri, 20 Sep 2019 16:54:18 +0200
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>, Rob Herring <robh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <633E7AD9-A909-4619-BBD7-8CFD965FDFF7@goldelico.com>
+References: <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com> <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com> <CACRpkdY0AVnkRa8sV_Z54qfX9SYufvaYYhU0k2+LitXo0sLx2w@mail.gmail.com> <20190831084852.5e726cfa@aktux> <ED6A6797-D1F9-473B-ABFF-B6951A924BC1@goldelico.com> <CACRpkdZQgPVvB=78vOFsHe5n45Vwe4N6JJOcm1_vz5FbAw9CYA@mail.gmail.com> <1624298A-C51B-418A-96C3-EA09367A010D@goldelico.com> <CACRpkdZvpPOM1Ug-=GHf7Z-2VEbJz3Cuo7+0yDFuNm5ShXK8=Q@mail.gmail.com> <7DF102BC-C818-4D27-988F-150C7527E6CC@goldelico.com> <20190920142059.GO5610@atomide.com>
+To:     Tony Lindgren <tony@atomide.com>
+X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Sep 2019 at 03:36, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.3.1 release.
-> There are 21 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.3.1-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.3.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> Am 20.09.2019 um 16:20 schrieb Tony Lindgren <tony@atomide.com>:
+> 
+> * H. Nikolaus Schaller <hns@goldelico.com> [190920 09:19]:
+>>> Am 20.09.2019 um 10:55 schrieb Linus Walleij <linus.walleij@linaro.org>:
+>>> I suggest to go both way:
+>>> apply this oneliner and tag for stable so that GTA04 works
+>>> again.
+>>> 
+>>> Then for the next kernel think about a possible more abitious
+>>> whitelist solution and after adding that remove *all* "spi-cs-high"
+>>> flags from all device trees in the kernel after fixing them
+>>> all up.
+>> 
+>> Ok, that looks like a viable path.
+> 
+> Please repost the oneline so people can ack easily. At least
+> I've already lost track of this thread.
 
-Summary
-------------------------------------------------------------------------
+It is all here:
 
-kernel: 5.3.0
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.gi=
-t
-git branch: master
-git commit: 574cc4539762561d96b456dbc0544d8898bd4c6e
-git describe: v5.3-10169-g574cc4539762
-Test details: https://qa-reports.linaro.org/lkft/linux-mainline-oe/build/v5=
-.3-10169-g574cc4539762
+https://patchwork.kernel.org/patch/11035253/
 
+Best regards,
+Nikolaus
 
-No regressions (compared to build v5.3-3662-g04cbfba62085)
-
-
-No fixes (compared to build v5.3-3662-g04cbfba62085)
-
-Ran 19661 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* perf
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* kvm-unit-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
