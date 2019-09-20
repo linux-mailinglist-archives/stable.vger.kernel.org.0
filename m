@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C991DB9329
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC46B9252
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbfITOiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:38:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35694 "EHLO
+        id S2391196AbfITObg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:31:36 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36736 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728899AbfITOY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:24:59 -0400
+        by vger.kernel.org with ESMTP id S2388353AbfITOZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:14 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0004wa-Sk; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqQ-00051F-99; Fri, 20 Sep 2019 15:25:10 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqC-0007pr-FY; Fri, 20 Sep 2019 15:24:56 +0100
+        id 1iBJqF-0007ub-Ah; Fri, 20 Sep 2019 15:24:59 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "=?UTF-8?q?Noralf=20Tr=C3=B8nnes?=" <noralf@tronnes.org>,
-        "Daniel Vetter" <daniel.vetter@ffwll.ch>
+        "Laurentiu Tudor" <laurentiu.tudor@nxp.com>,
+        "Michael Ellerman" <mpe@ellerman.id.au>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.173739634@decadent.org.uk>
+Message-ID: <lsq.1568989415.618609984@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 016/132] drm/fb-helper: dpms_legacy(): Only set on
- connectors in use
+Subject: [PATCH 3.16 075/132] powerpc/booke64: set RI in default MSR
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,52 +46,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Noralf Trønnes <noralf@tronnes.org>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-commit 65a102f68005891d7f39354cfd79099908df6d51 upstream.
+commit 5266e58d6cd90ac85c187d673093ad9cb649e16d upstream.
 
-For each enabled crtc the functions sets dpms on all registered connectors.
-Limit this to only doing it once and on the connectors actually in use.
+Set RI in the default kernel's MSR so that the architected way of
+detecting unrecoverable machine check interrupts has a chance to work.
+This is inline with the MSR setup of the rest of booke powerpc
+architectures configured here.
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Fixes: 023eb571a1d0 ("drm: correctly update connector DPMS status in drm_fb_helper")
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190326175546.18126-3-noralf@tronnes.org
-[bwh: Backported to 3.16: adjust context]
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/gpu/drm/drm_fb_helper.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/reg_booke.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -453,8 +453,8 @@ static void drm_fb_helper_dpms(struct fb
- {
- 	struct drm_fb_helper *fb_helper = info->par;
- 	struct drm_device *dev = fb_helper->dev;
--	struct drm_crtc *crtc;
- 	struct drm_connector *connector;
-+	struct drm_mode_set *modeset;
- 	int i, j;
+--- a/arch/powerpc/include/asm/reg_booke.h
++++ b/arch/powerpc/include/asm/reg_booke.h
+@@ -29,7 +29,7 @@
+ #if defined(CONFIG_PPC_BOOK3E_64)
+ #define MSR_64BIT	MSR_CM
  
- 	/*
-@@ -475,14 +475,13 @@ static void drm_fb_helper_dpms(struct fb
- 	}
- 
- 	for (i = 0; i < fb_helper->crtc_count; i++) {
--		crtc = fb_helper->crtc_info[i].mode_set.crtc;
-+		modeset = &fb_helper->crtc_info[i].mode_set;
- 
--		if (!crtc->enabled)
-+		if (!modeset->crtc->enabled)
- 			continue;
- 
--		/* Walk the connectors & encoders on this fb turning them on/off */
--		for (j = 0; j < fb_helper->connector_count; j++) {
--			connector = fb_helper->connector_info[j]->connector;
-+		for (j = 0; j < modeset->num_connectors; j++) {
-+			connector = modeset->connectors[j];
- 			connector->funcs->dpms(connector, dpms_mode);
- 			drm_object_property_set_value(&connector->base,
- 				dev->mode_config.dpms_property, dpms_mode);
+-#define MSR_		(MSR_ME | MSR_CE)
++#define MSR_		(MSR_ME | MSR_RI | MSR_CE)
+ #define MSR_KERNEL	(MSR_ | MSR_64BIT)
+ #define MSR_USER32	(MSR_ | MSR_PR | MSR_EE)
+ #define MSR_USER64	(MSR_USER32 | MSR_64BIT)
 
