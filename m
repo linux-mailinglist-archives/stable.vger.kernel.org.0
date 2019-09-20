@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3282EB926C
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66F9B9231
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388302AbfITOcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:32:32 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36508 "EHLO
+        id S2390649AbfITOa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:30:27 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36946 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388284AbfITOZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:10 -0400
+        by vger.kernel.org with ESMTP id S2388418AbfITOZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:17 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqN-00051F-Lo; Fri, 20 Sep 2019 15:25:07 +0100
+        id 1iBJqU-0004y2-44; Fri, 20 Sep 2019 15:25:14 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqG-0007vo-4H; Fri, 20 Sep 2019 15:25:00 +0100
+        id 1iBJqE-0007sL-50; Fri, 20 Sep 2019 15:24:58 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Miroslav Lichvar" <mlichvar@redhat.com>,
-        "John Stultz" <john.stultz@linaro.org>,
-        "Prarit Bhargava" <prarit@redhat.com>,
-        "Ondrej Mosnacek" <omosnace@redhat.com>,
-        "Richard Cochran" <richardcochran@gmail.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>
+        "Miklos Szeredi" <mszeredi@redhat.com>,
+        "Liu Bo" <bo.liu@linux.alibaba.com>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.865748957@decadent.org.uk>
+Message-ID: <lsq.1568989415.97143488@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 090/132] ntp: Allow TAI-UTC offset to be set to zero
+Subject: [PATCH 3.16 047/132] fuse: honor RLIMIT_FSIZE in fuse_file_fallocate
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,42 +46,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Liu Bo <bo.liu@linux.alibaba.com>
 
-commit fdc6bae940ee9eb869e493990540098b8c0fd6ab upstream.
+commit 0cbade024ba501313da3b7e5dd2a188a6bc491b5 upstream.
 
-The ADJ_TAI adjtimex mode sets the TAI-UTC offset of the system clock.
-It is typically set by NTP/PTP implementations and it is automatically
-updated by the kernel on leap seconds. The initial value is zero (which
-applications may interpret as unknown), but this value cannot be set by
-adjtimex. This limitation seems to go back to the original "nanokernel"
-implementation by David Mills.
+fstests generic/228 reported this failure that fuse fallocate does not
+honor what 'ulimit -f' has set.
 
-Change the ADJ_TAI check to accept zero as a valid TAI-UTC offset in
-order to allow setting it back to the initial value.
+This adds the necessary inode_newsize_ok() check.
 
-Fixes: 153b5d054ac2 ("ntp: support for TAI")
-Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Link: https://lkml.kernel.org/r/20190417084833.7401-1-mlichvar@redhat.com
+Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
+Fixes: 05ba1f082300 ("fuse: add FALLOCATE operation")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/time/ntp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/file.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -588,7 +588,7 @@ static inline void process_adjtimex_mode
- 		time_constant = max(time_constant, 0l);
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3017,6 +3017,13 @@ static long fuse_file_fallocate(struct f
+ 		}
  	}
  
--	if (txc->modes & ADJ_TAI && txc->constant > 0)
-+	if (txc->modes & ADJ_TAI && txc->constant >= 0)
- 		*time_tai = txc->constant;
++	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
++	    offset + length > i_size_read(inode)) {
++		err = inode_newsize_ok(inode, offset + length);
++		if (err)
++			return err;
++	}
++
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE))
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
  
- 	if (txc->modes & ADJ_OFFSET)
 
