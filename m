@@ -2,75 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65790B8C93
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B73B8CE9
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395234AbfITIWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 04:22:34 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:43008 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2395228AbfITIWe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:22:34 -0400
-Received: by mail-lj1-f196.google.com with SMTP id n14so1168409ljj.10
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 01:22:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/Y0dVg0rkJK+8ZRofkpbBt2xSCy2wZHIwHwOHo3SAF4=;
-        b=ijM79mHPeghORpgUUpSTuQqXqvtIACE0riFZ3nYDpc7/JUA+ll2naj/N+DHS02awJw
-         OniheqFSOFHPSooSh0bgBiyzFsuOXTRYpEMCETKNwyTJSBtUwC/J0gXUK14oLL5diJzK
-         UTTDsVF+fEvrLh6Jx3Yh9ddZazJDlygia+Pv1NJ4DAJQPC/LRaRb96Kg8T4rFQ7JRQhD
-         V3wmSB1E8e4lkLsBD5Fdhe9QRWMrh6VaXkErzyu38LWRLUY8G3SbCo/Bd/tr8fmGuca6
-         gezS2HqWJwtcIrSj95vLbF50pdpCfwssPGNI48JgGfEQPicD3R/4wmNhYazixE/codC8
-         zygg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/Y0dVg0rkJK+8ZRofkpbBt2xSCy2wZHIwHwOHo3SAF4=;
-        b=ajdz9AvNwm3qeaE3TYIJYBcwfY1gCMOxkX8elpEYntZy4zCe94ehIaMulpDBypnI3Z
-         IP0h93j06qY+R/emNexiM0j3+m/1MWeel81sZQhv74OC3N9hddhdsZIc3bJwq3yxI4bN
-         WgO7Baiab1btNBHJg+HlVEJ4MlMTS22i+CzVke8lOlU8npxXAJe2O8314vIUPuMO0NRK
-         GAz6wf67oJIh77bNLMDG79KB+CFp9pYY89SD9Gi2bg5RKtTwG32de1RdgMSEigf8BI6C
-         IxTaYSULTeoINawEXNoxl+WY2L/KqaSnDp57CTYLNhRzhNibYWXpIcM/zKH7WDskHLax
-         mKPw==
-X-Gm-Message-State: APjAAAV905zAuT2rBv0srmRj8z3GfghdmlOL9TD8bAqxUqBalAeYjd/K
-        OSWH04GdsEN6UVXpjoT/x9TtCXCpkvTfnYCa52i1Pw==
-X-Google-Smtp-Source: APXvYqxO/HYaho83HxZXL87Foe1xgGVU5sQjvCOZPhZImVv2TthQt26ZN5SvNOQQR4SC29BcqRjlR1d06awwiiwTB0g=
-X-Received: by 2002:a2e:9ccb:: with SMTP id g11mr4454624ljj.62.1568967752338;
- Fri, 20 Sep 2019 01:22:32 -0700 (PDT)
+        id S2408291AbfITIag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 04:30:36 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:39515 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2408228AbfITIag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:30:36 -0400
+Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1iBEJB-0007Va-W6; Fri, 20 Sep 2019 08:30:30 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     keescook@chromium.org, luto@amacapital.net
+Cc:     jannh@google.com, wad@chromium.org, shuah@kernel.org,
+        ast@kernel.org, daniel@iogearbox.net, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Tycho Andersen <tycho@tycho.ws>, stable@vger.kernel.org
+Subject: [PATCH v2 2/3] seccomp: avoid overflow in implicit constant conversion
+Date:   Fri, 20 Sep 2019 10:30:06 +0200
+Message-Id: <20190920083007.11475-3-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190920083007.11475-1-christian.brauner@ubuntu.com>
+References: <20190920083007.11475-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-References: <20190918155200.12614-1-dqfext@gmail.com>
-In-Reply-To: <20190918155200.12614-1-dqfext@gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 20 Sep 2019 10:22:21 +0200
-Message-ID: <CACRpkda30tm0cVHpZHnjQki86m_4ZfGiufg8e=6Rx-S+zFHF_g@mail.gmail.com>
-Subject: Re: [PATCH] spi: spi-gpio: fix crash when num-chipselects is 0
-To:     DENG Qingfang <dqfext@gmail.com>
-Cc:     linux-spi <linux-spi@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 5:52 PM DENG Qingfang <dqfext@gmail.com> wrote:
+USER_NOTIF_MAGIC is assigned to int variables in this test so set it to INT_MAX
+to avoid warnings:
 
-> The cause is spi_gpio_setup() did not check if the spi-gpio has chipselect pins
-> before setting their direction and results in derefing an invalid pointer.
->
-> The bug is spotted in kernel 4.19.72 on OpenWrt, and does not occur in 4.14.
->
-> There is a similar fix upstream 249e2632dcd0509b8f8f296f5aabf4d48dfd6da8.
+seccomp_bpf.c: In function ‘user_notification_continue’:
+seccomp_bpf.c:3088:26: warning: overflow in implicit constant conversion [-Woverflow]
+ #define USER_NOTIF_MAGIC 116983961184613L
+                          ^
+seccomp_bpf.c:3572:15: note: in expansion of macro ‘USER_NOTIF_MAGIC’
+  resp.error = USER_NOTIF_MAGIC;
+               ^~~~~~~~~~~~~~~~
 
-So since this is fixed upstream I assume you mean that this should be for
-stable v4.19?
+Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: Tycho Andersen <tycho@tycho.ws>
+Cc: stable@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: bpf@vger.kernel.org
+---
+/* v2 */
+unchanged
 
-I think the stable people want a special commit message structure,
-see:
-https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+/* v1 */
+Link: https://lore.kernel.org/r/20190919095903.19370-3-christian.brauner@ubuntu.com
+unchanged
 
-Yours,
-Linus Walleij
+/* v0 */
+Link: https://lore.kernel.org/r/20190918084833.9369-4-christian.brauner@ubuntu.com
+---
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 6ef7f16c4cf5..e996d7b7fd6e 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -35,6 +35,7 @@
+ #include <stdbool.h>
+ #include <string.h>
+ #include <time.h>
++#include <limits.h>
+ #include <linux/elf.h>
+ #include <sys/uio.h>
+ #include <sys/utsname.h>
+@@ -3072,7 +3073,7 @@ static int user_trap_syscall(int nr, unsigned int flags)
+ 	return seccomp(SECCOMP_SET_MODE_FILTER, flags, &prog);
+ }
+ 
+-#define USER_NOTIF_MAGIC 116983961184613L
++#define USER_NOTIF_MAGIC INT_MAX
+ TEST(user_notification_basic)
+ {
+ 	pid_t pid;
+-- 
+2.23.0
+
