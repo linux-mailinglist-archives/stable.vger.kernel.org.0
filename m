@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21D8CB92C0
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5768B931D
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387868AbfITOfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:35:09 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36070 "EHLO
+        id S2392789AbfITOhd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:37:33 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35804 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388139AbfITOZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:04 -0400
+        by vger.kernel.org with ESMTP id S2388036AbfITOZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:00 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-00051C-Nv; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqE-0004xX-9L; Fri, 20 Sep 2019 15:24:58 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007y2-1Z; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqD-0007rc-8K; Fri, 20 Sep 2019 15:24:57 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Amitkumar Karwar" <akarwar@marvell.com>,
-        "Karthik D A" <karthida@marvell.com>,
-        "Kalle Valo" <kvalo@codeaurora.org>
+        "Kees Cook" <keescook@chromium.org>,
+        "Shuah Khan" <skhan@linuxfoundation.org>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.455354700@decadent.org.uk>
+Message-ID: <lsq.1568989415.410157827@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 110/132] mwifiex: vendor_ie length check for parse
- WMM IEs
+Subject: [PATCH 3.16 038/132] selftests/ipc: Fix msgque compiler warnings
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,46 +46,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Karthik D A <karthida@marvell.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 113630b581d6d423998d2113a8e892ed6e6af6f9 upstream.
+commit a147faa96f832f76e772b1e448e94ea84c774081 upstream.
 
-While copying the vendor_ie obtained from the cfg80211_find_vendor_ie()
-to the struct mwifiex_types_wmm_info, length/size was inappropriate.
-This patch corrects the required length needed to the
-mwifiex_types_wmm_info
+This fixes the various compiler warnings when building the msgque
+selftest. The primary change is using sys/msg.h instead of linux/msg.h
+directly to gain the API declarations.
 
-Signed-off-by: Karthik D A <karthida@marvell.com>
-Signed-off-by: Amitkumar Karwar <akarwar@marvell.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-[bwh: Backported to 3.16: adjust filename]
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/wireless/mwifiex/uap_cmd.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/ipc/msgque.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/mwifiex/uap_cmd.c
-+++ b/drivers/net/wireless/mwifiex/uap_cmd.c
-@@ -364,7 +364,7 @@ mwifiex_set_wmm_params(struct mwifiex_pr
- 		       struct cfg80211_ap_settings *params)
- {
- 	const u8 *vendor_ie;
--	struct ieee_types_header *wmm_ie;
-+	const u8 *wmm_ie;
- 	u8 wmm_oui[] = {0x00, 0x50, 0xf2, 0x02};
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -1,8 +1,9 @@
++#define _GNU_SOURCE
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <errno.h>
+-#include <linux/msg.h>
++#include <sys/msg.h>
+ #include <fcntl.h>
  
- 	vendor_ie = cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT,
-@@ -372,9 +372,9 @@ mwifiex_set_wmm_params(struct mwifiex_pr
- 					    params->beacon.tail,
- 					    params->beacon.tail_len);
- 	if (vendor_ie) {
--		wmm_ie = (struct ieee_types_header *)vendor_ie;
--		memcpy(&bss_cfg->wmm_info, wmm_ie + 1,
--		       sizeof(bss_cfg->wmm_info));
-+		wmm_ie = vendor_ie;
-+		memcpy(&bss_cfg->wmm_info, wmm_ie +
-+		       sizeof(struct ieee_types_header), *(wmm_ie + 1));
- 		priv->wmm_enabled = 1;
- 	} else {
- 		memset(&bss_cfg->wmm_info, 0, sizeof(bss_cfg->wmm_info));
+ #define MAX_MSG_SIZE		32
+@@ -70,7 +71,7 @@ int restore_queue(struct msgque_data *ms
+ 	return 0;
+ 
+ destroy:
+-	if (msgctl(id, IPC_RMID, 0))
++	if (msgctl(id, IPC_RMID, NULL))
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 	return ret;
+ }
+@@ -117,7 +118,7 @@ int check_and_destroy_queue(struct msgqu
+ 
+ 	ret = 0;
+ err:
+-	if (msgctl(msgque->msq_id, IPC_RMID, 0)) {
++	if (msgctl(msgque->msq_id, IPC_RMID, NULL)) {
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 		return -errno;
+ 	}
+@@ -126,7 +127,7 @@ err:
+ 
+ int dump_queue(struct msgque_data *msgque)
+ {
+-	struct msqid64_ds ds;
++	struct msqid_ds ds;
+ 	int kern_id;
+ 	int i, ret;
+ 
+@@ -243,7 +244,7 @@ int main(int argc, char **argv)
+ 	return 0;
+ 
+ err_destroy:
+-	if (msgctl(msgque.msq_id, IPC_RMID, 0)) {
++	if (msgctl(msgque.msq_id, IPC_RMID, NULL)) {
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 		return -errno;
+ 	}
 
