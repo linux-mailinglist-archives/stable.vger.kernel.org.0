@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4BE1B9294
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5C7B923A
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 16:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387562AbfITOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 10:33:59 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36276 "EHLO
+        id S2390654AbfITOa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 10:30:27 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36952 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388200AbfITOZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:07 -0400
+        by vger.kernel.org with ESMTP id S2388419AbfITOZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 10:25:17 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqK-000512-Kh; Fri, 20 Sep 2019 15:25:04 +0100
+        id 1iBJqT-00051E-Ki; Fri, 20 Sep 2019 15:25:13 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iBJqH-0007za-On; Fri, 20 Sep 2019 15:25:01 +0100
+        id 1iBJqE-0007sV-9m; Fri, 20 Sep 2019 15:24:58 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Kalle Valo" <kvalo@codeaurora.org>,
-        "Dan Carpenter" <dan.carpenter@oracle.com>
+        "Slava Pestov" <sp@daterainc.com>
 Date:   Fri, 20 Sep 2019 15:23:35 +0100
-Message-ID: <lsq.1568989415.871264820@decadent.org.uk>
+Message-ID: <lsq.1568989415.196882684@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 129/132] ath6kl: add some bounds checking
+Subject: [PATCH 3.16 049/132] bcache: fix memory corruption in init error path
 In-Reply-To: <lsq.1568989414.954567518@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,58 +45,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Slava Pestov <sp@daterainc.com>
 
-commit 5d6751eaff672ea77642e74e92e6c0ac7f9709ab upstream.
+commit c9a78332b42cbdcdd386a95192a716b67d1711a4 upstream.
 
-The "ev->traffic_class" and "reply->ac" variables come from the network
-and they're used as an offset into the wmi->stream_exist_for_ac[] array.
-Those variables are u8 so they can be 0-255 but the stream_exist_for_ac[]
-array only has WMM_NUM_AC (4) elements.  We need to add a couple bounds
-checks to prevent array overflows.
+If register_cache_set() failed, we would touch ca->set after
+it had already been freed. Also, fix an assertion to catch
+this.
 
-I also modified one existing check from "if (traffic_class > 3) {" to
-"if (traffic_class >= WMM_NUM_AC) {" just to make them all consistent.
-
-Fixes: bdcd81707973 (" Add ath6kl cleaned up driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Change-Id: I748e5f5b223e2d9b2602075dec2f997cced2394d
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/wireless/ath/ath6kl/wmi.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/md/bcache/super.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -1155,6 +1155,10 @@ static int ath6kl_wmi_pstream_timeout_ev
- 		return -EINVAL;
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1365,8 +1365,11 @@ static void cache_set_free(struct closur
+ 	bch_journal_free(c);
  
- 	ev = (struct wmi_pstream_timeout_event *) datap;
-+	if (ev->traffic_class >= WMM_NUM_AC) {
-+		ath6kl_err("invalid traffic class: %d\n", ev->traffic_class);
-+		return -EINVAL;
+ 	for_each_cache(ca, c, i)
+-		if (ca)
++		if (ca) {
++			ca->set = NULL;
++			c->cache[ca->sb.nr_this_dev] = NULL;
+ 			kobject_put(&ca->kobj);
++		}
+ 
+ 	bch_bset_sort_state_free(&c->sort);
+ 	free_pages((unsigned long) c->uuids, ilog2(bucket_pages(c)));
+@@ -1804,8 +1807,10 @@ void bch_cache_release(struct kobject *k
+ 	struct cache *ca = container_of(kobj, struct cache, kobj);
+ 	unsigned i;
+ 
+-	if (ca->set)
++	if (ca->set) {
++		BUG_ON(ca->set->cache[ca->sb.nr_this_dev] != ca);
+ 		ca->set->cache[ca->sb.nr_this_dev] = NULL;
 +	}
  
- 	/*
- 	 * When the pstream (fat pipe == AC) timesout, it means there were
-@@ -1496,6 +1500,10 @@ static int ath6kl_wmi_cac_event_rx(struc
- 		return -EINVAL;
+ 	bio_split_pool_free(&ca->bio_split_hook);
  
- 	reply = (struct wmi_cac_event *) datap;
-+	if (reply->ac >= WMM_NUM_AC) {
-+		ath6kl_err("invalid AC: %d\n", reply->ac);
-+		return -EINVAL;
-+	}
+@@ -1868,7 +1873,7 @@ static int cache_alloc(struct cache_sb *
+ }
  
- 	if ((reply->cac_indication == CAC_INDICATION_ADMISSION_RESP) &&
- 	    (reply->status_code != IEEE80211_TSPEC_STATUS_ADMISS_ACCEPTED)) {
-@@ -2608,7 +2616,7 @@ int ath6kl_wmi_delete_pstream_cmd(struct
- 	u16 active_tsids = 0;
- 	int ret;
- 
--	if (traffic_class > 3) {
-+	if (traffic_class >= WMM_NUM_AC) {
- 		ath6kl_err("invalid traffic class: %d\n", traffic_class);
- 		return -EINVAL;
- 	}
+ static int register_cache(struct cache_sb *sb, struct page *sb_page,
+-				  struct block_device *bdev, struct cache *ca)
++				struct block_device *bdev, struct cache *ca)
+ {
+ 	char name[BDEVNAME_SIZE];
+ 	const char *err = NULL; /* must be set for any error case */
 
