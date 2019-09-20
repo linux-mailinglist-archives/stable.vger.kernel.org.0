@@ -2,140 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3555FB98C3
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 23:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75FBB98D4
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 23:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392512AbfITVIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 17:08:12 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35447 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387849AbfITVIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 17:08:12 -0400
-Received: by mail-pg1-f194.google.com with SMTP id a24so4521841pgj.2
-        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 14:08:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id;
-        bh=ZO0hAvRwT2ibjcPc7GQW/oJUourWOBL7pIGUyi7fUZY=;
-        b=hoyz9cihuwywQjF2OLD3ullaOs8igaLQm47jsEb/DpFWfjwFURPRbIMhRc+zArLuxJ
-         bNqKpkzlL/ehhdQ7oXQIDWdUAgZmfqQRlzV/mEBF+/Jvqhry8RkIqXqZN0ZXFzN1OeJg
-         xvCmeG8D4yniPEyngSLANElroOO3/nUyymDyPgJ+FfI5oErUcLuv1Zxy6+fpIJTr3Sak
-         +VsA7FnLuAQUsb0eIbarR5utfL5z0Fr4QcARvAss23SBkKAejeTVtVzGPNWE3OV2thkM
-         Gk3YSxK4/3XD8U30Z+VNJiYBYA7qrWeQL5x3wXor2uhMpmrau97nA/be7HbUuLXf5oA4
-         VrQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id;
-        bh=ZO0hAvRwT2ibjcPc7GQW/oJUourWOBL7pIGUyi7fUZY=;
-        b=mR99ykSJpUCQy5QD6W0tOeFLvz5Acfu9zf40Nqhu7FdwxhJk3hoOcf6qx3Y0+VJFHp
-         1wxwxV9FhGj+cEoYd0JB67O/1HOZzXoZQlGAyYOnd3hh6Inj/EZld/3dQiYYfre97SZd
-         GuVgIDPf4MCR+7Qv3HLAXJMY6opkNmULgcJqywmf1G0KQRZuYCh9jJ7dZxvTLLN4FUZn
-         3OU0U/eqSh3RajdYi2Q9XsS03QiekdPfq28CcOkzSLjtl43cCPIy11bal6Leh6fkLTNV
-         9NWHP4h8W8dIpohdlQWU3smk4f9DYiXgRDiRQSxkUyAf3iPdjgSPULoK+0lvpU3GXmi+
-         Vs9Q==
-X-Gm-Message-State: APjAAAU6kFQ188tTwEXp/BzMvoMOLADXtZWFaoCQhJgtHEyteHBLBPEK
-        yxecCVnBql3DMjnSWx/IU+CAjJM=
-X-Google-Smtp-Source: APXvYqy1V8E8wogT1GovF9lA9tZL4qNswHxhphguzRDb/taOSsKV1bK16HYuKfodjq4WLnEptqxIjA==
-X-Received: by 2002:a17:90a:b114:: with SMTP id z20mr6975036pjq.113.1569013689393;
-        Fri, 20 Sep 2019 14:08:09 -0700 (PDT)
-Received: from ubuntu-vm.mshome.net ([131.107.159.106])
-        by smtp.gmail.com with ESMTPSA id d69sm2663821pfd.175.2019.09.20.14.08.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Sep 2019 14:08:08 -0700 (PDT)
-From:   Pavel Shilovsky <piastryyy@gmail.com>
-X-Google-Original-From: Pavel Shilovsky <pshilov@microsoft.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH] CIFS: fix deadlock in cached root handling
-Date:   Fri, 20 Sep 2019 14:08:03 -0700
-Message-Id: <20190920210803.4405-1-pshilov@microsoft.com>
-X-Mailer: git-send-email 2.17.1
+        id S1728715AbfITVRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 17:17:01 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:39458 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725842AbfITVRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 17:17:00 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBQGv-0000JI-JA; Fri, 20 Sep 2019 22:16:57 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBQGv-0001ab-Cj; Fri, 20 Sep 2019 22:16:57 +0100
+Message-ID: <8dbced01558cd8d4a1d4f058010e7d63e5f6810e.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 000/132] 3.16.74-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Fri, 20 Sep 2019 22:16:49 +0100
+In-Reply-To: <20190920200423.GA26056@roeck-us.net>
+References: <lsq.1568989414.954567518@decadent.org.uk>
+         <20190920200423.GA26056@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-/rRJG551LxhZ+TSENQAr"
+User-Agent: Evolution 3.30.5-1.1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
 
-Commit 7e5a70ad88b1 ("CIFS: fix deadlock in cached root handling") upstream.
+--=-/rRJG551LxhZ+TSENQAr
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Prevent deadlock between open_shroot() and
-cifs_mark_open_files_invalid() by releasing the lock before entering
-SMB2_open, taking it again after and checking if we still need to use
-the result.
+On Fri, 2019-09-20 at 13:04 -0700, Guenter Roeck wrote:
+> On Fri, Sep 20, 2019 at 03:23:34PM +0100, Ben Hutchings wrote:
+> > This is the start of the stable review cycle for the 3.16.74 release.
+> > There are 132 patches in this series, which will be posted as responses
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >=20
+> > Responses should be made by Mon Sep 23 20:00:00 UTC 2019.
+> > Anything received after that time might be too late.
+> >=20
+>=20
+> Build results:
+> 	total: 136 pass: 135 fail: 1
+> Failed builds:
+> 	arm:allmodconfig
+> Qemu test results:
+> 	total: 229 pass: 229 fail: 0
+>=20
+> Build errors in arm:allmodconfig are along the line of
+>=20
+> In file included from include/linux/printk.h:5,
+>                  from include/linux/kernel.h:13,
+>                  from include/linux/clk.h:16,
+>                  from drivers/gpu/drm/tilcdc/tilcdc_drv.h:21,
+>                  from drivers/gpu/drm/tilcdc/tilcdc_drv.c:20:
+> include/linux/init.h:343:7: error: 'cleanup_module'
+> 	specifies less restrictive attribute than its target 'tilcdc_drm_fini': =
+'cold'
+>=20
+> In addition to a few errors like that, there are literally thousands
+> of similar warnings.
 
-CC: <stable@vger.kernel.org> # v4.19+
-Link: https://lore.kernel.org/linux-cifs/684ed01c-cbca-2716-bc28-b0a59a0f8521@prodrive-technologies.com/T/#u
-Fixes: 3d4ef9a15343 ("smb3: fix redundant opens on root")
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
----
- fs/cifs/smb2ops.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+It looks like this is triggered by you switching arm builds from gcc 8
+to 9, rather than by any code change.
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index cc9e846a3865..094be406cde4 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -553,7 +553,50 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
- 	oparams.fid = pfid;
- 	oparams.reconnect = false;
- 
-+	/*
-+	 * We do not hold the lock for the open because in case
-+	 * SMB2_open needs to reconnect, it will end up calling
-+	 * cifs_mark_open_files_invalid() which takes the lock again
-+	 * thus causing a deadlock
-+	 */
-+	mutex_unlock(&tcon->crfid.fid_mutex);
- 	rc = SMB2_open(xid, &oparams, &srch_path, &oplock, NULL, NULL, NULL);
-+	mutex_lock(&tcon->crfid.fid_mutex);
-+
-+	/*
-+	 * Now we need to check again as the cached root might have
-+	 * been successfully re-opened from a concurrent process
-+	 */
-+
-+	if (tcon->crfid.is_valid) {
-+		/* work was already done */
-+
-+		/* stash fids for close() later */
-+		struct cifs_fid fid = {
-+			.persistent_fid = pfid->persistent_fid,
-+			.volatile_fid = pfid->volatile_fid,
-+		};
-+
-+		/*
-+		 * Caller expects this func to set pfid to a valid
-+		 * cached root, so we copy the existing one and get a
-+		 * reference
-+		 */
-+		memcpy(pfid, tcon->crfid.fid, sizeof(*pfid));
-+		kref_get(&tcon->crfid.refcount);
-+
-+		mutex_unlock(&tcon->crfid.fid_mutex);
-+
-+		if (rc == 0) {
-+			/* close extra handle outside of critical section */
-+			SMB2_close(xid, tcon, fid.persistent_fid,
-+				   fid.volatile_fid);
-+		}
-+		return 0;
-+	}
-+
-+	/* Cached root is still invalid, continue normaly */
-+
- 	if (rc == 0) {
- 		memcpy(tcon->crfid.fid, pfid, sizeof(struct cifs_fid));
- 		tcon->crfid.tcon = tcon;
-@@ -561,6 +604,7 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
- 		kref_init(&tcon->crfid.refcount);
- 		kref_get(&tcon->crfid.refcount);
- 	}
-+
- 	mutex_unlock(&tcon->crfid.fid_mutex);
- 	return rc;
- }
--- 
-2.17.1
+Does it actually make sense to try to support building Linux 3.16 with
+gcc 9?  If so, I suppose I'll need to add:
 
+commit edc966de8725f9186cc9358214da89d335f0e0bd
+Author: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date:   Fri Aug 2 12:37:56 2019 +0200
+
+    Backport minimal compiler_attributes.h to support GCC 9
+
+commit a6e60d84989fa0e91db7f236eda40453b0e44afa
+Author: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date:   Sat Jan 19 20:59:34 2019 +0100
+
+    include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+
+Ben.
+
+--=20
+Ben Hutchings
+Nothing is ever a complete failure;
+it can always serve as a bad example.
+
+
+
+--=-/rRJG551LxhZ+TSENQAr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2FQcEACgkQ57/I7JWG
+EQkgFw/+P7CzjA+0Pbp70U6LrRKkknpueGfl4pU0Yf6pFa7JrViMkDjHCa7QupPE
+ct40MZvLllbC8Fh/WhwL6c91sLFU2I3KubltYm9zb4I1zk2qpZq6ZJ3PZ1sFvfjj
+u/RgUT1GmhxWCZJD2U0De/vorHuKskPe5oO9ZZ39X3YBKlf/POH+TPU5siXXsCm0
+8j6aEqnDmXcbobfz6eEjE2jTfUEwxrq9OlzbJtrmPVrdmGRcRNFgEyAR6wM/UWa4
+y4NfE35Qb9pz2MvU1FW4kKV0BA2HPA0ZzvLDqcqKBR48kkxYLlAnidXyMsTpfymX
+x4NGW/ZeMUbwabaeucOVVjw1dFYJrQw7cCymF3yelrlK3OuN1f3SDBj9PhxX4hHd
+5JPijSSOg/7baJtRS7oLbzC6B0ittNr2JV4hc9SLpPL9nzApOMt8PodtS5ZoEqhX
+r/5XyDGThqKr5+ByXuxpVKubsYJL0fdqdd5Xx1Zt051cuaFYwjMGELQfPHzcF+qF
+fhA0Ffpn6dJ8Vhl1G9sZGvcCWH4+DWH0AZzZbYrASoh60OGACKJ3QJML3G0cg1Fv
+FD2BAL2i+buooiPuJk2bDutRjKn+WIJgLEDMvcp/PCb2/M8K/IZ8Cy04bB8HTKyr
+DQE3pSa3xfxMWlPGUtpoipeQFMH5Z3ocRFZX6OzKexYi+HlpkUw=
+=+EhR
+-----END PGP SIGNATURE-----
+
+--=-/rRJG551LxhZ+TSENQAr--
