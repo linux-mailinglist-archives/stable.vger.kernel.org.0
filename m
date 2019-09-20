@@ -2,139 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7E6B8C5E
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65790B8C93
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 10:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391092AbfITIG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 04:06:56 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:37216 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391003AbfITIG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:06:56 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w67so4383611lff.4;
-        Fri, 20 Sep 2019 01:06:53 -0700 (PDT)
+        id S2395234AbfITIWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 04:22:34 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:43008 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2395228AbfITIWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 04:22:34 -0400
+Received: by mail-lj1-f196.google.com with SMTP id n14so1168409ljj.10
+        for <stable@vger.kernel.org>; Fri, 20 Sep 2019 01:22:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/Y0dVg0rkJK+8ZRofkpbBt2xSCy2wZHIwHwOHo3SAF4=;
+        b=ijM79mHPeghORpgUUpSTuQqXqvtIACE0riFZ3nYDpc7/JUA+ll2naj/N+DHS02awJw
+         OniheqFSOFHPSooSh0bgBiyzFsuOXTRYpEMCETKNwyTJSBtUwC/J0gXUK14oLL5diJzK
+         UTTDsVF+fEvrLh6Jx3Yh9ddZazJDlygia+Pv1NJ4DAJQPC/LRaRb96Kg8T4rFQ7JRQhD
+         V3wmSB1E8e4lkLsBD5Fdhe9QRWMrh6VaXkErzyu38LWRLUY8G3SbCo/Bd/tr8fmGuca6
+         gezS2HqWJwtcIrSj95vLbF50pdpCfwssPGNI48JgGfEQPicD3R/4wmNhYazixE/codC8
+         zygg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=gz7X0SW/xnl3tGxq30hcsGDXhtDvbl61SOj/nTQHmns=;
-        b=MoFGy/N/BJqyBmJRHQzXBX6YRXNTo1aM9YXd2CDfNzyWDJpzkBYSbONbk5jom8R4iv
-         weOq25UybYgDboX8ae4b90z6wS/qte0iK8u7jAYF204S3chi5hjctE16L4TqjtNcTa1h
-         SxKQww7sx6tPGl0nLManLAvA6Noansa16M56ujlWMATtI+985X/VqJO8hV4EcarOIBXh
-         vErY9BKWQUPFA20/nMLkROH70tRDyl4D1vAYvlCrJs5SXY8/KPFjax7Xa23E0GAJ1Vm1
-         J6c4RfVZgktDvXfrJL2/3F52qkDw5UBnL5yY9YRilBtqsgdjuYTorKvWZA+IF233NEL6
-         wFxA==
-X-Gm-Message-State: APjAAAVl+qEAjRVhVWa8wHoOiUcuiqIped9qP5BqZ+3rqlSUsmDrDbru
-        6Jkj9XVcvrW6tsBabSj9pGFFBNDj
-X-Google-Smtp-Source: APXvYqxHl0pI/SGAh/IOmt6QUA+GVj4jg2AUfXvg7NBcDe2KX+TgHef+3ehDNCNWKjKFheZ7jsFwpw==
-X-Received: by 2002:ac2:5dd6:: with SMTP id x22mr7815896lfq.71.1568966812357;
-        Fri, 20 Sep 2019 01:06:52 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id h3sm314833lfc.26.2019.09.20.01.06.51
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 20 Sep 2019 01:06:51 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@kernel.org>)
-        id 1iBDwJ-00012r-2b; Fri, 20 Sep 2019 10:06:51 +0200
-Date:   Fri, 20 Sep 2019 10:06:51 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Baolin Wang <baolin.wang@linaro.org>
-Cc:     Johan Hovold <johan@kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>, lanqing.liu@unisoc.com,
-        linux-serial@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BACKPORT 4.14.y v2 6/6] serial: sprd: Modify the baud rate
- calculation formula
-Message-ID: <20190920080651.GJ30545@localhost>
-References: <cover.1567649728.git.baolin.wang@linaro.org>
- <4fe6ec82960301126b9f4be52dd6083c30e17420.1567649729.git.baolin.wang@linaro.org>
- <20190905090130.GF1701@localhost>
- <CAMz4kuJGmQxfy5mi1aZNL8SA8MQBSTTyDeWcHHEtG2aXsFZgug@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/Y0dVg0rkJK+8ZRofkpbBt2xSCy2wZHIwHwOHo3SAF4=;
+        b=ajdz9AvNwm3qeaE3TYIJYBcwfY1gCMOxkX8elpEYntZy4zCe94ehIaMulpDBypnI3Z
+         IP0h93j06qY+R/emNexiM0j3+m/1MWeel81sZQhv74OC3N9hddhdsZIc3bJwq3yxI4bN
+         WgO7Baiab1btNBHJg+HlVEJ4MlMTS22i+CzVke8lOlU8npxXAJe2O8314vIUPuMO0NRK
+         GAz6wf67oJIh77bNLMDG79KB+CFp9pYY89SD9Gi2bg5RKtTwG32de1RdgMSEigf8BI6C
+         IxTaYSULTeoINawEXNoxl+WY2L/KqaSnDp57CTYLNhRzhNibYWXpIcM/zKH7WDskHLax
+         mKPw==
+X-Gm-Message-State: APjAAAV905zAuT2rBv0srmRj8z3GfghdmlOL9TD8bAqxUqBalAeYjd/K
+        OSWH04GdsEN6UVXpjoT/x9TtCXCpkvTfnYCa52i1Pw==
+X-Google-Smtp-Source: APXvYqxO/HYaho83HxZXL87Foe1xgGVU5sQjvCOZPhZImVv2TthQt26ZN5SvNOQQR4SC29BcqRjlR1d06awwiiwTB0g=
+X-Received: by 2002:a2e:9ccb:: with SMTP id g11mr4454624ljj.62.1568967752338;
+ Fri, 20 Sep 2019 01:22:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMz4kuJGmQxfy5mi1aZNL8SA8MQBSTTyDeWcHHEtG2aXsFZgug@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+References: <20190918155200.12614-1-dqfext@gmail.com>
+In-Reply-To: <20190918155200.12614-1-dqfext@gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 20 Sep 2019 10:22:21 +0200
+Message-ID: <CACRpkda30tm0cVHpZHnjQki86m_4ZfGiufg8e=6Rx-S+zFHF_g@mail.gmail.com>
+Subject: Re: [PATCH] spi: spi-gpio: fix crash when num-chipselects is 0
+To:     DENG Qingfang <dqfext@gmail.com>
+Cc:     linux-spi <linux-spi@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 05:58:05PM +0800, Baolin Wang wrote:
-> Hi Johan,
-> 
-> On Thu, 5 Sep 2019 at 17:01, Johan Hovold <johan@kernel.org> wrote:
-> >
-> > On Thu, Sep 05, 2019 at 11:11:26AM +0800, Baolin Wang wrote:
-> > > From: Lanqing Liu <lanqing.liu@unisoc.com>
-> > >
-> > > [Upstream commit 5b9cea15a3de5d65000d49f626b71b00d42a0577]
-> > >
-> > > When the source clock is not divisible by the expected baud rate and
-> > > the remainder is not less than half of the expected baud rate, the old
-> > > formular will round up the frequency division coefficient. This will
-> > > make the actual baud rate less than the expected value and can not meet
-> > > the external transmission requirements.
-> > >
-> > > Thus this patch modifies the baud rate calculation formula to support
-> > > the serial controller output the maximum baud rate.
-> > >
-> > > Signed-off-by: Lanqing Liu <lanqing.liu@unisoc.com>
-> > > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > > ---
-> > >  drivers/tty/serial/sprd_serial.c |    2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-> > > index e902494..72e96ab8 100644
-> > > --- a/drivers/tty/serial/sprd_serial.c
-> > > +++ b/drivers/tty/serial/sprd_serial.c
-> > > @@ -380,7 +380,7 @@ static void sprd_set_termios(struct uart_port *port,
-> > >       /* ask the core to calculate the divisor for us */
-> > >       baud = uart_get_baud_rate(port, termios, old, 0, SPRD_BAUD_IO_LIMIT);
-> > >
-> > > -     quot = (unsigned int)((port->uartclk + baud / 2) / baud);
-> > > +     quot = port->uartclk / baud;
-> >
-> > Are you sure the original patch is even correct?
-> >
-> > By replacing the divisor rounding with truncation you are introducing
-> > larger errors for some baud rates, something which could possibly even
-> > break working systems.
-> 
-> Our UART clock source is 26M, and there is no difference for lower
-> than 3M baud rate between dividing closest or dividing down.
+On Wed, Sep 18, 2019 at 5:52 PM DENG Qingfang <dqfext@gmail.com> wrote:
 
-But there is; you have introduced larger errors for at least a few
-standard rates by changing to truncation.
+> The cause is spi_gpio_setup() did not check if the spi-gpio has chipselect pins
+> before setting their direction and results in derefing an invalid pointer.
+>
+> The bug is spotted in kernel 4.19.72 on OpenWrt, and does not occur in 4.14.
+>
+> There is a similar fix upstream 249e2632dcd0509b8f8f296f5aabf4d48dfd6da8.
 
-> But we have one special use case is our BT/GPS want to set 3.25M baud
-> rate, but we have to select 3M baud rate in baud_table since no 3.25M
-> setting. So in this case if we use the old formula, we will only get
-> about 2.8M baud rate, which can not meet our requirement. If we change
-> the dividing down method, we can get 3.25M baud rate.
-> 
-> I have to say this is a workaroud for our special case, and can solve
-> our problem. If you have any good suggestion, we can change to a
-> better solution. Thanks.
+So since this is fixed upstream I assume you mean that this should be for
+stable v4.19?
 
-Yeah, I don't think purposefully introducing larger errors, and risk
-breaking other people's setups, to work around that use case is
-warranted.
+I think the stable people want a special commit message structure,
+see:
+https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-We have an interface for setting arbitrary baudrates (TCSETS2) which you
-can you use (even if glibc support is still not in place). You'd just
-need to lift the seemingly arbitrary limitation to 3 Mbaud in the driver
-first.
-
-> > Perhaps the original patch should even be reverted, but in any case
-> > backporting this to stable looks questionable.
-
-So I think reverting this may be the right thing to do.
-
-Johan
+Yours,
+Linus Walleij
