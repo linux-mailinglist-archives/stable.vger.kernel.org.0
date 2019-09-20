@@ -2,100 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91EA9B90FC
-	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 15:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B69B9115
+	for <lists+stable@lfdr.de>; Fri, 20 Sep 2019 15:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728564AbfITNst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Sep 2019 09:48:49 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:5361 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728494AbfITNst (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Sep 2019 09:48:49 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d84d8c60000>; Fri, 20 Sep 2019 06:48:54 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 20 Sep 2019 06:48:48 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 20 Sep 2019 06:48:48 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 20 Sep
- 2019 13:48:48 +0000
-Received: from [10.21.132.148] (172.20.13.39) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 20 Sep
- 2019 13:48:45 +0000
-Subject: Re: [PATCH 5.2 000/124] 5.2.17-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190919214819.198419517@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <968601a3-71ee-f562-df15-263f91933738@nvidia.com>
-Date:   Fri, 20 Sep 2019 14:48:44 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726875AbfITNvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Sep 2019 09:51:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47392 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387500AbfITNvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Sep 2019 09:51:18 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 248BC2054F;
+        Fri, 20 Sep 2019 13:51:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568987476;
+        bh=12myJlWj34ImirhVE8CHoEnz/JnWrNcUadW4pkcWmVw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JuMm+UVINFDdl/FEm3p3IrL/gu07KICAaz7G48E9un/iMaXCtA2qxNo2CSC4n+hXD
+         0JuxA41wv5A8SQcpOl2L5ZhvPe7jbDvxGp2P2lg8Lf3TgqD9IY7/2Hjn0+5x7N0K5b
+         VUAMdY9fsM0sqm3cDB9y3crq4dFzi70sJacqhn9g=
+Date:   Fri, 20 Sep 2019 14:51:13 +0100
+From:   Will Deacon <will@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     mark.rutland@arm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Revert "arm64: Remove unnecessary ISBs
+ from" failed to apply to 4.19-stable tree
+Message-ID: <20190920135112.kwy5p3cl3btvquxc@willie-the-truck>
+References: <156891940813244@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190919214819.198419517@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1568987334; bh=2I5U542l/4RuD/2S6pr7XwLcfxiurU49CscvGZ0WcX4=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=cgBWisj/6Kk8eDbx0KwqHfQlz2xluXmDW2P4f4UBXUbw7rvHLIzbvLxPSfpwHlwpD
-         XvPuB9l88oa/rAEPnL8KHlSqsv9vS9MNsDEq6yjX8sWUY4zCRBPem3F6pqq1CXLerL
-         xHHRFoxVrY3SMaWhyuRcd6UeIMLuUBawh18f5zSsY4jVNV22uAm6noFEmRsWrzCL3q
-         2ddd9O2LzHMzn2MCl8785jTRwVY6/1UivjxuepMOx5CCaBT06+OgLb+QRWj7p8nzQW
-         gxbJ0ABCjeXH/OH5IOz0dCRpE0UkVREgM56CRJIBK/qoCwphaGiU49x0gM68n0ohFC
-         m24fFBMLwGuSQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <156891940813244@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 19, 2019 at 08:56:48PM +0200, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-On 19/09/2019 23:01, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.17 release.
-> There are 124 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 21 Sep 2019 09:44:25 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Backport for 4.19.y below.
 
-All tests passing for Tegra ...
+Will
 
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+--->8
 
-Linux version:	5.2.17-rc1-g690411952b3d
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+From 58035bc4dbe01d110f03977c61e3c024e0cf33da Mon Sep 17 00:00:00 2001
+From: Will Deacon <will@kernel.org>
+Date: Thu, 22 Aug 2019 14:58:37 +0100
+Subject: [PATCH] Revert "arm64: Remove unnecessary ISBs from
+ set_{pte,pmd,pud}"
 
-Cheers
-Jon
+commit d0b7a302d58abe24ed0f32a0672dd4c356bb73db upstream.
 
+This reverts commit 24fe1b0efad4fcdd32ce46cffeab297f22581707.
+
+Commit 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from
+set_{pte,pmd,pud}") removed ISB instructions immediately following updates
+to the page table, on the grounds that they are not required by the
+architecture and a DSB alone is sufficient to ensure that subsequent data
+accesses use the new translation:
+
+  DDI0487E_a, B2-128:
+
+  | ... no instruction that appears in program order after the DSB
+  | instruction can alter any state of the system or perform any part of
+  | its functionality until the DSB completes other than:
+  |
+  | * Being fetched from memory and decoded
+  | * Reading the general-purpose, SIMD and floating-point,
+  |   Special-purpose, or System registers that are directly or indirectly
+  |   read without causing side-effects.
+
+However, the same document also states the following:
+
+  DDI0487E_a, B2-125:
+
+  | DMB and DSB instructions affect reads and writes to the memory system
+  | generated by Load/Store instructions and data or unified cache
+  | maintenance instructions being executed by the PE. Instruction fetches
+  | or accesses caused by a hardware translation table access are not
+  | explicit accesses.
+
+which appears to claim that the DSB alone is insufficient.  Unfortunately,
+some CPU designers have followed the second clause above, whereas in Linux
+we've been relying on the first. This means that our mapping sequence:
+
+	MOV	X0, <valid pte>
+	STR	X0, [Xptep]	// Store new PTE to page table
+	DSB	ISHST
+	LDR	X1, [X2]	// Translates using the new PTE
+
+can actually raise a translation fault on the load instruction because the
+translation can be performed speculatively before the page table update and
+then marked as "faulting" by the CPU. For user PTEs, this is ok because we
+can handle the spurious fault, but for kernel PTEs and intermediate table
+entries this results in a panic().
+
+Revert the offending commit to reintroduce the missing barriers.
+
+Cc: <stable@vger.kernel.org> # 4.19.y only
+Fixes: 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}")
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/include/asm/pgtable.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 2214a403f39b..212a48826655 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -224,8 +224,10 @@ static inline void set_pte(pte_t *ptep, pte_t pte)
+ 	 * Only if the new pte is valid and kernel, otherwise TLB maintenance
+ 	 * or update_mmu_cache() have the necessary barriers.
+ 	 */
+-	if (pte_valid_not_user(pte))
++	if (pte_valid_not_user(pte)) {
+ 		dsb(ishst);
++		isb();
++	}
+ }
+ 
+ extern void __sync_icache_dcache(pte_t pteval);
+@@ -432,6 +434,7 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
+ {
+ 	WRITE_ONCE(*pmdp, pmd);
+ 	dsb(ishst);
++	isb();
+ }
+ 
+ static inline void pmd_clear(pmd_t *pmdp)
+@@ -483,6 +486,7 @@ static inline void set_pud(pud_t *pudp, pud_t pud)
+ {
+ 	WRITE_ONCE(*pudp, pud);
+ 	dsb(ishst);
++	isb();
+ }
+ 
+ static inline void pud_clear(pud_t *pudp)
 -- 
-nvpublic
+2.23.0.351.gc4317032e6-goog
+
