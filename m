@@ -2,133 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFFBB9DCA
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 14:20:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11ADB9E00
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 15:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437828AbfIUMUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Sep 2019 08:20:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437826AbfIUMUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 21 Sep 2019 08:20:39 -0400
-Received: from oasis.local.home (rrcs-24-39-165-138.nys.biz.rr.com [24.39.165.138])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8982720717;
-        Sat, 21 Sep 2019 12:20:37 +0000 (UTC)
-Date:   Sat, 21 Sep 2019 08:20:35 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Tom Zanussi <zanussi@kernel.org>, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
-        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
-        linux-rt-users <linux-rt-users@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [for-next][PATCH 3/8] tracing: Make sure variable reference
- alias has correct var_ref_idx
-Message-ID: <20190921082035.4fc9ccc5@oasis.local.home>
-In-Reply-To: <20190921120618.DF81120665@mail.kernel.org>
-References: <20190919232359.825502403@goodmis.org>
-        <20190921120618.DF81120665@mail.kernel.org>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S2394129AbfIUNRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 09:17:33 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:35839 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389497AbfIUNRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 09:17:32 -0400
+Received: by mail-wr1-f65.google.com with SMTP id v8so9446964wrt.2
+        for <stable@vger.kernel.org>; Sat, 21 Sep 2019 06:17:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lPaDGDveMEBwLPSR9Xx9OSApXDzSPMlJU0e+UxnXHLA=;
+        b=F2KDAdih1OEoC4txtQwpj4fg+CjujL14AxURpr1mFARBOUI+YlDzjGdr5zo6nB1/Bh
+         G1tSQj2tT84vNS5oBAzLyfmTr/0kbGrLBWgpFeO1gxga9vj+jomCGkgfvSr4OaEaIkBz
+         sQzYdo6S4gGzUMsY/amEQ084q9i5pX4sO3VGHLLqAEL/FkTAy4/kv/VmsZyftr7mQD6K
+         05hNATCl0XXAWXsn0srSkPVHdfeYnu6JpXng1sryalT6wNQDRXbI/O7mwWdXb2gdnYrZ
+         YAkrIxHFNXnJPGXbNTPUIf4XoRlARm+e4qxJ3uxQxCobTdbGti0xeIxq1hpxX7dnYlsP
+         C6Ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lPaDGDveMEBwLPSR9Xx9OSApXDzSPMlJU0e+UxnXHLA=;
+        b=naa/TsukWOBJVJqsx0suS1+tpM7fA19wDXcgO7ufX/yVH5wNbYv8xhe9EjMtjWb0/d
+         l5dYdQnBvivw9xhHpmVIpbVspd7aIaasVNoZKlPrrziCoYCgLc0r8B0WgTk0RlvFVuO8
+         WDgmR8sezVLItsdpVsBXPmsjan+5nwWcpiFBTGzeUqB+RPbn6fsylKLvg8tnPMlMqaIy
+         v9tkmL9JXpVrdEoZjqyMCA5OjwKOkVdlROe2SA65yi59FCsIHHLyTRb46czEw7ybsBAy
+         iruUqHRhWGqyrIUapnuGAdzN5PP7l3uC/wa9RIpTby8uqMav+XbI5zu8JgfCr7AtzhGc
+         gUwg==
+X-Gm-Message-State: APjAAAU/6J7+tsrITZuNgYzTT3jqP9D0786/fNvpoCKljXVDI9Lht2dk
+        ZXUk7uCyRYQ8pVOlL6wjdQLhfUYxDDynag==
+X-Google-Smtp-Source: APXvYqw08iAM67ajkANagKn+bfp1cYtW5iCPQDq6AP0AfQzQAFu3vfIF59Q1QBw0ZMHBzqlegDmS6w==
+X-Received: by 2002:a5d:5643:: with SMTP id j3mr3215711wrw.357.1569071850191;
+        Sat, 21 Sep 2019 06:17:30 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q3sm5364331wrm.86.2019.09.21.06.17.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 21 Sep 2019 06:17:29 -0700 (PDT)
+Message-ID: <5d8622e9.1c69fb81.f3261.b1ce@mx.google.com>
+Date:   Sat, 21 Sep 2019 06:17:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.75
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 129 boots: 0 failed,
+ 119 passed with 9 offline, 1 conflict (v4.19.75)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 21 Sep 2019 12:06:18 +0000
-Sasha Levin <sashal@kernel.org> wrote:
+stable-rc/linux-4.19.y boot: 129 boots: 0 failed, 119 passed with 9 offline=
+, 1 conflict (v4.19.75)
 
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: .
-> 
-> The bot has tested the following trees: v5.2.16, v4.19.74, v4.14.145, v4.9.193, v4.4.193.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.75/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.75/
 
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.75
+Git Commit: d573e8a79f70404ba08623d1de7ea617d55092ac
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 24 SoC families, 16 builds out of 206
 
-The fixes tag is 7e8b88a30b085 which was added to mainline in 4.17.
-According to this email, it applies fine to 5.2 and 4.19, but fails on
-4.14 and earlier. As the commit was added in 4.17 that makes perfect
-sense. Can you update your scripts to test when the fixes commit was
-added, and not send spam about it not applying to stable trees where
-it's not applicable.
+Offline Platforms:
 
-On a git repo containing only Linus's tree, I have:
+arm64:
 
-$ git describe --contains 7e8b88a30b085
-v4.17-rc1~28^2~43
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-Which shows me when it was applied.
+arm:
 
-Thanks!
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
--- Steve
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-> 
-> v5.2.16: Build OK!
-> v4.19.74: Build OK!
-> v4.14.145: Failed to apply! Possible dependencies:
->     00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
->     067fe038e70f ("tracing: Add variable reference handling to hist triggers")
->     0d7a8325bf33 ("tracing: Clean up hist_field_flags enum")
->     100719dcef44 ("tracing: Add simple expression support to hist triggers")
->     30350d65ac56 ("tracing: Add variable support to hist triggers")
->     442c94846190 ("tracing: Add Documentation for log2 modifier")
->     5819eaddf35b ("tracing: Reimplement log2")
->     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
->     85013256cf01 ("tracing: Add hist_field_name() accessor")
->     860f9f6b02e9 ("tracing: Add usecs modifier for hist trigger timestamps")
->     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
->     ad42febe51ae ("tracing: Add hist trigger timestamp support")
->     b559d003a226 ("tracing: Add hist_data member to hist_field")
->     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
-> 
-> v4.9.193: Failed to apply! Possible dependencies:
->     00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
->     067fe038e70f ("tracing: Add variable reference handling to hist triggers")
->     0d7a8325bf33 ("tracing: Clean up hist_field_flags enum")
->     100719dcef44 ("tracing: Add simple expression support to hist triggers")
->     30350d65ac56 ("tracing: Add variable support to hist triggers")
->     442c94846190 ("tracing: Add Documentation for log2 modifier")
->     5819eaddf35b ("tracing: Reimplement log2")
->     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
->     85013256cf01 ("tracing: Add hist_field_name() accessor")
->     860f9f6b02e9 ("tracing: Add usecs modifier for hist trigger timestamps")
->     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
->     ad42febe51ae ("tracing: Add hist trigger timestamp support")
->     b559d003a226 ("tracing: Add hist_data member to hist_field")
->     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
-> 
-> v4.4.193: Failed to apply! Possible dependencies:
->     08d43a5fa063 ("tracing: Add lock-free tracing_map")
->     0c4a6b4666e8 ("tracing: Add hist trigger 'hex' modifier for displaying numeric fields")
->     0fc3813ce103 ("tracing: Add 'hist' trigger Documentation")
->     52a7f16dedff ("tracing: Add support for multiple hist triggers per event")
->     5463bfda327b ("tracing: Add support for named hist triggers")
->     76a3b0c8ac34 ("tracing: Add hist trigger support for compound keys")
->     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
->     7ef224d1d0e3 ("tracing: Add 'hist' event trigger command")
->     83e99914c9e2 ("tracing: Add hist trigger support for pausing and continuing a trace")
->     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
->     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
->     c6afad49d127 ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
->     e62347d24534 ("tracing: Add hist trigger support for user-defined sorting ('sort=' param)")
->     f2606835d70d ("tracing: Add hist trigger support for multiple values ('vals=' param)")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-> 
-> --
-> Thanks,
-> Sasha
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
+arm:
+    multi_v7_defconfig:
+        tegra124-jetson-tk1:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
