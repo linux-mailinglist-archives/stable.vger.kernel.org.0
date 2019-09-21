@@ -2,257 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E5FB9DAA
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 13:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFFBB9DCA
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 14:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394098AbfIULrz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 21 Sep 2019 07:47:55 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56612 "EHLO mx1.redhat.com"
+        id S2437828AbfIUMUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 08:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393973AbfIULry (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 21 Sep 2019 07:47:54 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2437826AbfIUMUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Sep 2019 08:20:39 -0400
+Received: from oasis.local.home (rrcs-24-39-165-138.nys.biz.rr.com [24.39.165.138])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 0415010C0928
-        for <stable@vger.kernel.org>; Sat, 21 Sep 2019 11:47:54 +0000 (UTC)
-Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 858EF5D6B2;
-        Sat, 21 Sep 2019 11:47:51 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 8982720717;
+        Sat, 21 Sep 2019 12:20:37 +0000 (UTC)
+Date:   Sat, 21 Sep 2019 08:20:35 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Tom Zanussi <zanussi@kernel.org>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [for-next][PATCH 3/8] tracing: Make sure variable reference
+ alias has correct var_ref_idx
+Message-ID: <20190921082035.4fc9ccc5@oasis.local.home>
+In-Reply-To: <20190921120618.DF81120665@mail.kernel.org>
+References: <20190919232359.825502403@goodmis.org>
+        <20190921120618.DF81120665@mail.kernel.org>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.1-c9a59a8.cki
- (stable)
-Message-ID: <cki.4F32302E8E.LMBOZELRX9@redhat.com>
-X-Gitlab-Pipeline-ID: 178225
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/178225
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.66]); Sat, 21 Sep 2019 11:47:54 +0000 (UTC)
-Date:   Sat, 21 Sep 2019 07:47:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, 21 Sep 2019 12:06:18 +0000
+Sasha Levin <sashal@kernel.org> wrote:
 
-Hello,
-
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: c9a59a82366b - Linux 5.3.1
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/178225
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: .
+> 
+> The bot has tested the following trees: v5.2.16, v4.19.74, v4.14.145, v4.9.193, v4.4.193.
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+The fixes tag is 7e8b88a30b085 which was added to mainline in 4.17.
+According to this email, it applies fine to 5.2 and 4.19, but fails on
+4.14 and earlier. As the commit was added in 4.17 that makes perfect
+sense. Can you update your scripts to test when the fixes commit was
+added, and not send spam about it not applying to stable trees where
+it's not applicable.
 
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
+On a git repo containing only Linus's tree, I have:
 
-      Host 2:
+$ git describe --contains 7e8b88a30b085
+v4.17-rc1~28^2~43
 
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
+Which shows me when it was applied.
 
-         ⚡⚡⚡ Boot test
-         ⚡⚡⚡ Podman system integration test (as root)
-         ⚡⚡⚡ Podman system integration test (as user)
-         ⚡⚡⚡ Loopdev Sanity
-         ⚡⚡⚡ jvm test suite
-         ⚡⚡⚡ Memory function: memfd_create
-         ⚡⚡⚡ AMTU (Abstract Machine Test Utility)
-         ⚡⚡⚡ LTP: openposix test suite
-         ⚡⚡⚡ Ethernet drivers sanity
-         ⚡⚡⚡ Networking socket: fuzz
-         ⚡⚡⚡ Networking sctp-auth: sockopts test
-         ⚡⚡⚡ Networking: igmp conformance test
-         ⚡⚡⚡ Networking TCP: keepalive test
-         ⚡⚡⚡ Networking UDP: socket
-         ⚡⚡⚡ Networking tunnel: gre basic
-         ⚡⚡⚡ Networking tunnel: vxlan basic
-         ⚡⚡⚡ audit: audit testsuite test
-         ⚡⚡⚡ httpd: mod_ssl smoke sanity
-         ⚡⚡⚡ iotop: sanity
-         ⚡⚡⚡ tuned: tune-processes-through-perf
-         ⚡⚡⚡ Usex - version 1.9-29
-         ⚡⚡⚡ storage: SCSI VPD
-         ⚡⚡⚡ stress: stress-ng
-         🚧 ⚡⚡⚡ LTP lite
-         🚧 ⚡⚡⚡ CIFS Connectathon
-         🚧 ⚡⚡⚡ Memory function: kaslr
-         🚧 ⚡⚡⚡ Networking bridge: sanity
-         🚧 ⚡⚡⚡ Networking MACsec: sanity
-         🚧 ⚡⚡⚡ Networking route: pmtu
-         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
-         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
-         🚧 ⚡⚡⚡ ALSA PCM loopback test
-         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
-         🚧 ⚡⚡⚡ trace: ftrace/tracer
-         🚧 ⚡⚡⚡ Networking route_func: local
-         🚧 ⚡⚡⚡ Networking route_func: forward
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
+Thanks!
 
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
+-- Steve
 
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
 
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
 
-      Host 2:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
+> 
+> v5.2.16: Build OK!
+> v4.19.74: Build OK!
+> v4.14.145: Failed to apply! Possible dependencies:
+>     00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
+>     067fe038e70f ("tracing: Add variable reference handling to hist triggers")
+>     0d7a8325bf33 ("tracing: Clean up hist_field_flags enum")
+>     100719dcef44 ("tracing: Add simple expression support to hist triggers")
+>     30350d65ac56 ("tracing: Add variable support to hist triggers")
+>     442c94846190 ("tracing: Add Documentation for log2 modifier")
+>     5819eaddf35b ("tracing: Reimplement log2")
+>     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
+>     85013256cf01 ("tracing: Add hist_field_name() accessor")
+>     860f9f6b02e9 ("tracing: Add usecs modifier for hist trigger timestamps")
+>     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
+>     ad42febe51ae ("tracing: Add hist trigger timestamp support")
+>     b559d003a226 ("tracing: Add hist_data member to hist_field")
+>     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
+> 
+> v4.9.193: Failed to apply! Possible dependencies:
+>     00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
+>     067fe038e70f ("tracing: Add variable reference handling to hist triggers")
+>     0d7a8325bf33 ("tracing: Clean up hist_field_flags enum")
+>     100719dcef44 ("tracing: Add simple expression support to hist triggers")
+>     30350d65ac56 ("tracing: Add variable support to hist triggers")
+>     442c94846190 ("tracing: Add Documentation for log2 modifier")
+>     5819eaddf35b ("tracing: Reimplement log2")
+>     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
+>     85013256cf01 ("tracing: Add hist_field_name() accessor")
+>     860f9f6b02e9 ("tracing: Add usecs modifier for hist trigger timestamps")
+>     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
+>     ad42febe51ae ("tracing: Add hist trigger timestamp support")
+>     b559d003a226 ("tracing: Add hist_data member to hist_field")
+>     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
+> 
+> v4.4.193: Failed to apply! Possible dependencies:
+>     08d43a5fa063 ("tracing: Add lock-free tracing_map")
+>     0c4a6b4666e8 ("tracing: Add hist trigger 'hex' modifier for displaying numeric fields")
+>     0fc3813ce103 ("tracing: Add 'hist' trigger Documentation")
+>     52a7f16dedff ("tracing: Add support for multiple hist triggers per event")
+>     5463bfda327b ("tracing: Add support for named hist triggers")
+>     76a3b0c8ac34 ("tracing: Add hist trigger support for compound keys")
+>     7e8b88a30b08 ("tracing: Add hist trigger support for variable reference aliases")
+>     7ef224d1d0e3 ("tracing: Add 'hist' event trigger command")
+>     83e99914c9e2 ("tracing: Add hist trigger support for pausing and continuing a trace")
+>     8b7622bf94a4 ("tracing: Add cpu field for hist triggers")
+>     b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
+>     c6afad49d127 ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
+>     e62347d24534 ("tracing: Add hist trigger support for user-defined sorting ('sort=' param)")
+>     f2606835d70d ("tracing: Add hist trigger support for multiple values ('vals=' param)")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+> --
+> Thanks,
+> Sasha
 
-      Host 3:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-         🚧 ✅ IOMMU boot test
-
-      Host 4:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
