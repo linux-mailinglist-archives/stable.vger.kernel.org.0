@@ -2,80 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4AF9B9D7D
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 12:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC71B9D83
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 13:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407524AbfIUK7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Sep 2019 06:59:37 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:40030 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407520AbfIUK7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 06:59:37 -0400
-Received: by mail-wm1-f65.google.com with SMTP id b24so4553293wmj.5
-        for <stable@vger.kernel.org>; Sat, 21 Sep 2019 03:59:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xDSEWlaWlNQ2Twu1OgnNMK4lCX61IrXFLTewDwGvpPM=;
-        b=n6i049t31LEwgGtK3D5akCKmLgs6gSEJgK7VW3mrcWJyY+mooz4yX/BpiKoU5XjXCS
-         TQWOTYg56C3LPiR5F8e7/yMJg7sPMKluowlnV/eJR1Iny5uQ+AGtG1r1GDHjGxD9NTLI
-         gS4RfkBphpSi/fVbi6WZaXzahtalCQKo3gkIK5CgJFTntojnFYIWStVZeSoqcoJgwNZe
-         jKsTiws+gaaIMRRFAjdXcrEe0YsZ3f6CwqaPpFtwbC4ybGjhUvmxqUMWEej/1sn/wYrE
-         HBvvU0R+CY88J13TbkARwfv+EHn+i8CHONJ/EOxvpnqOK7Nai0jispqUKsJpklPIeNBG
-         bjAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xDSEWlaWlNQ2Twu1OgnNMK4lCX61IrXFLTewDwGvpPM=;
-        b=FGXzhNuiI2nCzRCI/dT3LLeTSfwO++7tKH0OPBBCAlXj3rSmR/HGa6sYfIybkL9Dqw
-         QstRoaoIhM6UaCvFmqAmJfX22F2n4kcD8v0RRlFSGO6B8gOTTarSF/SEzYau4fye5JDR
-         3taAWCypNzGJ3dAcnCVRZeE96I1Dh+OiUW9tvHPs8ZqpVtebMwLOcZzV6cgnemDUyhXe
-         jUOZNcofFJCl7kKax3K1Vz30u4bBG0o1VwelbjbHdO0P900+3QjfLkUQgc8nRD516jSp
-         4sy+xtoGlqeYGZNrUqYbEMXJm68GZMZtVfItvNldL8TlILd8pY5ZTNqcH0ioNjqThOri
-         6DFQ==
-X-Gm-Message-State: APjAAAVhwbdK+f43UywxvfetuTLnaxzyX1M2biMnIcjLIoyLWX0ix4mA
-        xUjayPIDKWRPXAqYLN/uPtswO4TIj8k3OA==
-X-Google-Smtp-Source: APXvYqyj8PVYCT6o/NaY594ZANVaG75o8AfL7362uZSgaG2HoSE5DcT5aifeQmcDRsW6eXyTnE+e5A==
-X-Received: by 2002:a1c:6143:: with SMTP id v64mr6833384wmb.79.1569063575464;
-        Sat, 21 Sep 2019 03:59:35 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id d9sm6382648wrf.62.2019.09.21.03.59.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 21 Sep 2019 03:59:34 -0700 (PDT)
-Message-ID: <5d860296.1c69fb81.efd9.2331@mx.google.com>
-Date:   Sat, 21 Sep 2019 03:59:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.194
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable/linux-4.9.y boot: 64 boots: 0 failed, 64 passed (v4.9.194)
+        id S2407500AbfIULFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 07:05:31 -0400
+Received: from kadath.azazel.net ([81.187.231.250]:59680 "EHLO
+        kadath.azazel.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407497AbfIULFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 07:05:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=azazel.net;
+         s=20190108; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
+        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=2XCk3uvQkSBolkvcTLUwG7isIl94JNrVpriYmHDNPb8=; b=d/ArAaEIkyTP14IFxBZO9MPy53
+        COxpakkj+HGSC71oxrJ6hbn0wyt4K+kQuYj2GJuXAG5+6l3I4QspN1P/O6HEGk9BcAFeFlSuaQgLY
+        jqO40LEz+L5hmR5zO1al36IB5yWTGKb+D88HcW+y/EFvO8kUyrnAPhyz/cLbOQLMjEnYGiUCsEi0G
+        00kVOI94Evdcxz22IMigvowk0wZhzsbBTFaBOKmFS97oI/Fp8Z8SRBrPOqf5TBjuKaVzLlkLS4KuS
+        6geiKc1F5HIYn4/a8wmShyuNxvaQ8JIsTVKDBs6UxT7JslvJ4rduVmiBGYWdW8hme9+v7/IJwJTbx
+        PKwLO41A==;
+Received: from ulthar.dreamlands ([192.168.96.2])
+        by kadath.azazel.net with esmtp (Exim 4.92)
+        (envelope-from <jeremy@azazel.net>)
+        id 1iBdCd-0007fj-6P; Sat, 21 Sep 2019 12:05:23 +0100
+From:   Jeremy Sowden <jeremy@azazel.net>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Netfilter Devel <netfilter-devel@vger.kernel.org>
+Subject: [PATCH 0/1] netfilter: bridge: build fix for 5.3
+Date:   Sat, 21 Sep 2019 12:05:22 +0100
+Message-Id: <20190921110523.15085-1-jeremy@azazel.net>
+X-Mailer: git-send-email 2.23.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 192.168.96.2
+X-SA-Exim-Mail-From: jeremy@azazel.net
+X-SA-Exim-Scanned: No (on kadath.azazel.net); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 64 boots: 0 failed, 64 passed (v4.9.194)
+Adam Borowski reported a build-failure in 5.3 when
+CONFIG_NF_CONNTRACK_BRIDGE is set but CONFIG_NF_TABLES is not.  It was
+introduced into the mainline by:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.194/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.194/
+  3c171f496ef5 ("netfilter: bridge: add connection tracking system")
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.194
-Git Commit: 1b2be6d75ad971d27decf2a97f5544c35aeb9f2b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 29 unique boards, 14 SoC families, 12 builds out of 197
+There is also a fix in the mainline:
 
----
-For more info write to <info@kernelci.org>
+  47e640af2e49 ("netfilter: add missing IS_ENABLED(CONFIG_NF_TABLES) check to header-file.")
+
+I've cherry-picked it, and added the "Fixes:", "Reported-by:", "Link:"
+and "Cc:" tags.
+
+Please consider applying it to 5-3-y.
+
+Jeremy Sowden (1):
+  netfilter: add missing IS_ENABLED(CONFIG_NF_TABLES) check to
+    header-file.
+
+ include/net/netfilter/nf_tables.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+-- 
+2.23.0
+
