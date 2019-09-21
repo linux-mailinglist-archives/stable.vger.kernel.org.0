@@ -2,80 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0993DB9D88
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 13:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D30B9D93
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 13:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407530AbfIULIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Sep 2019 07:08:06 -0400
-Received: from mail-wm1-f45.google.com ([209.85.128.45]:33747 "EHLO
-        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407437AbfIULIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 07:08:06 -0400
-Received: by mail-wm1-f45.google.com with SMTP id r17so11312494wme.0
-        for <stable@vger.kernel.org>; Sat, 21 Sep 2019 04:08:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=nT8l5H5U5ZOSCD7gfiBr333et8R5BeYGqpkjuK0zw8U=;
-        b=h6tzc93GJwDUl5xqTGnTP4UM1/FFCR3dV7SFdbJjgHz+11+FWGCHj3OOJ02CR/NSx+
-         PWnhYmZ8fTg6eoMequg2oDhAxvQS8z4KV0UGhrj+LsJ4MjHAm/uFemP5QOCDWX7GbkFM
-         91Uhpaod0BJtmM4YoJeFWA5R+0iHwdma1i+S4ZCtczF65xeZ1Hwu73lY2npUMjC5Dueq
-         kbnk1E1R5BMu62+idSmgYcxyBkir++smip8UJUFPMRRZUeQ+fAuPy66Hc53k9+8SzqGm
-         3Ke7xbE08Rc/ZqcSQ1ydErNBZya0/Snf46pzzXBVJMnD3p9QzhtweHYEltvWAO0kCZXJ
-         aHiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=nT8l5H5U5ZOSCD7gfiBr333et8R5BeYGqpkjuK0zw8U=;
-        b=kzL5oSS0eFWCrJPw1ZIjSiUuuhie1+REZkqnt5Aaj/9z9oTWfc9AUsgg8AuU/Sfvoi
-         46A5Powl958Bn6m69lJbGHyW5lpCT+aNJEPvMNuDDoy/SXm96a0fFcY98ycoR5cygwX4
-         9GhCLfIKvTtqcvAyzG3F1XhA7Lm//5ZLLycAj5CCZQgopVWahWMd6lG2PWSbNzDTJugA
-         XDDTiRNYoOzDX3cBiCjWSPqNpjzUY9CUUXetyDxxR6B0PX3Nr4+WGteTHXqHDLmf/8QT
-         7uyBpLaJ4EO7Ei8iPOCwYWWjNLjxnAij8IzpmclyrzuT8rpIsteDrxxkJVyftgxH5Ub1
-         kX2Q==
-X-Gm-Message-State: APjAAAUY9x097XkYmmb+BNjR/TGvYBlL27GnCiqr22wnAehcRI+695Pp
-        ByPumPBEbytyzl0/KEuCMwX/HAv1zCEFRQ==
-X-Google-Smtp-Source: APXvYqzvUvJx87VtQtPMq3cDPD+cVZvPV95vIl25YEvpCPN1uGT1mbdSUqGKUMwSoJPBdoI+UBZG9A==
-X-Received: by 2002:a1c:7902:: with SMTP id l2mr6777370wme.55.1569064082378;
-        Sat, 21 Sep 2019 04:08:02 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id e20sm9645892wrc.34.2019.09.21.04.08.01
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 21 Sep 2019 04:08:01 -0700 (PDT)
-Message-ID: <5d860491.1c69fb81.7617f.365b@mx.google.com>
-Date:   Sat, 21 Sep 2019 04:08:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2437785AbfIULVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 07:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2437782AbfIULVs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Sep 2019 07:21:48 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64C162086A;
+        Sat, 21 Sep 2019 11:21:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569064907;
+        bh=0UK+pe7RgNGQknS/IZUQXLVEVW50BOoU4FkbQAcndwE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i7vbmHaEj5CKvubQEEO1ODpP1UhTP+y0ACRt6DaINiUD+PxRhQ0gTVpoosqzWPEig
+         FcvQXSyW7ViKpmJI1EOmLX0MS4lMMyZlGKFlDVofRSuBHSxao90s9pNOSaEGESI7rG
+         Ft3lShux+uC9dppl0IJXgIr0BOzFXQyA1EUSR1FY=
+Date:   Sat, 21 Sep 2019 13:21:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jeremy Sowden <jeremy@azazel.net>
+Cc:     stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Netfilter Devel <netfilter-devel@vger.kernel.org>
+Subject: Re: [PATCH 0/1] netfilter: bridge: build fix for 5.3
+Message-ID: <20190921112145.GA2408749@kroah.com>
+References: <20190921110523.15085-1-jeremy@azazel.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.146
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y boot: 76 boots: 0 failed, 76 passed (v4.14.146)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190921110523.15085-1-jeremy@azazel.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 76 boots: 0 failed, 76 passed (v4.14.146)
+On Sat, Sep 21, 2019 at 12:05:22PM +0100, Jeremy Sowden wrote:
+> Adam Borowski reported a build-failure in 5.3 when
+> CONFIG_NF_CONNTRACK_BRIDGE is set but CONFIG_NF_TABLES is not.  It was
+> introduced into the mainline by:
+> 
+>   3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+> 
+> There is also a fix in the mainline:
+> 
+>   47e640af2e49 ("netfilter: add missing IS_ENABLED(CONFIG_NF_TABLES) check to header-file.")
+> 
+> I've cherry-picked it, and added the "Fixes:", "Reported-by:", "Link:"
+> and "Cc:" tags.
+> 
+> Please consider applying it to 5-3-y.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.146/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.146/
+Now queued up, thanks!
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.146
-Git Commit: f6e27dbb1afabcba436e346d6aa88a592a1436bb
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 38 unique boards, 15 SoC families, 12 builds out of 201
-
----
-For more info write to <info@kernelci.org>
+greg k-h
