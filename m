@@ -2,94 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 822AFB9F8D
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 21:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 341DEB9F95
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 21:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732362AbfIUTKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Sep 2019 15:10:15 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:45236 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732340AbfIUTKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 15:10:15 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iBkIF-0004QF-LF; Sat, 21 Sep 2019 19:39:39 +0100
-Received: from ben by deadeye with local (Exim 4.92.1)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iBkIF-000402-Dw; Sat, 21 Sep 2019 19:39:39 +0100
-Message-ID: <0f95821e580f5dc8d4805c8246da88059c776dee.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 114/132] ALSA: usb-audio: Fix a stack buffer
- overflow bug in check_input_term
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Hui Peng <benquike@gmail.com>, linux-kernel@vger.kernel.org,
+        id S2388019AbfIUTVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 15:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49462 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387853AbfIUTVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Sep 2019 15:21:10 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D9EF206B6;
+        Sat, 21 Sep 2019 19:21:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569093669;
+        bh=j0to6bgCUsZE0XxIyWSeuw/6QHjOGtUvrMcN8EFYmK4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=omT7YqoxJ29+diKTG/rBh1gGynceLLK2NZmgblVXO3coic6tCvrRB5ytdBKVflgBA
+         u+4oyWS9arHhMrhVca2GO8gHA4nez5FhP4TgjliLUKDJYnmUpYbj4fkDVHa681R/X+
+         FmY9A/cmEtGWeZsIGc/om28tQKqrETrOFvPpUAKE=
+Date:   Sat, 21 Sep 2019 15:21:08 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Tom Zanussi <zanussi@kernel.org>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
         stable@vger.kernel.org
-Cc:     akpm@linux-foundation.org, kda@linux-powerpc.org,
-        mathias.payer@nebelwelt.net, gregkh@linuxfoundation.org,
-        tiwai@suse.de
-Date:   Sat, 21 Sep 2019 19:39:34 +0100
-In-Reply-To: <94525609-b88e-cc24-dfe5-9db470e105ef@gmail.com>
-References: <lsq.1568989415.723106414@decadent.org.uk>
-         <94525609-b88e-cc24-dfe5-9db470e105ef@gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-z5SbhgLXkyBYomEAs86a"
-User-Agent: Evolution 3.30.5-1.1 
+Subject: Re: [for-next][PATCH 3/8] tracing: Make sure variable reference
+ alias has correct var_ref_idx
+Message-ID: <20190921192108.GB8171@sasha-vm>
+References: <20190919232359.825502403@goodmis.org>
+ <20190921120618.DF81120665@mail.kernel.org>
+ <20190921082035.4fc9ccc5@oasis.local.home>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190921082035.4fc9ccc5@oasis.local.home>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Sep 21, 2019 at 08:20:35AM -0400, Steven Rostedt wrote:
+>On Sat, 21 Sep 2019 12:06:18 +0000
+>Sasha Levin <sashal@kernel.org> wrote:
+>
+>> Hi,
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a "Fixes:" tag,
+>> fixing commit: .
+>>
+>> The bot has tested the following trees: v5.2.16, v4.19.74, v4.14.145, v4.9.193, v4.4.193.
+>
+>
+>The fixes tag is 7e8b88a30b085 which was added to mainline in 4.17.
+>According to this email, it applies fine to 5.2 and 4.19, but fails on
+>4.14 and earlier. As the commit was added in 4.17 that makes perfect
+>sense. Can you update your scripts to test when the fixes commit was
+>added, and not send spam about it not applying to stable trees where
+>it's not applicable.
 
---=-z5SbhgLXkyBYomEAs86a
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+The script already does that. What happened here is that it got confused
+with your previous "Fixes:" statement in the commit message and went
+haywire.
 
-On Fri, 2019-09-20 at 21:26 -0400, Hui Peng wrote:
-> I want to confirm the patches.
->=20
-> Which version of GCC do you use to compile 3.16?
->=20
-> I tried gcc-4.8, it seems that the built kernel can not be boot by qemu.
-[...]
-
-For my own limited testing, I build for x86 with gcc 4.9.  Debian's
-packages are built with gcc 4.8 (arm) or 4.9 (x86).
-
-Guenter Roeck does build and boot tests on multiple architectures using
-a variety of (mostly quite recent) compiler versions.
-
-Ben.
-
---=20
-Ben Hutchings
-If the facts do not conform to your theory, they must be disposed of.
+I thought that something like this shouldn't happen because I grep for
+"^fixes:", but looks like something is broken. I'll go fix that...
 
 
-
---=-z5SbhgLXkyBYomEAs86a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2GbmYACgkQ57/I7JWG
-EQl7Gw//T0vF2dKtK49fz0Vtyw2GduhCf9QWwUmQcCWQK1E+TEPFJuYACOGYNu+w
-YMW+LBE9IuQs+nVfhX7QfcSKcFox9pp56aiiR+UVNvba5q8NPLtE6ITAdkrFE/qa
-f2hxxxnpZk5w2R38o7JBYcs9/Oc+DgrySiN1DnQjZr9nuRDtpXPx7wlqqwiYpNHo
-MK+nY/2aGl2XvTA2eIBe2TgYorUaKGtobbItbXQHjji6gAi62SpskQa3FGqF9v3A
-h5aA9tHR8rXBAGI15x0Jb3FTzBuDgcjYGlMRV+PRdMZztLN+JQITqziTGVEtiaWO
-uOmLyF+sOJYqwuBSMmYUl+Yy2aGf5Wr1/zM6+D0zKuPx5vjFz1VFREvqXoo80TJl
-5L4xe2bFYZPTLs8ya87+xEWDdKQ4fGRBhfiuYhjkgCsJUAYbeenDimoY85q9929j
-kRtulAK9XSvhhtv6YKvSb3WoEQlO1K1tJNNaWathBkf1TXeQeS3j0FA/p9T9RjpC
-IOxOgQZa7B9kqa1waDSQFXC8NX08URqUcUZTL5La+dZvV2KIBgUUE9tXjIdKA7bB
-U2qUYNbEUQ+coAbzgN7r8i/hISAJBBzVtgQzTcw6RDThYcuTAHav/BC91/3Hgka4
-+cfPCW+HlVgnH2uur4w8iEa9GJYr4LiwfYp1ihGMNytFnvnQFIc=
-=2R6D
------END PGP SIGNATURE-----
-
---=-z5SbhgLXkyBYomEAs86a--
+--
+Thanks,
+Sasha
