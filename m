@@ -2,112 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD08B9F28
-	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 19:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822AFB9F8D
+	for <lists+stable@lfdr.de>; Sat, 21 Sep 2019 21:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726338AbfIURU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Sep 2019 13:20:26 -0400
-Received: from mail-wr1-f48.google.com ([209.85.221.48]:36869 "EHLO
-        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726244AbfIURU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 13:20:26 -0400
-Received: by mail-wr1-f48.google.com with SMTP id i1so9783228wro.4
-        for <stable@vger.kernel.org>; Sat, 21 Sep 2019 10:20:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hGIkSwC8C8Qobx5+Le//2bOdKI83CWkI1aiQkmbGCXg=;
-        b=M6SPZ6MvpzZrfTv6cNpbhsuJvLP4qRTI9yPbuxAlxPrz/NFUSlr/UWKDRERekaANNX
-         ZdlKdNHz3lUEBwzjo02MYgq0YlHRpoeWxE9czSJx1XNMjF9zch8qL4xUvuWpvbMuS5oE
-         +LiUahPPscY+haWLPktP1KxI2tMtxYQYGl1qN5ulDwHAXMq7NgoJuehUCJmEguw7lked
-         NE5YvMowEPUOje5Pe1ni3iZZ0s9QaIK2H8kngsYMjPp+/mIMde17fv+IPonnretWb2nT
-         31HVCEF7qLdc+QPvG6MnZBIa84AUKlHIPjDxzPJMDnRseNSv1XvWaYDBKPg7T7BAiTR1
-         CCZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hGIkSwC8C8Qobx5+Le//2bOdKI83CWkI1aiQkmbGCXg=;
-        b=jwoUvf/iQU6vP04dAeXEv3mI/cfkmTTEnCjh6dv7i8exLPRENssxA6SH9Qy+12IpCz
-         NtMmKXlcbQeLcW/nV3FSa4xugRBPNychT1RAG71APqffz7Mk7s97AkvvcZOmB1hjKmbj
-         3AaYlfT/IGLvGtfQ4y5p3cn3wkgpHnwOcyO+upAeXYF6xzqzJI6+HWFjncEqcbgShrm1
-         8G/5lPSgf81ZbeZEXyNRtjN4U3s+YB1zgfJ5jhNJ0gnkLthLJz0h5FDNw2fjSsGah/qX
-         fg9KsI82rHjEm1q0462KHiIKJKEwIY56hx01Wb5YR/ekPbLIaWKINqbt83ylJjBz7RJf
-         9LNA==
-X-Gm-Message-State: APjAAAU7iGdqI1VZL17idYm8tuW/CnIaKZSsZASdZd+BclL+gwJI8aEp
-        EzZJbNgw87eLhunkdDsDClYhESJZUwn/Lw==
-X-Google-Smtp-Source: APXvYqyu0kuptKIxvZ9z7vfLR9LB2AYb/ixDUfRB7RdJslkCeYNyQq61XlVSKHeodmIAJDBzxinG3A==
-X-Received: by 2002:adf:ea12:: with SMTP id q18mr3680788wrm.378.1569086424168;
-        Sat, 21 Sep 2019 10:20:24 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x6sm8372065wmf.35.2019.09.21.10.20.23
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 21 Sep 2019 10:20:23 -0700 (PDT)
-Message-ID: <5d865bd7.1c69fb81.26354.96b7@mx.google.com>
-Date:   Sat, 21 Sep 2019 10:20:23 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1732362AbfIUTKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Sep 2019 15:10:15 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:45236 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732340AbfIUTKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Sep 2019 15:10:15 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBkIF-0004QF-LF; Sat, 21 Sep 2019 19:39:39 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iBkIF-000402-Dw; Sat, 21 Sep 2019 19:39:39 +0100
+Message-ID: <0f95821e580f5dc8d4805c8246da88059c776dee.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 114/132] ALSA: usb-audio: Fix a stack buffer
+ overflow bug in check_input_term
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Hui Peng <benquike@gmail.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, kda@linux-powerpc.org,
+        mathias.payer@nebelwelt.net, gregkh@linuxfoundation.org,
+        tiwai@suse.de
+Date:   Sat, 21 Sep 2019 19:39:34 +0100
+In-Reply-To: <94525609-b88e-cc24-dfe5-9db470e105ef@gmail.com>
+References: <lsq.1568989415.723106414@decadent.org.uk>
+         <94525609-b88e-cc24-dfe5-9db470e105ef@gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-z5SbhgLXkyBYomEAs86a"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.146
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 126 boots: 0 failed,
- 117 passed with 9 offline (v4.14.146)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 126 boots: 0 failed, 117 passed with 9 offline=
- (v4.14.146)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.146/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.146/
+--=-z5SbhgLXkyBYomEAs86a
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.146
-Git Commit: f6e27dbb1afabcba436e346d6aa88a592a1436bb
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 67 unique boards, 22 SoC families, 14 builds out of 201
+On Fri, 2019-09-20 at 21:26 -0400, Hui Peng wrote:
+> I want to confirm the patches.
+>=20
+> Which version of GCC do you use to compile 3.16?
+>=20
+> I tried gcc-4.8, it seems that the built kernel can not be boot by qemu.
+[...]
 
-Offline Platforms:
+For my own limited testing, I build for x86 with gcc 4.9.  Debian's
+packages are built with gcc 4.8 (arm) or 4.9 (x86).
 
-arm64:
+Guenter Roeck does build and boot tests on multiple architectures using
+a variety of (mostly quite recent) compiler versions.
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
+Ben.
 
-arm:
+--=20
+Ben Hutchings
+If the facts do not conform to your theory, they must be disposed of.
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
+--=-z5SbhgLXkyBYomEAs86a
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+-----BEGIN PGP SIGNATURE-----
 
----
-For more info write to <info@kernelci.org>
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2GbmYACgkQ57/I7JWG
+EQl7Gw//T0vF2dKtK49fz0Vtyw2GduhCf9QWwUmQcCWQK1E+TEPFJuYACOGYNu+w
+YMW+LBE9IuQs+nVfhX7QfcSKcFox9pp56aiiR+UVNvba5q8NPLtE6ITAdkrFE/qa
+f2hxxxnpZk5w2R38o7JBYcs9/Oc+DgrySiN1DnQjZr9nuRDtpXPx7wlqqwiYpNHo
+MK+nY/2aGl2XvTA2eIBe2TgYorUaKGtobbItbXQHjji6gAi62SpskQa3FGqF9v3A
+h5aA9tHR8rXBAGI15x0Jb3FTzBuDgcjYGlMRV+PRdMZztLN+JQITqziTGVEtiaWO
+uOmLyF+sOJYqwuBSMmYUl+Yy2aGf5Wr1/zM6+D0zKuPx5vjFz1VFREvqXoo80TJl
+5L4xe2bFYZPTLs8ya87+xEWDdKQ4fGRBhfiuYhjkgCsJUAYbeenDimoY85q9929j
+kRtulAK9XSvhhtv6YKvSb3WoEQlO1K1tJNNaWathBkf1TXeQeS3j0FA/p9T9RjpC
+IOxOgQZa7B9kqa1waDSQFXC8NX08URqUcUZTL5La+dZvV2KIBgUUE9tXjIdKA7bB
+U2qUYNbEUQ+coAbzgN7r8i/hISAJBBzVtgQzTcw6RDThYcuTAHav/BC91/3Hgka4
++cfPCW+HlVgnH2uur4w8iEa9GJYr4LiwfYp1ihGMNytFnvnQFIc=
+=2R6D
+-----END PGP SIGNATURE-----
+
+--=-z5SbhgLXkyBYomEAs86a--
