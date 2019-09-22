@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB579BA8BB
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628CABA8B8
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730283AbfIVTHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:07:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
+        id S1730229AbfIVTHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408303AbfIVTAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:04 -0400
+        id S2438972AbfIVTAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B2412190F;
-        Sun, 22 Sep 2019 19:00:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D6F12184D;
+        Sun, 22 Sep 2019 19:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178803;
-        bh=nbgbhwOlk/LuTh2Jiw/PsDh+mAGYreruz68vM9Rfhvw=;
+        s=default; t=1569178811;
+        bh=qXmjZGCt17KUtkbDK9AyGeefrtzMuJnk7XU5Ul7MwNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Byhjadz/zxHLIz3F9iFWxTOE1Bj7s+6rn5MLiizqh9P0C6qE5V8b73kkSCl6ojUSg
-         NaltRx9lyWJuBiLkUzjsxUh4RDmHT66LQHAwCgtVWn6PDTiP5JaA9fUxsX5hMkro2Y
-         NY++yXd3ut2hCxWmXXqk4N4rW5SPyCw8xo5KKZ+E=
+        b=zEIxbaMTK6jh+OjCRck7yTQUM9FO3qQFj5saiT/B3r0X/T6v+Q6rEB0oK8qI3l9AE
+         TG4xKdfA8UIaiZAb3scpdNL+qUad7Qs+DyQNcUerqaAyKuc99smrlqEcFVQMJpca4E
+         n5fXP8GsLd3f2/mJQQ5jmcys1sZ1nbOn3Pz6tvE8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaofei Tan <tanxiaofei@huawei.com>,
-        James Morse <james.morse@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 22/60] efi: cper: print AER info of PCIe fatal error
-Date:   Sun, 22 Sep 2019 14:58:55 -0400
-Message-Id: <20190922185934.4305-22-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 26/60] net: lpc-enet: fix printk format strings
+Date:   Sun, 22 Sep 2019 14:58:59 -0400
+Message-Id: <20190922185934.4305-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -44,87 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaofei Tan <tanxiaofei@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b194a77fcc4001dc40aecdd15d249648e8a436d1 ]
+[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
 
-AER info of PCIe fatal error is not printed in the current driver.
-Because APEI driver will panic directly for fatal error, and can't
-run to the place of printing AER info.
+compile-testing this driver on other architectures showed
+multiple warnings:
 
-An example log is as following:
-{763}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 11
-{763}[Hardware Error]: event severity: fatal
-{763}[Hardware Error]:  Error 0, type: fatal
-{763}[Hardware Error]:   section_type: PCIe error
-{763}[Hardware Error]:   port_type: 0, PCIe end point
-{763}[Hardware Error]:   version: 4.0
-{763}[Hardware Error]:   command: 0x0000, status: 0x0010
-{763}[Hardware Error]:   device_id: 0000:82:00.0
-{763}[Hardware Error]:   slot: 0
-{763}[Hardware Error]:   secondary_bus: 0x00
-{763}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x10fb
-{763}[Hardware Error]:   class_code: 000002
-Kernel panic - not syncing: Fatal hardware error!
+  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
+  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
 
-This issue was imported by the patch, '37448adfc7ce ("aerdrv: Move
-cper_print_aer() call out of interrupt context")'. To fix this issue,
-this patch adds print of AER info in cper_print_pcie() for fatal error.
+  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
 
-Here is the example log after this patch applied:
-{24}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 10
-{24}[Hardware Error]: event severity: fatal
-{24}[Hardware Error]:  Error 0, type: fatal
-{24}[Hardware Error]:   section_type: PCIe error
-{24}[Hardware Error]:   port_type: 0, PCIe end point
-{24}[Hardware Error]:   version: 4.0
-{24}[Hardware Error]:   command: 0x0546, status: 0x4010
-{24}[Hardware Error]:   device_id: 0000:01:00.0
-{24}[Hardware Error]:   slot: 0
-{24}[Hardware Error]:   secondary_bus: 0x00
-{24}[Hardware Error]:   vendor_id: 0x15b3, device_id: 0x1019
-{24}[Hardware Error]:   class_code: 000002
-{24}[Hardware Error]:   aer_uncor_status: 0x00040000, aer_uncor_mask: 0x00000000
-{24}[Hardware Error]:   aer_uncor_severity: 0x00062010
-{24}[Hardware Error]:   TLP Header: 000000c0 01010000 00000001 00000000
-Kernel panic - not syncing: Fatal hardware error!
+Use format strings that work on all architectures.
 
-Fixes: 37448adfc7ce ("aerdrv: Move cper_print_aer() call out of interrupt context")
-Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-[ardb: put parens around terms of && operator]
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/cper.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
-index d425374254384..f40f7df4b7344 100644
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -384,6 +384,21 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
- 		printk(
- 	"%s""bridge: secondary_status: 0x%04x, control: 0x%04x\n",
- 	pfx, pcie->bridge.secondary_status, pcie->bridge.control);
-+
-+	/* Fatal errors call __ghes_panic() before AER handler prints this */
-+	if ((pcie->validation_bits & CPER_PCIE_VALID_AER_INFO) &&
-+	    (gdata->error_severity & CPER_SEV_FATAL)) {
-+		struct aer_capability_regs *aer;
-+
-+		aer = (struct aer_capability_regs *)pcie->aer_info;
-+		printk("%saer_uncor_status: 0x%08x, aer_uncor_mask: 0x%08x\n",
-+		       pfx, aer->uncor_status, aer->uncor_mask);
-+		printk("%saer_uncor_severity: 0x%08x\n",
-+		       pfx, aer->uncor_severity);
-+		printk("%sTLP Header: %08x %08x %08x %08x\n", pfx,
-+		       aer->header_log.dw0, aer->header_log.dw1,
-+		       aer->header_log.dw2, aer->header_log.dw3);
-+	}
- }
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index 8e13ec84c5381..9fcaf19106335 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1374,13 +1374,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	pldat->dma_buff_base_p = dma_handle;
  
- static void cper_estatus_print_section(
+ 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
+-	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
++	netdev_dbg(ndev, "IO address size      :%zd\n",
++			(size_t)resource_size(res));
+ 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
+ 			pldat->net_base);
+ 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
+-	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
+-	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
+-			pldat->dma_buff_base_p);
++	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
++	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
++			&pldat->dma_buff_base_p);
+ 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
+ 			pldat->dma_buff_base_v);
+ 
+@@ -1427,8 +1428,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_out_unregister_netdev;
+ 
+-	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
+-	       res->start, ndev->irq);
++	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
++	       (unsigned long)res->start, ndev->irq);
+ 
+ 	phydev = ndev->phydev;
+ 
 -- 
 2.20.1
 
