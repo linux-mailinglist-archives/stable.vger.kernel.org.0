@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DEBBAB76
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6154CBAB74
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388007AbfIVTjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S2389074AbfIVTjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:39:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388616AbfIVSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:43:58 -0400
+        id S2388007AbfIVSpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 621C8214D9;
-        Sun, 22 Sep 2019 18:43:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549F4208C0;
+        Sun, 22 Sep 2019 18:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177838;
-        bh=Ln47ydx473W+6KQNzCPk61eWAr9+pKosg4/WQNSro/g=;
+        s=default; t=1569177909;
+        bh=ZC9lpSM5Wj6CgnpGxKHza4H16yIMHAvueVMdgbA3+Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ii0moMhrug07139OND8kC4wBVUCaggoSVyG7O3Y1sBLAPaCZG0Nf3FhvFKj2YyaQy
-         34Ui//CFcZWXghHRc+JYspGOMwdc7RM8NYZNrQnXS+5REZNZFyD0+/dr2DH8YWaHCD
-         8XeDumDORq8FGfomOoT4UvCC+PCodwaRHxnnJ9nw=
+        b=QPe57gk1OK9EmZCM263GijVwfUP9c7XAPi5MBjLf3/s/99Xcmoh3+Y3ao1bc1u789
+         ARkrUrExThjrb7NgaRmPILZBgunbFMVdDh0i8oHX7WiggYH+TWoJk7TKSRAiZAdW8M
+         mWFQSDNUANzCHaN4nEPHrLZYnj1LjylitBbsnJVg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 006/203] regulator: lm363x: Fix n_voltages setting for lm36274
-Date:   Sun, 22 Sep 2019 14:40:32 -0400
-Message-Id: <20190922184350.30563-6-sashal@kernel.org>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 025/203] sched/fair: Fix imbalance due to CPU affinity
+Date:   Sun, 22 Sep 2019 14:40:51 -0400
+Message-Id: <20190922184350.30563-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,75 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit 962f170d9344e5d9edb3903971c591f42d55e226 ]
+[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
 
-According to the datasheet http://www.ti.com/lit/ds/symlink/lm36274.pdf:
-Table 23. VPOS Bias Register Field Descriptions VPOS[5:0]:
-VPOS voltage (50-mV steps): VPOS = 4 V + (Code × 50 mV), 6.5 V max
-000000 = 4 V
-000001 = 4.05 V
-:
-011110 = 5.5 V (Default)
-:
-110010 = 6.5 V
-110011 to 111111 map to 6.5 V
+The load_balance() has a dedicated mecanism to detect when an imbalance
+is due to CPU affinity and must be handled at parent level. In this case,
+the imbalance field of the parent's sched_group is set.
 
-So the LM36274_LDO_VSEL_MAX should be 0b110010 (0x32).
-The valid selectors are 0 ... LM36274_LDO_VSEL_MAX, n_voltages should be
-LM36274_LDO_VSEL_MAX + 1. Similarly, the n_voltages should be
-LM36274_BOOST_VSEL_MAX + 1 for LM36274_BOOST.
+The description of sg_imbalanced() gives a typical example of two groups
+of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
+group and 3 CPUs of the second group. Something like:
 
-Fixes: bff5e8071533 ("regulator: lm363x: Add support for LM36274")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20190626132632.32629-2-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	{ 0 1 2 3 } { 4 5 6 7 }
+	        *     * * *
+
+But the load_balance fails to fix this UC on my octo cores system
+made of 2 clusters of quad cores.
+
+Whereas the load_balance is able to detect that the imbalanced is due to
+CPU affinity, it fails to fix it because the imbalance field is cleared
+before letting parent level a chance to run. In fact, when the imbalance is
+detected, the load_balance reruns without the CPU with pinned tasks. But
+there is no other running tasks in the situation described above and
+everything looks balanced this time so the imbalance field is immediately
+cleared.
+
+The imbalance field should not be cleared if there is no other task to move
+when the imbalance is detected.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/lm363x-regulator.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/lm363x-regulator.c b/drivers/regulator/lm363x-regulator.c
-index e4a27d63bf901..4b9f618b07e97 100644
---- a/drivers/regulator/lm363x-regulator.c
-+++ b/drivers/regulator/lm363x-regulator.c
-@@ -36,7 +36,7 @@
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 500f5db0de0ba..105b1aead0c3a 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9052,9 +9052,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ out_balanced:
+ 	/*
+ 	 * We reach balance although we may have faced some affinity
+-	 * constraints. Clear the imbalance flag if it was set.
++	 * constraints. Clear the imbalance flag only if other tasks got
++	 * a chance to move and fix the imbalance.
+ 	 */
+-	if (sd_parent) {
++	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
+ 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
  
- /* LM36274 */
- #define LM36274_BOOST_VSEL_MAX		0x3f
--#define LM36274_LDO_VSEL_MAX		0x34
-+#define LM36274_LDO_VSEL_MAX		0x32
- #define LM36274_VOLTAGE_MIN		4000000
- 
- /* Common */
-@@ -226,7 +226,7 @@ static const struct regulator_desc lm363x_regulator_desc[] = {
- 		.of_match	= "vboost",
- 		.id             = LM36274_BOOST,
- 		.ops            = &lm363x_boost_voltage_table_ops,
--		.n_voltages     = LM36274_BOOST_VSEL_MAX,
-+		.n_voltages     = LM36274_BOOST_VSEL_MAX + 1,
- 		.min_uV         = LM36274_VOLTAGE_MIN,
- 		.uV_step        = LM363X_STEP_50mV,
- 		.type           = REGULATOR_VOLTAGE,
-@@ -239,7 +239,7 @@ static const struct regulator_desc lm363x_regulator_desc[] = {
- 		.of_match	= "vpos",
- 		.id             = LM36274_LDO_POS,
- 		.ops            = &lm363x_regulator_voltage_table_ops,
--		.n_voltages     = LM36274_LDO_VSEL_MAX,
-+		.n_voltages     = LM36274_LDO_VSEL_MAX + 1,
- 		.min_uV         = LM36274_VOLTAGE_MIN,
- 		.uV_step        = LM363X_STEP_50mV,
- 		.type           = REGULATOR_VOLTAGE,
-@@ -254,7 +254,7 @@ static const struct regulator_desc lm363x_regulator_desc[] = {
- 		.of_match	= "vneg",
- 		.id             = LM36274_LDO_NEG,
- 		.ops            = &lm363x_regulator_voltage_table_ops,
--		.n_voltages     = LM36274_LDO_VSEL_MAX,
-+		.n_voltages     = LM36274_LDO_VSEL_MAX + 1,
- 		.min_uV         = LM36274_VOLTAGE_MIN,
- 		.uV_step        = LM363X_STEP_50mV,
- 		.type           = REGULATOR_VOLTAGE,
+ 		if (*group_imbalance)
 -- 
 2.20.1
 
