@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52677BA707
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CACBA70B
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408097AbfIVSza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56666 "EHLO mail.kernel.org"
+        id S2438290AbfIVSzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:55:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405617AbfIVSz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:55:29 -0400
+        id S2408072AbfIVSza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27965208C2;
-        Sun, 22 Sep 2019 18:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC6F521D7F;
+        Sun, 22 Sep 2019 18:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178528;
-        bh=nrvU+TCofrQxh44dgJtqKNLuAH30NreF7C0BN1Tm5+k=;
+        s=default; t=1569178529;
+        bh=3wpKbNFeBPHCVXwP7lQzhIQwzF7qt9gB+BvM+k3051k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfliitYuAOpxZ10nz7xmcaYDoNnD0TCvo0NUqK8RC2lSxT/oqld3QnUuR3GRv4DlS
-         Z4sj9HDywrtIv5YJaFBZ/5Qb7RkhufauCeddgby+c/UWGPMos+yZJOy2VhFNHKPZHa
-         E9k/VHF9dIxEFymtFKbaJrXQOK+e2P2Zo2gX0grA=
+        b=0IhOYImNuc1Src5iGOszq/loYiwdClfnLP527n6lm4Nz+2pQwoRx/yCjrnXmmGoT7
+         TWL3h7Or9N9Royng2DmyY/CoiQoNaAmmwOFKpOT0cIq/zyNaXo9UNRcNlT8qX5SQO6
+         Ztid5gdA9jj1e3G3J7166Wlo+ztLnvqTwi4Cxo4c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tan Xiaojun <tanxiaojun@huawei.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 052/128] perf record: Support aarch64 random socket_id assignment
-Date:   Sun, 22 Sep 2019 14:53:02 -0400
-Message-Id: <20190922185418.2158-52-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 053/128] media: vsp1: fix memory leak of dl on error return path
+Date:   Sun, 22 Sep 2019 14:53:03 -0400
+Message-Id: <20190922185418.2158-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -51,78 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Xiaojun <tanxiaojun@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 0a4d8fb229dd78f9e0752817339e19e903b37a60 ]
+[ Upstream commit 70c55c1ad1a76e804ee5330e134674f5d2741cb7 ]
 
-Same as in the commit 01766229533f ("perf record: Support s390 random
-socket_id assignment"), aarch64 also have this problem.
+Currently when the call vsp1_dl_body_get fails and returns null the
+error return path leaks the allocation of dl. Fix this by kfree'ing
+dl before returning.
 
-Without this fix:
+Addresses-Coverity: ("Resource leak")
 
-  [root@localhost perf]# ./perf report --header -I -v
-  ...
-  socket_id number is too big.You may need to upgrade the perf tool.
-
-  # ========
-  # captured on    : Thu Aug  1 22:58:38 2019
-  # header version : 1
-  ...
-  # Core ID and Socket ID information is not available
-  ...
-
-With this fix:
-  [root@localhost perf]# ./perf report --header -I -v
-  ...
-  cpumask list: 0-31
-  cpumask list: 32-63
-  cpumask list: 64-95
-  cpumask list: 96-127
-
-  # ========
-  # captured on    : Thu Aug  1 22:58:38 2019
-  # header version : 1
-  ...
-  # CPU 0: Core ID 0, Socket ID 36
-  # CPU 1: Core ID 1, Socket ID 36
-  ...
-  # CPU 126: Core ID 126, Socket ID 8442
-  # CPU 127: Core ID 127, Socket ID 8442
-  ...
-
-Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tzvetomir Stoyanov (VMware) <tz.stoyanov@gmail.com>
-Link: http://lkml.kernel.org/r/1564717737-21602-1-git-send-email-tanxiaojun@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 5d7936b8e27d ("media: vsp1: Convert display lists to use new body pool")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 4 +++-
+ drivers/media/platform/vsp1/vsp1_dl.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 54c34c107cab5..0c70788593c8d 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -2184,8 +2184,10 @@ static int process_cpu_topology(struct feat_fd *ff, void *data __maybe_unused)
- 	/* On s390 the socket_id number is not related to the numbers of cpus.
- 	 * The socket_id number might be higher than the numbers of cpus.
- 	 * This depends on the configuration.
-+	 * AArch64 is the same.
- 	 */
--	if (ph->env.arch && !strncmp(ph->env.arch, "s390", 4))
-+	if (ph->env.arch && (!strncmp(ph->env.arch, "s390", 4)
-+			  || !strncmp(ph->env.arch, "aarch64", 7)))
- 		do_core_id_test = false;
+diff --git a/drivers/media/platform/vsp1/vsp1_dl.c b/drivers/media/platform/vsp1/vsp1_dl.c
+index 26289adaf658c..a5634ca85a316 100644
+--- a/drivers/media/platform/vsp1/vsp1_dl.c
++++ b/drivers/media/platform/vsp1/vsp1_dl.c
+@@ -557,8 +557,10 @@ static struct vsp1_dl_list *vsp1_dl_list_alloc(struct vsp1_dl_manager *dlm)
  
- 	for (i = 0; i < (u32)cpu_nr; i++) {
+ 	/* Get a default body for our list. */
+ 	dl->body0 = vsp1_dl_body_get(dlm->pool);
+-	if (!dl->body0)
++	if (!dl->body0) {
++		kfree(dl);
+ 		return NULL;
++	}
+ 
+ 	header_offset = dl->body0->max_entries * sizeof(*dl->body0->entries);
+ 
 -- 
 2.20.1
 
