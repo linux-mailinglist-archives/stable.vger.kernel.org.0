@@ -2,133 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02240BA32C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 18:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E91BA3A9
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387746AbfIVQdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 12:33:25 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50728 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387745AbfIVQdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 12:33:24 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iC4na-0004Nv-6N; Sun, 22 Sep 2019 17:33:22 +0100
-Received: from ben by deadeye with local (Exim 4.92.1)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iC4nZ-0001Ih-VF; Sun, 22 Sep 2019 17:33:21 +0100
-Message-ID: <70fd21c92c10c0ed08d647d5a67310c20ff9f052.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 000/132] 3.16.74-rc1 review
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Date:   Sun, 22 Sep 2019 17:33:17 +0100
-In-Reply-To: <63537eba-48f6-a394-f220-45b4ad543dee@roeck-us.net>
-References: <lsq.1568989414.954567518@decadent.org.uk>
-         <20190920200423.GA26056@roeck-us.net>
-         <8dbced01558cd8d4a1d4f058010e7d63e5f6810e.camel@decadent.org.uk>
-         <63537eba-48f6-a394-f220-45b4ad543dee@roeck-us.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-t/NL/Z79JmtltRmHOd3K"
-User-Agent: Evolution 3.30.5-1.1 
+        id S2388175AbfIVSnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39462 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388156AbfIVSnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:43:53 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0431206C2;
+        Sun, 22 Sep 2019 18:43:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569177832;
+        bh=m8Rkj3Qzx71o5Y0r+L+LsH76roXPq/OBkz76e2xoE40=;
+        h=From:To:Cc:Subject:Date:From;
+        b=1TjcEW1Llg96P9YM6gA3KZrIT8Sd6mpQXxAMN8FNjFWqUXKQ83TX+mCsm1WDDF/kF
+         42uOwxPDoAd6o+M3vbqzWIx2+d/s3qznIO8/yJqMXO1UWg9thb/CmD3jXnsiUg71kD
+         CrGQh94JIj4J71N7Ae4M5Fy3gkkylYHtePE8l1rU=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 001/203] ALSA: hda: Flush interrupts on disabling
+Date:   Sun, 22 Sep 2019 14:40:27 -0400
+Message-Id: <20190922184350.30563-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
---=-t/NL/Z79JmtltRmHOd3K
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+[ Upstream commit caa8422d01e983782548648e125fd617cadcec3f ]
 
-On Fri, 2019-09-20 at 18:35 -0700, Guenter Roeck wrote:
-> On 9/20/19 2:16 PM, Ben Hutchings wrote:
-> > On Fri, 2019-09-20 at 13:04 -0700, Guenter Roeck wrote:
-> > > On Fri, Sep 20, 2019 at 03:23:34PM +0100, Ben Hutchings wrote:
-> > > > This is the start of the stable review cycle for the 3.16.74 releas=
-e.
-> > > > There are 132 patches in this series, which will be posted as respo=
-nses
-> > > > to this one.  If anyone has any issues with these being applied, pl=
-ease
-> > > > let me know.
-> > > >=20
-> > > > Responses should be made by Mon Sep 23 20:00:00 UTC 2019.
-> > > > Anything received after that time might be too late.
-> > > >=20
-> > >=20
-> > > Build results:
-> > > 	total: 136 pass: 135 fail: 1
-> > > Failed builds:
-> > > 	arm:allmodconfig
-> > > Qemu test results:
-> > > 	total: 229 pass: 229 fail: 0
-> > >=20
-> > > Build errors in arm:allmodconfig are along the line of
-> > >=20
-> > > In file included from include/linux/printk.h:5,
-> > >                   from include/linux/kernel.h:13,
-> > >                   from include/linux/clk.h:16,
-> > >                   from drivers/gpu/drm/tilcdc/tilcdc_drv.h:21,
-> > >                   from drivers/gpu/drm/tilcdc/tilcdc_drv.c:20:
-> > > include/linux/init.h:343:7: error: 'cleanup_module'
-> > > 	specifies less restrictive attribute than its target 'tilcdc_drm_fin=
-i': 'cold'
-> > >=20
-> > > In addition to a few errors like that, there are literally thousands
-> > > of similar warnings.
-> >=20
-> > It looks like this is triggered by you switching arm builds from gcc 8
-> > to 9, rather than by any code change.
-> >=20
->=20
-> After reverting to gcc 8.3.0 for arm, I get:
->=20
-> Build results:
-> 	total: 136 pass: 136 fail: 0
-> Qemu test results:
-> 	total: 229 pass: 229 fail: 0
->
-> Sorry for the noise.
+I was looking at
 
-Great, thanks for checking.
+<4> [241.835158] general protection fault: 0000 [#1] PREEMPT SMP PTI
+<4> [241.835181] CPU: 1 PID: 214 Comm: kworker/1:3 Tainted: G     U            5.2.0-CI-CI_DRM_6509+ #1
+<4> [241.835199] Hardware name: Dell Inc.                 OptiPlex 745                 /0GW726, BIOS 2.3.1  05/21/2007
+<4> [241.835234] Workqueue: events snd_hdac_bus_process_unsol_events [snd_hda_core]
+<4> [241.835256] RIP: 0010:input_handle_event+0x16d/0x5e0
+<4> [241.835270] Code: 48 8b 93 58 01 00 00 8b 52 08 89 50 04 8b 83 f8 06 00 00 48 8b 93 00 07 00 00 8d 70 01 48 8d 04 c2 83 e1 08 89 b3 f8 06 00 00 <66> 89 28 66 44 89 60 02 44 89 68 04 8b 93 f8 06 00 00 0f 84 fd fe
+<4> [241.835304] RSP: 0018:ffffc9000019fda0 EFLAGS: 00010046
+<4> [241.835317] RAX: 6b6b6b6ec6c6c6c3 RBX: ffff8880290fefc8 RCX: 0000000000000000
+<4> [241.835332] RDX: 000000006b6b6b6b RSI: 000000006b6b6b6c RDI: 0000000000000046
+<4> [241.835347] RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000001
+<4> [241.835362] R10: ffffc9000019faa0 R11: 0000000000000000 R12: 0000000000000004
+<4> [241.835377] R13: 0000000000000000 R14: ffff8880290ff1d0 R15: 0000000000000293
+<4> [241.835392] FS:  0000000000000000(0000) GS:ffff88803de80000(0000) knlGS:0000000000000000
+<4> [241.835409] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [241.835422] CR2: 00007ffe9a99e9b7 CR3: 000000002f588000 CR4: 00000000000006e0
+<4> [241.835436] Call Trace:
+<4> [241.835449]  input_event+0x45/0x70
+<4> [241.835464]  snd_jack_report+0xdc/0x100
+<4> [241.835490]  snd_hda_jack_report_sync+0x83/0xc0 [snd_hda_codec]
+<4> [241.835512]  snd_hdac_bus_process_unsol_events+0x5a/0x70 [snd_hda_core]
+<4> [241.835530]  process_one_work+0x245/0x610
 
-Ben.
+which has the hallmarks of a worker queued from interrupt after it was
+supposedly cancelled (note the POISON_FREE), and I could not see where
+the interrupt would be flushed on shutdown so added the likely suspects.
 
---=20
-Ben Hutchings
-I'm always amazed by the number of people who take up solipsism because
-they heard someone else explain it. - E*Borg on alt.fan.pratchett
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111174
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/hda/hdac_controller.c | 2 ++
+ sound/pci/hda/hda_intel.c   | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index 3b0110545070a..196bbc85699e5 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -447,6 +447,8 @@ static void azx_int_disable(struct hdac_bus *bus)
+ 	list_for_each_entry(azx_dev, &bus->stream_list, list)
+ 		snd_hdac_stream_updateb(azx_dev, SD_CTL, SD_INT_MASK, 0);
+ 
++	synchronize_irq(bus->irq);
++
+ 	/* disable SIE for all streams */
+ 	snd_hdac_chip_writeb(bus, INTCTL, 0);
+ 
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 99fc0917339bb..0ed2be83706d6 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1349,9 +1349,9 @@ static int azx_free(struct azx *chip)
+ 	}
+ 
+ 	if (bus->chip_init) {
++		azx_stop_chip(chip);
+ 		azx_clear_irq_pending(chip);
+ 		azx_stop_all_streams(chip);
+-		azx_stop_chip(chip);
+ 	}
+ 
+ 	if (bus->irq >= 0)
+-- 
+2.20.1
 
-
---=-t/NL/Z79JmtltRmHOd3K
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2Hok0ACgkQ57/I7JWG
-EQn8TQ/+LbWjYZ1CLsHC8nr7ODBS2AU7AFGfWX+sGLIZAYusGZ9ULZ+oaqUhlCOH
-hPElZD1A7l0D5PszfnMweAxF2yseoosUS2TrjwoFhgFH5tpz9bjKOq7dSfkTcqaw
-yiVQGyYmKbJt1EDQE95/qdGfweppUADgo9cjYCiNouvlHSm5wVBSTtp2VAL6XdLd
-IoO9+fs2n+SQEV12Tvrdz5fcWOLvpPzbkeH2MXXGsynmvD1YEW1B/Dg8Grg73b04
-qLZnlNetkWDQs9HSsxPM4WghTWrpMm6VuXweBIwP2JxZBfCdhVGoHjVZYxT62Q5k
-LiQYSOdH+/oBRhXwao2zU3aMF47MGh+I5S2fcm6a8kP1Ia8R3BnABPceYkLJVtjM
-Hel2bWplKU/yLNPy+J4wWxAxy4PQhtNFUMGyedI1C/7nY1QgDL7mNHqXnPAHWA0t
-rY4JbthPTGI+mkR7Vgm190vnm4H2CvuZeqcVX0+kXiuRw1q+2S4IoAP4P03Z2xvF
-/MTlk2ADnGg+YWdRNovOoRRulvPruPahGpxpN7UM6RBJBEe1Mnwh96lCg7Rhq9IR
-TjzRvQAEx3cOJWa/5iW+OjgljSq9gUTfnX17+0brkxb6TEVeTaurxuxgjasCbcEl
-mpfTju5T8pBiyk5ECx11HItmXUB5Mx25Krn8ENLuApNuxgkKAkE=
-=sc49
------END PGP SIGNATURE-----
-
---=-t/NL/Z79JmtltRmHOd3K--
