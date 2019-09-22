@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FB0BA6C8
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4C7BA6C9
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404197AbfIVSxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:53:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52496 "EHLO mail.kernel.org"
+        id S2391418AbfIVSxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389374AbfIVSxD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:03 -0400
+        id S2404205AbfIVSxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E571C21D7E;
-        Sun, 22 Sep 2019 18:53:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17C5521D7B;
+        Sun, 22 Sep 2019 18:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178382;
-        bh=YdtB9ERDjqPMpLb1hhSKMnEGtL5LAfOBUuAxVN22O04=;
+        s=default; t=1569178384;
+        bh=w5vMaPj8DTvAVZi2VQY7kI0VApxM++qJDgNLshmiiWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9mXxygGcpRSMuDsihNkHYIw7f3wXZh5rdVeGocS8XGl9XyA5srzlGXP7Zo3QhFuJ
-         CRd79JsroGZFzZc5AYDDXUrIIlCJGpHJ9Sy3766b0L4CprXjCoOm5PpdoA2DxKXIRB
-         25nv3xfTyRR+4zP5lYQf2kFC/FZweMglXLjo51dk=
+        b=FxuNhXGwRTHyvcSmH4x5HfAyTV9UliOOzYGMSVKDHYCXwO4ANF23spUGA3kwGdz3i
+         I+QsiyCXp58O7hAm6S27rZClIaa0mYHqX9Mv6lT4pziAzv1nFrP+SDx5eQ81iQutzT
+         fBxyUzwWMdLXHUpehKlagaaQONrD22wXMmhcho40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Song Liu <songliubraving@fb.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 130/185] x86/mm/pti: Handle unaligned address gracefully in pti_clone_pagetable()
-Date:   Sun, 22 Sep 2019 14:48:28 -0400
-Message-Id: <20190922184924.32534-130-sashal@kernel.org>
+Cc:     Tom Wu <tomwu@mellanox.com>, Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 131/185] nvmet: fix data units read and written counters in SMART log
+Date:   Sun, 22 Sep 2019 14:48:29 -0400
+Message-Id: <20190922184924.32534-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -45,57 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Tom Wu <tomwu@mellanox.com>
 
-[ Upstream commit 825d0b73cd7526b0bb186798583fae810091cbac ]
+[ Upstream commit 3bec2e3754becebd4c452999adb49bc62c575ea4 ]
 
-pti_clone_pmds() assumes that the supplied address is either:
+In nvme spec 1.3 there is a definition for data write/read counters
+from SMART log, (See section 5.14.1.2):
+	This value is reported in thousands (i.e., a value of 1
+	corresponds to 1000 units of 512 bytes read) and is rounded up.
 
- - properly PUD/PMD aligned
-or
- - the address is actually mapped which means that independently
-   of the mapping level (PUD/PMD/PTE) the next higher mapping
-   exists.
+However, in nvme target where value is reported with actual units,
+but not thousands of units as the spec requires.
 
-If that's not the case the unaligned address can be incremented by PUD or
-PMD size incorrectly. All callers supply mapped and/or aligned addresses,
-but for the sake of robustness it's better to handle that case properly and
-to emit a warning.
-
-[ tglx: Rewrote changelog and added WARN_ON_ONCE() ]
-
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282352470.1938@nanos.tec.linutronix.de
+Signed-off-by: Tom Wu <tomwu@mellanox.com>
+Reviewed-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pti.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/target/admin-cmd.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index ba22b50f4eca2..7f2140414440d 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -330,13 +330,15 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
+diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
+index 9f72d515fc4b3..4099093a17343 100644
+--- a/drivers/nvme/target/admin-cmd.c
++++ b/drivers/nvme/target/admin-cmd.c
+@@ -81,9 +81,11 @@ static u16 nvmet_get_smart_log_nsid(struct nvmet_req *req,
+ 		goto out;
  
- 		pud = pud_offset(p4d, addr);
- 		if (pud_none(*pud)) {
--			addr += PUD_SIZE;
-+			WARN_ON_ONCE(addr & ~PUD_MASK);
-+			addr = round_up(addr + 1, PUD_SIZE);
+ 	host_reads = part_stat_read(ns->bdev->bd_part, ios[READ]);
+-	data_units_read = part_stat_read(ns->bdev->bd_part, sectors[READ]);
++	data_units_read = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
++		sectors[READ]), 1000);
+ 	host_writes = part_stat_read(ns->bdev->bd_part, ios[WRITE]);
+-	data_units_written = part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
++	data_units_written = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
++		sectors[WRITE]), 1000);
+ 
+ 	put_unaligned_le64(host_reads, &slog->host_reads[0]);
+ 	put_unaligned_le64(data_units_read, &slog->data_units_read[0]);
+@@ -111,11 +113,11 @@ static u16 nvmet_get_smart_log_all(struct nvmet_req *req,
+ 		if (!ns->bdev)
  			continue;
- 		}
+ 		host_reads += part_stat_read(ns->bdev->bd_part, ios[READ]);
+-		data_units_read +=
+-			part_stat_read(ns->bdev->bd_part, sectors[READ]);
++		data_units_read += DIV_ROUND_UP(
++			part_stat_read(ns->bdev->bd_part, sectors[READ]), 1000);
+ 		host_writes += part_stat_read(ns->bdev->bd_part, ios[WRITE]);
+-		data_units_written +=
+-			part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
++		data_units_written += DIV_ROUND_UP(
++			part_stat_read(ns->bdev->bd_part, sectors[WRITE]), 1000);
  
- 		pmd = pmd_offset(pud, addr);
- 		if (pmd_none(*pmd)) {
--			addr += PMD_SIZE;
-+			WARN_ON_ONCE(addr & ~PMD_MASK);
-+			addr = round_up(addr + 1, PMD_SIZE);
- 			continue;
- 		}
- 
+ 	}
+ 	rcu_read_unlock();
 -- 
 2.20.1
 
