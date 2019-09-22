@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE68BA69B
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA1CBA69D
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406301AbfIVSvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
+        id S2392957AbfIVSvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406260AbfIVSvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:51:47 -0400
+        id S2392935AbfIVSvy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:51:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D59192190F;
-        Sun, 22 Sep 2019 18:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8440821D6C;
+        Sun, 22 Sep 2019 18:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178306;
-        bh=Ykb93oMr+3gztSj7HV5KYl0vXoN7XcXRQ9o4/s8Ik+A=;
+        s=default; t=1569178313;
+        bh=Obtjp4ZwBmT/y2TVxxCzMnVGIK54jgwwUKhCZT0umyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AETwH0Wm5ZQImUP5VLQ0CbyiwUabmn1rFX9zF6tokobeb1Dksla/Tir1cwCdLF7gG
-         GmK6XsycZuVVSB6/nVwAMFPQuabw2+3UJsgxZ5n+ID+S9wbsYysp6eWHhGFf+F3Mgw
-         2UHiiQLTNqvarsH9qR0SCv2VEtoTU5DXEukhrBJo=
+        b=I+cA4INjsYAS1GShJtGqcYrBhrskXLy8o7UWphiAk2Tvli/VMoie9VoSapzPfhHci
+         rgfYpJuw1ewFr9y0UDKL7cPMGy1KSH2CJHjcY+1HoWAoSWWs4fHpvgDQs+BlhtlJ19
+         w6m9HtKaPKVz6/sjvea6HfafOmKQi8pNCusD1e4A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kasan-dev@googlegroups.com, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 077/185] kasan/arm64: fix CONFIG_KASAN_SW_TAGS && KASAN_INLINE
-Date:   Sun, 22 Sep 2019 14:47:35 -0400
-Message-Id: <20190922184924.32534-77-sashal@kernel.org>
+Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
+        Ilya Ledvich <ilya@compulab.co.il>,
+        Igor Grinberg <grinberg@compulab.co.il>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 081/185] ARM: dts: imx7d: cl-som-imx7: make ethernet work again
+Date:   Sun, 22 Sep 2019 14:47:39 -0400
+Message-Id: <20190922184924.32534-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,77 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: André Draszik <git@andred.net>
 
-[ Upstream commit 34b5560db40d2941cfbe82eca1641353d5aed1a9 ]
+[ Upstream commit 9846a4524ac90b63496580b7ad50674b40d92a8f ]
 
-The generic Makefile.kasan propagates CONFIG_KASAN_SHADOW_OFFSET into
-KASAN_SHADOW_OFFSET, but only does so for CONFIG_KASAN_GENERIC.
+Recent changes to the atheros at803x driver caused
+ethernet to stop working on this board.
+In particular commit 6d4cd041f0af
+("net: phy: at803x: disable delay only for RGMII mode")
+and commit cd28d1d6e52e
+("net: phy: at803x: Disable phy delay for RGMII mode")
+fix the AR8031 driver to configure the phy's (RX/TX)
+delays as per the 'phy-mode' in the device tree.
 
-Since commit:
+This now prevents ethernet from working on this board.
 
-  6bd1d0be0e97936d ("arm64: kasan: Switch to using KASAN_SHADOW_OFFSET")
+It used to work before those commits, because the
+AR8031 comes out of reset with RX delay enabled, and
+the at803x driver didn't touch the delay configuration
+at all when "rgmii" mode was selected, and because
+arch/arm/mach-imx/mach-imx7d.c:ar8031_phy_fixup()
+unconditionally enables TX delay.
 
-... arm64 defines CONFIG_KASAN_SHADOW_OFFSET in Kconfig rather than
-defining KASAN_SHADOW_OFFSET in a Makefile. Thus, if
-CONFIG_KASAN_SW_TAGS && KASAN_INLINE are selected, we get build time
-splats due to KASAN_SHADOW_OFFSET not being set:
+Since above commits ar8031_phy_fixup() also has no
+effect anymore, and the end-result is that all delays
+are disabled in the phy, no ethernet.
 
-| [mark@lakrids:~/src/linux]% usellvm 8.0.1 usekorg 8.1.0  make ARCH=arm64 CROSS_COMPILE=aarch64-linux- CC=clang
-| scripts/kconfig/conf  --syncconfig Kconfig
-|   CC      scripts/mod/empty.o
-| clang (LLVM option parsing): for the -hwasan-mapping-offset option: '' value invalid for uint argument!
-| scripts/Makefile.build:273: recipe for target 'scripts/mod/empty.o' failed
-| make[1]: *** [scripts/mod/empty.o] Error 1
-| Makefile:1123: recipe for target 'prepare0' failed
-| make: *** [prepare0] Error 2
+Update the device tree to restore functionality.
 
-Let's fix this by always propagating CONFIG_KASAN_SHADOW_OFFSET into
-KASAN_SHADOW_OFFSET if CONFIG_KASAN is selected, moving the existing
-common definition of +CFLAGS_KASAN_NOSANITIZE to the top of
-Makefile.kasan.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Tested-by Steve Capper <steve.capper@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: André Draszik <git@andred.net>
+CC: Ilya Ledvich <ilya@compulab.co.il>
+CC: Igor Grinberg <grinberg@compulab.co.il>
+CC: Rob Herring <robh+dt@kernel.org>
+CC: Mark Rutland <mark.rutland@arm.com>
+CC: Shawn Guo <shawnguo@kernel.org>
+CC: Sascha Hauer <s.hauer@pengutronix.de>
+CC: Pengutronix Kernel Team <kernel@pengutronix.de>
+CC: Fabio Estevam <festevam@gmail.com>
+CC: NXP Linux Team <linux-imx@nxp.com>
+CC: devicetree@vger.kernel.org
+CC: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.kasan | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/imx7d-cl-som-imx7.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
-index 6410bd22fe387..03757cc60e06c 100644
---- a/scripts/Makefile.kasan
-+++ b/scripts/Makefile.kasan
-@@ -1,4 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
-+ifdef CONFIG_KASAN
-+CFLAGS_KASAN_NOSANITIZE := -fno-builtin
-+KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
-+endif
-+
- ifdef CONFIG_KASAN_GENERIC
- 
- ifdef CONFIG_KASAN_INLINE
-@@ -7,8 +12,6 @@ else
- 	call_threshold := 0
- endif
- 
--KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
--
- CFLAGS_KASAN_MINIMAL := -fsanitize=kernel-address
- 
- cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
-@@ -45,7 +48,3 @@ CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
- 		$(instrumentation_flags)
- 
- endif # CONFIG_KASAN_SW_TAGS
--
--ifdef CONFIG_KASAN
--CFLAGS_KASAN_NOSANITIZE := -fno-builtin
--endif
+diff --git a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+index e61567437d73c..62d5e9a4a7818 100644
+--- a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
++++ b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+@@ -44,7 +44,7 @@
+ 			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
+ 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
+ 	assigned-clock-rates = <0>, <100000000>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy0>;
+ 	fsl,magic-packet;
+ 	status = "okay";
+@@ -70,7 +70,7 @@
+ 			  <&clks IMX7D_ENET2_TIME_ROOT_CLK>;
+ 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
+ 	assigned-clock-rates = <0>, <100000000>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy1>;
+ 	fsl,magic-packet;
+ 	status = "okay";
 -- 
 2.20.1
 
