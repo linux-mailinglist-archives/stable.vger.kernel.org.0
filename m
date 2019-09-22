@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53277BA3E2
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3200FBA3E4
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389312AbfIVSpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:45:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41166 "EHLO mail.kernel.org"
+        id S2389527AbfIVSpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389303AbfIVSpb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:31 -0400
+        id S2389398AbfIVSpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADD8021907;
-        Sun, 22 Sep 2019 18:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E12BC20869;
+        Sun, 22 Sep 2019 18:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177930;
-        bh=0UFRwrVqMUuMsxtnEtdiDjvOApLR5fVd8zynEbyvw2A=;
+        s=default; t=1569177938;
+        bh=P73YqyByfJFfD7IeMva3s/Jr+ys9xdTCvSZ1/zaZIYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zu8VAFTACDWe6HNo8cWSkqJ0GTpwunY1+WLepmq9Wn7WGwcRlEjQWATxwQT5Sz8VE
-         fRNEPJkwZ7EHvyQjWeBeqg3sOW+lWC0vzX+BCZUYpmS+JIwnbUMLyjdr9wXqVCdFDo
-         ZvGG9eaJ7vQcL0VnnY5VTwPzdIpQxuWq4XJk5O5g=
+        b=2m7hvbTG1LY6d32SGcq273ssg08Ox+cYO4l4f0aPueC0XAPDDFpkn7YhwlNm3aEVi
+         UZJ7Mkzy3/Vl4MK7t/3KX9Y/dkG669k8ZtgwgME6EwG9GHr1jxrKTlvnGkgTpBtAgP
+         5dNm2aiFYJ7X4ntRoOxXmm8D/a6AMwAcjvehSeC8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
-        linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 041/203] gpio: madera: Add support for Cirrus Logic CS47L92
-Date:   Sun, 22 Sep 2019 14:41:07 -0400
-Message-Id: <20190922184350.30563-41-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        James Morse <james.morse@arm.com>,
+        kernel-janitors@vger.kernel.org,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 047/203] EDAC/altera: Use the proper type for the IRQ status bits
+Date:   Sun, 22 Sep 2019 14:41:13 -0400
+Message-Id: <20190922184350.30563-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,37 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 74d2d0e68701bcd53d2cf771dd3b3cb9f84bed5c ]
+[ Upstream commit 8faa1cf6ed82f33009f63986c3776cc48af1b7b2 ]
 
-As the gpio is common to all madera codecs all that is needed
-is to setup the correct number of GPIO pins for the CS47L92.
+Smatch complains about the cast of a u32 pointer to unsigned long:
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20190722090748.20807-4-ckeepax@opensource.cirrus.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+  drivers/edac/altera_edac.c:1878 altr_edac_a10_irq_handler()
+  warn: passing casted pointer '&irq_status' to 'find_first_bit()'
+
+This code wouldn't work on a 64 bit big endian system because it would
+read past the end of &irq_status.
+
+ [ bp: massage. ]
+
+Fixes: 13ab8448d2c9 ("EDAC, altera: Add ECC Manager IRQ controller support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: kernel-janitors@vger.kernel.org
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624134717.GA1754@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-madera.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/edac/altera_edac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-madera.c b/drivers/gpio/gpio-madera.c
-index 19db5a500eb0d..be963113f6722 100644
---- a/drivers/gpio/gpio-madera.c
-+++ b/drivers/gpio/gpio-madera.c
-@@ -150,6 +150,11 @@ static int madera_gpio_probe(struct platform_device *pdev)
- 	case CS47L91:
- 		madera_gpio->gpio_chip.ngpio = CS47L90_NUM_GPIOS;
- 		break;
-+	case CS42L92:
-+	case CS47L92:
-+	case CS47L93:
-+		madera_gpio->gpio_chip.ngpio = CS47L92_NUM_GPIOS;
-+		break;
- 	default:
- 		dev_err(&pdev->dev, "Unknown chip variant %d\n", madera->type);
- 		return -EINVAL;
+diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
+index c2e693e34d434..bf024ec0116c7 100644
+--- a/drivers/edac/altera_edac.c
++++ b/drivers/edac/altera_edac.c
+@@ -1866,6 +1866,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
+ 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	int irq = irq_desc_get_irq(desc);
++	unsigned long bits;
+ 
+ 	dberr = (irq == edac->db_irq) ? 1 : 0;
+ 	sm_offset = dberr ? A10_SYSMGR_ECC_INTSTAT_DERR_OFST :
+@@ -1875,7 +1876,8 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
+ 
+ 	regmap_read(edac->ecc_mgr_map, sm_offset, &irq_status);
+ 
+-	for_each_set_bit(bit, (unsigned long *)&irq_status, 32) {
++	bits = irq_status;
++	for_each_set_bit(bit, &bits, 32) {
+ 		irq = irq_linear_revmap(edac->domain, dberr * 32 + bit);
+ 		if (irq)
+ 			generic_handle_irq(irq);
 -- 
 2.20.1
 
