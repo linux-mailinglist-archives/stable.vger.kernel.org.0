@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6126DBA49D
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8AF1BA4A0
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403916AbfIVSu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:50:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
+        id S1729130AbfIVSua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:50:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403906AbfIVSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:26 -0400
+        id S1727512AbfIVSua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:50:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7C322196E;
-        Sun, 22 Sep 2019 18:50:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D062E21D7A;
+        Sun, 22 Sep 2019 18:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178225;
-        bh=zzHl6fU5aKHK7l+a6UXgVYGiaDCb6jFYvh4Lo9V7hgg=;
+        s=default; t=1569178229;
+        bh=o0TPlNlA6sE8SAGKH4X9ZsJIGV0LCZYH5UcKTwQ4ZXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3uUEqZfg6KsvTjeme1ARsNEzpGc8LWQEXta9QMcpvV/ZCbCqKezcGFvcLOQxYbTd
-         vuinxS6MzGfJh3l+tuX2ZJKJ4ZsfQtYpbmXUed7dJTMFvc+w8y4z3qTyCgnI5ArQ+k
-         AEPsg2/n0/77NVdlTcOwpsf3N8/DMc9rSqzh4pok=
+        b=19iOUnsIGA91Oj06QOJnoundTpxUzaTVHqnLoplbF17HnNG2pw4GFzFUQfQKYFFWU
+         eAQgJSok3VrKiM7+OTkgTthcA5vHbUpystpFhp8s/DlVorX1um/hj6iNeheQBLyMUH
+         tHklJ6Ys83eCwhJmz5mkupmK14vJyzguyDyBSO54=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grzegorz Halat <ghalat@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Don Zickus <dzickus@redhat.com>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 026/185] x86/reboot: Always use NMI fallback when shutdown via reboot vector IPI fails
-Date:   Sun, 22 Sep 2019 14:46:44 -0400
-Message-Id: <20190922184924.32534-26-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 028/185] x86/apic: Soft disable APIC before initializing it
+Date:   Sun, 22 Sep 2019 14:46:46 -0400
+Message-Id: <20190922184924.32534-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -44,126 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Halat <ghalat@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 747d5a1bf293dcb33af755a6d285d41b8c1ea010 ]
+[ Upstream commit 2640da4cccf5cc613bf26f0998b9e340f4b5f69c ]
 
-A reboot request sends an IPI via the reboot vector and waits for all other
-CPUs to stop. If one or more CPUs are in critical regions with interrupts
-disabled then the IPI is not handled on those CPUs and the shutdown hangs
-if native_stop_other_cpus() is called with the wait argument set.
+If the APIC was already enabled on entry of setup_local_APIC() then
+disabling it soft via the SPIV register makes a lot of sense.
 
-Such a situation can happen when one CPU was stopped within a lock held
-section and another CPU is trying to acquire that lock with interrupts
-disabled. There are other scenarios which can cause such a lockup as well.
+That masks all LVT entries and brings it into a well defined state.
 
-In theory the shutdown should be attempted by an NMI IPI after the timeout
-period elapsed. Though the wait loop after sending the reboot vector IPI
-prevents this. It checks the wait request argument and the timeout. If wait
-is set, which is true for sys_reboot() then it won't fall through to the
-NMI shutdown method after the timeout period has finished.
+Otherwise previously enabled LVTs which are not touched in the setup
+function stay unmasked and might surprise the just booting kernel.
 
-This was an oversight when the NMI shutdown mechanism was added to handle
-the 'reboot IPI is not working' situation. The mechanism was added to deal
-with stuck panic shutdowns, which do not have the wait request set, so the
-'wait request' case was probably not considered.
-
-Remove the wait check from the post reboot vector IPI wait loop and enforce
-that the wait loop in the NMI fallback path is invoked even if NMI IPIs are
-disabled or the registration of the NMI handler fails. That second wait
-loop will then hang if not all CPUs shutdown and the wait argument is set.
-
-[ tglx: Avoid the hard to parse line break in the NMI fallback path,
-  	add comments and massage the changelog ]
-
-Fixes: 7d007d21e539 ("x86/reboot: Use NMI to assist in shutting down if IRQ fails")
-Signed-off-by: Grzegorz Halat <ghalat@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Don Zickus <dzickus@redhat.com>
-Link: https://lkml.kernel.org/r/20190628122813.15500-1-ghalat@redhat.com
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190722105219.068290579@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/smp.c | 46 +++++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ arch/x86/kernel/apic/apic.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/kernel/smp.c b/arch/x86/kernel/smp.c
-index 4693e2f3a03ec..f2a749586252e 100644
---- a/arch/x86/kernel/smp.c
-+++ b/arch/x86/kernel/smp.c
-@@ -179,6 +179,12 @@ asmlinkage __visible void smp_reboot_interrupt(void)
- 	irq_exit();
- }
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 67d1259e0f7c0..a18d6dd934e55 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1550,6 +1550,14 @@ static void setup_local_APIC(void)
+ 		return;
+ 	}
  
-+static int register_stop_handler(void)
-+{
-+	return register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
-+				    NMI_FLAG_FIRST, "smp_stop");
-+}
++	/*
++	 * If this comes from kexec/kcrash the APIC might be enabled in
++	 * SPIV. Soft disable it before doing further initialization.
++	 */
++	value = apic_read(APIC_SPIV);
++	value &= ~APIC_SPIV_APIC_ENABLED;
++	apic_write(APIC_SPIV, value);
 +
- static void native_stop_other_cpus(int wait)
- {
- 	unsigned long flags;
-@@ -212,39 +218,41 @@ static void native_stop_other_cpus(int wait)
- 		apic->send_IPI_allbutself(REBOOT_VECTOR);
- 
- 		/*
--		 * Don't wait longer than a second if the caller
--		 * didn't ask us to wait.
-+		 * Don't wait longer than a second for IPI completion. The
-+		 * wait request is not checked here because that would
-+		 * prevent an NMI shutdown attempt in case that not all
-+		 * CPUs reach shutdown state.
- 		 */
- 		timeout = USEC_PER_SEC;
--		while (num_online_cpus() > 1 && (wait || timeout--))
-+		while (num_online_cpus() > 1 && timeout--)
- 			udelay(1);
- 	}
--	
--	/* if the REBOOT_VECTOR didn't work, try with the NMI */
--	if ((num_online_cpus() > 1) && (!smp_no_nmi_ipi))  {
--		if (register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
--					 NMI_FLAG_FIRST, "smp_stop"))
--			/* Note: we ignore failures here */
--			/* Hope the REBOOT_IRQ is good enough */
--			goto finish;
--
--		/* sync above data before sending IRQ */
--		wmb();
- 
--		pr_emerg("Shutting down cpus with NMI\n");
-+	/* if the REBOOT_VECTOR didn't work, try with the NMI */
-+	if (num_online_cpus() > 1) {
-+		/*
-+		 * If NMI IPI is enabled, try to register the stop handler
-+		 * and send the IPI. In any case try to wait for the other
-+		 * CPUs to stop.
-+		 */
-+		if (!smp_no_nmi_ipi && !register_stop_handler()) {
-+			/* Sync above data before sending IRQ */
-+			wmb();
- 
--		apic->send_IPI_allbutself(NMI_VECTOR);
-+			pr_emerg("Shutting down cpus with NMI\n");
- 
-+			apic->send_IPI_allbutself(NMI_VECTOR);
-+		}
- 		/*
--		 * Don't wait longer than a 10 ms if the caller
--		 * didn't ask us to wait.
-+		 * Don't wait longer than 10 ms if the caller didn't
-+		 * reqeust it. If wait is true, the machine hangs here if
-+		 * one or more CPUs do not reach shutdown state.
- 		 */
- 		timeout = USEC_PER_MSEC * 10;
- 		while (num_online_cpus() > 1 && (wait || timeout--))
- 			udelay(1);
- 	}
- 
--finish:
- 	local_irq_save(flags);
- 	disable_local_APIC();
- 	mcheck_cpu_clear(this_cpu_ptr(&cpu_info));
+ #ifdef CONFIG_X86_32
+ 	/* Pound the ESR really hard over the head with a big hammer - mbligh */
+ 	if (lapic_is_integrated() && apic->disable_esr) {
 -- 
 2.20.1
 
