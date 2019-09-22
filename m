@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0063BA68D
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F371BA68F
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405166AbfIVSvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49204 "EHLO mail.kernel.org"
+        id S2405225AbfIVSv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405028AbfIVSvZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:51:25 -0400
+        id S2405182AbfIVSv1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:51:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DABD321D7A;
-        Sun, 22 Sep 2019 18:51:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 352DB208C2;
+        Sun, 22 Sep 2019 18:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178283;
-        bh=TEEH8AkXj/LBWnxOt8qCA4YMnQ7RsOpFc05KlNuJSCk=;
+        s=default; t=1569178285;
+        bh=dPMBz+h3etmnxoqEa7dwetX9+Br6b4R4IuSCrpEqtQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nH/BwzN9zB/NQYHvNwjBve3P0ebqIW3fQ+Zq1mMnxP6FpVBSgdMBblyDI4gndtP+7
-         3Xt7npXqRsQpneRn+bRPEEcfLPcvWfJ45MWFBsH/WSyZ531Df0I58/j+dpFVqCYPDt
-         GUqdmpdcZXXxyTWXXVtPlwL0wSvNo5WLY+D7rd2c=
+        b=PtJasEcWzdbI9VUoMApYxLFtdMx2o3jisvBrzoLxEZg++0vIKdxjZ265q2JTZlVWL
+         4Wo5/ITptEywsPMkEAgqsjlHx165GWmP9GbSHZLtMWp2cbb1uxvgSsovezGW74eZUC
+         gfL6Qal4BhIXo8VS0vRpM1sL87hFhagIiuPLPJ4M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Young <sean@mess.org>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Brad Love <brad@nextdimension.cc>,
-        syzbot+b7f57261c521087d89bb@syzkaller.appspotmail.com,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 064/185] media: em28xx: modules workqueue not inited for 2nd device
-Date:   Sun, 22 Sep 2019 14:47:22 -0400
-Message-Id: <20190922184924.32534-64-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 065/185] arm64/efi: Move variable assignments after SECTIONS
+Date:   Sun, 22 Sep 2019 14:47:23 -0400
+Message-Id: <20190922184924.32534-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -46,89 +43,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 46e4a26615cc7854340e4b69ca59ee78d6f20c8b ]
+[ Upstream commit 90776dd1c427cbb4d381aa4b13338f1fb1d20f5e ]
 
-syzbot reports an error on flush_request_modules() for the second device.
-This workqueue was never initialised so simply remove the offending line.
+It seems that LLVM's linker does not correctly handle variable assignments
+involving section positions that are updated during the SECTIONS
+parsing. Commit aa69fb62bea1 ("arm64/efi: Mark __efistub_stext_offset as
+an absolute symbol explicitly") ran into this too, but found a different
+workaround.
 
-usb 1-1: USB disconnect, device number 2
-em28xx 1-1:1.153: Disconnecting em28xx #1
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 12 at kernel/workqueue.c:3031
-__flush_work.cold+0x2c/0x36 kernel/workqueue.c:3031
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc2+ #25
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  panic+0x2a3/0x6da kernel/panic.c:219
-  __warn.cold+0x20/0x4a kernel/panic.c:576
-  report_bug+0x262/0x2a0 lib/bug.c:186
-  fixup_bug arch/x86/kernel/traps.c:179 [inline]
-  fixup_bug arch/x86/kernel/traps.c:174 [inline]
-  do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
-  do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
-  invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1026
-RIP: 0010:__flush_work.cold+0x2c/0x36 kernel/workqueue.c:3031
-Code: 9a 22 00 48 c7 c7 20 e4 c5 85 e8 d9 3a 0d 00 0f 0b 45 31 e4 e9 98 86
-ff ff e8 51 9a 22 00 48 c7 c7 20 e4 c5 85 e8 be 3a 0d 00 <0f> 0b 45 31 e4
-e9 7d 86 ff ff e8 36 9a 22 00 48 c7 c7 20 e4 c5 85
-RSP: 0018:ffff8881da20f720 EFLAGS: 00010286
-RAX: 0000000000000024 RBX: dffffc0000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff8128a0fd RDI: ffffed103b441ed6
-RBP: ffff8881da20f888 R08: 0000000000000024 R09: fffffbfff11acd9a
-R10: fffffbfff11acd99 R11: ffffffff88d66ccf R12: 0000000000000000
-R13: 0000000000000001 R14: ffff8881c6685df8 R15: ffff8881d2a85b78
-  flush_request_modules drivers/media/usb/em28xx/em28xx-cards.c:3325 [inline]
-  em28xx_usb_disconnect.cold+0x280/0x2a6
-drivers/media/usb/em28xx/em28xx-cards.c:4023
-  usb_unbind_interface+0x1bd/0x8a0 drivers/usb/core/driver.c:423
-  __device_release_driver drivers/base/dd.c:1120 [inline]
-  device_release_driver_internal+0x404/0x4c0 drivers/base/dd.c:1151
-  bus_remove_device+0x2dc/0x4a0 drivers/base/bus.c:556
-  device_del+0x420/0xb10 drivers/base/core.c:2288
-  usb_disable_device+0x211/0x690 drivers/usb/core/message.c:1237
-  usb_disconnect+0x284/0x8d0 drivers/usb/core/hub.c:2199
-  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
-  port_event drivers/usb/core/hub.c:5359 [inline]
-  hub_event+0x1454/0x3640 drivers/usb/core/hub.c:5441
-  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
-  process_scheduled_works kernel/workqueue.c:2331 [inline]
-  worker_thread+0x7ab/0xe20 kernel/workqueue.c:2417
-  kthread+0x318/0x420 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
+However, this was not enough, as other variables were also miscalculated
+which manifested as boot failures under UEFI where __efistub__end was
+not taking the correct _end value (they should be the same):
 
-Fixes: be7fd3c3a8c5e ("media: em28xx: Hauppauge DualHD second tuner functionality)
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Brad Love <brad@nextdimension.cc>
-Reported-by: syzbot+b7f57261c521087d89bb@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+$ ld.lld -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.lld -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.lld | egrep '\b(__efistub_|)_end\b'
+368272: ffff000002218000     0 NOTYPE  LOCAL  HIDDEN    38 __efistub__end
+368322: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT   38 _end
+
+$ aarch64-linux-gnu-ld.bfd -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.bfd -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.bfd | egrep '\b(__efistub_|)_end\b'
+338124: ffff000012318000     0 NOTYPE  LOCAL  DEFAULT  ABS __efistub__end
+383812: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT 15325 _end
+
+To work around this, all of the __efistub_-prefixed variable assignments
+need to be moved after the linker script's SECTIONS entry. As it turns
+out, this also solves the problem fixed in commit aa69fb62bea1, so those
+changes are reverted here.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/634
+Link: https://bugs.llvm.org/show_bug.cgi?id=42990
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/kernel/image-vars.h  | 51 +++++++++++++++++++++++++++++++++
+ arch/arm64/kernel/image.h       | 42 ---------------------------
+ arch/arm64/kernel/vmlinux.lds.S |  2 ++
+ 3 files changed, 53 insertions(+), 42 deletions(-)
+ create mode 100644 arch/arm64/kernel/image-vars.h
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index 1283c7ca9ad51..1de835a591a06 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -4020,7 +4020,6 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
- 		dev->dev_next->disconnected = 1;
- 		dev_info(&dev->intf->dev, "Disconnecting %s\n",
- 			 dev->dev_next->name);
--		flush_request_modules(dev->dev_next);
- 	}
+diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
+new file mode 100644
+index 0000000000000..25a2a9b479c2f
+--- /dev/null
++++ b/arch/arm64/kernel/image-vars.h
+@@ -0,0 +1,51 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Linker script variables to be set after section resolution, as
++ * ld.lld does not like variables assigned before SECTIONS is processed.
++ */
++#ifndef __ARM64_KERNEL_IMAGE_VARS_H
++#define __ARM64_KERNEL_IMAGE_VARS_H
++
++#ifndef LINKER_SCRIPT
++#error This file should only be included in vmlinux.lds.S
++#endif
++
++#ifdef CONFIG_EFI
++
++__efistub_stext_offset = stext - _text;
++
++/*
++ * The EFI stub has its own symbol namespace prefixed by __efistub_, to
++ * isolate it from the kernel proper. The following symbols are legally
++ * accessed by the stub, so provide some aliases to make them accessible.
++ * Only include data symbols here, or text symbols of functions that are
++ * guaranteed to be safe when executed at another offset than they were
++ * linked at. The routines below are all implemented in assembler in a
++ * position independent manner
++ */
++__efistub_memcmp		= __pi_memcmp;
++__efistub_memchr		= __pi_memchr;
++__efistub_memcpy		= __pi_memcpy;
++__efistub_memmove		= __pi_memmove;
++__efistub_memset		= __pi_memset;
++__efistub_strlen		= __pi_strlen;
++__efistub_strnlen		= __pi_strnlen;
++__efistub_strcmp		= __pi_strcmp;
++__efistub_strncmp		= __pi_strncmp;
++__efistub_strrchr		= __pi_strrchr;
++__efistub___flush_dcache_area	= __pi___flush_dcache_area;
++
++#ifdef CONFIG_KASAN
++__efistub___memcpy		= __pi_memcpy;
++__efistub___memmove		= __pi_memmove;
++__efistub___memset		= __pi_memset;
++#endif
++
++__efistub__text			= _text;
++__efistub__end			= _end;
++__efistub__edata		= _edata;
++__efistub_screen_info		= screen_info;
++
++#endif
++
++#endif /* __ARM64_KERNEL_IMAGE_VARS_H */
+diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
+index 2b85c0d6fa3d1..c7d38c660372c 100644
+--- a/arch/arm64/kernel/image.h
++++ b/arch/arm64/kernel/image.h
+@@ -65,46 +65,4 @@
+ 	DEFINE_IMAGE_LE64(_kernel_offset_le, TEXT_OFFSET);	\
+ 	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);
  
- 	dev->disconnected = 1;
+-#ifdef CONFIG_EFI
+-
+-/*
+- * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
+- * https://github.com/ClangBuiltLinux/linux/issues/561
+- */
+-__efistub_stext_offset = ABSOLUTE(stext - _text);
+-
+-/*
+- * The EFI stub has its own symbol namespace prefixed by __efistub_, to
+- * isolate it from the kernel proper. The following symbols are legally
+- * accessed by the stub, so provide some aliases to make them accessible.
+- * Only include data symbols here, or text symbols of functions that are
+- * guaranteed to be safe when executed at another offset than they were
+- * linked at. The routines below are all implemented in assembler in a
+- * position independent manner
+- */
+-__efistub_memcmp		= __pi_memcmp;
+-__efistub_memchr		= __pi_memchr;
+-__efistub_memcpy		= __pi_memcpy;
+-__efistub_memmove		= __pi_memmove;
+-__efistub_memset		= __pi_memset;
+-__efistub_strlen		= __pi_strlen;
+-__efistub_strnlen		= __pi_strnlen;
+-__efistub_strcmp		= __pi_strcmp;
+-__efistub_strncmp		= __pi_strncmp;
+-__efistub_strrchr		= __pi_strrchr;
+-__efistub___flush_dcache_area	= __pi___flush_dcache_area;
+-
+-#ifdef CONFIG_KASAN
+-__efistub___memcpy		= __pi_memcpy;
+-__efistub___memmove		= __pi_memmove;
+-__efistub___memset		= __pi_memset;
+-#endif
+-
+-__efistub__text			= _text;
+-__efistub__end			= _end;
+-__efistub__edata		= _edata;
+-__efistub_screen_info		= screen_info;
+-
+-#endif
+-
+ #endif /* __ARM64_KERNEL_IMAGE_H */
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 7fa0083749078..803b24d2464ae 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -245,6 +245,8 @@ SECTIONS
+ 	HEAD_SYMBOLS
+ }
+ 
++#include "image-vars.h"
++
+ /*
+  * The HYP init code and ID map text can't be longer than a page each,
+  * and should not cross a page boundary.
 -- 
 2.20.1
 
