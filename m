@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3663DBA5BE
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15602BA5C0
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389127AbfIVSpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:45:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41048 "EHLO mail.kernel.org"
+        id S2389238AbfIVSp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389181AbfIVSpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:24 -0400
+        id S2389230AbfIVSp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97C182186A;
-        Sun, 22 Sep 2019 18:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BC82214AF;
+        Sun, 22 Sep 2019 18:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177923;
-        bh=Khkr7SUx3By7seMEzLt/dW27p0v3MIpa+M+qZfVLF/E=;
+        s=default; t=1569177925;
+        bh=JJNj1JIfEKumpLPmvbYYR+Yiy/6Lw903RFyWTOdYqXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCyIMHiCljLKLtzhm81UA8D081Sx576IOEyWLmcdTBKDOWhFjAYaHG1cEt4BiMWs/
-         TIBox6JWQZzEeJ3Cq6IE+Y9qEEU+xOyBb4PGoJXxXQQA4CXx4cjOHsAmr7L4xSyV4S
-         4ea5kdvx58t5LOWAEF6ZryerMA2Lk6RBmBG0T9Rw=
+        b=JAUNqdeGnHnuxk1NCwc+3kwPPMBMsvRZicL3pL18o9IfUIIjoMnSRHXRU4+QHuzff
+         IcPLJi+LEn4ZXVGqLvLKlLQwVJUbbUuar24MS8x62h1LeHPwDGq8cmq89aqH1XDc28
+         ZId6hwUyN6vEequ/hM+1V/9g74UaKgbuuEBn18J4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 035/203] rcu: Add destroy_work_on_stack() to match INIT_WORK_ONSTACK()
-Date:   Sun, 22 Sep 2019 14:41:01 -0400
-Message-Id: <20190922184350.30563-35-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 037/203] arm64: dts: imx8mq: Correct OPP table according to latest datasheet
+Date:   Sun, 22 Sep 2019 14:41:03 -0400
+Message-Id: <20190922184350.30563-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,52 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@linux.ibm.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit fbad01af8c3bb9618848abde8054ab7e0c2330fe ]
+[ Upstream commit 9eced3a2f224a62a233761e8af18c907c532e192 ]
 
-The synchronize_rcu_expedited() function has an INIT_WORK_ONSTACK(),
-but lacks the corresponding destroy_work_on_stack().  This commit
-therefore adds destroy_work_on_stack().
+According to latest datasheet (Rev.1, 10/2018) from below links,
+in the consumer datasheet, 1.5GHz is mentioned as highest opp but
+depends on speed grading fuse, and in the industrial datasheet,
+1.3GHz is mentioned as highest opp but depends on speed grading
+fuse. 1.5GHz and 1.3GHz opp use same voltage, so no need for
+consumer part to support 1.3GHz opp, with same voltage, CPU should
+run at highest frequency in order to go into idle as quick as
+possible, this can save power.
 
-Reported-by: Andrea Arcangeli <aarcange@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Acked-by: Andrea Arcangeli <aarcange@redhat.com>
+That means for consumer part, 1GHz/1.5GHz are supported, for
+industrial part, 800MHz/1.3GHz are supported, and then check the
+speed grading fuse to limit the highest CPU frequency further.
+Correct the market segment bits in opp table to make them work
+according to datasheets.
+
+https://www.nxp.com/docs/en/data-sheet/IMX8MDQLQIEC.pdf
+https://www.nxp.com/docs/en/data-sheet/IMX8MDQLQCEC.pdf
+
+Fixes: 12629c5c3749 ("arm64: dts: imx8mq: Add cpu speed grading and all OPPs")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq.dtsi | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index af7e7b9c86afa..513b403b683b7 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -792,6 +792,7 @@ static int rcu_print_task_exp_stall(struct rcu_node *rnp)
-  */
- void synchronize_rcu_expedited(void)
- {
-+	bool boottime = (rcu_scheduler_active == RCU_SCHEDULER_INIT);
- 	struct rcu_exp_work rew;
- 	struct rcu_node *rnp;
- 	unsigned long s;
-@@ -817,7 +818,7 @@ void synchronize_rcu_expedited(void)
- 		return;  /* Someone else did our work for us. */
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+index 52aae341d0da5..d1f4eb197af26 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+@@ -169,15 +169,14 @@
+ 		opp-1300000000 {
+ 			opp-hz = /bits/ 64 <1300000000>;
+ 			opp-microvolt = <1000000>;
+-			opp-supported-hw = <0xc>, <0x7>;
++			opp-supported-hw = <0xc>, <0x4>;
+ 			clock-latency-ns = <150000>;
+ 		};
  
- 	/* Ensure that load happens before action based on it. */
--	if (unlikely(rcu_scheduler_active == RCU_SCHEDULER_INIT)) {
-+	if (unlikely(boottime)) {
- 		/* Direct call during scheduler init and early_initcalls(). */
- 		rcu_exp_sel_wait_wake(s);
- 	} else {
-@@ -835,5 +836,8 @@ void synchronize_rcu_expedited(void)
- 
- 	/* Let the next expedited grace period start. */
- 	mutex_unlock(&rcu_state.exp_mutex);
-+
-+	if (likely(!boottime))
-+		destroy_work_on_stack(&rew.rew_work);
- }
- EXPORT_SYMBOL_GPL(synchronize_rcu_expedited);
+ 		opp-1500000000 {
+ 			opp-hz = /bits/ 64 <1500000000>;
+ 			opp-microvolt = <1000000>;
+-			/* Consumer only but rely on speed grading */
+-			opp-supported-hw = <0x8>, <0x7>;
++			opp-supported-hw = <0x8>, <0x3>;
+ 			clock-latency-ns = <150000>;
+ 		};
+ 	};
 -- 
 2.20.1
 
