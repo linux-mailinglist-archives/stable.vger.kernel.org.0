@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B08BA46A
+	by mail.lfdr.de (Postfix) with ESMTP id 84F35BA46B
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391667AbfIVSse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
+        id S2391676AbfIVSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391656AbfIVSsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:33 -0400
+        id S2391668AbfIVSse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BF321D7B;
-        Sun, 22 Sep 2019 18:48:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D475214AF;
+        Sun, 22 Sep 2019 18:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178113;
-        bh=P6WhpmMdBIGrX0O3XwXmFKVq11nYdl3AZ1TqwXFHXIo=;
+        s=default; t=1569178114;
+        bh=BXqq4fjX4qNckISc5t46wLIPuP2C3rkeP5MxYJ+QNvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PR5DELoJrBc2A9CcwaRCjytCZsr5hh9PRpRCDj+klaspuFWscRqF0cemDzzceyFqy
-         ZNSNub9G5BBRV7gDtwm7BMl/3gB+bUssjNSTXYPdmz/PkGc778ObXwPbg/9VU6IBBf
-         1K2XvYp7ePnAwsrsdq89on0Azb+K7GfMxmIiSpIU=
+        b=p1PhpXs+/r5TERo4uZMflaioW6WOHPXi/Uk7u5WVBJzw3Uk/3SQhf/wUUS/6Ydzie
+         EUiL5Rs4dyjrzi0poxdIJ0sqqErrzwSgX0GOUPyFd7NLo3kUzyqOHL60lebDYHaCI7
+         jI7FYjlD01p9kO7FboyFwJ4yiXXoGeKGlabd5H94=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gayatri Kammela <gayatri.kammela@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 170/203] x86/cpu: Add Tiger Lake to Intel family
-Date:   Sun, 22 Sep 2019 14:43:16 -0400
-Message-Id: <20190922184350.30563-170-sashal@kernel.org>
+Cc:     "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 171/203] platform/x86: intel_pmc_core: Do not ioremap RAM
+Date:   Sun, 22 Sep 2019 14:43:17 -0400
+Message-Id: <20190922184350.30563-171-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -47,42 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gayatri Kammela <gayatri.kammela@intel.com>
+From: "M. Vefa Bicakci" <m.v.b@runbox.com>
 
-[ Upstream commit 6e1c32c5dbb4b90eea8f964c2869d0bde050dbe0 ]
+[ Upstream commit 7d505758b1e556cdf65a5e451744fe0ae8063d17 ]
 
-Add the model numbers/CPUIDs of Tiger Lake mobile and desktop to the
-Intel family.
+On a Xen-based PVH virtual machine with more than 4 GiB of RAM,
+intel_pmc_core fails initialization with the following warning message
+from the kernel, indicating that the driver is attempting to ioremap
+RAM:
 
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190905193020.14707-2-tony.luck@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+  ioremap on RAM at 0x00000000fe000000 - 0x00000000fe001fff
+  WARNING: CPU: 1 PID: 434 at arch/x86/mm/ioremap.c:186 __ioremap_caller.constprop.0+0x2aa/0x2c0
+...
+  Call Trace:
+   ? pmc_core_probe+0x87/0x2d0 [intel_pmc_core]
+   pmc_core_probe+0x87/0x2d0 [intel_pmc_core]
+
+This issue appears to manifest itself because of the following fallback
+mechanism in the driver:
+
+	if (lpit_read_residency_count_address(&slp_s0_addr))
+		pmcdev->base_addr = PMC_BASE_ADDR_DEFAULT;
+
+The validity of address PMC_BASE_ADDR_DEFAULT (i.e., 0xFE000000) is not
+verified by the driver, which is what this patch introduces. With this
+patch, if address PMC_BASE_ADDR_DEFAULT is in RAM, then the driver will
+not attempt to ioremap the aforementioned address.
+
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/intel_pmc_core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index fe7c205233f1c..9ae1c0f05fd2d 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -73,6 +73,9 @@
- #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
- #define INTEL_FAM6_ICELAKE_NNPI		0x9D
+diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
+index c510d0d724759..3b6b8dcc47678 100644
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -878,10 +878,14 @@ static int pmc_core_probe(struct platform_device *pdev)
+ 	if (pmcdev->map == &spt_reg_map && !pci_dev_present(pmc_pci_ids))
+ 		pmcdev->map = &cnp_reg_map;
  
-+#define INTEL_FAM6_TIGERLAKE_L		0x8C
-+#define INTEL_FAM6_TIGERLAKE		0x8D
+-	if (lpit_read_residency_count_address(&slp_s0_addr))
++	if (lpit_read_residency_count_address(&slp_s0_addr)) {
+ 		pmcdev->base_addr = PMC_BASE_ADDR_DEFAULT;
+-	else
 +
- /* "Small Core" Processors (Atom) */
++		if (page_is_ram(PHYS_PFN(pmcdev->base_addr)))
++			return -ENODEV;
++	} else {
+ 		pmcdev->base_addr = slp_s0_addr - pmcdev->map->slp_s0_offset;
++	}
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+ 	pmcdev->regbase = ioremap(pmcdev->base_addr,
+ 				  pmcdev->map->regmap_length);
 -- 
 2.20.1
 
