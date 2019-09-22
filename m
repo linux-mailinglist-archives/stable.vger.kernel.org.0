@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A61BAB29
+	by mail.lfdr.de (Postfix) with ESMTP id 0289DBAB27
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439152AbfIVTfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:35:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S2439141AbfIVTfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390269AbfIVSqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:46:50 -0400
+        id S2390332AbfIVSqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:46:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 756032196E;
-        Sun, 22 Sep 2019 18:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C73E2186A;
+        Sun, 22 Sep 2019 18:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178009;
-        bh=izJSz9zwaSm5xge40Tyl2gKrXmgr/JkniLuCjKggVes=;
+        s=default; t=1569178012;
+        bh=aCeOu7Setfrgi0G235/LuiodlneTa/ZnHrrPVIws2c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sp3/G2sLfRqtwimhfVb8FvYY0mqAOYeU/QrQa/0NVRD+lI0C2PqBSGcAy0rpE4u8Y
-         3xgTJ3qqdEYin5FRsps8ij0d22zKhtamQfGEpFJFCa0QW563evuwahbsiwF34MrtHu
-         wSlQUMu/xNZSFFNzLMkzWZ84dnoSqhsdd/6xj6q4=
+        b=V3aRIGiWyBH8KwdloXWFBbYKISF4GHzvp33/Gg9rWdelc1PAJSnFMCb2TXUi3sjK5
+         Lbjmh83xiKMFtyXAeCdi8/FalOt0THT6Gcjh6E37WCkzWAUk4tkOllh3QdwCLVIA5H
+         J8ooWrVgMMUabdLqLVzdOzN5uUiQlIq+rkVYMe3k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+Cc:     Maxime Ripard <maxime.ripard@bootlin.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 096/203] ASoC: uniphier: Fix double reset assersion when transitioning to suspend state
-Date:   Sun, 22 Sep 2019 14:42:02 -0400
-Message-Id: <20190922184350.30563-96-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 099/203] ASoC: sun4i-i2s: Don't use the oversample to calculate BCLK
+Date:   Sun, 22 Sep 2019 14:42:05 -0400
+Message-Id: <20190922184350.30563-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,121 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Maxime Ripard <maxime.ripard@bootlin.com>
 
-[ Upstream commit c372a35550c8d60f673b20210eea58a06d6d38cb ]
+[ Upstream commit 7df8f9a20196072162d9dc8fe99943f2d35f23d5 ]
 
-When transitioning to supend state, uniphier_aio_dai_suspend() is called
-and asserts reset lines and disables clocks.
+The BCLK divider should be calculated using the parameters that actually
+make the BCLK rate: the number of channels, the sampling rate and the
+sample width.
 
-However, if there are two or more DAIs, uniphier_aio_dai_suspend() are
-called multiple times, and double reset assersion will cause.
+We've been using the oversample_rate previously because in the former SoCs,
+the BCLK's parent is MCLK, which in turn is being used to generate the
+oversample rate, so we end up with something like this:
 
-This patch defines the counter that has the number of DAIs at first, and
-whenever uniphier_aio_dai_suspend() are called, it decrements the
-counter. And only if the counter is zero, it asserts reset lines and
-disables clocks.
+oversample = mclk_rate / sampling_rate
+bclk_div = oversample / word_size / channels
 
-In the same way, uniphier_aio_dai_resume() are called, it increments the
-counter after deasserting reset lines and enabling clocks.
+So, bclk_div = mclk_rate / sampling_rate / word_size / channels.
 
-Fixes: 139a34200233 ("ASoC: uniphier: add support for UniPhier AIO CPU DAI driver")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1566281764-14059-1-git-send-email-hayashi.kunihiko@socionext.com
+And this is actually better, since the oversampling ratio only plays a role
+because the MCLK is its parent, not because of what BCLK is supposed to be.
+
+Furthermore, that assumption of MCLK being the parent has been broken on
+newer SoCs, so let's use the proper formula, and have the parent rate as an
+argument.
+
+Fixes: 7d2993811a1e ("ASoC: sun4i-i2s: Add support for H3")
+Fixes: 21faaea1343f ("ASoC: sun4i-i2s: Add support for A83T")
+Fixes: 66ecce332538 ("ASoC: sun4i-i2s: Add compatibility with A64 codec I2S")
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Link: https://lore.kernel.org/r/c3595e3a9788c2ef2dcc30aa3c8c4953bb5cc249.1566242458.git-series.maxime.ripard@bootlin.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/uniphier/aio-cpu.c | 31 +++++++++++++++++++++----------
- sound/soc/uniphier/aio.h     |  1 +
- 2 files changed, 22 insertions(+), 10 deletions(-)
+ sound/soc/sunxi/sun4i-i2s.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/uniphier/aio-cpu.c b/sound/soc/uniphier/aio-cpu.c
-index ee90e6c3937ce..2ae582a99b636 100644
---- a/sound/soc/uniphier/aio-cpu.c
-+++ b/sound/soc/uniphier/aio-cpu.c
-@@ -424,8 +424,11 @@ int uniphier_aio_dai_suspend(struct snd_soc_dai *dai)
+diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
+index 7fa5c61169db0..ab8cb83c8b1a8 100644
+--- a/sound/soc/sunxi/sun4i-i2s.c
++++ b/sound/soc/sunxi/sun4i-i2s.c
+@@ -222,10 +222,11 @@ static const struct sun4i_i2s_clk_div sun4i_i2s_mclk_div[] = {
+ };
+ 
+ static int sun4i_i2s_get_bclk_div(struct sun4i_i2s *i2s,
+-				  unsigned int oversample_rate,
++				  unsigned long parent_rate,
++				  unsigned int sampling_rate,
+ 				  unsigned int word_size)
  {
- 	struct uniphier_aio *aio = uniphier_priv(dai);
+-	int div = oversample_rate / word_size / 2;
++	int div = parent_rate / sampling_rate / word_size / 2;
+ 	int i;
  
--	reset_control_assert(aio->chip->rst);
--	clk_disable_unprepare(aio->chip->clk);
-+	aio->chip->num_wup_aios--;
-+	if (!aio->chip->num_wup_aios) {
-+		reset_control_assert(aio->chip->rst);
-+		clk_disable_unprepare(aio->chip->clk);
-+	}
- 
- 	return 0;
- }
-@@ -439,13 +442,15 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
- 	if (!aio->chip->active)
- 		return 0;
- 
--	ret = clk_prepare_enable(aio->chip->clk);
--	if (ret)
--		return ret;
-+	if (!aio->chip->num_wup_aios) {
-+		ret = clk_prepare_enable(aio->chip->clk);
-+		if (ret)
-+			return ret;
- 
--	ret = reset_control_deassert(aio->chip->rst);
--	if (ret)
--		goto err_out_clock;
-+		ret = reset_control_deassert(aio->chip->rst);
-+		if (ret)
-+			goto err_out_clock;
-+	}
- 
- 	aio_iecout_set_enable(aio->chip, true);
- 	aio_chip_init(aio->chip);
-@@ -458,7 +463,7 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
- 
- 		ret = aio_init(sub);
- 		if (ret)
--			goto err_out_clock;
-+			goto err_out_reset;
- 
- 		if (!sub->setting)
- 			continue;
-@@ -466,11 +471,16 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
- 		aio_port_reset(sub);
- 		aio_src_reset(sub);
+ 	for (i = 0; i < ARRAY_SIZE(sun4i_i2s_bclk_div); i++) {
+@@ -315,8 +316,8 @@ static int sun4i_i2s_set_clk_rate(struct snd_soc_dai *dai,
+ 		return -EINVAL;
  	}
-+	aio->chip->num_wup_aios++;
  
- 	return 0;
- 
-+err_out_reset:
-+	if (!aio->chip->num_wup_aios)
-+		reset_control_assert(aio->chip->rst);
- err_out_clock:
--	clk_disable_unprepare(aio->chip->clk);
-+	if (!aio->chip->num_wup_aios)
-+		clk_disable_unprepare(aio->chip->clk);
- 
- 	return ret;
- }
-@@ -619,6 +629,7 @@ int uniphier_aio_probe(struct platform_device *pdev)
- 		return PTR_ERR(chip->rst);
- 
- 	chip->num_aios = chip->chip_spec->num_dais;
-+	chip->num_wup_aios = chip->num_aios;
- 	chip->aios = devm_kcalloc(dev,
- 				  chip->num_aios, sizeof(struct uniphier_aio),
- 				  GFP_KERNEL);
-diff --git a/sound/soc/uniphier/aio.h b/sound/soc/uniphier/aio.h
-index ca6ccbae0ee8c..a7ff7e556429b 100644
---- a/sound/soc/uniphier/aio.h
-+++ b/sound/soc/uniphier/aio.h
-@@ -285,6 +285,7 @@ struct uniphier_aio_chip {
- 
- 	struct uniphier_aio *aios;
- 	int num_aios;
-+	int num_wup_aios;
- 	struct uniphier_aio_pll *plls;
- 	int num_plls;
- 
+-	bclk_div = sun4i_i2s_get_bclk_div(i2s, oversample_rate,
+-					  word_size);
++	bclk_div = sun4i_i2s_get_bclk_div(i2s, i2s->mclk_freq,
++					  rate, word_size);
+ 	if (bclk_div < 0) {
+ 		dev_err(dai->dev, "Unsupported BCLK divider: %d\n", bclk_div);
+ 		return -EINVAL;
 -- 
 2.20.1
 
