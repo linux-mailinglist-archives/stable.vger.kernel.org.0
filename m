@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BCCABAB61
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047AABAB5C
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389437AbfIVTiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:38:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41306 "EHLO mail.kernel.org"
+        id S2406800AbfIVThm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389370AbfIVSph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:37 -0400
+        id S2389488AbfIVSpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC3982186A;
-        Sun, 22 Sep 2019 18:45:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93EE6206C2;
+        Sun, 22 Sep 2019 18:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177936;
-        bh=NJLxmO+sPDzSi40Zm+6uwJ9bnxqS9Qk6TiNQiFwfxvk=;
+        s=default; t=1569177939;
+        bh=3OtjawS5Quoj0m9+HxUvXsST9CRqFPfbZPNEu3y/zwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AyBahuBq9QU4pVtIf8i1p6k+DwBXOjHOwOCOZqVHcav99qpnqV1ET6RRoP/5NAaf+
-         E3PRsnKIlm353qPmjiwWo8s6PVITYvn2nwCHSMDrtbpQ3a4fvkMygI3vxrNVQAiah1
-         SZTfuO4y/HXxz7IFpioVRvHyvS8+16/NQUKz79Z4=
+        b=M2EQHUOcI0omIH6MQE0Q6uebxmm4EYUncmlofu7ur9GUzUFM21ZVc9ljpG3KrZEpD
+         UAI3WHyfdgyFCwpm5qRle0sGZg0d8XBRas9K/K1fAq2Q+hfb/jA7h4dVrWQliCXbGa
+         nOSrbdupLr0r/oNUYhoE4dW+VoyaVXnpvwdMvIPY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     chenzefeng <chenzefeng2@huawei.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 046/203] ia64:unwind: fix double free for mod->arch.init_unw_table
-Date:   Sun, 22 Sep 2019 14:41:12 -0400
-Message-Id: <20190922184350.30563-46-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Leon Kong <Leon.KONG@cn.bosch.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 048/203] ASoC: rsnd: don't call clk_get_rate() under atomic context
+Date:   Sun, 22 Sep 2019 14:41:14 -0400
+Message-Id: <20190922184350.30563-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,54 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenzefeng <chenzefeng2@huawei.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit c5e5c48c16422521d363c33cfb0dcf58f88c119b ]
+[ Upstream commit 06e8f5c842f2dbb232897ba967ea7b422745c271 ]
 
-The function free_module in file kernel/module.c as follow:
+ADG is using clk_get_rate() under atomic context, thus, we might
+have scheduling issue.
+To avoid this issue, we need to get/keep clk rate under
+non atomic context.
 
-void free_module(struct module *mod) {
-	......
-	module_arch_cleanup(mod);
-	......
-	module_arch_freeing_init(mod);
-	......
-}
+We need to handle ADG as special device at Renesas Sound driver.
+From SW point of view, we want to impletent it as
+rsnd_mod_ops :: prepare, but it makes code just complicate.
 
-Both module_arch_cleanup and module_arch_freeing_init function
-would free the mod->arch.init_unw_table, which cause double free.
+To avoid complicated code/patch, this patch adds new clk_rate[] array,
+and keep clk IN rate when rsnd_adg_clk_enable() was called.
 
-Here, set mod->arch.init_unw_table = NULL after remove the unwind
-table to avoid double free.
-
-Signed-off-by: chenzefeng <chenzefeng2@huawei.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Reported-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Tested-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Link: https://lore.kernel.org/r/87v9vb0xkp.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/module.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/soc/sh/rcar/adg.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
-index 326448f9df160..1a42ba885188a 100644
---- a/arch/ia64/kernel/module.c
-+++ b/arch/ia64/kernel/module.c
-@@ -914,10 +914,14 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
- void
- module_arch_cleanup (struct module *mod)
- {
--	if (mod->arch.init_unw_table)
-+	if (mod->arch.init_unw_table) {
- 		unw_remove_unwind_table(mod->arch.init_unw_table);
--	if (mod->arch.core_unw_table)
-+		mod->arch.init_unw_table = NULL;
-+	}
-+	if (mod->arch.core_unw_table) {
- 		unw_remove_unwind_table(mod->arch.core_unw_table);
-+		mod->arch.core_unw_table = NULL;
-+	}
- }
+diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
+index fce4e050a9b70..b9aacf3d3b29c 100644
+--- a/sound/soc/sh/rcar/adg.c
++++ b/sound/soc/sh/rcar/adg.c
+@@ -30,6 +30,7 @@ struct rsnd_adg {
+ 	struct clk *clkout[CLKOUTMAX];
+ 	struct clk_onecell_data onecell;
+ 	struct rsnd_mod mod;
++	int clk_rate[CLKMAX];
+ 	u32 flags;
+ 	u32 ckr;
+ 	u32 rbga;
+@@ -114,9 +115,9 @@ static void __rsnd_adg_get_timesel_ratio(struct rsnd_priv *priv,
+ 	unsigned int val, en;
+ 	unsigned int min, diff;
+ 	unsigned int sel_rate[] = {
+-		clk_get_rate(adg->clk[CLKA]),	/* 0000: CLKA */
+-		clk_get_rate(adg->clk[CLKB]),	/* 0001: CLKB */
+-		clk_get_rate(adg->clk[CLKC]),	/* 0010: CLKC */
++		adg->clk_rate[CLKA],	/* 0000: CLKA */
++		adg->clk_rate[CLKB],	/* 0001: CLKB */
++		adg->clk_rate[CLKC],	/* 0010: CLKC */
+ 		adg->rbga_rate_for_441khz,	/* 0011: RBGA */
+ 		adg->rbgb_rate_for_48khz,	/* 0100: RBGB */
+ 	};
+@@ -302,7 +303,7 @@ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
+ 	 * AUDIO_CLKA/AUDIO_CLKB/AUDIO_CLKC/AUDIO_CLKI.
+ 	 */
+ 	for_each_rsnd_clk(clk, adg, i) {
+-		if (rate == clk_get_rate(clk))
++		if (rate == adg->clk_rate[i])
+ 			return sel_table[i];
+ 	}
  
- void *dereference_module_function_descriptor(struct module *mod, void *ptr)
+@@ -369,10 +370,18 @@ void rsnd_adg_clk_control(struct rsnd_priv *priv, int enable)
+ 
+ 	for_each_rsnd_clk(clk, adg, i) {
+ 		ret = 0;
+-		if (enable)
++		if (enable) {
+ 			ret = clk_prepare_enable(clk);
+-		else
++
++			/*
++			 * We shouldn't use clk_get_rate() under
++			 * atomic context. Let's keep it when
++			 * rsnd_adg_clk_enable() was called
++			 */
++			adg->clk_rate[i] = clk_get_rate(adg->clk[i]);
++		} else {
+ 			clk_disable_unprepare(clk);
++		}
+ 
+ 		if (ret < 0)
+ 			dev_warn(dev, "can't use clk %d\n", i);
 -- 
 2.20.1
 
