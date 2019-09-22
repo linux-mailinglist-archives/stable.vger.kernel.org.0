@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DE5BAA05
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3C9BAA02
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726130AbfIVTVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:21:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54252 "EHLO mail.kernel.org"
+        id S1726485AbfIVTVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:21:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389939AbfIVSyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:01 -0400
+        id S2394501AbfIVSyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:54:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94A5C21479;
-        Sun, 22 Sep 2019 18:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 261A921479;
+        Sun, 22 Sep 2019 18:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178441;
-        bh=U+jKrTN27ES9qTRrcQwXEjbb0tNmYlzxjvDnmiQrrjM=;
+        s=default; t=1569178444;
+        bh=3vz0jGokF/tADKiAtasvrTU/In2SROOiBNXQon2ojrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SogWOMItrUT+hs+VeqMu0MDCDAtNnFCyzCgo9vVgLdP3SVdv6kjUIs75JYRaAQxrL
-         1/xEOQjLyw+DaTQt91hyuPfrOF77J361nIhhKzaAx/MI1IwyVClAuHiG7/GEouOyBz
-         rLEYf8F1oyPYQCh5D+1ZtkF5vlUyTf8CY8tpXi/Q=
+        b=avNTH3Qe6nwqj2HaHud5TwOC8N+2ewJHHbbeWdTiwyWqctiXhNUqFiugQw4h2D7wE
+         tWhnmEb6QVfEgCzir5Hg332j7RYFzZ3dbtgMJRlgL9sMU+FTN1RpQhW+lfMP2Ytd80
+         5lMAxDzIh8di44apiUshCGmxAHtCzQaPQVi0AEpU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 174/185] ALSA: hda - Drop unsol event handler for Intel HDMI codecs
-Date:   Sun, 22 Sep 2019 14:49:12 -0400
-Message-Id: <20190922184924.32534-174-sashal@kernel.org>
+Cc:     Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 176/185] media: ttusb-dec: Fix info-leak in ttusb_dec_send_command()
+Date:   Sun, 22 Sep 2019 14:49:14 -0400
+Message-Id: <20190922184924.32534-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -41,49 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-[ Upstream commit f2dbe87c5ac1f88e6007ba1f1374f4bd8a197fb6 ]
+[ Upstream commit a10feaf8c464c3f9cfdd3a8a7ce17e1c0d498da1 ]
 
-We don't need to deal with the unsol events for Intel chips that are
-tied with the graphics via audio component notifier.  Although the
-presence of the audio component is checked at the beginning of
-hdmi_unsol_event(), better to short cut by dropping unsol_event ops.
+The function at issue does not always initialize each byte allocated
+for 'b' and can therefore leak uninitialized memory to a USB device in
+the call to usb_bulk_msg()
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Use kzalloc() instead of kmalloc()
+
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/media/usb/ttusb-dec/ttusb_dec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index e49c1c00f5ce1..ca0404edd939e 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2611,6 +2611,8 @@ static void i915_pin_cvt_fixup(struct hda_codec *codec,
- /* precondition and allocation for Intel codecs */
- static int alloc_intel_hdmi(struct hda_codec *codec)
- {
-+	int err;
-+
- 	/* requires i915 binding */
- 	if (!codec->bus->core.audio_component) {
- 		codec_info(codec, "No i915 binding for Intel HDMI/DP codec\n");
-@@ -2619,7 +2621,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
- 		return -ENODEV;
- 	}
+diff --git a/drivers/media/usb/ttusb-dec/ttusb_dec.c b/drivers/media/usb/ttusb-dec/ttusb_dec.c
+index 1d0afa340f47c..3198f9624b7c0 100644
+--- a/drivers/media/usb/ttusb-dec/ttusb_dec.c
++++ b/drivers/media/usb/ttusb-dec/ttusb_dec.c
+@@ -319,7 +319,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
  
--	return alloc_generic_hdmi(codec);
-+	err = alloc_generic_hdmi(codec);
-+	if (err < 0)
-+		return err;
-+	/* no need to handle unsol events */
-+	codec->patch_ops.unsol_event = NULL;
-+	return 0;
- }
+ 	dprintk("%s\n", __func__);
  
- /* parse and post-process for Intel codecs */
+-	b = kmalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
++	b = kzalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
+ 	if (!b)
+ 		return -ENOMEM;
+ 
 -- 
 2.20.1
 
