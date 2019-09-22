@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D9ABA8CE
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC858BA8C7
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393791AbfIVTIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:08:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35144 "EHLO mail.kernel.org"
+        id S2405762AbfIVTID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395094AbfIVS7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:59:46 -0400
+        id S2438919AbfIVS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:59:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13974208C2;
-        Sun, 22 Sep 2019 18:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B5D821907;
+        Sun, 22 Sep 2019 18:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178785;
-        bh=GvRqM0aQvpD+M+nkcgd7HWYCA8o19fhJZkvaV1up1PQ=;
+        s=default; t=1569178792;
+        bh=qOgqvqjCkUD8COe5UC9OHjXjf/iIdtSx/nJitqT3eqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2ZbU/7NGER5VfkwOJpV9FEgEhMnOuPElQmnzVHhs+iK35DVaxNBjKaKZgmk1o5Ph
-         TofKqi1EMU2mY1XeNmwHUYFLbO/walAMdMOvva4KSC1Lhh109uN22j1vei5hE1MK2O
-         MLKim3fsESTDBUfUxSD3hxwMIF0PBbTeUCPmVdso=
+        b=EMcL5/q+SOhJEUvuor1Cv0VV/uwVpKEuR7+NjvL8xY9gkrJba7I2uOqOKhW4js3ps
+         s4099hJCx2wwo8VyN3dnYfZhYfPfg/i4i17KEy4cVBGifzHfwd0Koyk/4y3RasYkdI
+         4Fb4sKaqyUrUDsYZ64O88lQvyGPVDarPE/meJAnw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 09/60] sched/fair: Fix imbalance due to CPU affinity
-Date:   Sun, 22 Sep 2019 14:58:42 -0400
-Message-Id: <20190922185934.4305-9-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 14/60] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
+Date:   Sun, 22 Sep 2019 14:58:47 -0400
+Message-Id: <20190922185934.4305-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -45,64 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
+[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
 
-The load_balance() has a dedicated mecanism to detect when an imbalance
-is due to CPU affinity and must be handled at parent level. In this case,
-the imbalance field of the parent's sched_group is set.
+In build_adc_controls(), there is an if statement on line 773 to check
+whether ak->adc_info is NULL:
+    if (! ak->adc_info ||
+        ! ak->adc_info[mixer_ch].switch_name)
 
-The description of sg_imbalanced() gives a typical example of two groups
-of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
-group and 3 CPUs of the second group. Something like:
+When ak->adc_info is NULL, it is used on line 792:
+    knew.name = ak->adc_info[mixer_ch].selector_name;
 
-	{ 0 1 2 3 } { 4 5 6 7 }
-	        *     * * *
+Thus, a possible null-pointer dereference may occur.
 
-But the load_balance fails to fix this UC on my octo cores system
-made of 2 clusters of quad cores.
+To fix this bug, referring to lines 773 and 774, ak->adc_info
+and ak->adc_info[mixer_ch].selector_name are checked before being used.
 
-Whereas the load_balance is able to detect that the imbalanced is due to
-CPU affinity, it fails to fix it because the imbalance field is cleared
-before letting parent level a chance to run. In fact, when the imbalance is
-detected, the load_balance reruns without the CPU with pinned tasks. But
-there is no other running tasks in the situation described above and
-everything looks balanced this time so the imbalance field is immediately
-cleared.
+This bug is found by a static analysis tool STCheck written by us.
 
-The imbalance field should not be cleared if there is no other task to move
-when the imbalance is detected.
-
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/i2c/other/ak4xxx-adda.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index b314feaf91f46..d8afae1bd5c5e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7929,9 +7929,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
- out_balanced:
- 	/*
- 	 * We reach balance although we may have faced some affinity
--	 * constraints. Clear the imbalance flag if it was set.
-+	 * constraints. Clear the imbalance flag only if other tasks got
-+	 * a chance to move and fix the imbalance.
- 	 */
--	if (sd_parent) {
-+	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
- 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
+diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
+index bf377dc192aa7..d33e02c317129 100644
+--- a/sound/i2c/other/ak4xxx-adda.c
++++ b/sound/i2c/other/ak4xxx-adda.c
+@@ -789,11 +789,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
+ 				return err;
  
- 		if (*group_imbalance)
+ 			memset(&knew, 0, sizeof(knew));
+-			knew.name = ak->adc_info[mixer_ch].selector_name;
+-			if (!knew.name) {
++			if (!ak->adc_info ||
++				!ak->adc_info[mixer_ch].selector_name) {
+ 				knew.name = "Capture Channel";
+ 				knew.index = mixer_ch + ak->idx_offset * 2;
+-			}
++			} else
++				knew.name = ak->adc_info[mixer_ch].selector_name;
+ 
+ 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
+ 			knew.info = ak4xxx_capture_source_info;
 -- 
 2.20.1
 
