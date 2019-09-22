@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2D7BA4F7
+	by mail.lfdr.de (Postfix) with ESMTP id EDB2CBA4F8
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394303AbfIVSx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53274 "EHLO mail.kernel.org"
+        id S2394326AbfIVSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394299AbfIVSx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:27 -0400
+        id S2394321AbfIVSxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9ADC21D7C;
-        Sun, 22 Sep 2019 18:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BD40208C2;
+        Sun, 22 Sep 2019 18:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178406;
-        bh=LHr0zQNTuWMvB8KfJDg2lp4+b/SuKXqID+v+rc6sg8g=;
+        s=default; t=1569178410;
+        bh=UcXwOX4Q3s/OeMb0P6GUol/4vmnAyQo333LJD65XGZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeZMQXUBjvEftq1wagbYegP+khONP8M6c6koMu98tHIo/p65/teznbLIvaUId9YDj
-         RsvpTVUbluqUK+RG8wjiRJ7Jf920rJ8VuWw1rVROzBIUh/32bPlc9+4dAR1XEH65vt
-         BnEvuYT/09TNW5eO3JCzUj6BSXwihv2rAIOXuvH4=
+        b=lPAIw03gR1u4IaQLqPF02LLSjZuyR6erL4y9zTSuC9JpBBfhXP1oYhFBj8ZQBvrrI
+         inqdRhb+kOaVjv6ApoSqG7FBrcHV8ZS+XgrRJC+giDcsEQxyArA98s5lmy3eqRv39F
+         2G/isPEm2ygaH+aSv8QUHq76oVaZF5/p3q9gLriY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 148/185] dmaengine: ti: edma: Do not reset reserved paRAM slots
-Date:   Sun, 22 Sep 2019 14:48:46 -0400
-Message-Id: <20190922184924.32534-148-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Marc Zyngier <maz@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 151/185] irqchip/sifive-plic: set max threshold for ignored handlers
+Date:   Sun, 22 Sep 2019 14:48:49 -0400
+Message-Id: <20190922184924.32534-151-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,48 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit c5dbe60664b3660f5ac5854e21273ea2e7ff698f ]
+[ Upstream commit 9ce06497c2722a0f9109e4cc3ce35b7a69617886 ]
 
-Skip resetting paRAM slots marked as reserved as they might be used by
-other cores.
+When running in M-mode, the S-mode plic handlers are still listed in the
+device tree.  Ignore them by setting the maximum threshold.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20190823125618.8133-2-peter.ujfalusi@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/edma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-sifive-plic.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/ti/edma.c b/drivers/dma/ti/edma.c
-index ceabdea40ae0f..982631d4e1f8a 100644
---- a/drivers/dma/ti/edma.c
-+++ b/drivers/dma/ti/edma.c
-@@ -2273,9 +2273,6 @@ static int edma_probe(struct platform_device *pdev)
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index cf755964f2f8b..c72c036aea768 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -244,6 +244,7 @@ static int __init plic_init(struct device_node *node,
+ 		struct plic_handler *handler;
+ 		irq_hw_number_t hwirq;
+ 		int cpu, hartid;
++		u32 threshold = 0;
  
- 	ecc->default_queue = info->default_queue;
- 
--	for (i = 0; i < ecc->num_slots; i++)
--		edma_write_slot(ecc, i, &dummy_paramset);
--
- 	if (info->rsv) {
- 		/* Set the reserved slots in inuse list */
- 		rsv_slots = info->rsv->rsv_slots;
-@@ -2288,6 +2285,12 @@ static int edma_probe(struct platform_device *pdev)
+ 		if (of_irq_parse_one(node, i, &parent)) {
+ 			pr_err("failed to parse parent for context %d.\n", i);
+@@ -266,10 +267,16 @@ static int __init plic_init(struct device_node *node,
+ 			continue;
  		}
- 	}
  
-+	for (i = 0; i < ecc->num_slots; i++) {
-+		/* Reset only unused - not reserved - paRAM slots */
-+		if (!test_bit(i, ecc->slot_inuse))
-+			edma_write_slot(ecc, i, &dummy_paramset);
-+	}
-+
- 	/* Clear the xbar mapped channels in unused list */
- 	xbar_chans = info->xbar_chans;
- 	if (xbar_chans) {
++		/*
++		 * When running in M-mode we need to ignore the S-mode handler.
++		 * Here we assume it always comes later, but that might be a
++		 * little fragile.
++		 */
+ 		handler = per_cpu_ptr(&plic_handlers, cpu);
+ 		if (handler->present) {
+ 			pr_warn("handler already present for context %d.\n", i);
+-			continue;
++			threshold = 0xffffffff;
++			goto done;
+ 		}
+ 
+ 		handler->present = true;
+@@ -279,8 +286,9 @@ static int __init plic_init(struct device_node *node,
+ 		handler->enable_base =
+ 			plic_regs + ENABLE_BASE + i * ENABLE_PER_HART;
+ 
++done:
+ 		/* priority must be > threshold to trigger an interrupt */
+-		writel(0, handler->hart_base + CONTEXT_THRESHOLD);
++		writel(threshold, handler->hart_base + CONTEXT_THRESHOLD);
+ 		for (hwirq = 1; hwirq <= nr_irqs; hwirq++)
+ 			plic_toggle(handler, hwirq, 0);
+ 		nr_handlers++;
 -- 
 2.20.1
 
