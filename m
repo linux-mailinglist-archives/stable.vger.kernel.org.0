@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 885CCBA72B
+	by mail.lfdr.de (Postfix) with ESMTP id F1B8EBA72C
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438563AbfIVS4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2438559AbfIVS4W (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 22 Sep 2019 14:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58298 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438524AbfIVS4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:56:20 -0400
+        id S2438556AbfIVS4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:56:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA7CC206C2;
-        Sun, 22 Sep 2019 18:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B527E2186A;
+        Sun, 22 Sep 2019 18:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178579;
-        bh=+uyytMnHPZ8tfTwYzREjh2FgvYlgzf9L90Z00QOUgjY=;
+        s=default; t=1569178580;
+        bh=LyoWdA0f7wwBcvyqosMNHJUlyBRTJxT4ByefN/vA58U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NV3zBLW61DkfqWa6CzVThmkM90Uh2t2XIZYAz+ZqoAcm/eTCLtwUneJqPV+FcFXss
-         rsCYfLs4xjKl+Q2XUjS1G27jMEZF43E3B1CTFAubxduFtZOrn6U5JPy+gWBnTuQsCP
-         RtvIHpDRsjldPy/9XhD50N0qZVWxlPVzzVLY9XjA=
+        b=JisylMhPPVmeM7+0SzUQNT8MyU+GzSJXXtsC2WV9aldeJs/MELyS4+E4fnj8+XRor
+         tS1sCGmqgYwh5YLvm6amjjzf+Kz7/ezR+uNNFdz7AQQ9cy/2mLR1BFbpGjDuMD7tcE
+         Q/gBOczVZ/s707AP4vOyd2aUxHZhWNb8WAojyR5E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 089/128] ASoC: fsl_ssi: Fix clock control issue in master mode
-Date:   Sun, 22 Sep 2019 14:53:39 -0400
-Message-Id: <20190922185418.2158-89-sashal@kernel.org>
+Cc:     Song Liu <songliubraving@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 090/128] x86/mm/pti: Handle unaligned address gracefully in pti_clone_pagetable()
+Date:   Sun, 22 Sep 2019 14:53:40 -0400
+Message-Id: <20190922185418.2158-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -43,73 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 696d05225cebffd172008d212657be90e823eac0 ]
+[ Upstream commit 825d0b73cd7526b0bb186798583fae810091cbac ]
 
-The test case is
-arecord -Dhw:0 -d 10 -f S16_LE -r 48000 -c 2 temp.wav &
-aplay -Dhw:0 -d 30 -f S16_LE -r 48000 -c 2 test.wav
+pti_clone_pmds() assumes that the supplied address is either:
 
-There will be error after end of arecord:
-aplay: pcm_write:2051: write error: Input/output error
+ - properly PUD/PMD aligned
+or
+ - the address is actually mapped which means that independently
+   of the mapping level (PUD/PMD/PTE) the next higher mapping
+   exists.
 
-Capture and Playback work in parallel in master mode, one
-substream stops, the other substream is impacted, the
-reason is that clock is disabled wrongly.
+If that's not the case the unaligned address can be incremented by PUD or
+PMD size incorrectly. All callers supply mapped and/or aligned addresses,
+but for the sake of robustness it's better to handle that case properly and
+to emit a warning.
 
-The clock's reference count is not increased when second
-substream starts, the hw_param() function returns in the
-beginning because first substream is enabled, then in end
-of first substream, the hw_free() disables the clock.
+[ tglx: Rewrote changelog and added WARN_ON_ONCE() ]
 
-This patch is to move the clock enablement to the place
-before checking of the device enablement in hw_param().
-
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1567012817-12625-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282352470.1938@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_ssi.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/mm/pti.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
-index 0a648229e6430..bc1372c5f3243 100644
---- a/sound/soc/fsl/fsl_ssi.c
-+++ b/sound/soc/fsl/fsl_ssi.c
-@@ -799,15 +799,6 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
- 	u32 wl = SSI_SxCCR_WL(sample_size);
- 	int ret;
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index c1ba376484a5b..622d5968c9795 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -338,13 +338,15 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
  
--	/*
--	 * SSI is properly configured if it is enabled and running in
--	 * the synchronous mode; Note that AC97 mode is an exception
--	 * that should set separate configurations for STCCR and SRCCR
--	 * despite running in the synchronous mode.
--	 */
--	if (ssi->streams && ssi->synchronous)
--		return 0;
--
- 	if (fsl_ssi_is_i2s_master(ssi)) {
- 		ret = fsl_ssi_set_bclk(substream, dai, hw_params);
- 		if (ret)
-@@ -823,6 +814,15 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 		pud = pud_offset(p4d, addr);
+ 		if (pud_none(*pud)) {
+-			addr += PUD_SIZE;
++			WARN_ON_ONCE(addr & ~PUD_MASK);
++			addr = round_up(addr + 1, PUD_SIZE);
+ 			continue;
  		}
- 	}
  
-+	/*
-+	 * SSI is properly configured if it is enabled and running in
-+	 * the synchronous mode; Note that AC97 mode is an exception
-+	 * that should set separate configurations for STCCR and SRCCR
-+	 * despite running in the synchronous mode.
-+	 */
-+	if (ssi->streams && ssi->synchronous)
-+		return 0;
-+
- 	if (!fsl_ssi_is_ac97(ssi)) {
- 		/*
- 		 * Keep the ssi->i2s_net intact while having a local variable
+ 		pmd = pmd_offset(pud, addr);
+ 		if (pmd_none(*pmd)) {
+-			addr += PMD_SIZE;
++			WARN_ON_ONCE(addr & ~PMD_MASK);
++			addr = round_up(addr + 1, PMD_SIZE);
+ 			continue;
+ 		}
+ 
 -- 
 2.20.1
 
