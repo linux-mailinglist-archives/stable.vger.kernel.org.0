@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C53BA505
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33024BA508
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394487AbfIVSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:54:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
+        id S2394365AbfIVSyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393650AbfIVSyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:01 -0400
+        id S2394496AbfIVSyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:54:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 551B621A4A;
-        Sun, 22 Sep 2019 18:53:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB3AD2190F;
+        Sun, 22 Sep 2019 18:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178440;
-        bh=+hscBSSiceQUDY9+VOYTuW47bvxKdbmKQzrUpDh6YtQ=;
+        s=default; t=1569178442;
+        bh=8RTrsxUPtiQV8fJJjQUR1PBXXKK19v9iUcCIGPA+was=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwIeYJoMaU40PaGqJbyZWkymzD3NS2Pv14BMtEDR6H/bXkqZrNs66Y0PwtgmvNEDH
-         dUX1yJcmUJjsAxGswiBceljnYw8HRveuMADqOXvg1RIVUk0Q5T0CggC326xoV6qgZk
-         DjPnu9VCuRPFGrJGQhgTVWPoArQJ6CWDS2YyCIUY=
+        b=f/+IMPD8l4moNEUc1mUfH9TMtzVOWheIsAZBSqXlnWulxvyita3thhQ56cco+wJ/r
+         4A+vu/Ya/M4t3ms25xNIaotGGeyS3vU7mAYHOZ2KYoyGnihiJO7H0/mLeFU0IHhj35
+         q8ftte+bWGFr/opRnpTqvVnBM8HRx/60+qvOwock=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomas Espeleta <tomas.espeleta@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 173/185] ALSA: hda - Add a quirk model for fixing Huawei Matebook X right speaker
-Date:   Sun, 22 Sep 2019 14:49:11 -0400
-Message-Id: <20190922184924.32534-173-sashal@kernel.org>
+Cc:     Ahzo <Ahzo@tutanota.com>, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 175/185] drm/amd/powerplay/smu7: enforce minimal VBITimeout (v2)
+Date:   Sun, 22 Sep 2019 14:49:13 -0400
+Message-Id: <20190922184924.32534-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,168 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Espeleta <tomas.espeleta@gmail.com>
+From: Ahzo <Ahzo@tutanota.com>
 
-[ Upstream commit a2ef03fe617a8365fb7794531b11ba587509a9b9 ]
+[ Upstream commit f659bb6dae58c113805f92822e4c16ddd3156b79 ]
 
-[ This is rather a revival of the patch Tomas sent in months ago, but
-  applying only with the quirk model option -- tiwai ]
+This fixes screen corruption/flickering on 75 Hz displays.
 
-Hard coded coefficients to make Huawuei Matebook X right speaker
-work. The Matebook X has a ALC298, please refer to bug 197801 on
-how these numbers were reverse engineered from the Windows driver
+v2: make print statement debug only (Alex)
 
-The reversed engineered sequence represents a repeating pattern
-of verbs, and the only values that are changing periodically are
-written on indexes 0x23 and 0x25:
-
-0x500, 0x23
-0x400, VALUE1
-0x500, 0x25
-0x400, VALUE2
-
-* skipped reading sequences (0x500 - 0xc00 sequences are ignored)
-* static values from reverse engineering are used
-
-NOTE: since a significant risk is still considered, this is provided
-as an experimental fix that isn't applied as default for now.  For
-enabling the fix, you'll have to choose huawei-mbx-stereo via model
-option of snd-hda-intel module.
-
-If we get feedback from users that this works stably, we may apply it
-per default.
-
-[ Some coding style fixes and replacement with AC_VERB_* by tiwai ]
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197801
-Signed-off-by: Tomas Espeleta <tomas.espeleta@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=102646
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Ahzo <Ahzo@tutanota.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sound/hd-audio/models.rst |  3 +
- sound/pci/hda/patch_realtek.c           | 74 +++++++++++++++++++++++++
- 2 files changed, 77 insertions(+)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
-index 7d7c191102a73..11298f0ce44db 100644
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -260,6 +260,9 @@ alc295-hp-x360
-     HP Spectre X360 fixups
- alc-sense-combo
-     Headset button support for Chrome platform
-+huawei-mbx-stereo
-+    Enable initialization verbs for Huawei MBX stereo speakers;
-+    might be risky, try this at your own risk
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+index 048757e8f4949..d1919d343cce4 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+@@ -4064,6 +4064,11 @@ static int smu7_program_display_gap(struct pp_hwmgr *hwmgr)
  
- ALC66x/67x/892
- ==============
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index c1ddfd2fac522..1bec62720374d 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3755,6 +3755,72 @@ static void alc269_x101_hp_automute_hook(struct hda_codec *codec,
- 			    vref);
- }
+ 	data->frame_time_x2 = frame_time_in_us * 2 / 100;
  
-+/*
-+ * Magic sequence to make Huawei Matebook X right speaker working (bko#197801)
-+ */
-+struct hda_alc298_mbxinit {
-+	unsigned char value_0x23;
-+	unsigned char value_0x25;
-+};
++	if (data->frame_time_x2 < 280) {
++		pr_debug("%s: enforce minimal VBITimeout: %d -> 280\n", __func__, data->frame_time_x2);
++		data->frame_time_x2 = 280;
++	}
 +
-+static void alc298_huawei_mbx_stereo_seq(struct hda_codec *codec,
-+					 const struct hda_alc298_mbxinit *initval,
-+					 bool first)
-+{
-+	snd_hda_codec_write(codec, 0x06, 0, AC_VERB_SET_DIGI_CONVERT_3, 0x0);
-+	alc_write_coef_idx(codec, 0x26, 0xb000);
-+
-+	if (first)
-+		snd_hda_codec_write(codec, 0x21, 0, AC_VERB_GET_PIN_SENSE, 0x0);
-+
-+	snd_hda_codec_write(codec, 0x6, 0, AC_VERB_SET_DIGI_CONVERT_3, 0x80);
-+	alc_write_coef_idx(codec, 0x26, 0xf000);
-+	alc_write_coef_idx(codec, 0x23, initval->value_0x23);
-+
-+	if (initval->value_0x23 != 0x1e)
-+		alc_write_coef_idx(codec, 0x25, initval->value_0x25);
-+
-+	snd_hda_codec_write(codec, 0x20, 0, AC_VERB_SET_COEF_INDEX, 0x26);
-+	snd_hda_codec_write(codec, 0x20, 0, AC_VERB_SET_PROC_COEF, 0xb010);
-+}
-+
-+static void alc298_fixup_huawei_mbx_stereo(struct hda_codec *codec,
-+					   const struct hda_fixup *fix,
-+					   int action)
-+{
-+	/* Initialization magic */
-+	static const struct hda_alc298_mbxinit dac_init[] = {
-+		{0x0c, 0x00}, {0x0d, 0x00}, {0x0e, 0x00}, {0x0f, 0x00},
-+		{0x10, 0x00}, {0x1a, 0x40}, {0x1b, 0x82}, {0x1c, 0x00},
-+		{0x1d, 0x00}, {0x1e, 0x00}, {0x1f, 0x00},
-+		{0x20, 0xc2}, {0x21, 0xc8}, {0x22, 0x26}, {0x23, 0x24},
-+		{0x27, 0xff}, {0x28, 0xff}, {0x29, 0xff}, {0x2a, 0x8f},
-+		{0x2b, 0x02}, {0x2c, 0x48}, {0x2d, 0x34}, {0x2e, 0x00},
-+		{0x2f, 0x00},
-+		{0x30, 0x00}, {0x31, 0x00}, {0x32, 0x00}, {0x33, 0x00},
-+		{0x34, 0x00}, {0x35, 0x01}, {0x36, 0x93}, {0x37, 0x0c},
-+		{0x38, 0x00}, {0x39, 0x00}, {0x3a, 0xf8}, {0x38, 0x80},
-+		{}
-+	};
-+	const struct hda_alc298_mbxinit *seq;
-+
-+	if (action != HDA_FIXUP_ACT_INIT)
-+		return;
-+
-+	/* Start */
-+	snd_hda_codec_write(codec, 0x06, 0, AC_VERB_SET_DIGI_CONVERT_3, 0x00);
-+	snd_hda_codec_write(codec, 0x06, 0, AC_VERB_SET_DIGI_CONVERT_3, 0x80);
-+	alc_write_coef_idx(codec, 0x26, 0xf000);
-+	alc_write_coef_idx(codec, 0x22, 0x31);
-+	alc_write_coef_idx(codec, 0x23, 0x0b);
-+	alc_write_coef_idx(codec, 0x25, 0x00);
-+	snd_hda_codec_write(codec, 0x20, 0, AC_VERB_SET_COEF_INDEX, 0x26);
-+	snd_hda_codec_write(codec, 0x20, 0, AC_VERB_SET_PROC_COEF, 0xb010);
-+
-+	for (seq = dac_init; seq->value_0x23; seq++)
-+		alc298_huawei_mbx_stereo_seq(codec, seq, seq == dac_init);
-+}
-+
- static void alc269_fixup_x101_headset_mic(struct hda_codec *codec,
- 				     const struct hda_fixup *fix, int action)
- {
-@@ -5780,6 +5846,7 @@ enum {
- 	ALC255_FIXUP_DUMMY_LINEOUT_VERB,
- 	ALC255_FIXUP_DELL_HEADSET_MIC,
- 	ALC256_FIXUP_HUAWEI_MACH_WX9_PINS,
-+	ALC298_FIXUP_HUAWEI_MBX_STEREO,
- 	ALC295_FIXUP_HP_X360,
- 	ALC221_FIXUP_HP_HEADSET_MIC,
- 	ALC285_FIXUP_LENOVO_HEADPHONE_NOISE,
-@@ -6089,6 +6156,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC255_FIXUP_MIC_MUTE_LED
- 	},
-+	[ALC298_FIXUP_HUAWEI_MBX_STEREO] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc298_fixup_huawei_mbx_stereo,
-+		.chained = true,
-+		.chain_id = ALC255_FIXUP_MIC_MUTE_LED
-+	},
- 	[ALC269_FIXUP_ASUS_X101_FUNC] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc269_fixup_x101_headset_mic,
-@@ -7280,6 +7353,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC225_FIXUP_HEADSET_JACK, .name = "alc-headset-jack"},
- 	{.id = ALC295_FIXUP_CHROME_BOOK, .name = "alc-chrome-book"},
- 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
-+	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+ 	display_gap2 = pre_vbi_time_in_us * (ref_clock / 100);
+ 
+ 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCG_DISPLAY_GAP_CNTL2, display_gap2);
 -- 
 2.20.1
 
