@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E63ADBA44F
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E49BA452
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391176AbfIVSrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44352 "EHLO mail.kernel.org"
+        id S2391278AbfIVSr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:47:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391165AbfIVSrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:48 -0400
+        id S2391269AbfIVSr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F15C2186A;
-        Sun, 22 Sep 2019 18:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A6C121BE5;
+        Sun, 22 Sep 2019 18:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178068;
-        bh=n0YP2zWRVCxk4rF17AJs7NMY8AhDufGUs2cq5yP0HdI=;
+        s=default; t=1569178077;
+        bh=L1K4pFSWiGXddrGuntvqMf6aFH0zGkbfckIzZT0ushM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MSX8+Oh+JsILnGqh8pFgizAoBKEUohZSur/eMkgrjf0/QwIqqBqB6+YOwow4fYsDu
-         u6OEUdEXbBUiHZx4g5Hf7BKZcT8+loM+ooEsYedaIS8klpiOvBMf6JP/ZNVAaR5/iA
-         6gQgCp5znYU4mf9OLzEY4CYHUs8T1sbpsQP1rygA=
+        b=aUUvrQoufL/fRPFcT7+fvLDJcdyyjuUwiy6RhXPCBri+3/bZzSBjL2fqOPndpXjjh
+         Z3vLPfdHzPHUWgYnqBdHE+lEeRfMDrCD21/HoSXcNbX87FOXFevoQUGL0aImuvzbvs
+         wBn6s6srkied7N6u9A6UF/81fQ9IjWwU6ZoxyliA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Murray <andrew.murray@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 141/203] jump_label: Don't warn on __exit jump entries
-Date:   Sun, 22 Sep 2019 14:42:47 -0400
-Message-Id: <20190922184350.30563-141-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 148/203] arm64: lse: Make ARM64_LSE_ATOMICS depend on JUMP_LABEL
+Date:   Sun, 22 Sep 2019 14:42:54 -0400
+Message-Id: <20190922184350.30563-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,51 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 8f35eaa5f2de020073a48ad51112237c5932cfcc ]
+[ Upstream commit b32baf91f60fb9c7010bff87e68132f2ce31d9a8 ]
 
-On architectures that discard .exit.* sections at runtime, a
-warning is printed for each jump label that is used within an
-in-kernel __exit annotated function:
+Support for LSE atomic instructions (CONFIG_ARM64_LSE_ATOMICS) relies on
+a static key to select between the legacy LL/SC implementation which is
+available on all arm64 CPUs and the super-duper LSE implementation which
+is available on CPUs implementing v8.1 and later.
 
-can't patch jump_label at ehci_hcd_cleanup+0x8/0x3c
-WARNING: CPU: 0 PID: 1 at kernel/jump_label.c:410 __jump_label_update+0x12c/0x138
+Unfortunately, when building a kernel with CONFIG_JUMP_LABEL disabled
+(e.g. because the toolchain doesn't support 'asm goto'), the static key
+inside the atomics code tries to use atomics itself. This results in a
+mess of circular includes and a build failure:
 
-As these functions will never get executed (they are free'd along
-with the rest of initmem) - we do not need to patch them and should
-not display any warnings.
+In file included from ./arch/arm64/include/asm/lse.h:11,
+                 from ./arch/arm64/include/asm/atomic.h:16,
+                 from ./include/linux/atomic.h:7,
+                 from ./include/asm-generic/bitops/atomic.h:5,
+                 from ./arch/arm64/include/asm/bitops.h:26,
+                 from ./include/linux/bitops.h:19,
+                 from ./include/linux/kernel.h:12,
+                 from ./include/asm-generic/bug.h:18,
+                 from ./arch/arm64/include/asm/bug.h:26,
+                 from ./include/linux/bug.h:5,
+                 from ./include/linux/page-flags.h:10,
+                 from kernel/bounds.c:10:
+./include/linux/jump_label.h: In function ‘static_key_count’:
+./include/linux/jump_label.h:254:9: error: implicit declaration of function ‘atomic_read’ [-Werror=implicit-function-declaration]
+  return atomic_read(&key->enabled);
+         ^~~~~~~~~~~
 
-The warning is displayed because the test required to satisfy
-jump_entry_is_init is based on init_section_contains (__init_begin to
-__init_end) whereas the test in __jump_label_update is based on
-init_kernel_text (_sinittext to _einittext) via kernel_text_address).
+[ ... more of the same ... ]
 
-Fixes: 19483677684b ("jump_label: Annotate entries that operate on __init code earlier")
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Since LSE atomic instructions are not critical to the operation of the
+kernel, make them depend on JUMP_LABEL at compile time.
+
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/jump_label.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index df3008419a1d0..cdb3ffab128b6 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -407,7 +407,9 @@ static bool jump_label_can_update(struct jump_entry *entry, bool init)
- 		return false;
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 3adcec05b1f67..27405ac94228b 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1263,6 +1263,7 @@ config ARM64_PAN
  
- 	if (!kernel_text_address(jump_entry_code(entry))) {
--		WARN_ONCE(1, "can't patch jump_label at %pS", (void *)jump_entry_code(entry));
-+		WARN_ONCE(!jump_entry_is_init(entry),
-+			  "can't patch jump_label at %pS",
-+			  (void *)jump_entry_code(entry));
- 		return false;
- 	}
- 
+ config ARM64_LSE_ATOMICS
+ 	bool "Atomic instructions"
++	depends on JUMP_LABEL
+ 	default y
+ 	help
+ 	  As part of the Large System Extensions, ARMv8.1 introduces new
 -- 
 2.20.1
 
