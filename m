@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98167BAAEB
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9C9BAAE8
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388323AbfIVTc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44946 "EHLO mail.kernel.org"
+        id S2389228AbfIVTcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391472AbfIVSsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:14 -0400
+        id S2391538AbfIVSsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90192208C2;
-        Sun, 22 Sep 2019 18:48:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E61E21A4C;
+        Sun, 22 Sep 2019 18:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178093;
-        bh=1qcIqWVNgDnORZDuw7aMihN8tv/7ZLu/i1Km/FS0zBg=;
+        s=default; t=1569178099;
+        bh=U+fTeMg7eR4bzJKvKMnVWPprEFx1Xn1JUmgx6apz7Ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLMEcEArlArvMj/Ewd4bWjQF17a1ML2h7l2sM+I4LbEH8KUSwWAkf7Nf9puq+vY4m
-         WbBXYHvHWGEkYgtlqQ+pTp60FBhbhsShMThwxlA6R0AhBNTRx4Oi9DGTaTEDPrvr/h
-         PGMhQLOhDFf84Y0AFmnpj4ZFGc9Q6pZJokaHa3dg=
+        b=vNs1UjMNdtuFGRYiWUVX9Gm9T4JpmwauV8cpm9ATXu6ZRlHF2W+NSLtxwNcQ7MUC2
+         f9H0DlKfZbZXLkbaea2WaD/EfI6IgIAiHmAzrjbBFWN+EnuMCnauL2kIQu4xrKtl+R
+         LsWWN9dGWrTtjj6Gx2Re2Yim+knVEWYIdubRC3hY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 158/203] ACPI / PCI: fix acpi_pci_irq_enable() memory leak
-Date:   Sun, 22 Sep 2019 14:43:04 -0400
-Message-Id: <20190922184350.30563-158-sashal@kernel.org>
+Cc:     Yufen Yu <yuyufen@huawei.com>, NeilBrown <neilb@suse.de>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 162/203] md/raid1: fail run raid1 array when active disk less than one
+Date:   Sun, 22 Sep 2019 14:43:08 -0400
+Message-Id: <20190922184350.30563-162-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,39 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 29b49958cf73b439b17fa29e9a25210809a6c01c ]
+[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
 
-In acpi_pci_irq_enable(), 'entry' is allocated by kzalloc() in
-acpi_pci_irq_check_entry() (invoked from acpi_pci_irq_lookup()). However,
-it is not deallocated if acpi_pci_irq_valid() returns false, leading to a
-memory leak. To fix this issue, free 'entry' before returning 0.
+When run test case:
+  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
+  mdadm -S /dev/md1
+  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
 
-Fixes: e237a5518425 ("x86/ACPI/PCI: Recognize that Interrupt Line 255 means "not connected"")
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+  mdadm --zero /dev/sda
+  mdadm /dev/md1 -a /dev/sda
+
+  echo offline > /sys/block/sdc/device/state
+  echo offline > /sys/block/sdb/device/state
+  sleep 5
+  mdadm -S /dev/md1
+
+  echo running > /sys/block/sdb/device/state
+  echo running > /sys/block/sdc/device/state
+  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+
+mdadm run fail with kernel message as follow:
+[  172.986064] md: kicking non-fresh sdb from array!
+[  173.004210] md: kicking non-fresh sdc from array!
+[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+[  173.022406] md1: failed to create bitmap (-5)
+
+In fact, when active disk in raid1 array less than one, we
+need to return fail in raid1_run().
+
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_irq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/raid1.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
-index d2549ae65e1b6..dea8a60e18a4c 100644
---- a/drivers/acpi/pci_irq.c
-+++ b/drivers/acpi/pci_irq.c
-@@ -449,8 +449,10 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
- 		 * No IRQ known to the ACPI subsystem - maybe the BIOS /
- 		 * driver reported one, then use it. Exit in any case.
- 		 */
--		if (!acpi_pci_irq_valid(dev, pin))
-+		if (!acpi_pci_irq_valid(dev, pin)) {
-+			kfree(entry);
- 			return 0;
-+		}
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 501a3b4d82f33..5afbb7df06e70 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -3129,6 +3129,13 @@ static int raid1_run(struct mddev *mddev)
+ 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
+ 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
+ 			mddev->degraded++;
++	/*
++	 * RAID1 needs at least one disk in active
++	 */
++	if (conf->raid_disks - mddev->degraded < 1) {
++		ret = -EINVAL;
++		goto abort;
++	}
  
- 		if (acpi_isa_register_gsi(dev))
- 			dev_warn(&dev->dev, "PCI INT %c: no GSI\n",
+ 	if (conf->raid_disks - mddev->degraded == 1)
+ 		mddev->recovery_cp = MaxSector;
+@@ -3162,8 +3169,12 @@ static int raid1_run(struct mddev *mddev)
+ 	ret = md_integrity_register(mddev);
+ 	if (ret) {
+ 		md_unregister_thread(&mddev->thread);
+-		raid1_free(mddev, conf);
++		goto abort;
+ 	}
++	return 0;
++
++abort:
++	raid1_free(mddev, conf);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
