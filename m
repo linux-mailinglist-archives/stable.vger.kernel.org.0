@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2209BBAA29
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE26BAA26
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727380AbfIVTXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53246 "EHLO mail.kernel.org"
+        id S1731254AbfIVTXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:23:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394272AbfIVSxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:25 -0400
+        id S2394310AbfIVSx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E3B421D80;
-        Sun, 22 Sep 2019 18:53:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 279A821A4A;
+        Sun, 22 Sep 2019 18:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178405;
-        bh=1OLP2EegMSYkpDiNpalB0iVNYY2yBm/hTb7jhkms/qs=;
+        s=default; t=1569178408;
+        bh=mhyuEywetJgC9ZaTH2TV31zRcj0apGSIpKAMxZjdVIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLK2VMblEGcJaTCBMs+tOWqEUayroBX7P2+OqlTcbS3VmY014Q6oBq4YZHoTMMTFr
-         XMObZRmVcRbYrD4WODH+1gkAR7a/Bp4iFzEhapoNzzfq2Wk4sAH0B3e1NFJOZTch7d
-         2T5yjnPkXnpg4rzpQT6fB7kW2ugphn2bB0BvYJVM=
+        b=awmVeAm4NmQiBvB3mwa4Re/4iMD5F8ug9oj+Sdkzo42nKcovGpeiQ78qNJRAEPdq4
+         traRABg+GjsmcBS+nDtC1cUaI8akWIgN4O5RSOFx5hS05x8OGdMMYsCja5XambpehH
+         T8OMjarFaMpMZOekmAVNEBmN26zNEEskto9rAnoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, NeilBrown <neilb@suse.de>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 147/185] md/raid1: fail run raid1 array when active disk less than one
-Date:   Sun, 22 Sep 2019 14:48:45 -0400
-Message-Id: <20190922184924.32534-147-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 149/185] kprobes: Prohibit probing on BUG() and WARN() address
+Date:   Sun, 22 Sep 2019 14:48:47 -0400
+Message-Id: <20190922184924.32534-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,76 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
+[ Upstream commit e336b4027775cb458dc713745e526fa1a1996b2a ]
 
-When run test case:
-  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
-  mdadm -S /dev/md1
-  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
+Since BUG() and WARN() may use a trap (e.g. UD2 on x86) to
+get the address where the BUG() has occurred, kprobes can not
+do single-step out-of-line that instruction. So prohibit
+probing on such address.
 
-  mdadm --zero /dev/sda
-  mdadm /dev/md1 -a /dev/sda
+Without this fix, if someone put a kprobe on WARN(), the
+kernel will crash with invalid opcode error instead of
+outputing warning message, because kernel can not find
+correct bug address.
 
-  echo offline > /sys/block/sdc/device/state
-  echo offline > /sys/block/sdb/device/state
-  sleep 5
-  mdadm -S /dev/md1
-
-  echo running > /sys/block/sdb/device/state
-  echo running > /sys/block/sdc/device/state
-  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
-
-mdadm run fail with kernel message as follow:
-[  172.986064] md: kicking non-fresh sdb from array!
-[  173.004210] md: kicking non-fresh sdc from array!
-[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
-[  173.022406] md1: failed to create bitmap (-5)
-
-In fact, when active disk in raid1 array less than one, we
-need to return fail in raid1_run().
-
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S . Miller <davem@davemloft.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Naveen N . Rao <naveen.n.rao@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/156750890133.19112.3393666300746167111.stgit@devnote2
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ include/linux/bug.h | 5 +++++
+ kernel/kprobes.c    | 3 ++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index a26731a9b38e7..f393f0dc042fc 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3096,6 +3096,13 @@ static int raid1_run(struct mddev *mddev)
- 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
- 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
- 			mddev->degraded++;
-+	/*
-+	 * RAID1 needs at least one disk in active
-+	 */
-+	if (conf->raid_disks - mddev->degraded < 1) {
-+		ret = -EINVAL;
-+		goto abort;
-+	}
+diff --git a/include/linux/bug.h b/include/linux/bug.h
+index fe5916550da8c..f639bd0122f39 100644
+--- a/include/linux/bug.h
++++ b/include/linux/bug.h
+@@ -47,6 +47,11 @@ void generic_bug_clear_once(void);
  
- 	if (conf->raid_disks - mddev->degraded == 1)
- 		mddev->recovery_cp = MaxSector;
-@@ -3129,8 +3136,12 @@ static int raid1_run(struct mddev *mddev)
- 	ret =  md_integrity_register(mddev);
- 	if (ret) {
- 		md_unregister_thread(&mddev->thread);
--		raid1_free(mddev, conf);
-+		goto abort;
- 	}
-+	return 0;
+ #else	/* !CONFIG_GENERIC_BUG */
+ 
++static inline void *find_bug(unsigned long bugaddr)
++{
++	return NULL;
++}
 +
-+abort:
-+	raid1_free(mddev, conf);
- 	return ret;
- }
- 
+ static inline enum bug_trap_type report_bug(unsigned long bug_addr,
+ 					    struct pt_regs *regs)
+ {
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 2504c269e6583..1010bde1146b5 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1514,7 +1514,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
+ 	/* Ensure it is not in reserved area nor out of text */
+ 	if (!kernel_text_address((unsigned long) p->addr) ||
+ 	    within_kprobe_blacklist((unsigned long) p->addr) ||
+-	    jump_label_text_reserved(p->addr, p->addr)) {
++	    jump_label_text_reserved(p->addr, p->addr) ||
++	    find_bug((unsigned long)p->addr)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
 2.20.1
 
