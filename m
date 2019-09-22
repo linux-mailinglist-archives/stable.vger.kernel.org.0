@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F4BBAAD5
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31EC9BAAD3
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731472AbfIVTbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45740 "EHLO mail.kernel.org"
+        id S2436744AbfIVTbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391766AbfIVSss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:48 -0400
+        id S2391802AbfIVSsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8865208C2;
-        Sun, 22 Sep 2019 18:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD41321D71;
+        Sun, 22 Sep 2019 18:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178126;
-        bh=vNmoFFEBAwmRbkNPotkq14fYmjwQEJC6ATGtg3SyS7o=;
+        s=default; t=1569178129;
+        bh=/F0eqdyJKABuAv6cUV90z+rRaHqrSXh+R+pUYfvNIeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhqcYGWiwtwGD2ZWVQL4ANaI0SfAdI4W6wEHxJ+m+4FBc5tFoqIGef9ptGTjsYYpk
-         SP3QuXzW5OuCt0r93EOLmoUe1k0CcOJi+GujKmSYA9SDxZxbOmAXhIYDvu8IJ0OeNJ
-         KRxyHtV+z5XkUzFu4LHPX4JCq/jPNN8dY/ftT1UA=
+        b=P06yKy7AMcLsqCYwNzDXEDODLsuVeSam+In8JhOhMNdug2ZhJcu7f2vd7fpIqSU8c
+         4Wm8ICy2PZ48/vgevmDxSyhAaoTCd5q19F5x80mYsG8VOBndh66u2Y7aWp0hh4zKvK
+         PUx1Ev6aw5yMS4Nb9V4dbWwHYKF4B7f86sHG53QE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 180/203] raid5: don't set STRIPE_HANDLE to stripe which is in batch list
-Date:   Sun, 22 Sep 2019 14:43:26 -0400
-Message-Id: <20190922184350.30563-180-sashal@kernel.org>
+Cc:     Miles Chen <miles.chen@mediatek.com>,
+        linux-mediatek@lists.infradead.org, wsd_upstream@mediatek.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 182/203] sched/psi: Correct overly pessimistic size calculation
+Date:   Sun, 22 Sep 2019 14:43:28 -0400
+Message-Id: <20190922184350.30563-182-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,73 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 6ce220dd2f8ea71d6afc29b9a7524c12e39f374a ]
+[ Upstream commit 4adcdcea717cb2d8436bef00dd689aa5bc76f11b ]
 
-If stripe in batch list is set with STRIPE_HANDLE flag, then the stripe
-could be set with STRIPE_ACTIVE by the handle_stripe function. And if
-error happens to the batch_head at the same time, break_stripe_batch_list
-is called, then below warning could happen (the same report in [1]), it
-means a member of batch list was set with STRIPE_ACTIVE.
+When passing a equal or more then 32 bytes long string to psi_write(),
+psi_write() copies 31 bytes to its buf and overwrites buf[30]
+with '\0'. Which makes the input string 1 byte shorter than
+it should be.
 
-[7028915.431770] stripe state: 2001
-[7028915.431815] ------------[ cut here ]------------
-[7028915.431828] WARNING: CPU: 18 PID: 29089 at drivers/md/raid5.c:4614 break_stripe_batch_list+0x203/0x240 [raid456]
-[...]
-[7028915.431879] CPU: 18 PID: 29089 Comm: kworker/u82:5 Tainted: G           O    4.14.86-1-storage #4.14.86-1.2~deb9
-[7028915.431881] Hardware name: Supermicro SSG-2028R-ACR24L/X10DRH-iT, BIOS 3.1 06/18/2018
-[7028915.431888] Workqueue: raid5wq raid5_do_work [raid456]
-[7028915.431890] task: ffff9ab0ef36d7c0 task.stack: ffffb72926f84000
-[7028915.431896] RIP: 0010:break_stripe_batch_list+0x203/0x240 [raid456]
-[7028915.431898] RSP: 0018:ffffb72926f87ba8 EFLAGS: 00010286
-[7028915.431900] RAX: 0000000000000012 RBX: ffff9aaa84a98000 RCX: 0000000000000000
-[7028915.431901] RDX: 0000000000000000 RSI: ffff9ab2bfa15458 RDI: ffff9ab2bfa15458
-[7028915.431902] RBP: ffff9aaa8fb4e900 R08: 0000000000000001 R09: 0000000000002eb4
-[7028915.431903] R10: 00000000ffffffff R11: 0000000000000000 R12: ffff9ab1736f1b00
-[7028915.431904] R13: 0000000000000000 R14: ffff9aaa8fb4e900 R15: 0000000000000001
-[7028915.431906] FS:  0000000000000000(0000) GS:ffff9ab2bfa00000(0000) knlGS:0000000000000000
-[7028915.431907] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[7028915.431908] CR2: 00007ff953b9f5d8 CR3: 0000000bf4009002 CR4: 00000000003606e0
-[7028915.431909] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[7028915.431910] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[7028915.431910] Call Trace:
-[7028915.431923]  handle_stripe+0x8e7/0x2020 [raid456]
-[7028915.431930]  ? __wake_up_common_lock+0x89/0xc0
-[7028915.431935]  handle_active_stripes.isra.58+0x35f/0x560 [raid456]
-[7028915.431939]  raid5_do_work+0xc6/0x1f0 [raid456]
+Fix it by copying sizeof(buf) bytes when nbytes >= sizeof(buf).
 
-Also commit 59fc630b8b5f9f ("RAID5: batch adjacent full stripe write")
-said "If a stripe is added to batch list, then only the first stripe
-of the list should be put to handle_list and run handle_stripe."
+This does not cause problems in normal use case like:
+"some 500000 10000000" or "full 500000 10000000" because they
+are less than 32 bytes in length.
 
-So don't set STRIPE_HANDLE to stripe which is already in batch list,
-otherwise the stripe could be put to handle_list and run handle_stripe,
-then the above warning could be triggered.
+	/* assuming nbytes == 35 */
+	char buf[32];
 
-[1]. https://www.spinics.net/lists/raid/msg62552.html
+	buf_size = min(nbytes, (sizeof(buf) - 1)); /* buf_size = 31 */
+	if (copy_from_user(buf, user_buf, buf_size))
+		return -EFAULT;
 
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+	buf[buf_size - 1] = '\0'; /* buf[30] = '\0' */
+
+Before:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [   22.473497] nbytes=35,buf_size=31
+ [   22.473775] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [   64.916162] nbytes=32,buf_size=31
+ [   64.916331] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+After:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [  254.837863] nbytes=35,buf_size=32
+ [  254.838541] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [ 9965.714935] nbytes=32,buf_size=32
+ [ 9965.715096] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+Also remove the superfluous parentheses.
+
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Cc: <linux-mediatek@lists.infradead.org>
+Cc: <wsd_upstream@mediatek.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190912103452.13281-1-miles.chen@mediatek.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/sched/psi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 3de4e13bde984..21514edb2bea3 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -5718,7 +5718,8 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
- 				do_flush = false;
- 			}
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 6e52b67b420e7..517e3719027e6 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1198,7 +1198,7 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
+ 	if (static_branch_likely(&psi_disabled))
+ 		return -EOPNOTSUPP;
  
--			set_bit(STRIPE_HANDLE, &sh->state);
-+			if (!sh->batch_head)
-+				set_bit(STRIPE_HANDLE, &sh->state);
- 			clear_bit(STRIPE_DELAYED, &sh->state);
- 			if ((!sh->batch_head || sh == sh->batch_head) &&
- 			    (bi->bi_opf & REQ_SYNC) &&
+-	buf_size = min(nbytes, (sizeof(buf) - 1));
++	buf_size = min(nbytes, sizeof(buf));
+ 	if (copy_from_user(buf, user_buf, buf_size))
+ 		return -EFAULT;
+ 
 -- 
 2.20.1
 
