@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D88BA67E
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A56BA680
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404681AbfIVSvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48402 "EHLO mail.kernel.org"
+        id S2404797AbfIVSvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404193AbfIVSu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:59 -0400
+        id S2404746AbfIVSvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:51:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 650D821BE5;
-        Sun, 22 Sep 2019 18:50:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC55521BE5;
+        Sun, 22 Sep 2019 18:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178259;
-        bh=kJC6Awz8EDg7dPEGltPbxNIzRDp5I4Bk/eB1xSqgAyw=;
+        s=default; t=1569178261;
+        bh=YQCsBXeCa08TPq18aZLL+PQPhGsFsnWxhGKvatllFvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dA0nwjKMm4kQUR38zd4+uTQTaX+gnvIcDk2dhN32WGBs9pO3+cM3ctnFi14MwzXe
-         43cXw9SNGAVFgBMQSx22EumYd3ZEm/gvD9xqEqBABOByppqMWskmnjnzLhf4RCFISf
-         st3tm7oaCCMuzen20HyhwOuTVxr+PwqunBBQ9hl0=
+        b=F/1pyVY+/lFrNnWpc9x2509PjDtcG0vnlCpZ1BtuFHsjtUqVGrlklwOQJOpY9nR3k
+         uKXzjZ9zI2bm/CdyYHILoTpVp1smrpc9lahWdwIazp47zFIHPbSPsJKKLoHdtUOrIy
+         tvXs4bnH/ndjRBHSXTFkzIb+LavV1B3AnJwN/olk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keyon Jie <yang.jie@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 048/185] ASoC: hdac_hda: fix page fault issue by removing race
-Date:   Sun, 22 Sep 2019 14:47:06 -0400
-Message-Id: <20190922184924.32534-48-sashal@kernel.org>
+Cc:     Alessio Balsini <balsini@android.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 050/185] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+Date:   Sun, 22 Sep 2019 14:47:08 -0400
+Message-Id: <20190922184924.32534-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -44,42 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keyon Jie <yang.jie@linux.intel.com>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit 804cbf4bb063204ca6c2471baa694548aab02ce3 ]
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-There is a race between hda codec device removing and the
-jack-detecting work, which will lead to a page fault issue as the
-latter work is accessing codec device which could be already removed.
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-Here add the cancellation of jack-detecting work before codecs are actually
-removed to avoid the race and fix the issue.
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
 
-Bug: https://github.com/thesofproject/linux/issues/1067
-Signed-off-by: Keyon Jie <yang.jie@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190807145030.26117-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
-index 7d49402569149..91242b6f8ea7a 100644
---- a/sound/soc/codecs/hdac_hda.c
-+++ b/sound/soc/codecs/hdac_hda.c
-@@ -495,6 +495,10 @@ static int hdac_hda_dev_probe(struct hdac_device *hdev)
- 
- static int hdac_hda_dev_remove(struct hdac_device *hdev)
- {
-+	struct hdac_hda_priv *hda_pvt;
-+
-+	hda_pvt = dev_get_drvdata(&hdev->dev);
-+	cancel_delayed_work_sync(&hda_pvt->codec.jackpoll_work);
- 	return 0;
- }
- 
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index e1739efca37eb..8e32930f65a1d 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1763,6 +1763,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
+ 	case LOOP_SET_BLOCK_SIZE:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 -- 
 2.20.1
 
