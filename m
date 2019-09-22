@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB83CBAA45
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82BC9BAA42
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbfIVTYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:24:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52326 "EHLO mail.kernel.org"
+        id S1731371AbfIVTYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:24:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393325AbfIVSw5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:52:57 -0400
+        id S2393389AbfIVSxA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C1FA21BE5;
-        Sun, 22 Sep 2019 18:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C0D92190F;
+        Sun, 22 Sep 2019 18:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178376;
-        bh=jFyrjGVt0cRFDQk6Fgliyx+XUAerjBChFSMocGjBCxw=;
+        s=default; t=1569178380;
+        bh=2et6kh5u9FLYVe88GeLbMKtsoeoF/CZr/Ah6IeVbid4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOeU7kgeWCxMwWdXt25ZYY0PtVBpKc+F1SHECMI/PcRWbi8rfglw2uy5ZXkYttG4U
-         Z1h2Dk9dAluuv7mvBNkd8ZDuXBn4tgQZeHKxx8qT6jVd9FIRkd6W1w6JQHlRP8kv1J
-         nB8N0UQkgiWl5qmvtBLyycc1nVZY2ByUyWilI+k4=
+        b=POp2kcHXWqUGNjKUfwHL8ZgHruJcelxlKf5zZ2mpatxFOXW2ciZTiI1o/qsnhdr4U
+         7aIyLMSOPqfboNDgi3CjpkwUuZU1K38ubOSi6Pc4RMVYthZyV4otL28wA3Pe8j9Git
+         waJYn+WRGPmgSZblJZow+QtLcA/smyOTF1yhcUEk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 126/185] arm64: kpti: ensure patched kernel text is fetched from PoU
-Date:   Sun, 22 Sep 2019 14:48:24 -0400
-Message-Id: <20190922184924.32534-126-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 128/185] x86/mm/pti: Do not invoke PTI functions when PTI is disabled
+Date:   Sun, 22 Sep 2019 14:48:26 -0400
+Message-Id: <20190922184924.32534-128-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -44,59 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit f32c7a8e45105bd0af76872bf6eef0438ff12fb2 ]
+[ Upstream commit 990784b57731192b7d90c8d4049e6318d81e887d ]
 
-While the MMUs is disabled, I-cache speculation can result in
-instructions being fetched from the PoC. During boot we may patch
-instructions (e.g. for alternatives and jump labels), and these may be
-dirty at the PoU (and stale at the PoC).
+When PTI is disabled at boot time either because the CPU is not affected or
+PTI has been disabled on the command line, the boot code still calls into
+pti_finalize() which then unconditionally invokes:
 
-Thus, while the MMU is disabled in the KPTI pagetable fixup code we may
-load stale instructions into the I-cache, potentially leading to
-subsequent crashes when executing regions of code which have been
-modified at runtime.
+     pti_clone_entry_text()
+     pti_clone_kernel_text()
 
-Similarly to commit:
+pti_clone_kernel_text() was called unconditionally before the 32bit support
+was added and 32bit added the call to pti_clone_entry_text().
 
-  8ec41987436d566f ("arm64: mm: ensure patched kernel text is fetched from PoU")
+The call has no side effects as cloning the page tables into the available
+second one, which was allocated for PTI does not create damage. But it does
+not make sense either and in case that this functionality would be extended
+later this might actually lead to hard to diagnose issues.
 
-... we can invalidate the I-cache after enabling the MMU to prevent such
-issues.
+Neither function should be called when PTI is runtime disabled. Make the
+invocation conditional.
 
-The KPTI pagetable fixup code itself should be clean to the PoC per the
-boot protocol, so no maintenance is required for this code.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190828143124.063353972@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/proc.S | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/x86/mm/pti.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index 7dbf2be470f6c..28a8f7b87ff06 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -286,6 +286,15 @@ skip_pgd:
- 	msr	sctlr_el1, x18
- 	isb
- 
-+	/*
-+	 * Invalidate the local I-cache so that any instructions fetched
-+	 * speculatively from the PoC are discarded, since they may have
-+	 * been dynamically patched at the PoU.
-+	 */
-+	ic	iallu
-+	dsb	nsh
-+	isb
-+
- 	/* Set the flag to zero to indicate that we're all done */
- 	str	wzr, [flag_ptr]
- 	ret
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index b196524759ec5..ba22b50f4eca2 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -666,6 +666,8 @@ void __init pti_init(void)
+  */
+ void pti_finalize(void)
+ {
++	if (!boot_cpu_has(X86_FEATURE_PTI))
++		return;
+ 	/*
+ 	 * We need to clone everything (again) that maps parts of the
+ 	 * kernel image.
 -- 
 2.20.1
 
