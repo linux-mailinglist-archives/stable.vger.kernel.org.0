@@ -2,174 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 836F8BA2C1
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 15:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02240BA32C
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 18:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728597AbfIVNJp convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 22 Sep 2019 09:09:45 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:34710 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbfIVNJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 09:09:45 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A452B88302
-        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 13:09:44 +0000 (UTC)
-Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C9CCE10013A7;
-        Sun, 22 Sep 2019 13:09:41 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2387746AbfIVQdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 12:33:25 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50728 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387745AbfIVQdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 12:33:24 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iC4na-0004Nv-6N; Sun, 22 Sep 2019 17:33:22 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iC4nZ-0001Ih-VF; Sun, 22 Sep 2019 17:33:21 +0100
+Message-ID: <70fd21c92c10c0ed08d647d5a67310c20ff9f052.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 000/132] 3.16.74-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Sun, 22 Sep 2019 17:33:17 +0100
+In-Reply-To: <63537eba-48f6-a394-f220-45b4ad543dee@roeck-us.net>
+References: <lsq.1568989414.954567518@decadent.org.uk>
+         <20190920200423.GA26056@roeck-us.net>
+         <8dbced01558cd8d4a1d4f058010e7d63e5f6810e.camel@decadent.org.uk>
+         <63537eba-48f6-a394-f220-45b4ad543dee@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-t/NL/Z79JmtltRmHOd3K"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Message-ID: <cki.3EE6E8B6D7.JZILDBT2VV@redhat.com>
-X-Gitlab-Pipeline-ID: 180445
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/180445
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Sun, 22 Sep 2019 13:09:44 +0000 (UTC)
-Date:   Sun, 22 Sep 2019 09:09:45 -0400
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+--=-t/NL/Z79JmtltRmHOd3K
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+On Fri, 2019-09-20 at 18:35 -0700, Guenter Roeck wrote:
+> On 9/20/19 2:16 PM, Ben Hutchings wrote:
+> > On Fri, 2019-09-20 at 13:04 -0700, Guenter Roeck wrote:
+> > > On Fri, Sep 20, 2019 at 03:23:34PM +0100, Ben Hutchings wrote:
+> > > > This is the start of the stable review cycle for the 3.16.74 releas=
+e.
+> > > > There are 132 patches in this series, which will be posted as respo=
+nses
+> > > > to this one.  If anyone has any issues with these being applied, pl=
+ease
+> > > > let me know.
+> > > >=20
+> > > > Responses should be made by Mon Sep 23 20:00:00 UTC 2019.
+> > > > Anything received after that time might be too late.
+> > > >=20
+> > >=20
+> > > Build results:
+> > > 	total: 136 pass: 135 fail: 1
+> > > Failed builds:
+> > > 	arm:allmodconfig
+> > > Qemu test results:
+> > > 	total: 229 pass: 229 fail: 0
+> > >=20
+> > > Build errors in arm:allmodconfig are along the line of
+> > >=20
+> > > In file included from include/linux/printk.h:5,
+> > >                   from include/linux/kernel.h:13,
+> > >                   from include/linux/clk.h:16,
+> > >                   from drivers/gpu/drm/tilcdc/tilcdc_drv.h:21,
+> > >                   from drivers/gpu/drm/tilcdc/tilcdc_drv.c:20:
+> > > include/linux/init.h:343:7: error: 'cleanup_module'
+> > > 	specifies less restrictive attribute than its target 'tilcdc_drm_fin=
+i': 'cold'
+> > >=20
+> > > In addition to a few errors like that, there are literally thousands
+> > > of similar warnings.
+> >=20
+> > It looks like this is triggered by you switching arm builds from gcc 8
+> > to 9, rather than by any code change.
+> >=20
+>=20
+> After reverting to gcc 8.3.0 for arm, I get:
+>=20
+> Build results:
+> 	total: 136 pass: 136 fail: 0
+> Qemu test results:
+> 	total: 229 pass: 229 fail: 0
+>
+> Sorry for the noise.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: c9a59a82366b - Linux 5.3.1
+Great, thanks for checking.
 
-The results of these automated tests are provided below.
+Ben.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/180445
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: c9a59a82366b - Linux 5.3.1
-
-
-We grabbed the 7f2f9d496c3b commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
-  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
-  clocksource-drivers-do-not-warn-on-probe-defer.patch
-  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
-  drm-amd-display-skip-determining-update-type-for-async-updates.patch
-  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
-  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+--=20
+Ben Hutchings
+I'm always amazed by the number of people who take up solipsism because
+they heard someone else explain it. - E*Borg on alt.fan.pratchett
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
 
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
+--=-t/NL/Z79JmtltRmHOd3K
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
+-----BEGIN PGP SIGNATURE-----
 
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         🚧 ✅ LTP lite
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2Hok0ACgkQ57/I7JWG
+EQn8TQ/+LbWjYZ1CLsHC8nr7ODBS2AU7AFGfWX+sGLIZAYusGZ9ULZ+oaqUhlCOH
+hPElZD1A7l0D5PszfnMweAxF2yseoosUS2TrjwoFhgFH5tpz9bjKOq7dSfkTcqaw
+yiVQGyYmKbJt1EDQE95/qdGfweppUADgo9cjYCiNouvlHSm5wVBSTtp2VAL6XdLd
+IoO9+fs2n+SQEV12Tvrdz5fcWOLvpPzbkeH2MXXGsynmvD1YEW1B/Dg8Grg73b04
+qLZnlNetkWDQs9HSsxPM4WghTWrpMm6VuXweBIwP2JxZBfCdhVGoHjVZYxT62Q5k
+LiQYSOdH+/oBRhXwao2zU3aMF47MGh+I5S2fcm6a8kP1Ia8R3BnABPceYkLJVtjM
+Hel2bWplKU/yLNPy+J4wWxAxy4PQhtNFUMGyedI1C/7nY1QgDL7mNHqXnPAHWA0t
+rY4JbthPTGI+mkR7Vgm190vnm4H2CvuZeqcVX0+kXiuRw1q+2S4IoAP4P03Z2xvF
+/MTlk2ADnGg+YWdRNovOoRRulvPruPahGpxpN7UM6RBJBEe1Mnwh96lCg7Rhq9IR
+TjzRvQAEx3cOJWa/5iW+OjgljSq9gUTfnX17+0brkxb6TEVeTaurxuxgjasCbcEl
+mpfTju5T8pBiyk5ECx11HItmXUB5Mx25Krn8ENLuApNuxgkKAkE=
+=sc49
+-----END PGP SIGNATURE-----
 
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+--=-t/NL/Z79JmtltRmHOd3K--
