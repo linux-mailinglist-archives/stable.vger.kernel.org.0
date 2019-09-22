@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 226FFBA6FB
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B475FBA701
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394546AbfIVSy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:54:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55726 "EHLO mail.kernel.org"
+        id S2408053AbfIVSzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408053AbfIVSyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:55 -0400
+        id S2408072AbfIVSzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D542222C1;
-        Sun, 22 Sep 2019 18:54:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63E39208C2;
+        Sun, 22 Sep 2019 18:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178494;
-        bh=I6mLupdicjRHBWyEFst+0fM+XGoYu7qjKSS+PJ4HJa8=;
+        s=default; t=1569178511;
+        bh=vpb3RdfOJRrO7WE5fuKy6/hyWAMQx4pHWPaGXtcDL2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2l7VihObVEltbEO7yAd+pvKH6SCas/wembAbpkCwyaNoM3py7GJVUIK3sXbh/hyB
-         uJGirje7ffq/PNi9d3POqLmBqhqdx7Jv6/n0vrgooW0BkutX+Qvgd9ldKI/5qHF99/
-         bytqCNKN16D2MGLz3h0sD7E2MHO8X8GSiK1xcqzo=
+        b=xjsVA//uoBB7comOImeWKnbQ5LyWXUgLONDDwOblOZpSFbsqNU93/f43l2dstg4hk
+         x68QbxoLHdgRLcX3+oHIwvhm9m9cv1t+79xXbUdkHhZW613mbPFlmdtMuoe6Pv3ts+
+         b+5hnNXCP4Cr9cxwvycZCwk//5D7Hhh7RfdSxIk8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        James Morse <james.morse@arm.com>,
-        kernel-janitors@vger.kernel.org,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 028/128] EDAC/altera: Use the proper type for the IRQ status bits
-Date:   Sun, 22 Sep 2019 14:52:38 -0400
-Message-Id: <20190922185418.2158-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 042/128] idle: Prevent late-arriving interrupts from disrupting offline
+Date:   Sun, 22 Sep 2019 14:52:52 -0400
+Message-Id: <20190922185418.2158-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -49,57 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 8faa1cf6ed82f33009f63986c3776cc48af1b7b2 ]
+[ Upstream commit e78a7614f3876ac649b3df608789cb6ef74d0480 ]
 
-Smatch complains about the cast of a u32 pointer to unsigned long:
+Scheduling-clock interrupts can arrive late in the CPU-offline process,
+after idle entry and the subsequent call to cpuhp_report_idle_dead().
+Once execution passes the call to rcu_report_dead(), RCU is ignoring
+the CPU, which results in lockdep complaints when the interrupt handler
+uses RCU:
 
-  drivers/edac/altera_edac.c:1878 altr_edac_a10_irq_handler()
-  warn: passing casted pointer '&irq_status' to 'find_first_bit()'
+------------------------------------------------------------------------
 
-This code wouldn't work on a 64 bit big endian system because it would
-read past the end of &irq_status.
+=============================
+WARNING: suspicious RCU usage
+5.2.0-rc1+ #681 Not tainted
+-----------------------------
+kernel/sched/fair.c:9542 suspicious rcu_dereference_check() usage!
 
- [ bp: massage. ]
+other info that might help us debug this:
 
-Fixes: 13ab8448d2c9 ("EDAC, altera: Add ECC Manager IRQ controller support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: kernel-janitors@vger.kernel.org
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20190624134717.GA1754@mwanda
+RCU used illegally from offline CPU!
+rcu_scheduler_active = 2, debug_locks = 1
+no locks held by swapper/5/0.
+
+stack backtrace:
+CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.2.0-rc1+ #681
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ dump_stack+0x5e/0x8b
+ trigger_load_balance+0xa8/0x390
+ ? tick_sched_do_timer+0x60/0x60
+ update_process_times+0x3b/0x50
+ tick_sched_handle+0x2f/0x40
+ tick_sched_timer+0x32/0x70
+ __hrtimer_run_queues+0xd3/0x3b0
+ hrtimer_interrupt+0x11d/0x270
+ ? sched_clock_local+0xc/0x74
+ smp_apic_timer_interrupt+0x79/0x200
+ apic_timer_interrupt+0xf/0x20
+ </IRQ>
+RIP: 0010:delay_tsc+0x22/0x50
+Code: ff 0f 1f 80 00 00 00 00 65 44 8b 05 18 a7 11 48 0f ae e8 0f 31 48 89 d6 48 c1 e6 20 48 09 c6 eb 0e f3 90 65 8b 05 fe a6 11 48 <41> 39 c0 75 18 0f ae e8 0f 31 48 c1 e2 20 48 09 c2 48 89 d0 48 29
+RSP: 0000:ffff8f92c0157ed0 EFLAGS: 00000212 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000005 RBX: ffff8c861f356400 RCX: ffff8f92c0157e64
+RDX: 000000321214c8cc RSI: 00000032120daa7f RDI: 0000000000260f15
+RBP: 0000000000000005 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff8c861ee18000 R15: ffff8c861ee18000
+ cpuhp_report_idle_dead+0x31/0x60
+ do_idle+0x1d5/0x200
+ ? _raw_spin_unlock_irqrestore+0x2d/0x40
+ cpu_startup_entry+0x14/0x20
+ start_secondary+0x151/0x170
+ secondary_startup_64+0xa4/0xb0
+
+------------------------------------------------------------------------
+
+This happens rarely, but can be forced by happen more often by
+placing delays in cpuhp_report_idle_dead() following the call to
+rcu_report_dead().  With this in place, the following rcutorture
+scenario reproduces the problem within a few minutes:
+
+tools/testing/selftests/rcutorture/bin/kvm.sh --cpus 8 --duration 5 --kconfig "CONFIG_DEBUG_LOCK_ALLOC=y CONFIG_PROVE_LOCKING=y" --configs "TREE04"
+
+This commit uses the crude but effective expedient of moving the disabling
+of interrupts within the idle loop to precede the cpu_is_offline()
+check.  It also invokes tick_nohz_idle_stop_tick() instead of
+tick_nohz_idle_stop_tick_protected() to shut off the scheduling-clock
+interrupt.
+
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+[ paulmck: Revert tick_nohz_idle_stop_tick_protected() removal, new callers. ]
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/altera_edac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/idle.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
-index 5762c3c383f2e..56de378ad13dc 100644
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -1956,6 +1956,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
- 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	int irq = irq_desc_get_irq(desc);
-+	unsigned long bits;
+diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+index 16f84142f2f49..44a17366c8ec2 100644
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -240,13 +240,14 @@ static void do_idle(void)
+ 		check_pgt_cache();
+ 		rmb();
  
- 	dberr = (irq == edac->db_irq) ? 1 : 0;
- 	sm_offset = dberr ? A10_SYSMGR_ECC_INTSTAT_DERR_OFST :
-@@ -1965,7 +1966,8 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
++		local_irq_disable();
++
+ 		if (cpu_is_offline(cpu)) {
+-			tick_nohz_idle_stop_tick_protected();
++			tick_nohz_idle_stop_tick();
+ 			cpuhp_report_idle_dead();
+ 			arch_cpu_idle_dead();
+ 		}
  
- 	regmap_read(edac->ecc_mgr_map, sm_offset, &irq_status);
+-		local_irq_disable();
+ 		arch_cpu_idle_enter();
  
--	for_each_set_bit(bit, (unsigned long *)&irq_status, 32) {
-+	bits = irq_status;
-+	for_each_set_bit(bit, &bits, 32) {
- 		irq = irq_linear_revmap(edac->domain, dberr * 32 + bit);
- 		if (irq)
- 			generic_handle_irq(irq);
+ 		/*
 -- 
 2.20.1
 
