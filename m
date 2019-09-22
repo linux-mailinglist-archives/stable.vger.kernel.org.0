@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1FBBA9CD
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C30DBA9CB
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392751AbfIVTT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S2406525AbfIVTTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:19:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408034AbfIVSyv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:51 -0400
+        id S2393649AbfIVSy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:54:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDA821D7E;
-        Sun, 22 Sep 2019 18:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27A7B2190F;
+        Sun, 22 Sep 2019 18:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178490;
-        bh=xKTppu/GDfJLMQWpfzwwiblwXnUW9uwticGihbh1hF8=;
+        s=default; t=1569178495;
+        bh=YlHMpG3FjFi/kVNJbM9cJymTvszZDVSUYEqq1C9SZi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGvjxBHZKvmnwlm9u+X1Im2ZNMy5VSzsgYZxjTbpe3lWVDn0mu0a+EYOP0oaplKAK
-         fuQ0jTCt4EX0JIOaNqxlkB5za4rPaWj5oG6F4F9AIjAVxgnEFIWe6gMQWiZ39BVZ7P
-         96rBGe2xCJUqNpWCwC/Msq+pIdUkTT+/n1uaMmd8=
+        b=E/y3dz/s+DMfe/xb+Bztav8PHwqRf6tVFjt1+tHHm4gG3XaIR6gGDPLsBoyvLIkCt
+         Jtby5t8NO3irTwwoVuKs4L4DdzRDM2/b3f5ou8vpwcVWwPwtZHwAXmM7W/WCDVNd3Q
+         rDz/zv2UY2Ng2tpfTEsYmmCMohFPDtZNGy1V3M68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vinod Koul <vkoul@kernel.org>,
-        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Leon Kong <Leon.KONG@cn.bosch.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 025/128] base: soc: Export soc_device_register/unregister APIs
-Date:   Sun, 22 Sep 2019 14:52:35 -0400
-Message-Id: <20190922185418.2158-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 029/128] ASoC: rsnd: don't call clk_get_rate() under atomic context
+Date:   Sun, 22 Sep 2019 14:52:39 -0400
+Message-Id: <20190922185418.2158-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -46,45 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
+[ Upstream commit 06e8f5c842f2dbb232897ba967ea7b422745c271 ]
 
-Qcom Socinfo driver can be built as a module, so
-export these two APIs.
+ADG is using clk_get_rate() under atomic context, thus, we might
+have scheduling issue.
+To avoid this issue, we need to get/keep clk rate under
+non atomic context.
 
-Tested-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+We need to handle ADG as special device at Renesas Sound driver.
+From SW point of view, we want to impletent it as
+rsnd_mod_ops :: prepare, but it makes code just complicate.
+
+To avoid complicated code/patch, this patch adds new clk_rate[] array,
+and keep clk IN rate when rsnd_adg_clk_enable() was called.
+
+Reported-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Tested-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Link: https://lore.kernel.org/r/87v9vb0xkp.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/soc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/sh/rcar/adg.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/base/soc.c b/drivers/base/soc.c
-index 10b280f30217b..7e91894a380b5 100644
---- a/drivers/base/soc.c
-+++ b/drivers/base/soc.c
-@@ -157,6 +157,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
- out1:
- 	return ERR_PTR(ret);
- }
-+EXPORT_SYMBOL_GPL(soc_device_register);
+diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
+index 051f96405346b..549a137878a65 100644
+--- a/sound/soc/sh/rcar/adg.c
++++ b/sound/soc/sh/rcar/adg.c
+@@ -30,6 +30,7 @@ struct rsnd_adg {
+ 	struct clk *clkout[CLKOUTMAX];
+ 	struct clk_onecell_data onecell;
+ 	struct rsnd_mod mod;
++	int clk_rate[CLKMAX];
+ 	u32 flags;
+ 	u32 ckr;
+ 	u32 rbga;
+@@ -113,9 +114,9 @@ static void __rsnd_adg_get_timesel_ratio(struct rsnd_priv *priv,
+ 	unsigned int val, en;
+ 	unsigned int min, diff;
+ 	unsigned int sel_rate[] = {
+-		clk_get_rate(adg->clk[CLKA]),	/* 0000: CLKA */
+-		clk_get_rate(adg->clk[CLKB]),	/* 0001: CLKB */
+-		clk_get_rate(adg->clk[CLKC]),	/* 0010: CLKC */
++		adg->clk_rate[CLKA],	/* 0000: CLKA */
++		adg->clk_rate[CLKB],	/* 0001: CLKB */
++		adg->clk_rate[CLKC],	/* 0010: CLKC */
+ 		adg->rbga_rate_for_441khz,	/* 0011: RBGA */
+ 		adg->rbgb_rate_for_48khz,	/* 0100: RBGB */
+ 	};
+@@ -331,7 +332,7 @@ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
+ 	 * AUDIO_CLKA/AUDIO_CLKB/AUDIO_CLKC/AUDIO_CLKI.
+ 	 */
+ 	for_each_rsnd_clk(clk, adg, i) {
+-		if (rate == clk_get_rate(clk))
++		if (rate == adg->clk_rate[i])
+ 			return sel_table[i];
+ 	}
  
- /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
- void soc_device_unregister(struct soc_device *soc_dev)
-@@ -166,6 +167,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
- 	device_unregister(&soc_dev->dev);
- 	early_soc_dev_attr = NULL;
- }
-+EXPORT_SYMBOL_GPL(soc_device_unregister);
+@@ -398,10 +399,18 @@ void rsnd_adg_clk_control(struct rsnd_priv *priv, int enable)
  
- static int __init soc_bus_register(void)
- {
+ 	for_each_rsnd_clk(clk, adg, i) {
+ 		ret = 0;
+-		if (enable)
++		if (enable) {
+ 			ret = clk_prepare_enable(clk);
+-		else
++
++			/*
++			 * We shouldn't use clk_get_rate() under
++			 * atomic context. Let's keep it when
++			 * rsnd_adg_clk_enable() was called
++			 */
++			adg->clk_rate[i] = clk_get_rate(adg->clk[i]);
++		} else {
+ 			clk_disable_unprepare(clk);
++		}
+ 
+ 		if (ret < 0)
+ 			dev_warn(dev, "can't use clk %d\n", i);
 -- 
 2.20.1
 
