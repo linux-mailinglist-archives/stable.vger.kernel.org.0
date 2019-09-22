@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 236AEBA632
+	by mail.lfdr.de (Postfix) with ESMTP id 8CBFBBA633
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391471AbfIVSsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44934 "EHLO mail.kernel.org"
+        id S2391503AbfIVSsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391457AbfIVSsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:12 -0400
+        id S2388599AbfIVSsP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62CED214D9;
-        Sun, 22 Sep 2019 18:48:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1D692190F;
+        Sun, 22 Sep 2019 18:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178092;
-        bh=almqlEgrShZjlwAf+YmnkiSQmi+dQpvSMs4EOo+e5No=;
+        s=default; t=1569178094;
+        bh=Iz/rm/WQRpcIwAOXL0oPExQ24VLEz8gHHqZ2wCq1jig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkRy1uRaR94eQnmAMR5IVLLqDYmcInUxGH0x03M2YeYtQm9PGEVuAaNIyweFtfVi0
-         ajGvoFtdhS2hHNcH82MoFx3JB1WBhjIFo16pCNwLfeP63QMZEHq9EuVCJ2foTqIYNP
-         vfnWor40iwiM/k7E1QWKr2Ug5eKyUAVNSOeVb4xk=
+        b=fbb1qxEm6tgn+KDd8EQGvTJ8lDzbD9Txk0F3Q7e3mLjhTwHUZ/4n2iWHeVHFrzj3G
+         UUwLYcSQcuDI7dNcE36jQRyxO4J64bWkyf2S1pV8EkJGTA8IZlpDXywyEdnC06at6r
+         j8RSPig32e7ihuJoVW//bLg+zFWM3B00r3AxnaHc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 157/203] ACPI: custom_method: fix memory leaks
-Date:   Sun, 22 Sep 2019 14:43:03 -0400
-Message-Id: <20190922184350.30563-157-sashal@kernel.org>
+Cc:     Kent Overstreet <kent.overstreet@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 159/203] closures: fix a race on wakeup from closure_sync
+Date:   Sun, 22 Sep 2019 14:43:05 -0400
+Message-Id: <20190922184350.30563-159-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,46 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Kent Overstreet <kent.overstreet@gmail.com>
 
-[ Upstream commit 03d1571d9513369c17e6848476763ebbd10ec2cb ]
+[ Upstream commit a22a9602b88fabf10847f238ff81fde5f906fef7 ]
 
-In cm_write(), 'buf' is allocated through kzalloc(). In the following
-execution, if an error occurs, 'buf' is not deallocated, leading to memory
-leaks. To fix this issue, free 'buf' before returning the error.
+The race was when a thread using closure_sync() notices cl->s->done == 1
+before the thread calling closure_put() calls wake_up_process(). Then,
+it's possible for that thread to return and exit just before
+wake_up_process() is called - so we're trying to wake up a process that
+no longer exists.
 
-Fixes: 526b4af47f44 ("ACPI: Split out custom_method functionality into an own driver")
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+rcu_read_lock() is sufficient to protect against this, as there's an rcu
+barrier somewhere in the process teardown path.
+
+Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
+Acked-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/custom_method.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/md/bcache/closure.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/custom_method.c b/drivers/acpi/custom_method.c
-index b2ef4c2ec955d..fd66a736621cf 100644
---- a/drivers/acpi/custom_method.c
-+++ b/drivers/acpi/custom_method.c
-@@ -49,8 +49,10 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
- 	if ((*ppos > max_size) ||
- 	    (*ppos + count > max_size) ||
- 	    (*ppos + count < count) ||
--	    (count > uncopied_bytes))
-+	    (count > uncopied_bytes)) {
-+		kfree(buf);
- 		return -EINVAL;
-+	}
+diff --git a/drivers/md/bcache/closure.c b/drivers/md/bcache/closure.c
+index 73f5319295bc9..c12cd809ab193 100644
+--- a/drivers/md/bcache/closure.c
++++ b/drivers/md/bcache/closure.c
+@@ -105,8 +105,14 @@ struct closure_syncer {
  
- 	if (copy_from_user(buf + (*ppos), user_buf, count)) {
- 		kfree(buf);
-@@ -70,6 +72,7 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
- 		add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
- 	}
- 
-+	kfree(buf);
- 	return count;
+ static void closure_sync_fn(struct closure *cl)
+ {
+-	cl->s->done = 1;
+-	wake_up_process(cl->s->task);
++	struct closure_syncer *s = cl->s;
++	struct task_struct *p;
++
++	rcu_read_lock();
++	p = READ_ONCE(s->task);
++	s->done = 1;
++	wake_up_process(p);
++	rcu_read_unlock();
  }
  
+ void __sched __closure_sync(struct closure *cl)
 -- 
 2.20.1
 
