@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B06BAA19
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53645BAA17
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731177AbfIVTWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53752 "EHLO mail.kernel.org"
+        id S1725865AbfIVTWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392719AbfIVSxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:43 -0400
+        id S2394414AbfIVSxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36C7E21E6F;
-        Sun, 22 Sep 2019 18:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A92921A4A;
+        Sun, 22 Sep 2019 18:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178422;
-        bh=PO6/JpMM8870A6I/uwuOSfPrmhKU+aElITomc83RwyQ=;
+        s=default; t=1569178428;
+        bh=/F0eqdyJKABuAv6cUV90z+rRaHqrSXh+R+pUYfvNIeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E44EBEOHy2JfECF+sGqZkVypqFKbMGXljdpfmzN/zMM+WVsbpbDadbBjmZLQviHW3
-         61BK5K/flzmx425t3x2MVNQeyWYlaCOFosknFYe5JPq8hK3kjvK8tJ/Tfr9mBYV5cm
-         DmfNKnBgAX5gzHSyoIRg8fOQUXJaXvmUpzWWZJZ4=
+        b=pdOMukVO9CrfnKD2VIWdaoAh1+XmjEOamug5OWfHfTPp7HLS41ohCwLUdsC9ndFLJ
+         sCS4FQ0KL6OiGzgn/OPcO+gwW/18w/C1MhbJMcS8H78wsukZ1E6OxrntVh1dyjXxvq
+         0urTLmWMgMaZ9CjHC5p5PDfY48HK8gn1MKPkbwTM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jackie Liu <liuyun01@kylinos.cn>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 160/185] io_uring: fix wrong sequence setting logic
-Date:   Sun, 22 Sep 2019 14:48:58 -0400
-Message-Id: <20190922184924.32534-160-sashal@kernel.org>
+Cc:     Miles Chen <miles.chen@mediatek.com>,
+        linux-mediatek@lists.infradead.org, wsd_upstream@mediatek.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 164/185] sched/psi: Correct overly pessimistic size calculation
+Date:   Sun, 22 Sep 2019 14:49:02 -0400
+Message-Id: <20190922184924.32534-164-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -42,52 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 8776f3fa15a5cd213c4dfab7ddaf557983374ea6 ]
+[ Upstream commit 4adcdcea717cb2d8436bef00dd689aa5bc76f11b ]
 
-Sqo_thread will get sqring in batches, which will cause
-ctx->cached_sq_head to be added in batches. if one of these
-sqes is set with the DRAIN flag, then he will never get a
-chance to process, and finally sqo_thread will not exit.
+When passing a equal or more then 32 bytes long string to psi_write(),
+psi_write() copies 31 bytes to its buf and overwrites buf[30]
+with '\0'. Which makes the input string 1 byte shorter than
+it should be.
 
-Fixes: de0617e4671 ("io_uring: add support for marking commands as draining")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix it by copying sizeof(buf) bytes when nbytes >= sizeof(buf).
+
+This does not cause problems in normal use case like:
+"some 500000 10000000" or "full 500000 10000000" because they
+are less than 32 bytes in length.
+
+	/* assuming nbytes == 35 */
+	char buf[32];
+
+	buf_size = min(nbytes, (sizeof(buf) - 1)); /* buf_size = 31 */
+	if (copy_from_user(buf, user_buf, buf_size))
+		return -EFAULT;
+
+	buf[buf_size - 1] = '\0'; /* buf[30] = '\0' */
+
+Before:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [   22.473497] nbytes=35,buf_size=31
+ [   22.473775] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [   64.916162] nbytes=32,buf_size=31
+ [   64.916331] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+After:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [  254.837863] nbytes=35,buf_size=32
+ [  254.838541] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [ 9965.714935] nbytes=32,buf_size=32
+ [ 9965.715096] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+Also remove the superfluous parentheses.
+
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Cc: <linux-mediatek@lists.infradead.org>
+Cc: <wsd_upstream@mediatek.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190912103452.13281-1-miles.chen@mediatek.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/psi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 03cd8f5bba850..701936f2bde39 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -288,6 +288,7 @@ struct io_ring_ctx {
- struct sqe_submit {
- 	const struct io_uring_sqe	*sqe;
- 	unsigned short			index;
-+	u32				sequence;
- 	bool				has_user;
- 	bool				needs_lock;
- 	bool				needs_fixed_file;
-@@ -1894,7 +1895,7 @@ static int io_req_set_file(struct io_ring_ctx *ctx, const struct sqe_submit *s,
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 6e52b67b420e7..517e3719027e6 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1198,7 +1198,7 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
+ 	if (static_branch_likely(&psi_disabled))
+ 		return -EOPNOTSUPP;
  
- 	if (flags & IOSQE_IO_DRAIN) {
- 		req->flags |= REQ_F_IO_DRAIN;
--		req->sequence = ctx->cached_sq_head - 1;
-+		req->sequence = s->sequence;
- 	}
+-	buf_size = min(nbytes, (sizeof(buf) - 1));
++	buf_size = min(nbytes, sizeof(buf));
+ 	if (copy_from_user(buf, user_buf, buf_size))
+ 		return -EFAULT;
  
- 	if (!io_op_needs_file(s->sqe))
-@@ -2050,6 +2051,7 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct sqe_submit *s)
- 	if (head < ctx->sq_entries) {
- 		s->index = head;
- 		s->sqe = &ctx->sq_sqes[head];
-+		s->sequence = ctx->cached_sq_head;
- 		ctx->cached_sq_head++;
- 		return true;
- 	}
 -- 
 2.20.1
 
