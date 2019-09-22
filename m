@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 143D7BA48C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF27BA490
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392549AbfIVSto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:49:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
+        id S2388875AbfIVSts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392534AbfIVStn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:49:43 -0400
+        id S2392587AbfIVStr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:49:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BF31208C2;
-        Sun, 22 Sep 2019 18:49:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41491208C2;
+        Sun, 22 Sep 2019 18:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178183;
-        bh=DTKvO66v163p+va+SeGgFiOwP3tsFY04aRiTV0shENc=;
+        s=default; t=1569178186;
+        bh=hur19vWkAiOq3yd3smTM1bKIGxosmEdosTs5oL2XyEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxO28WpHkzg+T2FAJxo1HvdfA9LUIe+GB51LEW3oYCZg12a/uZLTGMNrU55lpCIed
-         I+AG3O+arT9l4T/ZqyfSHhVsJbBAp27XFs4Wj9LDvImqCKOSI1zxiu++In1BsZfPKI
-         oYTKo3gJ16dRqi6O9TAkmbvcCAdrW8PsZlc/7taU=
+        b=tq7X2dUbvocKJY5JmnjJAu5qVunSrOWNDdiJPsmpaOJAW4zMsZlCyrCr11zaoyM6c
+         fGPo2w16wnlVYPDY6TeqzC7NwOP06l5eKj1c8qDirK7qkk0h4HrwVosaJ0pBcp+BEX
+         UKZy8tbDVED//qGevEdROtgjXIHwXRabZaw7PdlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Young <sean@mess.org>, Sean Wang <sean.wang@kernel.org>,
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 013/185] media: mtk-cir: lower de-glitch counter for rc-mm protocol
-Date:   Sun, 22 Sep 2019 14:46:31 -0400
-Message-Id: <20190922184924.32534-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 015/185] media: exynos4-is: fix leaked of_node references
+Date:   Sun, 22 Sep 2019 14:46:33 -0400
+Message-Id: <20190922184924.32534-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,49 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 5dd4b89dc098bf22cd13e82a308f42a02c102b2b ]
+[ Upstream commit da79bf41a4d170ca93cc8f3881a70d734a071c37 ]
 
-The rc-mm protocol can't be decoded by the mtk-cir since the de-glitch
-filter removes pulses/spaces shorter than 294 microseconds.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Tested on a BananaPi R2.
+Detected by coccinelle with the following warnings:
+drivers/media/platform/exynos4-is/fimc-is.c:813:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/fimc-is.c:870:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/fimc-is.c:885:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:545:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 541, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:528:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:534:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
 
-Signed-off-by: Sean Young <sean@mess.org>
-Acked-by: Sean Wang <sean.wang@kernel.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/mtk-cir.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/platform/exynos4-is/fimc-is.c   | 1 +
+ drivers/media/platform/exynos4-is/media-dev.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/media/rc/mtk-cir.c b/drivers/media/rc/mtk-cir.c
-index 46101efe017be..da457bf851303 100644
---- a/drivers/media/rc/mtk-cir.c
-+++ b/drivers/media/rc/mtk-cir.c
-@@ -35,6 +35,11 @@
- /* Fields containing pulse width data */
- #define MTK_WIDTH_MASK		  (GENMASK(7, 0))
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index e043d55133a31..b7cc8e651e327 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -806,6 +806,7 @@ static int fimc_is_probe(struct platform_device *pdev)
+ 		return -ENODEV;
  
-+/* IR threshold */
-+#define MTK_IRTHD		 0x14
-+#define MTK_DG_CNT_MASK		 (GENMASK(12, 8))
-+#define MTK_DG_CNT(x)		 ((x) << 8)
-+
- /* Bit to enable interrupt */
- #define MTK_IRINT_EN		  BIT(0)
+ 	is->pmu_regs = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!is->pmu_regs)
+ 		return -ENOMEM;
  
-@@ -400,6 +405,9 @@ static int mtk_ir_probe(struct platform_device *pdev)
- 	mtk_w32_mask(ir, val, ir->data->fields[MTK_HW_PERIOD].mask,
- 		     ir->data->fields[MTK_HW_PERIOD].reg);
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 1b83a6ec745fb..3cece7cd73e28 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -499,6 +499,7 @@ static int fimc_md_register_sensor_entities(struct fimc_md *fmd)
+ 			continue;
  
-+	/* Set de-glitch counter */
-+	mtk_w32_mask(ir, MTK_DG_CNT(1), MTK_DG_CNT_MASK, MTK_IRTHD);
-+
- 	/* Enable IR and PWM */
- 	val = mtk_r32(ir, MTK_CONFIG_HIGH_REG);
- 	val |= MTK_OK_COUNT(ir->data->ok_count) |  MTK_PWM_EN | MTK_IR_EN;
+ 		ret = fimc_md_parse_port_node(fmd, port, index);
++		of_node_put(port);
+ 		if (ret < 0) {
+ 			of_node_put(node);
+ 			goto cleanup;
+@@ -538,6 +539,7 @@ static int __of_get_csis_id(struct device_node *np)
+ 	if (!np)
+ 		return -EINVAL;
+ 	of_property_read_u32(np, "reg", &reg);
++	of_node_put(np);
+ 	return reg - FIMC_INPUT_MIPI_CSI2_0;
+ }
+ 
 -- 
 2.20.1
 
