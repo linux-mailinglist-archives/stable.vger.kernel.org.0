@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 513FBBAA35
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725BABAA33
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbfIVTXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:23:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53084 "EHLO mail.kernel.org"
+        id S1731307AbfIVTXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394047AbfIVSxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:20 -0400
+        id S2394136AbfIVSxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F7F021D79;
-        Sun, 22 Sep 2019 18:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D1F221D80;
+        Sun, 22 Sep 2019 18:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178399;
-        bh=1qcIqWVNgDnORZDuw7aMihN8tv/7ZLu/i1Km/FS0zBg=;
+        s=default; t=1569178401;
+        bh=Iz/rm/WQRpcIwAOXL0oPExQ24VLEz8gHHqZ2wCq1jig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RymK96/G1z/81o8uRuhXxXsJTY/sxd+mI9XaUVFW65Caws/r2HNXLRS5KAFdVi23L
-         LibaKTwwspPsnvMrqUxxx6jRBJWHv2haLtLUj+0rDPFKE5P9GHproyHESQa5JXcuhr
-         mfvT42oSto9cgFXBWKIVZdwHqCN1+B+0MBcyVk9Y=
+        b=LMwvgSmkwr3ETE2KLlLmi6nDyeqv7VqXzSRK7TepkpJ0yA5qICr6PQL50Not/7lcE
+         kWFk08AGIVHDOP7FYt4RCLigleTjA8btv7MIDZqaTUEf9Cl71a5L0Yt7r0ABpU4OBc
+         NaACKRN7/mK8fLrjZ+budK1ywdDQNFoHG34pnqBM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 143/185] ACPI / PCI: fix acpi_pci_irq_enable() memory leak
-Date:   Sun, 22 Sep 2019 14:48:41 -0400
-Message-Id: <20190922184924.32534-143-sashal@kernel.org>
+Cc:     Kent Overstreet <kent.overstreet@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 144/185] closures: fix a race on wakeup from closure_sync
+Date:   Sun, 22 Sep 2019 14:48:42 -0400
+Message-Id: <20190922184924.32534-144-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -44,39 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Kent Overstreet <kent.overstreet@gmail.com>
 
-[ Upstream commit 29b49958cf73b439b17fa29e9a25210809a6c01c ]
+[ Upstream commit a22a9602b88fabf10847f238ff81fde5f906fef7 ]
 
-In acpi_pci_irq_enable(), 'entry' is allocated by kzalloc() in
-acpi_pci_irq_check_entry() (invoked from acpi_pci_irq_lookup()). However,
-it is not deallocated if acpi_pci_irq_valid() returns false, leading to a
-memory leak. To fix this issue, free 'entry' before returning 0.
+The race was when a thread using closure_sync() notices cl->s->done == 1
+before the thread calling closure_put() calls wake_up_process(). Then,
+it's possible for that thread to return and exit just before
+wake_up_process() is called - so we're trying to wake up a process that
+no longer exists.
 
-Fixes: e237a5518425 ("x86/ACPI/PCI: Recognize that Interrupt Line 255 means "not connected"")
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+rcu_read_lock() is sufficient to protect against this, as there's an rcu
+barrier somewhere in the process teardown path.
+
+Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
+Acked-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_irq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/bcache/closure.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
-index d2549ae65e1b6..dea8a60e18a4c 100644
---- a/drivers/acpi/pci_irq.c
-+++ b/drivers/acpi/pci_irq.c
-@@ -449,8 +449,10 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
- 		 * No IRQ known to the ACPI subsystem - maybe the BIOS /
- 		 * driver reported one, then use it. Exit in any case.
- 		 */
--		if (!acpi_pci_irq_valid(dev, pin))
-+		if (!acpi_pci_irq_valid(dev, pin)) {
-+			kfree(entry);
- 			return 0;
-+		}
+diff --git a/drivers/md/bcache/closure.c b/drivers/md/bcache/closure.c
+index 73f5319295bc9..c12cd809ab193 100644
+--- a/drivers/md/bcache/closure.c
++++ b/drivers/md/bcache/closure.c
+@@ -105,8 +105,14 @@ struct closure_syncer {
  
- 		if (acpi_isa_register_gsi(dev))
- 			dev_warn(&dev->dev, "PCI INT %c: no GSI\n",
+ static void closure_sync_fn(struct closure *cl)
+ {
+-	cl->s->done = 1;
+-	wake_up_process(cl->s->task);
++	struct closure_syncer *s = cl->s;
++	struct task_struct *p;
++
++	rcu_read_lock();
++	p = READ_ONCE(s->task);
++	s->done = 1;
++	wake_up_process(p);
++	rcu_read_unlock();
+ }
+ 
+ void __sched __closure_sync(struct closure *cl)
 -- 
 2.20.1
 
