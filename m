@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1170EBAB6A
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32682BAB68
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404152AbfIVTig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:38:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41038 "EHLO mail.kernel.org"
+        id S2388737AbfIVTiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:38:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389169AbfIVSpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:23 -0400
+        id S2389279AbfIVSp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B0DD2190F;
-        Sun, 22 Sep 2019 18:45:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 991F621907;
+        Sun, 22 Sep 2019 18:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177922;
-        bh=Gr+mpr+UdVcsglgvTrR47wJ0vGzDZ7TykkhHAonJjdw=;
+        s=default; t=1569177928;
+        bh=jUA7/qGpkPZLB6Bq0rXE8/podl03XvX8nzplVpOsin4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DurhEnZ4OWaexqJkkrZ8JT9/W6JjrzyxyEb5VCpv3euam0Vdj9zw7Ilwj/7jmznYN
-         Lx0QHB/r9atPTFUGl3QTeHLQI14tCJDBQTGIwk8lynUX9Wd4lBaTyAk7UL8FqHgSlD
-         JWdVZFV+dbdoqNcwda63Tdta1rdk5tYV+17Xvumk=
+        b=uN/dxcyB8av3AX2/sRRqaZr8K7F4HVKFIsh2mayp05vDVR2uJ7NtCdTDSciV/0bBq
+         HADB1h7Z77iybO1v5vfXWI2gQa2xDQHeRhN1QosAUNne87sfuBrOzuKkfbUOqFUFsg
+         Pt3IT/f526bbQXWMnZiu1WDJN/nAzuChYK3p/ESg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 034/203] ASoC: meson: g12a-tohdmitx: override codec2codec params
-Date:   Sun, 22 Sep 2019 14:41:00 -0400
-Message-Id: <20190922184350.30563-34-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 039/203] cpuidle: teo: Allow tick to be stopped if PM QoS is used
+Date:   Sun, 22 Sep 2019 14:41:05 -0400
+Message-Id: <20190922184350.30563-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,95 +42,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 2c4956bc1e9062e5e3c5ea7612294f24e6d4fbdd ]
+[ Upstream commit cab09f3d2d2a0a6cb3dfb678660d67a2c3764f50 ]
 
-So far, forwarding the hw_params of the input to output relied on the
-.hw_params() callback of the cpu side of the codec2codec link to be called
-first. This is a bit weak.
+The TEO goveror prevents the scheduler tick from being stopped (unless
+stopped already) if there is a PM QoS latency constraint for the given
+CPU and the target residency of the deepest idle state matching that
+constraint is below the tick boundary.
 
-Instead, override the stream params of the codec2codec to link to set it up
-correctly.
+However, that is problematic if CPUs with PM QoS latency constraints
+are idle for long times, because it effectively causes the tick to
+run on them all the time which is wasteful.  [It is also confusing
+and questionable if they are full dynticks CPUs.]
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20190729080139.32068-1-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+To address that issue, modify the TEO governor to carry out the
+entire search for the most suitable idle state (from the target
+residency perspective) even if a latency constraint is present,
+to allow it to determine the expected idle duration in all cases.
+
+Also, when using the last several measured idle duration values
+to refine the idle state selection, make it compare those values
+with the current expected idle duration value (instead of
+comparing them with the target residency of the idle state
+selected so far) which should prevent the tick from being
+retained when it makes sense to stop it sometimes (especially
+in the presence of PM QoS latency constraints).
+
+Fixes: b26bf6ab716f ("cpuidle: New timer events oriented governor for tickless systems")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/g12a-tohdmitx.c | 34 ++++++++++++++++-----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ drivers/cpuidle/governors/teo.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/meson/g12a-tohdmitx.c b/sound/soc/meson/g12a-tohdmitx.c
-index 707ccb192e4c2..9943c807ec5d7 100644
---- a/sound/soc/meson/g12a-tohdmitx.c
-+++ b/sound/soc/meson/g12a-tohdmitx.c
-@@ -28,7 +28,7 @@
- #define  CTRL0_SPDIF_CLK_SEL		BIT(0)
+diff --git a/drivers/cpuidle/governors/teo.c b/drivers/cpuidle/governors/teo.c
+index 7d05efdbd3c66..12d9e6cecf1de 100644
+--- a/drivers/cpuidle/governors/teo.c
++++ b/drivers/cpuidle/governors/teo.c
+@@ -242,7 +242,7 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 	struct teo_cpu *cpu_data = per_cpu_ptr(&teo_cpus, dev->cpu);
+ 	int latency_req = cpuidle_governor_latency_req(dev->cpu);
+ 	unsigned int duration_us, count;
+-	int max_early_idx, idx, i;
++	int max_early_idx, constraint_idx, idx, i;
+ 	ktime_t delta_tick;
  
- struct g12a_tohdmitx_input {
--	struct snd_pcm_hw_params params;
-+	struct snd_soc_pcm_stream params;
- 	unsigned int fmt;
- };
+ 	if (cpu_data->last_state >= 0) {
+@@ -257,6 +257,7 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
  
-@@ -225,26 +225,17 @@ static int g12a_tohdmitx_input_hw_params(struct snd_pcm_substream *substream,
- {
- 	struct g12a_tohdmitx_input *data = dai->playback_dma_data;
+ 	count = 0;
+ 	max_early_idx = -1;
++	constraint_idx = drv->state_count;
+ 	idx = -1;
  
--	/* Save the stream params for the downstream link */
--	memcpy(&data->params, params, sizeof(*params));
-+	data->params.rates = snd_pcm_rate_to_rate_bit(params_rate(params));
-+	data->params.rate_min = params_rate(params);
-+	data->params.rate_max = params_rate(params);
-+	data->params.formats = 1 << params_format(params);
-+	data->params.channels_min = params_channels(params);
-+	data->params.channels_max = params_channels(params);
-+	data->params.sig_bits = dai->driver->playback.sig_bits;
+ 	for (i = 0; i < drv->state_count; i++) {
+@@ -286,16 +287,8 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 		if (s->target_residency > duration_us)
+ 			break;
  
- 	return 0;
- }
+-		if (s->exit_latency > latency_req) {
+-			/*
+-			 * If we break out of the loop for latency reasons, use
+-			 * the target residency of the selected state as the
+-			 * expected idle duration to avoid stopping the tick
+-			 * as long as that target residency is low enough.
+-			 */
+-			duration_us = drv->states[idx].target_residency;
+-			goto refine;
+-		}
++		if (s->exit_latency > latency_req && constraint_idx > i)
++			constraint_idx = i;
  
--static int g12a_tohdmitx_output_hw_params(struct snd_pcm_substream *substream,
--					  struct snd_pcm_hw_params *params,
--					  struct snd_soc_dai *dai)
--{
--	struct g12a_tohdmitx_input *in_data =
--		g12a_tohdmitx_get_input_data(dai->capture_widget);
--
--	if (!in_data)
--		return -ENODEV;
--
--	memcpy(params, &in_data->params, sizeof(*params));
--
--	return 0;
--}
+ 		idx = i;
  
- static int g12a_tohdmitx_input_set_fmt(struct snd_soc_dai *dai,
- 				       unsigned int fmt)
-@@ -266,6 +257,14 @@ static int g12a_tohdmitx_output_startup(struct snd_pcm_substream *substream,
- 	if (!in_data)
- 		return -ENODEV;
+@@ -321,7 +314,13 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 		duration_us = drv->states[idx].target_residency;
+ 	}
  
-+	if (WARN_ON(!rtd->dai_link->params)) {
-+		dev_warn(dai->dev, "codec2codec link expected\n");
-+		return -EINVAL;
-+	}
+-refine:
++	/*
++	 * If there is a latency constraint, it may be necessary to use a
++	 * shallower idle state than the one selected so far.
++	 */
++	if (constraint_idx < idx)
++		idx = constraint_idx;
 +
-+	/* Replace link params with the input params */
-+	rtd->dai_link->params = &in_data->params;
-+
- 	if (!in_data->fmt)
- 		return 0;
+ 	if (idx < 0) {
+ 		idx = 0; /* No states enabled. Must use 0. */
+ 	} else if (idx > 0) {
+@@ -331,13 +330,12 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
  
-@@ -278,7 +277,6 @@ static const struct snd_soc_dai_ops g12a_tohdmitx_input_ops = {
- };
+ 		/*
+ 		 * Count and sum the most recent idle duration values less than
+-		 * the target residency of the state selected so far, find the
+-		 * max.
++		 * the current expected idle duration value.
+ 		 */
+ 		for (i = 0; i < INTERVALS; i++) {
+ 			unsigned int val = cpu_data->intervals[i];
  
- static const struct snd_soc_dai_ops g12a_tohdmitx_output_ops = {
--	.hw_params	= g12a_tohdmitx_output_hw_params,
- 	.startup	= g12a_tohdmitx_output_startup,
- };
+-			if (val >= drv->states[idx].target_residency)
++			if (val >= duration_us)
+ 				continue;
  
+ 			count++;
+@@ -356,8 +354,10 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 			 * would be too shallow.
+ 			 */
+ 			if (!(tick_nohz_tick_stopped() && avg_us < TICK_USEC)) {
+-				idx = teo_find_shallower_state(drv, dev, idx, avg_us);
+ 				duration_us = avg_us;
++				if (drv->states[idx].target_residency > avg_us)
++					idx = teo_find_shallower_state(drv, dev,
++								       idx, avg_us);
+ 			}
+ 		}
+ 	}
 -- 
 2.20.1
 
