@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A31FBBA497
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6126DBA49D
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392820AbfIVSuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47144 "EHLO mail.kernel.org"
+        id S2403916AbfIVSu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:50:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388840AbfIVSuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:12 -0400
+        id S2403906AbfIVSu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:50:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0293B21A4A;
-        Sun, 22 Sep 2019 18:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7C322196E;
+        Sun, 22 Sep 2019 18:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178212;
-        bh=1gu4rf+5VEszUoONBv6+5oClhIK+BZ/7dqRQHE6quhM=;
+        s=default; t=1569178225;
+        bh=zzHl6fU5aKHK7l+a6UXgVYGiaDCb6jFYvh4Lo9V7hgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy+/X5xMnnK2bZhhctWcojWVNNrrvs3m6QJHBrJnqzyOBFKfSUevzEOGwXgGbI6ey
-         zuKm/et+uvpA6uoLZAsbGDWGNgvdDbZwF6vfQpWnkzsX5gOegCBJSKoPWeB9h4TSFZ
-         sQ6jwevp1LXW30rIp59+oLwUt4RbO5BHsU1OL/9M=
+        b=j3uUEqZfg6KsvTjeme1ARsNEzpGc8LWQEXta9QMcpvV/ZCbCqKezcGFvcLOQxYbTd
+         vuinxS6MzGfJh3l+tuX2ZJKJ4ZsfQtYpbmXUed7dJTMFvc+w8y4z3qTyCgnI5ArQ+k
+         AEPsg2/n0/77NVdlTcOwpsf3N8/DMc9rSqzh4pok=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 018/185] media: vivid: work around high stack usage with clang
-Date:   Sun, 22 Sep 2019 14:46:36 -0400
-Message-Id: <20190922184924.32534-18-sashal@kernel.org>
+Cc:     Grzegorz Halat <ghalat@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Don Zickus <dzickus@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 026/185] x86/reboot: Always use NMI fallback when shutdown via reboot vector IPI fails
+Date:   Sun, 22 Sep 2019 14:46:44 -0400
+Message-Id: <20190922184924.32534-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -45,56 +44,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Grzegorz Halat <ghalat@redhat.com>
 
-[ Upstream commit 1a03f91c2c2419c3709c4554952c66695575e91c ]
+[ Upstream commit 747d5a1bf293dcb33af755a6d285d41b8c1ea010 ]
 
-Building a KASAN-enabled kernel with clang ends up in a case where too
-much is inlined into vivid_thread_vid_cap() and the stack usage grows
-a lot, possibly when the register allocation fails to produce efficient
-code and spills a lot of temporaries to the stack. This uses more
-than twice the amount of stack than the sum of the individual functions
-when they are not inlined:
+A reboot request sends an IPI via the reboot vector and waits for all other
+CPUs to stop. If one or more CPUs are in critical regions with interrupts
+disabled then the IPI is not handled on those CPUs and the shutdown hangs
+if native_stop_other_cpus() is called with the wait argument set.
 
-drivers/media/platform/vivid/vivid-kthread-cap.c:766:12: error: stack frame size of 2208 bytes in function 'vivid_thread_vid_cap' [-Werror,-Wframe-larger-than=]
+Such a situation can happen when one CPU was stopped within a lock held
+section and another CPU is trying to acquire that lock with interrupts
+disabled. There are other scenarios which can cause such a lockup as well.
 
-Marking two of the key functions in here as 'noinline_for_stack' avoids
-the pathological case in clang without any apparent downside for gcc.
+In theory the shutdown should be attempted by an NMI IPI after the timeout
+period elapsed. Though the wait loop after sending the reboot vector IPI
+prevents this. It checks the wait request argument and the timeout. If wait
+is set, which is true for sys_reboot() then it won't fall through to the
+NMI shutdown method after the timeout period has finished.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+This was an oversight when the NMI shutdown mechanism was added to handle
+the 'reboot IPI is not working' situation. The mechanism was added to deal
+with stuck panic shutdowns, which do not have the wait request set, so the
+'wait request' case was probably not considered.
+
+Remove the wait check from the post reboot vector IPI wait loop and enforce
+that the wait loop in the NMI fallback path is invoked even if NMI IPIs are
+disabled or the registration of the NMI handler fails. That second wait
+loop will then hang if not all CPUs shutdown and the wait argument is set.
+
+[ tglx: Avoid the hard to parse line break in the NMI fallback path,
+  	add comments and massage the changelog ]
+
+Fixes: 7d007d21e539 ("x86/reboot: Use NMI to assist in shutting down if IRQ fails")
+Signed-off-by: Grzegorz Halat <ghalat@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Don Zickus <dzickus@redhat.com>
+Link: https://lkml.kernel.org/r/20190628122813.15500-1-ghalat@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-kthread-cap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kernel/smp.c | 46 +++++++++++++++++++++++++------------------
+ 1 file changed, 27 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
-index cf6dfecf879f7..96d85cd8839f3 100644
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -232,8 +232,8 @@ static void *plane_vaddr(struct tpg_data *tpg, struct vivid_buffer *buf,
- 	return vbuf;
+diff --git a/arch/x86/kernel/smp.c b/arch/x86/kernel/smp.c
+index 4693e2f3a03ec..f2a749586252e 100644
+--- a/arch/x86/kernel/smp.c
++++ b/arch/x86/kernel/smp.c
+@@ -179,6 +179,12 @@ asmlinkage __visible void smp_reboot_interrupt(void)
+ 	irq_exit();
  }
  
--static int vivid_copy_buffer(struct vivid_dev *dev, unsigned p, u8 *vcapbuf,
--		struct vivid_buffer *vid_cap_buf)
-+static noinline_for_stack int vivid_copy_buffer(struct vivid_dev *dev, unsigned p,
-+		u8 *vcapbuf, struct vivid_buffer *vid_cap_buf)
++static int register_stop_handler(void)
++{
++	return register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
++				    NMI_FLAG_FIRST, "smp_stop");
++}
++
+ static void native_stop_other_cpus(int wait)
  {
- 	bool blank = dev->must_blank[vid_cap_buf->vb.vb2_buf.index];
- 	struct tpg_data *tpg = &dev->tpg;
-@@ -672,7 +672,8 @@ static void vivid_cap_update_frame_period(struct vivid_dev *dev)
- 	dev->cap_frame_period = f_period;
- }
+ 	unsigned long flags;
+@@ -212,39 +218,41 @@ static void native_stop_other_cpus(int wait)
+ 		apic->send_IPI_allbutself(REBOOT_VECTOR);
  
--static void vivid_thread_vid_cap_tick(struct vivid_dev *dev, int dropped_bufs)
-+static noinline_for_stack void vivid_thread_vid_cap_tick(struct vivid_dev *dev,
-+							 int dropped_bufs)
- {
- 	struct vivid_buffer *vid_cap_buf = NULL;
- 	struct vivid_buffer *vbi_cap_buf = NULL;
+ 		/*
+-		 * Don't wait longer than a second if the caller
+-		 * didn't ask us to wait.
++		 * Don't wait longer than a second for IPI completion. The
++		 * wait request is not checked here because that would
++		 * prevent an NMI shutdown attempt in case that not all
++		 * CPUs reach shutdown state.
+ 		 */
+ 		timeout = USEC_PER_SEC;
+-		while (num_online_cpus() > 1 && (wait || timeout--))
++		while (num_online_cpus() > 1 && timeout--)
+ 			udelay(1);
+ 	}
+-	
+-	/* if the REBOOT_VECTOR didn't work, try with the NMI */
+-	if ((num_online_cpus() > 1) && (!smp_no_nmi_ipi))  {
+-		if (register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
+-					 NMI_FLAG_FIRST, "smp_stop"))
+-			/* Note: we ignore failures here */
+-			/* Hope the REBOOT_IRQ is good enough */
+-			goto finish;
+-
+-		/* sync above data before sending IRQ */
+-		wmb();
+ 
+-		pr_emerg("Shutting down cpus with NMI\n");
++	/* if the REBOOT_VECTOR didn't work, try with the NMI */
++	if (num_online_cpus() > 1) {
++		/*
++		 * If NMI IPI is enabled, try to register the stop handler
++		 * and send the IPI. In any case try to wait for the other
++		 * CPUs to stop.
++		 */
++		if (!smp_no_nmi_ipi && !register_stop_handler()) {
++			/* Sync above data before sending IRQ */
++			wmb();
+ 
+-		apic->send_IPI_allbutself(NMI_VECTOR);
++			pr_emerg("Shutting down cpus with NMI\n");
+ 
++			apic->send_IPI_allbutself(NMI_VECTOR);
++		}
+ 		/*
+-		 * Don't wait longer than a 10 ms if the caller
+-		 * didn't ask us to wait.
++		 * Don't wait longer than 10 ms if the caller didn't
++		 * reqeust it. If wait is true, the machine hangs here if
++		 * one or more CPUs do not reach shutdown state.
+ 		 */
+ 		timeout = USEC_PER_MSEC * 10;
+ 		while (num_online_cpus() > 1 && (wait || timeout--))
+ 			udelay(1);
+ 	}
+ 
+-finish:
+ 	local_irq_save(flags);
+ 	disable_local_APIC();
+ 	mcheck_cpu_clear(this_cpu_ptr(&cpu_info));
 -- 
 2.20.1
 
