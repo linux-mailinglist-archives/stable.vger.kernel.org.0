@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AA1BBA637
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE01BA63D
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391598AbfIVSs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:48:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
+        id S2391559AbfIVSsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:48:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391532AbfIVSs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:26 -0400
+        id S2391711AbfIVSsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB9BE2186A;
-        Sun, 22 Sep 2019 18:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B917F208C2;
+        Sun, 22 Sep 2019 18:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178105;
-        bh=UcXwOX4Q3s/OeMb0P6GUol/4vmnAyQo333LJD65XGZo=;
+        s=default; t=1569178120;
+        bh=A5X2Og1r81lOw6mPlGwfMS/sB3j/vqTSU+w3envdz6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1qFw5+2N2xTmzeVqr/dGplC12K5lk2Jl5o7tkzOUFDtAqxTKGn/4UPTxFlhi+gX+
-         FZc8p4iVph/jPLoTdqes76R2C1rKqH3GUlXmDgxTI/EvkRQJGTAf65PdECRs1Hqd9s
-         J0pG2DxnqcxVNCZMNi65VnKMA1fgoNXkLoCri1UQ=
+        b=Fp/m5hM/Rw0duo9SmgsfuQGLex0xKJMuz1YHdqWlw9zURHLD+3eCfS7S9fWuyNvHo
+         +dZinFnUAbXvmgozoaBleJnDyui9OsiZXCc29D4WBt1iH7538UfOm/avpERhPBsZnz
+         8CqgupovYcZ5TefwPQY2EC9MVTg+vJXXB7xIdaoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Marc Zyngier <maz@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 166/203] irqchip/sifive-plic: set max threshold for ignored handlers
-Date:   Sun, 22 Sep 2019 14:43:12 -0400
-Message-Id: <20190922184350.30563-166-sashal@kernel.org>
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        David Arcari <darcari@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 176/203] tools/power/x86/intel-speed-select: Fix memory leak
+Date:   Sun, 22 Sep 2019 14:43:22 -0400
+Message-Id: <20190922184350.30563-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,62 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Prarit Bhargava <prarit@redhat.com>
 
-[ Upstream commit 9ce06497c2722a0f9109e4cc3ce35b7a69617886 ]
+[ Upstream commit 3bc3d30ca324bfc3045a1a7fe1f5fe5ad5d92fd9 ]
 
-When running in M-mode, the S-mode plic handlers are still listed in the
-device tree.  Ignore them by setting the maximum threshold.
+cpumasks are allocated by calling the alloc_cpu_mask() function and are
+never free'd.  They should be free'd after the commands have run.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Fix the memory leaks by calling free_cpu_set().
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ tools/power/x86/intel-speed-select/isst-config.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index cf755964f2f8b..c72c036aea768 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -244,6 +244,7 @@ static int __init plic_init(struct device_node *node,
- 		struct plic_handler *handler;
- 		irq_hw_number_t hwirq;
- 		int cpu, hartid;
-+		u32 threshold = 0;
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index 91c5ad1685a15..6a10dea01eefc 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -603,6 +603,10 @@ static int isst_fill_platform_info(void)
  
- 		if (of_irq_parse_one(node, i, &parent)) {
- 			pr_err("failed to parse parent for context %d.\n", i);
-@@ -266,10 +267,16 @@ static int __init plic_init(struct device_node *node,
- 			continue;
- 		}
+ 	close(fd);
  
-+		/*
-+		 * When running in M-mode we need to ignore the S-mode handler.
-+		 * Here we assume it always comes later, but that might be a
-+		 * little fragile.
-+		 */
- 		handler = per_cpu_ptr(&plic_handlers, cpu);
- 		if (handler->present) {
- 			pr_warn("handler already present for context %d.\n", i);
--			continue;
-+			threshold = 0xffffffff;
-+			goto done;
- 		}
++	if (isst_platform_info.api_version > supported_api_ver) {
++		printf("Incompatible API versions; Upgrade of tool is required\n");
++		return -1;
++	}
+ 	return 0;
+ }
  
- 		handler->present = true;
-@@ -279,8 +286,9 @@ static int __init plic_init(struct device_node *node,
- 		handler->enable_base =
- 			plic_regs + ENABLE_BASE + i * ENABLE_PER_HART;
+@@ -1529,6 +1533,7 @@ static void cmdline(int argc, char **argv)
+ {
+ 	int opt;
+ 	int option_index = 0;
++	int ret;
  
-+done:
- 		/* priority must be > threshold to trigger an interrupt */
--		writel(0, handler->hart_base + CONTEXT_THRESHOLD);
-+		writel(threshold, handler->hart_base + CONTEXT_THRESHOLD);
- 		for (hwirq = 1; hwirq <= nr_irqs; hwirq++)
- 			plic_toggle(handler, hwirq, 0);
- 		nr_handlers++;
+ 	static struct option long_options[] = {
+ 		{ "cpu", required_argument, 0, 'c' },
+@@ -1590,13 +1595,14 @@ static void cmdline(int argc, char **argv)
+ 	set_max_cpu_num();
+ 	set_cpu_present_cpu_mask();
+ 	set_cpu_target_cpu_mask();
+-	isst_fill_platform_info();
+-	if (isst_platform_info.api_version > supported_api_ver) {
+-		printf("Incompatible API versions; Upgrade of tool is required\n");
+-		exit(0);
+-	}
++	ret = isst_fill_platform_info();
++	if (ret)
++		goto out;
+ 
+ 	process_command(argc, argv);
++out:
++	free_cpu_set(present_cpumask);
++	free_cpu_set(target_cpumask);
+ }
+ 
+ int main(int argc, char **argv)
 -- 
 2.20.1
 
