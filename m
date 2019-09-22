@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5DBBA601
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7A8BA605
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388604AbfIVSrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43338 "EHLO mail.kernel.org"
+        id S2390598AbfIVSrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390495AbfIVSrB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:01 -0400
+        id S2390571AbfIVSrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FE512186A;
-        Sun, 22 Sep 2019 18:47:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4975F2186A;
+        Sun, 22 Sep 2019 18:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178021;
-        bh=FhMqtDm73GhvjtyVWDtKRVY17JuvvD8eg/8rpvN6FjU=;
+        s=default; t=1569178029;
+        bh=Hd313bNn1nwYn7nl2HeoEwQBysegcQMaraVjCkG6hTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=se9r0hRyXemivHdtQhKuv9f6nXhhjEF0gr4cEyHgaiia9rAnznYOodRvajn8NoK5s
-         SZFwiDR240EpgwID3Bg+ZymZXXL4ghO5kOY2aoEJVSZ6mD3WSCmSDNU8IHGw/v8Dtu
-         SyS8ka8AZ4URqavgxFCPynsnSQrIhjSDBRXpesJo=
+        b=RBCrQVRmJJKJbQwqWpZVF1M91ut7qNRSFpTdIOPhwi8JmpNUv4e+X2j/rGYrNZafq
+         ntZc1P1h02mGFPuLjVRCz/PiN313tPRGRXSgS/PCU/FHimzeJl+GB7ZKLnRznYc+GI
+         nVkMgv+6RPabmJWfFtaAgkki2d5MXWDYjA/oiDzI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 106/203] s390/kasan: provide uninstrumented __strlen
-Date:   Sun, 22 Sep 2019 14:42:12 -0400
-Message-Id: <20190922184350.30563-106-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 112/203] cpufreq: imx-cpufreq-dt: Add i.MX8MN support
+Date:   Sun, 22 Sep 2019 14:42:18 -0400
+Message-Id: <20190922184350.30563-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,63 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit f45f7b5bdaa4828ce871cf03f7c01599a0de57a5 ]
+[ Upstream commit 75c000c4bcbe2b0eb82baf90c7dd75c7380cc3fd ]
 
-s390 kasan code uses sclp_early_printk to report initialization
-failures. The code doing that should not be instrumented, because kasan
-shadow memory has not been set up yet. Even though sclp_early_core.c is
-compiled with instrumentation disabled it uses strlen function, which
-is instrumented and would produce shadow memory access if used. To
-avoid that, introduce uninstrumented __strlen function to be used
-instead.
+i.MX8MN has different speed grading definition as below, it has 4 bits
+to define speed grading, add support for it.
 
-Before commit 7e0d92f00246 ("s390/kasan: improve string/memory functions
-checks") few string functions (including strlen) were escaping kasan
-instrumentation due to usage of platform specific versions which are
-implemented in inline assembly.
+ SPEED_GRADE[3:0]    MHz
+    0000            2300
+    0001            2200
+    0010            2100
+    0011            2000
+    0100            1900
+    0101            1800
+    0110            1700
+    0111            1600
+    1000            1500
+    1001            1400
+    1010            1300
+    1011            1200
+    1100            1100
+    1101            1000
+    1110             900
+    1111             800
 
-Fixes: 7e0d92f00246 ("s390/kasan: improve string/memory functions checks")
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/string.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/cpufreq/imx-cpufreq-dt.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 70d87db54e627..4c0690fc5167e 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -71,11 +71,16 @@ extern void *__memmove(void *dest, const void *src, size_t n);
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-+#define strlen(s) __strlen(s)
-+
-+#define __no_sanitize_prefix_strfunc(x) __##x
+diff --git a/drivers/cpufreq/imx-cpufreq-dt.c b/drivers/cpufreq/imx-cpufreq-dt.c
+index 4f85f3112784f..35db14cf31026 100644
+--- a/drivers/cpufreq/imx-cpufreq-dt.c
++++ b/drivers/cpufreq/imx-cpufreq-dt.c
+@@ -16,6 +16,7 @@
  
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
+ #define OCOTP_CFG3_SPEED_GRADE_SHIFT	8
+ #define OCOTP_CFG3_SPEED_GRADE_MASK	(0x3 << 8)
++#define IMX8MN_OCOTP_CFG3_SPEED_GRADE_MASK	(0xf << 8)
+ #define OCOTP_CFG3_MKT_SEGMENT_SHIFT    6
+ #define OCOTP_CFG3_MKT_SEGMENT_MASK     (0x3 << 6)
  
-+#else
-+#define __no_sanitize_prefix_strfunc(x) x
- #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
+@@ -34,7 +35,12 @@ static int imx_cpufreq_dt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
- void *__memset16(uint16_t *s, uint16_t v, size_t count);
-@@ -163,8 +168,8 @@ static inline char *strcpy(char *dst, const char *src)
- }
- #endif
+-	speed_grade = (cell_value & OCOTP_CFG3_SPEED_GRADE_MASK) >> OCOTP_CFG3_SPEED_GRADE_SHIFT;
++	if (of_machine_is_compatible("fsl,imx8mn"))
++		speed_grade = (cell_value & IMX8MN_OCOTP_CFG3_SPEED_GRADE_MASK)
++			      >> OCOTP_CFG3_SPEED_GRADE_SHIFT;
++	else
++		speed_grade = (cell_value & OCOTP_CFG3_SPEED_GRADE_MASK)
++			      >> OCOTP_CFG3_SPEED_GRADE_SHIFT;
+ 	mkt_segment = (cell_value & OCOTP_CFG3_MKT_SEGMENT_MASK) >> OCOTP_CFG3_MKT_SEGMENT_SHIFT;
  
--#ifdef __HAVE_ARCH_STRLEN
--static inline size_t strlen(const char *s)
-+#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
-+static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
- {
- 	register unsigned long r0 asm("0") = 0;
- 	const char *tmp = s;
+ 	/*
 -- 
 2.20.1
 
