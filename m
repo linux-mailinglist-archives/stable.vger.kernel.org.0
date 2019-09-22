@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2648BA67D
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D88BA67E
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404597AbfIVSu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48346 "EHLO mail.kernel.org"
+        id S2404681AbfIVSvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404446AbfIVSu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:58 -0400
+        id S2404193AbfIVSu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:50:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5A3021D6C;
-        Sun, 22 Sep 2019 18:50:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 650D821BE5;
+        Sun, 22 Sep 2019 18:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178257;
-        bh=CiyScJoSbjEh1dk6sz0/OoVDGfhZZEA9aBDwuupZISg=;
+        s=default; t=1569178259;
+        bh=kJC6Awz8EDg7dPEGltPbxNIzRDp5I4Bk/eB1xSqgAyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1r/gi9PSWDQBt/I4yKAskRywb2n+ffK+XcQIERFs1fZpy8ZPAIXnb/m/ubt1MNSvH
-         WMZnMIn1B/+vlBiLAnPV7VVCAvOWJAfdQ85QYbWNqEs21CP/ICVTzmO9g51vkvAZAu
-         UAGr7VfNACCViE0M7yokmox68qL1AQInDjDw0K5Q=
+        b=1dA0nwjKMm4kQUR38zd4+uTQTaX+gnvIcDk2dhN32WGBs9pO3+cM3ctnFi14MwzXe
+         43cXw9SNGAVFgBMQSx22EumYd3ZEm/gvD9xqEqBABOByppqMWskmnjnzLhf4RCFISf
+         st3tm7oaCCMuzen20HyhwOuTVxr+PwqunBBQ9hl0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        kbuild test robot <lkp@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        linux-edac@vger.kernel.org, x86@kernel.org,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 047/185] RAS: Build debugfs.o only when enabled in Kconfig
-Date:   Sun, 22 Sep 2019 14:47:05 -0400
-Message-Id: <20190922184924.32534-47-sashal@kernel.org>
+Cc:     Keyon Jie <yang.jie@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 048/185] ASoC: hdac_hda: fix page fault issue by removing race
+Date:   Sun, 22 Sep 2019 14:47:06 -0400
+Message-Id: <20190922184924.32534-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -46,47 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+From: Keyon Jie <yang.jie@linux.intel.com>
 
-[ Upstream commit b6ff24f7b5101101ff897dfdde3f37924e676bc2 ]
+[ Upstream commit 804cbf4bb063204ca6c2471baa694548aab02ce3 ]
 
-In addition, the 0day bot reported this build error:
+There is a race between hda codec device removing and the
+jack-detecting work, which will lead to a page fault issue as the
+latter work is accessing codec device which could be already removed.
 
-  >> drivers/ras/debugfs.c:10:5: error: redefinition of 'ras_userspace_consumers'
-      int ras_userspace_consumers(void)
-          ^~~~~~~~~~~~~~~~~~~~~~~
-     In file included from drivers/ras/debugfs.c:3:0:
-     include/linux/ras.h:14:19: note: previous definition of 'ras_userspace_consumers' was here
-      static inline int ras_userspace_consumers(void) { return 0; }
-                      ^~~~~~~~~~~~~~~~~~~~~~~
+Here add the cancellation of jack-detecting work before codecs are actually
+removed to avoid the race and fix the issue.
 
-for a riscv-specific .config where CONFIG_DEBUG_FS is not set. Fix all
-that by making debugfs.o depend on that define.
-
- [ bp: Rewrite commit message. ]
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: linux-edac@vger.kernel.org
-Cc: x86@kernel.org
-Link: http://lkml.kernel.org/r/7053.1565218556@turing-police
+Bug: https://github.com/thesofproject/linux/issues/1067
+Signed-off-by: Keyon Jie <yang.jie@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190807145030.26117-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ras/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/hdac_hda.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/ras/Makefile b/drivers/ras/Makefile
-index ef6777e14d3df..6f0404f501071 100644
---- a/drivers/ras/Makefile
-+++ b/drivers/ras/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
--obj-$(CONFIG_RAS)	+= ras.o debugfs.o
-+obj-$(CONFIG_RAS)	+= ras.o
-+obj-$(CONFIG_DEBUG_FS)	+= debugfs.o
- obj-$(CONFIG_RAS_CEC)	+= cec.o
+diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
+index 7d49402569149..91242b6f8ea7a 100644
+--- a/sound/soc/codecs/hdac_hda.c
++++ b/sound/soc/codecs/hdac_hda.c
+@@ -495,6 +495,10 @@ static int hdac_hda_dev_probe(struct hdac_device *hdev)
+ 
+ static int hdac_hda_dev_remove(struct hdac_device *hdev)
+ {
++	struct hdac_hda_priv *hda_pvt;
++
++	hda_pvt = dev_get_drvdata(&hdev->dev);
++	cancel_delayed_work_sync(&hda_pvt->codec.jackpoll_work);
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
