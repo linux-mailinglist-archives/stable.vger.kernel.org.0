@@ -2,49 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF8BBA7D3
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE095BA7D7
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394514AbfIVTAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:00:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
+        id S2395114AbfIVTAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:00:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390661AbfIVTAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:14 -0400
+        id S2395109AbfIVTAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21E022186A;
-        Sun, 22 Sep 2019 19:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 617E7206C2;
+        Sun, 22 Sep 2019 19:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178813;
-        bh=I1yTz26Uus0FX8pVRrSS7YkMuXv5RAm6lTosyJbGcuo=;
+        s=default; t=1569178816;
+        bh=ErDtY2kpllQvvj4z6lp/isxmwDgPqnbmLsd+yvJXw78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MqWmSvhdh5eKwodKx8JhmIDqPrCfVtz3zW/vqpGOpKdw9ux8BNfnxO9cJOOj6sSk2
-         AMM0QA0SvQKfQlXa9fUz3H9sP7k0Bd59j0vJuBnDrUPE5J3y7Ts2J+cMPGOjmRPRjc
-         K1EnQj7P+kZef2wLuM4exEWh8GxvBS90bGdHy1kk=
+        b=rJb0B5/wZ3qcIa2c7flh9OTg4oupcstvvVmSN8carhhBwOB7UwnLnXWIc1DJvKTNf
+         JKena2JH1QncpKclpYn5qXKra70VM2s09zZOypWy4PaVVEGg8SkQLwggvDuN5cnmfP
+         FvR3M8Ccyz9SSYmDpwLXixxHZ4G4Gw6XBlvaLFIQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
-        Ilya Ledvich <ilya@compulab.co.il>,
-        Igor Grinberg <grinberg@compulab.co.il>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 27/60] ARM: dts: imx7d: cl-som-imx7: make ethernet work again
-Date:   Sun, 22 Sep 2019 14:59:00 -0400
-Message-Id: <20190922185934.4305-27-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 29/60] media: hdpvr: add terminating 0 at end of string
+Date:   Sun, 22 Sep 2019 14:59:02 -0400
+Message-Id: <20190922185934.4305-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,74 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: André Draszik <git@andred.net>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 9846a4524ac90b63496580b7ad50674b40d92a8f ]
+[ Upstream commit 8b8900b729e4f31f12ac1127bde137c775c327e6 ]
 
-Recent changes to the atheros at803x driver caused
-ethernet to stop working on this board.
-In particular commit 6d4cd041f0af
-("net: phy: at803x: disable delay only for RGMII mode")
-and commit cd28d1d6e52e
-("net: phy: at803x: Disable phy delay for RGMII mode")
-fix the AR8031 driver to configure the phy's (RX/TX)
-delays as per the 'phy-mode' in the device tree.
+dev->usbc_buf was passed as argument for %s, but it was not safeguarded
+by a terminating 0.
 
-This now prevents ethernet from working on this board.
+This caused this syzbot issue:
 
-It used to work before those commits, because the
-AR8031 comes out of reset with RX delay enabled, and
-the at803x driver didn't touch the delay configuration
-at all when "rgmii" mode was selected, and because
-arch/arm/mach-imx/mach-imx7d.c:ar8031_phy_fixup()
-unconditionally enables TX delay.
+https://syzkaller.appspot.com/bug?extid=79d18aac4bf1770dd050
 
-Since above commits ar8031_phy_fixup() also has no
-effect anymore, and the end-result is that all delays
-are disabled in the phy, no ethernet.
+Reported-and-tested-by: syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com
 
-Update the device tree to restore functionality.
-
-Signed-off-by: André Draszik <git@andred.net>
-CC: Ilya Ledvich <ilya@compulab.co.il>
-CC: Igor Grinberg <grinberg@compulab.co.il>
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
-CC: Shawn Guo <shawnguo@kernel.org>
-CC: Sascha Hauer <s.hauer@pengutronix.de>
-CC: Pengutronix Kernel Team <kernel@pengutronix.de>
-CC: Fabio Estevam <festevam@gmail.com>
-CC: NXP Linux Team <linux-imx@nxp.com>
-CC: devicetree@vger.kernel.org
-CC: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7d-cl-som-imx7.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/hdpvr/hdpvr-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
-index 2051306008534..72d1b8209f5e6 100644
---- a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
-+++ b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
-@@ -43,7 +43,7 @@
- 			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
- 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
- 	assigned-clock-rates = <0>, <100000000>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-handle = <&ethphy0>;
- 	fsl,magic-packet;
- 	status = "okay";
-@@ -69,7 +69,7 @@
- 			  <&clks IMX7D_ENET2_TIME_ROOT_CLK>;
- 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
- 	assigned-clock-rates = <0>, <100000000>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-handle = <&ethphy1>;
- 	fsl,magic-packet;
- 	status = "okay";
+diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
+index 7b34108f6587e..99171b912a2d8 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-core.c
++++ b/drivers/media/usb/hdpvr/hdpvr-core.c
+@@ -143,6 +143,7 @@ static int device_authorization(struct hdpvr_device *dev)
+ 
+ 	dev->fw_ver = dev->usbc_buf[1];
+ 
++	dev->usbc_buf[46] = '\0';
+ 	v4l2_info(&dev->v4l2_dev, "firmware version 0x%x dated %s\n",
+ 			  dev->fw_ver, &dev->usbc_buf[2]);
+ 
 -- 
 2.20.1
 
