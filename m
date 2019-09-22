@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B45EBA65C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94564BA65F
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391681AbfIVStn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:49:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
+        id S2390473AbfIVSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:50:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392526AbfIVStm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:49:42 -0400
+        id S2391593AbfIVStp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:49:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54C2B21A4A;
-        Sun, 22 Sep 2019 18:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E526A214AF;
+        Sun, 22 Sep 2019 18:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178182;
-        bh=48xQrCMOZWQY0GMUtiT7ORhyY7JKh36Uou8DfkPsZ14=;
+        s=default; t=1569178184;
+        bh=dFcVQl6E0c+wU1d5wfNevRmUe9k+SvO0hOvFIQK6V7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fViB+HfiPw3aCaxHDxThe1RBiU+UO42WHbMKtkJREmbC23ZSEiu0hI8JiUsSV3bg0
-         1U60J3FMXneuVYkrX5Qgy/z8uifOEeqOtZax1KZ0CFrY4mc+1ukMSHZ55VBLGs271G
-         i1SY+Ce/8rkfYKXABEj3O8JuvDSHfSD6kzDpXYoE=
+        b=dJhWoBsZCLt3NpwtsC2cx40X12QIeNHmGVsEbsFIvSVtW6N349LzZualMql8NbXlt
+         ErEq+vMaOVbVBub/9w2XIWmdu4XblSaZY+6mJjn8IyY/C6GzLGcTqCqjTbkjkrAulu
+         Tx+jroVeDOZ/LbgQpP3w4yv4CHTEj8kdi3PTR2wc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 012/185] media: dib0700: fix link error for dibx000_i2c_set_speed
-Date:   Sun, 22 Sep 2019 14:46:30 -0400
-Message-Id: <20190922184924.32534-12-sashal@kernel.org>
+Cc:     Pan Xiuli <xiuli.pan@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 014/185] ASoC: SOF: pci: mark last_busy value at runtime PM init
+Date:   Sun, 22 Sep 2019 14:46:32 -0400
+Message-Id: <20190922184924.32534-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,67 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Pan Xiuli <xiuli.pan@linux.intel.com>
 
-[ Upstream commit 765bb8610d305ee488b35d07e2a04ae52fb2df9c ]
+[ Upstream commit f1b1b9b136827915624136624ff54aba5890a15b ]
 
-When CONFIG_DVB_DIB9000 is disabled, we can still compile code that
-now fails to link against dibx000_i2c_set_speed:
+If last_busy value is not set at runtime PM enable, the device will be
+suspend immediately after usage counter is 0. Set the last_busy value to
+make sure delay is working at first boot up.
 
-drivers/media/usb/dvb-usb/dib0700_devices.o: In function `dib01x0_pmu_update.constprop.7':
-dib0700_devices.c:(.text.unlikely+0x1c9c): undefined reference to `dibx000_i2c_set_speed'
-
-The call sites are both through dib01x0_pmu_update(), which gets passed
-an 'i2c' pointer from dib9000_get_i2c_master(), which has returned
-NULL. Checking this pointer seems to be a good idea anyway, and it avoids
-the link failure in most cases.
-
-Sean Young found another case that is not fixed by that, where certain
-gcc versions leave an unused function in place that causes the link error,
-but adding an explict IS_ENABLED() check also solves this.
-
-Fixes: b7f54910ce01 ("V4L/DVB (4647): Added module for DiB0700 based devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Pan Xiuli <xiuli.pan@linux.intel.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190722141402.7194-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dib0700_devices.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/sof/sof-pci-dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dib0700_devices.c b/drivers/media/usb/dvb-usb/dib0700_devices.c
-index 66d685065e065..ab7a100ec84fe 100644
---- a/drivers/media/usb/dvb-usb/dib0700_devices.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_devices.c
-@@ -2439,9 +2439,13 @@ static int dib9090_tuner_attach(struct dvb_usb_adapter *adap)
- 		8, 0x0486,
- 	};
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index b778dffb2d25c..49daf1390dac0 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -203,6 +203,9 @@ static void sof_pci_probe_complete(struct device *dev)
+ 	 */
+ 	pm_runtime_allow(dev);
  
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &dib9090_dib0090_config) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) != 0)
- 		return -ENODEV;
- 	dib0700_set_i2c_speed(adap->dev, 1500);
-@@ -2517,10 +2521,14 @@ static int nim9090md_tuner_attach(struct dvb_usb_adapter *adap)
- 		0, 0x00ef,
- 		8, 0x0406,
- 	};
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	i2c = dib9000_get_tuner_interface(adap->fe_adap[0].fe);
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &nim9090md_dib0090_config[0]) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) < 0)
- 		return -ENODEV;
- 
++	/* mark last_busy for pm_runtime to make sure not suspend immediately */
++	pm_runtime_mark_last_busy(dev);
++
+ 	/* follow recommendation in pci-driver.c to decrement usage counter */
+ 	pm_runtime_put_noidle(dev);
+ }
 -- 
 2.20.1
 
