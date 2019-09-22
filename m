@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73339BA705
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52677BA707
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408101AbfIVSzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
+        id S2408097AbfIVSza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408097AbfIVSzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:55:22 -0400
+        id S2405617AbfIVSz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71AB321479;
-        Sun, 22 Sep 2019 18:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27965208C2;
+        Sun, 22 Sep 2019 18:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178521;
-        bh=btn0rffe8Z/PwnT6eyxhGR75HhWAf/0nvsrDLZM3g+k=;
+        s=default; t=1569178528;
+        bh=nrvU+TCofrQxh44dgJtqKNLuAH30NreF7C0BN1Tm5+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPAgeW0ukGTrhIRcsfhyD0RIZdpI8c1I6A/x9cbWbHHH5unww36W+qnPlsJQQZVoa
-         4N177p9wyBXzq9NtRHaiJ0auz2qe0CGfYoK2WcBvEDAljsajaGJngb9MHjxtsl9mzC
-         Ee7dcKEvX9ZXpcH5v9nj3jiTRrviaN6qewf+motk=
+        b=ZfliitYuAOpxZ10nz7xmcaYDoNnD0TCvo0NUqK8RC2lSxT/oqld3QnUuR3GRv4DlS
+         Z4sj9HDywrtIv5YJaFBZ/5Qb7RkhufauCeddgby+c/UWGPMos+yZJOy2VhFNHKPZHa
+         E9k/VHF9dIxEFymtFKbaJrXQOK+e2P2Zo2gX0grA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 047/128] media: fdp1: Reduce FCP not found message level to debug
-Date:   Sun, 22 Sep 2019 14:52:57 -0400
-Message-Id: <20190922185418.2158-47-sashal@kernel.org>
+Cc:     Tan Xiaojun <tanxiaojun@huawei.com>, Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 052/128] perf record: Support aarch64 random socket_id assignment
+Date:   Sun, 22 Sep 2019 14:53:02 -0400
+Message-Id: <20190922185418.2158-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -46,43 +51,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Tan Xiaojun <tanxiaojun@huawei.com>
 
-[ Upstream commit 4fd22938569c14f6092c05880ca387409d78355f ]
+[ Upstream commit 0a4d8fb229dd78f9e0752817339e19e903b37a60 ]
 
-When support for the IPMMU is not enabled, the FDP driver may be
-probe-deferred multiple times, causing several messages to be printed
-like:
+Same as in the commit 01766229533f ("perf record: Support s390 random
+socket_id assignment"), aarch64 also have this problem.
 
-    rcar_fdp1 fe940000.fdp1: FCP not found (-517)
-    rcar_fdp1 fe944000.fdp1: FCP not found (-517)
+Without this fix:
 
-Fix this by reducing the message level to debug level, as is done in the
-VSP1 driver.
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  socket_id number is too big.You may need to upgrade the perf tool.
 
-Fixes: 4710b752e029f3f8 ("[media] v4l: Add Renesas R-Car FDP1 Driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # Core ID and Socket ID information is not available
+  ...
+
+With this fix:
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  cpumask list: 0-31
+  cpumask list: 32-63
+  cpumask list: 64-95
+  cpumask list: 96-127
+
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # CPU 0: Core ID 0, Socket ID 36
+  # CPU 1: Core ID 1, Socket ID 36
+  ...
+  # CPU 126: Core ID 126, Socket ID 8442
+  # CPU 127: Core ID 127, Socket ID 8442
+  ...
+
+Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov (VMware) <tz.stoyanov@gmail.com>
+Link: http://lkml.kernel.org/r/1564717737-21602-1-git-send-email-tanxiaojun@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar_fdp1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/header.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
-index 0d14670288113..5a30f1d84fe17 100644
---- a/drivers/media/platform/rcar_fdp1.c
-+++ b/drivers/media/platform/rcar_fdp1.c
-@@ -2306,7 +2306,7 @@ static int fdp1_probe(struct platform_device *pdev)
- 		fdp1->fcp = rcar_fcp_get(fcp_node);
- 		of_node_put(fcp_node);
- 		if (IS_ERR(fdp1->fcp)) {
--			dev_err(&pdev->dev, "FCP not found (%ld)\n",
-+			dev_dbg(&pdev->dev, "FCP not found (%ld)\n",
- 				PTR_ERR(fdp1->fcp));
- 			return PTR_ERR(fdp1->fcp);
- 		}
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 54c34c107cab5..0c70788593c8d 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2184,8 +2184,10 @@ static int process_cpu_topology(struct feat_fd *ff, void *data __maybe_unused)
+ 	/* On s390 the socket_id number is not related to the numbers of cpus.
+ 	 * The socket_id number might be higher than the numbers of cpus.
+ 	 * This depends on the configuration.
++	 * AArch64 is the same.
+ 	 */
+-	if (ph->env.arch && !strncmp(ph->env.arch, "s390", 4))
++	if (ph->env.arch && (!strncmp(ph->env.arch, "s390", 4)
++			  || !strncmp(ph->env.arch, "aarch64", 7)))
+ 		do_core_id_test = false;
+ 
+ 	for (i = 0; i < (u32)cpu_nr; i++) {
 -- 
 2.20.1
 
