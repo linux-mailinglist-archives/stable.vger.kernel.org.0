@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CE3BA757
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 095D4BA758
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438635AbfIVS5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60350 "EHLO mail.kernel.org"
+        id S2438647AbfIVS5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438624AbfIVS5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:57:44 -0400
+        id S2438640AbfIVS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:57:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AD9E21479;
-        Sun, 22 Sep 2019 18:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 385362190F;
+        Sun, 22 Sep 2019 18:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178663;
-        bh=qOgqvqjCkUD8COe5UC9OHjXjf/iIdtSx/nJitqT3eqk=;
+        s=default; t=1569178665;
+        bh=q7MH5xjL57lYshgLlsRFQ3lgZeENdcd5LR0JjZVkFok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FApTNaMXS5NeF3vsEULdWPYUw/2xQIvz66IVhgeaj8Rz3G+d3jxCiVkvhmOzKWCnc
-         JBaWlQs8RtdjWvTL0tHw+AbvJvvEv0EvSnhiBtqJ7DGBKbkNeKWNLdDgL06g6+43tl
-         PrAjubClKZTdXehsnECRq3fgD1tv9yfd1sJdq6Gw=
+        b=RT/OkQwqF7zBATM9QlTz76CS1/EuLGz2tKqzcdYYIkzCI+cpVR8UssCCKOHxZsJa5
+         uyG+ATCUywmiNMz45LXOaDv9hNQJXpks2g/DnkZp/hbmiYXbnzdvLW+66vBJHGEWhC
+         qEV9cXafEJROr5c0gW1DUdKiytUwf/45iXZDa6As=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+Cc:     Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 16/89] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
-Date:   Sun, 22 Sep 2019 14:56:04 -0400
-Message-Id: <20190922185717.3412-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 17/89] EDAC/mc: Fix grain_bits calculation
+Date:   Sun, 22 Sep 2019 14:56:05 -0400
+Message-Id: <20190922185717.3412-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185717.3412-1-sashal@kernel.org>
 References: <20190922185717.3412-1-sashal@kernel.org>
@@ -42,52 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
+[ Upstream commit 3724ace582d9f675134985727fd5e9811f23c059 ]
 
-In build_adc_controls(), there is an if statement on line 773 to check
-whether ak->adc_info is NULL:
-    if (! ak->adc_info ||
-        ! ak->adc_info[mixer_ch].switch_name)
+The grain in EDAC is defined as "minimum granularity for an error
+report, in bytes". The following calculation of the grain_bits in
+edac_mc is wrong:
 
-When ak->adc_info is NULL, it is used on line 792:
-    knew.name = ak->adc_info[mixer_ch].selector_name;
+	grain_bits = fls_long(e->grain) + 1;
 
-Thus, a possible null-pointer dereference may occur.
+Where grain_bits is defined as:
 
-To fix this bug, referring to lines 773 and 774, ak->adc_info
-and ak->adc_info[mixer_ch].selector_name are checked before being used.
+	grain = 1 << grain_bits
 
-This bug is found by a static analysis tool STCheck written by us.
+Example:
 
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	grain = 8	# 64 bit (8 bytes)
+	grain_bits = fls_long(8) + 1
+	grain_bits = 4 + 1 = 5
+
+	grain = 1 << grain_bits
+	grain = 1 << 5 = 32
+
+Replace it with the correct calculation:
+
+	grain_bits = fls_long(e->grain - 1);
+
+The example gives now:
+
+	grain_bits = fls_long(8 - 1)
+	grain_bits = fls_long(7)
+	grain_bits = 3
+
+	grain = 1 << 3 = 8
+
+Also, check if the hardware reports a reasonable grain != 0 and fallback
+with a warning to 1 byte granularity otherwise.
+
+ [ bp: massage a bit. ]
+
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624150758.6695-2-rrichter@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/other/ak4xxx-adda.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/edac/edac_mc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
-index bf377dc192aa7..d33e02c317129 100644
---- a/sound/i2c/other/ak4xxx-adda.c
-+++ b/sound/i2c/other/ak4xxx-adda.c
-@@ -789,11 +789,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
- 				return err;
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index 80801c616395e..f7fa05fee45a1 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -1240,9 +1240,13 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
+ 	if (p > e->location)
+ 		*(p - 1) = '\0';
  
- 			memset(&knew, 0, sizeof(knew));
--			knew.name = ak->adc_info[mixer_ch].selector_name;
--			if (!knew.name) {
-+			if (!ak->adc_info ||
-+				!ak->adc_info[mixer_ch].selector_name) {
- 				knew.name = "Capture Channel";
- 				knew.index = mixer_ch + ak->idx_offset * 2;
--			}
-+			} else
-+				knew.name = ak->adc_info[mixer_ch].selector_name;
+-	/* Report the error via the trace interface */
+-	grain_bits = fls_long(e->grain) + 1;
++	/* Sanity-check driver-supplied grain value. */
++	if (WARN_ON_ONCE(!e->grain))
++		e->grain = 1;
++
++	grain_bits = fls_long(e->grain - 1);
  
- 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
- 			knew.info = ak4xxx_capture_source_info;
++	/* Report the error via the trace interface */
+ 	if (IS_ENABLED(CONFIG_RAS))
+ 		trace_mc_event(type, e->msg, e->label, e->error_count,
+ 			       mci->mc_idx, e->top_layer, e->mid_layer,
 -- 
 2.20.1
 
