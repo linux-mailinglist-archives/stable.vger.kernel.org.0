@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 719D9BA8A8
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289E2BA8A5
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbfIVTG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:06:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36284 "EHLO mail.kernel.org"
+        id S1730123AbfIVTGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393371AbfIVTAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:33 -0400
+        id S2405610AbfIVTAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D04062184D;
-        Sun, 22 Sep 2019 19:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88D7C208C2;
+        Sun, 22 Sep 2019 19:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178832;
-        bh=7RMS4YktEnGBSooX125/Dw0SiOsFPkU0E3b2XtdJMjs=;
+        s=default; t=1569178835;
+        bh=QJorBsuu7/I+O7IoyuxkA/c3Do8nJw9lZYvwg/ZsupQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBMOjDTWJZ52iiFdM9m7DZQWs62mfHo14DEa5SPfHPVGvuQcLyFRf6Mv1SmurwNQd
-         FMlWD3NyI+acxD6uhmxiX0onwIMYzknsyJq4dZ495rq3Z57nXOUd6ZOLv60DkuYEpI
-         iCWiqzZOLzs2MX015qGhdxKEyKksWmIO2xMqt34Y=
+        b=cn/Wa4hA1NJYeYktjDSEXGpZacN8u6jufHZ2TNoHgCuHg+Mc2bWeZdhA2gV64OUbg
+         MR7g5yywZWjLRNsNIZbJ8I8z2ZWjrEA/X6JsK02Dtmdj+3/UpsYGxdGBuv4qPwWjCU
+         hlnDUh9h8VDsFiJHq/sY1v/KH75M95AE+G2OynuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Patrick McLean <chutzpah@gentoo.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-trace-devel@vger.kernel.org,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 41/60] libtraceevent: Change users plugin directory
-Date:   Sun, 22 Sep 2019 14:59:14 -0400
-Message-Id: <20190922185934.4305-41-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 44/60] ACPI / PCI: fix acpi_pci_irq_enable() memory leak
+Date:   Sun, 22 Sep 2019 14:59:17 -0400
+Message-Id: <20190922185934.4305-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -49,68 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
+[ Upstream commit 29b49958cf73b439b17fa29e9a25210809a6c01c ]
 
-To be compliant with XDG user directory layout, the user's plugin
-directory is changed from ~/.traceevent/plugins to
-~/.local/lib/traceevent/plugins/
+In acpi_pci_irq_enable(), 'entry' is allocated by kzalloc() in
+acpi_pci_irq_check_entry() (invoked from acpi_pci_irq_lookup()). However,
+it is not deallocated if acpi_pci_irq_valid() returns false, leading to a
+memory leak. To fix this issue, free 'entry' before returning 0.
 
-Suggested-by: Patrick McLean <chutzpah@gentoo.org>
-Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Patrick McLean <chutzpah@gentoo.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
-Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
-Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e237a5518425 ("x86/ACPI/PCI: Recognize that Interrupt Line 255 means "not connected"")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile       | 6 +++---
- tools/lib/traceevent/event-plugin.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/pci_irq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index 7851df1490e0a..cc3315da6dc39 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -54,15 +54,15 @@ set_plugin_dir := 1
+diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+index c576a6fe4ebb3..94ded9513c73b 100644
+--- a/drivers/acpi/pci_irq.c
++++ b/drivers/acpi/pci_irq.c
+@@ -462,8 +462,10 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
+ 		 * No IRQ known to the ACPI subsystem - maybe the BIOS /
+ 		 * driver reported one, then use it. Exit in any case.
+ 		 */
+-		if (!acpi_pci_irq_valid(dev, pin))
++		if (!acpi_pci_irq_valid(dev, pin)) {
++			kfree(entry);
+ 			return 0;
++		}
  
- # Set plugin_dir to preffered global plugin location
- # If we install under $HOME directory we go under
--# $(HOME)/.traceevent/plugins
-+# $(HOME)/.local/lib/traceevent/plugins
- #
- # We dont set PLUGIN_DIR in case we install under $HOME
- # directory, because by default the code looks under:
--# $(HOME)/.traceevent/plugins by default.
-+# $(HOME)/.local/lib/traceevent/plugins by default.
- #
- ifeq ($(plugin_dir),)
- ifeq ($(prefix),$(HOME))
--override plugin_dir = $(HOME)/.traceevent/plugins
-+override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
- set_plugin_dir := 0
- else
- override plugin_dir = $(libdir)/traceevent/plugins
-diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
-index a16756ae35267..5fe7889606a23 100644
---- a/tools/lib/traceevent/event-plugin.c
-+++ b/tools/lib/traceevent/event-plugin.c
-@@ -30,7 +30,7 @@
- #include "event-parse.h"
- #include "event-utils.h"
- 
--#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
-+#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
- 
- static struct registered_plugin_options {
- 	struct registered_plugin_options	*next;
+ 		if (acpi_isa_register_gsi(dev))
+ 			dev_warn(&dev->dev, "PCI INT %c: no GSI\n",
 -- 
 2.20.1
 
