@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3AA4BA4D6
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C127BA4D8
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407858AbfIVSwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:52:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
+        id S2407898AbfIVSw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407851AbfIVSwS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:52:18 -0400
+        id S2407896AbfIVSw0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:52:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE77D2190F;
-        Sun, 22 Sep 2019 18:52:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1559321BE5;
+        Sun, 22 Sep 2019 18:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178337;
-        bh=BMdLIydfr0XqiBTIBaO/y9dLc3t97LMQFjAyQ1K7uX0=;
+        s=default; t=1569178346;
+        bh=nxhfcdcem27JgN1iEngjzJ+W+McMsJHgH8HRx+nl0Sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfKNPmKWWIt5nTeSbAR/IdOg8+ZnQpr1XVzgHTVkDlIO2iCT7+Tt3Yo4K78eW3qpX
-         IT4dcvVdhtvg1qtXkrE2Ueq3dCWzDgcRYU0u9ZLRDo6nEJJLQPfc5U1o5TwkZeqflT
-         MTi/99whbpxwZEYEYagtTkE1E2BbQWK7miPYCgJo=
+        b=Qq+shFoFkHL2gD7+A3aW6qahjTf9LEQHIuUOhZrRLAT5wDKsRbXQxvp3ckZrbIsya
+         8Ic0vp8SadHJV6E9tO+nfUEwHvU4a3outeTm+AQkvpQoQ7iPZt9HhLXcVJVH9vMi77
+         RmO5lZb+LQMN8+me6rE0VF4XtI22FnuRJ27ai6xo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
+Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 099/185] posix-cpu-timers: Sanitize bogus WARNONS
-Date:   Sun, 22 Sep 2019 14:47:57 -0400
-Message-Id: <20190922184924.32534-99-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 104/185] EDAC/amd64: Decode syndrome before translating address
+Date:   Sun, 22 Sep 2019 14:48:02 -0400
+Message-Id: <20190922184924.32534-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,95 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit 692117c1f7a6770ed41dd8f277cd9fed1dfb16f1 ]
+[ Upstream commit 8a2eaab7daf03b23ac902481218034ae2fae5e16 ]
 
-Warning when p == NULL and then proceeding and dereferencing p does not
-make any sense as the kernel will crash with a NULL pointer dereference
-right away.
+AMD Family 17h systems currently require address translation in order to
+report the system address of a DRAM ECC error. This is currently done
+before decoding the syndrome information. The syndrome information does
+not depend on the address translation, so the proper EDAC csrow/channel
+reporting can function without the address. However, the syndrome
+information will not be decoded if the address translation fails.
 
-Bailing out when p == NULL and returning an error code does not cure the
-underlying problem which caused p to be NULL. Though it might allow to
-do proper debugging.
+Decode the syndrome information before doing the address translation.
+The syndrome information is architecturally defined in MCA_SYND and can
+be considered robust. The address translation is system-specific and may
+fail on newer systems without proper updates to the translation
+algorithm.
 
-Same applies to the clock id check in set_process_cpu_timer().
-
-Clean them up and make them return without trying to do further damage.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lkml.kernel.org/r/20190819143801.846497772@linutronix.de
+Fixes: 713ad54675fd ("EDAC, amd64: Define and register UMC error decode function")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190821235938.118710-6-Yazen.Ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/posix-cpu-timers.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/edac/amd64_edac.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 0a426f4e31251..5bbad147a90cf 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -375,7 +375,8 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
- 	struct sighand_struct *sighand;
- 	struct task_struct *p = timer->it.cpu.task;
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index ffe56a8fe39da..608fdab566b32 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -2550,13 +2550,6 @@ static void decode_umc_error(int node_id, struct mce *m)
  
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return -EINVAL;
+ 	err.channel = find_umc_channel(m);
  
- 	/*
- 	 * Protect against sighand release/switch in exit/exec and process/
-@@ -580,7 +581,8 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 	u64 old_expires, new_expires, old_incr, val;
- 	int ret;
+-	if (umc_normaddr_to_sysaddr(m->addr, pvt->mc_node_id, err.channel, &sys_addr)) {
+-		err.err_code = ERR_NORM_ADDR;
+-		goto log_error;
+-	}
+-
+-	error_address_to_page_and_offset(sys_addr, &err);
+-
+ 	if (!(m->status & MCI_STATUS_SYNDV)) {
+ 		err.err_code = ERR_SYND;
+ 		goto log_error;
+@@ -2573,6 +2566,13 @@ static void decode_umc_error(int node_id, struct mce *m)
  
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return -EINVAL;
+ 	err.csrow = m->synd & 0x7;
  
- 	/*
- 	 * Use the to_ktime conversion because that clamps the maximum
-@@ -715,10 +717,11 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 
- static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp)
- {
--	u64 now;
- 	struct task_struct *p = timer->it.cpu.task;
-+	u64 now;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
- 
- 	/*
- 	 * Easy part: convert the reload time.
-@@ -1000,12 +1003,13 @@ static void check_process_timers(struct task_struct *tsk,
-  */
- static void posix_cpu_timer_rearm(struct k_itimer *timer)
- {
-+	struct task_struct *p = timer->it.cpu.task;
- 	struct sighand_struct *sighand;
- 	unsigned long flags;
--	struct task_struct *p = timer->it.cpu.task;
- 	u64 now;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
- 
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
-@@ -1202,7 +1206,9 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
- 	u64 now;
- 	int ret;
- 
--	WARN_ON_ONCE(clock_idx == CPUCLOCK_SCHED);
-+	if (WARN_ON_ONCE(clock_idx >= CPUCLOCK_SCHED))
-+		return;
++	if (umc_normaddr_to_sysaddr(m->addr, pvt->mc_node_id, err.channel, &sys_addr)) {
++		err.err_code = ERR_NORM_ADDR;
++		goto log_error;
++	}
 +
- 	ret = cpu_timer_sample_group(clock_idx, tsk, &now);
- 
- 	if (oldval && ret != -EINVAL) {
++	error_address_to_page_and_offset(sys_addr, &err);
++
+ log_error:
+ 	__log_ecc_error(mci, &err, ecc_type);
+ }
 -- 
 2.20.1
 
