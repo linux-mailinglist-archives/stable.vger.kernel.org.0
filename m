@@ -2,96 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2597CBA17F
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 10:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 836F8BA2C1
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 15:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbfIVIaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 04:30:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43322 "EHLO mail.kernel.org"
+        id S1728597AbfIVNJp convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 22 Sep 2019 09:09:45 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34710 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727809AbfIVIaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 04:30:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728488AbfIVNJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 09:09:45 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E6F220820;
-        Sun, 22 Sep 2019 08:30:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569141007;
-        bh=N5M3bZB2ghdYkBfCMLA5K09s+IwMF8I5eMYFoxafSQg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zTWX4XAx8vCjAiXSdG18ckB+C4mvrcPwaHvCA2loxtCRcD9fJxcNejYXsB6A7TCuG
-         8dyqoM5d8wXqOY9pzn4GUUTpKMU8CcqXULvHqMupEF7dh34/aGpuBV0ZoBAffYA4A6
-         aj7OH/7s+uCUm6YKX53nqi2uA3H2TqL5Ww1AJmYI=
-Date:   Sun, 22 Sep 2019 10:30:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Yossi Itigin <yosefe@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Steve Wise <swise@opengridcomputing.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        =?iso-8859-1?Q?H=E5kon?= Bugge <haakon.bugge@oracle.com>
-Subject: Re: [PATCH 4.19 03/79] RDMA/restrack: Release task struct which was
- hold by CM_ID object
-Message-ID: <20190922083004.GA2654133@kroah.com>
-References: <20190919214807.612593061@linuxfoundation.org>
- <20190919214808.101726182@linuxfoundation.org>
- <20190921202209.GA14868@amd>
+        by mx1.redhat.com (Postfix) with ESMTPS id A452B88302
+        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 13:09:44 +0000 (UTC)
+Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C9CCE10013A7;
+        Sun, 22 Sep 2019 13:09:41 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190921202209.GA14868@amd>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.3EE6E8B6D7.JZILDBT2VV@redhat.com>
+X-Gitlab-Pipeline-ID: 180445
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/180445
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Sun, 22 Sep 2019 13:09:44 +0000 (UTC)
+Date:   Sun, 22 Sep 2019 09:09:45 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 21, 2019 at 10:22:10PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > commit ed7a01fd3fd77f40b4ef2562b966a5decd8928d2 upstream.
-> > 
-> > Tracking CM_ID resource is performed in two stages: creation of cm_id
-> > and connecting it to the cma_dev. It is needed because rdma-cm protocol
-> > exports two separate user-visible calls rdma_create_id and
-> > rdma_accept.
-> ...
-> 
-> Mainline says this needs additional fix, fe9bc1644918aa1d, see below.
-> 
-> > --- a/drivers/infiniband/core/restrack.c
-> > +++ b/drivers/infiniband/core/restrack.c
-> > @@ -209,7 +209,7 @@ void rdma_restrack_del(struct rdma_restr
-> >  	struct ib_device *dev;
-> >  
-> >  	if (!res->valid)
-> > -		return;
-> > +		goto out;
-> >  
-> >  	dev = res_to_dev(res);
-> >  	if (!dev)
-> #                 return;
-> 
-> This test does return, does it need to go through 'goto out', too? (I
-> see it should not happen, but...)
-> 
-> > @@ -222,8 +222,10 @@ void rdma_restrack_del(struct rdma_restr
-> >  	down_write(&dev->res.rwsem);
-> >  	hash_del(&res->node);
-> >  	res->valid = false;
-> > +	up_write(&dev->res.rwsem);
-> > +
-> > +out:
-> >  	if (res->task)
-> >  		put_task_struct(res->task);
-> > -	up_write(&dev->res.rwsem);
-> >  }
-> 
-> Mainline says res->task = NULL is needed there, see fe9bc1644918aa1d.
 
-Good catch, now queued up, thanks!
+Hello,
 
-greg k-h
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c9a59a82366b - Linux 5.3.1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/180445
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c9a59a82366b - Linux 5.3.1
+
+
+We grabbed the 7f2f9d496c3b commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
+  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
+  clocksource-drivers-do-not-warn-on-probe-defer.patch
+  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
+  drm-amd-display-skip-determining-update-type-for-async-updates.patch
+  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
+  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
