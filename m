@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 711FFBA898
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F400EBA890
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389394AbfIVTFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:05:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
+        id S1729978AbfIVTFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:05:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395181AbfIVTAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:47 -0400
+        id S2395221AbfIVTAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B76B208C2;
-        Sun, 22 Sep 2019 19:00:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D8B421A4A;
+        Sun, 22 Sep 2019 19:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178846;
-        bh=yboTTV9U5Hi5WqFc52skmFm/H4w+dx7z0bgyguhUBWo=;
+        s=default; t=1569178848;
+        bh=PbIiOLM0DJ9qzm4pkSrym9+Krz9yvQDe/PPmbtwoJn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaemmIGK6mAYV2NPcf/7vn4LTfToTs3HvEVFnpHhL7e2CztOZWuPsIvcr/DwdwnY7
-         jHW0vUgzqyTt5p9lbKXqkeA0WRQp1zZ1rE055skU1oJizgC5kdcJVxynNx5GuEiFLa
-         uUE/0SBDDAlethzsOrqiqkR1KJgupKW8FH9WY8Qw=
+        b=zZmFAD/dZHlzDizqwUDZ842QPlBSM5w5E8TlingwdEeBKWXPRn059rwSjoJ4dgqHu
+         vJo33LfKnet+WIjbd4WF3snt9RQVv/m0HRF2w6LCmnebz3WUF6iwCV7ptF//F3LQAU
+         5rAxnYokl5NxEuurKRYwcq4WzjS6DBxEEIqMPJgk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Arthur She <arthur.she@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 52/60] ASoC: dmaengine: Make the pcm->name equal to pcm->id if the name is not set
-Date:   Sun, 22 Sep 2019 14:59:25 -0400
-Message-Id: <20190922185934.4305-52-sashal@kernel.org>
+Cc:     Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 53/60] mmc: sdhci: Fix incorrect switch to HS mode
+Date:   Sun, 22 Sep 2019 14:59:26 -0400
+Message-Id: <20190922185934.4305-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -44,44 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-[ Upstream commit 2ec42f3147e1610716f184b02e65d7f493eed925 ]
+[ Upstream commit c894e33ddc1910e14d6f2a2016f60ab613fd8b37 ]
 
-Some tools use the snd_pcm_info_get_name() to try to identify PCMs or for
-other purposes.
+When switching from any MMC speed mode that requires 1.8v
+(HS200, HS400 and HS400ES) to High Speed (HS) mode, the system
+ends up configured for SDR12 with a 50MHz clock which is an illegal
+mode.
 
-Currently it is left empty with the dmaengine-pcm, in this case copy the
-pcm->id string as pcm->name.
+This happens because the SDHCI_CTRL_VDD_180 bit in the
+SDHCI_HOST_CONTROL2 register is left set and when this bit is
+set, the speed mode is controlled by the SDHCI_CTRL_UHS field
+in the SDHCI_HOST_CONTROL2 register. The SDHCI_CTRL_UHS field
+will end up being set to 0 (SDR12) by sdhci_set_uhs_signaling()
+because there is no UHS mode being set.
 
-For example IGT is using this to find the HDMI PCM for testing audio on it.
+The fix is to change sdhci_set_uhs_signaling() to set the
+SDHCI_CTRL_UHS field to SDR25 (which is the same as HS) for
+any switch to HS mode.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reported-by: Arthur She <arthur.she@linaro.org>
-Link: https://lore.kernel.org/r/20190906055524.7393-1-peter.ujfalusi@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This was found on a new eMMC controller that does strict checking
+of the speed mode and the corresponding clock rate. It caused the
+switch to HS400 mode to fail because part of the sequence to switch
+to HS400 requires a switch from HS200 to HS before going to HS400.
+
+Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/host/sdhci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
-index 6cef3977507ae..67d22b4baeb05 100644
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -312,6 +312,12 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
- 
- 		if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
- 			pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
-+
-+		if (rtd->pcm->streams[i].pcm->name[0] == '\0') {
-+			strncpy(rtd->pcm->streams[i].pcm->name,
-+				rtd->pcm->streams[i].pcm->id,
-+				sizeof(rtd->pcm->streams[i].pcm->name));
-+		}
- 	}
- 
- 	return 0;
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index df306caba296a..0347742a495a6 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1557,7 +1557,9 @@ void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR104;
+ 	else if (timing == MMC_TIMING_UHS_SDR12)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR12;
+-	else if (timing == MMC_TIMING_UHS_SDR25)
++	else if (timing == MMC_TIMING_SD_HS ||
++		 timing == MMC_TIMING_MMC_HS ||
++		 timing == MMC_TIMING_UHS_SDR25)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR25;
+ 	else if (timing == MMC_TIMING_UHS_SDR50)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR50;
 -- 
 2.20.1
 
