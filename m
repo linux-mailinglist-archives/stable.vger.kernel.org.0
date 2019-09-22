@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E9EBAB4C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C53BAB4A
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392403AbfIVTg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:36:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41898 "EHLO mail.kernel.org"
+        id S1731862AbfIVTgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389752AbfIVSqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:46:00 -0400
+        id S2389775AbfIVSqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:46:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601D821479;
-        Sun, 22 Sep 2019 18:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADD9A20882;
+        Sun, 22 Sep 2019 18:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177960;
-        bh=Oe369tPZ5whZDrheTC9pmJV5JCCU/mBGbbOVzTKFx4E=;
+        s=default; t=1569177961;
+        bh=TO36sxAHD4Bn+D3eeOaeB/DIge7EXOLy0Ew7V3AN8EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPaL2hXJkWaGOO6spk1xB82EarHoJuklDSrWn+4pbVpcl2iYvoqJFLdQz0++IuTFq
-         5m9pawME/wBulPr2i2zSY8OQ2lLFtRZUujqvPs2rTSKcIqYeZ9kbTbTzJxdzDxAZSm
-         C4KZ/rP4Ghzn/mo8kHEcqzv98JZaPkDxiWjcOxm8=
+        b=buPNM9uVZrKkoVnYUQaR088r2iZnA/BL9A/P8THMGvHJ7YSjEb+YE9rTOINGlerYs
+         6rJ0vLQebfSBevVNE2hIDL8Sayx84W7slfmgkqf8VuyY2Z2mi3sLAEyP4q/zqukM9Q
+         kziZBgykktNmfQ16h3bCOkqjscUOf7jlr+SXCO/c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phil Auld <pauld@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 064/203] sched/fair: Use rq_lock/unlock in online_fair_sched_group
-Date:   Sun, 22 Sep 2019 14:41:30 -0400
-Message-Id: <20190922184350.30563-64-sashal@kernel.org>
+        Ingo Molnar <mingo@kernel.org>,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 065/203] idle: Prevent late-arriving interrupts from disrupting offline
+Date:   Sun, 22 Sep 2019 14:41:31 -0400
+Message-Id: <20190922184350.30563-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -46,72 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit a46d14eca7b75fffe35603aa8b81df654353d80f ]
+[ Upstream commit e78a7614f3876ac649b3df608789cb6ef74d0480 ]
 
-Enabling WARN_DOUBLE_CLOCK in /sys/kernel/debug/sched_features causes
-warning to fire in update_rq_clock. This seems to be caused by onlining
-a new fair sched group not using the rq lock wrappers.
+Scheduling-clock interrupts can arrive late in the CPU-offline process,
+after idle entry and the subsequent call to cpuhp_report_idle_dead().
+Once execution passes the call to rcu_report_dead(), RCU is ignoring
+the CPU, which results in lockdep complaints when the interrupt handler
+uses RCU:
 
-  [] rq->clock_update_flags & RQCF_UPDATED
-  [] WARNING: CPU: 5 PID: 54385 at kernel/sched/core.c:210 update_rq_clock+0xec/0x150
+------------------------------------------------------------------------
 
-  [] Call Trace:
-  []  online_fair_sched_group+0x53/0x100
-  []  cpu_cgroup_css_online+0x16/0x20
-  []  online_css+0x1c/0x60
-  []  cgroup_apply_control_enable+0x231/0x3b0
-  []  cgroup_mkdir+0x41b/0x530
-  []  kernfs_iop_mkdir+0x61/0xa0
-  []  vfs_mkdir+0x108/0x1a0
-  []  do_mkdirat+0x77/0xe0
-  []  do_syscall_64+0x55/0x1d0
-  []  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+=============================
+WARNING: suspicious RCU usage
+5.2.0-rc1+ #681 Not tainted
+-----------------------------
+kernel/sched/fair.c:9542 suspicious rcu_dereference_check() usage!
 
-Using the wrappers in online_fair_sched_group instead of the raw locking
-removes this warning.
+other info that might help us debug this:
 
-[ tglx: Use rq_*lock_irq() ]
+RCU used illegally from offline CPU!
+rcu_scheduler_active = 2, debug_locks = 1
+no locks held by swapper/5/0.
 
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
+stack backtrace:
+CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.2.0-rc1+ #681
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ dump_stack+0x5e/0x8b
+ trigger_load_balance+0xa8/0x390
+ ? tick_sched_do_timer+0x60/0x60
+ update_process_times+0x3b/0x50
+ tick_sched_handle+0x2f/0x40
+ tick_sched_timer+0x32/0x70
+ __hrtimer_run_queues+0xd3/0x3b0
+ hrtimer_interrupt+0x11d/0x270
+ ? sched_clock_local+0xc/0x74
+ smp_apic_timer_interrupt+0x79/0x200
+ apic_timer_interrupt+0xf/0x20
+ </IRQ>
+RIP: 0010:delay_tsc+0x22/0x50
+Code: ff 0f 1f 80 00 00 00 00 65 44 8b 05 18 a7 11 48 0f ae e8 0f 31 48 89 d6 48 c1 e6 20 48 09 c6 eb 0e f3 90 65 8b 05 fe a6 11 48 <41> 39 c0 75 18 0f ae e8 0f 31 48 c1 e2 20 48 09 c2 48 89 d0 48 29
+RSP: 0000:ffff8f92c0157ed0 EFLAGS: 00000212 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000005 RBX: ffff8c861f356400 RCX: ffff8f92c0157e64
+RDX: 000000321214c8cc RSI: 00000032120daa7f RDI: 0000000000260f15
+RBP: 0000000000000005 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff8c861ee18000 R15: ffff8c861ee18000
+ cpuhp_report_idle_dead+0x31/0x60
+ do_idle+0x1d5/0x200
+ ? _raw_spin_unlock_irqrestore+0x2d/0x40
+ cpu_startup_entry+0x14/0x20
+ start_secondary+0x151/0x170
+ secondary_startup_64+0xa4/0xb0
+
+------------------------------------------------------------------------
+
+This happens rarely, but can be forced by happen more often by
+placing delays in cpuhp_report_idle_dead() following the call to
+rcu_report_dead().  With this in place, the following rcutorture
+scenario reproduces the problem within a few minutes:
+
+tools/testing/selftests/rcutorture/bin/kvm.sh --cpus 8 --duration 5 --kconfig "CONFIG_DEBUG_LOCK_ALLOC=y CONFIG_PROVE_LOCKING=y" --configs "TREE04"
+
+This commit uses the crude but effective expedient of moving the disabling
+of interrupts within the idle loop to precede the cpu_is_offline()
+check.  It also invokes tick_nohz_idle_stop_tick() instead of
+tick_nohz_idle_stop_tick_protected() to shut off the scheduling-clock
+interrupt.
+
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20190801133749.11033-1-pauld@redhat.com
+[ paulmck: Revert tick_nohz_idle_stop_tick_protected() removal, new callers. ]
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/idle.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 105b1aead0c3a..86cfc5d5129ce 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -10301,18 +10301,18 @@ int alloc_fair_sched_group(struct task_group *tg, struct task_group *parent)
- void online_fair_sched_group(struct task_group *tg)
- {
- 	struct sched_entity *se;
-+	struct rq_flags rf;
- 	struct rq *rq;
- 	int i;
+diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+index 80940939b7336..e4bc4aa739b83 100644
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -241,13 +241,14 @@ static void do_idle(void)
+ 		check_pgt_cache();
+ 		rmb();
  
- 	for_each_possible_cpu(i) {
- 		rq = cpu_rq(i);
- 		se = tg->se[i];
--
--		raw_spin_lock_irq(&rq->lock);
-+		rq_lock_irq(rq, &rf);
- 		update_rq_clock(rq);
- 		attach_entity_cfs_rq(se);
- 		sync_throttle(tg, i);
--		raw_spin_unlock_irq(&rq->lock);
-+		rq_unlock_irq(rq, &rf);
- 	}
- }
++		local_irq_disable();
++
+ 		if (cpu_is_offline(cpu)) {
+-			tick_nohz_idle_stop_tick_protected();
++			tick_nohz_idle_stop_tick();
+ 			cpuhp_report_idle_dead();
+ 			arch_cpu_idle_dead();
+ 		}
  
+-		local_irq_disable();
+ 		arch_cpu_idle_enter();
+ 
+ 		/*
 -- 
 2.20.1
 
