@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E16ABA427
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C73BA42A
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729127AbfIVSqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
+        id S2389984AbfIVSq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:46:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389850AbfIVSqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:46:17 -0400
+        id S2389892AbfIVSq2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:46:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA78B21D7C;
-        Sun, 22 Sep 2019 18:46:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D167206C2;
+        Sun, 22 Sep 2019 18:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177977;
-        bh=dPMBz+h3etmnxoqEa7dwetX9+Br6b4R4IuSCrpEqtQg=;
+        s=default; t=1569177987;
+        bh=6wQX0xJ/q3Ed4fG+/mE1pswdwSLXVm2+9rffNMTgyZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUQH7Knk++lH2Sz/OPcjYLn3qQKJ4pxspbQYbFWfqjH0a7gD7nWwkpplBXKXYN4TZ
-         0QWlQl97gvMqMOkadNNTnaNDd/nJPxSWDheRA7gSAlgnNfyL9QfdDum5YFhYK+SOHG
-         HKXjfeFNUBjJ5bVZvCMC2nJacbB7za/hnY5m3X88=
+        b=z+teSN6j7hL2dJdWgGXaxgTj+LHAhKpZozRWmmEbVwzNzSJKOG3Rt3r55ssyKD95y
+         23eMM9ZKF2jZdOpwUl0oj4rVm0FTuKF2RS+2LPtkr3jrdrhAgGwXVLoisuc3gJcmwu
+         XqD611yxgfRePxgPwXnBAscSgW39NAwf4do9R7Fo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 074/203] arm64/efi: Move variable assignments after SECTIONS
-Date:   Sun, 22 Sep 2019 14:41:40 -0400
-Message-Id: <20190922184350.30563-74-sashal@kernel.org>
+Cc:     Tan Xiaojun <tanxiaojun@huawei.com>, Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 080/203] perf record: Support aarch64 random socket_id assignment
+Date:   Sun, 22 Sep 2019 14:41:46 -0400
+Message-Id: <20190922184350.30563-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,173 +51,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Tan Xiaojun <tanxiaojun@huawei.com>
 
-[ Upstream commit 90776dd1c427cbb4d381aa4b13338f1fb1d20f5e ]
+[ Upstream commit 0a4d8fb229dd78f9e0752817339e19e903b37a60 ]
 
-It seems that LLVM's linker does not correctly handle variable assignments
-involving section positions that are updated during the SECTIONS
-parsing. Commit aa69fb62bea1 ("arm64/efi: Mark __efistub_stext_offset as
-an absolute symbol explicitly") ran into this too, but found a different
-workaround.
+Same as in the commit 01766229533f ("perf record: Support s390 random
+socket_id assignment"), aarch64 also have this problem.
 
-However, this was not enough, as other variables were also miscalculated
-which manifested as boot failures under UEFI where __efistub__end was
-not taking the correct _end value (they should be the same):
+Without this fix:
 
-$ ld.lld -EL -maarch64elf --no-undefined -X -shared \
-	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
-	-o vmlinux.lld -T poc.lds --whole-archive vmlinux.o && \
-  readelf -Ws vmlinux.lld | egrep '\b(__efistub_|)_end\b'
-368272: ffff000002218000     0 NOTYPE  LOCAL  HIDDEN    38 __efistub__end
-368322: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT   38 _end
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  socket_id number is too big.You may need to upgrade the perf tool.
 
-$ aarch64-linux-gnu-ld.bfd -EL -maarch64elf --no-undefined -X -shared \
-	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
-	-o vmlinux.bfd -T poc.lds --whole-archive vmlinux.o && \
-  readelf -Ws vmlinux.bfd | egrep '\b(__efistub_|)_end\b'
-338124: ffff000012318000     0 NOTYPE  LOCAL  DEFAULT  ABS __efistub__end
-383812: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT 15325 _end
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # Core ID and Socket ID information is not available
+  ...
 
-To work around this, all of the __efistub_-prefixed variable assignments
-need to be moved after the linker script's SECTIONS entry. As it turns
-out, this also solves the problem fixed in commit aa69fb62bea1, so those
-changes are reverted here.
+With this fix:
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  cpumask list: 0-31
+  cpumask list: 32-63
+  cpumask list: 64-95
+  cpumask list: 96-127
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/634
-Link: https://bugs.llvm.org/show_bug.cgi?id=42990
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # CPU 0: Core ID 0, Socket ID 36
+  # CPU 1: Core ID 1, Socket ID 36
+  ...
+  # CPU 126: Core ID 126, Socket ID 8442
+  # CPU 127: Core ID 127, Socket ID 8442
+  ...
+
+Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov (VMware) <tz.stoyanov@gmail.com>
+Link: http://lkml.kernel.org/r/1564717737-21602-1-git-send-email-tanxiaojun@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/image-vars.h  | 51 +++++++++++++++++++++++++++++++++
- arch/arm64/kernel/image.h       | 42 ---------------------------
- arch/arm64/kernel/vmlinux.lds.S |  2 ++
- 3 files changed, 53 insertions(+), 42 deletions(-)
- create mode 100644 arch/arm64/kernel/image-vars.h
+ tools/perf/util/header.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
-new file mode 100644
-index 0000000000000..25a2a9b479c2f
---- /dev/null
-+++ b/arch/arm64/kernel/image-vars.h
-@@ -0,0 +1,51 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Linker script variables to be set after section resolution, as
-+ * ld.lld does not like variables assigned before SECTIONS is processed.
-+ */
-+#ifndef __ARM64_KERNEL_IMAGE_VARS_H
-+#define __ARM64_KERNEL_IMAGE_VARS_H
-+
-+#ifndef LINKER_SCRIPT
-+#error This file should only be included in vmlinux.lds.S
-+#endif
-+
-+#ifdef CONFIG_EFI
-+
-+__efistub_stext_offset = stext - _text;
-+
-+/*
-+ * The EFI stub has its own symbol namespace prefixed by __efistub_, to
-+ * isolate it from the kernel proper. The following symbols are legally
-+ * accessed by the stub, so provide some aliases to make them accessible.
-+ * Only include data symbols here, or text symbols of functions that are
-+ * guaranteed to be safe when executed at another offset than they were
-+ * linked at. The routines below are all implemented in assembler in a
-+ * position independent manner
-+ */
-+__efistub_memcmp		= __pi_memcmp;
-+__efistub_memchr		= __pi_memchr;
-+__efistub_memcpy		= __pi_memcpy;
-+__efistub_memmove		= __pi_memmove;
-+__efistub_memset		= __pi_memset;
-+__efistub_strlen		= __pi_strlen;
-+__efistub_strnlen		= __pi_strnlen;
-+__efistub_strcmp		= __pi_strcmp;
-+__efistub_strncmp		= __pi_strncmp;
-+__efistub_strrchr		= __pi_strrchr;
-+__efistub___flush_dcache_area	= __pi___flush_dcache_area;
-+
-+#ifdef CONFIG_KASAN
-+__efistub___memcpy		= __pi_memcpy;
-+__efistub___memmove		= __pi_memmove;
-+__efistub___memset		= __pi_memset;
-+#endif
-+
-+__efistub__text			= _text;
-+__efistub__end			= _end;
-+__efistub__edata		= _edata;
-+__efistub_screen_info		= screen_info;
-+
-+#endif
-+
-+#endif /* __ARM64_KERNEL_IMAGE_VARS_H */
-diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
-index 2b85c0d6fa3d1..c7d38c660372c 100644
---- a/arch/arm64/kernel/image.h
-+++ b/arch/arm64/kernel/image.h
-@@ -65,46 +65,4 @@
- 	DEFINE_IMAGE_LE64(_kernel_offset_le, TEXT_OFFSET);	\
- 	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 1903d7ec97976..bf7cf12495539 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2251,8 +2251,10 @@ static int process_cpu_topology(struct feat_fd *ff, void *data __maybe_unused)
+ 	/* On s390 the socket_id number is not related to the numbers of cpus.
+ 	 * The socket_id number might be higher than the numbers of cpus.
+ 	 * This depends on the configuration.
++	 * AArch64 is the same.
+ 	 */
+-	if (ph->env.arch && !strncmp(ph->env.arch, "s390", 4))
++	if (ph->env.arch && (!strncmp(ph->env.arch, "s390", 4)
++			  || !strncmp(ph->env.arch, "aarch64", 7)))
+ 		do_core_id_test = false;
  
--#ifdef CONFIG_EFI
--
--/*
-- * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
-- * https://github.com/ClangBuiltLinux/linux/issues/561
-- */
--__efistub_stext_offset = ABSOLUTE(stext - _text);
--
--/*
-- * The EFI stub has its own symbol namespace prefixed by __efistub_, to
-- * isolate it from the kernel proper. The following symbols are legally
-- * accessed by the stub, so provide some aliases to make them accessible.
-- * Only include data symbols here, or text symbols of functions that are
-- * guaranteed to be safe when executed at another offset than they were
-- * linked at. The routines below are all implemented in assembler in a
-- * position independent manner
-- */
--__efistub_memcmp		= __pi_memcmp;
--__efistub_memchr		= __pi_memchr;
--__efistub_memcpy		= __pi_memcpy;
--__efistub_memmove		= __pi_memmove;
--__efistub_memset		= __pi_memset;
--__efistub_strlen		= __pi_strlen;
--__efistub_strnlen		= __pi_strnlen;
--__efistub_strcmp		= __pi_strcmp;
--__efistub_strncmp		= __pi_strncmp;
--__efistub_strrchr		= __pi_strrchr;
--__efistub___flush_dcache_area	= __pi___flush_dcache_area;
--
--#ifdef CONFIG_KASAN
--__efistub___memcpy		= __pi_memcpy;
--__efistub___memmove		= __pi_memmove;
--__efistub___memset		= __pi_memset;
--#endif
--
--__efistub__text			= _text;
--__efistub__end			= _end;
--__efistub__edata		= _edata;
--__efistub_screen_info		= screen_info;
--
--#endif
--
- #endif /* __ARM64_KERNEL_IMAGE_H */
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index 7fa0083749078..803b24d2464ae 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -245,6 +245,8 @@ SECTIONS
- 	HEAD_SYMBOLS
- }
- 
-+#include "image-vars.h"
-+
- /*
-  * The HYP init code and ID map text can't be longer than a page each,
-  * and should not cross a page boundary.
+ 	for (i = 0; i < (u32)cpu_nr; i++) {
 -- 
 2.20.1
 
