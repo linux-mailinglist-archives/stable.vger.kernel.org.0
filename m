@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B12BA466
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B973BA469
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391628AbfIVSs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:48:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45314 "EHLO mail.kernel.org"
+        id S2391645AbfIVSsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391601AbfIVSs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:28 -0400
+        id S2391636AbfIVSsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37B602190F;
-        Sun, 22 Sep 2019 18:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F12472186A;
+        Sun, 22 Sep 2019 18:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178107;
-        bh=gVJ5XNv35Wj2YquIGuUHJ24XMfhRoDYe2lPrgEnThQ8=;
+        s=default; t=1569178111;
+        bh=g5a/68iI0jH7MH6VUDFnoDKfOl4b8iGjPCJESSuASV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWS9FR1GqnQGVrkOLEwiCyVcqCMDJjSQ1D7hv/7/KFCPBtAquAkL4GWc1jyZJOc7D
-         Z3zP8aNYGxCSq9LOTYrMP92XcRrIq4rXcgd+po+6Fkf3ksv+96rxFJ8namywXr2Hoo
-         +AjhBGqgfLGYiOMiVF3iI7p7bc4riLaXpqZFsGDM=
+        b=hswl4ffUD8/elkVmX+YJ8o9xL8U/PPTBP55mQJo8GvhGLKO5aNw4Hm53tmSiHCB6z
+         xqgQIpPKqeVToDjjmjZxcprQORzvUPgKM/26eKephoznbGWmIIudqhBIi4o2U6IQFo
+         FsB2RuEYQrbuKq18Yxeqy8qjNSZpCh/YyP0olulc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 167/203] s390/crypto: xts-aes-s390 fix extra run-time crypto self tests finding
-Date:   Sun, 22 Sep 2019 14:43:13 -0400
-Message-Id: <20190922184350.30563-167-sashal@kernel.org>
+Cc:     Austin Kim <austindh.kim@gmail.com>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Travis <mike.travis@hpe.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        Thomas Gleixner <tglx@linutronix.de>, allison@lohutok.net,
+        andy@infradead.org, armijn@tjaldur.nl, bp@alien8.de,
+        dvhart@infradead.org, gregkh@linuxfoundation.org, hpa@zytor.com,
+        kjlu@umn.edu, platform-driver-x86@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 169/203] x86/platform/uv: Fix kmalloc() NULL check routine
+Date:   Sun, 22 Sep 2019 14:43:15 -0400
+Message-Id: <20190922184350.30563-169-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,52 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Austin Kim <austindh.kim@gmail.com>
 
-[ Upstream commit 9e323d45ba94262620a073a3f9945ca927c07c71 ]
+[ Upstream commit 864b23f0169d5bff677e8443a7a90dfd6b090afc ]
 
-With 'extra run-time crypto self tests' enabled, the selftest
-for s390-xts fails with
+The result of kmalloc() should have been checked ahead of below statement:
 
-  alg: skcipher: xts-aes-s390 encryption unexpectedly succeeded on
-  test vector "random: len=0 klen=64"; expected_error=-22,
-  cfg="random: inplace use_digest nosimd src_divs=[2.61%@+4006,
-  84.44%@+21, 1.55%@+13, 4.50%@+344, 4.26%@+21, 2.64%@+27]"
+	pqp = (struct bau_pq_entry *)vp;
 
-This special case with nbytes=0 is not handled correctly and this
-fix now makes sure that -EINVAL is returned when there is en/decrypt
-called with 0 bytes to en/decrypt.
+Move BUG_ON(!vp) before above statement.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
+Cc: Hedi Berriche <hedi.berriche@hpe.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Travis <mike.travis@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Russ Anderson <russ.anderson@hpe.com>
+Cc: Steve Wahl <steve.wahl@hpe.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: allison@lohutok.net
+Cc: andy@infradead.org
+Cc: armijn@tjaldur.nl
+Cc: bp@alien8.de
+Cc: dvhart@infradead.org
+Cc: gregkh@linuxfoundation.org
+Cc: hpa@zytor.com
+Cc: kjlu@umn.edu
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190905232951.GA28779@LGEARND20B15
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/crypto/aes_s390.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/platform/uv/tlb_uv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index d00f84add5f4c..6d2dbb5089d5c 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -586,6 +586,9 @@ static int xts_aes_encrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
+diff --git a/arch/x86/platform/uv/tlb_uv.c b/arch/x86/platform/uv/tlb_uv.c
+index 20c389a91b803..5f0a96bf27a1f 100644
+--- a/arch/x86/platform/uv/tlb_uv.c
++++ b/arch/x86/platform/uv/tlb_uv.c
+@@ -1804,9 +1804,9 @@ static void pq_init(int node, int pnode)
  
-+	if (!nbytes)
-+		return -EINVAL;
-+
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_encrypt(desc, dst, src, nbytes);
+ 	plsize = (DEST_Q_SIZE + 1) * sizeof(struct bau_pq_entry);
+ 	vp = kmalloc_node(plsize, GFP_KERNEL, node);
+-	pqp = (struct bau_pq_entry *)vp;
+-	BUG_ON(!pqp);
++	BUG_ON(!vp);
  
-@@ -600,6 +603,9 @@ static int xts_aes_decrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
- 
-+	if (!nbytes)
-+		return -EINVAL;
-+
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_decrypt(desc, dst, src, nbytes);
++	pqp = (struct bau_pq_entry *)vp;
+ 	cp = (char *)pqp + 31;
+ 	pqp = (struct bau_pq_entry *)(((unsigned long)cp >> 5) << 5);
  
 -- 
 2.20.1
