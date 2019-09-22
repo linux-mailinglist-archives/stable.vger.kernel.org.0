@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 725BABAA33
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B39E5BAA2F
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731307AbfIVTXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53098 "EHLO mail.kernel.org"
+        id S1731278AbfIVTX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394136AbfIVSxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:21 -0400
+        id S2393382AbfIVSxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D1F221D80;
-        Sun, 22 Sep 2019 18:53:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 699E32190F;
+        Sun, 22 Sep 2019 18:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178401;
-        bh=Iz/rm/WQRpcIwAOXL0oPExQ24VLEz8gHHqZ2wCq1jig=;
+        s=default; t=1569178403;
+        bh=ZaoPHwtLHsvaA+ZAcx1/9Bq15BWjd0+3loZmP5V6Kmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMwvgSmkwr3ETE2KLlLmi6nDyeqv7VqXzSRK7TepkpJ0yA5qICr6PQL50Not/7lcE
-         kWFk08AGIVHDOP7FYt4RCLigleTjA8btv7MIDZqaTUEf9Cl71a5L0Yt7r0ABpU4OBc
-         NaACKRN7/mK8fLrjZ+budK1ywdDQNFoHG34pnqBM=
+        b=bUUEpgRv6rfm8Xs2duXmmbTvvvF7KsdreFc/eWrEfK1ENFplzgvHsQ3wlTMDfy27z
+         3CPyWYEATOOcTx+EhhSi5qvlgZ8m53T6tImyoZwRTmcSvK0Qf3bGpnuR9dOaQcNGjV
+         /+EwrGj/q2UuLs2fTcN4mnsHg7lmzsC32XU36OC0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kent Overstreet <kent.overstreet@gmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 144/185] closures: fix a race on wakeup from closure_sync
-Date:   Sun, 22 Sep 2019 14:48:42 -0400
-Message-Id: <20190922184924.32534-144-sashal@kernel.org>
+Cc:     Marcel Bocu <marcel.p.bocu@gmail.com>, Vicki Pfau <vi@endrift.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        "Woods, Brian" <Brian.Woods@amd.com>,
+        Clemens Ladisch <clemens@ladisch.de>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-hwmon@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 145/185] hwmon: (k10temp) Add support for AMD family 17h, model 70h CPUs
+Date:   Sun, 22 Sep 2019 14:48:43 -0400
+Message-Id: <20190922184924.32534-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,48 +49,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kent Overstreet <kent.overstreet@gmail.com>
+From: Marcel Bocu <marcel.p.bocu@gmail.com>
 
-[ Upstream commit a22a9602b88fabf10847f238ff81fde5f906fef7 ]
+[ Upstream commit 12163cfbfc0f804cc7d27bc20e8d266ce7459260 ]
 
-The race was when a thread using closure_sync() notices cl->s->done == 1
-before the thread calling closure_put() calls wake_up_process(). Then,
-it's possible for that thread to return and exit just before
-wake_up_process() is called - so we're trying to wake up a process that
-no longer exists.
+It would seem like model 70h is behaving in the same way as model 30h,
+so let's just add the new F3 PCI ID to the list of compatible devices.
 
-rcu_read_lock() is sufficient to protect against this, as there's an rcu
-barrier somewhere in the process teardown path.
+Unlike previous Ryzen/Threadripper, Ryzen gen 3 processors do not need
+temperature offsets anymore. This has been reported in the press and
+verified on my Ryzen 3700X by checking that the idle temperature
+reported by k10temp is matching the temperature reported by the
+firmware.
 
-Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
-Acked-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Vicki Pfau sent an identical patch after I checked that no-one had
+written this patch. I would have been happy about dropping my patch but
+unlike for his patch series, I had already Cc:ed the x86 people and
+they already reviewed the changes. Since Vicki has not answered to
+any email after his initial series, let's assume she is on vacation
+and let's avoid duplication of reviews from the maintainers and merge
+my series. To acknowledge Vicki's anteriority, I added her S-o-b to
+the patch.
+
+v2, suggested by Guenter Roeck and Brian Woods:
+  - rename from 71h to 70h
+
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+Signed-off-by: Marcel Bocu <marcel.p.bocu@gmail.com>
+Tested-by: Marcel Bocu <marcel.p.bocu@gmail.com>
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: "Woods, Brian" <Brian.Woods@amd.com>
+Cc: Clemens Ladisch <clemens@ladisch.de>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-hwmon@vger.kernel.org
+Link: https://lore.kernel.org/r/20190722174653.2391-1-marcel.p.bocu@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/closure.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/hwmon/k10temp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/bcache/closure.c b/drivers/md/bcache/closure.c
-index 73f5319295bc9..c12cd809ab193 100644
---- a/drivers/md/bcache/closure.c
-+++ b/drivers/md/bcache/closure.c
-@@ -105,8 +105,14 @@ struct closure_syncer {
- 
- static void closure_sync_fn(struct closure *cl)
- {
--	cl->s->done = 1;
--	wake_up_process(cl->s->task);
-+	struct closure_syncer *s = cl->s;
-+	struct task_struct *p;
-+
-+	rcu_read_lock();
-+	p = READ_ONCE(s->task);
-+	s->done = 1;
-+	wake_up_process(p);
-+	rcu_read_unlock();
- }
- 
- void __sched __closure_sync(struct closure *cl)
+diff --git a/drivers/hwmon/k10temp.c b/drivers/hwmon/k10temp.c
+index c77e89239dcd9..5c1dddde193c3 100644
+--- a/drivers/hwmon/k10temp.c
++++ b/drivers/hwmon/k10temp.c
+@@ -349,6 +349,7 @@ static const struct pci_device_id k10temp_id_table[] = {
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
++	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+ 	{ PCI_VDEVICE(HYGON, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{}
+ };
 -- 
 2.20.1
 
