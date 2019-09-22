@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9C9BAAE8
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E29BAAE5
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389228AbfIVTcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45060 "EHLO mail.kernel.org"
+        id S2388366AbfIVTcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391538AbfIVSsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:20 -0400
+        id S2391618AbfIVSs2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E61E21A4C;
-        Sun, 22 Sep 2019 18:48:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FD1621A4A;
+        Sun, 22 Sep 2019 18:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178099;
-        bh=U+fTeMg7eR4bzJKvKMnVWPprEFx1Xn1JUmgx6apz7Ho=;
+        s=default; t=1569178108;
+        bh=8Sr764RTcwSYEJAQGa+KrlDJKb7qohDjpHtG9LoQfEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNs1UjMNdtuFGRYiWUVX9Gm9T4JpmwauV8cpm9ATXu6ZRlHF2W+NSLtxwNcQ7MUC2
-         f9H0DlKfZbZXLkbaea2WaD/EfI6IgIAiHmAzrjbBFWN+EnuMCnauL2kIQu4xrKtl+R
-         LsWWN9dGWrTtjj6Gx2Re2Yim+knVEWYIdubRC3hY=
+        b=TN/8GZxKf3uRleHiE4c4inKzUEgRAwxvA652APQiQDAewvMlm2mE7/kYsWE7oAlEK
+         +3fmJCBImiMr/Yup47v96CdtrisnM1dAuGJZoSq98V1PPo0mRyYejGmPAe0396iE+q
+         C5DSpBmLY9RwHaQuQS/leBO8pF3XK+bn5vuwhbkE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, NeilBrown <neilb@suse.de>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 162/203] md/raid1: fail run raid1 array when active disk less than one
-Date:   Sun, 22 Sep 2019 14:43:08 -0400
-Message-Id: <20190922184350.30563-162-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Jiaxing Luo <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 168/203] irqchip/gic-v3-its: Fix LPI release for Multi-MSI devices
+Date:   Sun, 22 Sep 2019 14:43:14 -0400
+Message-Id: <20190922184350.30563-168-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,76 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
+[ Upstream commit c9c96e30ecaa0aafa225aa1a5392cb7db17c7a82 ]
 
-When run test case:
-  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
-  mdadm -S /dev/md1
-  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
+When allocating a range of LPIs for a Multi-MSI capable device,
+this allocation extended to the closest power of 2.
 
-  mdadm --zero /dev/sda
-  mdadm /dev/md1 -a /dev/sda
+But on the release path, the interrupts are released one by
+one. This results in not releasing the "extra" range, leaking
+the its_device. Trying to reprobe the device will then fail.
 
-  echo offline > /sys/block/sdc/device/state
-  echo offline > /sys/block/sdb/device/state
-  sleep 5
-  mdadm -S /dev/md1
+Fix it by releasing the LPIs the same way we allocate them.
 
-  echo running > /sys/block/sdb/device/state
-  echo running > /sys/block/sdc/device/state
-  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
-
-mdadm run fail with kernel message as follow:
-[  172.986064] md: kicking non-fresh sdb from array!
-[  173.004210] md: kicking non-fresh sdc from array!
-[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
-[  173.022406] md1: failed to create bitmap (-5)
-
-In fact, when active disk in raid1 array less than one, we
-need to return fail in raid1_run().
-
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 8208d1708b88 ("irqchip/gic-v3-its: Align PCI Multi-MSI allocation on their size")
+Reported-by: Jiaxing Luo <luojiaxing@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/f5e948aa-e32f-3f74-ae30-31fee06c2a74@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-gic-v3-its.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 501a3b4d82f33..5afbb7df06e70 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3129,6 +3129,13 @@ static int raid1_run(struct mddev *mddev)
- 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
- 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
- 			mddev->degraded++;
-+	/*
-+	 * RAID1 needs at least one disk in active
-+	 */
-+	if (conf->raid_disks - mddev->degraded < 1) {
-+		ret = -EINVAL;
-+		goto abort;
-+	}
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 1b5c3672aea27..c3a8d732805f5 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2641,14 +2641,13 @@ static void its_irq_domain_free(struct irq_domain *domain, unsigned int virq,
+ 	struct its_node *its = its_dev->its;
+ 	int i;
  
- 	if (conf->raid_disks - mddev->degraded == 1)
- 		mddev->recovery_cp = MaxSector;
-@@ -3162,8 +3169,12 @@ static int raid1_run(struct mddev *mddev)
- 	ret = md_integrity_register(mddev);
- 	if (ret) {
- 		md_unregister_thread(&mddev->thread);
--		raid1_free(mddev, conf);
-+		goto abort;
- 	}
-+	return 0;
++	bitmap_release_region(its_dev->event_map.lpi_map,
++			      its_get_event_id(irq_domain_get_irq_data(domain, virq)),
++			      get_count_order(nr_irqs));
 +
-+abort:
-+	raid1_free(mddev, conf);
- 	return ret;
- }
- 
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		struct irq_data *data = irq_domain_get_irq_data(domain,
+ 								virq + i);
+-		u32 event = its_get_event_id(data);
+-
+-		/* Mark interrupt index as unused */
+-		clear_bit(event, its_dev->event_map.lpi_map);
+-
+ 		/* Nuke the entry in the domain */
+ 		irq_domain_reset_irq_data(data);
+ 	}
 -- 
 2.20.1
 
