@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD13BA43D
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7946DBA443
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390587AbfIVSrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43466 "EHLO mail.kernel.org"
+        id S2390786AbfIVSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:47:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388748AbfIVSrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:09 -0400
+        id S2390763AbfIVSrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC422206C2;
-        Sun, 22 Sep 2019 18:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA4BE2186A;
+        Sun, 22 Sep 2019 18:47:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178027;
-        bh=aF29muMYd0aFbQLCZ8bnN7wOIqz7jZ7RkN0z5SAUhJI=;
+        s=default; t=1569178042;
+        bh=JynpDT/gW2P7z3FNimWG7u5TDUQgbp30m34PxCe32QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4qefqI9GSdLzRITIXLS+/kRhDKpsTQp0mQO+XTAnjzRmrGdsl3Y5Fr8uPjyLuFsz
-         vfCaJd6tgORRibXJpvVLFDwdrGVQev7rW1lknoIgPlgH+p16N22U7IGoWl1oF+Zpdi
-         +gqaUNOVv1IszzeCIEr5JnoG15hlLk+y2SwzJAP0=
+        b=zwt5rOM4vien/A0MB+S9nUGrpNKmxCdZY2018CZoRQzryf+w4GQkqTwheTUj5gbHm
+         4pwLYKyOGuDzIr3qz0nzpas2xriN1rYjW/jeIOrRS2wCXfUGsZkuPKmYDoUQjJ8DEW
+         Ic0hXaZ3fxyALCNV9qI0m2PZbfzexS2Hmo9ntWAk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 111/203] EDAC/amd64: Support more than two controllers for chip selects handling
-Date:   Sun, 22 Sep 2019 14:42:17 -0400
-Message-Id: <20190922184350.30563-111-sashal@kernel.org>
+Cc:     Kamil Konieczny <k.konieczny@partner.samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 122/203] PM / devfreq: exynos-bus: Correct clock enable sequence
+Date:   Sun, 22 Sep 2019 14:42:28 -0400
+Message-Id: <20190922184350.30563-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -47,233 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Kamil Konieczny <k.konieczny@partner.samsung.com>
 
-[ Upstream commit d971e28e2ce4696fcc32998c8aced5e47701fffe ]
+[ Upstream commit 2c2b20e0da89c76759ee28c6824413ab2fa3bfc6 ]
 
-The struct chip_select array that's used for saving chip select bases
-and masks is fixed at length of two. There should be one struct
-chip_select for each controller, so this array should be increased to
-support systems that may have more than two controllers.
+Regulators should be enabled before clocks to avoid h/w hang. This
+require change in exynos_bus_probe() to move exynos_bus_parse_of()
+after exynos_bus_parent_parse_of() and change in error handling.
+Similar change is needed in exynos_bus_exit() where clock should be
+disabled before regulators.
 
-Increase the size of the struct chip_select array to eight, which is the
-largest number of controllers per die currently supported on AMD
-systems.
-
-Fix number of DIMMs and Chip Select bases/masks on Family17h, because
-AMD Family 17h systems support 2 DIMMs, 4 CS bases, and 2 CS masks per
-channel.
-
-Also, carve out the Family 17h+ reading of the bases/masks into a
-separate function. This effectively reverts the original bases/masks
-reading code to before Family 17h support was added.
-
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20190821235938.118710-2-Yazen.Ghannam@amd.com
+Signed-off-by: Kamil Konieczny <k.konieczny@partner.samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 123 +++++++++++++++++++++-----------------
- drivers/edac/amd64_edac.h |   5 +-
- 2 files changed, 71 insertions(+), 57 deletions(-)
+ drivers/devfreq/exynos-bus.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 873437be86d9c..dd60cf5a3d969 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -810,7 +810,7 @@ static void debug_display_dimm_sizes_df(struct amd64_pvt *pvt, u8 ctrl)
+diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
+index d9f377912c104..7c06df8bd74fe 100644
+--- a/drivers/devfreq/exynos-bus.c
++++ b/drivers/devfreq/exynos-bus.c
+@@ -191,11 +191,10 @@ static void exynos_bus_exit(struct device *dev)
+ 	if (ret < 0)
+ 		dev_warn(dev, "failed to disable the devfreq-event devices\n");
  
- 	edac_printk(KERN_DEBUG, EDAC_MC, "UMC%d chip selects:\n", ctrl);
- 
--	for (dimm = 0; dimm < 4; dimm++) {
-+	for (dimm = 0; dimm < 2; dimm++) {
- 		size0 = 0;
- 		cs0 = dimm * 2;
- 
-@@ -942,89 +942,102 @@ static void prep_chip_selects(struct amd64_pvt *pvt)
- 	} else if (pvt->fam == 0x15 && pvt->model == 0x30) {
- 		pvt->csels[0].b_cnt = pvt->csels[1].b_cnt = 4;
- 		pvt->csels[0].m_cnt = pvt->csels[1].m_cnt = 2;
-+	} else if (pvt->fam >= 0x17) {
-+		int umc;
-+
-+		for_each_umc(umc) {
-+			pvt->csels[umc].b_cnt = 4;
-+			pvt->csels[umc].m_cnt = 2;
-+		}
-+
- 	} else {
- 		pvt->csels[0].b_cnt = pvt->csels[1].b_cnt = 8;
- 		pvt->csels[0].m_cnt = pvt->csels[1].m_cnt = 4;
- 	}
+-	if (bus->regulator)
+-		regulator_disable(bus->regulator);
+-
+ 	dev_pm_opp_of_remove_table(dev);
+ 	clk_disable_unprepare(bus->clk);
++	if (bus->regulator)
++		regulator_disable(bus->regulator);
  }
  
-+static void read_umc_base_mask(struct amd64_pvt *pvt)
-+{
-+	u32 umc_base_reg, umc_mask_reg;
-+	u32 base_reg, mask_reg;
-+	u32 *base, *mask;
-+	int cs, umc;
-+
-+	for_each_umc(umc) {
-+		umc_base_reg = get_umc_base(umc) + UMCCH_BASE_ADDR;
-+
-+		for_each_chip_select(cs, umc, pvt) {
-+			base = &pvt->csels[umc].csbases[cs];
-+
-+			base_reg = umc_base_reg + (cs * 4);
-+
-+			if (!amd_smn_read(pvt->mc_node_id, base_reg, base))
-+				edac_dbg(0, "  DCSB%d[%d]=0x%08x reg: 0x%x\n",
-+					 umc, cs, *base, base_reg);
-+		}
-+
-+		umc_mask_reg = get_umc_base(umc) + UMCCH_ADDR_MASK;
-+
-+		for_each_chip_select_mask(cs, umc, pvt) {
-+			mask = &pvt->csels[umc].csmasks[cs];
-+
-+			mask_reg = umc_mask_reg + (cs * 4);
-+
-+			if (!amd_smn_read(pvt->mc_node_id, mask_reg, mask))
-+				edac_dbg(0, "  DCSM%d[%d]=0x%08x reg: 0x%x\n",
-+					 umc, cs, *mask, mask_reg);
-+		}
-+	}
-+}
-+
  /*
-  * Function 2 Offset F10_DCSB0; read in the DCS Base and DCS Mask registers
-  */
- static void read_dct_base_mask(struct amd64_pvt *pvt)
- {
--	int base_reg0, base_reg1, mask_reg0, mask_reg1, cs;
-+	int cs;
+@@ -383,6 +382,7 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ 	struct exynos_bus *bus;
+ 	int ret, max_state;
+ 	unsigned long min_freq, max_freq;
++	bool passive = false;
  
- 	prep_chip_selects(pvt);
+ 	if (!np) {
+ 		dev_err(dev, "failed to find devicetree node\n");
+@@ -396,27 +396,27 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ 	bus->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, bus);
  
--	if (pvt->umc) {
--		base_reg0 = get_umc_base(0) + UMCCH_BASE_ADDR;
--		base_reg1 = get_umc_base(1) + UMCCH_BASE_ADDR;
--		mask_reg0 = get_umc_base(0) + UMCCH_ADDR_MASK;
--		mask_reg1 = get_umc_base(1) + UMCCH_ADDR_MASK;
--	} else {
--		base_reg0 = DCSB0;
--		base_reg1 = DCSB1;
--		mask_reg0 = DCSM0;
--		mask_reg1 = DCSM1;
+-	/* Parse the device-tree to get the resource information */
+-	ret = exynos_bus_parse_of(np, bus);
+-	if (ret < 0)
+-		return ret;
+-
+ 	profile = devm_kzalloc(dev, sizeof(*profile), GFP_KERNEL);
+-	if (!profile) {
+-		ret = -ENOMEM;
+-		goto err;
 -	}
-+	if (pvt->umc)
-+		return read_umc_base_mask(pvt);
++	if (!profile)
++		return -ENOMEM;
  
- 	for_each_chip_select(cs, 0, pvt) {
--		int reg0   = base_reg0 + (cs * 4);
--		int reg1   = base_reg1 + (cs * 4);
-+		int reg0   = DCSB0 + (cs * 4);
-+		int reg1   = DCSB1 + (cs * 4);
- 		u32 *base0 = &pvt->csels[0].csbases[cs];
- 		u32 *base1 = &pvt->csels[1].csbases[cs];
- 
--		if (pvt->umc) {
--			if (!amd_smn_read(pvt->mc_node_id, reg0, base0))
--				edac_dbg(0, "  DCSB0[%d]=0x%08x reg: 0x%x\n",
--					 cs, *base0, reg0);
--
--			if (!amd_smn_read(pvt->mc_node_id, reg1, base1))
--				edac_dbg(0, "  DCSB1[%d]=0x%08x reg: 0x%x\n",
--					 cs, *base1, reg1);
--		} else {
--			if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, base0))
--				edac_dbg(0, "  DCSB0[%d]=0x%08x reg: F2x%x\n",
--					 cs, *base0, reg0);
-+		if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, base0))
-+			edac_dbg(0, "  DCSB0[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *base0, reg0);
- 
--			if (pvt->fam == 0xf)
--				continue;
-+		if (pvt->fam == 0xf)
-+			continue;
- 
--			if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, base1))
--				edac_dbg(0, "  DCSB1[%d]=0x%08x reg: F2x%x\n",
--					 cs, *base1, (pvt->fam == 0x10) ? reg1
--								: reg0);
--		}
-+		if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, base1))
-+			edac_dbg(0, "  DCSB1[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *base1, (pvt->fam == 0x10) ? reg1
-+							: reg0);
+ 	node = of_parse_phandle(dev->of_node, "devfreq", 0);
+ 	if (node) {
+ 		of_node_put(node);
+-		goto passive;
++		passive = true;
+ 	} else {
+ 		ret = exynos_bus_parent_parse_of(np, bus);
++		if (ret < 0)
++			return ret;
  	}
  
- 	for_each_chip_select_mask(cs, 0, pvt) {
--		int reg0   = mask_reg0 + (cs * 4);
--		int reg1   = mask_reg1 + (cs * 4);
-+		int reg0   = DCSM0 + (cs * 4);
-+		int reg1   = DCSM1 + (cs * 4);
- 		u32 *mask0 = &pvt->csels[0].csmasks[cs];
- 		u32 *mask1 = &pvt->csels[1].csmasks[cs];
++	/* Parse the device-tree to get the resource information */
++	ret = exynos_bus_parse_of(np, bus);
+ 	if (ret < 0)
+-		goto err;
++		goto err_reg;
++
++	if (passive)
++		goto passive;
  
--		if (pvt->umc) {
--			if (!amd_smn_read(pvt->mc_node_id, reg0, mask0))
--				edac_dbg(0, "    DCSM0[%d]=0x%08x reg: 0x%x\n",
--					 cs, *mask0, reg0);
--
--			if (!amd_smn_read(pvt->mc_node_id, reg1, mask1))
--				edac_dbg(0, "    DCSM1[%d]=0x%08x reg: 0x%x\n",
--					 cs, *mask1, reg1);
--		} else {
--			if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, mask0))
--				edac_dbg(0, "    DCSM0[%d]=0x%08x reg: F2x%x\n",
--					 cs, *mask0, reg0);
-+		if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, mask0))
-+			edac_dbg(0, "    DCSM0[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *mask0, reg0);
+ 	/* Initialize the struct profile and governor data for parent device */
+ 	profile->polling_ms = 50;
+@@ -507,6 +507,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ err:
+ 	dev_pm_opp_of_remove_table(dev);
+ 	clk_disable_unprepare(bus->clk);
++err_reg:
++	if (!passive)
++		regulator_disable(bus->regulator);
  
--			if (pvt->fam == 0xf)
--				continue;
-+		if (pvt->fam == 0xf)
-+			continue;
- 
--			if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, mask1))
--				edac_dbg(0, "    DCSM1[%d]=0x%08x reg: F2x%x\n",
--					 cs, *mask1, (pvt->fam == 0x10) ? reg1
--								: reg0);
--		}
-+		if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, mask1))
-+			edac_dbg(0, "    DCSM1[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *mask1, (pvt->fam == 0x10) ? reg1
-+							: reg0);
- 	}
+ 	return ret;
  }
- 
-diff --git a/drivers/edac/amd64_edac.h b/drivers/edac/amd64_edac.h
-index 8f66472f7adc2..4dce6a2ac75f9 100644
---- a/drivers/edac/amd64_edac.h
-+++ b/drivers/edac/amd64_edac.h
-@@ -96,6 +96,7 @@
- /* Hardware limit on ChipSelect rows per MC and processors per system */
- #define NUM_CHIPSELECTS			8
- #define DRAM_RANGES			8
-+#define NUM_CONTROLLERS			8
- 
- #define ON true
- #define OFF false
-@@ -351,8 +352,8 @@ struct amd64_pvt {
- 	u32 dbam0;		/* DRAM Base Address Mapping reg for DCT0 */
- 	u32 dbam1;		/* DRAM Base Address Mapping reg for DCT1 */
- 
--	/* one for each DCT */
--	struct chip_select csels[2];
-+	/* one for each DCT/UMC */
-+	struct chip_select csels[NUM_CONTROLLERS];
- 
- 	/* DRAM base and limit pairs F1x[78,70,68,60,58,50,48,40] */
- 	struct dram_range ranges[DRAM_RANGES];
 -- 
 2.20.1
 
