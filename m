@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 823DABA957
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395C9BA954
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436859AbfIVTOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:14:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59366 "EHLO mail.kernel.org"
+        id S1729446AbfIVTOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394724AbfIVS5A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:57:00 -0400
+        id S2394736AbfIVS5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:57:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2AE3206C2;
-        Sun, 22 Sep 2019 18:56:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 646262184D;
+        Sun, 22 Sep 2019 18:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178619;
-        bh=+hiAlNfbSBPF8qKfDkfN4sNImtyxNSb/HIggk7vL2UE=;
+        s=default; t=1569178622;
+        bh=5PRxwvJOPGRmn8UkRJJoesonvbFonXLvvtfiGZcZyPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uu/e0bYGILzw7eLALmGZiUWMbiJYNR1NX4l9Yspc5/tCK7x3GpBV++0phJhsUhZe
-         imR+ICsnge5yeicqiLB7Ps08KwfvDbIdVe96WjEcNwZzJckJdzZVLjKNuXepdq1pbD
-         Vem8E59XB0flM+e74AHb6YQ7d4DY4XeM5A6t2Vqs=
+        b=oKDazYqqeckfL3Ok9wKyFcs0fD0pEi3g8Pu/Les2sliRDHgkrwdB2/MA3owW8BvxP
+         r8ykX7BXLuEiSc33hEu5ILtYE2ZNJzvWaH6vl01L1bi7g68tgtKJ270TWxI1Okd8CT
+         Iijt4pRgvM4Ob8aqV856c4Ean1NM5EE/UgptICCk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 118/128] mmc: dw_mmc: Re-store SDIO IRQs mask at system resume
-Date:   Sun, 22 Sep 2019 14:54:08 -0400
-Message-Id: <20190922185418.2158-118-sashal@kernel.org>
+Cc:     Sean Young <sean@mess.org>,
+        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
+        Kees Cook <keescook@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 120/128] media: technisat-usb2: break out of loop at end of buffer
+Date:   Sun, 22 Sep 2019 14:54:10 -0400
+Message-Id: <20190922185418.2158-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -44,46 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 7c526608d5afb62cbc967225e2ccaacfdd142e9d ]
+[ Upstream commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b ]
 
-In cases when SDIO IRQs have been enabled, runtime suspend is prevented by
-the driver. However, this still means dw_mci_runtime_suspend|resume() gets
-called during system suspend/resume, via pm_runtime_force_suspend|resume().
-This means during system suspend/resume, the register context of the dw_mmc
-device most likely loses its register context, even in cases when SDIO IRQs
-have been enabled.
+Ensure we do not access the buffer beyond the end if no 0xff byte
+is encountered.
 
-To re-enable the SDIO IRQs during system resume, the dw_mmc driver
-currently relies on the mmc core to re-enable the SDIO IRQs when it resumes
-the SDIO card, but this isn't the recommended solution. Instead, it's
-better to deal with this locally in the dw_mmc driver, so let's do that.
-
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/usb/dvb-usb/technisat-usb2.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index 942da07c9eb87..22c454c7aaca6 100644
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -3486,6 +3486,10 @@ int dw_mci_runtime_resume(struct device *dev)
- 	/* Force setup bus to guarantee available clock output */
- 	dw_mci_setup_bus(host->slot, true);
+diff --git a/drivers/media/usb/dvb-usb/technisat-usb2.c b/drivers/media/usb/dvb-usb/technisat-usb2.c
+index 18d0f8f5283fa..8d8e9f56a8be5 100644
+--- a/drivers/media/usb/dvb-usb/technisat-usb2.c
++++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
+@@ -607,10 +607,9 @@ static int technisat_usb2_frontend_attach(struct dvb_usb_adapter *a)
+ static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+ {
+ 	struct technisat_usb2_state *state = d->priv;
+-	u8 *buf = state->buf;
+-	u8 *b;
+-	int ret;
+ 	struct ir_raw_event ev;
++	u8 *buf = state->buf;
++	int i, ret;
  
-+	/* Re-enable SDIO interrupts. */
-+	if (sdio_irq_claimed(host->slot->mmc))
-+		__dw_mci_enable_sdio_irq(host->slot, 1);
+ 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
+ 	buf[1] = 0x08;
+@@ -646,26 +645,25 @@ static int technisat_usb2_get_ir(struct dvb_usb_device *d)
+ 		return 0; /* no key pressed */
+ 
+ 	/* decoding */
+-	b = buf+1;
+ 
+ #if 0
+ 	deb_rc("RC: %d ", ret);
+-	debug_dump(b, ret, deb_rc);
++	debug_dump(buf + 1, ret, deb_rc);
+ #endif
+ 
+ 	ev.pulse = 0;
+-	while (1) {
+-		ev.pulse = !ev.pulse;
+-		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
+-		ir_raw_event_store(d->rc_dev, &ev);
+-
+-		b++;
+-		if (*b == 0xff) {
++	for (i = 1; i < ARRAY_SIZE(state->buf); i++) {
++		if (buf[i] == 0xff) {
+ 			ev.pulse = 0;
+ 			ev.duration = 888888*2;
+ 			ir_raw_event_store(d->rc_dev, &ev);
+ 			break;
+ 		}
 +
- 	/* Now that slots are all setup, we can enable card detect */
- 	dw_mci_enable_cd(host);
++		ev.pulse = !ev.pulse;
++		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
++			       FIRMWARE_CLOCK_TICK) / 1000;
++		ir_raw_event_store(d->rc_dev, &ev);
+ 	}
  
+ 	ir_raw_event_handle(d->rc_dev);
 -- 
 2.20.1
 
