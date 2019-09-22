@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24146BAB5A
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1CFBAB57
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392865AbfIVThl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
+        id S2389626AbfIVTh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389541AbfIVSpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:42 -0400
+        id S2389588AbfIVSpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08FEE222C2;
-        Sun, 22 Sep 2019 18:45:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B961D20830;
+        Sun, 22 Sep 2019 18:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177941;
-        bh=wHCe2eLqeBayLHrTaC81ulGiWcK3ZH12sxzE0bgkK5E=;
+        s=default; t=1569177946;
+        bh=BhJwqG++4J9wEY2L8CXnAV4u3Z2d3St1190j766FZvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=meLW7Odhl6RqRgZk2CrTSO1dBjADj/TKyMDGeka5XDUVmLZd8mdvz0XtMUrJwJEHT
-         +krwcrhebrjJ12dA8apB6nka62liAeUVmoUWgP5mmqc8H9C98HW9Ry4Qd4NEq/XPjW
-         JMFyeujDWj6aU3aoYPpU81N3Xc8Mwpk7M/x/SWnc=
+        b=1lMdRP75UG5V9xtGKJQ9mWYBgtgvzgZibQ8BMh27FB72G4g1v2FS84iuu7wCsvLGD
+         xopA+W4/t87gbqUAI7Xctq0kHmSEt+bVfphJs6foYZB6XgPXfdBhIf80V979Kyxi4q
+         LUyN1wnLB3Vz5CwYyCT+4EspieEFIwS1us9u2wrY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 050/203] md/raid1: end bio when the device faulty
-Date:   Sun, 22 Sep 2019 14:41:16 -0400
-Message-Id: <20190922184350.30563-50-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.3 054/203] media: staging: tegra-vde: Fix build error
+Date:   Sun, 22 Sep 2019 14:41:20 -0400
+Message-Id: <20190922184350.30563-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -42,73 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit eeba6809d8d58908b5ed1b5ceb5fcb09a98a7cad ]
+[ Upstream commit 6b2265975239ab655069d796b822835a593e1cc7 ]
 
-When write bio return error, it would be added to conf->retry_list
-and wait for raid1d thread to retry write and acknowledge badblocks.
+If IOMMU_SUPPORT is not set, and COMPILE_TEST is y,
+IOMMU_IOVA may be set to m. So building will fails:
 
-In narrow_write_error(), the error bio will be split in the unit of
-badblock shift (such as one sector) and raid1d thread issues them
-one by one. Until all of the splited bio has finished, raid1d thread
-can go on processing other things, which is time consuming.
+drivers/staging/media/tegra-vde/iommu.o: In function `tegra_vde_iommu_map':
+iommu.c:(.text+0x41): undefined reference to `alloc_iova'
+iommu.c:(.text+0x56): undefined reference to `__free_iova'
 
-But, there is a scene for error handling that is not necessary.
-When the device has been set faulty, flush_bio_list() may end
-bios in pending_bio_list with error status. Since these bios
-has not been issued to the device actually, error handlding to
-retry write and acknowledge badblocks make no sense.
+Select IOMMU_IOVA while COMPILE_TEST is set to fix this.
 
-Even without that scene, when the device is faulty, badblocks info
-can not be written out to the device. Thus, we also no need to
-handle the error IO.
-
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: b301f8de1925 ("media: staging: media: tegra-vde: Add IOMMU support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/staging/media/tegra-vde/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 34e26834ad28b..501a3b4d82f33 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -447,19 +447,21 @@ static void raid1_end_write_request(struct bio *bio)
- 		    /* We never try FailFast to WriteMostly devices */
- 		    !test_bit(WriteMostly, &rdev->flags)) {
- 			md_error(r1_bio->mddev, rdev);
--			if (!test_bit(Faulty, &rdev->flags))
--				/* This is the only remaining device,
--				 * We need to retry the write without
--				 * FailFast
--				 */
--				set_bit(R1BIO_WriteError, &r1_bio->state);
--			else {
--				/* Finished with this branch */
--				r1_bio->bios[mirror] = NULL;
--				to_put = bio;
--			}
--		} else
-+		}
-+
-+		/*
-+		 * When the device is faulty, it is not necessary to
-+		 * handle write error.
-+		 * For failfast, this is the only remaining device,
-+		 * We need to retry the write without FailFast.
-+		 */
-+		if (!test_bit(Faulty, &rdev->flags))
- 			set_bit(R1BIO_WriteError, &r1_bio->state);
-+		else {
-+			/* Finished with this branch */
-+			r1_bio->bios[mirror] = NULL;
-+			to_put = bio;
-+		}
- 	} else {
- 		/*
- 		 * Set R1BIO_Uptodate in our master bio, so that we
+diff --git a/drivers/staging/media/tegra-vde/Kconfig b/drivers/staging/media/tegra-vde/Kconfig
+index 2e7f644ae5911..ba49ea50b8c0b 100644
+--- a/drivers/staging/media/tegra-vde/Kconfig
++++ b/drivers/staging/media/tegra-vde/Kconfig
+@@ -3,7 +3,7 @@ config TEGRA_VDE
+ 	tristate "NVIDIA Tegra Video Decoder Engine driver"
+ 	depends on ARCH_TEGRA || COMPILE_TEST
+ 	select DMA_SHARED_BUFFER
+-	select IOMMU_IOVA if IOMMU_SUPPORT
++	select IOMMU_IOVA if (IOMMU_SUPPORT || COMPILE_TEST)
+ 	select SRAM
+ 	help
+ 	    Say Y here to enable support for the NVIDIA Tegra video decoder
 -- 
 2.20.1
 
