@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C159BAA1C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B06BAA19
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731192AbfIVTWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53722 "EHLO mail.kernel.org"
+        id S1731177AbfIVTWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394369AbfIVSxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:41 -0400
+        id S2392719AbfIVSxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A3E5222CA;
-        Sun, 22 Sep 2019 18:53:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36C7E21E6F;
+        Sun, 22 Sep 2019 18:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178420;
-        bh=PFmsVWFZwfpmAheslFDDoN3WmtOQ4A68VbTVliDI6Oc=;
+        s=default; t=1569178422;
+        bh=PO6/JpMM8870A6I/uwuOSfPrmhKU+aElITomc83RwyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wl7O7mP0bmPJ4j6MOUya6UW46KmyCIksb185Gmlp8LnPyexHwsyjhaeag+FaxmX1v
-         Uth4YVkz44p4SUqz2VSUA63pZXFHvRyHeJ6boNjyA2ziKqJPkoxcMsqMojTv4fFwwp
-         gFvKUihkpZptlxex2ll6dYO1CeHZ/TLWnDIG2TuM=
+        b=E44EBEOHy2JfECF+sGqZkVypqFKbMGXljdpfmzN/zMM+WVsbpbDadbBjmZLQviHW3
+         61BK5K/flzmx425t3x2MVNQeyWYlaCOFosknFYe5JPq8hK3kjvK8tJ/Tfr9mBYV5cm
+         DmfNKnBgAX5gzHSyoIRg8fOQUXJaXvmUpzWWZJZ4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Katsuhiro Suzuki <katsuhiro@katsuster.net>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 158/185] SoC: simple-card-utils: set 0Hz to sysclk when shutdown
-Date:   Sun, 22 Sep 2019 14:48:56 -0400
-Message-Id: <20190922184924.32534-158-sashal@kernel.org>
+Cc:     Jackie Liu <liuyun01@kylinos.cn>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 160/185] io_uring: fix wrong sequence setting logic
+Date:   Sun, 22 Sep 2019 14:48:58 -0400
+Message-Id: <20190922184924.32534-160-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,68 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit 2458adb8f92ad4d07ef7ab27c5bafa1d3f4678d6 ]
+[ Upstream commit 8776f3fa15a5cd213c4dfab7ddaf557983374ea6 ]
 
-This patch set 0Hz to sysclk when shutdown the card.
+Sqo_thread will get sqring in batches, which will cause
+ctx->cached_sq_head to be added in batches. if one of these
+sqes is set with the DRAIN flag, then he will never get a
+chance to process, and finally sqo_thread will not exit.
 
-Some codecs set rate constraints that derives from sysclk. This
-mechanism works correctly if machine drivers give fixed frequency.
-
-But simple-audio and audio-graph card set variable clock rate if
-'mclk-fs' property exists. In this case, rate constraints will go
-bad scenario. For example a codec accepts three limited rates
-(mclk / 256, mclk / 384, mclk / 512).
-
-Bad scenario as follows (mclk-fs = 256):
-   - Initialize sysclk by correct value (Ex. 12.288MHz)
-     - Codec set constraints of PCM rate by sysclk
-       48kHz (1/256), 32kHz (1/384), 24kHz (1/512)
-   - Play 48kHz sound, it's acceptable
-   - Sysclk is not changed
-
-   - Play 32kHz sound, it's acceptable
-   - Set sysclk to 8.192MHz (= fs * mclk-fs = 32k * 256)
-     - Codec set constraints of PCM rate by sysclk
-       32kHz (1/256), 21.33kHz (1/384), 16kHz (1/512)
-
-   - Play 48kHz again, but it's NOT acceptable because constraints
-     do not allow 48kHz
-
-So codecs treat 0Hz sysclk as signal of applying no constraints to
-avoid this problem.
-
-Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
-Link: https://lore.kernel.org/r/20190907174501.19833-1-katsuhiro@katsuster.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: de0617e4671 ("io_uring: add support for marking commands as draining")
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/simple-card-utils.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/generic/simple-card-utils.c b/sound/soc/generic/simple-card-utils.c
-index f4c6375d11c7a..ef1adf87cbc8b 100644
---- a/sound/soc/generic/simple-card-utils.c
-+++ b/sound/soc/generic/simple-card-utils.c
-@@ -224,10 +224,17 @@ EXPORT_SYMBOL_GPL(asoc_simple_startup);
- void asoc_simple_shutdown(struct snd_pcm_substream *substream)
- {
- 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-+	struct snd_soc_dai *codec_dai = rtd->codec_dai;
-+	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
- 	struct asoc_simple_priv *priv = snd_soc_card_get_drvdata(rtd->card);
- 	struct simple_dai_props *dai_props =
- 		simple_priv_to_props(priv, rtd->num);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 03cd8f5bba850..701936f2bde39 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -288,6 +288,7 @@ struct io_ring_ctx {
+ struct sqe_submit {
+ 	const struct io_uring_sqe	*sqe;
+ 	unsigned short			index;
++	u32				sequence;
+ 	bool				has_user;
+ 	bool				needs_lock;
+ 	bool				needs_fixed_file;
+@@ -1894,7 +1895,7 @@ static int io_req_set_file(struct io_ring_ctx *ctx, const struct sqe_submit *s,
  
-+	if (dai_props->mclk_fs) {
-+		snd_soc_dai_set_sysclk(codec_dai, 0, 0, SND_SOC_CLOCK_IN);
-+		snd_soc_dai_set_sysclk(cpu_dai, 0, 0, SND_SOC_CLOCK_OUT);
-+	}
-+
- 	asoc_simple_clk_disable(dai_props->cpu_dai);
+ 	if (flags & IOSQE_IO_DRAIN) {
+ 		req->flags |= REQ_F_IO_DRAIN;
+-		req->sequence = ctx->cached_sq_head - 1;
++		req->sequence = s->sequence;
+ 	}
  
- 	asoc_simple_clk_disable(dai_props->codec_dai);
+ 	if (!io_op_needs_file(s->sqe))
+@@ -2050,6 +2051,7 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct sqe_submit *s)
+ 	if (head < ctx->sq_entries) {
+ 		s->index = head;
+ 		s->sqe = &ctx->sq_sqes[head];
++		s->sequence = ctx->cached_sq_head;
+ 		ctx->cached_sq_head++;
+ 		return true;
+ 	}
 -- 
 2.20.1
 
