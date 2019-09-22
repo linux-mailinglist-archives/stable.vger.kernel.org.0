@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82021BA850
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D89BA84E
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395395AbfIVTCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729485AbfIVTCF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 22 Sep 2019 15:02:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38418 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395390AbfIVTCE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:02:04 -0400
+        id S2395399AbfIVTCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:02:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE97C2186A;
-        Sun, 22 Sep 2019 19:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55E6221BE5;
+        Sun, 22 Sep 2019 19:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178923;
-        bh=BrDoBTenExKjWcM+h6i58GVnPzZrlbh1uQ6q8BdcW50=;
+        s=default; t=1569178925;
+        bh=ajS824LenRlv1kgE8cKvjNmdtuc51nUxbHZHmDxrsXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hrxz5TTJvLGnpL8H5JnaFggvFLjmcqiF55C6zyMIHhW++Dtzn0jE3scdOB2etSoJc
-         JTMKeItp6pf0tZgsFOOeh+F9AFcX80VvIgjo83cmmDxXf20aCYus220XeqIma5kHCO
-         Ky1az8FBxPxzszbWjmNpcDO/unzoC7V3hs0adxZY=
+        b=wKQJ40a89Uj4iNW4es61h5fg29BxC/VUv8rbjLFt69IJEtxjgx2Wpx+UiC0MWTgi7
+         mZYBr5kIDIgmNgInSphIjX/C67MRaaNCAhtVh9xgQO+Ph0LkGHTZVspVyDNw47OF8j
+         V3KSJC9v57DXpIIewP4qxpGR8U+EXzJUl3Kfn4I8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Austin Kim <austindh.kim@gmail.com>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Hedi Berriche <hedi.berriche@hpe.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        Thomas Gleixner <tglx@linutronix.de>, allison@lohutok.net,
-        andy@infradead.org, armijn@tjaldur.nl, bp@alien8.de,
-        dvhart@infradead.org, gregkh@linuxfoundation.org, hpa@zytor.com,
-        kjlu@umn.edu, platform-driver-x86@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 38/44] x86/platform/uv: Fix kmalloc() NULL check routine
-Date:   Sun, 22 Sep 2019 15:00:56 -0400
-Message-Id: <20190922190103.4906-38-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Arthur She <arthur.she@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 39/44] ASoC: dmaengine: Make the pcm->name equal to pcm->id if the name is not set
+Date:   Sun, 22 Sep 2019 15:00:57 -0400
+Message-Id: <20190922190103.4906-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -53,57 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 864b23f0169d5bff677e8443a7a90dfd6b090afc ]
+[ Upstream commit 2ec42f3147e1610716f184b02e65d7f493eed925 ]
 
-The result of kmalloc() should have been checked ahead of below statement:
+Some tools use the snd_pcm_info_get_name() to try to identify PCMs or for
+other purposes.
 
-	pqp = (struct bau_pq_entry *)vp;
+Currently it is left empty with the dmaengine-pcm, in this case copy the
+pcm->id string as pcm->name.
 
-Move BUG_ON(!vp) before above statement.
+For example IGT is using this to find the HDMI PCM for testing audio on it.
 
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-Cc: Hedi Berriche <hedi.berriche@hpe.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Russ Anderson <russ.anderson@hpe.com>
-Cc: Steve Wahl <steve.wahl@hpe.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: allison@lohutok.net
-Cc: andy@infradead.org
-Cc: armijn@tjaldur.nl
-Cc: bp@alien8.de
-Cc: dvhart@infradead.org
-Cc: gregkh@linuxfoundation.org
-Cc: hpa@zytor.com
-Cc: kjlu@umn.edu
-Cc: platform-driver-x86@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190905232951.GA28779@LGEARND20B15
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reported-by: Arthur She <arthur.she@linaro.org>
+Link: https://lore.kernel.org/r/20190906055524.7393-1-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/uv/tlb_uv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-generic-dmaengine-pcm.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/platform/uv/tlb_uv.c b/arch/x86/platform/uv/tlb_uv.c
-index 3b6ec42718e46..fd2149e8ca0f7 100644
---- a/arch/x86/platform/uv/tlb_uv.c
-+++ b/arch/x86/platform/uv/tlb_uv.c
-@@ -1784,9 +1784,9 @@ static void pq_init(int node, int pnode)
+diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
+index 6fd1906af3873..fe65754c2e504 100644
+--- a/sound/soc/soc-generic-dmaengine-pcm.c
++++ b/sound/soc/soc-generic-dmaengine-pcm.c
+@@ -301,6 +301,12 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
  
- 	plsize = (DEST_Q_SIZE + 1) * sizeof(struct bau_pq_entry);
- 	vp = kmalloc_node(plsize, GFP_KERNEL, node);
--	pqp = (struct bau_pq_entry *)vp;
--	BUG_ON(!pqp);
-+	BUG_ON(!vp);
+ 		if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
+ 			pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
++
++		if (rtd->pcm->streams[i].pcm->name[0] == '\0') {
++			strncpy(rtd->pcm->streams[i].pcm->name,
++				rtd->pcm->streams[i].pcm->id,
++				sizeof(rtd->pcm->streams[i].pcm->name));
++		}
+ 	}
  
-+	pqp = (struct bau_pq_entry *)vp;
- 	cp = (char *)pqp + 31;
- 	pqp = (struct bau_pq_entry *)(((unsigned long)cp >> 5) << 5);
- 
+ 	return 0;
 -- 
 2.20.1
 
