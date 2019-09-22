@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F650BA88C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 537C7BA88A
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729918AbfIVTFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
+        id S1728662AbfIVTE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405875AbfIVTAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:55 -0400
+        id S2436553AbfIVTA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF707208C2;
-        Sun, 22 Sep 2019 19:00:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 923842070C;
+        Sun, 22 Sep 2019 19:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178854;
-        bh=cdpXAyC0QgX4B0pAmhmXYPJ+N0Wzzx+vtMzo2FD9JFw=;
+        s=default; t=1569178858;
+        bh=InZJTPDFa4soq7713ObllAYGLrvpGFadXo4NIQ9qt88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2P98hJA9x1wksRzMwVPbcJdYyLgccd48XX7d7UTKZHc7tBt/Wdav8xUgH4rHTEG2e
-         mB9l65MEQWyb92gjbv9B0cB/KNx8IxSOUjf1AL1luMUKQPaVyz3watSKzCnokA4uhn
-         FgrHvUjJKV9rJKw1EUNOJjU1i/UwZPwd0g1Y3fTo=
+        b=N7kZaIsua7ks+K6dvF9KxZwVN/FtIBPTf0x6cwYx+4K+WOy9gU00MymchoVMAAQKN
+         A0WzRUyY+sdlnQpwHvA266HIV6u2uytwgaGhyczZXBonAxPRnoSQ29hPR/0Ou11kcd
+         RynBVvjyy8PTXCKeXnwaMjl+paMQeUfANN9JEl0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ahzo <Ahzo@tutanota.com>, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 57/60] drm/amd/powerplay/smu7: enforce minimal VBITimeout (v2)
-Date:   Sun, 22 Sep 2019 14:59:30 -0400
-Message-Id: <20190922185934.4305-57-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 59/60] ALSA: hda/realtek - Blacklist PC beep for Lenovo ThinkCentre M73/93
+Date:   Sun, 22 Sep 2019 14:59:32 -0400
+Message-Id: <20190922185934.4305-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -44,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahzo <Ahzo@tutanota.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f659bb6dae58c113805f92822e4c16ddd3156b79 ]
+[ Upstream commit 051c78af14fcd74a22b5af45548ad9d588247cc7 ]
 
-This fixes screen corruption/flickering on 75 Hz displays.
+Lenovo ThinkCentre M73 and M93 don't seem to have a proper beep
+although the driver tries to probe and set up blindly.
+Blacklist these machines for suppressing the beep creation.
 
-v2: make print statement debug only (Alex)
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=102646
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Ahzo <Ahzo@tutanota.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204635
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-index 3907439417e76..c0db3b57dfe58 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-@@ -3739,6 +3739,11 @@ int smu7_program_display_gap(struct pp_hwmgr *hwmgr)
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 31322aeebcff0..d45c85dcf9d9d 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -969,6 +969,9 @@ static const struct snd_pci_quirk beep_white_list[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "EeePC", 1),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "GA-MA790X", 1),
+ 	SND_PCI_QUIRK(0x8086, 0xd613, "Intel", 1),
++	/* blacklist -- no beep available */
++	SND_PCI_QUIRK(0x17aa, 0x309e, "Lenovo ThinkCentre M73", 0),
++	SND_PCI_QUIRK(0x17aa, 0x30a3, "Lenovo ThinkCentre M93", 0),
+ 	{}
+ };
  
- 	data->frame_time_x2 = frame_time_in_us * 2 / 100;
- 
-+	if (data->frame_time_x2 < 280) {
-+		pr_debug("%s: enforce minimal VBITimeout: %d -> 280\n", __func__, data->frame_time_x2);
-+		data->frame_time_x2 = 280;
-+	}
-+
- 	display_gap2 = pre_vbi_time_in_us * (ref_clock / 100);
- 
- 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCG_DISPLAY_GAP_CNTL2, display_gap2);
 -- 
 2.20.1
 
