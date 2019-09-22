@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C990ABA6D3
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD29BA6DA
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393989AbfIVSxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:53:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S2394336AbfIVSxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:53:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393868AbfIVSxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:19 -0400
+        id S2392845AbfIVSxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8E2021D7B;
-        Sun, 22 Sep 2019 18:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4958921D81;
+        Sun, 22 Sep 2019 18:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178397;
-        bh=llSn4ydV9YXYEK8DA21d6QG0PtBC/cL9om0VFCk4OtM=;
+        s=default; t=1569178413;
+        bh=SDsplUQ38BrLxov/WNrXRt5KjDvvNUs5suzHFutubz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1R1+U1g1MS7X6VGJ15VAV/po0XL5o8KifO/m8o6zCoBL6fOP4MdGuzBKUHLThaqIs
-         qgfWR1fN3832e3BhifmXi9Q8ouYzwIzTtC0fcOa7OuJdl5v5wKH0wk8botBZ8hKNuJ
-         PuHyzl0L6+33WV8QQc1jy/nWgikfSf3azk5MtL9g=
+        b=uqaUBA0D56bSKcGXdCT9gDT2PScIWzDI2zyqbrJAgSXVZCefkOeFsV+G8Jc+7LKnD
+         1QdLhMeJTfyeH1Mc4jiHG3RaZMRd1wD29ISNh9RY4R54mZJ0NQaabyw2UkaKa7C8lv
+         N/Q/2bXrDE7AThhQF5IWqrrpMuucpbig+9xFa/Mw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcel Bocu <marcel.p.bocu@gmail.com>, Vicki Pfau <vi@endrift.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Brian Woods <brian.woods@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-        "Woods, Brian" <Brian.Woods@amd.com>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-hwmon@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 141/185] x86/amd_nb: Add PCI device IDs for family 17h, model 70h
-Date:   Sun, 22 Sep 2019 14:48:39 -0400
-Message-Id: <20190922184924.32534-141-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Jiaxing Luo <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 153/185] irqchip/gic-v3-its: Fix LPI release for Multi-MSI devices
+Date:   Sun, 22 Sep 2019 14:48:51 -0400
+Message-Id: <20190922184924.32534-153-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -52,95 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Bocu <marcel.p.bocu@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit af4e1c5eca95bed1192d8dc45c8ed63aea2209e8 ]
+[ Upstream commit c9c96e30ecaa0aafa225aa1a5392cb7db17c7a82 ]
 
-The AMD Ryzen gen 3 processors came with a different PCI IDs for the
-function 3 & 4 which are used to access the SMN interface. The root
-PCI address however remained at the same address as the model 30h.
+When allocating a range of LPIs for a Multi-MSI capable device,
+this allocation extended to the closest power of 2.
 
-Adding the F3/F4 PCI IDs respectively to the misc and link ids appear
-to be sufficient for k10temp, so let's add them and follow up on the
-patch if other functions need more tweaking.
+But on the release path, the interrupts are released one by
+one. This results in not releasing the "extra" range, leaking
+the its_device. Trying to reprobe the device will then fail.
 
-Vicki Pfau sent an identical patch after I checked that no-one had
-written this patch. I would have been happy about dropping my patch but
-unlike for his patch series, I had already Cc:ed the x86 people and
-they already reviewed the changes. Since Vicki has not answered to
-any email after his initial series, let's assume she is on vacation
-and let's avoid duplication of reviews from the maintainers and merge
-my series. To acknowledge Vicki's anteriority, I added her S-o-b to
-the patch.
+Fix it by releasing the LPIs the same way we allocate them.
 
-v2, suggested by Guenter Roeck and Brian Woods:
- - rename from 71h to 70h
-
-Signed-off-by: Vicki Pfau <vi@endrift.com>
-Signed-off-by: Marcel Bocu <marcel.p.bocu@gmail.com>
-Tested-by: Marcel Bocu <marcel.p.bocu@gmail.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Brian Woods <brian.woods@amd.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>	# pci_ids.h
-
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: "Woods, Brian" <Brian.Woods@amd.com>
-Cc: Clemens Ladisch <clemens@ladisch.de>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-hwmon@vger.kernel.org
-Link: https://lore.kernel.org/r/20190722174510.2179-1-marcel.p.bocu@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 8208d1708b88 ("irqchip/gic-v3-its: Align PCI Multi-MSI allocation on their size")
+Reported-by: Jiaxing Luo <luojiaxing@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/f5e948aa-e32f-3f74-ae30-31fee06c2a74@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/amd_nb.c | 3 +++
- include/linux/pci_ids.h  | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/irqchip/irq-gic-v3-its.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/amd_nb.c b/arch/x86/kernel/amd_nb.c
-index 002aedc693933..8c26b696d8930 100644
---- a/arch/x86/kernel/amd_nb.c
-+++ b/arch/x86/kernel/amd_nb.c
-@@ -21,6 +21,7 @@
- #define PCI_DEVICE_ID_AMD_17H_DF_F4	0x1464
- #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F4 0x15ec
- #define PCI_DEVICE_ID_AMD_17H_M30H_DF_F4 0x1494
-+#define PCI_DEVICE_ID_AMD_17H_M70H_DF_F4 0x1444
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 20e5482d91b94..fca8b90028522 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2641,14 +2641,13 @@ static void its_irq_domain_free(struct irq_domain *domain, unsigned int virq,
+ 	struct its_node *its = its_dev->its;
+ 	int i;
  
- /* Protect the PCI config register pairs used for SMN and DF indirect access. */
- static DEFINE_MUTEX(smn_mutex);
-@@ -50,6 +51,7 @@ const struct pci_device_id amd_nb_misc_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F3) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
- 	{}
- };
- EXPORT_SYMBOL_GPL(amd_nb_misc_ids);
-@@ -63,6 +65,7 @@ static const struct pci_device_id amd_nb_link_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_DF_F4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F4) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F4) },
- 	{}
- };
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 70e86148cb1e9..862556761bbf4 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -548,6 +548,7 @@
- #define PCI_DEVICE_ID_AMD_17H_DF_F3	0x1463
- #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F3 0x15eb
- #define PCI_DEVICE_ID_AMD_17H_M30H_DF_F3 0x1493
-+#define PCI_DEVICE_ID_AMD_17H_M70H_DF_F3 0x1443
- #define PCI_DEVICE_ID_AMD_CNB17H_F3	0x1703
- #define PCI_DEVICE_ID_AMD_LANCE		0x2000
- #define PCI_DEVICE_ID_AMD_LANCE_HOME	0x2001
++	bitmap_release_region(its_dev->event_map.lpi_map,
++			      its_get_event_id(irq_domain_get_irq_data(domain, virq)),
++			      get_count_order(nr_irqs));
++
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		struct irq_data *data = irq_domain_get_irq_data(domain,
+ 								virq + i);
+-		u32 event = its_get_event_id(data);
+-
+-		/* Mark interrupt index as unused */
+-		clear_bit(event, its_dev->event_map.lpi_map);
+-
+ 		/* Nuke the entry in the domain */
+ 		irq_domain_reset_irq_data(data);
+ 	}
 -- 
 2.20.1
 
