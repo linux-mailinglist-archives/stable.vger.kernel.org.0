@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78CB2BAAB1
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B57BAAAD
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbfIVT3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:29:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46570 "EHLO mail.kernel.org"
+        id S1728862AbfIVT3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392417AbfIVStd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:49:33 -0400
+        id S2392452AbfIVSth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:49:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC3B921A4C;
-        Sun, 22 Sep 2019 18:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0033121A4C;
+        Sun, 22 Sep 2019 18:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178172;
-        bh=HlnVsCceNYZyYai/sxKuhEPWoP8UASBPHV6OlRRXLRg=;
+        s=default; t=1569178176;
+        bh=HpKmxHp4GDXcQxEKeyF+XGpwmGby9vwAK27uwuFCULk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fhmv5FT4IqX8/Rn+E5x1sgf2sCNxHshmSe8mQLKHCLa3aG8XSM5XtaUFTB8lJi80a
-         Eytuvv5XJI1eb6Kou+qp649qUlItZJuwemuIdEzv9UD62ITR/E2omgvwmq7Ekh73VK
-         3v/eP6QTYHw9JGLEXMSXnw+8V0J5A/fHw69MGixc=
+        b=DwjiQj55c512UxLgJqd4ZfGDAf8l6Ms0nsvXiKQbAIXgEnPwj/QzLOJLfHVj9DPzQ
+         a14aXtRHcXRoeuxmGSTvtLcBkNt3we1Xs69+h0iKBek5T2DLz0EgKSxDQkN6FcXq/U
+         oRzVIpG3lK9bpai3GyCBlqIyfQlh/aNmv8uCPq9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
+Cc:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 005/185] spi: dw-mmio: Clock should be shut when error occurs
-Date:   Sun, 22 Sep 2019 14:46:23 -0400
-Message-Id: <20190922184924.32534-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 008/185] ASoC: sgtl5000: Fix charge pump source assignment
+Date:   Sun, 22 Sep 2019 14:46:26 -0400
+Message-Id: <20190922184924.32534-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -45,42 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-[ Upstream commit 3da9834d9381dd99273f2ad4e6d096c9187dc4f2 ]
+[ Upstream commit b6319b061ba279577fd7030a9848fbd6a17151e3 ]
 
-When optional clock requesting fails, the main clock is still up and running,
-we should shut it down in such caee.
+If VDDA != VDDIO and any of them is greater than 3.1V, charge pump
+source can be assigned automatically [1].
 
-Fixes: 560ee7e91009 ("spi: dw: Add support for an optional interface clock")
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Gareth Williams <gareth.williams.jx@renesas.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Gareth Williams <gareth.williams.jx@renesas.com>
-Link: https://lore.kernel.org/r/20190710114243.30101-1-andriy.shevchenko@linux.intel.com
+[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
+
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20190719100524.23300-7-oleksandr.suvorov@toradex.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mmio.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-dw-mmio.c b/drivers/spi/spi-dw-mmio.c
-index 18c06568805e7..86789dbaf5771 100644
---- a/drivers/spi/spi-dw-mmio.c
-+++ b/drivers/spi/spi-dw-mmio.c
-@@ -172,8 +172,10 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index aad9eca41587e..7cbaedffa1ef7 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1173,12 +1173,17 @@ static int sgtl5000_set_power_regs(struct snd_soc_component *component)
+ 					SGTL5000_INT_OSC_EN);
+ 		/* Enable VDDC charge pump */
+ 		ana_pwr |= SGTL5000_VDDC_CHRGPMP_POWERUP;
+-	} else if (vddio >= 3100 && vdda >= 3100) {
++	} else {
+ 		ana_pwr &= ~SGTL5000_VDDC_CHRGPMP_POWERUP;
+-		/* VDDC use VDDIO rail */
+-		lreg_ctrl |= SGTL5000_VDDC_ASSN_OVRD;
+-		lreg_ctrl |= SGTL5000_VDDC_MAN_ASSN_VDDIO <<
+-			    SGTL5000_VDDC_MAN_ASSN_SHIFT;
++		/*
++		 * if vddio == vdda the source of charge pump should be
++		 * assigned manually to VDDIO
++		 */
++		if (vddio == vdda) {
++			lreg_ctrl |= SGTL5000_VDDC_ASSN_OVRD;
++			lreg_ctrl |= SGTL5000_VDDC_MAN_ASSN_VDDIO <<
++				    SGTL5000_VDDC_MAN_ASSN_SHIFT;
++		}
+ 	}
  
- 	/* Optional clock needed to access the registers */
- 	dwsmmio->pclk = devm_clk_get_optional(&pdev->dev, "pclk");
--	if (IS_ERR(dwsmmio->pclk))
--		return PTR_ERR(dwsmmio->pclk);
-+	if (IS_ERR(dwsmmio->pclk)) {
-+		ret = PTR_ERR(dwsmmio->pclk);
-+		goto out_clk;
-+	}
- 	ret = clk_prepare_enable(dwsmmio->pclk);
- 	if (ret)
- 		goto out_clk;
+ 	snd_soc_component_write(component, SGTL5000_CHIP_LINREG_CTRL, lreg_ctrl);
 -- 
 2.20.1
 
