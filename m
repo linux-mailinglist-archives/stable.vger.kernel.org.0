@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4C7BA6C9
+	by mail.lfdr.de (Postfix) with ESMTP id E3E34BA6CA
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391418AbfIVSxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:53:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
+        id S2393441AbfIVSxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404205AbfIVSxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:53:04 -0400
+        id S2389872AbfIVSxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:53:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17C5521D7B;
-        Sun, 22 Sep 2019 18:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 799C421D80;
+        Sun, 22 Sep 2019 18:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178384;
-        bh=w5vMaPj8DTvAVZi2VQY7kI0VApxM++qJDgNLshmiiWA=;
+        s=default; t=1569178385;
+        bh=KqDLmtdUKBEwEgCmLxElOgvKZQwQkg4iinUvA4Igcok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxuNhXGwRTHyvcSmH4x5HfAyTV9UliOOzYGMSVKDHYCXwO4ANF23spUGA3kwGdz3i
-         I+QsiyCXp58O7hAm6S27rZClIaa0mYHqX9Mv6lT4pziAzv1nFrP+SDx5eQ81iQutzT
-         fBxyUzwWMdLXHUpehKlagaaQONrD22wXMmhcho40=
+        b=qOYCwJEOLAKQ/C0UqwcBnTWm4subs37AON7GC51yciMXl9L+XuMed2fpIBG49xbAc
+         Rr2fFFCrVTbJOqse/wer/5bhG9lsaD3XPoPm75hZS7ctDyYD+q/gH+4nGMNJVIYX5V
+         MUR5MqY32z2Q1TyeiazA5hSEKx4d1aZiSSysoy3o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Wu <tomwu@mellanox.com>, Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+Cc:     Anton Eidelman <anton@lightbitslabs.com>,
+        James Smart <james.smart@broadcom.com>,
+        Hannes Reinecke <hare@suse.com>,
         Christoph Hellwig <hch@lst.de>,
         Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 131/185] nvmet: fix data units read and written counters in SMART log
-Date:   Sun, 22 Sep 2019 14:48:29 -0400
-Message-Id: <20190922184924.32534-131-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 132/185] nvme-multipath: fix ana log nsid lookup when nsid is not found
+Date:   Sun, 22 Sep 2019 14:48:30 -0400
+Message-Id: <20190922184924.32534-132-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -46,63 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Wu <tomwu@mellanox.com>
+From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit 3bec2e3754becebd4c452999adb49bc62c575ea4 ]
+[ Upstream commit e01f91dff91c7b16a6e3faf2565017d497a73f83 ]
 
-In nvme spec 1.3 there is a definition for data write/read counters
-from SMART log, (See section 5.14.1.2):
-	This value is reported in thousands (i.e., a value of 1
-	corresponds to 1000 units of 512 bytes read) and is rounded up.
+ANA log parsing invokes nvme_update_ana_state() per ANA group desc.
+This updates the state of namespaces with nsids in desc->nsids[].
 
-However, in nvme target where value is reported with actual units,
-but not thousands of units as the spec requires.
+Both ctrl->namespaces list and desc->nsids[] array are sorted by nsid.
+Hence nvme_update_ana_state() performs a single walk over ctrl->namespaces:
+- if current namespace matches the current desc->nsids[n],
+  this namespace is updated, and n is incremented.
+- the process stops when it encounters the end of either
+  ctrl->namespaces end or desc->nsids[]
 
-Signed-off-by: Tom Wu <tomwu@mellanox.com>
-Reviewed-by: Israel Rukshin <israelr@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+In case desc->nsids[n] does not match any of ctrl->namespaces,
+the remaining nsids following desc->nsids[n] will not be updated.
+Such situation was considered abnormal and generated WARN_ON_ONCE.
+
+However ANA log MAY contain nsids not (yet) found in ctrl->namespaces.
+For example, lets consider the following scenario:
+- nvme0 exposes namespaces with nsids = [2, 3] to the host
+- a new namespace nsid = 1 is added dynamically
+- also, a ANA topology change is triggered
+- NS_CHANGED aen is generated and triggers scan_work
+- before scan_work discovers nsid=1 and creates a namespace, a NOTICE_ANA
+  aen was issues and ana_work receives ANA log with nsids=[1, 2, 3]
+
+Result: ana_work fails to update ANA state on existing namespaces [2, 3]
+
+Solution:
+Change the way nvme_update_ana_state() namespace list walk
+checks the current namespace against desc->nsids[n] as follows:
+a) ns->head->ns_id < desc->nsids[n]: keep walking ctrl->namespaces.
+b) ns->head->ns_id == desc->nsids[n]: match, update the namespace
+c) ns->head->ns_id >= desc->nsids[n]: skip to desc->nsids[n+1]
+
+This enables correct operation in the scenario described above.
+This also allows ANA log to contain nsids currently invisible
+to the host, i.e. inactive nsids.
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Reviewed-by:   James Smart <james.smart@broadcom.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/admin-cmd.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/nvme/host/multipath.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-index 9f72d515fc4b3..4099093a17343 100644
---- a/drivers/nvme/target/admin-cmd.c
-+++ b/drivers/nvme/target/admin-cmd.c
-@@ -81,9 +81,11 @@ static u16 nvmet_get_smart_log_nsid(struct nvmet_req *req,
- 		goto out;
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 304aa8a65f2f8..f928bcfc57b5b 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -501,14 +501,16 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
  
- 	host_reads = part_stat_read(ns->bdev->bd_part, ios[READ]);
--	data_units_read = part_stat_read(ns->bdev->bd_part, sectors[READ]);
-+	data_units_read = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
-+		sectors[READ]), 1000);
- 	host_writes = part_stat_read(ns->bdev->bd_part, ios[WRITE]);
--	data_units_written = part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
-+	data_units_written = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
-+		sectors[WRITE]), 1000);
- 
- 	put_unaligned_le64(host_reads, &slog->host_reads[0]);
- 	put_unaligned_le64(data_units_read, &slog->data_units_read[0]);
-@@ -111,11 +113,11 @@ static u16 nvmet_get_smart_log_all(struct nvmet_req *req,
- 		if (!ns->bdev)
+ 	down_write(&ctrl->namespaces_rwsem);
+ 	list_for_each_entry(ns, &ctrl->namespaces, list) {
+-		if (ns->head->ns_id != le32_to_cpu(desc->nsids[n]))
++		unsigned nsid = le32_to_cpu(desc->nsids[n]);
++
++		if (ns->head->ns_id < nsid)
  			continue;
- 		host_reads += part_stat_read(ns->bdev->bd_part, ios[READ]);
--		data_units_read +=
--			part_stat_read(ns->bdev->bd_part, sectors[READ]);
-+		data_units_read += DIV_ROUND_UP(
-+			part_stat_read(ns->bdev->bd_part, sectors[READ]), 1000);
- 		host_writes += part_stat_read(ns->bdev->bd_part, ios[WRITE]);
--		data_units_written +=
--			part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
-+		data_units_written += DIV_ROUND_UP(
-+			part_stat_read(ns->bdev->bd_part, sectors[WRITE]), 1000);
- 
+-		nvme_update_ns_ana_state(desc, ns);
++		if (ns->head->ns_id == nsid)
++			nvme_update_ns_ana_state(desc, ns);
+ 		if (++n == nr_nsids)
+ 			break;
  	}
- 	rcu_read_unlock();
+ 	up_write(&ctrl->namespaces_rwsem);
+-	WARN_ON_ONCE(n < nr_nsids);
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
