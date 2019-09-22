@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9240FBA983
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71725BA985
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbfIVTQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2395544AbfIVTQP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 22 Sep 2019 15:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438498AbfIVS4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389533AbfIVS4K (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 22 Sep 2019 14:56:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BE3F206C2;
-        Sun, 22 Sep 2019 18:56:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DAE921907;
+        Sun, 22 Sep 2019 18:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178569;
-        bh=C6bM2lkrmxaRi+8ngCo47RBCDNww5tM1dx0eSaBFFeg=;
+        s=default; t=1569178570;
+        bh=lAXoCvK9UQCg0kKCfkhoaIjzPBFySSpdewTqTsr5tNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sr40dr0AdoX857ivPHkOroiNJsrLT8JHm3OhzZ3COc7nMBkj1lmSeEpZPpi9cS9tm
-         +fhlwWsgZqHL0JGbQI/EKkpNPgeuFtyI8Uekd0bb61zOazITv3KuECFetvvvkHN3rg
-         VKhSHZBRguZlrpGsAqRCtmXvl4xe4P4Mss2AtHA8=
+        b=Fo9renCPJtrB0dV/9djV+G/Jyh/6oN8XLwZaH6inEc5UnUxsarAmzC4ZV2xaLvMsp
+         ZVMPWPfdn9n8Pa3H1A7AJ1ZB78CKiKQ0q0MUBAEKEoWCFytEGZNjbaBaB0znfJS2/w
+         VHf8mHuvqnJmLQqCy2Ezie8EABa+rxogRKGBnlqc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Peterson <benjamin@python.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 081/128] perf trace beauty ioctl: Fix off-by-one error in cmd->string table
-Date:   Sun, 22 Sep 2019 14:53:31 -0400
-Message-Id: <20190922185418.2158-81-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 082/128] media: ov9650: add a sanity check
+Date:   Sun, 22 Sep 2019 14:53:32 -0400
+Message-Id: <20190922185418.2158-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -47,82 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Peterson <benjamin@python.org>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-[ Upstream commit b92675f4a9c02dd78052645597dac9e270679ddf ]
+[ Upstream commit 093347abc7a4e0490e3c962ecbde2dc272a8f708 ]
 
-While tracing a program that calls isatty(3), I noticed that strace
-reported TCGETS for the request argument of the underlying ioctl(2)
-syscall while perf trace reported TCSETS. strace is corrrect. The bug in
-perf was due to the tty ioctl beauty table starting at 0x5400 rather
-than 0x5401.
+As pointed by cppcheck:
 
-Committer testing:
+	[drivers/media/i2c/ov9650.c:706]: (error) Shifting by a negative value is undefined behaviour
+	[drivers/media/i2c/ov9650.c:707]: (error) Shifting by a negative value is undefined behaviour
+	[drivers/media/i2c/ov9650.c:721]: (error) Shifting by a negative value is undefined behaviour
 
-  Using augmented_raw_syscalls.o and settings to make 'perf trace'
-  use strace formatting, i.e. with this in ~/.perfconfig
+Prevent mangling with gains with invalid values.
 
-  # cat ~/.perfconfig
-  [trace]
-	add_events = /home/acme/git/linux/tools/perf/examples/bpf/augmented_raw_syscalls.c
-	show_zeros = yes
-	show_duration = no
-	no_inherit = yes
-	show_timestamp = no
-	show_arg_names = no
-	args_alignment = 40
-	show_prefix = yes
+As pointed by Sylvester, this should never happen in practice,
+as min value of V4L2_CID_GAIN control is 16 (gain is always >= 16
+and m is always >= 0), but it is too hard for a static analyzer
+to get this, as the logic with validates control min/max is
+elsewhere inside V4L2 core.
 
-  # strace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-  ioctl(1, TIOCGWINSZ, 0x7fff8a9b0860)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7fff8a9b0540)        = -1 ENOTTY (Inappropriate ioctl for device)
-  +++ exited with 0 +++
-  #
-
-Before:
-
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCSETS, 0x7fff2cf79f20)        = 0
-  ioctl(1, TIOCSWINSZ, 0x7fff2cf79f40)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCSETS, 0x7fff2cf79c20)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
-
-After:
-
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, 0x7ffed0763920)        = 0
-  ioctl(1, TIOCGWINSZ, 0x7ffed0763940)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7ffed0763620)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
-
-Signed-off-by: Benjamin Peterson <benjamin@python.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Fixes: 1cc47f2d46206d67285aea0ca7e8450af571da13 ("perf trace beauty ioctl: Improve 'cmd' beautifier")
-Link: http://lkml.kernel.org/r/20190823033625.18814-1-benjamin@python.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/ov9650.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/trace/beauty/ioctl.c b/tools/perf/trace/beauty/ioctl.c
-index 1be3b4cf08270..82346ca06f171 100644
---- a/tools/perf/trace/beauty/ioctl.c
-+++ b/tools/perf/trace/beauty/ioctl.c
-@@ -22,7 +22,7 @@
- static size_t ioctl__scnprintf_tty_cmd(int nr, int dir, char *bf, size_t size)
- {
- 	static const char *ioctl_tty_cmd[] = {
--	"TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
-+	[_IOC_NR(TCGETS)] = "TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
- 	"TCSETAF", "TCSBRK", "TCXONC", "TCFLSH", "TIOCEXCL", "TIOCNXCL", "TIOCSCTTY",
- 	"TIOCGPGRP", "TIOCSPGRP", "TIOCOUTQ", "TIOCSTI", "TIOCGWINSZ", "TIOCSWINSZ",
- 	"TIOCMGET", "TIOCMBIS", "TIOCMBIC", "TIOCMSET", "TIOCGSOFTCAR", "TIOCSSOFTCAR",
+diff --git a/drivers/media/i2c/ov9650.c b/drivers/media/i2c/ov9650.c
+index 5bea31cd41aa1..33a21d585dc9c 100644
+--- a/drivers/media/i2c/ov9650.c
++++ b/drivers/media/i2c/ov9650.c
+@@ -716,6 +716,11 @@ static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
+ 		for (m = 6; m >= 0; m--)
+ 			if (gain >= (1 << m) * 16)
+ 				break;
++
++		/* Sanity check: don't adjust the gain with a negative value */
++		if (m < 0)
++			return -EINVAL;
++
+ 		rgain = (gain - ((1 << m) * 16)) / (1 << m);
+ 		rgain |= (((1 << m) - 1) << 4);
+ 
 -- 
 2.20.1
 
