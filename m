@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C2FBAA6C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FEBBAA6A
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727496AbfIVT0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50026 "EHLO mail.kernel.org"
+        id S1731350AbfIVT0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406423AbfIVSvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:51:50 -0400
+        id S2406813AbfIVSwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:52:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7692221BE5;
-        Sun, 22 Sep 2019 18:51:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9F3F21A4A;
+        Sun, 22 Sep 2019 18:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178309;
-        bh=ljyOOYLOrVHKPq0GoGX1yqA6Ygi+ssZEBM2nuLc3eP4=;
+        s=default; t=1569178322;
+        bh=J857V+s2eCUvaCpjWd7tdKg18VSQm5KUn4SWhVl283w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSzNSjB3H0tdTAoD7fcZGZknySgfthZEYdkE0z5PLOCBrIiEGvcLJh0NDogCp1Zbn
-         PPS0Hn7S/cGkz24s7ObnvE0oPkg9+oYoJwUo5BthVoHghvaQA8cum/2Yr1LaSc5ZTw
-         ShSLzkYvNB3Ia/pRGC+w/HuJaFSY5HG4M57R6BkE=
+        b=A7bNsMHHjh7GQ9GZi7b9iO85cm4xdGeV6A7FYicmrvaAhGamHumEg4DDky5R4Msf4
+         m7NpfgOPzUj6aYZaiKx9MZxo0BSZLFvL1MrzBb/GgAC7bbqyXhvc0Uf7kKgloeYwSS
+         1KzBk503MLsrXF0NzgwpnpKisRgIMGB6jx2O6mzg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 079/185] net: lpc-enet: fix printk format strings
-Date:   Sun, 22 Sep 2019 14:47:37 -0400
-Message-Id: <20190922184924.32534-79-sashal@kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 088/185] tools headers: Fixup bitsperlong per arch includes
+Date:   Sun, 22 Sep 2019 14:47:46 -0400
+Message-Id: <20190922184924.32534-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -42,62 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
+[ Upstream commit 42fc2e9ef9603a7948aaa4ffd8dfb94b30294ad8 ]
 
-compile-testing this driver on other architectures showed
-multiple warnings:
+We were getting the file by luck, from one of the paths in -I, fix it to
+get it from the proper place:
 
-  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
-  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
+  $ cd tools/include/uapi/asm/
+  [acme@quaco asm]$ grep include bitsperlong.h
+  #include "../../arch/x86/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/s390/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/mips/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
+  #include <asm-generic/bitsperlong.h>
+  $ ls -la ../../arch/x86/include/uapi/asm/bitsperlong.h
+  ls: cannot access '../../arch/x86/include/uapi/asm/bitsperlong.h': No such file or directory
+  $ ls -la ../../../arch/*/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 237 ../../../arch/alpha/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 841 ../../../arch/arm64/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 966 ../../../arch/hexagon/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 234 ../../../arch/ia64/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 100 ../../../arch/microblaze/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 244 ../../../arch/mips/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 352 ../../../arch/parisc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 312 ../../../arch/powerpc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 353 ../../../arch/riscv/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 292 ../../../arch/s390/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 323 ../../../arch/sparc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 320 ../../../arch/x86/include/uapi/asm/bitsperlong.h
+  $
 
-  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
+Found while fixing some other problem, before it was escaping the
+tools/ chroot and using stuff in the kernel sources:
 
-Use format strings that work on all architectures.
+    CC       /tmp/build/perf/util/find_bit.o
+In file included from /git/linux/tools/include/../../arch/x86/include/uapi/asm/bitsperlong.h:11,
+                 from /git/linux/tools/include/uapi/asm/bitsperlong.h:3,
+                 from /git/linux/tools/include/linux/bits.h:6,
+                 from /git/linux/tools/include/linux/bitops.h:13,
+                 from ../lib/find_bit.c:17:
 
-Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+  # cd /git/linux/tools/include/../../arch/x86/include/uapi/asm/
+  # pwd
+  /git/linux/arch/x86/include/uapi/asm
+  #
+
+Now it is getting the one we want it to, i.e. the one inside tools/:
+
+    CC       /tmp/build/perf/util/find_bit.o
+  In file included from /git/linux/tools/arch/x86/include/uapi/asm/bitsperlong.h:11,
+                   from /git/linux/tools/include/linux/bits.h:6,
+                   from /git/linux/tools/include/linux/bitops.h:13,
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-8f8cfqywmf6jk8a3ucr0ixhu@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ tools/include/uapi/asm/bitsperlong.h | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index f7e11f1b0426c..b0c8be127bee1 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1344,13 +1344,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
- 	pldat->dma_buff_base_p = dma_handle;
- 
- 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
--	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
-+	netdev_dbg(ndev, "IO address size      :%zd\n",
-+			(size_t)resource_size(res));
- 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
- 			pldat->net_base);
- 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
--	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
--	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
--			pldat->dma_buff_base_p);
-+	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
-+	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
-+			&pldat->dma_buff_base_p);
- 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
- 			pldat->dma_buff_base_v);
- 
-@@ -1397,8 +1398,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_out_unregister_netdev;
- 
--	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
--	       res->start, ndev->irq);
-+	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
-+	       (unsigned long)res->start, ndev->irq);
- 
- 	device_init_wakeup(dev, 1);
- 	device_set_wakeup_enable(dev, 0);
+diff --git a/tools/include/uapi/asm/bitsperlong.h b/tools/include/uapi/asm/bitsperlong.h
+index 57aaeaf8e1920..edba4d93e9e6a 100644
+--- a/tools/include/uapi/asm/bitsperlong.h
++++ b/tools/include/uapi/asm/bitsperlong.h
+@@ -1,22 +1,22 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #if defined(__i386__) || defined(__x86_64__)
+-#include "../../arch/x86/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/x86/include/uapi/asm/bitsperlong.h"
+ #elif defined(__aarch64__)
+-#include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/arm64/include/uapi/asm/bitsperlong.h"
+ #elif defined(__powerpc__)
+-#include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/powerpc/include/uapi/asm/bitsperlong.h"
+ #elif defined(__s390__)
+-#include "../../arch/s390/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/s390/include/uapi/asm/bitsperlong.h"
+ #elif defined(__sparc__)
+-#include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/sparc/include/uapi/asm/bitsperlong.h"
+ #elif defined(__mips__)
+-#include "../../arch/mips/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/mips/include/uapi/asm/bitsperlong.h"
+ #elif defined(__ia64__)
+-#include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/ia64/include/uapi/asm/bitsperlong.h"
+ #elif defined(__riscv)
+-#include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/riscv/include/uapi/asm/bitsperlong.h"
+ #elif defined(__alpha__)
+-#include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/alpha/include/uapi/asm/bitsperlong.h"
+ #else
+ #include <asm-generic/bitsperlong.h>
+ #endif
 -- 
 2.20.1
 
