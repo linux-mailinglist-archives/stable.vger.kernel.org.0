@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B57BAAAD
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701F5BAAAA
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728862AbfIVT3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:29:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
+        id S1728884AbfIVT3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:29:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392452AbfIVSth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:49:37 -0400
+        id S2392505AbfIVStl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:49:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0033121A4C;
-        Sun, 22 Sep 2019 18:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6D41214AF;
+        Sun, 22 Sep 2019 18:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178176;
-        bh=HpKmxHp4GDXcQxEKeyF+XGpwmGby9vwAK27uwuFCULk=;
+        s=default; t=1569178180;
+        bh=34W1jjTazjZpi9L33eWvheVRmOMYkavJ5q66RdOX93w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DwjiQj55c512UxLgJqd4ZfGDAf8l6Ms0nsvXiKQbAIXgEnPwj/QzLOJLfHVj9DPzQ
-         a14aXtRHcXRoeuxmGSTvtLcBkNt3we1Xs69+h0iKBek5T2DLz0EgKSxDQkN6FcXq/U
-         oRzVIpG3lK9bpai3GyCBlqIyfQlh/aNmv8uCPq9Q=
+        b=snCLennm8vJ1uE6iUY06QQdEoXO8RggwHF7Lt1kgDSWlPo8sVXCuMWuU6YrNfx8BR
+         MepUSXcmWqMge3CJ2eULwV7QpX4+NAvhy+FOe6WJnd7BZcmFxAtNDpWBDt5CL77TsS
+         SgUTS9Qr/Hc04Wu3ZKo4bq1/JbBymuafeLo1+Nck=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 008/185] ASoC: sgtl5000: Fix charge pump source assignment
-Date:   Sun, 22 Sep 2019 14:46:26 -0400
-Message-Id: <20190922184924.32534-8-sashal@kernel.org>
+Cc:     Nick Stoughton <nstoughton@logitech.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-leds@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 011/185] leds: leds-lp5562 allow firmware files up to the maximum length
+Date:   Sun, 22 Sep 2019 14:46:29 -0400
+Message-Id: <20190922184924.32534-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -46,53 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+From: Nick Stoughton <nstoughton@logitech.com>
 
-[ Upstream commit b6319b061ba279577fd7030a9848fbd6a17151e3 ]
+[ Upstream commit ed2abfebb041473092b41527903f93390d38afa7 ]
 
-If VDDA != VDDIO and any of them is greater than 3.1V, charge pump
-source can be assigned automatically [1].
+Firmware files are in ASCII, using 2 hex characters per byte. The
+maximum length of a firmware string is therefore
 
-[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
+16 (commands) * 2 (bytes per command) * 2 (characters per byte) = 64
 
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20190719100524.23300-7-oleksandr.suvorov@toradex.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ff45262a85db ("leds: add new LP5562 LED driver")
+Signed-off-by: Nick Stoughton <nstoughton@logitech.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/leds/leds-lp5562.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index aad9eca41587e..7cbaedffa1ef7 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1173,12 +1173,17 @@ static int sgtl5000_set_power_regs(struct snd_soc_component *component)
- 					SGTL5000_INT_OSC_EN);
- 		/* Enable VDDC charge pump */
- 		ana_pwr |= SGTL5000_VDDC_CHRGPMP_POWERUP;
--	} else if (vddio >= 3100 && vdda >= 3100) {
-+	} else {
- 		ana_pwr &= ~SGTL5000_VDDC_CHRGPMP_POWERUP;
--		/* VDDC use VDDIO rail */
--		lreg_ctrl |= SGTL5000_VDDC_ASSN_OVRD;
--		lreg_ctrl |= SGTL5000_VDDC_MAN_ASSN_VDDIO <<
--			    SGTL5000_VDDC_MAN_ASSN_SHIFT;
-+		/*
-+		 * if vddio == vdda the source of charge pump should be
-+		 * assigned manually to VDDIO
-+		 */
-+		if (vddio == vdda) {
-+			lreg_ctrl |= SGTL5000_VDDC_ASSN_OVRD;
-+			lreg_ctrl |= SGTL5000_VDDC_MAN_ASSN_VDDIO <<
-+				    SGTL5000_VDDC_MAN_ASSN_SHIFT;
-+		}
- 	}
+diff --git a/drivers/leds/leds-lp5562.c b/drivers/leds/leds-lp5562.c
+index 37632fc637414..edb57c42e8b1d 100644
+--- a/drivers/leds/leds-lp5562.c
++++ b/drivers/leds/leds-lp5562.c
+@@ -260,7 +260,11 @@ static void lp5562_firmware_loaded(struct lp55xx_chip *chip)
+ {
+ 	const struct firmware *fw = chip->fw;
  
- 	snd_soc_component_write(component, SGTL5000_CHIP_LINREG_CTRL, lreg_ctrl);
+-	if (fw->size > LP5562_PROGRAM_LENGTH) {
++	/*
++	 * the firmware is encoded in ascii hex character, with 2 chars
++	 * per byte
++	 */
++	if (fw->size > (LP5562_PROGRAM_LENGTH * 2)) {
+ 		dev_err(&chip->cl->dev, "firmware data size overflow: %zu\n",
+ 			fw->size);
+ 		return;
 -- 
 2.20.1
 
