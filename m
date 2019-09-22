@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAEBBA514
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46AABA51B
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404387AbfIVSyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S2408002AbfIVSym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404370AbfIVSyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:22 -0400
+        id S2405382AbfIVSyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:54:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CE1021BE5;
-        Sun, 22 Sep 2019 18:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D994C208C2;
+        Sun, 22 Sep 2019 18:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178461;
-        bh=LBxEdC86jqvCyJyf6tEuS0mbCPOX+3ZovXYKemhrgeo=;
+        s=default; t=1569178480;
+        bh=RlevjJ75zKVEy+y0QbPOPi0NbIdTe8pyzaYc6gK6Tys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMSD12UaaM/KLA2Yx8zDIuWo/SgMr+hlyf0XYAUzrDl0A1kwnQPS3JlBNoiCbSeph
-         cmf/SLgC0XLNlwc3xn0+BUgNaJlOFrRwOUytebR1p/BnEOQqc004NMO7kLRuyfXOKQ
-         Qai8Yq9pHwA7idlAbfyFkTCbYBKBNVv7e5Yc0y1M=
+        b=n4mpvNB/v3mlRwCeIxw4RvC61wKWrNEHRh3c5M2md5S3OamUyIVbMSl20dl5/QS/z
+         sN7fv/BqJhfv6IxN/Xf5Urj4i5YkzbOZ0GIijqsWFn6Gt581MxFdjP8KglD03BobJJ
+         gka0yYJHHy5IyiQ/Y80QH50JbpUF/8bIk5sakPnw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 002/128] regulator: lm363x: Fix off-by-one n_voltages for lm3632 ldo_vpos/ldo_vneg
-Date:   Sun, 22 Sep 2019 14:52:12 -0400
-Message-Id: <20190922185418.2158-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 017/128] x86/apic: Make apic_pending_intr_clear() more robust
+Date:   Sun, 22 Sep 2019 14:52:27 -0400
+Message-Id: <20190922185418.2158-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -42,50 +43,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 1e2cc8c5e0745b545d4974788dc606d678b6e564 ]
+[ Upstream commit cc8bf191378c1da8ad2b99cf470ee70193ace84e ]
 
-According to the datasheet https://www.ti.com/lit/ds/symlink/lm3632a.pdf
-Table 20. VPOS Bias Register Field Descriptions VPOS[5:0]
-Sets the Positive Display Bias (LDO) Voltage (50 mV per step)
-000000: 4 V
-000001: 4.05 V
-000010: 4.1 V
-....................
-011101: 5.45 V
-011110: 5.5 V (Default)
-011111: 5.55 V
-....................
-100111: 5.95 V
-101000: 6 V
-Note: Codes 101001 to 111111 map to 6 V
+In course of developing shorthand based IPI support issues with the
+function which tries to clear eventually pending ISR bits in the local APIC
+were observed.
 
-The LM3632_LDO_VSEL_MAX should be 0b101000 (0x28), so the maximum voltage
-can match the datasheet.
+  1) O-day testing triggered the WARN_ON() in apic_pending_intr_clear().
 
-Fixes: 3a8d1a73a037 ("regulator: add LM363X driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20190626132632.32629-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+     This warning is emitted when the function fails to clear pending ISR
+     bits or observes pending IRR bits which are not delivered to the CPU
+     after the stale ISR bit(s) are ACK'ed.
+
+     Unfortunately the function only emits a WARN_ON() and fails to dump
+     the IRR/ISR content. That's useless for debugging.
+
+     Feng added spot on debug printk's which revealed that the stale IRR
+     bit belonged to the APIC timer interrupt vector, but adding ad hoc
+     debug code does not help with sporadic failures in the field.
+
+     Rework the loop so the full IRR/ISR contents are saved and on failure
+     dumped.
+
+  2) The loop termination logic is interesting at best.
+
+     If the machine has no TSC or cpu_khz is not known yet it tries 1
+     million times to ack stale IRR/ISR bits. What?
+
+     With TSC it uses the TSC to calculate the loop termination. It takes a
+     timestamp at entry and terminates the loop when:
+
+     	  (rdtsc() - start_timestamp) >= (cpu_hkz << 10)
+
+     That's roughly one second.
+
+     Both methods are problematic. The APIC has 256 vectors, which means
+     that in theory max. 256 IRR/ISR bits can be set. In practice this is
+     impossible and the chance that more than a few bits are set is close
+     to zero.
+
+     With the pure loop based approach the 1 million retries are complete
+     overkill.
+
+     With TSC this can terminate too early in a guest which is running on a
+     heavily loaded host even with only a couple of IRR/ISR bits set. The
+     reason is that after acknowledging the highest priority ISR bit,
+     pending IRRs must get serviced first before the next round of
+     acknowledge can take place as the APIC (real and virtualized) does not
+     honour EOI without a preceeding interrupt on the CPU. And every APIC
+     read/write takes a VMEXIT if the APIC is virtualized. While trying to
+     reproduce the issue 0-day reported it was observed that the guest was
+     scheduled out long enough under heavy load that it terminated after 8
+     iterations.
+
+     Make the loop terminate after 512 iterations. That's plenty enough
+     in any case and does not take endless time to complete.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190722105219.158847694@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/lm363x-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/apic/apic.c | 107 +++++++++++++++++++++---------------
+ 1 file changed, 63 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/regulator/lm363x-regulator.c b/drivers/regulator/lm363x-regulator.c
-index b615a413ca9f6..27c0a67cfd0e2 100644
---- a/drivers/regulator/lm363x-regulator.c
-+++ b/drivers/regulator/lm363x-regulator.c
-@@ -33,7 +33,7 @@
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index b316bd61a6ace..9bfbe1fa0339c 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1450,54 +1450,72 @@ static void lapic_setup_esr(void)
+ 			oldvalue, value);
+ }
  
- /* LM3632 */
- #define LM3632_BOOST_VSEL_MAX		0x26
--#define LM3632_LDO_VSEL_MAX		0x29
-+#define LM3632_LDO_VSEL_MAX		0x28
- #define LM3632_VBOOST_MIN		4500000
- #define LM3632_VLDO_MIN			4000000
+-static void apic_pending_intr_clear(void)
++#define APIC_IR_REGS		APIC_ISR_NR
++#define APIC_IR_BITS		(APIC_IR_REGS * 32)
++#define APIC_IR_MAPSIZE		(APIC_IR_BITS / BITS_PER_LONG)
++
++union apic_ir {
++	unsigned long	map[APIC_IR_MAPSIZE];
++	u32		regs[APIC_IR_REGS];
++};
++
++static bool apic_check_and_ack(union apic_ir *irr, union apic_ir *isr)
+ {
+-	long long max_loops = cpu_khz ? cpu_khz : 1000000;
+-	unsigned long long tsc = 0, ntsc;
+-	unsigned int queued;
+-	unsigned long value;
+-	int i, j, acked = 0;
++	int i, bit;
++
++	/* Read the IRRs */
++	for (i = 0; i < APIC_IR_REGS; i++)
++		irr->regs[i] = apic_read(APIC_IRR + i * 0x10);
++
++	/* Read the ISRs */
++	for (i = 0; i < APIC_IR_REGS; i++)
++		isr->regs[i] = apic_read(APIC_ISR + i * 0x10);
  
+-	if (boot_cpu_has(X86_FEATURE_TSC))
+-		tsc = rdtsc();
+ 	/*
+-	 * After a crash, we no longer service the interrupts and a pending
+-	 * interrupt from previous kernel might still have ISR bit set.
+-	 *
+-	 * Most probably by now CPU has serviced that pending interrupt and
+-	 * it might not have done the ack_APIC_irq() because it thought,
+-	 * interrupt came from i8259 as ExtInt. LAPIC did not get EOI so it
+-	 * does not clear the ISR bit and cpu thinks it has already serivced
+-	 * the interrupt. Hence a vector might get locked. It was noticed
+-	 * for timer irq (vector 0x31). Issue an extra EOI to clear ISR.
++	 * If the ISR map is not empty. ACK the APIC and run another round
++	 * to verify whether a pending IRR has been unblocked and turned
++	 * into a ISR.
+ 	 */
+-	do {
+-		queued = 0;
+-		for (i = APIC_ISR_NR - 1; i >= 0; i--)
+-			queued |= apic_read(APIC_IRR + i*0x10);
+-
+-		for (i = APIC_ISR_NR - 1; i >= 0; i--) {
+-			value = apic_read(APIC_ISR + i*0x10);
+-			for_each_set_bit(j, &value, 32) {
+-				ack_APIC_irq();
+-				acked++;
+-			}
+-		}
+-		if (acked > 256) {
+-			pr_err("LAPIC pending interrupts after %d EOI\n", acked);
+-			break;
+-		}
+-		if (queued) {
+-			if (boot_cpu_has(X86_FEATURE_TSC) && cpu_khz) {
+-				ntsc = rdtsc();
+-				max_loops = (long long)cpu_khz << 10;
+-				max_loops -= ntsc - tsc;
+-			} else {
+-				max_loops--;
+-			}
+-		}
+-	} while (queued && max_loops > 0);
+-	WARN_ON(max_loops <= 0);
++	if (!bitmap_empty(isr->map, APIC_IR_BITS)) {
++		/*
++		 * There can be multiple ISR bits set when a high priority
++		 * interrupt preempted a lower priority one. Issue an ACK
++		 * per set bit.
++		 */
++		for_each_set_bit(bit, isr->map, APIC_IR_BITS)
++			ack_APIC_irq();
++		return true;
++	}
++
++	return !bitmap_empty(irr->map, APIC_IR_BITS);
++}
++
++/*
++ * After a crash, we no longer service the interrupts and a pending
++ * interrupt from previous kernel might still have ISR bit set.
++ *
++ * Most probably by now the CPU has serviced that pending interrupt and it
++ * might not have done the ack_APIC_irq() because it thought, interrupt
++ * came from i8259 as ExtInt. LAPIC did not get EOI so it does not clear
++ * the ISR bit and cpu thinks it has already serivced the interrupt. Hence
++ * a vector might get locked. It was noticed for timer irq (vector
++ * 0x31). Issue an extra EOI to clear ISR.
++ *
++ * If there are pending IRR bits they turn into ISR bits after a higher
++ * priority ISR bit has been acked.
++ */
++static void apic_pending_intr_clear(void)
++{
++	union apic_ir irr, isr;
++	unsigned int i;
++
++	/* 512 loops are way oversized and give the APIC a chance to obey. */
++	for (i = 0; i < 512; i++) {
++		if (!apic_check_and_ack(&irr, &isr))
++			return;
++	}
++	/* Dump the IRR/ISR content if that failed */
++	pr_warn("APIC: Stale IRR: %256pb ISR: %256pb\n", irr.map, isr.map);
+ }
+ 
+ /**
+@@ -1565,6 +1583,7 @@ static void setup_local_APIC(void)
+ 	value &= ~APIC_TPRI_MASK;
+ 	apic_write(APIC_TASKPRI, value);
+ 
++	/* Clear eventually stale ISR/IRR bits */
+ 	apic_pending_intr_clear();
+ 
+ 	/*
 -- 
 2.20.1
 
