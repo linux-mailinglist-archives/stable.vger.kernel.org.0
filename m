@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AF9BA8E1
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 690F0BA8DD
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391003AbfIVTJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:09:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34430 "EHLO mail.kernel.org"
+        id S2390810AbfIVTJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438827AbfIVS7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:59:20 -0400
+        id S2391003AbfIVS7Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:59:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9852206C2;
-        Sun, 22 Sep 2019 18:59:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2C17222C7;
+        Sun, 22 Sep 2019 18:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178759;
-        bh=Is2ZghF4pScJ0Qc5jlZLN3T8yEWLs1UROC01YDkaX04=;
+        s=default; t=1569178764;
+        bh=SmGskXg4vCrqIzPMor1xkleDX5ytAivyKJduGEh15Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjyV+PstiI0hw3SDkRnU+qyGSDTUfcWTdXzBZgLOhwoqzpLWu56BFEPD49ay9hs9l
-         r1MtKh7OXOJakGQk27jsv1J58uAKHSnjwqfkIsQZOCWHBbxBuhO/ToJqTU/r/WpqVc
-         Wjg/FwX0cX4VQ6l8oCmC3TMxm8YuJhlHNx9esN8U=
+        b=PtCJDQA/Wot75wTMmldG9C493zYMk3jAISwC30B4PtL+bHWxXuiCK49d43URpjiam
+         tWRTJY3lVBJZ5YbJNmk3B6/oim6dP40RmcNy8HywJAzlKW+0hoY6gGMIPQVaVQW/fi
+         SlSS5Dcs4CocdJRfu3T2VDhH1ADWP8TpIqUMFECI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nigel Croxon <ncroxon@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 81/89] raid5: don't increment read_errors on EILSEQ return
-Date:   Sun, 22 Sep 2019 14:57:09 -0400
-Message-Id: <20190922185717.3412-81-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 84/89] e1000e: add workaround for possible stalled packet
+Date:   Sun, 22 Sep 2019 14:57:12 -0400
+Message-Id: <20190922185717.3412-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185717.3412-1-sashal@kernel.org>
 References: <20190922185717.3412-1-sashal@kernel.org>
@@ -43,44 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nigel Croxon <ncroxon@redhat.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit b76b4715eba0d0ed574f58918b29c1b2f0fa37a8 ]
+[ Upstream commit e5e9a2ecfe780975820e157b922edee715710b66 ]
 
-While MD continues to count read errors returned by the lower layer.
-If those errors are -EILSEQ, instead of -EIO, it should NOT increase
-the read_errors count.
+This works around a possible stalled packet issue, which may occur due to
+clock recovery from the PCH being too slow, when the LAN is transitioning
+from K1 at 1G link speed.
 
-When RAID6 is set up on dm-integrity target that detects massive
-corruption, the leg will be ejected from the array.  Even if the
-issue is correctable with a sector re-write and the array has
-necessary redundancy to correct it.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204057
 
-The leg is ejected because it runs up the rdev->read_errors beyond
-conf->max_nr_stripes.  The return status in dm-drypt when there is
-a data integrity error is -EILSEQ (BLK_STS_PROTECTION).
-
-Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 10 ++++++++++
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  2 +-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index cc0bd528136db..9f2059e185f7f 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2538,7 +2538,8 @@ static void raid5_end_read_request(struct bio * bi)
- 		int set_bad = 0;
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 00eedf202e62d..1e990f9dd3794 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1447,6 +1447,16 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
+ 			else
+ 				phy_reg |= 0xFA;
+ 			e1e_wphy_locked(hw, I217_PLL_CLOCK_GATE_REG, phy_reg);
++
++			if (speed == SPEED_1000) {
++				hw->phy.ops.read_reg_locked(hw, HV_PM_CTRL,
++							    &phy_reg);
++
++				phy_reg |= HV_PM_CTRL_K1_CLK_REQ;
++
++				hw->phy.ops.write_reg_locked(hw, HV_PM_CTRL,
++							     phy_reg);
++			}
+ 		}
+ 		hw->phy.ops.release(hw);
  
- 		clear_bit(R5_UPTODATE, &sh->dev[i].flags);
--		atomic_inc(&rdev->read_errors);
-+		if (!(bi->bi_status == BLK_STS_PROTECTION))
-+			atomic_inc(&rdev->read_errors);
- 		if (test_bit(R5_ReadRepl, &sh->dev[i].flags))
- 			pr_warn_ratelimited(
- 				"md/raid:%s: read error on replacement device (sector %llu on %s).\n",
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 00a36df02a3fd..88df80c0894b1 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -228,7 +228,7 @@
+ 
+ /* PHY Power Management Control */
+ #define HV_PM_CTRL		PHY_REG(770, 17)
+-#define HV_PM_CTRL_PLL_STOP_IN_K1_GIGA	0x100
++#define HV_PM_CTRL_K1_CLK_REQ		0x200
+ #define HV_PM_CTRL_K1_ENABLE		0x4000
+ 
+ #define I217_PLL_CLOCK_GATE_REG	PHY_REG(772, 28)
 -- 
 2.20.1
 
