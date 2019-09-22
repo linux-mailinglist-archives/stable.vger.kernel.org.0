@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B01BAB2F
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A448BAB2C
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439179AbfIVTfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42898 "EHLO mail.kernel.org"
+        id S2391793AbfIVTfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390102AbfIVSqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:46:38 -0400
+        id S2390151AbfIVSqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:46:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0603121971;
-        Sun, 22 Sep 2019 18:46:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D1582186A;
+        Sun, 22 Sep 2019 18:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177997;
-        bh=ljyOOYLOrVHKPq0GoGX1yqA6Ygi+ssZEBM2nuLc3eP4=;
+        s=default; t=1569178003;
+        bh=wKwjfWM+JCA0f7UO0uWQrgxnwNMKaVWWUO0lVQf5ynI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUq8QizUVz2QnQ3Z6YN0ZP57X3gj7MCozIBNimEKXGey9Ut0uFYcScAJ4FgmaJv5L
-         NzuPtWnNG32ME0RBWMgKEvqL0fMbE+Q3r+ombJTproeWfNFs21YUi5iYnhdJ963o5k
-         5ubVpfARuj6d2Co8Q4V8HjcszwTFaxoKEVvW6U+Q=
+        b=bFeFvjxFilITo/mmq/qhX1aUs2SkKh+jquYUnjlsHOvOI7vLZluetdeZIBdngc8mq
+         oO2lU8U2o3izoK2Fuv8L7cS+l7IUAfp0MfZTv7EhGe2aM9ftH2SicRbSzl1aedV1Ix
+         4+xWRPOynRDyCsinfhjyctQYf+Bzj/Ch70r5cioU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 088/203] net: lpc-enet: fix printk format strings
-Date:   Sun, 22 Sep 2019 14:41:54 -0400
-Message-Id: <20190922184350.30563-88-sashal@kernel.org>
+Cc:     Stefan Agner <stefan.agner@toradex.com>,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 092/203] ARM: dts: imx7-colibri: disable HS400
+Date:   Sun, 22 Sep 2019 14:41:58 -0400
+Message-Id: <20190922184350.30563-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -42,62 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Stefan Agner <stefan.agner@toradex.com>
 
-[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
+[ Upstream commit a95fbda08ee20cd063ce5826e0df95a2c22ea8c5 ]
 
-compile-testing this driver on other architectures showed
-multiple warnings:
+Force HS200 by masking bit 63 of the SDHCI capability register.
+The i.MX ESDHC driver uses SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400. With
+that the stack checks bit 63 to descide whether HS400 is available.
+Using sdhci-caps-mask allows to mask bit 63. The stack then selects
+HS200 as operating mode.
 
-  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
-  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
+This prevents rare communication errors with minimal effect on
+performance:
+	sdhci-esdhc-imx 30b60000.usdhc: warning! HS400 strobe DLL
+		status REF not lock!
 
-  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
-
-Use format strings that work on all architectures.
-
-Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Stefan Agner <stefan.agner@toradex.com>
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/imx7-colibri.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index f7e11f1b0426c..b0c8be127bee1 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1344,13 +1344,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
- 	pldat->dma_buff_base_p = dma_handle;
+diff --git a/arch/arm/boot/dts/imx7-colibri.dtsi b/arch/arm/boot/dts/imx7-colibri.dtsi
+index 895fbde4d4333..c1ed83131b495 100644
+--- a/arch/arm/boot/dts/imx7-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7-colibri.dtsi
+@@ -323,6 +323,7 @@
+ 	vmmc-supply = <&reg_module_3v3>;
+ 	vqmmc-supply = <&reg_DCDC3>;
+ 	non-removable;
++	sdhci-caps-mask = <0x80000000 0x0>;
+ };
  
- 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
--	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
-+	netdev_dbg(ndev, "IO address size      :%zd\n",
-+			(size_t)resource_size(res));
- 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
- 			pldat->net_base);
- 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
--	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
--	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
--			pldat->dma_buff_base_p);
-+	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
-+	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
-+			&pldat->dma_buff_base_p);
- 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
- 			pldat->dma_buff_base_v);
- 
-@@ -1397,8 +1398,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_out_unregister_netdev;
- 
--	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
--	       res->start, ndev->irq);
-+	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
-+	       (unsigned long)res->start, ndev->irq);
- 
- 	device_init_wakeup(dev, 1);
- 	device_set_wakeup_enable(dev, 0);
+ &iomuxc {
 -- 
 2.20.1
 
