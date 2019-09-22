@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7413CBAB64
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCCABAB61
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389370AbfIVTiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
+        id S2389437AbfIVTiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:38:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389363AbfIVSpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:36 -0400
+        id S2389370AbfIVSph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB74214D9;
-        Sun, 22 Sep 2019 18:45:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC3982186A;
+        Sun, 22 Sep 2019 18:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177935;
-        bh=Efrs07DtXo6dlB5edLomXEd/SCJQyQCva1c9N4iPxMY=;
+        s=default; t=1569177936;
+        bh=NJLxmO+sPDzSi40Zm+6uwJ9bnxqS9Qk6TiNQiFwfxvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkQuUuMNptp2VFpmhg8HmwIYCRZNdRXd09KG7TgNPu8m4bRkNlZHfathxdWK5HGLN
-         4wjF8d+udq29p2YIBRoXAqhtAgV2maPeBiyq/CZd1dmZoHY0Q8usvzpeRu+hI5bMf7
-         jIr+ajiKGdGGQupoezCyo7CwTO82gK0dOKz9wcuM=
+        b=AyBahuBq9QU4pVtIf8i1p6k+DwBXOjHOwOCOZqVHcav99qpnqV1ET6RRoP/5NAaf+
+         E3PRsnKIlm353qPmjiwWo8s6PVITYvn2nwCHSMDrtbpQ3a4fvkMygI3vxrNVQAiah1
+         SZTfuO4y/HXxz7IFpioVRvHyvS8+16/NQUKz79Z4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard van Breemen <ard@kwaak.net>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 045/203] ALSA: usb-audio: Skip bSynchAddress endpoint check if it is invalid
-Date:   Sun, 22 Sep 2019 14:41:11 -0400
-Message-Id: <20190922184350.30563-45-sashal@kernel.org>
+Cc:     chenzefeng <chenzefeng2@huawei.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 046/203] ia64:unwind: fix double free for mod->arch.init_unw_table
+Date:   Sun, 22 Sep 2019 14:41:12 -0400
+Message-Id: <20190922184350.30563-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -42,37 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard van Breemen <ard@kwaak.net>
+From: chenzefeng <chenzefeng2@huawei.com>
 
-[ Upstream commit 1b34121d9f26d272b0b2334209af6b6fc82d4bf1 ]
+[ Upstream commit c5e5c48c16422521d363c33cfb0dcf58f88c119b ]
 
-The Linux kernel assumes that get_endpoint(alts,0) and
-get_endpoint(alts,1) are eachothers feedback endpoints.
-To reassure that validity it will test bsynchaddress to comply with that
-assumption. But if the bsyncaddress is 0 (invalid), it will flag that as
-a wrong assumption and return an error.
-Fix: Skip the test if bSynchAddress is 0.
-Note: those with a valid bSynchAddress should have a code quirck added.
+The function free_module in file kernel/module.c as follow:
 
-Signed-off-by: Ard van Breemen <ard@kwaak.net>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+void free_module(struct module *mod) {
+	......
+	module_arch_cleanup(mod);
+	......
+	module_arch_freeing_init(mod);
+	......
+}
+
+Both module_arch_cleanup and module_arch_freeing_init function
+would free the mod->arch.init_unw_table, which cause double free.
+
+Here, set mod->arch.init_unw_table = NULL after remove the unwind
+table to avoid double free.
+
+Signed-off-by: chenzefeng <chenzefeng2@huawei.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/ia64/kernel/module.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index e4bbf79de956e..33cd26763c0ee 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -457,6 +457,7 @@ static int set_sync_endpoint(struct snd_usb_substream *subs,
- 	}
- 	ep = get_endpoint(alts, 1)->bEndpointAddress;
- 	if (get_endpoint(alts, 0)->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE &&
-+	    get_endpoint(alts, 0)->bSynchAddress != 0 &&
- 	    ((is_playback && ep != (unsigned int)(get_endpoint(alts, 0)->bSynchAddress | USB_DIR_IN)) ||
- 	     (!is_playback && ep != (unsigned int)(get_endpoint(alts, 0)->bSynchAddress & ~USB_DIR_IN)))) {
- 		dev_err(&dev->dev,
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index 326448f9df160..1a42ba885188a 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -914,10 +914,14 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
+ void
+ module_arch_cleanup (struct module *mod)
+ {
+-	if (mod->arch.init_unw_table)
++	if (mod->arch.init_unw_table) {
+ 		unw_remove_unwind_table(mod->arch.init_unw_table);
+-	if (mod->arch.core_unw_table)
++		mod->arch.init_unw_table = NULL;
++	}
++	if (mod->arch.core_unw_table) {
+ 		unw_remove_unwind_table(mod->arch.core_unw_table);
++		mod->arch.core_unw_table = NULL;
++	}
+ }
+ 
+ void *dereference_module_function_descriptor(struct module *mod, void *ptr)
 -- 
 2.20.1
 
