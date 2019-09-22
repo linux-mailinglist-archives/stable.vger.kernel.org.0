@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE0EBA664
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD66BA667
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392831AbfIVSuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S2392878AbfIVSuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388582AbfIVSuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:14 -0400
+        id S2388840AbfIVSuS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:50:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A193521D56;
-        Sun, 22 Sep 2019 18:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2D7121A4A;
+        Sun, 22 Sep 2019 18:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178213;
-        bh=u/cx5Fx7ocHi7GpON+az0NLHqlFEw3vSZrk3Gb0TNFw=;
+        s=default; t=1569178217;
+        bh=+uOZy8EAw77NJn9X46uZ7S46jyxu2zCw5PGGK4tfmzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8CQUJmipPz4vbrwZFv/BgPoo5HM0HVkeQ9UoDC43OiUa7fWMJ+1qLTxCu13CqsC2
-         9GbwUPJIHZNxHy6jI/JYNfc+ygCVZJ2LlU+dOBfko5ynP8CfhKL/KYbOVS91tfQ13V
-         oiTJv/pejjJ9B5XuUIbhmHNtk7u1CaDN2+6MlFY8=
+        b=p8h4SCLuDBUMALF0TFqVe3uUCDgtmsQdLhEuo/VJhcuYwtuSGuZPnoLFANT4YwCrs
+         sx41zhfxjqfIPN6eQxx++364HMZhVnWR/9a+hBo+J8arMmdG15GFDMSbBvCBMOFBEW
+         GswVK7Ke1Ch/yQbU9dKuOe5Xe1crKpkIYxHCMk/o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
-        syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 019/185] media: hdpvr: Add device num check and handling
-Date:   Sun, 22 Sep 2019 14:46:37 -0400
-Message-Id: <20190922184924.32534-19-sashal@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 021/185] time/tick-broadcast: Fix tick_broadcast_offline() lockdep complaint
+Date:   Sun, 22 Sep 2019 14:46:39 -0400
+Message-Id: <20190922184924.32534-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -45,57 +46,217 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
 
-[ Upstream commit d4a6a9537bc32811486282206ecfb7c53754b74d ]
+[ Upstream commit 84ec3a0787086fcd25f284f59b3aa01fd6fc0a5d ]
 
-Add hdpvr device num check and error handling
+time/tick-broadcast: Fix tick_broadcast_offline() lockdep complaint
 
-We need to increment the device count atomically before we checkout a
-device to make sure that we do not reach the max count, otherwise we get
-out-of-bounds errors as reported by syzbot.
+The TASKS03 and TREE04 rcutorture scenarios produce the following
+lockdep complaint:
 
-Reported-and-tested-by: syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
+	WARNING: inconsistent lock state
+	5.2.0-rc1+ #513 Not tainted
+	--------------------------------
+	inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+	migration/1/14 [HC0[0]:SC0[0]:HE1:SE1] takes:
+	(____ptrval____) (tick_broadcast_lock){?...}, at: tick_broadcast_offline+0xf/0x70
+	{IN-HARDIRQ-W} state was registered at:
+	  lock_acquire+0xb0/0x1c0
+	  _raw_spin_lock_irqsave+0x3c/0x50
+	  tick_broadcast_switch_to_oneshot+0xd/0x40
+	  tick_switch_to_oneshot+0x4f/0xd0
+	  hrtimer_run_queues+0xf3/0x130
+	  run_local_timers+0x1c/0x50
+	  update_process_times+0x1c/0x50
+	  tick_periodic+0x26/0xc0
+	  tick_handle_periodic+0x1a/0x60
+	  smp_apic_timer_interrupt+0x80/0x2a0
+	  apic_timer_interrupt+0xf/0x20
+	  _raw_spin_unlock_irqrestore+0x4e/0x60
+	  rcu_nocb_gp_kthread+0x15d/0x590
+	  kthread+0xf3/0x130
+	  ret_from_fork+0x3a/0x50
+	irq event stamp: 171
+	hardirqs last  enabled at (171): [<ffffffff8a201a37>] trace_hardirqs_on_thunk+0x1a/0x1c
+	hardirqs last disabled at (170): [<ffffffff8a201a53>] trace_hardirqs_off_thunk+0x1a/0x1c
+	softirqs last  enabled at (0): [<ffffffff8a264ee0>] copy_process.part.56+0x650/0x1cb0
+	softirqs last disabled at (0): [<0000000000000000>] 0x0
 
-Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+        [...]
+
+To reproduce, run the following rcutorture test:
+
+ $ tools/testing/selftests/rcutorture/bin/kvm.sh --duration 5 --kconfig "CONFIG_DEBUG_LOCK_ALLOC=y CONFIG_PROVE_LOCKING=y" --configs "TASKS03 TREE04"
+
+It turns out that tick_broadcast_offline() was an innocent bystander.
+After all, interrupts are supposed to be disabled throughout
+take_cpu_down(), and therefore should have been disabled upon entry to
+tick_offline_cpu() and thus to tick_broadcast_offline().  This suggests
+that one of the CPU-hotplug notifiers was incorrectly enabling interrupts,
+and leaving them enabled on return.
+
+Some debugging code showed that the culprit was sched_cpu_dying().
+It had irqs enabled after return from sched_tick_stop().  Which in turn
+had irqs enabled after return from cancel_delayed_work_sync().  Which is a
+wrapper around __cancel_work_timer().  Which can sleep in the case where
+something else is concurrently trying to cancel the same delayed work,
+and as Thomas Gleixner pointed out on IRC, sleeping is a decidedly bad
+idea when you are invoked from take_cpu_down(), regardless of the state
+you leave interrupts in upon return.
+
+Code inspection located no reason why the delayed work absolutely
+needed to be canceled from sched_tick_stop():  The work is not
+bound to the outgoing CPU by design, given that the whole point is
+to collect statistics without disturbing the outgoing CPU.
+
+This commit therefore simply drops the cancel_delayed_work_sync() from
+sched_tick_stop().  Instead, a new ->state field is added to the tick_work
+structure so that the delayed-work handler function sched_tick_remote()
+can avoid reposting itself.  A cpu_is_offline() check is also added to
+sched_tick_remote() to avoid mucking with the state of an offlined CPU
+(though it does appear safe to do so).  The sched_tick_start() and
+sched_tick_stop() functions also update ->state, and sched_tick_start()
+also schedules the delayed work if ->state indicates that it is not
+already in flight.
+
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+[ paulmck: Apply Peter Zijlstra and Frederic Weisbecker atomics feedback. ]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190625165238.GJ26519@linux.ibm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-core.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ kernel/sched/core.c | 57 ++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 49 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
-index 9b9d894d29bcb..a0905c81d2cb2 100644
---- a/drivers/media/usb/hdpvr/hdpvr-core.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-core.c
-@@ -271,6 +271,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- #endif
- 	size_t buffer_size;
- 	int i;
-+	int dev_num;
- 	int retval = -ENOMEM;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 42bc2986520d7..275f470812440 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3051,8 +3051,36 @@ void scheduler_tick(void)
  
- 	/* allocate memory for our device state and initialize it */
-@@ -368,8 +369,17 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	}
- #endif
- 
-+	dev_num = atomic_inc_return(&dev_nr);
-+	if (dev_num >= HDPVR_MAX) {
-+		v4l2_err(&dev->v4l2_dev,
-+			 "max device number reached, device register failed\n");
-+		atomic_dec(&dev_nr);
-+		retval = -ENODEV;
-+		goto reg_fail;
-+	}
+ struct tick_work {
+ 	int			cpu;
++	atomic_t		state;
+ 	struct delayed_work	work;
+ };
++/* Values for ->state, see diagram below. */
++#define TICK_SCHED_REMOTE_OFFLINE	0
++#define TICK_SCHED_REMOTE_OFFLINING	1
++#define TICK_SCHED_REMOTE_RUNNING	2
 +
- 	retval = hdpvr_register_videodev(dev, &interface->dev,
--				    video_nr[atomic_inc_return(&dev_nr)]);
-+				    video_nr[dev_num]);
- 	if (retval < 0) {
- 		v4l2_err(&dev->v4l2_dev, "registering videodev failed\n");
- 		goto reg_fail;
++/*
++ * State diagram for ->state:
++ *
++ *
++ *          TICK_SCHED_REMOTE_OFFLINE
++ *                    |   ^
++ *                    |   |
++ *                    |   | sched_tick_remote()
++ *                    |   |
++ *                    |   |
++ *                    +--TICK_SCHED_REMOTE_OFFLINING
++ *                    |   ^
++ *                    |   |
++ * sched_tick_start() |   | sched_tick_stop()
++ *                    |   |
++ *                    V   |
++ *          TICK_SCHED_REMOTE_RUNNING
++ *
++ *
++ * Other transitions get WARN_ON_ONCE(), except that sched_tick_remote()
++ * and sched_tick_start() are happy to leave the state in RUNNING.
++ */
+ 
+ static struct tick_work __percpu *tick_work_cpu;
+ 
+@@ -3065,6 +3093,7 @@ static void sched_tick_remote(struct work_struct *work)
+ 	struct task_struct *curr;
+ 	struct rq_flags rf;
+ 	u64 delta;
++	int os;
+ 
+ 	/*
+ 	 * Handle the tick only if it appears the remote CPU is running in full
+@@ -3078,7 +3107,7 @@ static void sched_tick_remote(struct work_struct *work)
+ 
+ 	rq_lock_irq(rq, &rf);
+ 	curr = rq->curr;
+-	if (is_idle_task(curr))
++	if (is_idle_task(curr) || cpu_is_offline(cpu))
+ 		goto out_unlock;
+ 
+ 	update_rq_clock(rq);
+@@ -3098,13 +3127,18 @@ static void sched_tick_remote(struct work_struct *work)
+ 	/*
+ 	 * Run the remote tick once per second (1Hz). This arbitrary
+ 	 * frequency is large enough to avoid overload but short enough
+-	 * to keep scheduler internal stats reasonably up to date.
++	 * to keep scheduler internal stats reasonably up to date.  But
++	 * first update state to reflect hotplug activity if required.
+ 	 */
+-	queue_delayed_work(system_unbound_wq, dwork, HZ);
++	os = atomic_fetch_add_unless(&twork->state, -1, TICK_SCHED_REMOTE_RUNNING);
++	WARN_ON_ONCE(os == TICK_SCHED_REMOTE_OFFLINE);
++	if (os == TICK_SCHED_REMOTE_RUNNING)
++		queue_delayed_work(system_unbound_wq, dwork, HZ);
+ }
+ 
+ static void sched_tick_start(int cpu)
+ {
++	int os;
+ 	struct tick_work *twork;
+ 
+ 	if (housekeeping_cpu(cpu, HK_FLAG_TICK))
+@@ -3113,15 +3147,20 @@ static void sched_tick_start(int cpu)
+ 	WARN_ON_ONCE(!tick_work_cpu);
+ 
+ 	twork = per_cpu_ptr(tick_work_cpu, cpu);
+-	twork->cpu = cpu;
+-	INIT_DELAYED_WORK(&twork->work, sched_tick_remote);
+-	queue_delayed_work(system_unbound_wq, &twork->work, HZ);
++	os = atomic_xchg(&twork->state, TICK_SCHED_REMOTE_RUNNING);
++	WARN_ON_ONCE(os == TICK_SCHED_REMOTE_RUNNING);
++	if (os == TICK_SCHED_REMOTE_OFFLINE) {
++		twork->cpu = cpu;
++		INIT_DELAYED_WORK(&twork->work, sched_tick_remote);
++		queue_delayed_work(system_unbound_wq, &twork->work, HZ);
++	}
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ static void sched_tick_stop(int cpu)
+ {
+ 	struct tick_work *twork;
++	int os;
+ 
+ 	if (housekeeping_cpu(cpu, HK_FLAG_TICK))
+ 		return;
+@@ -3129,7 +3168,10 @@ static void sched_tick_stop(int cpu)
+ 	WARN_ON_ONCE(!tick_work_cpu);
+ 
+ 	twork = per_cpu_ptr(tick_work_cpu, cpu);
+-	cancel_delayed_work_sync(&twork->work);
++	/* There cannot be competing actions, but don't rely on stop-machine. */
++	os = atomic_xchg(&twork->state, TICK_SCHED_REMOTE_OFFLINING);
++	WARN_ON_ONCE(os != TICK_SCHED_REMOTE_RUNNING);
++	/* Don't cancel, as this would mess up the state machine. */
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
+@@ -3137,7 +3179,6 @@ int __init sched_tick_offload_init(void)
+ {
+ 	tick_work_cpu = alloc_percpu(struct tick_work);
+ 	BUG_ON(!tick_work_cpu);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
