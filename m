@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFA7FBA4B7
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CCA0BA4BC
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729271AbfIVSvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
+        id S2404893AbfIVSvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbfIVSvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:51:17 -0400
+        id S1729310AbfIVSvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:51:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10E9421A4C;
-        Sun, 22 Sep 2019 18:51:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66100208C2;
+        Sun, 22 Sep 2019 18:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178277;
-        bh=0hsYqkua7Amw8NXUD4oWNn9p7PeLlwgDiZhYrqNPV9Y=;
+        s=default; t=1569178281;
+        bh=fKDOifOsBYF0DMQPzAQ/DZmDI8+D34sivsnDb+H7i50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8v/OFX7wKcEBsqosg9hBadv7M8ZwlUd30T68U/21N5Ud2a0GQIfxTpJhGOP/rbou
-         /9yDI7SxPFBRihau4Ypn8dxIBfidgM3qQHxKinmbTwLiJ6ZykdqnUWalZU/8ifECvp
-         0wKV36etZNvzKqQC6rIwvEze51WCepzxwEi8kJWY=
+        b=Cfs6N64glRFNwOUv2dAWflZ1tKJ8jRVcLCRGhc8013WMZGioEuvPjzCLHFBxVd0Qg
+         ad84tiaI26/hR1f7owFcI/c7UkX7ewtzgXAXqhVSKFHl5r1UtoticSPkmqd+6AYqiQ
+         30JyB8doPF3AlkuifXdaGQrELB5+Utvoh92v/Jv8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
-        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Taeung Song <treeze.taeung@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 059/185] perf config: Honour $PERF_CONFIG env var to specify alternate .perfconfig
-Date:   Sun, 22 Sep 2019 14:47:17 -0400
-Message-Id: <20190922184924.32534-59-sashal@kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 062/185] media: i2c: tda1997x: prevent potential NULL pointer access
+Date:   Sun, 22 Sep 2019 14:47:20 -0400
+Message-Id: <20190922184924.32534-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,44 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 61a461fcbd62d42c29a1ea6a9cc3838ad9f49401 ]
+[ Upstream commit 2f822f1da08ac5c93e351e79d22920f08fa51baf ]
 
-We had this comment in Documentation/perf_counter/config.c, i.e. since
-when we got this from the git sources, but never really did that
-getenv("PERF_CONFIG"), do it now as I need to disable whatever
-~/.perfconfig root has so that tests parsing tool output are done for
-the expected default output or that we specify an alternate config file
-that when read will make the tools produce expected output.
+i2c_new_dummy() can fail returning a NULL pointer. This is not checked
+and the returned pointer is blindly used. Convert to
+devm_i2c_new_dummy_client() which returns an ERR_PTR and also add a
+validity check. Using devm_* here also fixes a leak because the dummy
+client was not released in the probe error path.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Taeung Song <treeze.taeung@gmail.com>
-Fixes: 078006012401 ("perf_counter tools: add in basic glue from Git")
-Link: https://lkml.kernel.org/n/tip-jo209zac9rut0dz1rqvbdlgm@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/perf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/i2c/tda1997x.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-index 72df4b6fa36fd..4c45cdf38adae 100644
---- a/tools/perf/perf.c
-+++ b/tools/perf/perf.c
-@@ -440,6 +440,9 @@ int main(int argc, const char **argv)
+diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
+index a62ede0966361..5e68182001ecc 100644
+--- a/drivers/media/i2c/tda1997x.c
++++ b/drivers/media/i2c/tda1997x.c
+@@ -2691,7 +2691,13 @@ static int tda1997x_probe(struct i2c_client *client,
+ 	}
  
- 	srandom(time(NULL));
- 
-+	/* Setting $PERF_CONFIG makes perf read _only_ the given config file. */
-+	config_exclusive_filename = getenv("PERF_CONFIG");
+ 	ret = 0x34 + ((io_read(sd, REG_SLAVE_ADDR)>>4) & 0x03);
+-	state->client_cec = i2c_new_dummy(client->adapter, ret);
++	state->client_cec = devm_i2c_new_dummy_device(&client->dev,
++						      client->adapter, ret);
++	if (IS_ERR(state->client_cec)) {
++		ret = PTR_ERR(state->client_cec);
++		goto err_free_mutex;
++	}
 +
- 	err = perf_config(perf_default_config, NULL);
- 	if (err)
- 		return err;
+ 	v4l_info(client, "CEC slave address 0x%02x\n", ret);
+ 
+ 	ret = tda1997x_core_init(sd);
+@@ -2798,7 +2804,6 @@ static int tda1997x_remove(struct i2c_client *client)
+ 	media_entity_cleanup(&sd->entity);
+ 	v4l2_ctrl_handler_free(&state->hdl);
+ 	regulator_bulk_disable(TDA1997X_NUM_SUPPLIES, state->supplies);
+-	i2c_unregister_device(state->client_cec);
+ 	cancel_delayed_work(&state->delayed_work_enable_hpd);
+ 	mutex_destroy(&state->page_lock);
+ 	mutex_destroy(&state->lock);
 -- 
 2.20.1
 
