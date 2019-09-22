@@ -2,40 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB56BA7CF
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF8BBA7D3
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438969AbfIVTAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:00:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35722 "EHLO mail.kernel.org"
+        id S2394514AbfIVTAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438959AbfIVTAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:11 -0400
+        id S2390661AbfIVTAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:00:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D08F0208C2;
-        Sun, 22 Sep 2019 19:00:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21E022186A;
+        Sun, 22 Sep 2019 19:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178810;
-        bh=egiD3HlchjuA3kjYlfvJDgaix+zmh6+yq/vEbpt6MAg=;
+        s=default; t=1569178813;
+        bh=I1yTz26Uus0FX8pVRrSS7YkMuXv5RAm6lTosyJbGcuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxJpunO1m046BSM3YthZlYvB/I2iRud9xUGgxM0KPXOPNpED1WJVcfzelmncEJXjf
-         1O1yvgkl4/0BQJRDAfGwNYGgN0GTKO3f0ZNqllfiG9U7W1xOk2Ej07dEnwrzaD0k4F
-         lwO72r53ACm+yNykWEAo273KEER00kaYgd5VxLGw=
+        b=MqWmSvhdh5eKwodKx8JhmIDqPrCfVtz3zW/vqpGOpKdw9ux8BNfnxO9cJOOj6sSk2
+         AMM0QA0SvQKfQlXa9fUz3H9sP7k0Bd59j0vJuBnDrUPE5J3y7Ts2J+cMPGOjmRPRjc
+         K1EnQj7P+kZef2wLuM4exEWh8GxvBS90bGdHy1kk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 25/60] media: omap3isp: Don't set streaming state on random subdevs
-Date:   Sun, 22 Sep 2019 14:58:58 -0400
-Message-Id: <20190922185934.4305-25-sashal@kernel.org>
+Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
+        Ilya Ledvich <ilya@compulab.co.il>,
+        Igor Grinberg <grinberg@compulab.co.il>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 27/60] ARM: dts: imx7d: cl-som-imx7: make ethernet work again
+Date:   Sun, 22 Sep 2019 14:59:00 -0400
+Message-Id: <20190922185934.4305-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,48 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: André Draszik <git@andred.net>
 
-[ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+[ Upstream commit 9846a4524ac90b63496580b7ad50674b40d92a8f ]
 
-The streaming state should be set to the first upstream sub-device only,
-not everywhere, for a sub-device driver itself knows how to best control
-the streaming state of its own upstream sub-devices.
+Recent changes to the atheros at803x driver caused
+ethernet to stop working on this board.
+In particular commit 6d4cd041f0af
+("net: phy: at803x: disable delay only for RGMII mode")
+and commit cd28d1d6e52e
+("net: phy: at803x: Disable phy delay for RGMII mode")
+fix the AR8031 driver to configure the phy's (RX/TX)
+delays as per the 'phy-mode' in the device tree.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+This now prevents ethernet from working on this board.
+
+It used to work before those commits, because the
+AR8031 comes out of reset with RX delay enabled, and
+the at803x driver didn't touch the delay configuration
+at all when "rgmii" mode was selected, and because
+arch/arm/mach-imx/mach-imx7d.c:ar8031_phy_fixup()
+unconditionally enables TX delay.
+
+Since above commits ar8031_phy_fixup() also has no
+effect anymore, and the end-result is that all delays
+are disabled in the phy, no ethernet.
+
+Update the device tree to restore functionality.
+
+Signed-off-by: André Draszik <git@andred.net>
+CC: Ilya Ledvich <ilya@compulab.co.il>
+CC: Igor Grinberg <grinberg@compulab.co.il>
+CC: Rob Herring <robh+dt@kernel.org>
+CC: Mark Rutland <mark.rutland@arm.com>
+CC: Shawn Guo <shawnguo@kernel.org>
+CC: Sascha Hauer <s.hauer@pengutronix.de>
+CC: Pengutronix Kernel Team <kernel@pengutronix.de>
+CC: Fabio Estevam <festevam@gmail.com>
+CC: NXP Linux Team <linux-imx@nxp.com>
+CC: devicetree@vger.kernel.org
+CC: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/omap3isp/isp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/imx7d-cl-som-imx7.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
-index a21b12c5c0853..ce651d3ca1b82 100644
---- a/drivers/media/platform/omap3isp/isp.c
-+++ b/drivers/media/platform/omap3isp/isp.c
-@@ -726,6 +726,10 @@ static int isp_pipeline_enable(struct isp_pipeline *pipe,
- 					s_stream, mode);
- 			pipe->do_propagation = true;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
- 	}
- 
- 	return 0;
-@@ -840,6 +844,10 @@ static int isp_pipeline_disable(struct isp_pipeline *pipe)
- 						      &subdev->entity);
- 			failure = -ETIMEDOUT;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
- 	}
- 
- 	return failure;
+diff --git a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+index 2051306008534..72d1b8209f5e6 100644
+--- a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
++++ b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+@@ -43,7 +43,7 @@
+ 			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
+ 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
+ 	assigned-clock-rates = <0>, <100000000>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy0>;
+ 	fsl,magic-packet;
+ 	status = "okay";
+@@ -69,7 +69,7 @@
+ 			  <&clks IMX7D_ENET2_TIME_ROOT_CLK>;
+ 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
+ 	assigned-clock-rates = <0>, <100000000>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ethphy1>;
+ 	fsl,magic-packet;
+ 	status = "okay";
 -- 
 2.20.1
 
