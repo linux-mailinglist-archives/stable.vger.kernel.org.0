@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E29BAAE5
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F23BAAE1
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388366AbfIVTcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
+        id S2437824AbfIVTb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391618AbfIVSs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:48:28 -0400
+        id S2391679AbfIVSsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FD1621A4A;
-        Sun, 22 Sep 2019 18:48:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AFED2196E;
+        Sun, 22 Sep 2019 18:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178108;
-        bh=8Sr764RTcwSYEJAQGa+KrlDJKb7qohDjpHtG9LoQfEc=;
+        s=default; t=1569178115;
+        bh=TWjJkqkJlUZehErOcJO7xJ7Tm4AAI0bMcn2ZPApoIwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TN/8GZxKf3uRleHiE4c4inKzUEgRAwxvA652APQiQDAewvMlm2mE7/kYsWE7oAlEK
-         +3fmJCBImiMr/Yup47v96CdtrisnM1dAuGJZoSq98V1PPo0mRyYejGmPAe0396iE+q
-         C5DSpBmLY9RwHaQuQS/leBO8pF3XK+bn5vuwhbkE=
+        b=F7FsRjayGjbzMFXqFCJHAtJT+Q3f/VdwenrAODlcgZ8DKHnm4qbw+p8yoxU3pMuNd
+         EQzbFd50e8hWa+GQkBIuNRvpTUbTfemxrPk+N9BJHa1N5iEiCS2Sfjtuu4QLDk3nd0
+         /oXtIAV5X+zHsmyiqaJdxbjA/qquSN941mMGe5zQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Jiaxing Luo <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 168/203] irqchip/gic-v3-its: Fix LPI release for Multi-MSI devices
-Date:   Sun, 22 Sep 2019 14:43:14 -0400
-Message-Id: <20190922184350.30563-168-sashal@kernel.org>
+Cc:     "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 172/203] platform/x86: intel_pmc_core_pltdrv: Module removal warning fix
+Date:   Sun, 22 Sep 2019 14:43:18 -0400
+Message-Id: <20190922184350.30563-172-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,52 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: "M. Vefa Bicakci" <m.v.b@runbox.com>
 
-[ Upstream commit c9c96e30ecaa0aafa225aa1a5392cb7db17c7a82 ]
+[ Upstream commit 0b43e41e93815ecd9616759cf5d64d3a7be8e6fb ]
 
-When allocating a range of LPIs for a Multi-MSI capable device,
-this allocation extended to the closest power of 2.
+Prior to this commit, removing the intel_pmc_core_pltdrv module
+would cause the following warning:
 
-But on the release path, the interrupts are released one by
-one. This results in not releasing the "extra" range, leaking
-the its_device. Trying to reprobe the device will then fail.
+  Device 'intel_pmc_core.0' does not have a release() function, it is broken and must be fixed. See Documentation/kobject.txt.
+  WARNING: CPU: 0 PID: 2202 at drivers/base/core.c:1238 device_release+0x6f/0x80
 
-Fix it by releasing the LPIs the same way we allocate them.
+This commit hence adds an empty release function for the driver.
 
-Fixes: 8208d1708b88 ("irqchip/gic-v3-its: Align PCI Multi-MSI allocation on their size")
-Reported-by: Jiaxing Luo <luojiaxing@huawei.com>
-Tested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/f5e948aa-e32f-3f74-ae30-31fee06c2a74@huawei.com
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/platform/x86/intel_pmc_core_pltdrv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 1b5c3672aea27..c3a8d732805f5 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2641,14 +2641,13 @@ static void its_irq_domain_free(struct irq_domain *domain, unsigned int virq,
- 	struct its_node *its = its_dev->its;
- 	int i;
+diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
+index a8754a6db1b8b..186540014c480 100644
+--- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
++++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
+@@ -18,8 +18,16 @@
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
  
-+	bitmap_release_region(its_dev->event_map.lpi_map,
-+			      its_get_event_id(irq_domain_get_irq_data(domain, virq)),
-+			      get_count_order(nr_irqs));
++static void intel_pmc_core_release(struct device *dev)
++{
++	/* Nothing to do. */
++}
 +
- 	for (i = 0; i < nr_irqs; i++) {
- 		struct irq_data *data = irq_domain_get_irq_data(domain,
- 								virq + i);
--		u32 event = its_get_event_id(data);
--
--		/* Mark interrupt index as unused */
--		clear_bit(event, its_dev->event_map.lpi_map);
--
- 		/* Nuke the entry in the domain */
- 		irq_domain_reset_irq_data(data);
- 	}
+ static struct platform_device pmc_core_device = {
+ 	.name = "intel_pmc_core",
++	.dev  = {
++		.release = intel_pmc_core_release,
++	},
+ };
+ 
+ /*
 -- 
 2.20.1
 
