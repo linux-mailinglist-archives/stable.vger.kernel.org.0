@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 744FFBA4A6
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A2CBA4B0
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404514AbfIVSup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1729174AbfIVSvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404490AbfIVSup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:50:45 -0400
+        id S1729170AbfIVSvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:51:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DC652190F;
-        Sun, 22 Sep 2019 18:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C87D208C2;
+        Sun, 22 Sep 2019 18:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178244;
-        bh=NJLxmO+sPDzSi40Zm+6uwJ9bnxqS9Qk6TiNQiFwfxvk=;
+        s=default; t=1569178264;
+        bh=TCzrj21DePjZetssjICk3LSvp+6XekcD+3nP3eSbAjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hElz7rgByo1DYaIxTZU4NZdf7/9pOoV0je5sARASW+Qo+NKJrKHLA3GLzmU6uWpUx
-         0lb5DnbuYSAREsoX6xwYOSelnlcaxV9WDHDk2Zsr44LclQsNJGMsUB0rnfxm4FMTQY
-         fgYXnE+/Nf4Yz4sxUyNSWYLmKtOlHLZa+6djeeuE=
+        b=sDYWQYMO5brs7uGt7Av5naZMW1atDW0dhE/4xUw/pF3SJ7FHsmYb1OTPUGL2fXcMN
+         izFHDqYdG5smOcN8bB4nTJj+D0pPegvL3qhUApPoqxLyMqEel5abMO1esyuY1RmjtP
+         tEEMkHVmYPMXsK4U40eb9Y3aMI4P82+iLfXAeK0Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     chenzefeng <chenzefeng2@huawei.com>,
+Cc:     Stephen Douthit <stephend@silicom-usa.com>,
         Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 038/185] ia64:unwind: fix double free for mod->arch.init_unw_table
-Date:   Sun, 22 Sep 2019 14:46:56 -0400
-Message-Id: <20190922184924.32534-38-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 052/185] EDAC, pnd2: Fix ioremap() size in dnv_rd_reg()
+Date:   Sun, 22 Sep 2019 14:47:10 -0400
+Message-Id: <20190922184924.32534-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,54 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenzefeng <chenzefeng2@huawei.com>
+From: Stephen Douthit <stephend@silicom-usa.com>
 
-[ Upstream commit c5e5c48c16422521d363c33cfb0dcf58f88c119b ]
+[ Upstream commit 29a3388bfcce7a6d087051376ea02bf8326a957b ]
 
-The function free_module in file kernel/module.c as follow:
+Depending on how BIOS has marked the reserved region containing the 32KB
+MCHBAR you can get warnings like:
 
-void free_module(struct module *mod) {
-	......
-	module_arch_cleanup(mod);
-	......
-	module_arch_freeing_init(mod);
-	......
-}
+resource sanity check: requesting [mem 0xfed10000-0xfed1ffff], which spans more than reserved [mem 0xfed10000-0xfed17fff]
+caller dnv_rd_reg+0xc8/0x240 [pnd2_edac] mapping multiple BARs
 
-Both module_arch_cleanup and module_arch_freeing_init function
-would free the mod->arch.init_unw_table, which cause double free.
+Not all of the mmio regions used in dnv_rd_reg() are the same size.  The
+MCHBAR window is 32KB and the sideband ports are 64KB.  Pass the correct
+size to ioremap() depending on which resource we're reading from.
 
-Here, set mod->arch.init_unw_table = NULL after remove the unwind
-table to avoid double free.
-
-Signed-off-by: chenzefeng <chenzefeng2@huawei.com>
+Signed-off-by: Stephen Douthit <stephend@silicom-usa.com>
 Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/module.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/edac/pnd2_edac.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
-index 326448f9df160..1a42ba885188a 100644
---- a/arch/ia64/kernel/module.c
-+++ b/arch/ia64/kernel/module.c
-@@ -914,10 +914,14 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
- void
- module_arch_cleanup (struct module *mod)
- {
--	if (mod->arch.init_unw_table)
-+	if (mod->arch.init_unw_table) {
- 		unw_remove_unwind_table(mod->arch.init_unw_table);
--	if (mod->arch.core_unw_table)
-+		mod->arch.init_unw_table = NULL;
-+	}
-+	if (mod->arch.core_unw_table) {
- 		unw_remove_unwind_table(mod->arch.core_unw_table);
-+		mod->arch.core_unw_table = NULL;
-+	}
+diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
+index ca25f8fe57ef3..1ad538baaa4a9 100644
+--- a/drivers/edac/pnd2_edac.c
++++ b/drivers/edac/pnd2_edac.c
+@@ -260,11 +260,14 @@ static u64 get_sideband_reg_base_addr(void)
+ 	}
  }
  
- void *dereference_module_function_descriptor(struct module *mod, void *ptr)
++#define DNV_MCHBAR_SIZE  0x8000
++#define DNV_SB_PORT_SIZE 0x10000
+ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *name)
+ {
+ 	struct pci_dev *pdev;
+ 	char *base;
+ 	u64 addr;
++	unsigned long size;
+ 
+ 	if (op == 4) {
+ 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x1980, NULL);
+@@ -279,15 +282,17 @@ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
+ 			addr = get_mem_ctrl_hub_base_addr();
+ 			if (!addr)
+ 				return -ENODEV;
++			size = DNV_MCHBAR_SIZE;
+ 		} else {
+ 			/* MMIO via sideband register base address */
+ 			addr = get_sideband_reg_base_addr();
+ 			if (!addr)
+ 				return -ENODEV;
+ 			addr += (port << 16);
++			size = DNV_SB_PORT_SIZE;
+ 		}
+ 
+-		base = ioremap((resource_size_t)addr, 0x10000);
++		base = ioremap((resource_size_t)addr, size);
+ 		if (!base)
+ 			return -ENODEV;
+ 
 -- 
 2.20.1
 
