@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1FFFBA6BB
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09CC9BA6C1
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407917AbfIVSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
+        id S2407965AbfIVSwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:52:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726828AbfIVSwb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:52:31 -0400
+        id S2407944AbfIVSwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:52:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 764F121BE5;
-        Sun, 22 Sep 2019 18:52:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 134B721479;
+        Sun, 22 Sep 2019 18:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178350;
-        bh=DCEiTU4UemXwcgVyei6aTJbJvetLYVFFZnXWVNu4XLg=;
+        s=default; t=1569178356;
+        bh=JynpDT/gW2P7z3FNimWG7u5TDUQgbp30m34PxCe32QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSmexoWIjwc5/NP/gtuKux1a8IPIIxN/fs7ogZ8BF2InmjXEAH+d79wzw5vSGSKTU
-         kX02Cja17rplo+IytwRQ5Fm9LaHJ2D0H7hZqUgOgrZ68PodxVdemInILm7RPAOD64k
-         3ymDClQklfLneJihCSjld0JLpttdBQuqZKEPEw9w=
+        b=hTEUvRCDbYRsNJuoCUoDqpj+RJ1jBT6dmfrK/umV5m7HcJdNwGpk8QKfX6XpHmqpz
+         r94M6SilCzg0TNkFk887ZLtetL2ONHvIs5fe+vvrgYZkoonkZ0wZGFTUSezBDkzbk3
+         wS4d8g8LybdNBOFpRP/Htgx1j1xLD5nB49nsjHq4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 107/185] soc: renesas: Enable ARM_ERRATA_754322 for affected Cortex-A9
-Date:   Sun, 22 Sep 2019 14:48:05 -0400
-Message-Id: <20190922184924.32534-107-sashal@kernel.org>
+Cc:     Kamil Konieczny <k.konieczny@partner.samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 111/185] PM / devfreq: exynos-bus: Correct clock enable sequence
+Date:   Sun, 22 Sep 2019 14:48:09 -0400
+Message-Id: <20190922184924.32534-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -44,70 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kamil Konieczny <k.konieczny@partner.samsung.com>
 
-[ Upstream commit 2eced4607a1e6f51f928ae3e521fe02be5cb7d23 ]
+[ Upstream commit 2c2b20e0da89c76759ee28c6824413ab2fa3bfc6 ]
 
-ARM Erratum 754322 affects Cortex-A9 revisions r2p* and r3p*.
+Regulators should be enabled before clocks to avoid h/w hang. This
+require change in exynos_bus_probe() to move exynos_bus_parse_of()
+after exynos_bus_parent_parse_of() and change in error handling.
+Similar change is needed in exynos_bus_exit() where clock should be
+disabled before regulators.
 
-Automatically enable support code to mitigate the erratum when compiling
-a kernel for any of the affected Renesas SoCs:
-  - RZ/A1: r3p0,
-  - R-Mobile A1: r2p4,
-  - R-Car M1A: r2p2-00rel0,
-  - R-Car H1: r3p0,
-  - SH-Mobile AG5: r2p2.
-
-EMMA Mobile EV2 (r1p3) and RZ/A2 (r4p1) are not affected.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: Kamil Konieczny <k.konieczny@partner.samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/renesas/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/devfreq/exynos-bus.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
-index 68bfca6f20ddf..2040caa6c8085 100644
---- a/drivers/soc/renesas/Kconfig
-+++ b/drivers/soc/renesas/Kconfig
-@@ -55,6 +55,7 @@ config ARCH_EMEV2
+diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
+index d9f377912c104..7c06df8bd74fe 100644
+--- a/drivers/devfreq/exynos-bus.c
++++ b/drivers/devfreq/exynos-bus.c
+@@ -191,11 +191,10 @@ static void exynos_bus_exit(struct device *dev)
+ 	if (ret < 0)
+ 		dev_warn(dev, "failed to disable the devfreq-event devices\n");
  
- config ARCH_R7S72100
- 	bool "RZ/A1H (R7S72100)"
-+	select ARM_ERRATA_754322
- 	select PM
- 	select PM_GENERIC_DOMAINS
- 	select SYS_SUPPORTS_SH_MTU2
-@@ -76,6 +77,7 @@ config ARCH_R8A73A4
- config ARCH_R8A7740
- 	bool "R-Mobile A1 (R8A77400)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select RENESAS_INTC_IRQPIN
+-	if (bus->regulator)
+-		regulator_disable(bus->regulator);
+-
+ 	dev_pm_opp_of_remove_table(dev);
+ 	clk_disable_unprepare(bus->clk);
++	if (bus->regulator)
++		regulator_disable(bus->regulator);
+ }
  
- config ARCH_R8A7743
-@@ -103,10 +105,12 @@ config ARCH_R8A77470
- config ARCH_R8A7778
- 	bool "R-Car M1A (R8A77781)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
+ /*
+@@ -383,6 +382,7 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ 	struct exynos_bus *bus;
+ 	int ret, max_state;
+ 	unsigned long min_freq, max_freq;
++	bool passive = false;
  
- config ARCH_R8A7779
- 	bool "R-Car H1 (R8A77790)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select SYSC_R8A7779
-@@ -150,6 +154,7 @@ config ARCH_R9A06G032
- config ARCH_SH73A0
- 	bool "SH-Mobile AG5 (R8A73A00)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select RENESAS_INTC_IRQPIN
+ 	if (!np) {
+ 		dev_err(dev, "failed to find devicetree node\n");
+@@ -396,27 +396,27 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ 	bus->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, bus);
+ 
+-	/* Parse the device-tree to get the resource information */
+-	ret = exynos_bus_parse_of(np, bus);
+-	if (ret < 0)
+-		return ret;
+-
+ 	profile = devm_kzalloc(dev, sizeof(*profile), GFP_KERNEL);
+-	if (!profile) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
++	if (!profile)
++		return -ENOMEM;
+ 
+ 	node = of_parse_phandle(dev->of_node, "devfreq", 0);
+ 	if (node) {
+ 		of_node_put(node);
+-		goto passive;
++		passive = true;
+ 	} else {
+ 		ret = exynos_bus_parent_parse_of(np, bus);
++		if (ret < 0)
++			return ret;
+ 	}
+ 
++	/* Parse the device-tree to get the resource information */
++	ret = exynos_bus_parse_of(np, bus);
+ 	if (ret < 0)
+-		goto err;
++		goto err_reg;
++
++	if (passive)
++		goto passive;
+ 
+ 	/* Initialize the struct profile and governor data for parent device */
+ 	profile->polling_ms = 50;
+@@ -507,6 +507,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ err:
+ 	dev_pm_opp_of_remove_table(dev);
+ 	clk_disable_unprepare(bus->clk);
++err_reg:
++	if (!passive)
++		regulator_disable(bus->regulator);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
