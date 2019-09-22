@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D99BA552
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB36BA55A
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408198AbfIVS4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:56:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58590 "EHLO mail.kernel.org"
+        id S2394658AbfIVS4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408190AbfIVS4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:56:32 -0400
+        id S2394647AbfIVS4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:56:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 219D821928;
-        Sun, 22 Sep 2019 18:56:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86E7921D79;
+        Sun, 22 Sep 2019 18:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178591;
-        bh=8MmppN0wk6iJ6HlwRzJl5OGpV+msx+sgDG0ZWr1rF/o=;
+        s=default; t=1569178608;
+        bh=uaOIWpsIf8+dt111emlxC4v/ymc0+qk134NPY6ms2Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0rZW4tS46TQ7RE94KKHJTsL4A2vLA5WJNglQHuL9ZjzX7VYg6UhMl4K7G1UkGyll
-         eHqyLV63A1HjQ+zjYVHMXaO/F2Pu8o0xVSqCsAmobbhXx7LW1UUHSlT+8fNZRfFG80
-         j32Z41piJY5cCKMAIzpXuW489+MYYpPkUoZh2cjU=
+        b=bJfusZ7zstbNfoMdlhUCS/WmMEiBxZ4v1aAsLaJwf2YEuZuFPwsvgBRzWNKA0Utit
+         gTm2uLE115yy3+JKpC+4c0x3I4ZgRHZNMp/oEP5ruGOa2rvt7NA5ViZq2LawQBFN8L
+         113RLxkO/xZMEqJStCJ2uxF9dPaj68w2bAieD8Us=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Patrick McLean <chutzpah@gentoo.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-trace-devel@vger.kernel.org,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 098/128] libtraceevent: Change users plugin directory
-Date:   Sun, 22 Sep 2019 14:53:48 -0400
-Message-Id: <20190922185418.2158-98-sashal@kernel.org>
+Cc:     Austin Kim <austindh.kim@gmail.com>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Travis <mike.travis@hpe.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        Thomas Gleixner <tglx@linutronix.de>, allison@lohutok.net,
+        andy@infradead.org, armijn@tjaldur.nl, bp@alien8.de,
+        dvhart@infradead.org, gregkh@linuxfoundation.org, hpa@zytor.com,
+        kjlu@umn.edu, platform-driver-x86@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 109/128] x86/platform/uv: Fix kmalloc() NULL check routine
+Date:   Sun, 22 Sep 2019 14:53:59 -0400
+Message-Id: <20190922185418.2158-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -49,68 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+From: Austin Kim <austindh.kim@gmail.com>
 
-[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
+[ Upstream commit 864b23f0169d5bff677e8443a7a90dfd6b090afc ]
 
-To be compliant with XDG user directory layout, the user's plugin
-directory is changed from ~/.traceevent/plugins to
-~/.local/lib/traceevent/plugins/
+The result of kmalloc() should have been checked ahead of below statement:
 
-Suggested-by: Patrick McLean <chutzpah@gentoo.org>
-Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Patrick McLean <chutzpah@gentoo.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
-Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
-Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+	pqp = (struct bau_pq_entry *)vp;
+
+Move BUG_ON(!vp) before above statement.
+
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
+Cc: Hedi Berriche <hedi.berriche@hpe.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Travis <mike.travis@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Russ Anderson <russ.anderson@hpe.com>
+Cc: Steve Wahl <steve.wahl@hpe.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: allison@lohutok.net
+Cc: andy@infradead.org
+Cc: armijn@tjaldur.nl
+Cc: bp@alien8.de
+Cc: dvhart@infradead.org
+Cc: gregkh@linuxfoundation.org
+Cc: hpa@zytor.com
+Cc: kjlu@umn.edu
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190905232951.GA28779@LGEARND20B15
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile       | 6 +++---
- tools/lib/traceevent/event-plugin.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/platform/uv/tlb_uv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index 0b4e833088a4d..95a43ccb6dd09 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -55,15 +55,15 @@ set_plugin_dir := 1
+diff --git a/arch/x86/platform/uv/tlb_uv.c b/arch/x86/platform/uv/tlb_uv.c
+index a4130b84d1ff5..3a693e7c7434f 100644
+--- a/arch/x86/platform/uv/tlb_uv.c
++++ b/arch/x86/platform/uv/tlb_uv.c
+@@ -1817,9 +1817,9 @@ static void pq_init(int node, int pnode)
  
- # Set plugin_dir to preffered global plugin location
- # If we install under $HOME directory we go under
--# $(HOME)/.traceevent/plugins
-+# $(HOME)/.local/lib/traceevent/plugins
- #
- # We dont set PLUGIN_DIR in case we install under $HOME
- # directory, because by default the code looks under:
--# $(HOME)/.traceevent/plugins by default.
-+# $(HOME)/.local/lib/traceevent/plugins by default.
- #
- ifeq ($(plugin_dir),)
- ifeq ($(prefix),$(HOME))
--override plugin_dir = $(HOME)/.traceevent/plugins
-+override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
- set_plugin_dir := 0
- else
- override plugin_dir = $(libdir)/traceevent/plugins
-diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
-index f17e25097e1e2..52874eb94acef 100644
---- a/tools/lib/traceevent/event-plugin.c
-+++ b/tools/lib/traceevent/event-plugin.c
-@@ -16,7 +16,7 @@
- #include "event-parse.h"
- #include "event-utils.h"
+ 	plsize = (DEST_Q_SIZE + 1) * sizeof(struct bau_pq_entry);
+ 	vp = kmalloc_node(plsize, GFP_KERNEL, node);
+-	pqp = (struct bau_pq_entry *)vp;
+-	BUG_ON(!pqp);
++	BUG_ON(!vp);
  
--#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
-+#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
++	pqp = (struct bau_pq_entry *)vp;
+ 	cp = (char *)pqp + 31;
+ 	pqp = (struct bau_pq_entry *)(((unsigned long)cp >> 5) << 5);
  
- static struct registered_plugin_options {
- 	struct registered_plugin_options	*next;
 -- 
 2.20.1
 
