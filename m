@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D0ABAB6C
+	by mail.lfdr.de (Postfix) with ESMTP id 1170EBAB6A
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404494AbfIVTin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40996 "EHLO mail.kernel.org"
+        id S2404152AbfIVTig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:38:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389154AbfIVSpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:45:21 -0400
+        id S2389169AbfIVSpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:45:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AF4C21907;
-        Sun, 22 Sep 2019 18:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B0DD2190F;
+        Sun, 22 Sep 2019 18:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177921;
-        bh=IW9B/HeSgNw2BYZ4ZZx2Ue6CPKz5wPi/K6VoRd80Rnc=;
+        s=default; t=1569177922;
+        bh=Gr+mpr+UdVcsglgvTrR47wJ0vGzDZ7TykkhHAonJjdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZYyrPPlWvcy1QULguYW7UkZdwARt0iJiDep9MmC4sNnc9/yycF0NVu7xwPCNgGhJ
-         svZ7ReAGU2sBCu8jCf5UDeo5yLxCXfvEazWRK9utt11gK9jF3rVaPAX81LkhiGqkQ1
-         xbaidI6wRBkdSaZ9efrYmrzkjleAzcWxsolyp8fM=
+        b=DurhEnZ4OWaexqJkkrZ8JT9/W6JjrzyxyEb5VCpv3euam0Vdj9zw7Ilwj/7jmznYN
+         Lx0QHB/r9atPTFUGl3QTeHLQI14tCJDBQTGIwk8lynUX9Wd4lBaTyAk7UL8FqHgSlD
+         JWdVZFV+dbdoqNcwda63Tdta1rdk5tYV+17Xvumk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 033/203] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
-Date:   Sun, 22 Sep 2019 14:40:59 -0400
-Message-Id: <20190922184350.30563-33-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.3 034/203] ASoC: meson: g12a-tohdmitx: override codec2codec params
+Date:   Sun, 22 Sep 2019 14:41:00 -0400
+Message-Id: <20190922184350.30563-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -42,52 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
+[ Upstream commit 2c4956bc1e9062e5e3c5ea7612294f24e6d4fbdd ]
 
-In build_adc_controls(), there is an if statement on line 773 to check
-whether ak->adc_info is NULL:
-    if (! ak->adc_info ||
-        ! ak->adc_info[mixer_ch].switch_name)
+So far, forwarding the hw_params of the input to output relied on the
+.hw_params() callback of the cpu side of the codec2codec link to be called
+first. This is a bit weak.
 
-When ak->adc_info is NULL, it is used on line 792:
-    knew.name = ak->adc_info[mixer_ch].selector_name;
+Instead, override the stream params of the codec2codec to link to set it up
+correctly.
 
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, referring to lines 773 and 774, ak->adc_info
-and ak->adc_info[mixer_ch].selector_name are checked before being used.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20190729080139.32068-1-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/other/ak4xxx-adda.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/meson/g12a-tohdmitx.c | 34 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
-index 5f59316f982ae..7d15093844b92 100644
---- a/sound/i2c/other/ak4xxx-adda.c
-+++ b/sound/i2c/other/ak4xxx-adda.c
-@@ -775,11 +775,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
- 				return err;
+diff --git a/sound/soc/meson/g12a-tohdmitx.c b/sound/soc/meson/g12a-tohdmitx.c
+index 707ccb192e4c2..9943c807ec5d7 100644
+--- a/sound/soc/meson/g12a-tohdmitx.c
++++ b/sound/soc/meson/g12a-tohdmitx.c
+@@ -28,7 +28,7 @@
+ #define  CTRL0_SPDIF_CLK_SEL		BIT(0)
  
- 			memset(&knew, 0, sizeof(knew));
--			knew.name = ak->adc_info[mixer_ch].selector_name;
--			if (!knew.name) {
-+			if (!ak->adc_info ||
-+				!ak->adc_info[mixer_ch].selector_name) {
- 				knew.name = "Capture Channel";
- 				knew.index = mixer_ch + ak->idx_offset * 2;
--			}
-+			} else
-+				knew.name = ak->adc_info[mixer_ch].selector_name;
+ struct g12a_tohdmitx_input {
+-	struct snd_pcm_hw_params params;
++	struct snd_soc_pcm_stream params;
+ 	unsigned int fmt;
+ };
  
- 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
- 			knew.info = ak4xxx_capture_source_info;
+@@ -225,26 +225,17 @@ static int g12a_tohdmitx_input_hw_params(struct snd_pcm_substream *substream,
+ {
+ 	struct g12a_tohdmitx_input *data = dai->playback_dma_data;
+ 
+-	/* Save the stream params for the downstream link */
+-	memcpy(&data->params, params, sizeof(*params));
++	data->params.rates = snd_pcm_rate_to_rate_bit(params_rate(params));
++	data->params.rate_min = params_rate(params);
++	data->params.rate_max = params_rate(params);
++	data->params.formats = 1 << params_format(params);
++	data->params.channels_min = params_channels(params);
++	data->params.channels_max = params_channels(params);
++	data->params.sig_bits = dai->driver->playback.sig_bits;
+ 
+ 	return 0;
+ }
+ 
+-static int g12a_tohdmitx_output_hw_params(struct snd_pcm_substream *substream,
+-					  struct snd_pcm_hw_params *params,
+-					  struct snd_soc_dai *dai)
+-{
+-	struct g12a_tohdmitx_input *in_data =
+-		g12a_tohdmitx_get_input_data(dai->capture_widget);
+-
+-	if (!in_data)
+-		return -ENODEV;
+-
+-	memcpy(params, &in_data->params, sizeof(*params));
+-
+-	return 0;
+-}
+ 
+ static int g12a_tohdmitx_input_set_fmt(struct snd_soc_dai *dai,
+ 				       unsigned int fmt)
+@@ -266,6 +257,14 @@ static int g12a_tohdmitx_output_startup(struct snd_pcm_substream *substream,
+ 	if (!in_data)
+ 		return -ENODEV;
+ 
++	if (WARN_ON(!rtd->dai_link->params)) {
++		dev_warn(dai->dev, "codec2codec link expected\n");
++		return -EINVAL;
++	}
++
++	/* Replace link params with the input params */
++	rtd->dai_link->params = &in_data->params;
++
+ 	if (!in_data->fmt)
+ 		return 0;
+ 
+@@ -278,7 +277,6 @@ static const struct snd_soc_dai_ops g12a_tohdmitx_input_ops = {
+ };
+ 
+ static const struct snd_soc_dai_ops g12a_tohdmitx_output_ops = {
+-	.hw_params	= g12a_tohdmitx_output_hw_params,
+ 	.startup	= g12a_tohdmitx_output_startup,
+ };
+ 
 -- 
 2.20.1
 
