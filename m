@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BABFBA847
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED83BA869
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395346AbfIVTB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38280 "EHLO mail.kernel.org"
+        id S1728542AbfIVTDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393226AbfIVTB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:01:57 -0400
+        id S2395345AbfIVTB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:01:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAB6D208C2;
-        Sun, 22 Sep 2019 19:01:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 091212070C;
+        Sun, 22 Sep 2019 19:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178916;
-        bh=gJXf0m846H7nSaBfT45ol9cDA4hQTRNe/xed/jgri1w=;
+        s=default; t=1569178917;
+        bh=n5gj2Hdae2Hdoc1sUt7oWb1wv6BAKbPyC4gdc9lKEK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iT2KTTVJ0NzGkaWetw8n0acURdf9S+UhX7vmehPSRJSFUqDpQeX6dAkunGsncvk6H
-         bo2yQyXd6iRNi+hXmvGg8x+qFpO9mqOHKGffSQI78qE00buWudVN8v4WoO+SBQ4uhS
-         V/xZBlds5XyogZKrWvesHdZYM14D7EfZ+u0Nz8fg=
+        b=Ucrm8CrR48KGqv7pJjY29Zj+M/o4t4MvcbE2siWHfBK38iWDBA87f/zje+PB5BuJr
+         TGDUk1Ip7mVwGlJrwvqCE4w+lQ0XVZJesOfeQ2LY/GZXG79nxbSW0fa0K/i/aKrckW
+         pGmFmSutzStteuObAi0eZ1oD8LBCROR96Ld12wvI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, NeilBrown <neilb@suse.de>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 34/44] md/raid1: fail run raid1 array when active disk less than one
-Date:   Sun, 22 Sep 2019 15:00:52 -0400
-Message-Id: <20190922190103.4906-34-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 35/44] dmaengine: ti: edma: Do not reset reserved paRAM slots
+Date:   Sun, 22 Sep 2019 15:00:53 -0400
+Message-Id: <20190922190103.4906-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -43,76 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
+[ Upstream commit c5dbe60664b3660f5ac5854e21273ea2e7ff698f ]
 
-When run test case:
-  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
-  mdadm -S /dev/md1
-  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
+Skip resetting paRAM slots marked as reserved as they might be used by
+other cores.
 
-  mdadm --zero /dev/sda
-  mdadm /dev/md1 -a /dev/sda
-
-  echo offline > /sys/block/sdc/device/state
-  echo offline > /sys/block/sdb/device/state
-  sleep 5
-  mdadm -S /dev/md1
-
-  echo running > /sys/block/sdb/device/state
-  echo running > /sys/block/sdc/device/state
-  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
-
-mdadm run fail with kernel message as follow:
-[  172.986064] md: kicking non-fresh sdb from array!
-[  173.004210] md: kicking non-fresh sdc from array!
-[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
-[  173.022406] md1: failed to create bitmap (-5)
-
-In fact, when active disk in raid1 array less than one, we
-need to return fail in raid1_run().
-
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190823125618.8133-2-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/dma/edma.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 82e284d2b202b..abb99515068b1 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -2958,6 +2958,13 @@ static int run(struct mddev *mddev)
- 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
- 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
- 			mddev->degraded++;
-+	/*
-+	 * RAID1 needs at least one disk in active
-+	 */
-+	if (conf->raid_disks - mddev->degraded < 1) {
-+		ret = -EINVAL;
-+		goto abort;
-+	}
+diff --git a/drivers/dma/edma.c b/drivers/dma/edma.c
+index 85674a8d04368..e508c8c5f3fde 100644
+--- a/drivers/dma/edma.c
++++ b/drivers/dma/edma.c
+@@ -2218,9 +2218,6 @@ static int edma_probe(struct platform_device *pdev)
  
- 	if (conf->raid_disks - mddev->degraded == 1)
- 		mddev->recovery_cp = MaxSector;
-@@ -2992,8 +2999,12 @@ static int run(struct mddev *mddev)
- 	ret =  md_integrity_register(mddev);
- 	if (ret) {
- 		md_unregister_thread(&mddev->thread);
--		raid1_free(mddev, conf);
-+		goto abort;
+ 	ecc->default_queue = info->default_queue;
+ 
+-	for (i = 0; i < ecc->num_slots; i++)
+-		edma_write_slot(ecc, i, &dummy_paramset);
+-
+ 	if (info->rsv) {
+ 		/* Set the reserved slots in inuse list */
+ 		rsv_slots = info->rsv->rsv_slots;
+@@ -2233,6 +2230,12 @@ static int edma_probe(struct platform_device *pdev)
+ 		}
  	}
-+	return 0;
-+
-+abort:
-+	raid1_free(mddev, conf);
- 	return ret;
- }
  
++	for (i = 0; i < ecc->num_slots; i++) {
++		/* Reset only unused - not reserved - paRAM slots */
++		if (!test_bit(i, ecc->slot_inuse))
++			edma_write_slot(ecc, i, &dummy_paramset);
++	}
++
+ 	/* Clear the xbar mapped channels in unused list */
+ 	xbar_chans = info->xbar_chans;
+ 	if (xbar_chans) {
 -- 
 2.20.1
 
