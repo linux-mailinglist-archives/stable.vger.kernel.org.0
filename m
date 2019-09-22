@@ -2,45 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8564BA624
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD61BA627
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391156AbfIVSrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
+        id S2391201AbfIVSrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:47:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391134AbfIVSrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:46 -0400
+        id S2391193AbfIVSrv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECC87214D9;
-        Sun, 22 Sep 2019 18:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1569C21D6C;
+        Sun, 22 Sep 2019 18:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178065;
-        bh=wsTJHiMFPOoHIgER7mlVFFqhW8kRSBgcp+tO9JjJ15I=;
+        s=default; t=1569178070;
+        bh=Dp16fsSU8hxNbAKOIIQ6JCkszM+DVXRU4bOKtGvh95U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLbdw2ZdovNqJR5Uelowm7WLIXx3SgKyhYcWGn0yWa4EN0WR9+G6ohffC5y/u3Rzp
-         k0wOUPLp0nEbrNFxMTbF3E79mJrz9J22vxTIVY+ImO4lWTuObJBaYTw0FgsxHgspJ2
-         9nE0AQ55eKi868HjbHk9Y3zNRGk+geKTnnx2Pri4=
+        b=hkfgBwx2NXsnsmnUm9AoDGV5lyna6DX8gmbNk4ffuYBcLicja20Tonj6rtvSjojbL
+         9obZ3TwY7lUKoDOzBTIPNpee/a+Z4ALQfT5aHQ1BYKfRHeaLaW8MkYlUeQiNZzBUjV
+         jFNd0sfq9qhAu1dVxH9nKV4qsJlsyzoiqYkMK/w4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Karl Rister <krister@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Brendan Gregg <brendan.d.gregg@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Krister Johansen <kjlx@templeofstupid.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stanislav Fomichev <sdf@google.com>,
-        Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 139/203] perf evlist: Use unshare(CLONE_FS) in sb threads to let setns(CLONE_NEWNS) work
-Date:   Sun, 22 Sep 2019 14:42:45 -0400
-Message-Id: <20190922184350.30563-139-sashal@kernel.org>
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.3 143/203] ASoC: fsl_ssi: Fix clock control issue in master mode
+Date:   Sun, 22 Sep 2019 14:42:49 -0400
+Message-Id: <20190922184350.30563-143-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -53,158 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit b397f8468fa27f08b83b348ffa56a226f72453af ]
+[ Upstream commit 696d05225cebffd172008d212657be90e823eac0 ]
 
-When we started using a thread to catch the PERF_RECORD_BPF_EVENT meta
-data events to then ask the kernel for further info (BTF, etc) for BPF
-programs shortly after they get loaded, we forgot to use
-unshare(CLONE_FS) as was done in:
+The test case is
+arecord -Dhw:0 -d 10 -f S16_LE -r 48000 -c 2 temp.wav &
+aplay -Dhw:0 -d 30 -f S16_LE -r 48000 -c 2 test.wav
 
-  868a832918f6 ("perf top: Support lookup of symbols in other mount namespaces.")
+There will be error after end of arecord:
+aplay: pcm_write:2051: write error: Input/output error
 
-Do it so that we can enter the namespaces to read the build-ids at the
-end of a 'perf record' session for the DSOs that had hits.
+Capture and Playback work in parallel in master mode, one
+substream stops, the other substream is impacted, the
+reason is that clock is disabled wrongly.
 
-Before:
+The clock's reference count is not increased when second
+substream starts, the hw_param() function returns in the
+beginning because first substream is enabled, then in end
+of first substream, the hw_free() disables the clock.
 
-Starting a 'stress-ng --cpus 8' inside a container and then, outside the
-container running:
+This patch is to move the clock enablement to the place
+before checking of the device enablement in hw_param().
 
-  # perf record -a --namespaces sleep 5
-  # perf buildid-list | grep stress-ng
-  #
-
-We would end up with a 'perf.data' file that had no entry in its
-build-id table for the /usr/bin/stress-ng binary inside the container
-that got tons of PERF_RECORD_SAMPLEs.
-
-After:
-
-  # perf buildid-list | grep stress-ng
-  f2ed02c68341183a124b9b0f6e2e6c493c465b29 /usr/bin/stress-ng
-  #
-
-Then its just a matter of making sure that that binary debuginfo package
-gets available in a place that 'perf report' will look at build-id keyed
-ELF files, which, in my case, on a f30 notebook, was a matter of
-installing the debuginfo file for the distro used in the container,
-fedora 31:
-
-  # rpm -ivh http://fedora.c3sl.ufpr.br/linux/development/31/Everything/x86_64/debug/tree/Packages/s/stress-ng-debuginfo-0.07.29-10.fc31.x86_64.rpm
-
-Then, because perf currently looks for those debuginfo files (richer ELF
-symtab) inside that namespace (look at the setns calls):
-
-  openat(AT_FDCWD, "/proc/self/ns/mnt", O_RDONLY) = 137
-  openat(AT_FDCWD, "/proc/13169/ns/mnt", O_RDONLY) = 139
-  setns(139, CLONE_NEWNS)                 = 0
-  stat("/usr/bin/stress-ng", {st_mode=S_IFREG|0755, st_size=3065416, ...}) = 0
-  openat(AT_FDCWD, "/usr/bin/stress-ng", O_RDONLY) = 140
-  fcntl(140, F_GETFD)                     = 0
-  fstat(140, {st_mode=S_IFREG|0755, st_size=3065416, ...}) = 0
-  mmap(NULL, 3065416, PROT_READ, MAP_PRIVATE, 140, 0) = 0x7ff2fdc5b000
-  munmap(0x7ff2fdc5b000, 3065416)         = 0
-  close(140)                              = 0
-  stat("stress-ng-0.07.29-10.fc31.x86_64.debug", 0x7fff45d71260) = -1 ENOENT (No such file or directory)
-  stat("/usr/bin/stress-ng-0.07.29-10.fc31.x86_64.debug", 0x7fff45d71260) = -1 ENOENT (No such file or directory)
-  stat("/usr/bin/.debug/stress-ng-0.07.29-10.fc31.x86_64.debug", 0x7fff45d71260) = -1 ENOENT (No such file or directory)
-  stat("/usr/lib/debug/usr/bin/stress-ng-0.07.29-10.fc31.x86_64.debug", 0x7fff45d71260) = -1 ENOENT (No such file or directory)
-  stat("/root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29", 0x7fff45d711e0) = -1 ENOENT (No such file or directory)
-
-To only then go back to the "host" namespace to look just in the users's
-~/.debug cache:
-
-  setns(137, CLONE_NEWNS)                 = 0
-  chdir("/root")                          = 0
-  close(137)                              = 0
-  close(139)                              = 0
-  stat("/root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29/elf", 0x7fff45d732e0) = -1 ENOENT (No such file or directory)
-
-It continues to fail to resolve symbols:
-
-  # perf report | grep stress-ng | head -5
-     9.50%  stress-ng-cpu    stress-ng    [.] 0x0000000000021ac1
-     8.58%  stress-ng-cpu    stress-ng    [.] 0x0000000000021ab4
-     8.51%  stress-ng-cpu    stress-ng    [.] 0x0000000000021489
-     7.17%  stress-ng-cpu    stress-ng    [.] 0x00000000000219b6
-     3.93%  stress-ng-cpu    stress-ng    [.] 0x0000000000021478
-  #
-
-To overcome that we use:
-
-  # perf buildid-cache -v --add /usr/lib/debug/usr/bin/stress-ng-0.07.29-10.fc31.x86_64.debug
-  Adding f2ed02c68341183a124b9b0f6e2e6c493c465b29 /usr/lib/debug/usr/bin/stress-ng-0.07.29-10.fc31.x86_64.debug: Ok
-  #
-  # ls -la /root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29/elf
-  -rw-r--r--. 3 root root 2401184 Jul 27 07:03 /root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29/elf
-  # file /root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29/elf
-  /root/.debug/.build-id/f2/ed02c68341183a124b9b0f6e2e6c493c465b29/elf: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter \004, BuildID[sha1]=f2ed02c68341183a124b9b0f6e2e6c493c465b29, for GNU/Linux 3.2.0, with debug_info, not stripped, too many notes (256)
-  #
-
-Now it finally works:
-
-  # perf report | grep stress-ng | head -5
-    23.59%  stress-ng-cpu    stress-ng    [.] ackermann
-    23.33%  stress-ng-cpu    stress-ng    [.] is_prime
-    17.36%  stress-ng-cpu    stress-ng    [.] stress_cpu_sieve
-     6.08%  stress-ng-cpu    stress-ng    [.] stress_cpu_correlate
-     3.55%  stress-ng-cpu    stress-ng    [.] queens_try
-  #
-
-I'll make sure that it looks for the build-id keyed files in both the
-"host" namespace (the namespace the user running 'perf record' was a the
-time of the recording) and in the container namespace, as it shouldn't
-matter where a content based key lookup finds the ELF file to use in
-resolving symbols, etc.
-
-Reported-by: Karl Rister <krister@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Brendan Gregg <brendan.d.gregg@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Krister Johansen <kjlx@templeofstupid.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>
-Fixes: 657ee5531903 ("perf evlist: Introduce side band thread")
-Link: https://lkml.kernel.org/n/tip-g79k0jz41adiaeuqud742t2l@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1567012817-12625-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evlist.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/fsl/fsl_ssi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
-index b0364d923f764..070c3bd578827 100644
---- a/tools/perf/util/evlist.c
-+++ b/tools/perf/util/evlist.c
-@@ -20,6 +20,7 @@
- #include "bpf-event.h"
- #include <signal.h>
- #include <unistd.h>
-+#include <sched.h>
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index fa862af25c1a3..085855f9b08d4 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -799,15 +799,6 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 	u32 wl = SSI_SxCCR_WL(sample_size);
+ 	int ret;
  
- #include "parse-events.h"
- #include <subcmd/parse-options.h>
-@@ -1870,6 +1871,14 @@ static void *perf_evlist__poll_thread(void *arg)
- 	struct perf_evlist *evlist = arg;
- 	bool draining = false;
- 	int i, done = 0;
+-	/*
+-	 * SSI is properly configured if it is enabled and running in
+-	 * the synchronous mode; Note that AC97 mode is an exception
+-	 * that should set separate configurations for STCCR and SRCCR
+-	 * despite running in the synchronous mode.
+-	 */
+-	if (ssi->streams && ssi->synchronous)
+-		return 0;
+-
+ 	if (fsl_ssi_is_i2s_master(ssi)) {
+ 		ret = fsl_ssi_set_bclk(substream, dai, hw_params);
+ 		if (ret)
+@@ -823,6 +814,15 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 	}
+ 
 +	/*
-+	 * In order to read symbols from other namespaces perf to needs to call
-+	 * setns(2).  This isn't permitted if the struct_fs has multiple users.
-+	 * unshare(2) the fs so that we may continue to setns into namespaces
-+	 * that we're observing when, for instance, reading the build-ids at
-+	 * the end of a 'perf record' session.
++	 * SSI is properly configured if it is enabled and running in
++	 * the synchronous mode; Note that AC97 mode is an exception
++	 * that should set separate configurations for STCCR and SRCCR
++	 * despite running in the synchronous mode.
 +	 */
-+	unshare(CLONE_FS);
- 
- 	while (!done) {
- 		bool got_data = false;
++	if (ssi->streams && ssi->synchronous)
++		return 0;
++
+ 	if (!fsl_ssi_is_ac97(ssi)) {
+ 		/*
+ 		 * Keep the ssi->i2s_net intact while having a local variable
 -- 
 2.20.1
 
