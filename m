@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A448BAB2C
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A61BAB29
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391793AbfIVTfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43032 "EHLO mail.kernel.org"
+        id S2439152AbfIVTfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:35:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390151AbfIVSqo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:46:44 -0400
+        id S2390269AbfIVSqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:46:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D1582186A;
-        Sun, 22 Sep 2019 18:46:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 756032196E;
+        Sun, 22 Sep 2019 18:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178003;
-        bh=wKwjfWM+JCA0f7UO0uWQrgxnwNMKaVWWUO0lVQf5ynI=;
+        s=default; t=1569178009;
+        bh=izJSz9zwaSm5xge40Tyl2gKrXmgr/JkniLuCjKggVes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFeFvjxFilITo/mmq/qhX1aUs2SkKh+jquYUnjlsHOvOI7vLZluetdeZIBdngc8mq
-         oO2lU8U2o3izoK2Fuv8L7cS+l7IUAfp0MfZTv7EhGe2aM9ftH2SicRbSzl1aedV1Ix
-         4+xWRPOynRDyCsinfhjyctQYf+Bzj/Ch70r5cioU=
+        b=Sp3/G2sLfRqtwimhfVb8FvYY0mqAOYeU/QrQa/0NVRD+lI0C2PqBSGcAy0rpE4u8Y
+         3xgTJ3qqdEYin5FRsps8ij0d22zKhtamQfGEpFJFCa0QW563evuwahbsiwF34MrtHu
+         wSlQUMu/xNZSFFNzLMkzWZ84dnoSqhsdd/6xj6q4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Agner <stefan.agner@toradex.com>,
-        Philippe Schenker <philippe.schenker@toradex.com>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 092/203] ARM: dts: imx7-colibri: disable HS400
-Date:   Sun, 22 Sep 2019 14:41:58 -0400
-Message-Id: <20190922184350.30563-92-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 096/203] ASoC: uniphier: Fix double reset assersion when transitioning to suspend state
+Date:   Sun, 22 Sep 2019 14:42:02 -0400
+Message-Id: <20190922184350.30563-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -45,42 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan.agner@toradex.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit a95fbda08ee20cd063ce5826e0df95a2c22ea8c5 ]
+[ Upstream commit c372a35550c8d60f673b20210eea58a06d6d38cb ]
 
-Force HS200 by masking bit 63 of the SDHCI capability register.
-The i.MX ESDHC driver uses SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400. With
-that the stack checks bit 63 to descide whether HS400 is available.
-Using sdhci-caps-mask allows to mask bit 63. The stack then selects
-HS200 as operating mode.
+When transitioning to supend state, uniphier_aio_dai_suspend() is called
+and asserts reset lines and disables clocks.
 
-This prevents rare communication errors with minimal effect on
-performance:
-	sdhci-esdhc-imx 30b60000.usdhc: warning! HS400 strobe DLL
-		status REF not lock!
+However, if there are two or more DAIs, uniphier_aio_dai_suspend() are
+called multiple times, and double reset assersion will cause.
 
-Signed-off-by: Stefan Agner <stefan.agner@toradex.com>
-Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+This patch defines the counter that has the number of DAIs at first, and
+whenever uniphier_aio_dai_suspend() are called, it decrements the
+counter. And only if the counter is zero, it asserts reset lines and
+disables clocks.
+
+In the same way, uniphier_aio_dai_resume() are called, it increments the
+counter after deasserting reset lines and enabling clocks.
+
+Fixes: 139a34200233 ("ASoC: uniphier: add support for UniPhier AIO CPU DAI driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1566281764-14059-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7-colibri.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/uniphier/aio-cpu.c | 31 +++++++++++++++++++++----------
+ sound/soc/uniphier/aio.h     |  1 +
+ 2 files changed, 22 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx7-colibri.dtsi b/arch/arm/boot/dts/imx7-colibri.dtsi
-index 895fbde4d4333..c1ed83131b495 100644
---- a/arch/arm/boot/dts/imx7-colibri.dtsi
-+++ b/arch/arm/boot/dts/imx7-colibri.dtsi
-@@ -323,6 +323,7 @@
- 	vmmc-supply = <&reg_module_3v3>;
- 	vqmmc-supply = <&reg_DCDC3>;
- 	non-removable;
-+	sdhci-caps-mask = <0x80000000 0x0>;
- };
+diff --git a/sound/soc/uniphier/aio-cpu.c b/sound/soc/uniphier/aio-cpu.c
+index ee90e6c3937ce..2ae582a99b636 100644
+--- a/sound/soc/uniphier/aio-cpu.c
++++ b/sound/soc/uniphier/aio-cpu.c
+@@ -424,8 +424,11 @@ int uniphier_aio_dai_suspend(struct snd_soc_dai *dai)
+ {
+ 	struct uniphier_aio *aio = uniphier_priv(dai);
  
- &iomuxc {
+-	reset_control_assert(aio->chip->rst);
+-	clk_disable_unprepare(aio->chip->clk);
++	aio->chip->num_wup_aios--;
++	if (!aio->chip->num_wup_aios) {
++		reset_control_assert(aio->chip->rst);
++		clk_disable_unprepare(aio->chip->clk);
++	}
+ 
+ 	return 0;
+ }
+@@ -439,13 +442,15 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 	if (!aio->chip->active)
+ 		return 0;
+ 
+-	ret = clk_prepare_enable(aio->chip->clk);
+-	if (ret)
+-		return ret;
++	if (!aio->chip->num_wup_aios) {
++		ret = clk_prepare_enable(aio->chip->clk);
++		if (ret)
++			return ret;
+ 
+-	ret = reset_control_deassert(aio->chip->rst);
+-	if (ret)
+-		goto err_out_clock;
++		ret = reset_control_deassert(aio->chip->rst);
++		if (ret)
++			goto err_out_clock;
++	}
+ 
+ 	aio_iecout_set_enable(aio->chip, true);
+ 	aio_chip_init(aio->chip);
+@@ -458,7 +463,7 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 
+ 		ret = aio_init(sub);
+ 		if (ret)
+-			goto err_out_clock;
++			goto err_out_reset;
+ 
+ 		if (!sub->setting)
+ 			continue;
+@@ -466,11 +471,16 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 		aio_port_reset(sub);
+ 		aio_src_reset(sub);
+ 	}
++	aio->chip->num_wup_aios++;
+ 
+ 	return 0;
+ 
++err_out_reset:
++	if (!aio->chip->num_wup_aios)
++		reset_control_assert(aio->chip->rst);
+ err_out_clock:
+-	clk_disable_unprepare(aio->chip->clk);
++	if (!aio->chip->num_wup_aios)
++		clk_disable_unprepare(aio->chip->clk);
+ 
+ 	return ret;
+ }
+@@ -619,6 +629,7 @@ int uniphier_aio_probe(struct platform_device *pdev)
+ 		return PTR_ERR(chip->rst);
+ 
+ 	chip->num_aios = chip->chip_spec->num_dais;
++	chip->num_wup_aios = chip->num_aios;
+ 	chip->aios = devm_kcalloc(dev,
+ 				  chip->num_aios, sizeof(struct uniphier_aio),
+ 				  GFP_KERNEL);
+diff --git a/sound/soc/uniphier/aio.h b/sound/soc/uniphier/aio.h
+index ca6ccbae0ee8c..a7ff7e556429b 100644
+--- a/sound/soc/uniphier/aio.h
++++ b/sound/soc/uniphier/aio.h
+@@ -285,6 +285,7 @@ struct uniphier_aio_chip {
+ 
+ 	struct uniphier_aio *aios;
+ 	int num_aios;
++	int num_wup_aios;
+ 	struct uniphier_aio_pll *plls;
+ 	int num_plls;
+ 
 -- 
 2.20.1
 
