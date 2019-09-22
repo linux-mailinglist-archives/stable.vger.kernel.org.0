@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E94CBA3AE
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E70B9BA3B1
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388641AbfIVSoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:44:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
+        id S2388658AbfIVSoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:44:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388156AbfIVSoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:44:00 -0400
+        id S2388644AbfIVSoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:44:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58B4D20882;
-        Sun, 22 Sep 2019 18:43:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCF64206C2;
+        Sun, 22 Sep 2019 18:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569177839;
-        bh=HlnVsCceNYZyYai/sxKuhEPWoP8UASBPHV6OlRRXLRg=;
+        s=default; t=1569177840;
+        bh=csEuR0I3jvQUqVfdCrUe0yTO9jh+m3SBF9finvCv31s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWoK2FxZmQIBc2O2mzd6MBZmkgFGKG/weUBSl4wr7eyJIBZaaTX+1C5z+Nx43NzVx
-         KSvRjJVs0/rjaS6jxTubtRJU3FyLyfEC6R3Jn+uhSS5P7rqDe2MjKYTvDw7s5DtXEp
-         xB8tRSiI/iNSM0u05DrA4MyQpVAl83AtN4mR6RB8=
+        b=k2W3GRoEERlJAf5c1sAKoR3taARbxfe6NFtHydbbUXykXfK3azWNlginmy/1T2gab
+         a4ARvgX3ET+aYmiY4i15a6QN+IP2K4bl10Q4hb0OkJk6D4IrVKxqQNbtWfEu7c7mrB
+         DInyjzzyMdTYpNi3QSIf6DgfQFAtp5abvqLxEWjk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 007/203] spi: dw-mmio: Clock should be shut when error occurs
-Date:   Sun, 22 Sep 2019 14:40:33 -0400
-Message-Id: <20190922184350.30563-7-sashal@kernel.org>
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        "Andrew F . Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 008/203] ASoC: tlv320aic31xx: suppress error message for EPROBE_DEFER
+Date:   Sun, 22 Sep 2019 14:40:34 -0400
+Message-Id: <20190922184350.30563-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -45,42 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 3da9834d9381dd99273f2ad4e6d096c9187dc4f2 ]
+[ Upstream commit b7e814deae33eb30f8f8c6528e8e69b107978d88 ]
 
-When optional clock requesting fails, the main clock is still up and running,
-we should shut it down in such caee.
+Both the supplies and reset GPIO might need a probe deferral for the
+resource to be available. Don't print a error message in that case, as
+it is a normal operating condition.
 
-Fixes: 560ee7e91009 ("spi: dw: Add support for an optional interface clock")
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Gareth Williams <gareth.williams.jx@renesas.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Gareth Williams <gareth.williams.jx@renesas.com>
-Link: https://lore.kernel.org/r/20190710114243.30101-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20190719143637.2018-1-l.stach@pengutronix.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mmio.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/codecs/tlv320aic31xx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-dw-mmio.c b/drivers/spi/spi-dw-mmio.c
-index 18c06568805e7..86789dbaf5771 100644
---- a/drivers/spi/spi-dw-mmio.c
-+++ b/drivers/spi/spi-dw-mmio.c
-@@ -172,8 +172,10 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
+diff --git a/sound/soc/codecs/tlv320aic31xx.c b/sound/soc/codecs/tlv320aic31xx.c
+index 9b37e98da0db1..26a4f6cd32883 100644
+--- a/sound/soc/codecs/tlv320aic31xx.c
++++ b/sound/soc/codecs/tlv320aic31xx.c
+@@ -1553,7 +1553,8 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
+ 	aic31xx->gpio_reset = devm_gpiod_get_optional(aic31xx->dev, "reset",
+ 						      GPIOD_OUT_LOW);
+ 	if (IS_ERR(aic31xx->gpio_reset)) {
+-		dev_err(aic31xx->dev, "not able to acquire gpio\n");
++		if (PTR_ERR(aic31xx->gpio_reset) != -EPROBE_DEFER)
++			dev_err(aic31xx->dev, "not able to acquire gpio\n");
+ 		return PTR_ERR(aic31xx->gpio_reset);
+ 	}
  
- 	/* Optional clock needed to access the registers */
- 	dwsmmio->pclk = devm_clk_get_optional(&pdev->dev, "pclk");
--	if (IS_ERR(dwsmmio->pclk))
--		return PTR_ERR(dwsmmio->pclk);
-+	if (IS_ERR(dwsmmio->pclk)) {
-+		ret = PTR_ERR(dwsmmio->pclk);
-+		goto out_clk;
-+	}
- 	ret = clk_prepare_enable(dwsmmio->pclk);
- 	if (ret)
- 		goto out_clk;
+@@ -1564,7 +1565,9 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
+ 				      ARRAY_SIZE(aic31xx->supplies),
+ 				      aic31xx->supplies);
+ 	if (ret) {
+-		dev_err(aic31xx->dev, "Failed to request supplies: %d\n", ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(aic31xx->dev,
++				"Failed to request supplies: %d\n", ret);
+ 		return ret;
+ 	}
+ 
 -- 
 2.20.1
 
