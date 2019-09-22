@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E49BA452
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31817BA454
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391278AbfIVSr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44572 "EHLO mail.kernel.org"
+        id S2391326AbfIVSsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:48:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391269AbfIVSr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:57 -0400
+        id S2391301AbfIVSsA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:48:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A6C121BE5;
-        Sun, 22 Sep 2019 18:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D185F214AF;
+        Sun, 22 Sep 2019 18:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178077;
-        bh=L1K4pFSWiGXddrGuntvqMf6aFH0zGkbfckIzZT0ushM=;
+        s=default; t=1569178079;
+        bh=WsyQeQ0LKRlhdI1QG341Q+aStMLnCD6mISC3+nH3hEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUUvrQoufL/fRPFcT7+fvLDJcdyyjuUwiy6RhXPCBri+3/bZzSBjL2fqOPndpXjjh
-         Z3vLPfdHzPHUWgYnqBdHE+lEeRfMDrCD21/HoSXcNbX87FOXFevoQUGL0aImuvzbvs
-         wBn6s6srkied7N6u9A6UF/81fQ9IjWwU6ZoxyliA=
+        b=jytDDgEqfa2iLz+pNYJQjygAWuhsdrLlM49yN8cJ9mpu+LFKw+5gpQi5IxO3Ixb2w
+         A+o4EzXt+A0Jd8NvOqyrV44bkmU4fgPuyhOeYIlcXY50FE2DOruMekFxFuSmUlu9Nv
+         r9s7yENdiZqRfK51ZOTwGFytq/7HGksjJ1MhCH5U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>,
-        Andrew Murray <andrew.murray@arm.com>,
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 148/203] arm64: lse: Make ARM64_LSE_ATOMICS depend on JUMP_LABEL
-Date:   Sun, 22 Sep 2019 14:42:54 -0400
-Message-Id: <20190922184350.30563-148-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 150/203] ASoC: Intel: Haswell: Adjust machine device private context
+Date:   Sun, 22 Sep 2019 14:42:56 -0400
+Message-Id: <20190922184350.30563-150-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,61 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit b32baf91f60fb9c7010bff87e68132f2ce31d9a8 ]
+[ Upstream commit ca964edf0ddbfec2cb10b3d251d09598e7ca9b13 ]
 
-Support for LSE atomic instructions (CONFIG_ARM64_LSE_ATOMICS) relies on
-a static key to select between the legacy LL/SC implementation which is
-available on all arm64 CPUs and the super-duper LSE implementation which
-is available on CPUs implementing v8.1 and later.
+Apart from Haswell machines, all other devices have their private data
+set to snd_soc_acpi_mach instance.
 
-Unfortunately, when building a kernel with CONFIG_JUMP_LABEL disabled
-(e.g. because the toolchain doesn't support 'asm goto'), the static key
-inside the atomics code tries to use atomics itself. This results in a
-mess of circular includes and a build failure:
+Changes for HSW/ BDW boards introduced with series:
+https://patchwork.kernel.org/cover/10782035/
 
-In file included from ./arch/arm64/include/asm/lse.h:11,
-                 from ./arch/arm64/include/asm/atomic.h:16,
-                 from ./include/linux/atomic.h:7,
-                 from ./include/asm-generic/bitops/atomic.h:5,
-                 from ./arch/arm64/include/asm/bitops.h:26,
-                 from ./include/linux/bitops.h:19,
-                 from ./include/linux/kernel.h:12,
-                 from ./include/asm-generic/bug.h:18,
-                 from ./arch/arm64/include/asm/bug.h:26,
-                 from ./include/linux/bug.h:5,
-                 from ./include/linux/page-flags.h:10,
-                 from kernel/bounds.c:10:
-./include/linux/jump_label.h: In function ‘static_key_count’:
-./include/linux/jump_label.h:254:9: error: implicit declaration of function ‘atomic_read’ [-Werror=implicit-function-declaration]
-  return atomic_read(&key->enabled);
-         ^~~~~~~~~~~
+added support for dai_link platform_name adjustments within card probe
+routines. These take for granted private_data points to
+snd_soc_acpi_mach whereas for Haswell, it's sst_pdata instead. Change
+private context of platform_device - representing machine board - to
+address this.
 
-[ ... more of the same ... ]
-
-Since LSE atomic instructions are not critical to the operation of the
-kernel, make them depend on JUMP_LABEL at compile time.
-
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e87055d732e3 ("ASoC: Intel: haswell: platform name fixup support")
+Fixes: 7e40ddcf974a ("ASoC: Intel: bdw-rt5677: platform name fixup support")
+Fixes: 2d067b2807f9 ("ASoC: Intel: broadwell: platform name fixup support")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20190822113616.22702-2-cezary.rojewski@intel.com
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/common/sst-acpi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 3adcec05b1f67..27405ac94228b 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -1263,6 +1263,7 @@ config ARM64_PAN
+diff --git a/sound/soc/intel/common/sst-acpi.c b/sound/soc/intel/common/sst-acpi.c
+index 0e8e0a7a11df3..5854868650b9e 100644
+--- a/sound/soc/intel/common/sst-acpi.c
++++ b/sound/soc/intel/common/sst-acpi.c
+@@ -141,11 +141,12 @@ static int sst_acpi_probe(struct platform_device *pdev)
+ 	}
  
- config ARM64_LSE_ATOMICS
- 	bool "Atomic instructions"
-+	depends on JUMP_LABEL
- 	default y
- 	help
- 	  As part of the Large System Extensions, ARMv8.1 introduces new
+ 	platform_set_drvdata(pdev, sst_acpi);
++	mach->pdata = sst_pdata;
+ 
+ 	/* register machine driver */
+ 	sst_acpi->pdev_mach =
+ 		platform_device_register_data(dev, mach->drv_name, -1,
+-					      sst_pdata, sizeof(*sst_pdata));
++					      mach, sizeof(*mach));
+ 	if (IS_ERR(sst_acpi->pdev_mach))
+ 		return PTR_ERR(sst_acpi->pdev_mach);
+ 
 -- 
 2.20.1
 
