@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5084BA44A
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D934BA44C
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391099AbfIVSrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:47:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
+        id S2391116AbfIVSrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391090AbfIVSrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:41 -0400
+        id S2391097AbfIVSrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD27D2186A;
-        Sun, 22 Sep 2019 18:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C36B21907;
+        Sun, 22 Sep 2019 18:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178060;
-        bh=ulMTkWJfiEqWgPk5C5vp6qg69ZA6Dm1K3OpYYqcV01o=;
+        s=default; t=1569178062;
+        bh=CguQhBGjD/VMo7E6gLNngt9pIJo06htO8RE80jx/QE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKJDPtva8wDMQPND42pSTsXL+rEUHK1o5HXENi2ak8ylF7ZcQoDr3Jzd9QR1nAc+6
-         mQF9thTMe7Wdwshn5vxZUc2ZIaTZ6YfWlI7qrjYMTQQXM8AlT5PCaeIeRc/NrbgtnJ
-         xYaeLyfMy4wYdw0A/22uRH8EM+0Pm1lDixnxr1N0=
+        b=bpKbgzt3vnk8vq7LM6DzNRKNgRMxWK92256XcwFc04MWxbmr0mZ2HFfq+9tZgPmks
+         WJnkgc75jtsDHGVKE0gwauroYoHYJmaRnTPmL9CmLHpGOCXAyCvCHvEovBV8+ET4bN
+         Zkm+o+b6dQeh+Q1ntd1dw4CNRgdsXjVLx5qHBJj0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 136/203] arm64: dts: meson: fix boards regulators states format
-Date:   Sun, 22 Sep 2019 14:42:42 -0400
-Message-Id: <20190922184350.30563-136-sashal@kernel.org>
+Cc:     Neil Horman <nhorman@tuxdriver.com>, djuran@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 137/203] x86/apic/vector: Warn when vector space exhaustion breaks affinity
+Date:   Sun, 22 Sep 2019 14:42:43 -0400
+Message-Id: <20190922184350.30563-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -45,129 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Neil Horman <nhorman@tuxdriver.com>
 
-[ Upstream commit f9717178b9be9477877d4c3776c61ff56d854ddf ]
+[ Upstream commit 743dac494d61d991967ebcfab92e4f80dc7583b3 ]
 
-This fixes the following DT schemas check errors:
-meson-gxbb-odroidc2.dt.yaml: gpio-regulator-tf_io: states:0: Additional items are not allowed (1800000, 1 were unexpected)
-meson-gxbb-odroidc2.dt.yaml: gpio-regulator-tf_io: states:0: [3300000, 0, 1800000, 1] is too long
-meson-gxbb-nexbox-a95x.dt.yaml: gpio-regulator: states:0: Additional items are not allowed (3300000, 1 were unexpected)
-meson-gxbb-nexbox-a95x.dt.yaml: gpio-regulator: states:0: [1800000, 0, 3300000, 1] is too long
-meson-gxbb-p200.dt.yaml: gpio-regulator: states:0: Additional items are not allowed (3300000, 1 were unexpected)
-meson-gxbb-p200.dt.yaml: gpio-regulator: states:0: [1800000, 0, 3300000, 1] is too long
-meson-gxl-s905x-hwacom-amazetv.dt.yaml: gpio-regulator: states:0: Additional items are not allowed (3300000, 1 were unexpected)
-meson-gxl-s905x-hwacom-amazetv.dt.yaml: gpio-regulator: states:0: [1800000, 0, 3300000, 1] is too long
-meson-gxbb-p201.dt.yaml: gpio-regulator: states:0: Additional items are not allowed (3300000, 1 were unexpected)
-meson-gxbb-p201.dt.yaml: gpio-regulator: states:0: [1800000, 0, 3300000, 1] is too long
-meson-g12b-odroid-n2.dt.yaml: gpio-regulator-tf_io: states:0: Additional items are not allowed (1800000, 1 were unexpected)
-meson-g12b-odroid-n2.dt.yaml: gpio-regulator-tf_io: states:0: [3300000, 0, 1800000, 1] is too long
-meson-gxl-s905x-nexbox-a95x.dt.yaml: gpio-regulator: states:0: Additional items are not allowed (3300000, 1 were unexpected)
-meson-gxl-s905x-nexbox-a95x.dt.yaml: gpio-regulator: states:0: [1800000, 0, 3300000, 1] is too long
+On x86, CPUs are limited in the number of interrupts they can have affined
+to them as they only support 256 interrupt vectors per CPU. 32 vectors are
+reserved for the CPU and the kernel reserves another 22 for internal
+purposes. That leaves 202 vectors for assignement to devices.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+When an interrupt is set up or the affinity is changed by the kernel or the
+administrator, the vector assignment code attempts to honor the requested
+affinity mask. If the vector space on the CPUs in that affinity mask is
+exhausted the code falls back to a wider set of CPUs and assigns a vector
+on a CPU outside of the requested affinity mask silently.
+
+While the effective affinity is reflected in the corresponding
+/proc/irq/$N/effective_affinity* files the silent breakage of the requested
+affinity can lead to unexpected behaviour for administrators.
+
+Add a pr_warn() when this happens so that adminstrators get at least
+informed about it in the syslog.
+
+[ tglx: Massaged changelog and made the pr_warn() more informative ]
+
+Reported-by: djuran@redhat.com
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: djuran@redhat.com
+Link: https://lkml.kernel.org/r/20190822143421.9535-1-nhorman@tuxdriver.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dts          | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dts        | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts           | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-gxbb-p20x.dtsi              | 4 ++--
- .../arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dts | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dts   | 4 ++--
- 6 files changed, 12 insertions(+), 12 deletions(-)
+ arch/x86/kernel/apic/vector.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dts b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dts
-index 4e916e1f71f76..1c2a9ca491c02 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dts
-@@ -66,8 +66,8 @@
- 		gpios = <&gpio_ao GPIOAO_9 GPIO_ACTIVE_HIGH>;
- 		gpios-states = <0>;
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index fdacb864c3dd4..2c5676b0a6e7f 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -398,6 +398,17 @@ static int activate_reserved(struct irq_data *irqd)
+ 		if (!irqd_can_reserve(irqd))
+ 			apicd->can_reserve = false;
+ 	}
++
++	/*
++	 * Check to ensure that the effective affinity mask is a subset
++	 * the user supplied affinity mask, and warn the user if it is not
++	 */
++	if (!cpumask_subset(irq_data_get_effective_affinity_mask(irqd),
++			    irq_data_get_affinity_mask(irqd))) {
++		pr_warn("irq %u: Affinity broken due to vector space exhaustion.\n",
++			irqd->irq);
++	}
++
+ 	return ret;
+ }
  
--		states = <3300000 0
--			  1800000 1>;
-+		states = <3300000 0>,
-+			 <1800000 1>;
- 	};
- 
- 	flash_1v8: regulator-flash_1v8 {
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dts
-index b636912a27157..afcf8a9f667b9 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dts
-@@ -75,8 +75,8 @@
- 		gpios-states = <1>;
- 
- 		/* Based on P200 schematics, signal CARD_1.8V/3.3V_CTR */
--		states = <1800000 0
--			  3300000 1>;
-+		states = <1800000 0>,
-+			 <3300000 1>;
- 	};
- 
- 	vddio_boot: regulator-vddio_boot {
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
-index 9972b1515da61..6039adda12eec 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
-@@ -77,8 +77,8 @@
- 		gpios = <&gpio_ao GPIOAO_3 GPIO_ACTIVE_HIGH>;
- 		gpios-states = <0>;
- 
--		states = <3300000 0
--			  1800000 1>;
-+		states = <3300000 0>,
-+			 <1800000 1>;
- 	};
- 
- 	vcc1v8: regulator-vcc1v8 {
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-p20x.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxbb-p20x.dtsi
-index e8f925871edfc..89f7b41b0e9ef 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-p20x.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-p20x.dtsi
-@@ -46,8 +46,8 @@
- 		gpios-states = <1>;
- 
- 		/* Based on P200 schematics, signal CARD_1.8V/3.3V_CTR */
--		states = <1800000 0
--			  3300000 1>;
-+		states = <1800000 0>,
-+			 <3300000 1>;
- 
- 		regulator-settling-time-up-us = <10000>;
- 		regulator-settling-time-down-us = <150000>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dts
-index 796baea7a0bfb..c8d74e61dec18 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dts
-@@ -38,8 +38,8 @@
- 		gpios-states = <1>;
- 
- 		/* Based on P200 schematics, signal CARD_1.8V/3.3V_CTR */
--		states = <1800000 0
--			  3300000 1>;
-+		states = <1800000 0>,
-+			 <3300000 1>;
- 	};
- 
- 	vddio_boot: regulator-vddio_boot {
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dts
-index 26907ac829301..c433a031841f6 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dts
-@@ -38,8 +38,8 @@
- 		gpios-states = <1>;
- 
- 		/* Based on P200 schematics, signal CARD_1.8V/3.3V_CTR */
--		states = <1800000 0
--			  3300000 1>;
-+		states = <1800000 0>,
-+			 <3300000 1>;
- 	};
- 
- 	vddio_boot: regulator-vddio_boot {
 -- 
 2.20.1
 
