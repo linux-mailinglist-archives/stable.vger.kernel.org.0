@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04683BA860
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88449BA857
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729655AbfIVTCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:02:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38538 "EHLO mail.kernel.org"
+        id S2439102AbfIVTCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439087AbfIVTCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:02:10 -0400
+        id S2439092AbfIVTCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:02:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B253214D9;
-        Sun, 22 Sep 2019 19:02:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8638F2184D;
+        Sun, 22 Sep 2019 19:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178929;
-        bh=xpL+Zktkj4FG1ObP8MvGMpsubfq7xDXJQA7h+p6dJUA=;
+        s=default; t=1569178931;
+        bh=agcK21fovO8R8OBGihJ+5fxidtN3+4UA9+YgcXgx4gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhgpDvi21RaECpdG2JcyDJOUI9aLxb31gAG6kbSbdmeprYJs6JakCak7XkTlHbpgx
-         2cFDNa5PMv9JqKNo48i1NAMTrMGBD3xzoJ5eIjAR4Kv9N1oel8prlUF0YkLng7DFNe
-         44MW3km3uFiot4M+x1LTudsaQnetnPDkS79mUBU8=
+        b=obCfffMojCyCvi8RWh6hRzRZd50k4xIvv1Io7Jd9wTavz2m9UafdeMVMoD/kmF4Bn
+         e/cf7qfwOIomBKAwyuoPv8klGsuYrJbyYr17XTJIHnSiPBRE4OedMFZTQuo85RusGB
+         tgnKjlYxJJ6gzabCCoPEfgKtX89nV3L1VOXWwLj4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 42/44] media: ttusb-dec: Fix info-leak in ttusb_dec_send_command()
-Date:   Sun, 22 Sep 2019 15:01:00 -0400
-Message-Id: <20190922190103.4906-42-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 43/44] ALSA: hda/realtek - Blacklist PC beep for Lenovo ThinkCentre M73/93
+Date:   Sun, 22 Sep 2019 15:01:01 -0400
+Message-Id: <20190922190103.4906-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -45,37 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a10feaf8c464c3f9cfdd3a8a7ce17e1c0d498da1 ]
+[ Upstream commit 051c78af14fcd74a22b5af45548ad9d588247cc7 ]
 
-The function at issue does not always initialize each byte allocated
-for 'b' and can therefore leak uninitialized memory to a USB device in
-the call to usb_bulk_msg()
+Lenovo ThinkCentre M73 and M93 don't seem to have a proper beep
+although the driver tries to probe and set up blindly.
+Blacklist these machines for suppressing the beep creation.
 
-Use kzalloc() instead of kmalloc()
-
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204635
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/ttusb-dec/ttusb_dec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/ttusb-dec/ttusb_dec.c b/drivers/media/usb/ttusb-dec/ttusb_dec.c
-index a5de46f04247f..f9b5de7ace01c 100644
---- a/drivers/media/usb/ttusb-dec/ttusb_dec.c
-+++ b/drivers/media/usb/ttusb-dec/ttusb_dec.c
-@@ -272,7 +272,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
- 
- 	dprintk("%s\n", __func__);
- 
--	b = kmalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
-+	b = kzalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
- 	if (!b)
- 		return -ENOMEM;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index d5ca16048ce0d..55bae9e6de27d 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -977,6 +977,9 @@ static const struct snd_pci_quirk beep_white_list[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "EeePC", 1),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "GA-MA790X", 1),
+ 	SND_PCI_QUIRK(0x8086, 0xd613, "Intel", 1),
++	/* blacklist -- no beep available */
++	SND_PCI_QUIRK(0x17aa, 0x309e, "Lenovo ThinkCentre M73", 0),
++	SND_PCI_QUIRK(0x17aa, 0x30a3, "Lenovo ThinkCentre M93", 0),
+ 	{}
+ };
  
 -- 
 2.20.1
