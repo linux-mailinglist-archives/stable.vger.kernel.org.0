@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9987BA4E6
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1E4BA4EA
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 20:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407920AbfIVSwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:52:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
+        id S2393171AbfIVSwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:52:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407976AbfIVSwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:52:45 -0400
+        id S2389121AbfIVSww (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:52:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ABC621479;
-        Sun, 22 Sep 2019 18:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DC5D208C2;
+        Sun, 22 Sep 2019 18:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178364;
-        bh=EMm/DFERg7gGpc6ZK4Hzzr9d6eNec1wYcIFHfvS9e2M=;
+        s=default; t=1569178372;
+        bh=0NklFi5BNWNDgAY2+lWD5jgqXv5IH1+D0pno6Bub/tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WI73Y6GW5wxjpyISInId4Qop9xa1IzO9Cmg0eqG9YwctehApNSF70LvU+G7jP0qsa
-         2qxi1lp0VUyTN48j9ABzJH1vWO0b9uK2jM/ahXplJ47M5XyEfBSALgdFe+49UCK/0U
-         kopkt8U9byzvLBkU9G6/12hGUJq8I83/i7koZwPo=
+        b=W7JqdPLzKpTVka0f99+QbZxyF2/9CREx24zd8JgGyPrTctJwftYhH4UPfJtPVpc7g
+         m1iOUJw85dUN0guUO7LSpS0IY1cgSqMrFUAADxMhnWc8VF2mOMvT/KqYESpBmQ/byd
+         1nqzpPAluQovoipn6vQMImlk/y/+AIj3bbYj+ZRg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 117/185] perf report: Fix --ns time sort key output
-Date:   Sun, 22 Sep 2019 14:48:15 -0400
-Message-Id: <20190922184924.32534-117-sashal@kernel.org>
+Cc:     Katsuhiro Suzuki <katsuhiro@katsuster.net>,
+        Daniel Drake <drake@endlessm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 122/185] ASoC: es8316: fix headphone mixer volume table
+Date:   Sun, 22 Sep 2019 14:48:20 -0400
+Message-Id: <20190922184924.32534-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
 References: <20190922184924.32534-1-sashal@kernel.org>
@@ -43,62 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andi Kleen <ak@linux.intel.com>
+From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
 
-[ Upstream commit 3dab6ac080dcd7f71cb9ceb84ad7dafecd6f7c07 ]
+[ Upstream commit f972d02fee2496024cfd6f59021c9d89d54922a6 ]
 
-If the user specified --ns, the column to print the sort time stamp
-wasn't wide enough to actually print the full nanoseconds.
+This patch fix setting table of Headphone mixer volume.
+Current code uses 4 ... 7 values but these values are prohibited.
 
-Widen the time key column width when --ns is specified.
+Correct settings are the following:
+  0000 -12dB
+  0001 -10.5dB
+  0010 -9dB
+  0011 -7.5dB
+  0100 -6dB
+  1000 -4.5dB
+  1001 -3dB
+  1010 -1.5dB
+  1011 0dB
 
-Before:
-
-  % perf record -a sleep 1
-  % perf report --sort time,overhead,symbol --stdio --ns
-  ...
-       2.39%  187851.10000  [k] smp_call_function_single   -      -
-       1.53%  187851.10000  [k] intel_idle                 -      -
-       0.59%  187851.10000  [.] __wcscmp_ifunc             -      -
-       0.33%  187851.10000  [.] 0000000000000000           -      -
-       0.28%  187851.10000  [k] cpuidle_enter_state        -      -
-
-After:
-
-  % perf report --sort time,overhead,symbol --stdio --ns
-  ...
-       2.39%  187851.100000000  [k] smp_call_function_single   -      -
-       1.53%  187851.100000000  [k] intel_idle                 -      -
-       0.59%  187851.100000000  [.] __wcscmp_ifunc             -      -
-       0.33%  187851.100000000  [.] 0000000000000000           -      -
-       0.28%  187851.100000000  [k] cpuidle_enter_state        -      -
-
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: http://lkml.kernel.org/r/20190823210338.12360-2-andi@firstfloor.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+Reviewed-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/r/20190826153900.25969-1-katsuhiro@katsuster.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/hist.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/codecs/es8316.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/hist.c b/tools/perf/util/hist.c
-index 7ace7a10054d8..966c248d6a3a1 100644
---- a/tools/perf/util/hist.c
-+++ b/tools/perf/util/hist.c
-@@ -193,7 +193,10 @@ void hists__calc_col_len(struct hists *hists, struct hist_entry *h)
- 	hists__new_col_len(hists, HISTC_MEM_LVL, 21 + 3);
- 	hists__new_col_len(hists, HISTC_LOCAL_WEIGHT, 12);
- 	hists__new_col_len(hists, HISTC_GLOBAL_WEIGHT, 12);
--	hists__new_col_len(hists, HISTC_TIME, 12);
-+	if (symbol_conf.nanosecs)
-+		hists__new_col_len(hists, HISTC_TIME, 16);
-+	else
-+		hists__new_col_len(hists, HISTC_TIME, 12);
+diff --git a/sound/soc/codecs/es8316.c b/sound/soc/codecs/es8316.c
+index 6db002cc20582..96d04896193f2 100644
+--- a/sound/soc/codecs/es8316.c
++++ b/sound/soc/codecs/es8316.c
+@@ -51,7 +51,10 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(adc_vol_tlv, -9600, 50, 1);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_max_gain_tlv, -650, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_min_gain_tlv, -1200, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_target_tlv, -1650, 150, 0);
+-static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(hpmixer_gain_tlv, -1200, 150, 0);
++static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(hpmixer_gain_tlv,
++	0, 4, TLV_DB_SCALE_ITEM(-1200, 150, 0),
++	8, 11, TLV_DB_SCALE_ITEM(-450, 150, 0),
++);
  
- 	if (h->srcline) {
- 		len = MAX(strlen(h->srcline), strlen(sort_srcline.se_header));
+ static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(adc_pga_gain_tlv,
+ 	0, 0, TLV_DB_SCALE_ITEM(-350, 0, 0),
+@@ -89,7 +92,7 @@ static const struct snd_kcontrol_new es8316_snd_controls[] = {
+ 	SOC_DOUBLE_TLV("Headphone Playback Volume", ES8316_CPHP_ICAL_VOL,
+ 		       4, 0, 3, 1, hpout_vol_tlv),
+ 	SOC_DOUBLE_TLV("Headphone Mixer Volume", ES8316_HPMIX_VOL,
+-		       0, 4, 7, 0, hpmixer_gain_tlv),
++		       0, 4, 11, 0, hpmixer_gain_tlv),
+ 
+ 	SOC_ENUM("Playback Polarity", dacpol),
+ 	SOC_DOUBLE_R_TLV("DAC Playback Volume", ES8316_DAC_VOLL,
 -- 
 2.20.1
 
