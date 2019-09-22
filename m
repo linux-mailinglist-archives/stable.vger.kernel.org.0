@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B475FBA701
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73339BA705
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408053AbfIVSzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:55:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56198 "EHLO mail.kernel.org"
+        id S2408101AbfIVSzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408072AbfIVSzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:55:12 -0400
+        id S2408097AbfIVSzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63E39208C2;
-        Sun, 22 Sep 2019 18:55:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71AB321479;
+        Sun, 22 Sep 2019 18:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178511;
-        bh=vpb3RdfOJRrO7WE5fuKy6/hyWAMQx4pHWPaGXtcDL2M=;
+        s=default; t=1569178521;
+        bh=btn0rffe8Z/PwnT6eyxhGR75HhWAf/0nvsrDLZM3g+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjsVA//uoBB7comOImeWKnbQ5LyWXUgLONDDwOblOZpSFbsqNU93/f43l2dstg4hk
-         x68QbxoLHdgRLcX3+oHIwvhm9m9cv1t+79xXbUdkHhZW613mbPFlmdtMuoe6Pv3ts+
-         b+5hnNXCP4Cr9cxwvycZCwk//5D7Hhh7RfdSxIk8=
+        b=oPAgeW0ukGTrhIRcsfhyD0RIZdpI8c1I6A/x9cbWbHHH5unww36W+qnPlsJQQZVoa
+         4N177p9wyBXzq9NtRHaiJ0auz2qe0CGfYoK2WcBvEDAljsajaGJngb9MHjxtsl9mzC
+         Ee7dcKEvX9ZXpcH5v9nj3jiTRrviaN6qewf+motk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 042/128] idle: Prevent late-arriving interrupts from disrupting offline
-Date:   Sun, 22 Sep 2019 14:52:52 -0400
-Message-Id: <20190922185418.2158-42-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 047/128] media: fdp1: Reduce FCP not found message level to debug
+Date:   Sun, 22 Sep 2019 14:52:57 -0400
+Message-Id: <20190922185418.2158-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -46,109 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit e78a7614f3876ac649b3df608789cb6ef74d0480 ]
+[ Upstream commit 4fd22938569c14f6092c05880ca387409d78355f ]
 
-Scheduling-clock interrupts can arrive late in the CPU-offline process,
-after idle entry and the subsequent call to cpuhp_report_idle_dead().
-Once execution passes the call to rcu_report_dead(), RCU is ignoring
-the CPU, which results in lockdep complaints when the interrupt handler
-uses RCU:
+When support for the IPMMU is not enabled, the FDP driver may be
+probe-deferred multiple times, causing several messages to be printed
+like:
 
-------------------------------------------------------------------------
+    rcar_fdp1 fe940000.fdp1: FCP not found (-517)
+    rcar_fdp1 fe944000.fdp1: FCP not found (-517)
 
-=============================
-WARNING: suspicious RCU usage
-5.2.0-rc1+ #681 Not tainted
------------------------------
-kernel/sched/fair.c:9542 suspicious rcu_dereference_check() usage!
+Fix this by reducing the message level to debug level, as is done in the
+VSP1 driver.
 
-other info that might help us debug this:
-
-RCU used illegally from offline CPU!
-rcu_scheduler_active = 2, debug_locks = 1
-no locks held by swapper/5/0.
-
-stack backtrace:
-CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.2.0-rc1+ #681
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS Bochs 01/01/2011
-Call Trace:
- <IRQ>
- dump_stack+0x5e/0x8b
- trigger_load_balance+0xa8/0x390
- ? tick_sched_do_timer+0x60/0x60
- update_process_times+0x3b/0x50
- tick_sched_handle+0x2f/0x40
- tick_sched_timer+0x32/0x70
- __hrtimer_run_queues+0xd3/0x3b0
- hrtimer_interrupt+0x11d/0x270
- ? sched_clock_local+0xc/0x74
- smp_apic_timer_interrupt+0x79/0x200
- apic_timer_interrupt+0xf/0x20
- </IRQ>
-RIP: 0010:delay_tsc+0x22/0x50
-Code: ff 0f 1f 80 00 00 00 00 65 44 8b 05 18 a7 11 48 0f ae e8 0f 31 48 89 d6 48 c1 e6 20 48 09 c6 eb 0e f3 90 65 8b 05 fe a6 11 48 <41> 39 c0 75 18 0f ae e8 0f 31 48 c1 e2 20 48 09 c2 48 89 d0 48 29
-RSP: 0000:ffff8f92c0157ed0 EFLAGS: 00000212 ORIG_RAX: ffffffffffffff13
-RAX: 0000000000000005 RBX: ffff8c861f356400 RCX: ffff8f92c0157e64
-RDX: 000000321214c8cc RSI: 00000032120daa7f RDI: 0000000000260f15
-RBP: 0000000000000005 R08: 0000000000000005 R09: 0000000000000000
-R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
-R13: 0000000000000000 R14: ffff8c861ee18000 R15: ffff8c861ee18000
- cpuhp_report_idle_dead+0x31/0x60
- do_idle+0x1d5/0x200
- ? _raw_spin_unlock_irqrestore+0x2d/0x40
- cpu_startup_entry+0x14/0x20
- start_secondary+0x151/0x170
- secondary_startup_64+0xa4/0xb0
-
-------------------------------------------------------------------------
-
-This happens rarely, but can be forced by happen more often by
-placing delays in cpuhp_report_idle_dead() following the call to
-rcu_report_dead().  With this in place, the following rcutorture
-scenario reproduces the problem within a few minutes:
-
-tools/testing/selftests/rcutorture/bin/kvm.sh --cpus 8 --duration 5 --kconfig "CONFIG_DEBUG_LOCK_ALLOC=y CONFIG_PROVE_LOCKING=y" --configs "TREE04"
-
-This commit uses the crude but effective expedient of moving the disabling
-of interrupts within the idle loop to precede the cpu_is_offline()
-check.  It also invokes tick_nohz_idle_stop_tick() instead of
-tick_nohz_idle_stop_tick_protected() to shut off the scheduling-clock
-interrupt.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-[ paulmck: Revert tick_nohz_idle_stop_tick_protected() removal, new callers. ]
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Fixes: 4710b752e029f3f8 ("[media] v4l: Add Renesas R-Car FDP1 Driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/idle.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/platform/rcar_fdp1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
-index 16f84142f2f49..44a17366c8ec2 100644
---- a/kernel/sched/idle.c
-+++ b/kernel/sched/idle.c
-@@ -240,13 +240,14 @@ static void do_idle(void)
- 		check_pgt_cache();
- 		rmb();
- 
-+		local_irq_disable();
-+
- 		if (cpu_is_offline(cpu)) {
--			tick_nohz_idle_stop_tick_protected();
-+			tick_nohz_idle_stop_tick();
- 			cpuhp_report_idle_dead();
- 			arch_cpu_idle_dead();
+diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
+index 0d14670288113..5a30f1d84fe17 100644
+--- a/drivers/media/platform/rcar_fdp1.c
++++ b/drivers/media/platform/rcar_fdp1.c
+@@ -2306,7 +2306,7 @@ static int fdp1_probe(struct platform_device *pdev)
+ 		fdp1->fcp = rcar_fcp_get(fcp_node);
+ 		of_node_put(fcp_node);
+ 		if (IS_ERR(fdp1->fcp)) {
+-			dev_err(&pdev->dev, "FCP not found (%ld)\n",
++			dev_dbg(&pdev->dev, "FCP not found (%ld)\n",
+ 				PTR_ERR(fdp1->fcp));
+ 			return PTR_ERR(fdp1->fcp);
  		}
- 
--		local_irq_disable();
- 		arch_cpu_idle_enter();
- 
- 		/*
 -- 
 2.20.1
 
