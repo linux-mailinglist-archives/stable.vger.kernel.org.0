@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C41BAB16
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AD4ABAB14
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389953AbfIVTe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:34:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43642 "EHLO mail.kernel.org"
+        id S2438749AbfIVTeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:34:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390651AbfIVSrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:16 -0400
+        id S2390667AbfIVSrR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0E6A206C2;
-        Sun, 22 Sep 2019 18:47:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD486214AF;
+        Sun, 22 Sep 2019 18:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178035;
-        bh=9fwelzb4gaRs6F+woif6HxRJvfWAzWKdIXQYj+jKX5Q=;
+        s=default; t=1569178036;
+        bh=WytRyuAeD8r+lZci6Ro91yBin+ytXB3SZAzTOmA8unM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veLR5Ifywi920t57Y9UCqkKs4lpiVrQpIBSz+Af+656YsuL/+kXKyEEX/Nq0QfXcr
-         qZFUwLFarW8oRQVmrd01n/qbyonej3AXh5QfpuIkKAdyansq8gvlaZU06+3jFQ8Vex
-         ScZ4RiIfSRqkoSJd6Sg3n6NakNgAK6w35KbT75rE=
+        b=Ge1NLffjaNETjZ3E4pd1Xy8xagRJf1BHqPZwgOhCE2LDHC0A/fanLZt5AnH0ZrVLX
+         6MpxSz59rlMN/Gz7YrNRE6eZ7xfHB+OEbRBm8IDwYUW+rsQqaTicfp30i+TStt+vXY
+         F6+7sj+OXFJQWPjBXjT68TTTCmCSWE3niGswWLTQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 116/203] ARM: at91: move platform-specific asm-offset.h to arch/arm/mach-at91
-Date:   Sun, 22 Sep 2019 14:42:22 -0400
-Message-Id: <20190922184350.30563-116-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 117/203] soc: renesas: rmobile-sysc: Set GENPD_FLAG_ALWAYS_ON for always-on domain
+Date:   Sun, 22 Sep 2019 14:42:23 -0400
+Message-Id: <20190922184350.30563-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,90 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 9fac85a6db8999922f2cd92dfe2e83e063b31a94 ]
+[ Upstream commit af0bc634728c0bc6a3f66f911f227d5c6396db88 ]
 
-<generated/at91_pm_data-offsets.h> is only generated and included by
-arch/arm/mach-at91/, so it does not need to reside in the globally
-visible include/generated/.
+Currently the R-Mobile "always-on" PM Domain is implemented by returning
+-EBUSY from the generic_pm_domain.power_off() callback, and doing
+nothing in the generic_pm_domain.power_on() callback.  However, this
+means the PM Domain core code is not aware of the semantics of this
+special domain, leading to boot warnings like the following on
+SH/R-Mobile SoCs:
 
-I renamed it to arch/arm/mach-at91/pm_data-offsets.h since the prefix
-'at91_' is just redundant in mach-at91/.
+    sh_cmt e6130000.timer: PM domain c5 will not be powered off
 
-My main motivation of this change is to avoid the race condition for
-the parallel build (-j) when CONFIG_IKHEADERS is enabled.
+Fix this by making the always-on nature of the domain explicit instead,
+by setting the GENPD_FLAG_ALWAYS_ON flag.  This removes the need for the
+domain to provide power control callbacks.
 
-When it is enabled, all the headers under include/ are archived into
-kernel/kheaders_data.tar.xz and exposed in the sysfs.
-
-In the parallel build, we have no idea in which order files are built.
-
- - If at91_pm_data-offsets.h is built before kheaders_data.tar.xz,
-   the header will be included in the archive. Probably nobody will
-   use it, but it is harmless except that it will increase the archive
-   size needlessly.
-
- - If kheaders_data.tar.xz is built before at91_pm_data-offsets.h,
-   the header will not be included in the archive. However, in the next
-   build, the archive will be re-generated to include the newly-found
-   at91_pm_data-offsets.h. This is not nice from the build system point
-   of view.
-
- - If at91_pm_data-offsets.h and kheaders_data.tar.xz are built at the
-   same time, the corrupted header might be included in the archive,
-   which does not look nice either.
-
-This commit fixes the race.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lore.kernel.org/r/20190823024346.591-1-yamada.masahiro@socionext.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/.gitignore   | 1 +
- arch/arm/mach-at91/Makefile     | 5 +++--
- arch/arm/mach-at91/pm_suspend.S | 2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
- create mode 100644 arch/arm/mach-at91/.gitignore
+ drivers/soc/renesas/rmobile-sysc.c | 31 +++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm/mach-at91/.gitignore b/arch/arm/mach-at91/.gitignore
-new file mode 100644
-index 0000000000000..2ecd6f51c8a95
---- /dev/null
-+++ b/arch/arm/mach-at91/.gitignore
-@@ -0,0 +1 @@
-+pm_data-offsets.h
-diff --git a/arch/arm/mach-at91/Makefile b/arch/arm/mach-at91/Makefile
-index 31b61f0e1c077..de64301dcff25 100644
---- a/arch/arm/mach-at91/Makefile
-+++ b/arch/arm/mach-at91/Makefile
-@@ -19,9 +19,10 @@ ifeq ($(CONFIG_PM_DEBUG),y)
- CFLAGS_pm.o += -DDEBUG
- endif
+diff --git a/drivers/soc/renesas/rmobile-sysc.c b/drivers/soc/renesas/rmobile-sysc.c
+index 421ae1c887d82..54b616ad4a62a 100644
+--- a/drivers/soc/renesas/rmobile-sysc.c
++++ b/drivers/soc/renesas/rmobile-sysc.c
+@@ -48,12 +48,8 @@ struct rmobile_pm_domain *to_rmobile_pd(struct generic_pm_domain *d)
+ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
+ {
+ 	struct rmobile_pm_domain *rmobile_pd = to_rmobile_pd(genpd);
+-	unsigned int mask;
++	unsigned int mask = BIT(rmobile_pd->bit_shift);
  
--include/generated/at91_pm_data-offsets.h: arch/arm/mach-at91/pm_data-offsets.s FORCE
-+$(obj)/pm_data-offsets.h: $(obj)/pm_data-offsets.s FORCE
- 	$(call filechk,offsets,__PM_DATA_OFFSETS_H__)
+-	if (rmobile_pd->bit_shift == ~0)
+-		return -EBUSY;
+-
+-	mask = BIT(rmobile_pd->bit_shift);
+ 	if (rmobile_pd->suspend) {
+ 		int ret = rmobile_pd->suspend();
  
--arch/arm/mach-at91/pm_suspend.o: include/generated/at91_pm_data-offsets.h
-+$(obj)/pm_suspend.o: $(obj)/pm_data-offsets.h
+@@ -80,14 +76,10 @@ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
  
- targets += pm_data-offsets.s
-+clean-files += pm_data-offsets.h
-diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
-index c751f047b1166..ed57c879d4e17 100644
---- a/arch/arm/mach-at91/pm_suspend.S
-+++ b/arch/arm/mach-at91/pm_suspend.S
-@@ -10,7 +10,7 @@
- #include <linux/linkage.h>
- #include <linux/clk/at91_pmc.h>
- #include "pm.h"
--#include "generated/at91_pm_data-offsets.h"
-+#include "pm_data-offsets.h"
+ static int __rmobile_pd_power_up(struct rmobile_pm_domain *rmobile_pd)
+ {
+-	unsigned int mask;
++	unsigned int mask = BIT(rmobile_pd->bit_shift);
+ 	unsigned int retry_count;
+ 	int ret = 0;
  
- #define	SRAMC_SELF_FRESH_ACTIVE		0x01
- #define	SRAMC_SELF_FRESH_EXIT		0x00
+-	if (rmobile_pd->bit_shift == ~0)
+-		return 0;
+-
+-	mask = BIT(rmobile_pd->bit_shift);
+ 	if (__raw_readl(rmobile_pd->base + PSTR) & mask)
+ 		return ret;
+ 
+@@ -122,11 +114,15 @@ static void rmobile_init_pm_domain(struct rmobile_pm_domain *rmobile_pd)
+ 	struct dev_power_governor *gov = rmobile_pd->gov;
+ 
+ 	genpd->flags |= GENPD_FLAG_PM_CLK | GENPD_FLAG_ACTIVE_WAKEUP;
+-	genpd->power_off		= rmobile_pd_power_down;
+-	genpd->power_on			= rmobile_pd_power_up;
+-	genpd->attach_dev		= cpg_mstp_attach_dev;
+-	genpd->detach_dev		= cpg_mstp_detach_dev;
+-	__rmobile_pd_power_up(rmobile_pd);
++	genpd->attach_dev = cpg_mstp_attach_dev;
++	genpd->detach_dev = cpg_mstp_detach_dev;
++
++	if (!(genpd->flags & GENPD_FLAG_ALWAYS_ON)) {
++		genpd->power_off = rmobile_pd_power_down;
++		genpd->power_on = rmobile_pd_power_up;
++		__rmobile_pd_power_up(rmobile_pd);
++	}
++
+ 	pm_genpd_init(genpd, gov ? : &simple_qos_governor, false);
+ }
+ 
+@@ -270,6 +266,11 @@ static void __init rmobile_setup_pm_domain(struct device_node *np,
+ 		break;
+ 
+ 	case PD_NORMAL:
++		if (pd->bit_shift == ~0) {
++			/* Top-level always-on domain */
++			pr_debug("PM domain %s is always-on domain\n", name);
++			pd->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
++		}
+ 		break;
+ 	}
+ 
 -- 
 2.20.1
 
