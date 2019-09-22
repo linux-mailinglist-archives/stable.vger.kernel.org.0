@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80DEDBA64A
+	by mail.lfdr.de (Postfix) with ESMTP id EA4B4BA64B
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391945AbfIVStC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:49:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
+        id S2392004AbfIVStF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:49:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388633AbfIVStB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:49:01 -0400
+        id S2391982AbfIVStE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:49:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58F021479;
-        Sun, 22 Sep 2019 18:48:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2CBC21479;
+        Sun, 22 Sep 2019 18:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178140;
-        bh=Q08OWC47QjTSZ3AcIhY2hiw8/byQe913VO0iicauhN8=;
+        s=default; t=1569178143;
+        bh=BO2CMp99KgEKir43vyYmY/h5UcVrkGaXXS/emvzKtOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOcbHgyNG8WIFHS8fjeYUkaFexQFSMO3+WndQmoXEmtTqxq6Vmzuc4RmmcxFb2iMj
-         J2cpzUDkcw3q6qUCYfG1c+5/nZhHp5tscRQ+8TQ4r5nwbJ3d/IHefvQmMqwRFSloYf
-         76lf3/4NpN+MHga+3i/IyrM18GINhnhE8raZAVqM=
+        b=xorA9iaEn0zgcfLjVhLkGGblXYzSwwaBtiZpx27FwjKa3zjUzHJGPm4HgCCzAMzi3
+         y0mC88zQd77GyQVMzIjUwPXiGPi8G9oXbrWC+BPmYuCTrX1GTk/hJh1yLshNXWYd7n
+         CJsM9hzCh6gDM9dLYlhQQ15oYmN89GP8W2xvfzz0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 190/203] e1000e: add workaround for possible stalled packet
-Date:   Sun, 22 Sep 2019 14:43:36 -0400
-Message-Id: <20190922184350.30563-190-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 192/203] ALSA: hda - Drop unsol event handler for Intel HDMI codecs
+Date:   Sun, 22 Sep 2019 14:43:38 -0400
+Message-Id: <20190922184350.30563-192-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -44,59 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e5e9a2ecfe780975820e157b922edee715710b66 ]
+[ Upstream commit f2dbe87c5ac1f88e6007ba1f1374f4bd8a197fb6 ]
 
-This works around a possible stalled packet issue, which may occur due to
-clock recovery from the PCH being too slow, when the LAN is transitioning
-from K1 at 1G link speed.
+We don't need to deal with the unsol events for Intel chips that are
+tied with the graphics via audio component notifier.  Although the
+presence of the audio component is checked at the beginning of
+hdmi_unsol_event(), better to short cut by dropping unsol_event ops.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204057
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/ich8lan.c | 10 ++++++++++
- drivers/net/ethernet/intel/e1000e/ich8lan.h |  2 +-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-index 395b057014809..a1fab77b2096a 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -1429,6 +1429,16 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
- 			else
- 				phy_reg |= 0xFA;
- 			e1e_wphy_locked(hw, I217_PLL_CLOCK_GATE_REG, phy_reg);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index c380596b2e84c..36240def9bf58 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2616,6 +2616,8 @@ static void i915_pin_cvt_fixup(struct hda_codec *codec,
+ /* precondition and allocation for Intel codecs */
+ static int alloc_intel_hdmi(struct hda_codec *codec)
+ {
++	int err;
 +
-+			if (speed == SPEED_1000) {
-+				hw->phy.ops.read_reg_locked(hw, HV_PM_CTRL,
-+							    &phy_reg);
-+
-+				phy_reg |= HV_PM_CTRL_K1_CLK_REQ;
-+
-+				hw->phy.ops.write_reg_locked(hw, HV_PM_CTRL,
-+							     phy_reg);
-+			}
- 		}
- 		hw->phy.ops.release(hw);
+ 	/* requires i915 binding */
+ 	if (!codec->bus->core.audio_component) {
+ 		codec_info(codec, "No i915 binding for Intel HDMI/DP codec\n");
+@@ -2624,7 +2626,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
+ 		return -ENODEV;
+ 	}
  
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-index eb09c755fa172..1502895eb45dd 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-@@ -210,7 +210,7 @@
+-	return alloc_generic_hdmi(codec);
++	err = alloc_generic_hdmi(codec);
++	if (err < 0)
++		return err;
++	/* no need to handle unsol events */
++	codec->patch_ops.unsol_event = NULL;
++	return 0;
+ }
  
- /* PHY Power Management Control */
- #define HV_PM_CTRL		PHY_REG(770, 17)
--#define HV_PM_CTRL_PLL_STOP_IN_K1_GIGA	0x100
-+#define HV_PM_CTRL_K1_CLK_REQ		0x200
- #define HV_PM_CTRL_K1_ENABLE		0x4000
- 
- #define I217_PLL_CLOCK_GATE_REG	PHY_REG(772, 28)
+ /* parse and post-process for Intel codecs */
 -- 
 2.20.1
 
