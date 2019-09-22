@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C4BBA6F3
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCED8BA6F8
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405443AbfIVSy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
+        id S1729101AbfIVSyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:54:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405054AbfIVSy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:54:27 -0400
+        id S1726828AbfIVSys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:54:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F91921A4A;
-        Sun, 22 Sep 2019 18:54:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F2FB21D7C;
+        Sun, 22 Sep 2019 18:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178466;
-        bh=oQUUreUDYQHQk1iKn9p/xFlfXzQbV7DA5p78Im2qQj0=;
+        s=default; t=1569178488;
+        bh=REPlmJ3AG9u8ggMbAE/uWkhiDbswCFmGAr0G8TJ0BKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oayiUhjSnBaGl0axoIJUmZ//d3IWUfhB/CcXHatn58Hf2rLT1exxe+WIkBYU4M7sX
-         j4U9MJCk5fOWC4yErPcgnnARoGdhHCI7wUodXh74ZXxqzlcPzBlfyfAhuwZkkpD9mu
-         SqOHoXtILyUhNEKUGVQrMBIwb1yt7tPCFI2zripc=
+        b=i8e6le3U+hN0fKAcqIAf7QpHb6lmm5ecD3gi6j4XDt7DAjovBFOJd87K10W9o/2l3
+         5dQTLlgMbgI2vTdvK4VJD/TByAAM08PALBcf9kQ00sNbdazzO/12F4CNOo2qNQ61mY
+         j5a5Rv0ZAd3OseQc4L4C2OwfML4ym+49tbzc47eA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Ian Jackson <ian.jackson@citrix.com>,
-        Julien Grall <julien.grall@arm.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Avaneesh Kumar Dwivedi <akdwived@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 006/128] firmware: qcom_scm: Use proper types for dma mappings
-Date:   Sun, 22 Sep 2019 14:52:16 -0400
-Message-Id: <20190922185418.2158-6-sashal@kernel.org>
+Cc:     Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 023/128] EDAC/mc: Fix grain_bits calculation
+Date:   Sun, 22 Sep 2019 14:52:33 -0400
+Message-Id: <20190922185418.2158-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -47,78 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit 6e37ccf78a53296c6c7bf426065762c27829eb84 ]
+[ Upstream commit 3724ace582d9f675134985727fd5e9811f23c059 ]
 
-We need to use the proper types and convert between physical addresses
-and dma addresses here to avoid mismatch warnings. This is especially
-important on systems with a different size for dma addresses and
-physical addresses. Otherwise, we get the following warning:
+The grain in EDAC is defined as "minimum granularity for an error
+report, in bytes". The following calculation of the grain_bits in
+edac_mc is wrong:
 
-  drivers/firmware/qcom_scm.c: In function "qcom_scm_assign_mem":
-  drivers/firmware/qcom_scm.c:469:47: error: passing argument 3 of "dma_alloc_coherent" from incompatible pointer type [-Werror=incompatible-pointer-types]
+	grain_bits = fls_long(e->grain) + 1;
 
-We also fix the size argument to dma_free_coherent() because that size
-doesn't need to be aligned after it's already aligned on the allocation
-size. In fact, dma debugging expects the same arguments to be passed to
-both the allocation and freeing sides of the functions so changing the
-size is incorrect regardless.
+Where grain_bits is defined as:
 
-Reported-by: Ian Jackson <ian.jackson@citrix.com>
-Cc: Ian Jackson <ian.jackson@citrix.com>
-Cc: Julien Grall <julien.grall@arm.com>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Avaneesh Kumar Dwivedi <akdwived@codeaurora.org>
-Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+	grain = 1 << grain_bits
+
+Example:
+
+	grain = 8	# 64 bit (8 bytes)
+	grain_bits = fls_long(8) + 1
+	grain_bits = 4 + 1 = 5
+
+	grain = 1 << grain_bits
+	grain = 1 << 5 = 32
+
+Replace it with the correct calculation:
+
+	grain_bits = fls_long(e->grain - 1);
+
+The example gives now:
+
+	grain_bits = fls_long(8 - 1)
+	grain_bits = fls_long(7)
+	grain_bits = 3
+
+	grain = 1 << 3 = 8
+
+Also, check if the hardware reports a reasonable grain != 0 and fallback
+with a warning to 1 byte granularity otherwise.
+
+ [ bp: massage a bit. ]
+
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624150758.6695-2-rrichter@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/qcom_scm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/edac/edac_mc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
-index e778af766fae3..98c987188835b 100644
---- a/drivers/firmware/qcom_scm.c
-+++ b/drivers/firmware/qcom_scm.c
-@@ -18,6 +18,7 @@
- #include <linux/init.h>
- #include <linux/cpumask.h>
- #include <linux/export.h>
-+#include <linux/dma-direct.h>
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
- #include <linux/types.h>
-@@ -449,6 +450,7 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
- 	phys_addr_t mem_to_map_phys;
- 	phys_addr_t dest_phys;
- 	phys_addr_t ptr_phys;
-+	dma_addr_t ptr_dma;
- 	size_t mem_to_map_sz;
- 	size_t dest_sz;
- 	size_t src_sz;
-@@ -466,9 +468,10 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
- 	ptr_sz = ALIGN(src_sz, SZ_64) + ALIGN(mem_to_map_sz, SZ_64) +
- 			ALIGN(dest_sz, SZ_64);
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index 7d3edd7139328..f59511bd99261 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -1246,9 +1246,13 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
+ 	if (p > e->location)
+ 		*(p - 1) = '\0';
  
--	ptr = dma_alloc_coherent(__scm->dev, ptr_sz, &ptr_phys, GFP_KERNEL);
-+	ptr = dma_alloc_coherent(__scm->dev, ptr_sz, &ptr_dma, GFP_KERNEL);
- 	if (!ptr)
- 		return -ENOMEM;
-+	ptr_phys = dma_to_phys(__scm->dev, ptr_dma);
+-	/* Report the error via the trace interface */
+-	grain_bits = fls_long(e->grain) + 1;
++	/* Sanity-check driver-supplied grain value. */
++	if (WARN_ON_ONCE(!e->grain))
++		e->grain = 1;
++
++	grain_bits = fls_long(e->grain - 1);
  
- 	/* Fill source vmid detail */
- 	src = ptr;
-@@ -498,7 +501,7 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
- 
- 	ret = __qcom_scm_assign_mem(__scm->dev, mem_to_map_phys, mem_to_map_sz,
- 				    ptr_phys, src_sz, dest_phys, dest_sz);
--	dma_free_coherent(__scm->dev, ALIGN(ptr_sz, SZ_64), ptr, ptr_phys);
-+	dma_free_coherent(__scm->dev, ptr_sz, ptr, ptr_dma);
- 	if (ret) {
- 		dev_err(__scm->dev,
- 			"Assign memory protection call failed %d.\n", ret);
++	/* Report the error via the trace interface */
+ 	if (IS_ENABLED(CONFIG_RAS))
+ 		trace_mc_event(type, e->msg, e->label, e->error_count,
+ 			       mci->mc_idx, e->top_layer, e->mid_layer,
 -- 
 2.20.1
 
