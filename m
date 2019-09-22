@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A24A0BAB19
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C41BAB16
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390028AbfIVTej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:34:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S2389953AbfIVTe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:34:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390532AbfIVSrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:07 -0400
+        id S2390651AbfIVSrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:47:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7BCA214D9;
-        Sun, 22 Sep 2019 18:47:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0E6A206C2;
+        Sun, 22 Sep 2019 18:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178026;
-        bh=wDcK0SuxOI7PvWtcKRyhb1YAeAPrSWo4zVxce4QENGk=;
+        s=default; t=1569178035;
+        bh=9fwelzb4gaRs6F+woif6HxRJvfWAzWKdIXQYj+jKX5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cWp6v5j9ExvsXaM3d5Z946jjF9rXak+LzDKF+i5t7WgDU6O5E9P4YFizX0X/VO1Y
-         Ku72fbxu1jERIOQw2ji+gzhZIcMdIeFVR9OsnSy73ntF8Quqsx664lApq1v36203IP
-         nzQ+2OH4OlMuDl6EcA89uongku5vKjuKsVa8mwFE=
+        b=veLR5Ifywi920t57Y9UCqkKs4lpiVrQpIBSz+Af+656YsuL/+kXKyEEX/Nq0QfXcr
+         qZFUwLFarW8oRQVmrd01n/qbyonej3AXh5QfpuIkKAdyansq8gvlaZU06+3jFQ8Vex
+         ScZ4RiIfSRqkoSJd6Sg3n6NakNgAK6w35KbT75rE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 110/203] media: dvb-core: fix a memory leak bug
-Date:   Sun, 22 Sep 2019 14:42:16 -0400
-Message-Id: <20190922184350.30563-110-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 116/203] ARM: at91: move platform-specific asm-offset.h to arch/arm/mach-at91
+Date:   Sun, 22 Sep 2019 14:42:22 -0400
+Message-Id: <20190922184350.30563-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
 References: <20190922184350.30563-1-sashal@kernel.org>
@@ -43,40 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit fcd5ce4b3936242e6679875a4d3c3acfc8743e15 ]
+[ Upstream commit 9fac85a6db8999922f2cd92dfe2e83e063b31a94 ]
 
-In dvb_create_media_entity(), 'dvbdev->entity' is allocated through
-kzalloc(). Then, 'dvbdev->pads' is allocated through kcalloc(). However, if
-kcalloc() fails, the allocated 'dvbdev->entity' is not deallocated, leading
-to a memory leak bug. To fix this issue, free 'dvbdev->entity' before
-returning -ENOMEM.
+<generated/at91_pm_data-offsets.h> is only generated and included by
+arch/arm/mach-at91/, so it does not need to reside in the globally
+visible include/generated/.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+I renamed it to arch/arm/mach-at91/pm_data-offsets.h since the prefix
+'at91_' is just redundant in mach-at91/.
+
+My main motivation of this change is to avoid the race condition for
+the parallel build (-j) when CONFIG_IKHEADERS is enabled.
+
+When it is enabled, all the headers under include/ are archived into
+kernel/kheaders_data.tar.xz and exposed in the sysfs.
+
+In the parallel build, we have no idea in which order files are built.
+
+ - If at91_pm_data-offsets.h is built before kheaders_data.tar.xz,
+   the header will be included in the archive. Probably nobody will
+   use it, but it is harmless except that it will increase the archive
+   size needlessly.
+
+ - If kheaders_data.tar.xz is built before at91_pm_data-offsets.h,
+   the header will not be included in the archive. However, in the next
+   build, the archive will be re-generated to include the newly-found
+   at91_pm_data-offsets.h. This is not nice from the build system point
+   of view.
+
+ - If at91_pm_data-offsets.h and kheaders_data.tar.xz are built at the
+   same time, the corrupted header might be included in the archive,
+   which does not look nice either.
+
+This commit fixes the race.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Link: https://lore.kernel.org/r/20190823024346.591-1-yamada.masahiro@socionext.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvbdev.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mach-at91/.gitignore   | 1 +
+ arch/arm/mach-at91/Makefile     | 5 +++--
+ arch/arm/mach-at91/pm_suspend.S | 2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
+ create mode 100644 arch/arm/mach-at91/.gitignore
 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index a3393cd4e584f..7557fbf9d3068 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -339,8 +339,10 @@ static int dvb_create_media_entity(struct dvb_device *dvbdev,
- 	if (npads) {
- 		dvbdev->pads = kcalloc(npads, sizeof(*dvbdev->pads),
- 				       GFP_KERNEL);
--		if (!dvbdev->pads)
-+		if (!dvbdev->pads) {
-+			kfree(dvbdev->entity);
- 			return -ENOMEM;
-+		}
- 	}
+diff --git a/arch/arm/mach-at91/.gitignore b/arch/arm/mach-at91/.gitignore
+new file mode 100644
+index 0000000000000..2ecd6f51c8a95
+--- /dev/null
++++ b/arch/arm/mach-at91/.gitignore
+@@ -0,0 +1 @@
++pm_data-offsets.h
+diff --git a/arch/arm/mach-at91/Makefile b/arch/arm/mach-at91/Makefile
+index 31b61f0e1c077..de64301dcff25 100644
+--- a/arch/arm/mach-at91/Makefile
++++ b/arch/arm/mach-at91/Makefile
+@@ -19,9 +19,10 @@ ifeq ($(CONFIG_PM_DEBUG),y)
+ CFLAGS_pm.o += -DDEBUG
+ endif
  
- 	switch (type) {
+-include/generated/at91_pm_data-offsets.h: arch/arm/mach-at91/pm_data-offsets.s FORCE
++$(obj)/pm_data-offsets.h: $(obj)/pm_data-offsets.s FORCE
+ 	$(call filechk,offsets,__PM_DATA_OFFSETS_H__)
+ 
+-arch/arm/mach-at91/pm_suspend.o: include/generated/at91_pm_data-offsets.h
++$(obj)/pm_suspend.o: $(obj)/pm_data-offsets.h
+ 
+ targets += pm_data-offsets.s
++clean-files += pm_data-offsets.h
+diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
+index c751f047b1166..ed57c879d4e17 100644
+--- a/arch/arm/mach-at91/pm_suspend.S
++++ b/arch/arm/mach-at91/pm_suspend.S
+@@ -10,7 +10,7 @@
+ #include <linux/linkage.h>
+ #include <linux/clk/at91_pmc.h>
+ #include "pm.h"
+-#include "generated/at91_pm_data-offsets.h"
++#include "pm_data-offsets.h"
+ 
+ #define	SRAMC_SELF_FRESH_ACTIVE		0x01
+ #define	SRAMC_SELF_FRESH_EXIT		0x00
 -- 
 2.20.1
 
