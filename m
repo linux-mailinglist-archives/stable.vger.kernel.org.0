@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC858BA8C7
+	by mail.lfdr.de (Postfix) with ESMTP id 71481BA8C6
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405762AbfIVTID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:08:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35294 "EHLO mail.kernel.org"
+        id S2389782AbfIVTIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438919AbfIVS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:59:53 -0400
+        id S2438923AbfIVS7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:59:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B5D821907;
-        Sun, 22 Sep 2019 18:59:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13BF621928;
+        Sun, 22 Sep 2019 18:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178792;
-        bh=qOgqvqjCkUD8COe5UC9OHjXjf/iIdtSx/nJitqT3eqk=;
+        s=default; t=1569178794;
+        bh=UlCki8zg9JHsMFVYDz5UUcbj6ctigQ8WdJABiuxnRAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMcL5/q+SOhJEUvuor1Cv0VV/uwVpKEuR7+NjvL8xY9gkrJba7I2uOqOKhW4js3ps
-         s4099hJCx2wwo8VyN3dnYfZhYfPfg/i4i17KEy4cVBGifzHfwd0Koyk/4y3RasYkdI
-         4Fb4sKaqyUrUDsYZ64O88lQvyGPVDarPE/meJAnw=
+        b=y45ako7YfxBd/lSayxxfHAgpAOWHQIYe5lf8i/gappcuab2WdiERL/Ks8lp6W/X4S
+         ZRxG+LIia2Esn5VCqgzWAwu2NmaUzanhrmMxjREpQIQGUYd700RR5rOUb21kfVMCgj
+         sBYELKUkbqbDlfPlG6w5Xu6/2q2IN6CQGs3r3Z7U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 14/60] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
-Date:   Sun, 22 Sep 2019 14:58:47 -0400
-Message-Id: <20190922185934.4305-14-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 15/60] media: iguanair: add sanity checks
+Date:   Sun, 22 Sep 2019 14:58:48 -0400
+Message-Id: <20190922185934.4305-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
 References: <20190922185934.4305-1-sashal@kernel.org>
@@ -42,52 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
+[ Upstream commit ab1cbdf159beba7395a13ab70bc71180929ca064 ]
 
-In build_adc_controls(), there is an if statement on line 773 to check
-whether ak->adc_info is NULL:
-    if (! ak->adc_info ||
-        ! ak->adc_info[mixer_ch].switch_name)
+The driver needs to check the endpoint types, too, as opposed
+to the number of endpoints. This also requires moving the check earlier.
 
-When ak->adc_info is NULL, it is used on line 792:
-    knew.name = ak->adc_info[mixer_ch].selector_name;
-
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, referring to lines 773 and 774, ak->adc_info
-and ak->adc_info[mixer_ch].selector_name are checked before being used.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/other/ak4xxx-adda.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/rc/iguanair.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
-index bf377dc192aa7..d33e02c317129 100644
---- a/sound/i2c/other/ak4xxx-adda.c
-+++ b/sound/i2c/other/ak4xxx-adda.c
-@@ -789,11 +789,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
- 				return err;
+diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
+index 5f634545ddd81..25470395c43f1 100644
+--- a/drivers/media/rc/iguanair.c
++++ b/drivers/media/rc/iguanair.c
+@@ -430,6 +430,10 @@ static int iguanair_probe(struct usb_interface *intf,
+ 	int ret, pipein, pipeout;
+ 	struct usb_host_interface *idesc;
  
- 			memset(&knew, 0, sizeof(knew));
--			knew.name = ak->adc_info[mixer_ch].selector_name;
--			if (!knew.name) {
-+			if (!ak->adc_info ||
-+				!ak->adc_info[mixer_ch].selector_name) {
- 				knew.name = "Capture Channel";
- 				knew.index = mixer_ch + ak->idx_offset * 2;
--			}
-+			} else
-+				knew.name = ak->adc_info[mixer_ch].selector_name;
++	idesc = intf->altsetting;
++	if (idesc->desc.bNumEndpoints < 2)
++		return -ENODEV;
++
+ 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+ 	rc = rc_allocate_device();
+ 	if (!ir || !rc) {
+@@ -444,18 +448,13 @@ static int iguanair_probe(struct usb_interface *intf,
+ 	ir->urb_in = usb_alloc_urb(0, GFP_KERNEL);
+ 	ir->urb_out = usb_alloc_urb(0, GFP_KERNEL);
  
- 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
- 			knew.info = ak4xxx_capture_source_info;
+-	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out) {
++	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out ||
++	    !usb_endpoint_is_int_in(&idesc->endpoint[0].desc) ||
++	    !usb_endpoint_is_int_out(&idesc->endpoint[1].desc)) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+ 
+-	idesc = intf->altsetting;
+-
+-	if (idesc->desc.bNumEndpoints < 2) {
+-		ret = -ENODEV;
+-		goto out;
+-	}
+-
+ 	ir->rc = rc;
+ 	ir->dev = &intf->dev;
+ 	ir->udev = udev;
 -- 
 2.20.1
 
