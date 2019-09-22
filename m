@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A781BA826
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E3EBA829
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729333AbfIVTB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:01:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37702 "EHLO mail.kernel.org"
+        id S2438522AbfIVTBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:01:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729180AbfIVTB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:01:27 -0400
+        id S1729449AbfIVTBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:01:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB232070C;
-        Sun, 22 Sep 2019 19:01:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5D2D2070C;
+        Sun, 22 Sep 2019 19:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178887;
-        bh=E/lSzvPqTxdIB5ncEwxU1w/9V+oMwQfMO5+3WkZbCeA=;
+        s=default; t=1569178889;
+        bh=nbgbhwOlk/LuTh2Jiw/PsDh+mAGYreruz68vM9Rfhvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFjaWpFCzv43oN/nD+ar1isAcg39cwjiIm4yhG7PGW34+dKiJ13kD6SM+gvQMKVlb
-         nLSiorEEL8sYiZK3lyr6wsmhC3ZCDdHiqDHF0hMSZCQA8DahwacJ8PD9eE3A3uERm/
-         9dY80T0xUX3DsopxYqpQdBYESB3TD4y7CAKbUOy8=
+        b=Y+KRBw8oIml4YqZMM758XATI7Hpn602wk069zzZOEC4uP5YwvAuQgW3UY+e3mOCDY
+         w03A93JeYkh9hnhSg34P4s+PUx8dfSIZ5Gp/3TaNLIUTDDdSAuoYYwA7c/5740CXiN
+         xWyIUe4y4Z4MI4b4MRCZpv0oUkajkNHLaHjHncq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guoqing Jiang <jgq516@gmail.com>,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 17/44] md: don't call spare_active in md_reap_sync_thread if all member devices can't work
-Date:   Sun, 22 Sep 2019 15:00:35 -0400
-Message-Id: <20190922190103.4906-17-sashal@kernel.org>
+Cc:     Xiaofei Tan <tanxiaofei@huawei.com>,
+        James Morse <james.morse@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 19/44] efi: cper: print AER info of PCIe fatal error
+Date:   Sun, 22 Sep 2019 15:00:37 -0400
+Message-Id: <20190922190103.4906-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -44,43 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <jgq516@gmail.com>
+From: Xiaofei Tan <tanxiaofei@huawei.com>
 
-[ Upstream commit 0d8ed0e9bf9643f27f4816dca61081784dedb38d ]
+[ Upstream commit b194a77fcc4001dc40aecdd15d249648e8a436d1 ]
 
-When add one disk to array, the md_reap_sync_thread is responsible
-to activate the spare and set In_sync flag for the new member in
-spare_active().
+AER info of PCIe fatal error is not printed in the current driver.
+Because APEI driver will panic directly for fatal error, and can't
+run to the place of printing AER info.
 
-But if raid1 has one member disk A, and disk B is added to the array.
-Then we offline A before all the datas are synchronized from A to B,
-obviously B doesn't have the latest data as A, but B is still marked
-with In_sync flag.
+An example log is as following:
+{763}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 11
+{763}[Hardware Error]: event severity: fatal
+{763}[Hardware Error]:  Error 0, type: fatal
+{763}[Hardware Error]:   section_type: PCIe error
+{763}[Hardware Error]:   port_type: 0, PCIe end point
+{763}[Hardware Error]:   version: 4.0
+{763}[Hardware Error]:   command: 0x0000, status: 0x0010
+{763}[Hardware Error]:   device_id: 0000:82:00.0
+{763}[Hardware Error]:   slot: 0
+{763}[Hardware Error]:   secondary_bus: 0x00
+{763}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x10fb
+{763}[Hardware Error]:   class_code: 000002
+Kernel panic - not syncing: Fatal hardware error!
 
-So let's not call spare_active under the condition, otherwise B is
-still showed with 'U' state which is not correct.
+This issue was imported by the patch, '37448adfc7ce ("aerdrv: Move
+cper_print_aer() call out of interrupt context")'. To fix this issue,
+this patch adds print of AER info in cper_print_pcie() for fatal error.
 
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Here is the example log after this patch applied:
+{24}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 10
+{24}[Hardware Error]: event severity: fatal
+{24}[Hardware Error]:  Error 0, type: fatal
+{24}[Hardware Error]:   section_type: PCIe error
+{24}[Hardware Error]:   port_type: 0, PCIe end point
+{24}[Hardware Error]:   version: 4.0
+{24}[Hardware Error]:   command: 0x0546, status: 0x4010
+{24}[Hardware Error]:   device_id: 0000:01:00.0
+{24}[Hardware Error]:   slot: 0
+{24}[Hardware Error]:   secondary_bus: 0x00
+{24}[Hardware Error]:   vendor_id: 0x15b3, device_id: 0x1019
+{24}[Hardware Error]:   class_code: 000002
+{24}[Hardware Error]:   aer_uncor_status: 0x00040000, aer_uncor_mask: 0x00000000
+{24}[Hardware Error]:   aer_uncor_severity: 0x00062010
+{24}[Hardware Error]:   TLP Header: 000000c0 01010000 00000001 00000000
+Kernel panic - not syncing: Fatal hardware error!
+
+Fixes: 37448adfc7ce ("aerdrv: Move cper_print_aer() call out of interrupt context")
+Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+[ardb: put parens around terms of && operator]
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/cper.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 067af77bb729a..d1b09657c1939 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8445,7 +8445,8 @@ void md_reap_sync_thread(struct mddev *mddev)
- 	/* resync has finished, collect result */
- 	md_unregister_thread(&mddev->sync_thread);
- 	if (!test_bit(MD_RECOVERY_INTR, &mddev->recovery) &&
--	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
-+	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
-+	    mddev->degraded != mddev->raid_disks) {
- 		/* success...*/
- 		/* activate any spares */
- 		if (mddev->pers->spare_active(mddev)) {
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index d425374254384..f40f7df4b7344 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -384,6 +384,21 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
+ 		printk(
+ 	"%s""bridge: secondary_status: 0x%04x, control: 0x%04x\n",
+ 	pfx, pcie->bridge.secondary_status, pcie->bridge.control);
++
++	/* Fatal errors call __ghes_panic() before AER handler prints this */
++	if ((pcie->validation_bits & CPER_PCIE_VALID_AER_INFO) &&
++	    (gdata->error_severity & CPER_SEV_FATAL)) {
++		struct aer_capability_regs *aer;
++
++		aer = (struct aer_capability_regs *)pcie->aer_info;
++		printk("%saer_uncor_status: 0x%08x, aer_uncor_mask: 0x%08x\n",
++		       pfx, aer->uncor_status, aer->uncor_mask);
++		printk("%saer_uncor_severity: 0x%08x\n",
++		       pfx, aer->uncor_severity);
++		printk("%sTLP Header: %08x %08x %08x %08x\n", pfx,
++		       aer->header_log.dw0, aer->header_log.dw1,
++		       aer->header_log.dw2, aer->header_log.dw3);
++	}
+ }
+ 
+ static void cper_estatus_print_section(
 -- 
 2.20.1
 
