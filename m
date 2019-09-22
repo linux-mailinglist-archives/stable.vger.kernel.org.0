@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD72DBA884
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B077BA887
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729886AbfIVTEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727481AbfIVTEn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 22 Sep 2019 15:04:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395253AbfIVTBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:01:07 -0400
+        id S1725820AbfIVTBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:01:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C98A214AF;
-        Sun, 22 Sep 2019 19:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04BAE214D9;
+        Sun, 22 Sep 2019 19:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178867;
-        bh=3UDV5in8M3RtX+wA9xJxQHeRLPcU7Ft2VvUHYqQ0pFA=;
+        s=default; t=1569178871;
+        bh=cuZo9s602fDcrRD5mupxhsazaMcvhkTI6YHA7sdWTV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TT0EfqsMQ1XhpWLJVBOESzGc6fRTRZdp8f5kapoxf2q3KIWR5L1eyniXCLTXqvSpv
-         4ZIBCFIYU7S5hCfQHVIih7gefexdCWCF8E5Jl/tvHljMJlJVoyoex9Wn/lyEu0V0qJ
-         klFFUZnlBU9KD86jxWPFFwEfniYluaEgEU5Qnq1o=
+        b=1w4N9ctZPXmo4J7WgJwqEVW73Da7az6l2rGD9eTJQOCcfQdDHh0SrzHgBM56cIP5O
+         IB+Qd9NXlure/DvSxsoZqLDgbYCY9VhhX2jZVQ6edY8COXRPd9lNUD2VwRNzDOYhdC
+         NxnNGNQgCYHeFVG54wOhF95zLEHKrv4ItgQPHEYI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Wahren <wahrenst@gmx.net>, Vinod Koul <vkoul@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 03/44] dmaengine: bcm2835: Print error in case setting DMA mask fails
-Date:   Sun, 22 Sep 2019 15:00:21 -0400
-Message-Id: <20190922190103.4906-3-sashal@kernel.org>
+Cc:     Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
+        syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/44] media: hdpvr: Add device num check and handling
+Date:   Sun, 22 Sep 2019 15:00:24 -0400
+Message-Id: <20190922190103.4906-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -42,37 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <wahrenst@gmx.net>
+From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
 
-[ Upstream commit 72503b25ee363827aafffc3e8d872e6a92a7e422 ]
+[ Upstream commit d4a6a9537bc32811486282206ecfb7c53754b74d ]
 
-During enabling of the RPi 4, we found out that the driver doesn't provide
-a helpful error message in case setting DMA mask fails. So add one.
+Add hdpvr device num check and error handling
 
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Link: https://lore.kernel.org/r/1563297318-4900-1-git-send-email-wahrenst@gmx.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+We need to increment the device count atomically before we checkout a
+device to make sure that we do not reach the max count, otherwise we get
+out-of-bounds errors as reported by syzbot.
+
+Reported-and-tested-by: syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
+
+Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/bcm2835-dma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/usb/hdpvr/hdpvr-core.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/bcm2835-dma.c b/drivers/dma/bcm2835-dma.c
-index 996c4b00d323e..d6cdc3be03fcc 100644
---- a/drivers/dma/bcm2835-dma.c
-+++ b/drivers/dma/bcm2835-dma.c
-@@ -595,8 +595,10 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
- 		pdev->dev.dma_mask = &pdev->dev.coherent_dma_mask;
+diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
+index 08f0ca7aa012e..924517b09fc9f 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-core.c
++++ b/drivers/media/usb/hdpvr/hdpvr-core.c
+@@ -278,6 +278,7 @@ static int hdpvr_probe(struct usb_interface *interface,
+ #endif
+ 	size_t buffer_size;
+ 	int i;
++	int dev_num;
+ 	int retval = -ENOMEM;
  
- 	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
--	if (rc)
-+	if (rc) {
-+		dev_err(&pdev->dev, "Unable to set DMA mask\n");
- 		return rc;
+ 	/* allocate memory for our device state and initialize it */
+@@ -386,8 +387,17 @@ static int hdpvr_probe(struct usb_interface *interface,
+ 	}
+ #endif
+ 
++	dev_num = atomic_inc_return(&dev_nr);
++	if (dev_num >= HDPVR_MAX) {
++		v4l2_err(&dev->v4l2_dev,
++			 "max device number reached, device register failed\n");
++		atomic_dec(&dev_nr);
++		retval = -ENODEV;
++		goto reg_fail;
 +	}
- 
- 	od = devm_kzalloc(&pdev->dev, sizeof(*od), GFP_KERNEL);
- 	if (!od)
++
+ 	retval = hdpvr_register_videodev(dev, &interface->dev,
+-				    video_nr[atomic_inc_return(&dev_nr)]);
++				    video_nr[dev_num]);
+ 	if (retval < 0) {
+ 		v4l2_err(&dev->v4l2_dev, "registering videodev failed\n");
+ 		goto reg_fail;
 -- 
 2.20.1
 
