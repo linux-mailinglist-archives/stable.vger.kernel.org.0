@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 395C9BA954
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5582BA951
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729446AbfIVTOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S1727442AbfIVTN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394736AbfIVS5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:57:02 -0400
+        id S2394757AbfIVS5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:57:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 646262184D;
-        Sun, 22 Sep 2019 18:57:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47DB42184D;
+        Sun, 22 Sep 2019 18:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178622;
-        bh=5PRxwvJOPGRmn8UkRJJoesonvbFonXLvvtfiGZcZyPU=;
+        s=default; t=1569178625;
+        bh=ojZaI59rGscmaBaQB30rUvc3ZhjI8pWc/WzGjg+wLPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKDazYqqeckfL3Ok9wKyFcs0fD0pEi3g8Pu/Les2sliRDHgkrwdB2/MA3owW8BvxP
-         r8ykX7BXLuEiSc33hEu5ILtYE2ZNJzvWaH6vl01L1bi7g68tgtKJ270TWxI1Okd8CT
-         Iijt4pRgvM4Ob8aqV856c4Ean1NM5EE/UgptICCk=
+        b=UuBMgq08SiIQrURwGspiAZdUiPrsCuAg/QotTXSSxvpgNu7civ4z6l67SEYLC1J09
+         DSZXdg1kdy993W+/o9hNK+VycGu8Gk5EwBazV/b3QgMxbPMsextCGeWXFLoCPFIn0q
+         g13++Rbk6qTbtD2R3Li5pelRBA7y48Fw2MqAYmuI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Young <sean@mess.org>,
-        syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 120/128] media: technisat-usb2: break out of loop at end of buffer
-Date:   Sun, 22 Sep 2019 14:54:10 -0400
-Message-Id: <20190922185418.2158-120-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 122/128] e1000e: add workaround for possible stalled packet
+Date:   Sun, 22 Sep 2019 14:54:12 -0400
+Message-Id: <20190922185418.2158-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -45,74 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 0c4df39e504bf925ab666132ac3c98d6cbbe380b ]
+[ Upstream commit e5e9a2ecfe780975820e157b922edee715710b66 ]
 
-Ensure we do not access the buffer beyond the end if no 0xff byte
-is encountered.
+This works around a possible stalled packet issue, which may occur due to
+clock recovery from the PCH being too slow, when the LAN is transitioning
+from K1 at 1G link speed.
 
-Reported-by: syzbot+eaaaf38a95427be88f4b@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204057
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/technisat-usb2.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 10 ++++++++++
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  2 +-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb/technisat-usb2.c b/drivers/media/usb/dvb-usb/technisat-usb2.c
-index 18d0f8f5283fa..8d8e9f56a8be5 100644
---- a/drivers/media/usb/dvb-usb/technisat-usb2.c
-+++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
-@@ -607,10 +607,9 @@ static int technisat_usb2_frontend_attach(struct dvb_usb_adapter *a)
- static int technisat_usb2_get_ir(struct dvb_usb_device *d)
- {
- 	struct technisat_usb2_state *state = d->priv;
--	u8 *buf = state->buf;
--	u8 *b;
--	int ret;
- 	struct ir_raw_event ev;
-+	u8 *buf = state->buf;
-+	int i, ret;
- 
- 	buf[0] = GET_IR_DATA_VENDOR_REQUEST;
- 	buf[1] = 0x08;
-@@ -646,26 +645,25 @@ static int technisat_usb2_get_ir(struct dvb_usb_device *d)
- 		return 0; /* no key pressed */
- 
- 	/* decoding */
--	b = buf+1;
- 
- #if 0
- 	deb_rc("RC: %d ", ret);
--	debug_dump(b, ret, deb_rc);
-+	debug_dump(buf + 1, ret, deb_rc);
- #endif
- 
- 	ev.pulse = 0;
--	while (1) {
--		ev.pulse = !ev.pulse;
--		ev.duration = (*b * FIRMWARE_CLOCK_DIVISOR * FIRMWARE_CLOCK_TICK) / 1000;
--		ir_raw_event_store(d->rc_dev, &ev);
--
--		b++;
--		if (*b == 0xff) {
-+	for (i = 1; i < ARRAY_SIZE(state->buf); i++) {
-+		if (buf[i] == 0xff) {
- 			ev.pulse = 0;
- 			ev.duration = 888888*2;
- 			ir_raw_event_store(d->rc_dev, &ev);
- 			break;
- 		}
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index cdae0efde8e64..7998a73b6a0fa 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1429,6 +1429,16 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
+ 			else
+ 				phy_reg |= 0xFA;
+ 			e1e_wphy_locked(hw, I217_PLL_CLOCK_GATE_REG, phy_reg);
 +
-+		ev.pulse = !ev.pulse;
-+		ev.duration = (buf[i] * FIRMWARE_CLOCK_DIVISOR *
-+			       FIRMWARE_CLOCK_TICK) / 1000;
-+		ir_raw_event_store(d->rc_dev, &ev);
- 	}
++			if (speed == SPEED_1000) {
++				hw->phy.ops.read_reg_locked(hw, HV_PM_CTRL,
++							    &phy_reg);
++
++				phy_reg |= HV_PM_CTRL_K1_CLK_REQ;
++
++				hw->phy.ops.write_reg_locked(hw, HV_PM_CTRL,
++							     phy_reg);
++			}
+ 		}
+ 		hw->phy.ops.release(hw);
  
- 	ir_raw_event_handle(d->rc_dev);
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index eb09c755fa172..1502895eb45dd 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -210,7 +210,7 @@
+ 
+ /* PHY Power Management Control */
+ #define HV_PM_CTRL		PHY_REG(770, 17)
+-#define HV_PM_CTRL_PLL_STOP_IN_K1_GIGA	0x100
++#define HV_PM_CTRL_K1_CLK_REQ		0x200
+ #define HV_PM_CTRL_K1_ENABLE		0x4000
+ 
+ #define I217_PLL_CLOCK_GATE_REG	PHY_REG(772, 28)
 -- 
 2.20.1
 
