@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B20BA823
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A781BA826
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726923AbfIVTBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:01:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37610 "EHLO mail.kernel.org"
+        id S1729333AbfIVTB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:01:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439018AbfIVTBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:01:25 -0400
+        id S1729180AbfIVTB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 15:01:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E42D921D56;
-        Sun, 22 Sep 2019 19:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EB232070C;
+        Sun, 22 Sep 2019 19:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178884;
-        bh=1/YZ4lN4FMqcUT8nbaioNtWfW697Qpib4gtPmCCVTqI=;
+        s=default; t=1569178887;
+        bh=E/lSzvPqTxdIB5ncEwxU1w/9V+oMwQfMO5+3WkZbCeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDiE2lphME+iPmkkRStgU2rLvm4uX8hUyLygdivCTk9YjVvfCyJ/1IF6Gs+xF01XS
-         PAcrre4PC1pQz2ty6UszY/ttimf7SDjnIC5ambfAM8ydUi4g/XT6ed6dA0lrDymHDj
-         q2WDmc8vZO/PAeZCGGWU7H1HwK8zj9Q56cRwg8bQ=
+        b=DFjaWpFCzv43oN/nD+ar1isAcg39cwjiIm4yhG7PGW34+dKiJ13kD6SM+gvQMKVlb
+         nLSiorEEL8sYiZK3lyr6wsmhC3ZCDdHiqDHF0hMSZCQA8DahwacJ8PD9eE3A3uERm/
+         9dY80T0xUX3DsopxYqpQdBYESB3TD4y7CAKbUOy8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard van Breemen <ard@kwaak.net>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 15/44] ALSA: usb-audio: Skip bSynchAddress endpoint check if it is invalid
-Date:   Sun, 22 Sep 2019 15:00:33 -0400
-Message-Id: <20190922190103.4906-15-sashal@kernel.org>
+Cc:     Guoqing Jiang <jgq516@gmail.com>,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 17/44] md: don't call spare_active in md_reap_sync_thread if all member devices can't work
+Date:   Sun, 22 Sep 2019 15:00:35 -0400
+Message-Id: <20190922190103.4906-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922190103.4906-1-sashal@kernel.org>
 References: <20190922190103.4906-1-sashal@kernel.org>
@@ -42,37 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard van Breemen <ard@kwaak.net>
+From: Guoqing Jiang <jgq516@gmail.com>
 
-[ Upstream commit 1b34121d9f26d272b0b2334209af6b6fc82d4bf1 ]
+[ Upstream commit 0d8ed0e9bf9643f27f4816dca61081784dedb38d ]
 
-The Linux kernel assumes that get_endpoint(alts,0) and
-get_endpoint(alts,1) are eachothers feedback endpoints.
-To reassure that validity it will test bsynchaddress to comply with that
-assumption. But if the bsyncaddress is 0 (invalid), it will flag that as
-a wrong assumption and return an error.
-Fix: Skip the test if bSynchAddress is 0.
-Note: those with a valid bSynchAddress should have a code quirck added.
+When add one disk to array, the md_reap_sync_thread is responsible
+to activate the spare and set In_sync flag for the new member in
+spare_active().
 
-Signed-off-by: Ard van Breemen <ard@kwaak.net>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+But if raid1 has one member disk A, and disk B is added to the array.
+Then we offline A before all the datas are synchronized from A to B,
+obviously B doesn't have the latest data as A, but B is still marked
+with In_sync flag.
+
+So let's not call spare_active under the condition, otherwise B is
+still showed with 'U' state which is not correct.
+
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 1ea1384bc2369..f84c55ecd0fb4 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -460,6 +460,7 @@ static int set_sync_endpoint(struct snd_usb_substream *subs,
- 	}
- 	ep = get_endpoint(alts, 1)->bEndpointAddress;
- 	if (get_endpoint(alts, 0)->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE &&
-+	    get_endpoint(alts, 0)->bSynchAddress != 0 &&
- 	    ((is_playback && ep != (unsigned int)(get_endpoint(alts, 0)->bSynchAddress | USB_DIR_IN)) ||
- 	     (!is_playback && ep != (unsigned int)(get_endpoint(alts, 0)->bSynchAddress & ~USB_DIR_IN)))) {
- 		dev_err(&dev->dev,
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 067af77bb729a..d1b09657c1939 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -8445,7 +8445,8 @@ void md_reap_sync_thread(struct mddev *mddev)
+ 	/* resync has finished, collect result */
+ 	md_unregister_thread(&mddev->sync_thread);
+ 	if (!test_bit(MD_RECOVERY_INTR, &mddev->recovery) &&
+-	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
++	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
++	    mddev->degraded != mddev->raid_disks) {
+ 		/* success...*/
+ 		/* activate any spares */
+ 		if (mddev->pers->spare_active(mddev)) {
 -- 
 2.20.1
 
