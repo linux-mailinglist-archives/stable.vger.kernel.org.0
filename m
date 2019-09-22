@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3726BA99E
+	by mail.lfdr.de (Postfix) with ESMTP id 005E0BA99C
 	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436912AbfIVTRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 15:17:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
+        id S2405245AbfIVTRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 15:17:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729348AbfIVSzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:55:47 -0400
+        id S1729374AbfIVSzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8073421D7E;
-        Sun, 22 Sep 2019 18:55:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9986E208C2;
+        Sun, 22 Sep 2019 18:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178547;
-        bh=D1XWRJt6ClMhPXFxGI9JJL0/zQQhSHeSVvnHbT7ij5U=;
+        s=default; t=1569178549;
+        bh=J2DOie5+rJ5lNglv194L5tZNcZlQOsaZ5mRHla4X5YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRJDF/KKx2K2li814Za3RS03fT87Ao324SOzmHYyNX2Sl7Ma23PK9/5IR+7JZKvyO
-         u4dVVhG/QFNKOsu1SRhADmxSalA8r/0a+Ye32tTcFRcQl1VFSW8ie7yRqc2dfv3CHG
-         IjAnKq++pksey96rZz5IUXx43BFfpCRiOgQdzXuc=
+        b=CbcYBRZLgIAoNmlbfqk9/yCzd6dcR2SKCeUZ15akoGeoxpA8jijtzQZllFtUP/cqz
+         3CpX4cYE0oFpghCUH9c6UdpihHkH4pIsKDivllzjduiPSeEUAGxomZcWVfXPY975OT
+         Nr6CZ3n3bizNuLa2EcGtFKZxpWVsNLZZw2sTKftc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime.ripard@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 065/128] ASoC: sun4i-i2s: Don't use the oversample to calculate BCLK
-Date:   Sun, 22 Sep 2019 14:53:15 -0400
-Message-Id: <20190922185418.2158-65-sashal@kernel.org>
+Cc:     Mike Christie <mchristi@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 4.19 067/128] nbd: add missing config put
+Date:   Sun, 22 Sep 2019 14:53:17 -0400
+Message-Id: <20190922185418.2158-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -43,70 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime.ripard@bootlin.com>
+From: Mike Christie <mchristi@redhat.com>
 
-[ Upstream commit 7df8f9a20196072162d9dc8fe99943f2d35f23d5 ]
+[ Upstream commit 887e975c4172d0d5670c39ead2f18ba1e4ec8133 ]
 
-The BCLK divider should be calculated using the parameters that actually
-make the BCLK rate: the number of channels, the sampling rate and the
-sample width.
+Fix bug added with the patch:
 
-We've been using the oversample_rate previously because in the former SoCs,
-the BCLK's parent is MCLK, which in turn is being used to generate the
-oversample rate, so we end up with something like this:
+commit 8f3ea35929a0806ad1397db99a89ffee0140822a
+Author: Josef Bacik <josef@toxicpanda.com>
+Date:   Mon Jul 16 12:11:35 2018 -0400
 
-oversample = mclk_rate / sampling_rate
-bclk_div = oversample / word_size / channels
+    nbd: handle unexpected replies better
 
-So, bclk_div = mclk_rate / sampling_rate / word_size / channels.
+where if the timeout handler runs when the completion path is and we fail
+to grab the mutex in the timeout handler we will leave a config reference
+and cannot free the config later.
 
-And this is actually better, since the oversampling ratio only plays a role
-because the MCLK is its parent, not because of what BCLK is supposed to be.
-
-Furthermore, that assumption of MCLK being the parent has been broken on
-newer SoCs, so let's use the proper formula, and have the parent rate as an
-argument.
-
-Fixes: 7d2993811a1e ("ASoC: sun4i-i2s: Add support for H3")
-Fixes: 21faaea1343f ("ASoC: sun4i-i2s: Add support for A83T")
-Fixes: 66ecce332538 ("ASoC: sun4i-i2s: Add compatibility with A64 codec I2S")
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://lore.kernel.org/r/c3595e3a9788c2ef2dcc30aa3c8c4953bb5cc249.1566242458.git-series.maxime.ripard@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-i2s.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/block/nbd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
-index 6173dd86c62ce..18cf8404d27ca 100644
---- a/sound/soc/sunxi/sun4i-i2s.c
-+++ b/sound/soc/sunxi/sun4i-i2s.c
-@@ -223,10 +223,11 @@ static const struct sun4i_i2s_clk_div sun4i_i2s_mclk_div[] = {
- };
- 
- static int sun4i_i2s_get_bclk_div(struct sun4i_i2s *i2s,
--				  unsigned int oversample_rate,
-+				  unsigned long parent_rate,
-+				  unsigned int sampling_rate,
- 				  unsigned int word_size)
- {
--	int div = oversample_rate / word_size / 2;
-+	int div = parent_rate / sampling_rate / word_size / 2;
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(sun4i_i2s_bclk_div); i++) {
-@@ -316,8 +317,8 @@ static int sun4i_i2s_set_clk_rate(struct snd_soc_dai *dai,
- 		return -EINVAL;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index fa60f265ee506..b1c7009de1f4d 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -353,8 +353,10 @@ static enum blk_eh_timer_return nbd_xmit_timeout(struct request *req,
  	}
+ 	config = nbd->config;
  
--	bclk_div = sun4i_i2s_get_bclk_div(i2s, oversample_rate,
--					  word_size);
-+	bclk_div = sun4i_i2s_get_bclk_div(i2s, i2s->mclk_freq,
-+					  rate, word_size);
- 	if (bclk_div < 0) {
- 		dev_err(dai->dev, "Unsupported BCLK divider: %d\n", bclk_div);
- 		return -EINVAL;
+-	if (!mutex_trylock(&cmd->lock))
++	if (!mutex_trylock(&cmd->lock)) {
++		nbd_config_put(nbd);
+ 		return BLK_EH_RESET_TIMER;
++	}
+ 
+ 	if (config->num_connections > 1) {
+ 		dev_err_ratelimited(nbd_to_dev(nbd),
 -- 
 2.20.1
 
