@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B46BA70D
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B447BA70E
+	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 21:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438424AbfIVSzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 14:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56836 "EHLO mail.kernel.org"
+        id S2438439AbfIVSzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 14:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438422AbfIVSzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:55:35 -0400
+        id S1729238AbfIVSzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:55:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FE6521D7A;
-        Sun, 22 Sep 2019 18:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86BB821D7E;
+        Sun, 22 Sep 2019 18:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569178534;
-        bh=DgPK/T0HZnKx0FixGTBXeg0NyxeriDAR+9mR7HWK4XU=;
+        s=default; t=1569178535;
+        bh=++ww0M8FldhONH/sKfUkcOspcDTMgTrhuVQH5MzsDWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Uc4kDDq2ZtdtV1v3I6LYFJQYgD3Vx/3IqplSdwO8sa1LCoM3W4Ctzi31ZKaM2sER
-         s8EEA9HLqt3f7o8k6AVNn3vAAbAZ7oWvWh6V+NK36YtpNNUYU3gR/mdYG/nHqA2vQa
-         ewQrqCLjzT8MvGbmSlLYfu5g1oxk2JyDiIXPqCRY=
+        b=WanaGgpvJBy+DCPYr/giU2co38FLpkskVtaUrmDAcRLJFEIAxv1gffC/yrai/eUkU
+         4I9uCzTdxgfVDu9XGWN1gWhcLpdvyfHASIkhW/bj7AKS6XplDYql16AlLwqZKxMvSV
+         w985dm1tWSf/9N3xgku/Q3CkqsYKOQ3n1gquUWHM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Steve Longerbeam <slongerbeam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.19 056/128] media: imx: mipi csi-2: Don't fail if initial state times-out
-Date:   Sun, 22 Sep 2019 14:53:06 -0400
-Message-Id: <20190922185418.2158-56-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 057/128] net: lpc-enet: fix printk format strings
+Date:   Sun, 22 Sep 2019 14:53:07 -0400
+Message-Id: <20190922185418.2158-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190922185418.2158-1-sashal@kernel.org>
 References: <20190922185418.2158-1-sashal@kernel.org>
@@ -48,73 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0d5078c7172c46db6c58718d817b9fcf769554b4 ]
+[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
 
-Not all sensors will be able to guarantee a proper initial state.
-This may be either because the driver is not properly written,
-or (probably unlikely) because the hardware won't support it.
+compile-testing this driver on other architectures showed
+multiple warnings:
 
-While the right solution in the former case is to fix the sensor
-driver, the real world not always allows right solutions, due to lack
-of available documentation and support on these sensors.
+  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
+  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
 
-Let's relax this requirement, and allow the driver to support stream start,
-even if the sensor initial sequence wasn't the expected.
+  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
 
-Also improve the warning message to better explain the problem and provide
-a hint that the sensor driver needs to be fixed.
+Use format strings that work on all architectures.
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Steve Longerbeam <slongerbeam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx6-mipi-csi2.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx6-mipi-csi2.c b/drivers/staging/media/imx/imx6-mipi-csi2.c
-index ceeeb3069a024..212fa06f7c57c 100644
---- a/drivers/staging/media/imx/imx6-mipi-csi2.c
-+++ b/drivers/staging/media/imx/imx6-mipi-csi2.c
-@@ -247,7 +247,7 @@ static int __maybe_unused csi2_dphy_wait_ulp(struct csi2_dev *csi2)
- }
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index 08381ef8bdb48..41d30f55c946b 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1371,13 +1371,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	pldat->dma_buff_base_p = dma_handle;
  
- /* Waits for low-power LP-11 state on data and clock lanes. */
--static int csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
-+static void csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
- {
- 	u32 mask, reg;
- 	int ret;
-@@ -258,11 +258,9 @@ static int csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
- 	ret = readl_poll_timeout(csi2->base + CSI2_PHY_STATE, reg,
- 				 (reg & mask) == mask, 0, 500000);
- 	if (ret) {
--		v4l2_err(&csi2->sd, "LP-11 timeout, phy_state = 0x%08x\n", reg);
--		return ret;
-+		v4l2_warn(&csi2->sd, "LP-11 wait timeout, likely a sensor driver bug, expect capture failures.\n");
-+		v4l2_warn(&csi2->sd, "phy_state = 0x%08x\n", reg);
- 	}
--
--	return 0;
- }
+ 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
+-	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
++	netdev_dbg(ndev, "IO address size      :%zd\n",
++			(size_t)resource_size(res));
+ 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
+ 			pldat->net_base);
+ 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
+-	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
+-	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
+-			pldat->dma_buff_base_p);
++	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
++	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
++			&pldat->dma_buff_base_p);
+ 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
+ 			pldat->dma_buff_base_v);
  
- /* Wait for active clock on the clock lane. */
-@@ -320,9 +318,7 @@ static int csi2_start(struct csi2_dev *csi2)
- 	csi2_enable(csi2, true);
+@@ -1424,8 +1425,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_out_unregister_netdev;
  
- 	/* Step 5 */
--	ret = csi2_dphy_wait_stopstate(csi2);
--	if (ret)
--		goto err_assert_reset;
-+	csi2_dphy_wait_stopstate(csi2);
+-	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
+-	       res->start, ndev->irq);
++	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
++	       (unsigned long)res->start, ndev->irq);
  
- 	/* Step 6 */
- 	ret = v4l2_subdev_call(csi2->src_sd, video, s_stream, 1);
+ 	phydev = ndev->phydev;
+ 
 -- 
 2.20.1
 
