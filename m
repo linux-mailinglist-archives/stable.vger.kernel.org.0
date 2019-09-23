@@ -2,111 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E1FBAE56
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C2ABAE6A
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbfIWHNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 03:13:50 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49397 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726942AbfIWHNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:13:50 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 58F9522254;
-        Mon, 23 Sep 2019 03:13:49 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 23 Sep 2019 03:13:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=RkRK996cL4srhgRQFGfrcbxHAR9
-        z0ZXdF2rqtRnas6U=; b=BGJ3zFCpk2ml8YWsvqD6Hr6WVoecaEiJVphIyq1t6eG
-        Fvya10WixfI7nxfGx2dOO9CZmnCJImT3MmQUxjNa8TyubWLq3LGZNmclyhgih5kn
-        n1f2awyulS0bKvGh6FB+VTenLxLF32tSXtmqEfjuhPVsTcphGeK50XH6JBnyMwu+
-        7ir/rcaxSsqcI2gwUNc6u5u93KdPv1ve+87UthLp/z/x2sbXouAXls9Nm5wvcYgA
-        ArJ85iFHpsPGTSARv/TqkrK+ahhLLC+XD7Y+JkrjF0dRKUzu3eFErxLca6dtpSG1
-        nwE0eFUFARUF8GBUrah9GFE6otmaPvHTkgKqbPiDMPQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RkRK99
-        6cL4srhgRQFGfrcbxHAR9z0ZXdF2rqtRnas6U=; b=ec08mQlaZuCVA1ec3MUX2Y
-        sataQ6A14/dntZLgTEJBjCJG8x3vk8khw8/8vFcnQxLQPrVB1b90Y1emDjHD6Gvo
-        cGRLoFnWZ3PlVhwufvakf6CCUL/HDzepcRtJjmF5W+rItKgUK2uYHednqp8khW+S
-        dZLUFheKrocyTyvIVYQWuMAEEbYMCTm/7jaA7TsjWHzkJQSNAuBE6XcgczMIL/Pz
-        e0IG4UqvuoWq0op9WFGwQ4TbW9aRYMpPzroFRwV3VLHTgXG8m51fbhMsv10P0zFc
-        Jva8lSVkTMa7WiJGLl9IfcDHg3J9MJmuyJc+S6Oj63LAGAWi+fojk4A7qP/mceGg
-        ==
-X-ME-Sender: <xms:rHCIXbvy0xUaAgNCiDq4Et8L8tP_kN1HXHr_3mbjTK97co_vOZz54w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdejgdduvddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:rHCIXWuUp0H43keclEzz19i_R_vT1Avwwy4uh68uorOHRgs1Ud89Qg>
-    <xmx:rHCIXdv_mh2cjeKXFTO3mDnvBQwt6rXuFv-pWIsCSe44x89sPiX5og>
-    <xmx:rHCIXR3RAMMi4IljKXhgb5wiUrx4bum9zbqWOFqtXML_NB4UZRNSPw>
-    <xmx:rXCIXUNKOcE-3TQKB2DE27A1lWJCejGoSGUIbl_Rqf2esH6BHuN55w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 020AE80059;
-        Mon, 23 Sep 2019 03:13:47 -0400 (EDT)
-Date:   Mon, 23 Sep 2019 09:13:46 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Tokunori Ikegami <ikegami.t@gmail.com>
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        Felix Fietkau <nbd@nbd.name>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Subject: Re: [PATCH for 5.2.y] mtd: cfi_cmdset_0002: Use chip_good() to retry
- in do_write_oneword()
-Message-ID: <20190923071346.GD2746429@kroah.com>
-References: <20190923023251.20180-1-ikegami.t@gmail.com>
+        id S2436593AbfIWHUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 03:20:44 -0400
+Received: from retiisi.org.uk ([95.216.213.190]:49834 "EHLO
+        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2436537AbfIWHUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:20:44 -0400
+Received: from valkosipuli.localdomain (valkosipuli.retiisi.org.uk [IPv6:2a01:4f9:c010:4572::80:2])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by hillosipuli.retiisi.org.uk (Postfix) with ESMTPS id 02DA5634C87;
+        Mon, 23 Sep 2019 10:19:42 +0300 (EEST)
+Received: from sailus by valkosipuli.localdomain with local (Exim 4.92)
+        (envelope-from <sakari.ailus@retiisi.org.uk>)
+        id 1iCIdK-00029L-S1; Mon, 23 Sep 2019 10:19:42 +0300
+Date:   Mon, 23 Sep 2019 10:19:42 +0300
+From:   Sakari Ailus <sakari.ailus@iki.fi>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.3 084/203] media: omap3isp: Don't set streaming
+ state on random subdevs
+Message-ID: <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
+References: <20190922184350.30563-1-sashal@kernel.org>
+ <20190922184350.30563-84-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190923023251.20180-1-ikegami.t@gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20190922184350.30563-84-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 11:32:51AM +0900, Tokunori Ikegami wrote:
-> As reported by the OpenWRT team, write requests sometimes fail on some
-> platforms.
-> Currently to check the state chip_ready() is used correctly as described by
-> the flash memory S29GL256P11TFI01 datasheet.
-> Also chip_good() is used to check if the write is succeeded and it was
-> implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
-> checking").
-> But actually the write failure is caused on some platforms and also it can
-> be fixed by using chip_good() to check the state and retry instead.
-> Also it seems that it is caused after repeated about 1,000 times to retry
-> the write one word with the reset command.
-> By using chip_good() to check the state to be done it can be reduced the
-> retry with reset.
-> It is depended on the actual flash chip behavior so the root cause is
-> unknown.
+Hi Sasha,
+
+On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
+> From: Sakari Ailus <sakari.ailus@linux.intel.com>
 > 
-> Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-> Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-> Cc: linux-mtd@lists.infradead.org
-> Cc: stable@vger.kernel.org
-> Reported-by: Fabio Bettoni <fbettoni@gmail.com>
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-> [vigneshr@ti.com: Fix a checkpatch warning]
-> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-> ---
->  drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
+> [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+> 
+> The streaming state should be set to the first upstream sub-device only,
+> not everywhere, for a sub-device driver itself knows how to best control
+> the streaming state of its own upstream sub-devices.
+> 
+> Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-What is the git commit id of this patch in Linus's tree?
+I don't disagree with this going to the stable trees as well, but in that
+case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
+device on omap3isp subdevs") or the driver will mostly cease to work.
 
-thanks,
+Could you pick that up as well?
 
-greg k-h
+Thanks.
+
+-- 
+Kind regards,
+
+Sakari Ailus
