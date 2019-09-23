@@ -2,436 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE6DBB75F
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 16:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D98BBB778
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbfIWO6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 10:58:03 -0400
-Received: from mga11.intel.com ([192.55.52.93]:38259 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726902AbfIWO6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 10:58:02 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Sep 2019 07:58:01 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,540,1559545200"; 
-   d="scan'208";a="272304201"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga001.jf.intel.com with SMTP; 23 Sep 2019 07:57:58 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 23 Sep 2019 17:57:57 +0300
-Date:   Mon, 23 Sep 2019 17:57:57 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Manasi Navare <manasi.d.navare@intel.com>
-Subject: Re: [PATCH] drm/i915/dp: Fix dsc bpp calculations, v4.
-Message-ID: <20190923145757.GM1208@intel.com>
-References: <20190923130307.GK1208@intel.com>
- <20190923144947.18588-1-maarten.lankhorst@linux.intel.com>
+        id S1726141AbfIWPGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 11:06:06 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41730 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726135AbfIWPGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 11:06:06 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 95048ACD7;
+        Mon, 23 Sep 2019 15:06:02 +0000 (UTC)
+Date:   Mon, 23 Sep 2019 17:06:01 +0200
+From:   Petr Vorel <pvorel@suse.cz>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ipv6: Properly check reference count flag before taking
+ reference
+Message-ID: <20190923150600.GA27191@dell5510>
+Reply-To: Petr Vorel <pvorel@suse.cz>
+References: <20190923144612.29668-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190923144947.18588-1-maarten.lankhorst@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190923144612.29668-1-Jason@zx2c4.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 04:49:47PM +0200, Maarten Lankhorst wrote:
-> There was a integer wraparound when mode_clock became too high,
-> and we didn't correct for the FEC overhead factor when dividing,
-> with the calculations breaking at HBR3.
-> 
-> As a result our calculated bpp was way too high, and the link width
-> limitation never came into effect.
-> 
-> Print out the resulting bpp calcululations as a sanity check, just
-> in case we ever have to debug it later on again.
-> 
-> We also used the wrong factor for FEC. While bspec mentions 2.4%,
-> all the calculations use 1/0.972261, and the same ratio should be
-> applied to data M/N as well, so use it there when FEC is enabled.
-> 
-> Make sure we don't break hw readout, and read out FEC enable state
-> and correct the DDI clock readout for the new values.
-> 
-> This fixes the FIFO underrun we are seeing with FEC enabled.
-> 
-> Changes since v2:
-> - Handle fec_enable in intel_link_compute_m_n, so only data M/N is adjusted. (Ville)
-> - Fix initial hardware readout for FEC. (Ville)
-> Changes since v3:
-> - Remove bogus fec_to_mode_clock. (Ville)
-> 
-> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-> Cc: <stable@vger.kernel.org> # v5.0+
-> Cc: Manasi Navare <manasi.d.navare@intel.com>
+Hi,
+
+> People are reporting that WireGuard experiences erratic crashes on 5.3,
+> and bisected it down to 7d30a7f6424e. Casually flipping through that
+> commit I noticed that a flag is checked using `|` instead of `&`, which in
+> this current case, means that a reference is never incremented, which
+> would result in the use-after-free users are seeing. This commit changes
+> the `|` to the proper `&` test.
+
+> Cc: stable@vger.kernel.org
+> Fixes: 7d30a7f6424e ("Merge branch 'ipv6-avoid-taking-refcnt-on-dst-during-route-lookup'")
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+
+Reviewed-by: Petr Vorel <pvorel@suse.cz>
+
+NOTE: this change was added in d64a1f574a29 ("ipv6: honor RT6_LOOKUP_F_DST_NOREF in rule lookup logic")
+
+Kind regards,
+Petr
+
 > ---
->  drivers/gpu/drm/i915/display/intel_ddi.c     |  17 ++
->  drivers/gpu/drm/i915/display/intel_display.c |  13 +-
->  drivers/gpu/drm/i915/display/intel_display.h |   2 +-
->  drivers/gpu/drm/i915/display/intel_dp.c      | 184 ++++++++++---------
->  drivers/gpu/drm/i915/display/intel_dp.h      |   6 +-
->  drivers/gpu/drm/i915/display/intel_dp_mst.c  |   2 +-
->  6 files changed, 125 insertions(+), 99 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-> index 0c0da9f6c2e8..1cb297abd111 100644
-> --- a/drivers/gpu/drm/i915/display/intel_ddi.c
-> +++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-> @@ -4045,6 +4045,23 @@ void intel_ddi_get_config(struct intel_encoder *encoder,
->  		pipe_config->lane_count =
->  			((temp & DDI_PORT_WIDTH_MASK) >> DDI_PORT_WIDTH_SHIFT) + 1;
->  		intel_dp_get_m_n(intel_crtc, pipe_config);
-> +
-> +		if (INTEL_GEN(dev_priv) >= 11) {
-> +			i915_reg_t dp_tp_ctl;
-> +
-> +			if (IS_GEN(dev_priv, 11))
-> +				dp_tp_ctl = DP_TP_CTL(pipe_config->cpu_transcoder);
-> +			else
-> +				dp_tp_ctl = TGL_DP_TP_CTL(pipe_config->cpu_transcoder);
-> +
-> +			pipe_config->fec_enable =
-> +				I915_READ(dp_tp_ctl) & DP_TP_CTL_FEC_ENABLE;
+>  net/ipv6/ip6_fib.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Can you split the fec_enable readout/state check into a separate
-patch?
-
-I wonder how the lack of this stuff was missed when FEC was adeed...
-
-> +
-> +			DRM_DEBUG_KMS("[ENCODER:%d:%s] Fec status: %u\n",
-> +				      encoder->base.base.id, encoder->base.name,
-> +				      pipe_config->fec_enable);
-
-I'd just include it as part of the normal state dump.
-
-> +		}
-> +
->  		break;
->  	case TRANS_DDI_MODE_SELECT_DP_MST:
->  		pipe_config->output_types |= BIT(INTEL_OUTPUT_DP_MST);
-> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> index 5ecf54270181..31698a57773f 100644
-> --- a/drivers/gpu/drm/i915/display/intel_display.c
-> +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> @@ -7291,7 +7291,7 @@ static int ironlake_fdi_compute_config(struct intel_crtc *intel_crtc,
->  	pipe_config->fdi_lanes = lane;
->  
->  	intel_link_compute_m_n(pipe_config->pipe_bpp, lane, fdi_dotclock,
-> -			       link_bw, &pipe_config->fdi_m_n, false);
-> +			       link_bw, &pipe_config->fdi_m_n, false, false);
->  
->  	ret = ironlake_check_fdi_lanes(dev, intel_crtc->pipe, pipe_config);
->  	if (ret == -EDEADLK)
-> @@ -7538,11 +7538,15 @@ void
->  intel_link_compute_m_n(u16 bits_per_pixel, int nlanes,
->  		       int pixel_clock, int link_clock,
->  		       struct intel_link_m_n *m_n,
-> -		       bool constant_n)
-> +		       bool constant_n, bool fec_enable)
->  {
-> -	m_n->tu = 64;
-> +	u32 data_clock = bits_per_pixel * pixel_clock;
-> +
-> +	if (fec_enable)
-> +		data_clock = intel_dp_mode_to_fec_clock(data_clock);
->  
-> -	compute_m_n(bits_per_pixel * pixel_clock,
-> +	m_n->tu = 64;
-> +	compute_m_n(data_clock,
->  		    link_clock * nlanes * 8,
->  		    &m_n->gmch_m, &m_n->gmch_n,
->  		    constant_n);
-> @@ -12832,6 +12836,7 @@ intel_pipe_config_compare(const struct intel_crtc_state *current_config,
->  	PIPE_CONF_CHECK_BOOL(hdmi_scrambling);
->  	PIPE_CONF_CHECK_BOOL(hdmi_high_tmds_clock_ratio);
->  	PIPE_CONF_CHECK_BOOL(has_infoframe);
-> +	PIPE_CONF_CHECK_BOOL(fec_enable);
->  
->  	PIPE_CONF_CHECK_BOOL_INCOMPLETE(has_audio);
->  
-> diff --git a/drivers/gpu/drm/i915/display/intel_display.h b/drivers/gpu/drm/i915/display/intel_display.h
-> index 5cea6f8e107a..4b9e18e5a263 100644
-> --- a/drivers/gpu/drm/i915/display/intel_display.h
-> +++ b/drivers/gpu/drm/i915/display/intel_display.h
-> @@ -443,7 +443,7 @@ enum phy_fia {
->  void intel_link_compute_m_n(u16 bpp, int nlanes,
->  			    int pixel_clock, int link_clock,
->  			    struct intel_link_m_n *m_n,
-> -			    bool constant_n);
-> +			    bool constant_n, bool fec_enable);
->  bool is_ccs_modifier(u64 modifier);
->  void lpt_disable_clkout_dp(struct drm_i915_private *dev_priv);
->  u32 intel_plane_fb_max_stride(struct drm_i915_private *dev_priv,
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> index 829559f97440..2b1e71f992b0 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> @@ -76,8 +76,8 @@
->  #define DP_DSC_MAX_ENC_THROUGHPUT_0		340000
->  #define DP_DSC_MAX_ENC_THROUGHPUT_1		400000
->  
-> -/* DP DSC FEC Overhead factor = (100 - 2.4)/100 */
-> -#define DP_DSC_FEC_OVERHEAD_FACTOR		976
-> +/* DP DSC FEC Overhead factor = 1/(0.972261) */
-> +#define DP_DSC_FEC_OVERHEAD_FACTOR		972261
->  
->  /* Compliance test status bits  */
->  #define INTEL_DP_RESOLUTION_SHIFT_MASK	0
-> @@ -492,6 +492,97 @@ int intel_dp_get_link_train_fallback_values(struct intel_dp *intel_dp,
->  	return 0;
->  }
->  
-> +u32 intel_dp_mode_to_fec_clock(u32 mode_clock)
-> +{
-> +	return div_u64(mul_u32_u32(mode_clock, 1000000U),
-> +		       DP_DSC_FEC_OVERHEAD_FACTOR);
-> +}
-> +
-> +static u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u32 lane_count,
-> +				       u32 mode_clock, u32 mode_hdisplay)
-> +{
-> +	u32 bits_per_pixel, max_bpp_small_joiner_ram;
-> +	int i;
-> +
-> +	/*
-> +	 * Available Link Bandwidth(Kbits/sec) = (NumberOfLanes)*
-> +	 * (LinkSymbolClock)* 8 * (TimeSlotsPerMTP)
-> +	 * for SST -> TimeSlotsPerMTP is 1,
-> +	 * for MST -> TimeSlotsPerMTP has to be calculated
-> +	 */
-> +	bits_per_pixel = (link_clock * lane_count * 8) /
-> +			 intel_dp_mode_to_fec_clock(mode_clock);
-> +	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
-> +
-> +	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
-> +	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER / mode_hdisplay;
-> +	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
-> +
-> +	/*
-> +	 * Greatest allowed DSC BPP = MIN (output BPP from available Link BW
-> +	 * check, output bpp from small joiner RAM check)
-> +	 */
-> +	bits_per_pixel = min(bits_per_pixel, max_bpp_small_joiner_ram);
-> +
-> +	/* Error out if the max bpp is less than smallest allowed valid bpp */
-> +	if (bits_per_pixel < valid_dsc_bpp[0]) {
-> +		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
-> +			      bits_per_pixel, valid_dsc_bpp[0]);
-> +		return 0;
-> +	}
-> +
-> +	/* Find the nearest match in the array of known BPPs from VESA */
-> +	for (i = 0; i < ARRAY_SIZE(valid_dsc_bpp) - 1; i++) {
-> +		if (bits_per_pixel < valid_dsc_bpp[i + 1])
-> +			break;
-> +	}
-> +	bits_per_pixel = valid_dsc_bpp[i];
-> +
-> +	/*
-> +	 * Compressed BPP in U6.4 format so multiply by 16, for Gen 11,
-> +	 * fractional part is 0
-> +	 */
-> +	return bits_per_pixel << 4;
-> +}
-> +
-> +static u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp,
-> +				       int mode_clock, int mode_hdisplay)
-> +{
-> +	u8 min_slice_count, i;
-> +	int max_slice_width;
-> +
-> +	if (mode_clock <= DP_DSC_PEAK_PIXEL_RATE)
-> +		min_slice_count = DIV_ROUND_UP(mode_clock,
-> +					       DP_DSC_MAX_ENC_THROUGHPUT_0);
-> +	else
-> +		min_slice_count = DIV_ROUND_UP(mode_clock,
-> +					       DP_DSC_MAX_ENC_THROUGHPUT_1);
-> +
-> +	max_slice_width = drm_dp_dsc_sink_max_slice_width(intel_dp->dsc_dpcd);
-> +	if (max_slice_width < DP_DSC_MIN_SLICE_WIDTH_VALUE) {
-> +		DRM_DEBUG_KMS("Unsupported slice width %d by DP DSC Sink device\n",
-> +			      max_slice_width);
-> +		return 0;
-> +	}
-> +	/* Also take into account max slice width */
-> +	min_slice_count = min_t(u8, min_slice_count,
-> +				DIV_ROUND_UP(mode_hdisplay,
-> +					     max_slice_width));
-> +
-> +	/* Find the closest match to the valid slice count values */
-> +	for (i = 0; i < ARRAY_SIZE(valid_dsc_slicecount); i++) {
-> +		if (valid_dsc_slicecount[i] >
-> +		    drm_dp_dsc_sink_max_slice_count(intel_dp->dsc_dpcd,
-> +						    false))
-> +			break;
-> +		if (min_slice_count  <= valid_dsc_slicecount[i])
-> +			return valid_dsc_slicecount[i];
-> +	}
-> +
-> +	DRM_DEBUG_KMS("Unsupported Slice Count %d\n", min_slice_count);
-> +	return 0;
-> +}
-> +
->  static enum drm_mode_status
->  intel_dp_mode_valid(struct drm_connector *connector,
->  		    struct drm_display_mode *mode)
-> @@ -2259,7 +2350,7 @@ intel_dp_compute_config(struct intel_encoder *encoder,
->  			       adjusted_mode->crtc_clock,
->  			       pipe_config->port_clock,
->  			       &pipe_config->dp_m_n,
-> -			       constant_n);
-> +			       constant_n, pipe_config->fec_enable);
->  
->  	if (intel_connector->panel.downclock_mode != NULL &&
->  		dev_priv->drrs.type == SEAMLESS_DRRS_SUPPORT) {
-> @@ -2269,7 +2360,7 @@ intel_dp_compute_config(struct intel_encoder *encoder,
->  					       intel_connector->panel.downclock_mode->clock,
->  					       pipe_config->port_clock,
->  					       &pipe_config->dp_m2_n2,
-> -					       constant_n);
-> +					       constant_n, pipe_config->fec_enable);
+> diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
+> index 87f47bc55c5e..6e2af411cd9c 100644
+> --- a/net/ipv6/ip6_fib.c
+> +++ b/net/ipv6/ip6_fib.c
+> @@ -318,7 +318,7 @@ struct dst_entry *fib6_rule_lookup(struct net *net, struct flowi6 *fl6,
+>  	if (rt->dst.error == -EAGAIN) {
+>  		ip6_rt_put_flags(rt, flags);
+>  		rt = net->ipv6.ip6_null_entry;
+> -		if (!(flags | RT6_LOOKUP_F_DST_NOREF))
+> +		if (!(flags & RT6_LOOKUP_F_DST_NOREF))
+>  			dst_hold(&rt->dst);
 >  	}
->  
->  	if (!HAS_DDI(dev_priv))
-> @@ -4373,91 +4464,6 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
->  		DP_DPRX_ESI_LEN;
->  }
->  
-> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
-> -				int mode_clock, int mode_hdisplay)
-> -{
-> -	u16 bits_per_pixel, max_bpp_small_joiner_ram;
-> -	int i;
-> -
-> -	/*
-> -	 * Available Link Bandwidth(Kbits/sec) = (NumberOfLanes)*
-> -	 * (LinkSymbolClock)* 8 * ((100-FECOverhead)/100)*(TimeSlotsPerMTP)
-> -	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
-> -	 * for MST -> TimeSlotsPerMTP has to be calculated
-> -	 */
-> -	bits_per_pixel = (link_clock * lane_count * 8 *
-> -			  DP_DSC_FEC_OVERHEAD_FACTOR) /
-> -		mode_clock;
-> -
-> -	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
-> -	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
-> -		mode_hdisplay;
-> -
-> -	/*
-> -	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
-> -	 * check, output bpp from small joiner RAM check)
-> -	 */
-> -	bits_per_pixel = min(bits_per_pixel, max_bpp_small_joiner_ram);
-> -
-> -	/* Error out if the max bpp is less than smallest allowed valid bpp */
-> -	if (bits_per_pixel < valid_dsc_bpp[0]) {
-> -		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
-> -		return 0;
-> -	}
-> -
-> -	/* Find the nearest match in the array of known BPPs from VESA */
-> -	for (i = 0; i < ARRAY_SIZE(valid_dsc_bpp) - 1; i++) {
-> -		if (bits_per_pixel < valid_dsc_bpp[i + 1])
-> -			break;
-> -	}
-> -	bits_per_pixel = valid_dsc_bpp[i];
-> -
-> -	/*
-> -	 * Compressed BPP in U6.4 format so multiply by 16, for Gen 11,
-> -	 * fractional part is 0
-> -	 */
-> -	return bits_per_pixel << 4;
-> -}
-> -
-> -u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp,
-> -				int mode_clock,
-> -				int mode_hdisplay)
-> -{
-> -	u8 min_slice_count, i;
-> -	int max_slice_width;
-> -
-> -	if (mode_clock <= DP_DSC_PEAK_PIXEL_RATE)
-> -		min_slice_count = DIV_ROUND_UP(mode_clock,
-> -					       DP_DSC_MAX_ENC_THROUGHPUT_0);
-> -	else
-> -		min_slice_count = DIV_ROUND_UP(mode_clock,
-> -					       DP_DSC_MAX_ENC_THROUGHPUT_1);
-> -
-> -	max_slice_width = drm_dp_dsc_sink_max_slice_width(intel_dp->dsc_dpcd);
-> -	if (max_slice_width < DP_DSC_MIN_SLICE_WIDTH_VALUE) {
-> -		DRM_DEBUG_KMS("Unsupported slice width %d by DP DSC Sink device\n",
-> -			      max_slice_width);
-> -		return 0;
-> -	}
-> -	/* Also take into account max slice width */
-> -	min_slice_count = min_t(u8, min_slice_count,
-> -				DIV_ROUND_UP(mode_hdisplay,
-> -					     max_slice_width));
-> -
-> -	/* Find the closest match to the valid slice count values */
-> -	for (i = 0; i < ARRAY_SIZE(valid_dsc_slicecount); i++) {
-> -		if (valid_dsc_slicecount[i] >
-> -		    drm_dp_dsc_sink_max_slice_count(intel_dp->dsc_dpcd,
-> -						    false))
-> -			break;
-> -		if (min_slice_count  <= valid_dsc_slicecount[i])
-> -			return valid_dsc_slicecount[i];
-> -	}
-> -
-> -	DRM_DEBUG_KMS("Unsupported Slice Count %d\n", min_slice_count);
-> -	return 0;
-> -}
-> -
->  static void
->  intel_pixel_encoding_setup_vsc(struct intel_dp *intel_dp,
->  			       const struct intel_crtc_state *crtc_state)
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
-> index e01d1f89409d..a194b5b6da05 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.h
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.h
-> @@ -103,10 +103,6 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
->  bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
->  bool
->  intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
-> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
-> -				int mode_clock, int mode_hdisplay);
-> -u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
-> -				int mode_hdisplay);
->  
->  bool intel_dp_read_dpcd(struct intel_dp *intel_dp);
->  bool intel_dp_get_colorimetry_status(struct intel_dp *intel_dp);
-> @@ -119,4 +115,6 @@ static inline unsigned int intel_dp_unused_lane_mask(int lane_count)
->  	return ~((1 << lane_count) - 1) & 0xf;
->  }
->  
-> +u32 intel_dp_mode_to_fec_clock(u32 mode_clock);
-> +
->  #endif /* __INTEL_DP_H__ */
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> index eeeb3f933aa4..cf4d851a5139 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> @@ -81,7 +81,7 @@ static int intel_dp_mst_compute_link_config(struct intel_encoder *encoder,
->  			       adjusted_mode->crtc_clock,
->  			       crtc_state->port_clock,
->  			       &crtc_state->dp_m_n,
-> -			       constant_n);
-> +			       constant_n, crtc_state->fec_enable);
->  	crtc_state->dp_m_n.tu = slots;
->  
->  	return 0;
-> -- 
-> 2.20.1
-
--- 
-Ville Syrjälä
-Intel
