@@ -2,146 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B1CBB1AC
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 11:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D28BB214
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 12:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405889AbfIWJuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 05:50:46 -0400
-Received: from mx1.emlix.com ([188.40.240.192]:41248 "EHLO mx1.emlix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405498AbfIWJuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 05:50:46 -0400
-X-Greylist: delayed 597 seconds by postgrey-1.27 at vger.kernel.org; Mon, 23 Sep 2019 05:50:44 EDT
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id E42475FA99
-        for <stable@vger.kernel.org>; Mon, 23 Sep 2019 11:40:45 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     stable@vger.kernel.org
-Subject: [4.14] please include 056d28d135bca0b1d0908990338e00e9dadaf057
-Date:   Mon, 23 Sep 2019 11:40:41 +0200
-Message-ID: <7888549.SPjspKb6cB@devpool35>
-Organization: emlix GmbH
+        id S2439415AbfIWKQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 06:16:16 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:39789 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2439381AbfIWKQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 06:16:16 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id F3B6857C;
+        Mon, 23 Sep 2019 06:16:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 23 Sep 2019 06:16:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=og7hv9S+A36vyhNUshI2k3Z6yfW
+        53mhgDBj5tYm1SLI=; b=DO6CUHNsbdFmp69UjYZMIkvuq+mXIKQA5L0K9yyzaeE
+        oXHMo5pdBCvwl46Yq7fgoZqxn75NfKLq0/1mWTg7Pnwe9sC3Vfy+Z1HhXx+ApwFZ
+        opJpPS6wfYVnUmQchsAICYtmyxQxS7M84Yi1jmplJwwL/nwYltZJIEj4fX1Wj+5P
+        evx8I/NBe815BdbauExNqUQvBBzKPAB7kfisso96P3oA7sOYaKpc53dns8QSo3fo
+        u625h9EwkfojYv1qcoP5zRY/TmEw4tgPfrlqGlljbQRI3i86klm+GOyMnZfo2a7a
+        PZCiyS4XsUwvW44i++wV9jzwcePLTcHYwpaO0SYZ0fA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=og7hv9
+        S+A36vyhNUshI2k3Z6yfW53mhgDBj5tYm1SLI=; b=oT22yCtz3i0z9kb1extcs2
+        KeS5xCWJ+8VIicl5+CE/8b4TVDWgfykNScFhh+3jRDMH364b4MV5JH0x5qYU2i1T
+        3+ttSYS/GLiRgtzaXGCvYnJxhV8W0QEgVCxE1pGHFpnpxhwwEDNKUPiB4jPPxYHB
+        CxznUSLN+AqAnF73suwiv64iMsJ2VMcESs4gToKl/iNRbmwVabP6jM2oYPgF/PnR
+        gWDIklDv1TmwVHMvVvmx+dqvQL7ZCS+Pp7d9e+IVW02dxm2NkVb3v4egh8p3a5kT
+        SUDsF/dIcf34zSjSuhl/G1HtuDvKLztFWYtpyi9ouapHCUbpPTs9dpCHC1gYvW9g
+        ==
+X-ME-Sender: <xms:bpuIXesOXKZR-PAO0BrcO6S29in0iIctyix9MTqZnCMd0CdHWXZ1Pg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdekgddviecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:bpuIXfxo6NZfIje_x3x2USTBhNUB-iaRzUAPesrQvSsNBm6RuPd39g>
+    <xmx:bpuIXcgklq4x42ncPhncznTcMyUkS_USj9XkAJc4GpBnTqmH-4HJyA>
+    <xmx:bpuIXbD47Gs3maA-lOv8u3IKpFk1OVTDJzDC-bd8VciKf7c1lGjJWQ>
+    <xmx:bpuIXfghfTVN3w_oWBxd7o3FOiK2CMGaARQxSky2PjlyPR05x7LJ9g>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E69EE80065;
+        Mon, 23 Sep 2019 06:16:13 -0400 (EDT)
+Date:   Mon, 23 Sep 2019 12:16:07 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Rolf Eike Beer <eb@emlix.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [4.14] please include 056d28d135bca0b1d0908990338e00e9dadaf057
+Message-ID: <20190923101607.GC2763897@kroah.com>
+References: <7888549.SPjspKb6cB@devpool35>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2493806.oVEsFefb8Z"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7888549.SPjspKb6cB@devpool35>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart2493806.oVEsFefb8Z
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+On Mon, Sep 23, 2019 at 11:40:41AM +0200, Rolf Eike Beer wrote:
+> Hi all,
+> 
+> please include 056d28d135bca0b1d0908990338e00e9dadaf057, I can't build without 
+> it. It is in several other stable kernels (e.g. 4.19). It fails applying in 
+> tools/objtool/Makefile, but the fixup is rather trivial.
+> 
+> For reference, this is the patch as I manually apply it currently:
 
-Hi all,
+Now queued up, thanks!
 
-please include 056d28d135bca0b1d0908990338e00e9dadaf057, I can't build with=
-out=20
-it. It is in several other stable kernels (e.g. 4.19). It fails applying in=
-=20
-tools/objtool/Makefile, but the fixup is rather trivial.
-
-=46or reference, this is the patch as I manually apply it currently:
-
-=46rom 7d25e19601df63ece47da732c96d656ec3850a52 Mon Sep 17 00:00:00 2001
-=46rom: Rolf Eike Beer <eb@emlix.com>
-Date: Tue, 26 Mar 2019 12:48:39 -0500
-Subject: [PATCH] objtool: Query pkg-config for libelf location
-
-If it is not in the default location, compilation fails at several points.
-
-Signed-off-by: Rolf Eike Beer <eb@emlix.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/91a25e992566a7968fedc89ec80e7f4c83ad0548.15=
-53622500.git.jpoimboe@redhat.com
-
-(cherry picked from commit 056d28d135bca0b1d0908990338e00e9dadaf057)
-=2D--
- Makefile               | 4 +++-
- tools/objtool/Makefile | 7 +++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index ad923d5eae1e..e5deecb976fd 100644
-=2D-- a/Makefile
-+++ b/Makefile
-@@ -949,9 +949,11 @@ mod_sign_cmd =3D true
- endif
- export mod_sign_cmd
-=20
-+HOST_LIBELF_LIBS =3D $(shell pkg-config libelf --libs 2>/dev/null || echo =
-=2Dlelf)
-+
- ifdef CONFIG_STACK_VALIDATION
-   has_libelf :=3D $(call try-run,\
-=2D		echo "int main() {}" | $(HOSTCC) -xc -o /dev/null -lelf -,1,0)
-+		echo "int main() {}" | $(HOSTCC) -xc -o /dev/null $(HOST_LIBELF_LIBS) -,=
-1,0)
-   ifeq ($(has_libelf),1)
-     objtool_target :=3D tools/objtool FORCE
-   else
-diff --git a/tools/objtool/Makefile b/tools/objtool/Makefile
-index 884d4f1ed0c1..85d3d041e083 100644
-=2D-- a/tools/objtool/Makefile
-+++ b/tools/objtool/Makefile
-@@ -26,14 +26,17 @@ LIBSUBCMD		=3D $(LIBSUBCMD_OUTPUT)libsubcmd.a
- OBJTOOL    :=3D $(OUTPUT)objtool
- OBJTOOL_IN :=3D $(OBJTOOL)-in.o
-=20
-+LIBELF_FLAGS :=3D $(shell pkg-config libelf --cflags 2>/dev/null)
-+LIBELF_LIBS  :=3D $(shell pkg-config libelf --libs 2>/dev/null || echo -le=
-lf)
-+
- all: $(OBJTOOL)
-=20
- INCLUDES :=3D -I$(srctree)/tools/include \
- 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
- 	    -I$(srctree)/tools/objtool/arch/$(ARCH)/include
- WARNINGS :=3D $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -Wno-=
-packed
-=2DCFLAGS   +=3D -Wall -Werror $(WARNINGS) -fomit-frame-pointer -O2 -g $(IN=
-CLUDES)
-=2DLDFLAGS  +=3D -lelf $(LIBSUBCMD)
-+CFLAGS   +=3D -Wall -Werror $(WARNINGS) -fomit-frame-pointer -O2 -g $(INCL=
-UDES) $(LIBELF_FLAGS)
-+LDFLAGS  +=3D $(LIBELF_LIBS) $(LIBSUBCMD)
-=20
- # Allow old libelf to be used:
- elfshdr :=3D $(shell echo '$(pound)include <libelf.h>' | $(CC) $(CFLAGS) -=
-x c -E - | grep elf_getshdr)
-=2D-=20
-2.23.0
-
-Greetings,
-
-Eike
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart2493806.oVEsFefb8Z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXYiTGQAKCRCr5FH7Xu2t
-/JsIBACaN7JU1OZ6h8Aegbts6B4pDXQwrnBma1684+yi3f4NPyXx9gzj0SJzlv0a
-u3zv+K5XXGsYGhNBulyb36/agPY/C5owLx1VqjPJVQ8Z79AmmcOGr2Bc80zVlrOT
-x/sb/6Zx3lJ0q1+jKnoVNFr0JrVuPtubEwHAh57CT72FdjAeQA==
-=m3M+
------END PGP SIGNATURE-----
-
---nextPart2493806.oVEsFefb8Z--
-
-
-
+greg k-h
