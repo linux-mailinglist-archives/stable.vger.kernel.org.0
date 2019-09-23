@@ -2,72 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C2ABAE6A
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB4FBAE74
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436593AbfIWHUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 03:20:44 -0400
-Received: from retiisi.org.uk ([95.216.213.190]:49834 "EHLO
-        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2436537AbfIWHUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:20:44 -0400
-Received: from valkosipuli.localdomain (valkosipuli.retiisi.org.uk [IPv6:2a01:4f9:c010:4572::80:2])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by hillosipuli.retiisi.org.uk (Postfix) with ESMTPS id 02DA5634C87;
-        Mon, 23 Sep 2019 10:19:42 +0300 (EEST)
-Received: from sailus by valkosipuli.localdomain with local (Exim 4.92)
-        (envelope-from <sakari.ailus@retiisi.org.uk>)
-        id 1iCIdK-00029L-S1; Mon, 23 Sep 2019 10:19:42 +0300
-Date:   Mon, 23 Sep 2019 10:19:42 +0300
-From:   Sakari Ailus <sakari.ailus@iki.fi>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        id S2393160AbfIWHZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 03:25:14 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:35982 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389719AbfIWHZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:25:14 -0400
+Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 2528E51A;
+        Mon, 23 Sep 2019 09:25:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1569223512;
+        bh=W73OWeyjps5zQDbf4o8klBK6FV6fBTBTuu61y3QjNRI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W8HM36RZnNhOKBVdbAEVUJxROIW10YLs781fqrJLyjDixRMp4nev8nos+W4xtvg/q
+         baxHCiSaAeArs9Bi/5RiVQX9JUjJ8p2ETtwhf013Prit9mHkg4bR/c9tmX8Hy/w1Pl
+         6clowBhFMoQOuJfLoN1/kooP7ELRPdXHIQt5XTZU=
+Date:   Mon, 23 Sep 2019 10:25:03 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Sakari Ailus <sakari.ailus@iki.fi>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         linux-media@vger.kernel.org
 Subject: Re: [PATCH AUTOSEL 5.3 084/203] media: omap3isp: Don't set streaming
  state on random subdevs
-Message-ID: <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
+Message-ID: <20190923072503.GA5056@pendragon.ideasonboard.com>
 References: <20190922184350.30563-1-sashal@kernel.org>
  <20190922184350.30563-84-sashal@kernel.org>
+ <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190922184350.30563-84-sashal@kernel.org>
+In-Reply-To: <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
-> From: Sakari Ailus <sakari.ailus@linux.intel.com>
+On Mon, Sep 23, 2019 at 10:19:42AM +0300, Sakari Ailus wrote:
+> Hi Sasha,
 > 
-> [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+> On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
+> > From: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > 
+> > [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+> > 
+> > The streaming state should be set to the first upstream sub-device only,
+> > not everywhere, for a sub-device driver itself knows how to best control
+> > the streaming state of its own upstream sub-devices.
+> > 
+> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> The streaming state should be set to the first upstream sub-device only,
-> not everywhere, for a sub-device driver itself knows how to best control
-> the streaming state of its own upstream sub-devices.
+> I don't disagree with this going to the stable trees as well, but in that
+> case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
+> device on omap3isp subdevs") or the driver will mostly cease to work.
 > 
-> Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Could you pick that up as well?
 
-I don't disagree with this going to the stable trees as well, but in that
-case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
-device on omap3isp subdevs") or the driver will mostly cease to work.
-
-Could you pick that up as well?
-
-Thanks.
+While I don't disagree either, I also think there's no requirement to
+get this commit backported to stable branches. It seems to be the result
+of a too aggressive auto-selection.
 
 -- 
-Kind regards,
+Regards,
 
-Sakari Ailus
+Laurent Pinchart
