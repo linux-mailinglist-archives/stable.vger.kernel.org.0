@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E34E8BB8B5
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28128BB8BC
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732880AbfIWPys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 11:54:48 -0400
-Received: from mga06.intel.com ([134.134.136.31]:22871 "EHLO mga06.intel.com"
+        id S2387400AbfIWP4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 11:56:43 -0400
+Received: from mga01.intel.com ([192.55.52.88]:57511 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728464AbfIWPys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 11:54:48 -0400
+        id S2387399AbfIWP4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 11:56:43 -0400
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Sep 2019 08:54:45 -0700
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Sep 2019 08:56:41 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,541,1559545200"; 
-   d="scan'208";a="363669759"
-Received: from labuser-z97x-ud5h.jf.intel.com (HELO intel.com) ([10.54.75.49])
-  by orsmga005.jf.intel.com with ESMTP; 23 Sep 2019 08:54:45 -0700
-Date:   Mon, 23 Sep 2019 08:56:12 -0700
-From:   Manasi Navare <manasi.d.navare@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/dp: Fix dsc bpp calculations, v4.
-Message-ID: <20190923155612.GB17911@intel.com>
+   d="scan'208";a="200581968"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga002.jf.intel.com with SMTP; 23 Sep 2019 08:56:39 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 23 Sep 2019 18:56:38 +0300
+Date:   Mon, 23 Sep 2019 18:56:38 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/dp: Fix dsc bpp calculations, v4.
+Message-ID: <20190923155638.GO1208@intel.com>
 References: <20190923130307.GK1208@intel.com>
  <20190923144947.18588-1-maarten.lankhorst@linux.intel.com>
  <20190923145757.GM1208@intel.com>
@@ -36,7 +36,7 @@ Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 In-Reply-To: <20190923145757.GM1208@intel.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -96,6 +96,9 @@ On Mon, Sep 23, 2019 at 05:57:57PM +0300, Ville Syrjälä wrote:
 > > +
 > > +			if (IS_GEN(dev_priv, 11))
 > > +				dp_tp_ctl = DP_TP_CTL(pipe_config->cpu_transcoder);
+
+Oh, and pre-tgl DP_TP_CTL is per port.
+
 > > +			else
 > > +				dp_tp_ctl = TGL_DP_TP_CTL(pipe_config->cpu_transcoder);
 > > +
@@ -107,15 +110,6 @@ On Mon, Sep 23, 2019 at 05:57:57PM +0300, Ville Syrjälä wrote:
 > 
 > I wonder how the lack of this stuff was missed when FEC was adeed...
 > 
-
-We never had any FEC DP panel when this initial FEC enabling stuff was added,
-Anusha did test it with the FPGA based emulator that had FEC but we still missed the m_n
-correction as there were no underruns reported that time.
-
-Thanks Ville and Maarten for catching this and fixing it.
-
-Manasi
-
 > > +
 > > +			DRM_DEBUG_KMS("[ENCODER:%d:%s] Fec status: %u\n",
 > > +				      encoder->base.base.id, encoder->base.name,
@@ -445,3 +439,11 @@ Manasi
 > -- 
 > Ville Syrjälä
 > Intel
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+
+-- 
+Ville Syrjälä
+Intel
