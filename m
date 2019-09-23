@@ -2,82 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2F8BABCC
-	for <lists+stable@lfdr.de>; Sun, 22 Sep 2019 23:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E86A6BACA2
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 04:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728513AbfIVVJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 17:09:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41964 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726785AbfIVVJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Sep 2019 17:09:16 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F5F82070C;
-        Sun, 22 Sep 2019 21:09:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569186555;
-        bh=alZlAFI88uQKO3TI1efMXalp7W4GG2ubqw4flqan360=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=neTRPkl1pEW+5+uJ3z+Isq6PgSNSqyXg/acK+8gDHyNa9MSmLdXgYM+HH3gWf3bGG
-         qCmvzwnsPRlV5egA2EmoiPvXoGd/Fg43yWaZK25/QWAkZDIg8WgLdzS5stw2QMuDAk
-         N7OG7Dsw09rGpyYfmvUdkW2LT7bSAZoW/mNJ7UGM=
-Date:   Sun, 22 Sep 2019 17:09:14 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: Please apply commit 0f0727d971f6 ("drm/amd/display: readd -msse2
- to prevent Clang from emitting libcalls to undefined SW FP routines") to
- 4.19.y
-Message-ID: <20190922210914.GC8171@sasha-vm>
-References: <CAKwvOdm0sWCF=PiNJvKWxt7CaTXSF13cZNuYPhKC=Kq8ooi1HA@mail.gmail.com>
- <20190820210716.GA31292@kroah.com>
- <20190820212539.GA1581@sasha-vm>
- <20190820213524.GA25049@kroah.com>
- <CAKwvOdkp8aV9VeJhd5oxshJLTmrB3i9juea4CMo5K8o9CadOfw@mail.gmail.com>
- <20190922081638.GC2524798@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190922081638.GC2524798@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S2404340AbfIWCdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 22:33:05 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:40566 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404135AbfIWCdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 22:33:05 -0400
+Received: by mail-pl1-f195.google.com with SMTP id d22so5852932pll.7
+        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 19:33:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=xoixj4WcbUR0QNe9dzuhd7SQ9clDGmTGtv+vABF9xr0=;
+        b=RIPSxSGSGr8c2+Ai8oYcf6JV+2cV2Sba4bfL27UX/yYxkBma4CYhLdhEo8OgS3miLy
+         OcKQzqumi8HPqvbe/rIZbshBtKk8chNvXrCUGDsv/X1xzi1LQZQY2eqmHxhN4hIi2o6j
+         K64eB2+ALesrLwfUa3jB5Ew18maNMSo04BzvdEjc6wDlYrdpthFkqbTCejoPz2W2IxKp
+         VaXeJRcVbsTjNsit+8AEvt1YJSQzE7tYWjKAt9F8bhmQ6I8PoMLj4ABar4Kt90CprtoV
+         JUc6/+vtZ9eeytCYvJl5ZlTO817z/Xym8iBJUk8kL6/Qkmiav5naJwuWzFXtSt+s2o1X
+         Am7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=xoixj4WcbUR0QNe9dzuhd7SQ9clDGmTGtv+vABF9xr0=;
+        b=jHkOjfND16vYbTJevSq2Rk9EdF7fIeGSpskERD56cphL0TSFOShsky0hZXx/3uexBb
+         MyHKAU2fhm4GEHCkcPW8VwrWUdy0OwnCuNU+joF44kfQGghclcbl0iyYecggQLrLhGgP
+         VdhGfhxWa/EfwJbKfdtD8ncBg81xRQ3f4TRTW3CK8hgAY3SZbfjgT+VHUQNDy43zUJGg
+         Mrx+e2VZDGkiImhVKJZ+aOUN2FpzwQCKZT7f60TPqDZTC8kljlIVIA04u/xiY2p4k6aR
+         0mj9lCQBxJOii1NA44S0C/FjjzevpePfJ8RZe1c/FHMfmcZb7ArdPdsQa8rWyWhS+zOt
+         KPTQ==
+X-Gm-Message-State: APjAAAWH1a3BId+DGrmlbVsIbCUr1vL+Ic78tFAqvFpDqGFrj24+GcCS
+        bFnYv2UrNXjNTNJIJiYqMtx++khu
+X-Google-Smtp-Source: APXvYqwA99vWR8wgnVNyo/j9SHbrLddwoCS/EfgFAC/OkckQuCpN7vOzu9zoj5wCWsl9vKXz0OKKHQ==
+X-Received: by 2002:a17:902:a615:: with SMTP id u21mr28547709plq.4.1569205983038;
+        Sun, 22 Sep 2019 19:33:03 -0700 (PDT)
+Received: from localhost.localdomain (M106072039032.v4.enabler.ne.jp. [106.72.39.32])
+        by smtp.gmail.com with ESMTPSA id o195sm13517299pfg.21.2019.09.22.19.33.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 22 Sep 2019 19:33:02 -0700 (PDT)
+From:   Tokunori Ikegami <ikegami.t@gmail.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
+        Felix Fietkau <nbd@nbd.name>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Subject: [PATCH for 5.2.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
+Date:   Mon, 23 Sep 2019 11:32:51 +0900
+Message-Id: <20190923023251.20180-1-ikegami.t@gmail.com>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 22, 2019 at 10:16:38AM +0200, Greg KH wrote:
->On Tue, Aug 20, 2019 at 02:41:15PM -0700, Nick Desaulniers wrote:
->> On Tue, Aug 20, 2019 at 2:35 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->> >
->> > On Tue, Aug 20, 2019 at 05:25:39PM -0400, Sasha Levin wrote:
->> > > On Tue, Aug 20, 2019 at 02:07:16PM -0700, Greg KH wrote:
->> > > > On Tue, Aug 20, 2019 at 02:00:21PM -0700, Nick Desaulniers wrote:
->> > > > > Please apply commit 0f0727d971f6 ("drm/amd/display: readd -msse2 to
->> > > > > prevent Clang from emitting libcalls to undefined SW FP routines") to
->> > > > > 4.19.y.
->> > > > >
->> > > > > It will help with AMD based chromebooks for ChromeOS.
->> > > >
->> > > > That commit id is not in Linus's tree, are you sure you got it correct?
->> > >
->> > > That's a linux-next commit.
->> >
->> > Great, we can wait for it to show up in Linus's tree first :)
->>
->> *checks tree*
->> Oh yeah, oops.  Sorry for the noise.
->
->It's in Linus's tree now, but it does not apply to 5.2.y or 4.19.y, so
->can you provide a working backport for those kernels?
+As reported by the OpenWRT team, write requests sometimes fail on some
+platforms.
+Currently to check the state chip_ready() is used correctly as described by
+the flash memory S29GL256P11TFI01 datasheet.
+Also chip_good() is used to check if the write is succeeded and it was
+implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
+checking").
+But actually the write failure is caused on some platforms and also it can
+be fixed by using chip_good() to check the state and retry instead.
+Also it seems that it is caused after repeated about 1,000 times to retry
+the write one word with the reset command.
+By using chip_good() to check the state to be done it can be reduced the
+retry with reset.
+It is depended on the actual flash chip behavior so the root cause is
+unknown.
 
-Looks like it was mostly due to missing 7ed4e6352c16f ("drm/amd/display:
-Add DCN2 HW Sequencer and Resource") on older kernels. I've fixed it up
-and queued it up.
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: stable@vger.kernel.org
+Reported-by: Fabio Bettoni <fbettoni@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+[vigneshr@ti.com: Fix a checkpatch warning]
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---
-Thanks,
-Sasha
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index c8fa5906bdf9..ed3e640eb03a 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -1628,29 +1628,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
+ 			continue;
+ 		}
+ 
+-		if (time_after(jiffies, timeo) && !chip_ready(map, adr)){
++		/*
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
++		 */
++		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
++			ret = -EIO;
+ 			break;
+ 		}
+ 
+-		if (chip_ready(map, adr))
++		if (chip_good(map, adr, datum))
+ 			break;
+ 
+ 		/* Latency issues. Drop the lock, wait a while and retry */
+ 		UDELAY(map, chip, adr, 1);
+ 	}
++
+ 	/* Did we succeed? */
+-	if (!chip_good(map, adr, datum)) {
++	if (ret) {
+ 		/* reset on all failures. */
+ 		map_write(map, CMD(0xF0), chip->start);
+ 		/* FIXME - should have reset delay before continuing */
+ 
+-		if (++retry_cnt <= MAX_RETRIES)
++		if (++retry_cnt <= MAX_RETRIES) {
++			ret = 0;
+ 			goto retry;
+-
+-		ret = -EIO;
++		}
+ 	}
+ 	xip_enable(map, chip, adr);
+  op_done:
+-- 
+2.11.0
+
