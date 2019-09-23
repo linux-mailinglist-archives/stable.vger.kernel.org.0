@@ -2,175 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D24BB877
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00A2BB883
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732787AbfIWPua convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 23 Sep 2019 11:50:30 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43556 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728182AbfIWPua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 11:50:30 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 0F35130860B9
-        for <stable@vger.kernel.org>; Mon, 23 Sep 2019 15:50:30 +0000 (UTC)
-Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6108E672D5;
-        Mon, 23 Sep 2019 15:50:27 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Message-ID: <cki.172D838899.V4I2QPDKL7@redhat.com>
-X-Gitlab-Pipeline-ID: 182653
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/182653
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Mon, 23 Sep 2019 15:50:30 +0000 (UTC)
-Date:   Mon, 23 Sep 2019 11:50:30 -0400
+        id S1732807AbfIWPvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 11:51:14 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:42238 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732805AbfIWPvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 11:51:14 -0400
+Received: from localhost (231-157-167-83.reverse.alphalink.fr [83.167.157.231])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id E8DC11425E47B;
+        Mon, 23 Sep 2019 08:51:11 -0700 (PDT)
+Date:   Mon, 23 Sep 2019 17:51:06 +0200 (CEST)
+Message-Id: <20190923.175106.799482393811705736.davem@davemloft.net>
+To:     saeedm@mellanox.com
+Cc:     gregkh@linuxfoundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19-stable 0/7] mlx5 checksum fixes for 4.19
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20190923123917.16817-1-saeedm@mellanox.com>
+References: <20190923123917.16817-1-saeedm@mellanox.com>
+X-Mailer: Mew version 6.8 on Emacs 26.2
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Mon, 23 Sep 2019 08:51:14 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Saeed Mahameed <saeedm@mellanox.com>
+Date: Mon, 23 Sep 2019 12:39:57 +0000
 
-Hello,
+> This series includes some upstream patches aimed to fix multiple checksum
+> issues with mlx5 driver in 4.19-stable kernels.
+> 
+> Since the patches didn't apply cleanly to 4.19 back when they were
+> submitted for the first time around 5.1 kernel release to the netdev
+> mailing list, i couldn't mark them for -stable 4.19, so now as the issue
+> is being reported on 4.19 LTS kernels, I had to do the backporting and
+> this submission myself.
+>  
+> This series required some dependency patches and some manual touches
+> to apply some of them.
+> 
+> Please apply to 4.19-stable and let me know if there's any problem.
+> I tested and the patches apply cleanly and work on top of: v4.19.75
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: c9a59a82366b - Linux 5.3.1
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/182653
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: c9a59a82366b - Linux 5.3.1
-
-
-We grabbed the f4246fab7da0 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
-  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
-  clocksource-drivers-do-not-warn-on-probe-defer.patch
-  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
-  drm-amd-display-skip-determining-update-type-for-async-updates.patch
-  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
-  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
-  powerpc-xive-fix-bogus-error-code-returned-by-opal.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         🚧 ✅ LTP lite
-
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+FWIW, I'm fine with this.
