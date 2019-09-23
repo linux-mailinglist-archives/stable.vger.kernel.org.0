@@ -2,52 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2C2BB7D5
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D24BB877
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726045AbfIWPYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 11:24:45 -0400
-Received: from frisell.zx2c4.com ([192.95.5.64]:48953 "EHLO frisell.zx2c4.com"
+        id S1732787AbfIWPua convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 23 Sep 2019 11:50:30 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:43556 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725992AbfIWPYp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 11:24:45 -0400
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 5c870d66;
-        Mon, 23 Sep 2019 14:39:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to:cc
-        :content-type; s=mail; bh=8zzuCZXCZAoOQeNoK08hAiyUbsQ=; b=ZX4fLD
-        uRi22sY4dnKAgyHl7/B6qFwTZIwrwe7CX9XizZ2rajREu7C8rcWVcvWuZWbd4Gqu
-        k2UGnkyHP1BigoSxifQqHr8GUJkL/L6gMEWUn5NTkNNJ++bytBuggykVxw/P1kkW
-        sCkX5JB21L2lGyS4og48LHiVXjo71xvwGgoaJYSmdKZaHA3dqKmP307b0TGxuq2d
-        XUbfAU+1OQkyesGPzoHUzTJMadewfCMEFvhWqzL/A0NuOmG7VclEfaLWy9snlOTT
-        zj3Ap70oQ8TyWVBV8Qp5hxAxcdA9pLQ3mjDd0hIayrRwWoce/YRcJuPlCKJSRGLd
-        lW7RRXsePfYb2bPA==
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a3da75fb (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Mon, 23 Sep 2019 14:39:13 +0000 (UTC)
-Received: by mail-ot1-f42.google.com with SMTP id s22so12465524otr.6;
-        Mon, 23 Sep 2019 08:24:43 -0700 (PDT)
-X-Gm-Message-State: APjAAAWuVs6VlfrWTbMlY7xdSlhvHB9/w2TdAIalI+NV49cZNaTXD6VW
-        GG5zOW2LQmoMtkIZiBAm3KcVfJfSrxRZ/r6oy/w=
-X-Google-Smtp-Source: APXvYqwgWw8Nt90k1KXN8nXE9xGerbP4lvbQ6ih8TbATzS9WfcxGaxFXrFvbPkM1i9qlgkfIMbntPM9wVWziH17rIbw=
-X-Received: by 2002:a05:6830:20cd:: with SMTP id z13mr291875otq.243.1569252282678;
- Mon, 23 Sep 2019 08:24:42 -0700 (PDT)
+        id S1728182AbfIWPua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 11:50:30 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0F35130860B9
+        for <stable@vger.kernel.org>; Mon, 23 Sep 2019 15:50:30 +0000 (UTC)
+Received: from [172.54.46.6] (cpt-1015.paas.prod.upshift.rdu2.redhat.com [10.0.19.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6108E672D5;
+        Mon, 23 Sep 2019 15:50:27 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20190923144612.29668-1-Jason@zx2c4.com> <20190923150600.GA27191@dell5510>
-In-Reply-To: <20190923150600.GA27191@dell5510>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Mon, 23 Sep 2019 17:24:31 +0200
-X-Gmail-Original-Message-ID: <CAHmME9pKWuJ+oKfrKxhrjLCEw1qcWE=sCZSLOGyUMvW+eUS2cw@mail.gmail.com>
-Message-ID: <CAHmME9pKWuJ+oKfrKxhrjLCEw1qcWE=sCZSLOGyUMvW+eUS2cw@mail.gmail.com>
-Subject: Re: [PATCH] ipv6: Properly check reference count flag before taking reference
-To:     Petr Vorel <pvorel@suse.cz>
-Cc:     Netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.172D838899.V4I2QPDKL7@redhat.com>
+X-Gitlab-Pipeline-ID: 182653
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/182653
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Mon, 23 Sep 2019 15:50:30 +0000 (UTC)
+Date:   Mon, 23 Sep 2019 11:50:30 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Apparently even with this (certainly correct) patch attached, users
-are still experiencing problems. Bug hunting continues, and I'll
-report back if I figure something out.
+
+Hello,
+
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c9a59a82366b - Linux 5.3.1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/182653
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c9a59a82366b - Linux 5.3.1
+
+
+We grabbed the f4246fab7da0 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
+  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
+  clocksource-drivers-do-not-warn-on-probe-defer.patch
+  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
+  drm-amd-display-skip-determining-update-type-for-async-updates.patch
+  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
+  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
+  powerpc-xive-fix-bogus-error-code-returned-by-opal.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
