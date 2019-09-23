@@ -2,90 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F0EBB540
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 15:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF17BB56C
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 15:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407048AbfIWNa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 09:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56812 "EHLO mail.kernel.org"
+        id S2408043AbfIWNfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 09:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404581AbfIWNa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 09:30:28 -0400
+        id S2404581AbfIWNfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 09:35:02 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEF5A20867;
-        Mon, 23 Sep 2019 13:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45C0920820;
+        Mon, 23 Sep 2019 13:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569245427;
-        bh=CA3jF6Gt7vTntOiNm7Ka9iK9XTY7AzxUYxpyJSRtT+o=;
+        s=default; t=1569245701;
+        bh=hXQkKliC0S2X43voVjhiTVkMxCC4tIPV9acNAETqUso=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vs1xNEWZ/cH9GY0nruq1EHVFCmL/BQMrp8GEO7tRzWK4V9PTUO0pDnlnRPn0iPf+z
-         unyrvy+QABye++Z/AdZ7j7DyFrSNT5kc31Aiw3nrmdnv82QGRlg1hCVSRvZFDiEOth
-         /3IHlWp3MAKcOGTobl6cbgCyoqhjSf7HUCglg544=
-Date:   Mon, 23 Sep 2019 09:30:25 -0400
+        b=FeeJhFEYpa8NQNgnmMZ03oC875vWZGIk2sDIDJW6viNc1wFklKbOaxWAIJZiDv3z9
+         VPL+5mYyMBGkryM57asvTYICU4x115rVu0DFVAjBJvQeXxR61BtdSSXkhiv2dR+/em
+         4ofSqLwfC02dVakvOgrS63rQNTOJczJ7yNnUIGkc=
+Date:   Mon, 23 Sep 2019 09:35:00 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.2 072/185] ALSA: hda: Add codec on bus address
- table lately
-Message-ID: <20190923133025.GE8171@sasha-vm>
-References: <20190922184924.32534-1-sashal@kernel.org>
- <20190922184924.32534-72-sashal@kernel.org>
- <s5h8sqgm9qz.wl-tiwai@suse.de>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     Sakari Ailus <sakari.ailus@iki.fi>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.3 084/203] media: omap3isp: Don't set streaming
+ state on random subdevs
+Message-ID: <20190923133500.GF8171@sasha-vm>
+References: <20190922184350.30563-1-sashal@kernel.org>
+ <20190922184350.30563-84-sashal@kernel.org>
+ <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
+ <20190923072503.GA5056@pendragon.ideasonboard.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <s5h8sqgm9qz.wl-tiwai@suse.de>
+In-Reply-To: <20190923072503.GA5056@pendragon.ideasonboard.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 22, 2019 at 09:06:12PM +0200, Takashi Iwai wrote:
->On Sun, 22 Sep 2019 20:47:30 +0200,
->Sasha Levin wrote:
+On Mon, Sep 23, 2019 at 10:25:03AM +0300, Laurent Pinchart wrote:
+>On Mon, Sep 23, 2019 at 10:19:42AM +0300, Sakari Ailus wrote:
+>> Hi Sasha,
 >>
->> From: Takashi Iwai <tiwai@suse.de>
+>> On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
+>> > From: Sakari Ailus <sakari.ailus@linux.intel.com>
+>> >
+>> > [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+>> >
+>> > The streaming state should be set to the first upstream sub-device only,
+>> > not everywhere, for a sub-device driver itself knows how to best control
+>> > the streaming state of its own upstream sub-devices.
+>> >
+>> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+>> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+>> > Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+>> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 >>
->> [ Upstream commit ee5f85d9290fe25d460bd320b7fe073075d72d33 ]
+>> I don't disagree with this going to the stable trees as well, but in that
+>> case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
+>> device on omap3isp subdevs") or the driver will mostly cease to work.
 >>
->> The call of snd_hdac_bus_add_device() is needed only for registering
->> the codec onto the bus caddr_tbl[] that is referred essentially only
->> in the unsol event handler.  That is, the reason of this call and the
->> release by the counter-part function snd_hdac_bus_remove_device() is
->> just to assure that the unsol event gets notified to the codec.
->>
->> But the current implementation of the unsol notification wouldn't work
->> properly when the codec is still in a premature init state.  So this
->> patch tries to work around it by delaying the caddr_tbl[] registration
->> at the point of snd_hdac_device_register().
->>
->> Also, the order of snd_hdac_bus_remove_device() and device_del() calls
->> are shuffled to make sure that the unsol event is masked before
->> deleting the device.
->>
->> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
->> Signed-off-by: Takashi Iwai <tiwai@suse.de>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> Could you pick that up as well?
 >
->The upstream commit was reverted later by 246bb4aaa4f4, which has even
->Fixes tag pointing this.  So please drop this.
+>While I don't disagree either, I also think there's no requirement to
+>get this commit backported to stable branches. It seems to be the result
+>of a too aggressive auto-selection.
 
-I'll drop it, thank you.
+I'd very much agree that AUTOSEL is trying to be aggressive with it's
+patch selection (it's actually sort of like a "dial" I can adjust and
+now it's adjusted pretty high).
 
->BTW, this is the second time AUTOSEL overlooked the existing revert.
->I'm afraid something is missing in the check.
-
-Usually it's the case that I check for fixes/reverts once I compile the
-series, and again right before I queue it up to a stable tree. In
-between fixes and reverts tend to sneak in just like in this case.
-
-In general, I also check the -rcs for fixes and reverts during their
-review window, so while sometimes we send out mails with patches that
-have a fix or revert upstream, they rarely make it into a released
-stable kernel.
+However, please don't see it as something that is forced on you; if the
+maintainers disagree with patch selection please just let me know and it
+will dropped. The only reason I'm being aggressive with AUTOSEL is that
+I'm hopefull it will provide better experience for our users.
 
 --
 Thanks,
