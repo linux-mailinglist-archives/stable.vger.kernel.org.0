@@ -2,140 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD55BACB1
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 04:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED939BADCF
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 08:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404471AbfIWCen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 22:34:43 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:37305 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404135AbfIWCen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 22:34:43 -0400
-Received: by mail-pg1-f195.google.com with SMTP id c17so7139409pgg.4
-        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 19:34:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=mrHC8QGuZxOCxpQ1rrDbH0NR2xsFdEhMXsSzfS9GAKA=;
-        b=dG5oRwwXRBLWqHzJYLw/IcltvwouTaQ9ymgAujUjvvWz7ciDj1Xpk1daQMRDANeguI
-         K7fzzgOqi1aZUq8i2HiJFWUDejp3yRUX6pRYoqpECK9PLdFUUuxmowhsSEnTXN1Ahrpg
-         j4O0ZKYdrNK0EeEW4Rn4eNjgwRGamruYqKNUrM/RHTwfn0bwpOyj2AlhiMsqxMi/9jAL
-         CMT9+Dbp7eqHY9ePNs5B8pRdv0KXXHM7W7nbvOKIB1bosptGc4dUzxIkvu6DqnAywQuA
-         dPJbBm/gnZTRNokHUfH+Nc/6i1DyA2/PTLYu7LvP3gKmEwTsraFt4axmEaYCwzWmnRQx
-         +2RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=mrHC8QGuZxOCxpQ1rrDbH0NR2xsFdEhMXsSzfS9GAKA=;
-        b=mNpjFcj6qGsRcjYaBPylOoDHcc0M6rBrpO9lp7UpWz5jTXebYQPrF3YAS5kvxXNd4s
-         gOjedoDMWfu0UwhSNYqHQfLzb8ep8blVBYFb7z9jWeM5n1rO2IUfV49Q9zZMZuWuTUpl
-         NZYgKgqy0gY7X3GKSZe91Tmjt+P+SzLBAr6uDdFO8CrbCZ+QX5fZDjLqis4P/fKiFwMR
-         r8gTevuP/hDJKsWPfdvFhsU/VqosSAGU1Ss9szi4RE7j9uhSPjbI2G5mzs4kOI32MSjX
-         RjW23vX5YkUFFLPTwZGSPsZ7kwjMdOn3GrTmGBVWks1uIVxSRSYTx04vwnJTqym2q5oj
-         B7vg==
-X-Gm-Message-State: APjAAAUiTf/uTxQCOl7jLK9QDl69mlVK79HvmTO2LpfB3UFBYw78H/hu
-        gcuu9kco5WAxHuOUhhJqcqQ=
-X-Google-Smtp-Source: APXvYqxTZfAhwf4Q/RvnFB3AfyFyk+Cy+6CCxJQPFBca8QHR3mOSLz8FMHjJfH5WUfo1Rdbz/vQt5Q==
-X-Received: by 2002:a17:90a:220e:: with SMTP id c14mr17764702pje.6.1569206082602;
-        Sun, 22 Sep 2019 19:34:42 -0700 (PDT)
-Received: from localhost.localdomain (M106072039032.v4.enabler.ne.jp. [106.72.39.32])
-        by smtp.gmail.com with ESMTPSA id f62sm10519515pfg.74.2019.09.22.19.34.40
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 22 Sep 2019 19:34:42 -0700 (PDT)
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-To:     Greg KH <greg@kroah.com>
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        Felix Fietkau <nbd@nbd.name>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Subject: [PATCH for 4.4.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
-Date:   Mon, 23 Sep 2019 11:34:35 +0900
-Message-Id: <20190923023435.20377-1-ikegami.t@gmail.com>
-X-Mailer: git-send-email 2.11.0
+        id S2393173AbfIWG3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 02:29:48 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65460 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387519AbfIWG3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 02:29:47 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8N6R47i139823
+        for <stable@vger.kernel.org>; Mon, 23 Sep 2019 02:29:46 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2v6qdejr6a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 23 Sep 2019 02:29:46 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <groug@kaod.org>;
+        Mon, 23 Sep 2019 07:29:44 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 23 Sep 2019 07:29:41 +0100
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8N6TevJ38666358
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Sep 2019 06:29:40 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F5524C046;
+        Mon, 23 Sep 2019 06:29:40 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4FA1E4C04A;
+        Mon, 23 Sep 2019 06:29:40 +0000 (GMT)
+Received: from bahia.lan (unknown [9.145.22.84])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 23 Sep 2019 06:29:40 +0000 (GMT)
+Subject: [PATCH] powerpc/xive: Fix bogus error code returned by OPAL
+From:   Greg Kurz <groug@kaod.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg KH <greg@kroah.com>, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org
+Date:   Mon, 23 Sep 2019 08:29:40 +0200
+User-Agent: StGit/unknown-version
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19092306-4275-0000-0000-00000369E8E3
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19092306-4276-0000-0000-0000387C5BA7
+Message-Id: <156922009207.910857.10785273696571088534.stgit@bahia.lan>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-23_02:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1034 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=942 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1909230063
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As reported by the OpenWRT team, write requests sometimes fail on some
-platforms.
-Currently to check the state chip_ready() is used correctly as described by
-the flash memory S29GL256P11TFI01 datasheet.
-Also chip_good() is used to check if the write is succeeded and it was
-implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
-checking").
-But actually the write failure is caused on some platforms and also it can
-be fixed by using chip_good() to check the state and retry instead.
-Also it seems that it is caused after repeated about 1,000 times to retry
-the write one word with the reset command.
-By using chip_good() to check the state to be done it can be reduced the
-retry with reset.
-It is depended on the actual flash chip behavior so the root cause is
-unknown.
+There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
+to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
+Unfortunatelty, OPAL return values are signed 64-bit entities and
+errors are supposed to be negative. If that happens, the linux code
+confusingly treats 0xffffffff as a valid IRQ number and panics at some
+point.
 
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: stable@vger.kernel.org
-Reported-by: Fabio Bettoni <fbettoni@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-[vigneshr@ti.com: Fix a checkpatch warning]
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+A fix was recently merged in skiboot:
+
+e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
+
+but we need a workaround anyway to support older skiboots already
+in the field.
+
+Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
+returned upon resource exhaustion.
+
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
+(cherry picked from commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8,
+ groug: fix arch/powerpc/platforms/powernv/opal-wrappers.S instead of
+        non-existing arch/powerpc/platforms/powernv/opal-call.c)
+Signed-off-by: Greg Kurz <groug@kaod.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index fb5a3052f144..7589d891b311 100644
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1626,29 +1626,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
- 			continue;
- 		}
+This is for 4.14 and 4.19.
+
+ arch/powerpc/include/asm/opal.h                |    2 +-
+ arch/powerpc/platforms/powernv/opal-wrappers.S |    2 +-
+ arch/powerpc/sysdev/xive/native.c              |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/opal.h b/arch/powerpc/include/asm/opal.h
+index 8eb3ebca02df..163970c56e2f 100644
+--- a/arch/powerpc/include/asm/opal.h
++++ b/arch/powerpc/include/asm/opal.h
+@@ -266,7 +266,7 @@ int64_t opal_xive_get_vp_info(uint64_t vp,
+ int64_t opal_xive_set_vp_info(uint64_t vp,
+ 			      uint64_t flags,
+ 			      uint64_t report_cl_pair);
+-int64_t opal_xive_allocate_irq(uint32_t chip_id);
++int64_t opal_xive_allocate_irq_raw(uint32_t chip_id);
+ int64_t opal_xive_free_irq(uint32_t girq);
+ int64_t opal_xive_sync(uint32_t type, uint32_t id);
+ int64_t opal_xive_dump(uint32_t type, uint32_t id);
+diff --git a/arch/powerpc/platforms/powernv/opal-wrappers.S b/arch/powerpc/platforms/powernv/opal-wrappers.S
+index 8c1ede2d3f7e..b12a75a0ee8b 100644
+--- a/arch/powerpc/platforms/powernv/opal-wrappers.S
++++ b/arch/powerpc/platforms/powernv/opal-wrappers.S
+@@ -301,7 +301,7 @@ OPAL_CALL(opal_xive_set_queue_info,		OPAL_XIVE_SET_QUEUE_INFO);
+ OPAL_CALL(opal_xive_donate_page,		OPAL_XIVE_DONATE_PAGE);
+ OPAL_CALL(opal_xive_alloc_vp_block,		OPAL_XIVE_ALLOCATE_VP_BLOCK);
+ OPAL_CALL(opal_xive_free_vp_block,		OPAL_XIVE_FREE_VP_BLOCK);
+-OPAL_CALL(opal_xive_allocate_irq,		OPAL_XIVE_ALLOCATE_IRQ);
++OPAL_CALL(opal_xive_allocate_irq_raw,		OPAL_XIVE_ALLOCATE_IRQ);
+ OPAL_CALL(opal_xive_free_irq,			OPAL_XIVE_FREE_IRQ);
+ OPAL_CALL(opal_xive_get_vp_info,		OPAL_XIVE_GET_VP_INFO);
+ OPAL_CALL(opal_xive_set_vp_info,		OPAL_XIVE_SET_VP_INFO);
+diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
+index 0f89ee557b04..aac61374afeb 100644
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -234,6 +234,17 @@ static bool xive_native_match(struct device_node *node)
+ 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
+ }
  
--		if (time_after(jiffies, timeo) && !chip_ready(map, adr)){
-+		/*
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
-+		 */
-+		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-+			ret = -EIO;
- 			break;
- 		}
- 
--		if (chip_ready(map, adr))
-+		if (chip_good(map, adr, datum))
- 			break;
- 
- 		/* Latency issues. Drop the lock, wait a while and retry */
- 		UDELAY(map, chip, adr, 1);
- 	}
++static s64 opal_xive_allocate_irq(u32 chip_id)
++{
++	s64 irq = opal_xive_allocate_irq_raw(chip_id);
 +
- 	/* Did we succeed? */
--	if (!chip_good(map, adr, datum)) {
-+	if (ret) {
- 		/* reset on all failures. */
- 		map_write( map, CMD(0xF0), chip->start );
- 		/* FIXME - should have reset delay before continuing */
- 
--		if (++retry_cnt <= MAX_RETRIES)
-+		if (++retry_cnt <= MAX_RETRIES) {
-+			ret = 0;
- 			goto retry;
--
--		ret = -EIO;
-+		}
- 	}
- 	xip_enable(map, chip, adr);
-  op_done:
--- 
-2.11.0
++	/*
++	 * Old versions of skiboot can incorrectly return 0xffffffff to
++	 * indicate no space, fix it up here.
++	 */
++	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
++}
++
+ #ifdef CONFIG_SMP
+ static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
+ {
 
