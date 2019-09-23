@@ -2,239 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B473ABBE7D
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 00:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA35EBBE7E
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 00:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391531AbfIWWc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 18:32:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S2391623AbfIWWdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 18:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391372AbfIWWc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 18:32:58 -0400
+        id S2391372AbfIWWdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 18:33:04 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF76C2053B;
-        Mon, 23 Sep 2019 22:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 373952053B;
+        Mon, 23 Sep 2019 22:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569277977;
-        bh=b4eTJUekrst3p7hpBUQbrXUma+eNJh7NYZ/wU2WJyto=;
+        s=default; t=1569277983;
+        bh=mO4M41xVTL/Z7Dh/V9sWtRo9INWg/7GlFxKwz32PZ0A=;
         h=Date:From:To:Subject:From;
-        b=Hv0vNS/Vogol49WwVUy0Tp+4v/EGN19EB4AUAHEOqMGHWT+GgG3nB1kkNnrW6Oxfa
-         Mtz25PgWIW7O5T0S95kUpo2IO0YoME2DhRb7CdhZyarSMGg4moWM4AMvqcwORS4PP+
-         EK0Fq1J/KUKXdwAauYHmJFGbCqdwNnxVdaUZ2fZs=
-Date:   Mon, 23 Sep 2019 15:32:56 -0700
+        b=PIWod1btj9BMm0y8ONLRCtKEDxxm2fU8uOekFcGBpjVnV8lBmZa644iLIRnuOu3t6
+         GNJHr4rwgjSNkA2brZIb9iyxqOH8uZey8PBQerhho1aco3cajtJRHUCFkD9p4s3pFi
+         TK7Z4AXKbMnJUpFDFEuvyopCt2TMElkwjzgnhrWQ=
+Date:   Mon, 23 Sep 2019 15:33:02 -0700
 From:   akpm@linux-foundation.org
 To:     agustin@dallalba.com.ar, akpm@linux-foundation.org,
-        henrywolfeburns@gmail.com, jwadams@google.com,
+        bugzilla@colorremedies.com, henrywolfeburns@gmail.com,
+        mail@maciej.szmigiero.name, markus.linnala@gmail.com,
         mm-commits@vger.kernel.org, shakeelb@google.com,
         stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz, vitalywool@gmail.com
-Subject:  [patch 002/134] Revert "mm/z3fold.c: fix race between
- migration and destruction"
-Message-ID: <20190923223256.nBrM9an0F%akpm@linux-foundation.org>
+        vitalywool@gmail.com
+Subject:  [patch 004/134] z3fold: fix retry mechanism in page
+ reclaim
+Message-ID: <20190923223302.KbGN1HGc6%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=46rom: Vitaly Wool <vitalywool@gmail.com>
-Subject: Revert "mm/z3fold.c: fix race between migration and destruction"
+From: Vitaly Wool <vitalywool@gmail.com>
+Subject: z3fold: fix retry mechanism in page reclaim
 
-With the original commit applied, z3fold_zpool_destroy() may get blocked
-on wait_event() for indefinite time.  Revert this commit for the time
-being to get rid of this problem since the issue the original commit
-addresses is less severe.
+z3fold_page_reclaim()'s retry mechanism is broken: on a second iteration
+it will have zhdr from the first one so that zhdr is no longer in line
+with struct page.  That leads to crashes when the system is stressed.
 
-Link: http://lkml.kernel.org/r/20190910123142.7a9c8d2de4d0acbc0977c602@gmai=
-l.com
-Fixes: d776aaa9895eb6eb77 ("mm/z3fold.c: fix race between migration and des=
-truction")
-Reported-by: Agust=EDn Dall'Alba <agustin@dallalba.com.ar>
+Fix that by moving zhdr assignment up.
+
+While at it, protect against using already freed handles by using own
+local slots structure in z3fold_page_reclaim().
+
+Link: http://lkml.kernel.org/r/20190908162919.830388dc7404d1e2c80f4095@gmail.com
 Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Vitaly Wool <vitalywool@gmail.com>
+Reported-by: Markus Linnala <markus.linnala@gmail.com>
+Reported-by: Chris Murphy <bugzilla@colorremedies.com>
+Reported-by: Agustin Dall'Alba <agustin@dallalba.com.ar>
+Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
 Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Jonathan Adams <jwadams@google.com>
 Cc: Henry Burns <henrywolfeburns@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/z3fold.c |   90 --------------------------------------------------
- 1 file changed, 90 deletions(-)
+ mm/z3fold.c |   49 ++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
---- a/mm/z3fold.c~revert-mm-z3foldc-fix-race-between-migration-and-destruct=
-ion
+--- a/mm/z3fold.c~z3fold-fix-retry-mechanism-in-page-reclaim
 +++ a/mm/z3fold.c
-@@ -41,7 +41,6 @@
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
--#include <linux/wait.h>
- #include <linux/zpool.h>
- #include <linux/magic.h>
-=20
-@@ -146,8 +145,6 @@ struct z3fold_header {
-  * @release_wq:	workqueue for safe page release
-  * @work:	work_struct for safe page release
-  * @inode:	inode for z3fold pseudo filesystem
-- * @destroying: bool to stop migration once we start destruction
-- * @isolated: int to count the number of pages currently in isolation
-  *
-  * This structure is allocated at pool creation time and maintains metadata
-  * pertaining to a particular z3fold pool.
-@@ -166,11 +163,8 @@ struct z3fold_pool {
- 	const struct zpool_ops *zpool_ops;
- 	struct workqueue_struct *compact_wq;
- 	struct workqueue_struct *release_wq;
--	struct wait_queue_head isolate_wait;
- 	struct work_struct work;
- 	struct inode *inode;
--	bool destroying;
--	int isolated;
- };
-=20
- /*
-@@ -775,7 +769,6 @@ static struct z3fold_pool *z3fold_create
- 		goto out_c;
- 	spin_lock_init(&pool->lock);
- 	spin_lock_init(&pool->stale_lock);
--	init_waitqueue_head(&pool->isolate_wait);
- 	pool->unbuddied =3D __alloc_percpu(sizeof(struct list_head)*NCHUNKS, 2);
- 	if (!pool->unbuddied)
- 		goto out_pool;
-@@ -815,15 +808,6 @@ out:
- 	return NULL;
- }
-=20
--static bool pool_isolated_are_drained(struct z3fold_pool *pool)
--{
--	bool ret;
--
--	spin_lock(&pool->lock);
--	ret =3D pool->isolated =3D=3D 0;
--	spin_unlock(&pool->lock);
--	return ret;
--}
- /**
-  * z3fold_destroy_pool() - destroys an existing z3fold pool
-  * @pool:	the z3fold pool to be destroyed
-@@ -833,22 +817,6 @@ static bool pool_isolated_are_drained(st
- static void z3fold_destroy_pool(struct z3fold_pool *pool)
+@@ -366,9 +366,10 @@ static inline int __idx(struct z3fold_he
+  * Encodes the handle of a particular buddy within a z3fold page
+  * Pool lock should be held as this function accesses first_num
+  */
+-static unsigned long encode_handle(struct z3fold_header *zhdr, enum buddy bud)
++static unsigned long __encode_handle(struct z3fold_header *zhdr,
++				struct z3fold_buddy_slots *slots,
++				enum buddy bud)
  {
- 	kmem_cache_destroy(pool->c_handle);
--	/*
--	 * We set pool-> destroying under lock to ensure that
--	 * z3fold_page_isolate() sees any changes to destroying. This way we
--	 * avoid the need for any memory barriers.
--	 */
--
--	spin_lock(&pool->lock);
--	pool->destroying =3D true;
--	spin_unlock(&pool->lock);
--
--	/*
--	 * We need to ensure that no pages are being migrated while we destroy
--	 * these workqueues, as migration can queue work on either of the
--	 * workqueues.
--	 */
--	wait_event(pool->isolate_wait, !pool_isolated_are_drained(pool));
-=20
- 	/*
- 	 * We need to destroy pool->compact_wq before pool->release_wq,
-@@ -1339,28 +1307,6 @@ static u64 z3fold_get_pool_size(struct z
- 	return atomic64_read(&pool->pages_nr);
+-	struct z3fold_buddy_slots *slots;
+ 	unsigned long h = (unsigned long)zhdr;
+ 	int idx = 0;
+ 
+@@ -385,11 +386,15 @@ static unsigned long encode_handle(struc
+ 	if (bud == LAST)
+ 		h |= (zhdr->last_chunks << BUDDY_SHIFT);
+ 
+-	slots = zhdr->slots;
+ 	slots->slot[idx] = h;
+ 	return (unsigned long)&slots->slot[idx];
  }
-=20
--/*
-- * z3fold_dec_isolated() expects to be called while pool->lock is held.
-- */
--static void z3fold_dec_isolated(struct z3fold_pool *pool)
--{
--	assert_spin_locked(&pool->lock);
--	VM_BUG_ON(pool->isolated <=3D 0);
--	pool->isolated--;
--
--	/*
--	 * If we have no more isolated pages, we have to see if
--	 * z3fold_destroy_pool() is waiting for a signal.
--	 */
--	if (pool->isolated =3D=3D 0 && waitqueue_active(&pool->isolate_wait))
--		wake_up_all(&pool->isolate_wait);
--}
--
--static void z3fold_inc_isolated(struct z3fold_pool *pool)
--{
--	pool->isolated++;
--}
--
- static bool z3fold_page_isolate(struct page *page, isolate_mode_t mode)
+ 
++static unsigned long encode_handle(struct z3fold_header *zhdr, enum buddy bud)
++{
++	return __encode_handle(zhdr, zhdr->slots, bud);
++}
++
+ /* Returns the z3fold page where a given handle is stored */
+ static inline struct z3fold_header *handle_to_z3fold_header(unsigned long h)
  {
- 	struct z3fold_header *zhdr;
-@@ -1387,34 +1333,6 @@ static bool z3fold_page_isolate(struct p
- 		spin_lock(&pool->lock);
- 		if (!list_empty(&page->lru))
- 			list_del(&page->lru);
--		/*
--		 * We need to check for destruction while holding pool->lock, as
--		 * otherwise destruction could see 0 isolated pages, and
--		 * proceed.
--		 */
--		if (unlikely(pool->destroying)) {
--			spin_unlock(&pool->lock);
--			/*
--			 * If this page isn't stale, somebody else holds a
--			 * reference to it. Let't drop our refcount so that they
--			 * can call the release logic.
--			 */
--			if (unlikely(kref_put(&zhdr->refcount,
--					      release_z3fold_page_locked))) {
--				/*
--				 * If we get here we have kref problems, so we
--				 * should freak out.
--				 */
--				WARN(1, "Z3fold is experiencing kref problems\n");
--				z3fold_page_unlock(zhdr);
--				return false;
--			}
--			z3fold_page_unlock(zhdr);
--			return false;
--		}
--
--
--		z3fold_inc_isolated(pool);
- 		spin_unlock(&pool->lock);
- 		z3fold_page_unlock(zhdr);
- 		return true;
-@@ -1483,10 +1401,6 @@ static int z3fold_page_migrate(struct ad
-=20
- 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
-=20
--	spin_lock(&pool->lock);
--	z3fold_dec_isolated(pool);
--	spin_unlock(&pool->lock);
--
- 	page_mapcount_reset(page);
- 	put_page(page);
- 	return 0;
-@@ -1506,14 +1420,10 @@ static void z3fold_page_putback(struct p
- 	INIT_LIST_HEAD(&page->lru);
- 	if (kref_put(&zhdr->refcount, release_z3fold_page_locked)) {
- 		atomic64_dec(&pool->pages_nr);
--		spin_lock(&pool->lock);
--		z3fold_dec_isolated(pool);
--		spin_unlock(&pool->lock);
- 		return;
+@@ -624,6 +629,7 @@ static void do_compact_page(struct z3fol
  	}
+ 
+ 	if (unlikely(PageIsolated(page) ||
++		     test_bit(PAGE_CLAIMED, &page->private) ||
+ 		     test_bit(PAGE_STALE, &page->private))) {
+ 		z3fold_page_unlock(zhdr);
+ 		return;
+@@ -1100,6 +1106,7 @@ static int z3fold_reclaim_page(struct z3
+ 	struct z3fold_header *zhdr = NULL;
+ 	struct page *page = NULL;
+ 	struct list_head *pos;
++	struct z3fold_buddy_slots slots;
+ 	unsigned long first_handle = 0, middle_handle = 0, last_handle = 0;
+ 
  	spin_lock(&pool->lock);
- 	list_add(&page->lru, &pool->lru);
--	z3fold_dec_isolated(pool);
- 	spin_unlock(&pool->lock);
- 	z3fold_page_unlock(zhdr);
- }
+@@ -1118,16 +1125,22 @@ static int z3fold_reclaim_page(struct z3
+ 			/* this bit could have been set by free, in which case
+ 			 * we pass over to the next page in the pool.
+ 			 */
+-			if (test_and_set_bit(PAGE_CLAIMED, &page->private))
++			if (test_and_set_bit(PAGE_CLAIMED, &page->private)) {
++				page = NULL;
+ 				continue;
++			}
+ 
+-			if (unlikely(PageIsolated(page)))
++			if (unlikely(PageIsolated(page))) {
++				clear_bit(PAGE_CLAIMED, &page->private);
++				page = NULL;
+ 				continue;
++			}
++			zhdr = page_address(page);
+ 			if (test_bit(PAGE_HEADLESS, &page->private))
+ 				break;
+ 
+-			zhdr = page_address(page);
+ 			if (!z3fold_page_trylock(zhdr)) {
++				clear_bit(PAGE_CLAIMED, &page->private);
+ 				zhdr = NULL;
+ 				continue; /* can't evict at this point */
+ 			}
+@@ -1145,26 +1158,30 @@ static int z3fold_reclaim_page(struct z3
+ 
+ 		if (!test_bit(PAGE_HEADLESS, &page->private)) {
+ 			/*
+-			 * We need encode the handles before unlocking, since
+-			 * we can race with free that will set
+-			 * (first|last)_chunks to 0
++			 * We need encode the handles before unlocking, and
++			 * use our local slots structure because z3fold_free
++			 * can zero out zhdr->slots and we can't do much
++			 * about that
+ 			 */
+ 			first_handle = 0;
+ 			last_handle = 0;
+ 			middle_handle = 0;
+ 			if (zhdr->first_chunks)
+-				first_handle = encode_handle(zhdr, FIRST);
++				first_handle = __encode_handle(zhdr, &slots,
++								FIRST);
+ 			if (zhdr->middle_chunks)
+-				middle_handle = encode_handle(zhdr, MIDDLE);
++				middle_handle = __encode_handle(zhdr, &slots,
++								MIDDLE);
+ 			if (zhdr->last_chunks)
+-				last_handle = encode_handle(zhdr, LAST);
++				last_handle = __encode_handle(zhdr, &slots,
++								LAST);
+ 			/*
+ 			 * it's safe to unlock here because we hold a
+ 			 * reference to this page
+ 			 */
+ 			z3fold_page_unlock(zhdr);
+ 		} else {
+-			first_handle = encode_handle(zhdr, HEADLESS);
++			first_handle = __encode_handle(zhdr, &slots, HEADLESS);
+ 			last_handle = middle_handle = 0;
+ 		}
+ 
+@@ -1194,9 +1211,9 @@ next:
+ 			spin_lock(&pool->lock);
+ 			list_add(&page->lru, &pool->lru);
+ 			spin_unlock(&pool->lock);
++			clear_bit(PAGE_CLAIMED, &page->private);
+ 		} else {
+ 			z3fold_page_lock(zhdr);
+-			clear_bit(PAGE_CLAIMED, &page->private);
+ 			if (kref_put(&zhdr->refcount,
+ 					release_z3fold_page_locked)) {
+ 				atomic64_dec(&pool->pages_nr);
+@@ -1211,6 +1228,7 @@ next:
+ 			list_add(&page->lru, &pool->lru);
+ 			spin_unlock(&pool->lock);
+ 			z3fold_page_unlock(zhdr);
++			clear_bit(PAGE_CLAIMED, &page->private);
+ 		}
+ 
+ 		/* We started off locked to we need to lock the pool back */
+@@ -1315,7 +1333,8 @@ static bool z3fold_page_isolate(struct p
+ 	VM_BUG_ON_PAGE(!PageMovable(page), page);
+ 	VM_BUG_ON_PAGE(PageIsolated(page), page);
+ 
+-	if (test_bit(PAGE_HEADLESS, &page->private))
++	if (test_bit(PAGE_HEADLESS, &page->private) ||
++	    test_bit(PAGE_CLAIMED, &page->private))
+ 		return false;
+ 
+ 	zhdr = page_address(page);
 _
