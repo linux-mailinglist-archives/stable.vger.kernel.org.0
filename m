@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 719ECBACA4
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 04:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C34BACA7
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 04:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404383AbfIWCdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Sep 2019 22:33:33 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37096 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404135AbfIWCdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 22:33:33 -0400
-Received: by mail-pf1-f193.google.com with SMTP id y5so8200270pfo.4
-        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 19:33:33 -0700 (PDT)
+        id S2404482AbfIWCeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Sep 2019 22:34:05 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:35462 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404135AbfIWCeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Sep 2019 22:34:05 -0400
+Received: by mail-pf1-f195.google.com with SMTP id 205so8209821pfw.2
+        for <stable@vger.kernel.org>; Sun, 22 Sep 2019 19:34:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id;
-        bh=L0CPgCufl3kk7hZTqN/fh/41VjDv8bX2l/BiIIFM92U=;
-        b=k6TfXXWAJvRs1psBuPG1jMNUkik0szqKx/RocEFaswy2giB3LFcf4QugLXSmJLpBXD
-         P4xlqNBqjO31tkqY2Npm2qH6lI/cVNw1NR7axGvWUQOHWP5XpvSbZEZu9a4+RqxEZpqV
-         M9ht42Vi7WgBIdwKefDR5OztOQ/ehVxGGtRskxD6Bg6PmMUQAbEOCo+CLq/sWvnWwXJ9
-         IUsgrfGKS1LYl28kNYrFFa3VLlUDYGNUQ6DOGP7pl8oouPbgABgT0VkECbvg9a49apyU
-         PwmUgG0P3hf1QJSptFfsBeFeUQZJKqcROVaeunNxFiM+pkhDDT3BZaIaDHa8D0bdzeQM
-         uwIA==
+        bh=olfyRzbV8M+cZYIlrHmiKQMFSiGHjLyePCXwy/Ik6xI=;
+        b=A7vN0mahL+iuOHpzHbGW4MXq1bsSSuAw8pWF+ah/HlvNRK9mWyQtxNUX0k+jZykDg2
+         s/VPUxLUBcVJGE67k2UH1qgP1pyVFiEeQ/tZ5As7jfEvRag9FGwt0/RCvs69mhyzWJi3
+         I5o8D4cW86dIY5cEATjk1xvnO6uuixF2jccioi19t2BuHSLa4BtyQ4DEPKfVEhmCOMHH
+         q9PNTPCj8Or/wvPoAigQr229POnBohZLTMKR3+DaAVglVTwhlXzntyPIZEV5cZl/90pN
+         T4M9CPghGm2amRXu18bX1h2DsiHwHvDe6kpyfxIdRVHewtG5l4LMuNzZ/gk0zAYmAI6v
+         LyRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=L0CPgCufl3kk7hZTqN/fh/41VjDv8bX2l/BiIIFM92U=;
-        b=GglzDz6/RzRM+T1D2iaHwVlMmcCihYr5dNH6e2VG0jTMHCmsQqbC97TSQQHcAUk4/2
-         7U+hfRPgRSxKtI5cyl/1mGwoIdrICY8fvew7jkCMQPgtY8LII5HAXDqQ3uyMqV7s7ebJ
-         aOlUgzQbLzRc0lY+ugDQlYYLITrUy2vC6e89ibTIU9DkUxwQhSzdWC1ebXuM1buZEt/P
-         8bT9LMC+DdTx5WKUzNLBOb+SDjiF3lcoNeScmvwxvMBKz2LQVVpGJhzaDOvhTO+YvuMw
-         4ar7/7q8OosJUn/WJLJ8Nc29BEcYkhqyy73bJUV0ngCCiQr14ist9mNTS+EWbBQK9AAA
-         W+BA==
-X-Gm-Message-State: APjAAAWIRdz7tBkESpkQpinTJoLMSocS6Nyb1/YSYapvj9Xt825BxoRb
-        oF8xUCG8rYgm37qEZMgu0dE=
-X-Google-Smtp-Source: APXvYqy8JAFETTITBduEzj1zkSULkQzQoDOhOpNX2B3aJRWsyOz1XgaMD9qnrpqwQaEhI8O+TuHVSg==
-X-Received: by 2002:a17:90a:7f89:: with SMTP id m9mr15098423pjl.30.1569206013055;
-        Sun, 22 Sep 2019 19:33:33 -0700 (PDT)
+        bh=olfyRzbV8M+cZYIlrHmiKQMFSiGHjLyePCXwy/Ik6xI=;
+        b=ff1Owns3YtGML/n41aSdTulLQUp9qoaQCh246sVEha74LhCo/XPh1FypxihRIeJRc1
+         qx0FPhDB6qUuEHsFSxb7vUBSZ5IRmUJI35QQ0fodjb00kP9vxM0AFTjP5lWZcDg2Naya
+         qN9Rk4xPnywKkcS0karC7vI65vIeZvuoKgp+tuQKcLXjTxO9kPO17Cevne1vRdcPWbJI
+         sJYP9byfea/qoRBJ/U5AV4cVEGnI0KZd5TD5V867qWdT78f1MR5pvZtO2NNTm2YhnQ8w
+         jWRHIsYGwuaE9RTXD8WIg+9dBXuVaIF2L5m/3BNf+KtRpJfFDMAhM5DfwOpQ2m4CKlXf
+         lxRQ==
+X-Gm-Message-State: APjAAAV7a4+T7MV1RDFaATyZ0LlMXld/gotTk/Cd6Dq6mb+E8Xr5cp8X
+        PSKk6h5hwM78jggIS4sw7aM=
+X-Google-Smtp-Source: APXvYqyZm+iC57DXxob5AOei7j/ZUAQTRFyi21kwj/khROFMBah9Chtg618Lzz6LLLc5+ax5cClYjw==
+X-Received: by 2002:a63:1009:: with SMTP id f9mr4787691pgl.124.1569206044921;
+        Sun, 22 Sep 2019 19:34:04 -0700 (PDT)
 Received: from localhost.localdomain (M106072039032.v4.enabler.ne.jp. [106.72.39.32])
-        by smtp.gmail.com with ESMTPSA id i126sm10010566pfc.29.2019.09.22.19.33.30
+        by smtp.gmail.com with ESMTPSA id s7sm8697403pjr.23.2019.09.22.19.34.02
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 22 Sep 2019 19:33:32 -0700 (PDT)
+        Sun, 22 Sep 2019 19:34:04 -0700 (PDT)
 From:   Tokunori Ikegami <ikegami.t@gmail.com>
 To:     Greg KH <greg@kroah.com>
 Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
@@ -51,9 +51,9 @@ Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
         Felix Fietkau <nbd@nbd.name>,
         Hauke Mehrtens <hauke@hauke-m.de>,
         Vignesh Raghavendra <vigneshr@ti.com>
-Subject: [PATCH for 4.19.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
-Date:   Mon, 23 Sep 2019 11:33:26 +0900
-Message-Id: <20190923023326.20230-1-ikegami.t@gmail.com>
+Subject: [PATCH for 4.14.y] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
+Date:   Mon, 23 Sep 2019 11:33:58 +0900
+Message-Id: <20190923023358.20279-1-ikegami.t@gmail.com>
 X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -91,10 +91,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index 72428b6bfc47..ba44ea6d497e 100644
+index af3d207c9cc4..e773dc6fdd3c 100644
 --- a/drivers/mtd/chips/cfi_cmdset_0002.c
 +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1627,29 +1627,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
+@@ -1628,29 +1628,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
  			continue;
  		}
  
@@ -123,7 +123,7 @@ index 72428b6bfc47..ba44ea6d497e 100644
 -	if (!chip_good(map, adr, datum)) {
 +	if (ret) {
  		/* reset on all failures. */
- 		map_write(map, CMD(0xF0), chip->start);
+ 		map_write( map, CMD(0xF0), chip->start );
  		/* FIXME - should have reset delay before continuing */
  
 -		if (++retry_cnt <= MAX_RETRIES)
