@@ -2,72 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D98BBB778
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2C2BB7D5
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 17:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726141AbfIWPGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 11:06:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41730 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726135AbfIWPGG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 11:06:06 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 95048ACD7;
-        Mon, 23 Sep 2019 15:06:02 +0000 (UTC)
-Date:   Mon, 23 Sep 2019 17:06:01 +0200
-From:   Petr Vorel <pvorel@suse.cz>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ipv6: Properly check reference count flag before taking
- reference
-Message-ID: <20190923150600.GA27191@dell5510>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-References: <20190923144612.29668-1-Jason@zx2c4.com>
+        id S1726045AbfIWPYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 11:24:45 -0400
+Received: from frisell.zx2c4.com ([192.95.5.64]:48953 "EHLO frisell.zx2c4.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725992AbfIWPYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 11:24:45 -0400
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 5c870d66;
+        Mon, 23 Sep 2019 14:39:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
+        :references:in-reply-to:from:date:message-id:subject:to:cc
+        :content-type; s=mail; bh=8zzuCZXCZAoOQeNoK08hAiyUbsQ=; b=ZX4fLD
+        uRi22sY4dnKAgyHl7/B6qFwTZIwrwe7CX9XizZ2rajREu7C8rcWVcvWuZWbd4Gqu
+        k2UGnkyHP1BigoSxifQqHr8GUJkL/L6gMEWUn5NTkNNJ++bytBuggykVxw/P1kkW
+        sCkX5JB21L2lGyS4og48LHiVXjo71xvwGgoaJYSmdKZaHA3dqKmP307b0TGxuq2d
+        XUbfAU+1OQkyesGPzoHUzTJMadewfCMEFvhWqzL/A0NuOmG7VclEfaLWy9snlOTT
+        zj3Ap70oQ8TyWVBV8Qp5hxAxcdA9pLQ3mjDd0hIayrRwWoce/YRcJuPlCKJSRGLd
+        lW7RRXsePfYb2bPA==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a3da75fb (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Mon, 23 Sep 2019 14:39:13 +0000 (UTC)
+Received: by mail-ot1-f42.google.com with SMTP id s22so12465524otr.6;
+        Mon, 23 Sep 2019 08:24:43 -0700 (PDT)
+X-Gm-Message-State: APjAAAWuVs6VlfrWTbMlY7xdSlhvHB9/w2TdAIalI+NV49cZNaTXD6VW
+        GG5zOW2LQmoMtkIZiBAm3KcVfJfSrxRZ/r6oy/w=
+X-Google-Smtp-Source: APXvYqwgWw8Nt90k1KXN8nXE9xGerbP4lvbQ6ih8TbATzS9WfcxGaxFXrFvbPkM1i9qlgkfIMbntPM9wVWziH17rIbw=
+X-Received: by 2002:a05:6830:20cd:: with SMTP id z13mr291875otq.243.1569252282678;
+ Mon, 23 Sep 2019 08:24:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190923144612.29668-1-Jason@zx2c4.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+References: <20190923144612.29668-1-Jason@zx2c4.com> <20190923150600.GA27191@dell5510>
+In-Reply-To: <20190923150600.GA27191@dell5510>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Mon, 23 Sep 2019 17:24:31 +0200
+X-Gmail-Original-Message-ID: <CAHmME9pKWuJ+oKfrKxhrjLCEw1qcWE=sCZSLOGyUMvW+eUS2cw@mail.gmail.com>
+Message-ID: <CAHmME9pKWuJ+oKfrKxhrjLCEw1qcWE=sCZSLOGyUMvW+eUS2cw@mail.gmail.com>
+Subject: Re: [PATCH] ipv6: Properly check reference count flag before taking reference
+To:     Petr Vorel <pvorel@suse.cz>
+Cc:     Netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-> People are reporting that WireGuard experiences erratic crashes on 5.3,
-> and bisected it down to 7d30a7f6424e. Casually flipping through that
-> commit I noticed that a flag is checked using `|` instead of `&`, which in
-> this current case, means that a reference is never incremented, which
-> would result in the use-after-free users are seeing. This commit changes
-> the `|` to the proper `&` test.
-
-> Cc: stable@vger.kernel.org
-> Fixes: 7d30a7f6424e ("Merge branch 'ipv6-avoid-taking-refcnt-on-dst-during-route-lookup'")
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-
-Reviewed-by: Petr Vorel <pvorel@suse.cz>
-
-NOTE: this change was added in d64a1f574a29 ("ipv6: honor RT6_LOOKUP_F_DST_NOREF in rule lookup logic")
-
-Kind regards,
-Petr
-
-> ---
->  net/ipv6/ip6_fib.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-> diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
-> index 87f47bc55c5e..6e2af411cd9c 100644
-> --- a/net/ipv6/ip6_fib.c
-> +++ b/net/ipv6/ip6_fib.c
-> @@ -318,7 +318,7 @@ struct dst_entry *fib6_rule_lookup(struct net *net, struct flowi6 *fl6,
->  	if (rt->dst.error == -EAGAIN) {
->  		ip6_rt_put_flags(rt, flags);
->  		rt = net->ipv6.ip6_null_entry;
-> -		if (!(flags | RT6_LOOKUP_F_DST_NOREF))
-> +		if (!(flags & RT6_LOOKUP_F_DST_NOREF))
->  			dst_hold(&rt->dst);
->  	}
+Apparently even with this (certainly correct) patch attached, users
+are still experiencing problems. Bug hunting continues, and I'll
+report back if I figure something out.
