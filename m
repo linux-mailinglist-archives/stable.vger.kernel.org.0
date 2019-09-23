@@ -2,106 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DC8BB3C8
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 14:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10132BB3F2
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 14:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394241AbfIWMdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 08:33:11 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:34257 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394195AbfIWMdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 08:33:11 -0400
-Received: by mail-ed1-f66.google.com with SMTP id p10so12692952edq.1;
-        Mon, 23 Sep 2019 05:33:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=CZY+m6XziiuUFC3vgwK1PNVySRnzhKJCHOLL5oruBzU=;
-        b=drJzkdvGslYwupMEMUo7tkam6+wlcF8mmd7vvon3Bny/m9zpNEu9AwCg2ThZ/0PQDD
-         wn0mVVTWX6jHgXAG6GSuNpvngnRRIfgapW1LnvM6/nuHh1H+mtSVFGNSuxVafUqGEJYV
-         jizPG6pn7VDPnax8qqT4gMaG85yh7a963/wRKcpIA34w4es9XVOjYgpixbPLAwOeOOiT
-         NxLjNcfpWhnAmFYxQoQBxnDjmm8irYQj+I4pKgKJ0D5iT/f2+bIJh1mgGU95KKX6V1c7
-         nYbzhB3cJAG2//GDry04vIk6rq4ZZfk2hMNv5T9qWnq6TxyGkt6vbNm2pg5mI/UXe+8T
-         ENWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CZY+m6XziiuUFC3vgwK1PNVySRnzhKJCHOLL5oruBzU=;
-        b=ONIa+G36avbmBRwzY7RLFZRBgUXot80JIi+xsakEs5F6X9Ktqur/+Zb5nNEgahw0DX
-         SWdYg0y3c5EIQevZWLeppXTKG+zxRRSvN0rZoud7PlX7cde+q5heVhlISjCw9pkZOarZ
-         krTytNOwXEKIxTCVmFJELf5i1fJs1m2++WBUxrEgPkdSOSgy7p5Cy0Q5ZD1LXLQ+WoWs
-         SswA98VODfXU9WNLYaSz2q9mU1kbW5/+L/vkbFkyT+cvDFiLoCBo+Kb05oL4gu2+UNy4
-         J5vDvugf0cIQbmFqKcP6/bB1rvg7EVIqQCLMGLInLIhYQiOSAi5f5Gn9WqE4U91tiVIy
-         BRCg==
-X-Gm-Message-State: APjAAAWaO1suMSsg/zOS4OZB2O6cIPw+RdlqMbJNLvIkZ2hPjHJnmExS
-        FagtV1jOO0ZpOG9mQWz0HCjQ5img
-X-Google-Smtp-Source: APXvYqwkqIo5m2ZEhcs4rT8Tce+0N6S8DY4mikk/PVvy7GSbondpoDFlTnDqM79/KVGPP8VGS1T5RQ==
-X-Received: by 2002:a50:a41c:: with SMTP id u28mr36593853edb.185.1569241988538;
-        Mon, 23 Sep 2019 05:33:08 -0700 (PDT)
-Received: from [10.68.217.182] ([217.70.210.43])
-        by smtp.gmail.com with ESMTPSA id d4sm1101810ejm.24.2019.09.23.05.33.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Sep 2019 05:33:07 -0700 (PDT)
-Subject: Re: [PATCH 3/3] xfs: Fix stale data exposure when readahead races
- with hole punch
-To:     Jan Kara <jack@suse.cz>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     linux-xfs@vger.kernel.org, linux-mm@kvack.org,
-        Amir Goldstein <amir73il@gmail.com>,
-        Boaz Harrosh <boaz@plexistor.com>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
-References: <20190829131034.10563-1-jack@suse.cz>
- <20190829131034.10563-4-jack@suse.cz> <20190829155204.GD5354@magnolia>
- <20190830152449.GA25069@quack2.suse.cz>
- <20190918123123.GC31891@quack2.suse.cz>
-From:   Boaz Harrosh <openosd@gmail.com>
-Message-ID: <53b7b7b9-7ada-650c-0a32-291a242601f3@gmail.com>
-Date:   Mon, 23 Sep 2019 15:33:05 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
-MIME-Version: 1.0
-In-Reply-To: <20190918123123.GC31891@quack2.suse.cz>
-Content-Type: text/plain; charset=utf-8
+        id S2404313AbfIWMkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 08:40:00 -0400
+Received: from mail-eopbgr30048.outbound.protection.outlook.com ([40.107.3.48]:39034
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2404312AbfIWMkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 08:40:00 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ACa612EAjot5MVcQBqgfacC7bYWsOgt20R8qep3mxANsUQcOUX3eoPJZFqBh4D5sVRrYvO8cp2PGKFY6ROtEsS8dfqkCeiJd4brf5ZXZ1JejGcFNxMaCuaODTCi7U+EiCLUQdVvJNz0PsvPd5DwJgoQmiYHpcwAbHknu/Zkr1s8awkCnjDf/z4LvuagGdQbe49yvNlj9f/Inyii40Z2FuS9hc6uWhrgZBoJggc9syvANc8hfNZExZMtz+uJnPnLOrZw0x60x+pMFL6zk2dCk8OZsyXhf/gQXXLR9R6yYry9FgnobifivBkyC7dwwQOFAy/ShwSyPE3khJnBJiYC3Xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SNorlOk01z5SjdrjEbsRcvridvWR2m10uOmq3ezLRtA=;
+ b=lSzla7NKbTVtGMNSB8B6dtbeV1OUSQ2wR5nZZn6jRE3lkI46fbgjeR/lqEAHu0NWLvH1pVSvvO9SsLh8FrNNOC7kVRuxCf4xMxI2z6Ak/x06vGMfsKDnZngaGe0Rqirgn5gcqe9ePxFHL5x7B9EdfABQ/qqSmIjPbKt1vUzxj1hhLbEhgm0PN26/YkQaFeTf/b54Qk5niUfe30FTVUoj4xoJ/+W7nlvB/bj4/gHzTozRaCchoKD/hrRWVOVomR60VqirDDCtApL83B9InRpqnPLK/FaJ8kr5v248IDXGH1GDcxxrQu1I6upEtg8uTRAy8V9Bsvka0/Sx3qjzLx6mBA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=mellanox.com; dmarc=pass action=none header.from=mellanox.com;
+ dkim=pass header.d=mellanox.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SNorlOk01z5SjdrjEbsRcvridvWR2m10uOmq3ezLRtA=;
+ b=R5kR/pFo347pPzcVtQIm2B3MCZYP02gq94Keea4TyM97h5W3I0ujqC8Wvt5ibpSXCoXkrd11oI2vacCT6DHReI5T8GnUIZnu1M4PLjt4DgJwm35qWdiRshyzWDIK2vgtUo1DYxoY9eVw1jtO/sVE63dQWd2covK1TMlzUwMNo0k=
+Received: from AM4PR0501MB2756.eurprd05.prod.outlook.com (10.172.216.138) by
+ AM4PR0501MB2339.eurprd05.prod.outlook.com (10.165.45.144) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2284.25; Mon, 23 Sep 2019 12:39:57 +0000
+Received: from AM4PR0501MB2756.eurprd05.prod.outlook.com
+ ([fe80::dd87:8e2c:f7ed:e29b]) by AM4PR0501MB2756.eurprd05.prod.outlook.com
+ ([fe80::dd87:8e2c:f7ed:e29b%9]) with mapi id 15.20.2284.023; Mon, 23 Sep 2019
+ 12:39:57 +0000
+From:   Saeed Mahameed <saeedm@mellanox.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.19-stable 0/7] mlx5 checksum fixes for 4.19
+Thread-Topic: [PATCH 4.19-stable 0/7] mlx5 checksum fixes for 4.19
+Thread-Index: AQHVcgwB/2sgPTp/G0Cxcdv8yvTygQ==
+Date:   Mon, 23 Sep 2019 12:39:57 +0000
+Message-ID: <20190923123917.16817-1-saeedm@mellanox.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.21.0
+x-originating-ip: [89.138.141.98]
+x-clientproxiedby: BYAPR03CA0036.namprd03.prod.outlook.com
+ (2603:10b6:a02:a8::49) To AM4PR0501MB2756.eurprd05.prod.outlook.com
+ (2603:10a6:200:5c::10)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=saeedm@mellanox.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 7a7914c6-bb85-4a2b-e669-08d7402323f0
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600167)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM4PR0501MB2339;
+x-ms-traffictypediagnostic: AM4PR0501MB2339:|AM4PR0501MB2339:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <AM4PR0501MB233913817DA54B200C39EF13BE850@AM4PR0501MB2339.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-forefront-prvs: 0169092318
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(376002)(136003)(39860400002)(396003)(366004)(189003)(199004)(6436002)(81156014)(81166006)(54906003)(71200400001)(2616005)(1076003)(476003)(6512007)(71190400001)(305945005)(66066001)(36756003)(486006)(316002)(478600001)(102836004)(7736002)(66946007)(52116002)(186003)(66476007)(8936002)(6916009)(107886003)(14454004)(26005)(50226002)(5660300002)(99286004)(256004)(64756008)(3846002)(6486002)(2906002)(66446008)(8676002)(86362001)(25786009)(6116002)(66556008)(4326008)(6506007)(386003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM4PR0501MB2339;H:AM4PR0501MB2756.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: 9270HNXXMd5K0VaxLkffDCf+RAnS/ycljMyF8DshT6OjvY6EyQfzxdBghmHhWMJ1wOMcpAmKMKg/4IcCyCmG+yLw1cuhGSeVK7yD0SWFjskqCbW6TUQbh8LIgSopKyrPG+ays9Ceny+ac2zdUzJpVNYnXj8Kp0fc/2PoqH5cXIsiUOiu7gAbMnKwwNYJo9W9WMoxgrUEZTmUmRrHlId3SB/XlOpirod7M2QwUZ/EQiR7J0NMFxtdi2YQJ4BW4r1sb99K3S5y25WS3xWx7G3wjjPfwEYSCHavmfUgS2OIG5RHLjugcmiyIoK0mKEeRECcvv9EkKEgWL0vWGzMppcTSlaSKS8CSFkPRy1425KkA4BGD+fDjJmcGrYCtxj86TqLo74YHzFJEubEsTKxUQ0KquzDzcHXQDVjzSq5Gm/i09M=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7a7914c6-bb85-4a2b-e669-08d7402323f0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Sep 2019 12:39:57.1365
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: J4C8jQyDmCX42HtAZ/qeXqymD6F8LEJlLc+hjSY+YGv+GAsgcbxocYqtRYD4/DgOVjajQLStLs3+3gG0TUXyBQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM4PR0501MB2339
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 18/09/2019 15:31, Jan Kara wrote:
-<>
->>> Is there a test on xfstests to demonstrate this race?
->>
->> No, but I can try to create one.
-> 
-> I was experimenting with this but I could not reproduce the issue in my
-> test VM without inserting artificial delay at appropriate place... So I
-> don't think there's much point in the fstest for this.
-> 
-> 								Honza
-> 
+Hi Greg,
 
-If I understand correctly you will need threads that direct-write
-files, then fadvise(WILL_NEED) - in parallel to truncate (punch_hole) these
-files - In parallel to trash caches.
-(Direct-write is so data is not present in cache when you come to WILL_NEED
- it into the cache, otherwise the xfs b-trees are not exercised. Or are you
- more worried about the page_cache races?
-)
+This series includes some upstream patches aimed to fix multiple checksum
+issues with mlx5 driver in 4.19-stable kernels.
 
-Also the d-writes might want to exercise multiple size extents + holes as
-well.
+Since the patches didn't apply cleanly to 4.19 back when they were
+submitted for the first time around 5.1 kernel release to the netdev
+mailing list, i couldn't mark them for -stable 4.19, so now as the issue
+is being reported on 4.19 LTS kernels, I had to do the backporting and
+this submission myself.
+=20
+This series required some dependency patches and some manual touches
+to apply some of them.
 
-I have a very different system but its kind of the test we did for this
-problem.
+Please apply to 4.19-stable and let me know if there's any problem.
+I tested and the patches apply cleanly and work on top of: v4.19.75
 
-The reason it is never hit is because fadvise(WILL_NEED) is never really
-used that much, and there are no applications that actually blindly truncate
-during IO, this is only us in testing that do this meaningless thing.
+Thanks,
+Saeed.=20
 
-Thanks Jan again for working on this
-Boaz
+---
+
+Alaa Hleihel (1):
+  net/mlx5e: don't set CHECKSUM_COMPLETE on SCTP packets
+
+Cong Wang (1):
+  mlx5: fix get_ip_proto()
+
+Natali Shechtman (1):
+  net/mlx5e: Set ECN for received packets using CQE indication
+
+Or Gerlitz (1):
+  net/mlx5e: Allow reporting of checksum unnecessary
+
+Saeed Mahameed (3):
+  net/mlx5e: XDP, Avoid checksum complete when XDP prog is loaded
+  net/mlx5e: Rx, Fixup skb checksum for packets with tail padding
+  net/mlx5e: Rx, Check ip headers sanity
+
+ drivers/net/ethernet/mellanox/mlx5/core/en.h  |   3 +
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  28 ++++
+ .../net/ethernet/mellanox/mlx5/core/en_main.c |   8 ++
+ .../net/ethernet/mellanox/mlx5/core/en_rx.c   | 126 +++++++++++++++---
+ .../ethernet/mellanox/mlx5/core/en_stats.c    |   9 ++
+ .../ethernet/mellanox/mlx5/core/en_stats.h    |   6 +
+ 6 files changed, 165 insertions(+), 15 deletions(-)
+
+--=20
+2.21.0
+
