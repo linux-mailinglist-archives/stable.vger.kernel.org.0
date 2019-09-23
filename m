@@ -2,71 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 496CDBB724
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 16:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE6DBB75F
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 16:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438395AbfIWOun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 10:50:43 -0400
-Received: from mga03.intel.com ([134.134.136.65]:55165 "EHLO mga03.intel.com"
+        id S1728280AbfIWO6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 10:58:03 -0400
+Received: from mga11.intel.com ([192.55.52.93]:38259 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437097AbfIWOum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 10:50:42 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
+        id S1726902AbfIWO6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Sep 2019 10:58:02 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Sep 2019 07:50:40 -0700
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Sep 2019 07:58:01 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,540,1559545200"; 
-   d="scan'208";a="193114555"
-Received: from hodel-mobl1.ger.corp.intel.com (HELO [10.252.37.116]) ([10.252.37.116])
-  by orsmga006.jf.intel.com with ESMTP; 23 Sep 2019 07:50:38 -0700
+   d="scan'208";a="272304201"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga001.jf.intel.com with SMTP; 23 Sep 2019 07:57:58 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 23 Sep 2019 17:57:57 +0300
+Date:   Mon, 23 Sep 2019 17:57:57 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Manasi Navare <manasi.d.navare@intel.com>
 Subject: Re: [PATCH] drm/i915/dp: Fix dsc bpp calculations, v4.
-To:     intel-gfx@lists.freedesktop.org
-Cc:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>
+Message-ID: <20190923145757.GM1208@intel.com>
 References: <20190923130307.GK1208@intel.com>
  <20190923144947.18588-1-maarten.lankhorst@linux.intel.com>
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Message-ID: <cc2271f2-42cb-7da7-b6a0-391cf76692b6@linux.intel.com>
-Date:   Mon, 23 Sep 2019 16:50:37 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20190923144947.18588-1-maarten.lankhorst@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Op 23-09-2019 om 16:49 schreef Maarten Lankhorst:
+On Mon, Sep 23, 2019 at 04:49:47PM +0200, Maarten Lankhorst wrote:
 > There was a integer wraparound when mode_clock became too high,
 > and we didn't correct for the FEC overhead factor when dividing,
 > with the calculations breaking at HBR3.
->
+> 
 > As a result our calculated bpp was way too high, and the link width
 > limitation never came into effect.
->
+> 
 > Print out the resulting bpp calcululations as a sanity check, just
 > in case we ever have to debug it later on again.
->
+> 
 > We also used the wrong factor for FEC. While bspec mentions 2.4%,
 > all the calculations use 1/0.972261, and the same ratio should be
 > applied to data M/N as well, so use it there when FEC is enabled.
->
+> 
 > Make sure we don't break hw readout, and read out FEC enable state
 > and correct the DDI clock readout for the new values.
-Note to self, needs this removed from commit msg.
+> 
 > This fixes the FIFO underrun we are seeing with FEC enabled.
->
+> 
 > Changes since v2:
 > - Handle fec_enable in intel_link_compute_m_n, so only data M/N is adjusted. (Ville)
 > - Fix initial hardware readout for FEC. (Ville)
 > Changes since v3:
 > - Remove bogus fec_to_mode_clock. (Ville)
->
+> 
 > Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 > Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
 > Cc: <stable@vger.kernel.org> # v5.0+
@@ -79,7 +80,7 @@ Note to self, needs this removed from commit msg.
 >  drivers/gpu/drm/i915/display/intel_dp.h      |   6 +-
 >  drivers/gpu/drm/i915/display/intel_dp_mst.c  |   2 +-
 >  6 files changed, 125 insertions(+), 99 deletions(-)
->
+> 
 > diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
 > index 0c0da9f6c2e8..1cb297abd111 100644
 > --- a/drivers/gpu/drm/i915/display/intel_ddi.c
@@ -99,10 +100,19 @@ Note to self, needs this removed from commit msg.
 > +
 > +			pipe_config->fec_enable =
 > +				I915_READ(dp_tp_ctl) & DP_TP_CTL_FEC_ENABLE;
+
+Can you split the fec_enable readout/state check into a separate
+patch?
+
+I wonder how the lack of this stuff was missed when FEC was adeed...
+
 > +
 > +			DRM_DEBUG_KMS("[ENCODER:%d:%s] Fec status: %u\n",
 > +				      encoder->base.base.id, encoder->base.name,
 > +				      pipe_config->fec_enable);
+
+I'd just include it as part of the normal state dump.
+
 > +		}
 > +
 >  		break;
@@ -419,5 +429,9 @@ Note to self, needs this removed from commit msg.
 >  	crtc_state->dp_m_n.tu = slots;
 >  
 >  	return 0;
+> -- 
+> 2.20.1
 
-
+-- 
+Ville Syrjälä
+Intel
