@@ -2,77 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB4FBAE74
-	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED60FBAE85
+	for <lists+stable@lfdr.de>; Mon, 23 Sep 2019 09:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393160AbfIWHZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 03:25:14 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:35982 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389719AbfIWHZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:25:14 -0400
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 2528E51A;
-        Mon, 23 Sep 2019 09:25:12 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1569223512;
-        bh=W73OWeyjps5zQDbf4o8klBK6FV6fBTBTuu61y3QjNRI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W8HM36RZnNhOKBVdbAEVUJxROIW10YLs781fqrJLyjDixRMp4nev8nos+W4xtvg/q
-         baxHCiSaAeArs9Bi/5RiVQX9JUjJ8p2ETtwhf013Prit9mHkg4bR/c9tmX8Hy/w1Pl
-         6clowBhFMoQOuJfLoN1/kooP7ELRPdXHIQt5XTZU=
-Date:   Mon, 23 Sep 2019 10:25:03 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Sakari Ailus <sakari.ailus@iki.fi>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        linux-media@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.3 084/203] media: omap3isp: Don't set streaming
- state on random subdevs
-Message-ID: <20190923072503.GA5056@pendragon.ideasonboard.com>
-References: <20190922184350.30563-1-sashal@kernel.org>
- <20190922184350.30563-84-sashal@kernel.org>
- <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
+        id S2393250AbfIWHbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Sep 2019 03:31:34 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:59861 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2392971AbfIWHbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Sep 2019 03:31:33 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8B463411;
+        Mon, 23 Sep 2019 03:31:32 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 23 Sep 2019 03:31:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=r
+        xsMSOP5XeiSeGHz7OFZXR7UFFdSRMCjzoz5TVekqzk=; b=IU9T2ogObc4GOXfVw
+        cDKExsM/z4MhupAhl7wTXi58GNueTRNtjy74yhP+kR6VoJiLIM3papLy8/LBQFrw
+        AZ+oAD1lE1s+tBBnyOyB/TfwpFOq95NRIPlQu2x1W26QdrS+MC2j6fAAJ1yhlGju
+        PLMbWVoASchDH8pdvgqDCTq5uXT4vifxXqO324rW85IQt8MdJRDs3yYEwQfUKCDJ
+        0RVQ8Yf+335PB3z8cLpdrg6Vo4nytorI5rdMD/eoC6/mxiB5xowk4DMPoep60++K
+        46Xkd49bSngAMpmRvQggg114RuGmxSqbdLmyxweX4/3qIOcv6WyeMwoDc3NHQAXs
+        WfgxA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=rxsMSOP5XeiSeGHz7OFZXR7UFFdSRMCjzoz5TVekq
+        zk=; b=rdX3MdZzimSqenjfAPRmB0LpcTlHcwTyuPRElEz7EWS1jDXStgiB0DYVo
+        A6NsHHJtGWImOwcoi0EDq/E0UO0Xquj7VUBo2BWKWwdiTel1QV83+2Ixb605O69d
+        VDC4Tk05Rzr65KqgyLMW98Hu/kHNQ9RIn1HFLZZnJCiPL0ih4EDZQ7uDY66Kk+x5
+        2GU76AN0h/uEwg8Rm3PYw/yl9nYyg1N/ln+Kzenk2KJWYUXksEt5RYNBzkFlDe3b
+        JymN5OI9TPlsVP7DLkpmahPDWQ0JEyJ6aaVUC4n02k9p8g0uvuZnJ9dLWCT6LiyN
+        X2ucApqgr09EAdWRcyJJU8nINqF/Q==
+X-ME-Sender: <xms:03SIXesps-KQELljUBJecmJ7kXLhMjKqIKm5WM4lSW7e2SiY85qUIw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdejgdduvdefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtredunecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvg
+    hlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:03SIXfznQK4LgEKDeFBju_nN68H2rKyO6cL1QSBI94T-9vUrBEZdFQ>
+    <xmx:03SIXcg3XvWUxQWMtLRcatQSEqU3Zi85yD9n6aa0UQzha1704RejVg>
+    <xmx:03SIXbAPL9Ts6dNraW3aTlKdx5MoYJINnGUiN0i5EH5m7CbGhx85Tg>
+    <xmx:03SIXQkq_DSDv3ZxyOej92OjnYMxb-M_KaLmWaJEp4g-Cl2PFfNKkA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E360FD6005B;
+        Mon, 23 Sep 2019 03:31:30 -0400 (EDT)
+Date:   Mon, 23 Sep 2019 09:31:29 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Greg Kurz <groug@kaod.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] powerpc/xive: Fix bogus error code returned by OPAL
+Message-ID: <20190923073129.GA2749134@kroah.com>
+References: <156922009207.910857.10785273696571088534.stgit@bahia.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <156922009207.910857.10785273696571088534.stgit@bahia.lan>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 10:19:42AM +0300, Sakari Ailus wrote:
-> Hi Sasha,
+On Mon, Sep 23, 2019 at 08:29:40AM +0200, Greg Kurz wrote:
+> There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
+> to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
+> Unfortunatelty, OPAL return values are signed 64-bit entities and
+> errors are supposed to be negative. If that happens, the linux code
+> confusingly treats 0xffffffff as a valid IRQ number and panics at some
+> point.
 > 
-> On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
-> > From: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > 
-> > [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
-> > 
-> > The streaming state should be set to the first upstream sub-device only,
-> > not everywhere, for a sub-device driver itself knows how to best control
-> > the streaming state of its own upstream sub-devices.
-> > 
-> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> A fix was recently merged in skiboot:
 > 
-> I don't disagree with this going to the stable trees as well, but in that
-> case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
-> device on omap3isp subdevs") or the driver will mostly cease to work.
+> e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
 > 
-> Could you pick that up as well?
+> but we need a workaround anyway to support older skiboots already
+> in the field.
+> 
+> Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
+> returned upon resource exhaustion.
+> 
+> Cc: stable@vger.kernel.org # v4.12+
+> Signed-off-by: Greg Kurz <groug@kaod.org>
+> Reviewed-by: Cédric Le Goater <clg@kaod.org>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
+> (cherry picked from commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8,
+>  groug: fix arch/powerpc/platforms/powernv/opal-wrappers.S instead of
+>         non-existing arch/powerpc/platforms/powernv/opal-call.c)
+> Signed-off-by: Greg Kurz <groug@kaod.org>
+> ---
+> 
+> This is for 4.14 and 4.19.
 
-While I don't disagree either, I also think there's no requirement to
-get this commit backported to stable branches. It seems to be the result
-of a too aggressive auto-selection.
+Thanks for the backport, now queued up.
 
--- 
-Regards,
-
-Laurent Pinchart
+greg k-h
