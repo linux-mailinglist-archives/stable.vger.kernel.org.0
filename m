@@ -2,214 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38458BBE8C
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 00:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E423ABC18A
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 07:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391988AbfIWWhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Sep 2019 18:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391887AbfIWWhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Sep 2019 18:37:10 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E5E920578;
-        Mon, 23 Sep 2019 22:37:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569278228;
-        bh=pI/kYpmGfea5QS9pIaaR3hPPodQ4QvZzNf+kGGKToEk=;
-        h=Date:From:To:Subject:From;
-        b=2Gh1wquzrZxfNlTNhxK8KFZ7oSYv1rWLaEqa+FbdQGjcaRIJ781iNTinmDAEH6qAV
-         y/cgwCTty2p39FfH3oyepLwdgp9hxx8LbJaUGtlo8ACH7eh4zW0t3S7leQWzGEifr7
-         VYd2Yebo/7e92RBracrcX7JAg3sSTd0ydqq0UpS8=
-Date:   Mon, 23 Sep 2019 15:37:08 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, msharbiani@apple.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, rientjes@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 084/134] memcg, oom: don't require __GFP_FS when
- invoking memcg OOM killer
-Message-ID: <20190923223708.Pr9V7JZKW%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S2409019AbfIXF44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 01:56:56 -0400
+Received: from mx0a-0014ca01.pphosted.com ([208.84.65.235]:55050 "EHLO
+        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2407957AbfIXF44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 01:56:56 -0400
+Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
+        by mx0a-0014ca01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x8O5q3Cf005689;
+        Mon, 23 Sep 2019 22:56:18 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=proofpoint;
+ bh=X/UFUgGlJSnJ7VZ/c/9TW0G19h38aWqNZIqWJUeJUtM=;
+ b=dq7/C3esbqCXsVAE/YV+xZV+Rh08eZLig7snIfO12xo+JqTOJCBk5U4rLKY76hHVzJfY
+ AyTFl6TFBKF4mOOcMbewiLM9k9Lvb4LpeGsg8nUx7hNzVFJyENim6GQIMG6XLb8asNMF
+ qW7z76rjsKZlCO43U5xU9s6hzZnQoinQmeZBuxv+j2370qDlpWIH52/2tzrxICtT8sHG
+ WkWYMtAYxj7oVYqh1JCboYTtkiHCOvumJ/LkpFBqHJRfJAQBQXpUVSdNsgZJNad45t+Y
+ J5ZKycaJPc5pCn7EYncjMA5TbWcE4xgvU3E/KLodb9v5B98glBRk8/93GwHCu7tZSBH9 AA== 
+Received: from nam03-dm3-obe.outbound.protection.outlook.com (mail-dm3nam03lp2050.outbound.protection.outlook.com [104.47.41.50])
+        by mx0a-0014ca01.pphosted.com with ESMTP id 2v5ge09tyt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Sep 2019 22:56:17 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lGZWWvCEXVCQ6tOl4Nb2mgJDSJ/yKgLFaxY6y3BX7k1OJCnh2SPLJ+PnuC98ZxpuhZ5pASnRTlAnowq2DsSAXDFj/T6BjDvcb9Tcjp/pMuaD1T7kwfSvlYm5T5FMkKjwIdbJBh5zphuv4hL47xjlwjvlX27syQe/AtCzeA0UKtIyclhNn3RXgK4o4lfuB8drLP720c9ei3YBXpEybFhCvZD4gOLYFsAEQE9RLULPOulfjP6oPQQIBfY+taHQvioNnJrK1EiqUZGgu6tnUIpsqD1G+GZ1g00Y8vB8pxWs1tmBrETkyUJOpPtsb/gev2doN+6AZjAxGII94l5F8OTX+g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=X/UFUgGlJSnJ7VZ/c/9TW0G19h38aWqNZIqWJUeJUtM=;
+ b=AOAips/VSE5I5zEKS+gmFrqINt33aavHJIMXSnEcH/B86BqHdjhK+fA7quOQv0+L11+qG4IoUFIX6si7zwTxJPcHWdxWhZUZyQBEphhW87RDVI/xSFaqXPRa354aKhB7fKN/KduE/qjfYSITcxYyhE+Ti3nxb5viW+PxC8nyPIoAM2BSmrm66J3YRjRU8yc0OLZJGy+pcyGLh0dUbGEp9V8S7/wCvCZHqBwH9s+ndajzcMuVutK+l1Hte3v+eP+gzePEDlzJs+6CRgBLBPWo9x8knKhZ8TRVKloPvGLWfzfpqNzLIijKFpiW9AntyWZIP1Qyt8t2l9aui9m6D8YsIw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 64.207.220.243) smtp.rcpttodomain=gmail.com smtp.mailfrom=cadence.com;
+ dmarc=fail (p=none sp=none pct=100) action=none header.from=cadence.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=X/UFUgGlJSnJ7VZ/c/9TW0G19h38aWqNZIqWJUeJUtM=;
+ b=yitYC8fsi/vxpbKRDwc3r0EmyYCsSzPoebp8vBGnbC8d9p3iZY+Y8SVZ940CVq2MY45t9WcDrdhICfepyx2hA7Mj14EnbuMIMsprUrg8/nuY1tT+chnZw9N3FIzsgh5DGjCkddfA0zadCEF2yWPugquMqs0nPHteQFqMxwyfgSw=
+Received: from MN2PR07CA0009.namprd07.prod.outlook.com (2603:10b6:208:1a0::19)
+ by MWHPR0701MB3674.namprd07.prod.outlook.com (2603:10b6:301:7e::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2284.26; Tue, 24 Sep
+ 2019 05:56:08 +0000
+Received: from DM3NAM05FT064.eop-nam05.prod.protection.outlook.com
+ (2a01:111:f400:7e51::205) by MN2PR07CA0009.outlook.office365.com
+ (2603:10b6:208:1a0::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2284.20 via Frontend
+ Transport; Tue, 24 Sep 2019 05:56:08 +0000
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ cadence.com discourages use of 64.207.220.243 as permitted sender)
+Received: from wcmailrelayl01.cadence.com (64.207.220.243) by
+ DM3NAM05FT064.mail.protection.outlook.com (10.152.98.188) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2305.15 via Frontend Transport; Tue, 24 Sep 2019 05:56:08 +0000
+Received: from maileu3.global.cadence.com (maileu3.cadence.com [10.160.88.99])
+        by wcmailrelayl01.cadence.com (8.14.7/8.14.4) with ESMTP id x8O5txht021140
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=OK);
+        Mon, 23 Sep 2019 22:56:01 -0700
+X-CrossPremisesHeadersFilteredBySendConnector: maileu3.global.cadence.com
+Received: from maileu3.global.cadence.com (10.160.88.99) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1367.3; Tue, 24 Sep 2019 07:55:59 +0200
+Received: from lvlogina.cadence.com (10.165.176.102) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1367.3 via Frontend Transport; Tue, 24 Sep 2019 07:55:59 +0200
+Received: from lvlogina.cadence.com (localhost.localdomain [127.0.0.1])
+        by lvlogina.cadence.com (8.14.4/8.14.4) with ESMTP id x8O5txDL006343;
+        Tue, 24 Sep 2019 06:55:59 +0100
+Received: (from piotrs@localhost)
+        by lvlogina.cadence.com (8.14.4/8.14.4/Submit) id x8O5tshM006146;
+        Tue, 24 Sep 2019 06:55:54 +0100
+From:   Piotr Sroka <piotrs@cadence.com>
+CC:     Piotr Sroka <piotrs@cadence.com>, <stable@vger.kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: [v2] mtd: rawnand: Change calculating of position page containing BBM
+Date:   Tue, 24 Sep 2019 06:54:31 +0100
+Message-ID: <20190924055439.4212-1-piotrs@cadence.com>
+X-Mailer: git-send-email 2.15.0
+MIME-Version: 1.0
+Content-Type: text/plain
+X-OrganizationHeadersPreserved: maileu3.global.cadence.com
+X-EOPAttributedMessage: 0
+X-Forefront-Antispam-Report: CIP:64.207.220.243;IPV:NLI;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(979002)(4636009)(396003)(136003)(376002)(39860400002)(346002)(199004)(189003)(36092001)(2906002)(70206006)(87636003)(305945005)(1671002)(86362001)(5660300002)(478600001)(70586007)(7416002)(1076003)(42186006)(36756003)(316002)(51416003)(36906005)(16586007)(50466002)(48376002)(47776003)(54906003)(109986005)(6666004)(356004)(426003)(186003)(126002)(50226002)(486006)(4326008)(81166006)(8936002)(81156014)(8676002)(26005)(476003)(336012)(2616005)(266003)(969003)(989001)(999001)(1009001)(1019001);DIR:OUT;SFP:1101;SCL:1;SRVR:MWHPR0701MB3674;H:wcmailrelayl01.cadence.com;FPR:;SPF:SoftFail;LANG:en;PTR:unused.mynethost.com;A:1;MX:1;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: ad6be0f6-c7d8-41b6-223d-08d740b3e50a
+X-Microsoft-Antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600167)(711020)(4605104)(1401327)(2017052603328);SRVR:MWHPR0701MB3674;
+X-MS-TrafficTypeDiagnostic: MWHPR0701MB3674:
+X-Microsoft-Antispam-PRVS: <MWHPR0701MB3674F904BF4AF3A2D512580EDD840@MWHPR0701MB3674.namprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 0170DAF08C
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam-Message-Info: a85PWJr7fp3mHZ6JFNTRTi6znb+Q0ctMovNPnU5DWy6bBRaFMNL1d+yh1mvQlnwCK8ZKrfQTch2wG1lArNDPWqdrHdv0X42lLNLJBwzTcgDrZt883s7oJxlqMrCYYGnBz5Dg0kNEoOvVQPMIWjZOtoJnF5jpjvaVW/rAz2X3zHp6JhjBZ+cjhvuT6GKCfaRBfY7gwqTR7pfNay+KGmvFmdgC0KShi1B4o7AO0qWQDZrgN6ApwsMtQcNoH2/h+NcHRt7sXqk3C1Y6GugggAy8wkBLFcUsNcRgWh8dvic4QcoP6k1tTQdrh2NDtskgvw4ECtOtz00pFdXRiaNJRrFhlAFAtlYGUaNA6TSNKXBFwjQeANgouCaGVyJwVF2lS7DzRXVJIku8rYU1VD20IxrtrIATFm/upETQq9zYg2P/994=
+X-OriginatorOrg: cadence.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2019 05:56:08.0823
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: ad6be0f6-c7d8-41b6-223d-08d740b3e50a
+X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[64.207.220.243];Helo=[wcmailrelayl01.cadence.com]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR0701MB3674
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
+ definitions=2019-09-24_03:2019-09-23,2019-09-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 malwarescore=0
+ impostorscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 adultscore=0
+ suspectscore=2 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-1908290000 definitions=main-1909240059
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: memcg, oom: don't require __GFP_FS when invoking memcg OOM killer
+Change calculating of position page containing BBM
 
-Masoud Sharbiani noticed that commit 29ef680ae7c21110 ("memcg, oom: move
-out_of_memory back to the charge path") broke memcg OOM called from
-__xfs_filemap_fault() path.  It turned out that try_charge() is retrying
-forever without making forward progress because mem_cgroup_oom(GFP_NOFS)
-cannot invoke the OOM killer due to commit 3da88fb3bacfaa33 ("mm, oom:
-move GFP_NOFS check to out_of_memory").
+If none of BBM flags are set then function nand_bbm_get_next_page 
+reports EINVAL. It causes that BBM is not read at all during scanning
+factory bad blocks. The result is that the BBT table is build without 
+checking factory BBM at all. For Micron flash memories none of these 
+flags are set if page size is different than 2048 bytes.
 
-Allowing forced charge due to being unable to invoke memcg OOM killer will
-lead to global OOM situation.  Also, just returning -ENOMEM will be risky
-because OOM path is lost and some paths (e.g.  get_user_pages()) will leak
--ENOMEM.  Therefore, invoking memcg OOM killer (despite GFP_NOFS) will be
-the only choice we can choose for now.
+Address this regression by:
+- adding NAND_BBM_FIRSTPAGE chip flag without any condition. It solves
+  issue only for Micron devices.
+- changing the nand_bbm_get_next_page_function. It will return 0 
+  if no of BBM flag is set and page parameter is 0. After that modification
+  way of discovering factory bad blocks will work similar as in kernel 
+  version 5.1.
 
-Until 29ef680ae7c21110, we were able to invoke memcg OOM killer when
-GFP_KERNEL reclaim failed [1].  But since 29ef680ae7c21110, we need to
-invoke memcg OOM killer when GFP_NOFS reclaim failed [2].  Although in the
-past we did invoke memcg OOM killer for GFP_NOFS [3], we might get
-pre-mature memcg OOM reports due to this patch.
-
-[1]
-
- leaker invoked oom-killer: gfp_mask=0x6200ca(GFP_HIGHUSER_MOVABLE), nodemask=(null), order=0, oom_score_adj=0
- CPU: 0 PID: 2746 Comm: leaker Not tainted 4.18.0+ #19
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x10a/0x2c0
-  mem_cgroup_out_of_memory+0x46/0x80
-  mem_cgroup_oom_synchronize+0x2e4/0x310
-  ? high_work_func+0x20/0x20
-  pagefault_out_of_memory+0x31/0x76
-  mm_fault_error+0x55/0x115
-  ? handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x433/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffe29ae96f0 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001ce1000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f94be09220d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f949d845000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 158965
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 2016kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:844KB rss:521136KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:132KB writeback:0KB inactive_anon:0KB active_anon:521224KB inactive_file:1012KB active_file:8KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 998 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:521176kB, file-rss:1208kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[2]
-
- leaker invoked oom-killer: gfp_mask=0x600040(GFP_NOFS), nodemask=(null), order=0, oom_score_adj=0
- CPU: 1 PID: 2746 Comm: leaker Not tainted 4.18.0+ #20
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x109/0x2d0
-  mem_cgroup_out_of_memory+0x46/0x80
-  try_charge+0x58d/0x650
-  ? __radix_tree_replace+0x81/0x100
-  mem_cgroup_try_charge+0x7a/0x100
-  __add_to_page_cache_locked+0x92/0x180
-  add_to_page_cache_lru+0x4d/0xf0
-  iomap_readpages_actor+0xde/0x1b0
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  iomap_apply+0xaf/0x130
-  iomap_readpages+0x9f/0x150
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  xfs_vm_readpages+0x18/0x20 [xfs]
-  read_pages+0x60/0x140
-  __do_page_cache_readahead+0x193/0x1b0
-  ondemand_readahead+0x16d/0x2c0
-  page_cache_async_readahead+0x9a/0xd0
-  filemap_fault+0x403/0x620
-  ? alloc_set_pte+0x12c/0x540
-  ? _cond_resched+0x14/0x30
-  __xfs_filemap_fault+0x66/0x180 [xfs]
-  xfs_filemap_fault+0x27/0x30 [xfs]
-  __do_fault+0x19/0x40
-  __handle_mm_fault+0x8e8/0xb60
-  handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x238/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffda45c9290 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001a1e000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f6d061ff20d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f6ce59b2000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 7221
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 1944kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:3632KB rss:518232KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:0KB writeback:0KB inactive_anon:0KB active_anon:518408KB inactive_file:3908KB active_file:12KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 992 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:518264kB, file-rss:1188kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[3]
-
- leaker invoked oom-killer: gfp_mask=0x50, order=0, oom_score_adj=0
- leaker cpuset=/ mems_allowed=0
- CPU: 1 PID: 3206 Comm: leaker Not tainted 3.10.0-957.27.2.el7.x86_64 #1
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  [<ffffffffaf364147>] dump_stack+0x19/0x1b
-  [<ffffffffaf35eb6a>] dump_header+0x90/0x229
-  [<ffffffffaedbb456>] ? find_lock_task_mm+0x56/0xc0
-  [<ffffffffaee32a38>] ? try_get_mem_cgroup_from_mm+0x28/0x60
-  [<ffffffffaedbb904>] oom_kill_process+0x254/0x3d0
-  [<ffffffffaee36c36>] mem_cgroup_oom_synchronize+0x546/0x570
-  [<ffffffffaee360b0>] ? mem_cgroup_charge_common+0xc0/0xc0
-  [<ffffffffaedbc194>] pagefault_out_of_memory+0x14/0x90
-  [<ffffffffaf35d072>] mm_fault_error+0x6a/0x157
-  [<ffffffffaf3717c8>] __do_page_fault+0x3c8/0x4f0
-  [<ffffffffaf371925>] do_page_fault+0x35/0x90
-  [<ffffffffaf36d768>] page_fault+0x28/0x30
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 20628
- memory+swap: usage 524288kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 0kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:840KB rss:523448KB rss_huge:0KB mapped_file:0KB swap:0KB inactive_anon:0KB active_anon:523448KB inactive_file:464KB active_file:376KB unevictable:0KB
- Memory cgroup out of memory: Kill process 3206 (leaker) score 970 or sacrifice child
- Killed process 3206 (leaker) total-vm:536692kB, anon-rss:523304kB, file-rss:412kB, shmem-rss:0kB
-
-Bisected by Masoud Sharbiani.
-
-Link: http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
-Fixes: 3da88fb3bacfaa33 ("mm, oom: move GFP_NOFS check to out_of_memory") [necessary after 29ef680ae7c21110]
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Masoud Sharbiani <msharbiani@apple.com>
-Tested-by: Masoud Sharbiani <msharbiani@apple.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: f90da7818b14 (mtd: rawnand: Support bad block markers in first, second or last page)
+Signed-off-by: Piotr Sroka <piotrs@cadence.com>
+Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 ---
+Changes for v2:
+- add fix for micron nand driver
+- add fixes and stable tags
+---
+ drivers/mtd/nand/raw/nand_base.c   | 8 ++++++--
+ drivers/mtd/nand/raw/nand_micron.c | 4 +++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
- mm/oom_kill.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- a/mm/oom_kill.c~memcg-oom-dont-require-__gfp_fs-when-invoking-memcg-oom-killer
-+++ a/mm/oom_kill.c
-@@ -1069,9 +1069,10 @@ bool out_of_memory(struct oom_control *o
- 	 * The OOM killer does not compensate for IO-less reclaim.
- 	 * pagefault_out_of_memory lost its gfp context so we have to
- 	 * make sure exclude 0 mask - all other users should have at least
--	 * ___GFP_DIRECT_RECLAIM to get here.
-+	 * ___GFP_DIRECT_RECLAIM to get here. But mem_cgroup_oom() has to
-+	 * invoke the OOM killer even if it is a GFP_NOFS allocation.
- 	 */
--	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS))
-+	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS) && !is_memcg_oom(oc))
- 		return true;
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index 5c2c30a7dffa..f64e3b6605c6 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -292,12 +292,16 @@ int nand_bbm_get_next_page(struct nand_chip *chip, int page)
+ 	struct mtd_info *mtd = nand_to_mtd(chip);
+ 	int last_page = ((mtd->erasesize - mtd->writesize) >>
+ 			 chip->page_shift) & chip->pagemask;
++	unsigned int bbm_flags = NAND_BBM_FIRSTPAGE | NAND_BBM_SECONDPAGE
++		| NAND_BBM_LASTPAGE;
  
- 	/*
-_
++	if (page == 0 && !(chip->options & bbm_flags))
++		return 0;
+ 	if (page == 0 && chip->options & NAND_BBM_FIRSTPAGE)
+ 		return 0;
+-	else if (page <= 1 && chip->options & NAND_BBM_SECONDPAGE)
++	if (page <= 1 && chip->options & NAND_BBM_SECONDPAGE)
+ 		return 1;
+-	else if (page <= last_page && chip->options & NAND_BBM_LASTPAGE)
++	if (page <= last_page && chip->options & NAND_BBM_LASTPAGE)
+ 		return last_page;
+ 
+ 	return -EINVAL;
+diff --git a/drivers/mtd/nand/raw/nand_micron.c b/drivers/mtd/nand/raw/nand_micron.c
+index 1622d3145587..913f42854563 100644
+--- a/drivers/mtd/nand/raw/nand_micron.c
++++ b/drivers/mtd/nand/raw/nand_micron.c
+@@ -438,8 +438,10 @@ static int micron_nand_init(struct nand_chip *chip)
+ 	if (ret)
+ 		goto err_free_manuf_data;
+ 
++	chip->options |= NAND_BBM_FIRSTPAGE;
++
+ 	if (mtd->writesize == 2048)
+-		chip->options |= NAND_BBM_FIRSTPAGE | NAND_BBM_SECONDPAGE;
++		chip->options |= NAND_BBM_SECONDPAGE;
+ 
+ 	ondie = micron_supports_on_die_ecc(chip);
+ 
+-- 
+2.15.0
+
