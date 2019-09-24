@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDA6BCF8A
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75664BCF87
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406184AbfIXQ6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42086 "EHLO mail.kernel.org"
+        id S2392435AbfIXQ6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393238AbfIXQtj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:49:39 -0400
+        id S2410628AbfIXQtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:49:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AF9F222CA;
-        Tue, 24 Sep 2019 16:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5427221971;
+        Tue, 24 Sep 2019 16:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343779;
-        bh=g9xRuuc7DPnjhhFl6TkKWWliyfayET4dSFv/+Q/uzdc=;
+        s=default; t=1569343789;
+        bh=5PN5gHuZThoRxTF4pnmnlVuDVJAKrvmI1Q8ep/YnmwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAYHvdXres/T1y1s47ADYyOv56oW81k32eW5CZ2kKoDi9n5cGf7wQpFOT/ayBe43p
-         DWEXEzS04sUSpetdKkvwla4Pzn+rc4Istn36RJTS+bDu/Tw7Oi0LLReNT2v3DPJhWQ
-         EeD92q2gunqvX1z9zkbwOs7ji/HOHh9OWf/dEvuM=
+        b=WnByi90U/5meoa2sq7WCqETuJH2FBWc0ZiJqyeX+fDiIOth9pupYjVRgPDQbKyoC2
+         f34yCOjIGq5Xfa0tTP/PPg7w0AI9aan+xGsLU5Yr7wSgUoBilExk21Lshv7iJ4zM0U
+         zJhIVAdbNlhpXc/bT7II1a2e+xoawyeZurmwhUJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 26/50] powerpc/64s/radix: Remove redundant pfn_pte bitop, add VM_BUG_ON
-Date:   Tue, 24 Sep 2019 12:48:23 -0400
-Message-Id: <20190924164847.27780-26-sashal@kernel.org>
+Cc:     hexin <hexin.op@gmail.com>, hexin <hexin15@baidu.com>,
+        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 30/50] vfio_pci: Restore original state on release
+Date:   Tue, 24 Sep 2019 12:48:27 -0400
+Message-Id: <20190924164847.27780-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -44,62 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: hexin <hexin.op@gmail.com>
 
-[ Upstream commit 6bb25170d7a44ef0ed9677814600f0785e7421d1 ]
+[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
 
-pfn_pte is never given a pte above the addressable physical memory
-limit, so the masking is redundant. In case of a software bug, it
-is not obviously better to silently truncate the pfn than to corrupt
-the pte (either one will result in memory corruption or crashes),
-so there is no reason to add this to the fast path.
+vfio_pci_enable() saves the device's initial configuration information
+with the intent that it is restored in vfio_pci_disable().  However,
+the commit referenced in Fixes: below replaced the call to
+__pci_reset_function_locked(), which is not wrapped in a state save
+and restore, with pci_try_reset_function(), which overwrites the
+restored device state with the current state before applying it to the
+device.  Reinstate use of __pci_reset_function_locked() to return to
+the desired behavior.
 
-Add VM_BUG_ON to catch cases where the pfn is invalid. These would
-catch the create_section_mapping bug fixed by a previous commit.
-
-  [16885.256466] ------------[ cut here ]------------
-  [16885.256492] kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-  cpu 0x0: Vector: 700 (Program Check) at [c0000000ee0a36d0]
-      pc: c000000000080738: __map_kernel_page+0x248/0x6f0
-      lr: c000000000080ac0: __map_kernel_page+0x5d0/0x6f0
-      sp: c0000000ee0a3960
-     msr: 9000000000029033
-    current = 0xc0000000ec63b400
-    paca    = 0xc0000000017f0000   irqmask: 0x03   irq_happened: 0x01
-      pid   = 85, comm = sh
-  kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-  Linux version 5.3.0-rc1-00001-g0fe93e5f3394
-  enter ? for help
-  [c0000000ee0a3a00] c000000000d37378 create_physical_mapping+0x260/0x360
-  [c0000000ee0a3b10] c000000000d370bc create_section_mapping+0x1c/0x3c
-  [c0000000ee0a3b30] c000000000071f54 arch_add_memory+0x74/0x130
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190724084638.24982-5-npiggin@gmail.com
+Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
+Signed-off-by: hexin <hexin15@baidu.com>
+Signed-off-by: Liu Qi <liuqi16@baidu.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/pgtable.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 855dbae6d351d..a717640b7eda4 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -629,8 +629,10 @@ static inline bool pte_access_permitted(pte_t pte, bool write)
-  */
- static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
- {
--	return __pte((((pte_basic_t)(pfn) << PAGE_SHIFT) & PTE_RPN_MASK) |
--		     pgprot_val(pgprot));
-+	VM_BUG_ON(pfn >> (64 - PAGE_SHIFT));
-+	VM_BUG_ON((pfn << PAGE_SHIFT) & ~PTE_RPN_MASK);
-+
-+	return __pte(((pte_basic_t)pfn << PAGE_SHIFT) | pgprot_val(pgprot));
- }
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 6cf00d9f512b7..a92c2868d9021 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -373,11 +373,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
  
- static inline unsigned long pte_pfn(pte_t pte)
+ 	/*
+-	 * Try to reset the device.  The success of this is dependent on
+-	 * being able to lock the device, which is not always possible.
++	 * Try to get the locks ourselves to prevent a deadlock. The
++	 * success of this is dependent on being able to lock the device,
++	 * which is not always possible.
++	 * We can not use the "try" reset interface here, which will
++	 * overwrite the previously restored configuration information.
+ 	 */
+-	if (vdev->reset_works && !pci_try_reset_function(pdev))
+-		vdev->needs_reset = false;
++	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
++		if (device_trylock(&pdev->dev)) {
++			if (!__pci_reset_function_locked(pdev))
++				vdev->needs_reset = false;
++			device_unlock(&pdev->dev);
++		}
++		pci_cfg_access_unlock(pdev);
++	}
+ 
+ 	pci_restore_state(pdev);
+ out:
 -- 
 2.20.1
 
