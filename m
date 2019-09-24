@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C13CBBCF14
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA68BCF26
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441528AbfIXQuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
+        id S2410883AbfIXQwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441522AbfIXQuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:50:55 -0400
+        id S2441544AbfIXQvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:51:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15EB9222BD;
-        Tue, 24 Sep 2019 16:50:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5865721655;
+        Tue, 24 Sep 2019 16:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343854;
-        bh=mQdz/+sTN9w/3HUjMARMd6h9kIN8On1i9z/MGYBHrTY=;
+        s=default; t=1569343862;
+        bh=V6xVQoeu2fDcplB1iBbsCGRGy308EHq5ck/SPjxZkyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWpSJjipM86DFsuka9QuAk5cqUbvW9yQn+d0zb4m8DB/mAqI2kf8sn64UWNeRbWPV
-         CEhJnazl1Cndc9tbBoKBjhizEaEl2CxR3uBb8AoTtJ8hzzz/oFU+1PvF/7AofcTcRs
-         rY5i9e72aZcCWthbCLrzcW43LFkYAn041VZp3Ego=
+        b=CFdhV1QxYk/AYhM1ceWL6mRMvSPa/XmdXu5+QT4uwRrM5JFtjDNTmHKLxY28QlB/U
+         1xS4b/Yft+ynAWenU5QhRnBD8vhv6Xw1lEprhHzkQ3XDdUcbp2wa06sOHiSHMbD754
+         ymlCOmRAs2ecABlkI7ZZs1xitNELgwCfkIRirB04=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 14/28] powerpc/xmon: Check for HV mode when dumping XIVE info from OPAL
-Date:   Tue, 24 Sep 2019 12:50:17 -0400
-Message-Id: <20190924165031.28292-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 17/28] powerpc/64s/radix: Remove redundant pfn_pte bitop, add VM_BUG_ON
+Date:   Tue, 24 Sep 2019 12:50:20 -0400
+Message-Id: <20190924165031.28292-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924165031.28292-1-sashal@kernel.org>
 References: <20190924165031.28292-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,51 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit c3e0dbd7f780a58c4695f1cd8fc8afde80376737 ]
+[ Upstream commit 6bb25170d7a44ef0ed9677814600f0785e7421d1 ]
 
-Currently, the xmon 'dx' command calls OPAL to dump the XIVE state in
-the OPAL logs and also outputs some of the fields of the internal XIVE
-structures in Linux. The OPAL calls can only be done on baremetal
-(PowerNV) and they crash a pseries machine. Fix by checking the
-hypervisor feature of the CPU.
+pfn_pte is never given a pte above the addressable physical memory
+limit, so the masking is redundant. In case of a software bug, it
+is not obviously better to silently truncate the pfn than to corrupt
+the pte (either one will result in memory corruption or crashes),
+so there is no reason to add this to the fast path.
 
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Add VM_BUG_ON to catch cases where the pfn is invalid. These would
+catch the create_section_mapping bug fixed by a previous commit.
+
+  [16885.256466] ------------[ cut here ]------------
+  [16885.256492] kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
+  cpu 0x0: Vector: 700 (Program Check) at [c0000000ee0a36d0]
+      pc: c000000000080738: __map_kernel_page+0x248/0x6f0
+      lr: c000000000080ac0: __map_kernel_page+0x5d0/0x6f0
+      sp: c0000000ee0a3960
+     msr: 9000000000029033
+    current = 0xc0000000ec63b400
+    paca    = 0xc0000000017f0000   irqmask: 0x03   irq_happened: 0x01
+      pid   = 85, comm = sh
+  kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
+  Linux version 5.3.0-rc1-00001-g0fe93e5f3394
+  enter ? for help
+  [c0000000ee0a3a00] c000000000d37378 create_physical_mapping+0x260/0x360
+  [c0000000ee0a3b10] c000000000d370bc create_section_mapping+0x1c/0x3c
+  [c0000000ee0a3b30] c000000000071f54 arch_add_memory+0x74/0x130
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190814154754.23682-2-clg@kaod.org
+Link: https://lore.kernel.org/r/20190724084638.24982-5-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/xmon/xmon.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
-index 6b9038a3e79f0..5a739588aa505 100644
---- a/arch/powerpc/xmon/xmon.c
-+++ b/arch/powerpc/xmon/xmon.c
-@@ -2438,13 +2438,16 @@ static void dump_pacas(void)
- static void dump_one_xive(int cpu)
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 4dd13b503dbbd..5f37d8c3b4798 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -555,8 +555,10 @@ static inline int pte_present(pte_t pte)
+  */
+ static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
  {
- 	unsigned int hwid = get_hard_smp_processor_id(cpu);
-+	bool hv = cpu_has_feature(CPU_FTR_HVMODE);
+-	return __pte((((pte_basic_t)(pfn) << PAGE_SHIFT) & PTE_RPN_MASK) |
+-		     pgprot_val(pgprot));
++	VM_BUG_ON(pfn >> (64 - PAGE_SHIFT));
++	VM_BUG_ON((pfn << PAGE_SHIFT) & ~PTE_RPN_MASK);
++
++	return __pte(((pte_basic_t)pfn << PAGE_SHIFT) | pgprot_val(pgprot));
+ }
  
--	opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
--	opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
--	opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
--	opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
--	opal_xive_dump(XIVE_DUMP_VP, hwid);
--	opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
-+	if (hv) {
-+		opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
-+		opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
-+		opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
-+		opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
-+		opal_xive_dump(XIVE_DUMP_VP, hwid);
-+		opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
-+	}
- 
- 	if (setjmp(bus_error_jmp) != 0) {
- 		catch_memory_errors = 0;
+ static inline unsigned long pte_pfn(pte_t pte)
 -- 
 2.20.1
 
