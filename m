@@ -2,71 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A032BC2BE
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 09:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D69A8BC3E3
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 10:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390189AbfIXHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 03:36:25 -0400
-Received: from frisell.zx2c4.com ([192.95.5.64]:43049 "EHLO frisell.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388489AbfIXHgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 03:36:25 -0400
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 6c2e1b8c;
-        Tue, 24 Sep 2019 06:50:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
-        :subject:date:message-id:mime-version:content-transfer-encoding;
-         s=mail; bh=sxkr1GjA+CsTQ6F9imEHmeQRp90=; b=0K6Ytrl/QEsiaO1QZr6s
-        +K7CfH2DPbhur/Qy3RFbGxcJzXNW2ugJbMgIhVnUMpZxVpzTgMqxE3lXYyHe30ZL
-        4KbwsIEZthGw9zi+qowGGpxDkB2XsaictHzT8vnq1txFDdUHf/nT9QKr7V8L3xJW
-        O9QCKE00gkivk1hykqNT3obEgyeLL4YtLg+YM4RZGecvyPQIpGVIlidG2eDQgj9a
-        kWUEtrBG8ArIyDxwZBFv6orgP5PWAS+RoENJWt677BNh4I39wIxYmKceGrBgBaqQ
-        HdUvSDMxb3jWLCaKfXbf67t61bGhEOLbuOA2uMXD9SBrIaNFsXS9Ua6vnLMMjfne
-        Zw==
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6493f950 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Tue, 24 Sep 2019 06:50:47 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
-Subject: [PATCH] ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule
-Date:   Tue, 24 Sep 2019 09:36:15 +0200
-Message-Id: <20190924073615.31704-1-Jason@zx2c4.com>
+        id S2406257AbfIXIKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 04:10:14 -0400
+Received: from mail-vs1-f67.google.com ([209.85.217.67]:33133 "EHLO
+        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405392AbfIXIKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 04:10:13 -0400
+Received: by mail-vs1-f67.google.com with SMTP id p13so739490vso.0
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 01:10:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zk1XPSy8x8C5XqXPXdU1bsBIXPn9nQq8Z31r0wdKisI=;
+        b=jRHMe2MR+0Vu3GtYqkB97UZb9wTysGfjqVvfy+agPpkvmHeLD+Qw5sH5kWLzQwSGw5
+         1xLff2FbPVQw3IkY281+Z536cjkFPmPdOAO1I4hDudArOlhcwMOqdpr1cvj9bm7Z5JTP
+         RdZeEq13b6WoGFjDToY35EUgAIzWf5dpsVh1kKZiCShf0yKikHxadrzibQWkgIe63tUM
+         qxYUiNAIKeXXgjqimOQeVmzGxSVbAPClTm2XjP7rplMMOsHIm3Xduo1ClLGlE6vIvumg
+         jxLtWqk3+lKkRAnj2DY8Eh66S3Eezf7CzApVfhOOBsP09WqefQQ7aQTB/KrFSmQHtnOz
+         gIBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zk1XPSy8x8C5XqXPXdU1bsBIXPn9nQq8Z31r0wdKisI=;
+        b=bMpek8KtGn7w/XXfLfmKdZ1l0bg7LIuEl3rCuQ4AWI0E88Dbp62AhuX4BingkzLKjX
+         IVNfgZuR6m1ZUZvkNlDIgNt8n1PC1VWylIZ1J/EpJImQ/iBKHOYnV38FkJmT5CQ1c/zO
+         GtjUCGQzp6/dLzHBBHl17h+iG3b1ve28ZBGKd1XCFAN31sQBNQVtlQmysA7xIoxou5+E
+         3MQniwHjBHXb4upEmJeOuahcWSB0EJK/02D3QUPmdbLz7xP0Pxz1rNiIoifU3OKLQ3r6
+         qeb57OsVHHqyg3Fm2V7F3mzLKDSTSMAWaKh0v9r0pcA8FJwU+1EYKrCAeIBj04OGQeAG
+         AwTQ==
+X-Gm-Message-State: APjAAAUM+cChxP7KSQykc9otkb8LBA3/wTeZRTfPJHRjlMXqitwr31bA
+        t+lQ+a+6o3Dn/o4d2OSRWYxsvppNj5lCPQenhX0=
+X-Google-Smtp-Source: APXvYqwgUKx39Qpiv8p6U42BJ2LCbpe8Er5dGiKZmUAS2V/843lVkZw49zM3QqanX4vYn6mm18Sg3a5Kxi6VA3SbPjE=
+X-Received: by 2002:a67:c018:: with SMTP id v24mr55001vsi.23.1569312612878;
+ Tue, 24 Sep 2019 01:10:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190920121821.7223-1-chris@chris-wilson.co.uk>
+In-Reply-To: <20190920121821.7223-1-chris@chris-wilson.co.uk>
+From:   Matthew Auld <matthew.william.auld@gmail.com>
+Date:   Tue, 24 Sep 2019 09:09:48 +0100
+Message-ID: <CAM0jSHO3ah0Sv+fumOBp1qsaYXbz+dnK_4KHjwiHk-1C0egKAA@mail.gmail.com>
+Subject: Re: [PATCH] drm/i915: Mark contents as dirty on a write fault
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 7d9e5f422150 removed references from certain dsts, but accounting
-for this never translated down into the fib6 suppression code. This bug
-was triggered by WireGuard users who use wg-quick(8), which uses the
-"suppress-prefix" directive to ip-rule(8) for routing all of their
-internet traffic without routing loops. The test case in the link of
-this commit reliably triggers various crashes due to the use-after-free
-caused by the reference underflow.
-
-Cc: stable@vger.kernel.org
-Fixes: 7d9e5f422150 ("ipv6: convert major tx path to use RT6_LOOKUP_F_DST_NOREF")
-Test-case: https://git.zx2c4.com/WireGuard/commit/?id=ad66532000f7a20b149e47c5eb3a957362c8e161
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- net/ipv6/fib6_rules.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/ipv6/fib6_rules.c b/net/ipv6/fib6_rules.c
-index d22b6c140f23..f9e8fe3ff0c5 100644
---- a/net/ipv6/fib6_rules.c
-+++ b/net/ipv6/fib6_rules.c
-@@ -287,7 +287,8 @@ static bool fib6_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg
- 	return false;
- 
- suppress_route:
--	ip6_rt_put(rt);
-+	if (!(arg->flags & FIB_LOOKUP_NOREF))
-+		ip6_rt_put(rt);
- 	return true;
- }
- 
--- 
-2.21.0
-
+On Fri, 20 Sep 2019 at 13:18, Chris Wilson <chris@chris-wilson.co.uk> wrote=
+:
+>
+> Since dropping the set-to-gtt-domain in commit a679f58d0510 ("drm/i915:
+> Flush pages on acquisition"), we no longer mark the contents as dirty on
+> a write fault. This has the issue of us then not marking the pages as
+> dirty on releasing the buffer, which means the contents are not written
+> out to the swap device (should we ever pick that buffer as a victim).
+> Notably, this is visible in the dumb buffer interface used for cursors.
+> Having updated the cursor contents via mmap, and swapped away, if the
+> shrinker should evict the old cursor, upon next reuse, the cursor would
+> be invisible.
+>
+> E.g. echo 80 > /proc/sys/kernel/sysrq ; echo f > /proc/sysrq-trigger
+>
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=3D111541
+> Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Matthew Auld <matthew.william.auld@gmail.com>
+> Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
