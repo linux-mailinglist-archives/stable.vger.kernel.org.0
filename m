@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FEBBBCE08
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC84BCE07
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410473AbfIXQsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2392140AbfIXQsR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Sep 2019 12:48:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725208AbfIXQqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:46:11 -0400
+        id S1726659AbfIXQqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:46:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12C7C20673;
-        Tue, 24 Sep 2019 16:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DB86217D9;
+        Tue, 24 Sep 2019 16:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343570;
-        bh=TmUVAbWSEcYcj+irDhRNLuE3zHUilfSwCYvlTjdtEr8=;
+        s=default; t=1569343572;
+        bh=71Teq/z3em+Gqxx4C3IM9Ovs6Uia6I4586LFWmnZh5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJOXR3cwsEvRBCZzwH8EpDETt8ranklOhlRiBrbhe2v9f1SjUYHIwiIaI7KuGfwcp
-         288BYExkWBLMR97LPw3ktQfcn9UjEPsy91YaRzTll6N0G+/YFWGWiSBV2W8m7JYnxh
-         t1p5d0EDrAc+l7gZxaMiv/grdhzzV01nDiJkGU4s=
+        b=BtUk10vi9CZwYYELaIeSChEUTJUrzE8zN/H9CkunJkYndFZ8LAsJGR2D3qKt6cQAH
+         C8OwREUq1xiodPmNEYS1cM9tMNFUUm0JiJOWCy2F5y6UyRjKDAmcz+OqjcdaXusDhD
+         buc+eS1LJuKZS9Yhm0mkvOtSIdsm/i9T+Q4qM1Ws=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        David Lechner <david@lechnology.com>,
+Cc:     Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 09/70] drm/tinydrm/Kconfig: drivers: Select BACKLIGHT_CLASS_DEVICE
-Date:   Tue, 24 Sep 2019 12:44:48 -0400
-Message-Id: <20190924164549.27058-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 10/70] drm/stm: attach gem fence to atomic state
+Date:   Tue, 24 Sep 2019 12:44:49 -0400
+Message-Id: <20190924164549.27058-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,99 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Noralf Trønnes <noralf@tronnes.org>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 3389669ac5ea598562673c04971d7bb0fab0e9f1 ]
+[ Upstream commit 8fabc9c3109a71b3577959a05408153ae69ccd8d ]
 
-The mipi_dbi helper is missing a dependency on DRM_KMS_HELPER and putting
-that in revealed this problem:
+To properly synchronize with other devices the fence from the GEM
+object backing the framebuffer needs to be attached to the atomic
+state, so the commit work can wait on fence signaling.
 
-drivers/video/fbdev/Kconfig:12:error: recursive dependency detected!
-drivers/video/fbdev/Kconfig:12: symbol FB is selected by DRM_KMS_FB_HELPER
-drivers/gpu/drm/Kconfig:75:     symbol DRM_KMS_FB_HELPER depends on DRM_KMS_HELPER
-drivers/gpu/drm/Kconfig:69:     symbol DRM_KMS_HELPER is selected by TINYDRM_MIPI_DBI
-drivers/gpu/drm/tinydrm/Kconfig:11:     symbol TINYDRM_MIPI_DBI is selected by TINYDRM_HX8357D
-drivers/gpu/drm/tinydrm/Kconfig:15:     symbol TINYDRM_HX8357D depends on BACKLIGHT_CLASS_DEVICE
-drivers/video/backlight/Kconfig:144:    symbol BACKLIGHT_CLASS_DEVICE is selected by FB_BACKLIGHT
-drivers/video/fbdev/Kconfig:187:        symbol FB_BACKLIGHT depends on FB
-
-A symbol that selects DRM_KMS_HELPER can not depend on
-BACKLIGHT_CLASS_DEVICE. The reason for this is that DRM_KMS_FB_HELPER
-selects FB instead of depending on it.
-
-The tinydrm drivers have somehow gotten away with depending on
-BACKLIGHT_CLASS_DEVICE because DRM_TINYDRM selects DRM_KMS_HELPER and the
-drivers depend on that symbol.
-
-An audit shows that all DRM drivers that select DRM_KMS_HELPER and use
-BACKLIGHT_CLASS_DEVICE, selects it:
-  DRM_TILCDC, DRM_GMA500, DRM_SHMOBILE, DRM_NOUVEAU, DRM_FSL_DCU,
-  DRM_I915, DRM_RADEON, DRM_AMDGPU, DRM_PARADE_PS8622
-
-Documentation/kbuild/kconfig-language.txt has a note regarding select:
-1. 'select should be used with care since it doesn't visit dependencies.'
-   This is not a problem since BACKLIGHT_CLASS_DEVICE doesn't have any
-   dependencies.
-2. 'In general use select only for non-visible symbols'
-   BACKLIGHT_CLASS_DEVICE is user visible.
-
-The real solution to this would be to have DRM_KMS_FB_HELPER depend on the
-user visible symbol FB. That is a can of worms I'm not willing to tackle.
-I fear that such a change will result in me handling difficult fallouts
-for the next weeks. So I'm following DRM suite here.
-
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: David Lechner <david@lechnology.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190722104312.16184-7-noralf@tronnes.org
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712084228.8338-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tinydrm/Kconfig | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/stm/ltdc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/tinydrm/Kconfig b/drivers/gpu/drm/tinydrm/Kconfig
-index 87819c82bcce8..f2f0739d1035d 100644
---- a/drivers/gpu/drm/tinydrm/Kconfig
-+++ b/drivers/gpu/drm/tinydrm/Kconfig
-@@ -14,8 +14,8 @@ config TINYDRM_MIPI_DBI
- config TINYDRM_HX8357D
- 	tristate "DRM support for HX8357D display panels"
- 	depends on DRM_TINYDRM && SPI
--	depends on BACKLIGHT_CLASS_DEVICE
- 	select TINYDRM_MIPI_DBI
-+	select BACKLIGHT_CLASS_DEVICE
- 	help
- 	  DRM driver for the following HX8357D panels:
- 	  * YX350HV15-T 3.5" 340x350 TFT (Adafruit 3.5")
-@@ -35,8 +35,8 @@ config TINYDRM_ILI9225
- config TINYDRM_ILI9341
- 	tristate "DRM support for ILI9341 display panels"
- 	depends on DRM_TINYDRM && SPI
--	depends on BACKLIGHT_CLASS_DEVICE
- 	select TINYDRM_MIPI_DBI
-+	select BACKLIGHT_CLASS_DEVICE
- 	help
- 	  DRM driver for the following Ilitek ILI9341 panels:
- 	  * YX240QV29-T 2.4" 240x320 TFT (Adafruit 2.4")
-@@ -46,8 +46,8 @@ config TINYDRM_ILI9341
- config TINYDRM_MI0283QT
- 	tristate "DRM support for MI0283QT"
- 	depends on DRM_TINYDRM && SPI
--	depends on BACKLIGHT_CLASS_DEVICE
- 	select TINYDRM_MIPI_DBI
-+	select BACKLIGHT_CLASS_DEVICE
- 	help
- 	  DRM driver for the Multi-Inno MI0283QT display panel
- 	  If M is selected the module will be called mi0283qt.
-@@ -78,8 +78,8 @@ config TINYDRM_ST7586
- config TINYDRM_ST7735R
- 	tristate "DRM support for Sitronix ST7735R display panels"
- 	depends on DRM_TINYDRM && SPI
--	depends on BACKLIGHT_CLASS_DEVICE
- 	select TINYDRM_MIPI_DBI
-+	select BACKLIGHT_CLASS_DEVICE
- 	help
- 	  DRM driver Sitronix ST7735R with one of the following LCDs:
- 	  * JD-T18003-T01 1.8" 128x160 TFT
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index 32fd6a3b37fb1..6f1fef76671c8 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -25,6 +25,7 @@
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_cma_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+@@ -875,6 +876,7 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
+ };
+ 
+ static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
++	.prepare_fb = drm_gem_fb_prepare_fb,
+ 	.atomic_check = ltdc_plane_atomic_check,
+ 	.atomic_update = ltdc_plane_atomic_update,
+ 	.atomic_disable = ltdc_plane_atomic_disable,
 -- 
 2.20.1
 
