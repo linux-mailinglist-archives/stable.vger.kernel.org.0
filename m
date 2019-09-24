@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382CBBCCDA
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054DBBCCDF
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406800AbfIXQm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:42:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58778 "EHLO mail.kernel.org"
+        id S2388986AbfIXQmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404380AbfIXQm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:42:26 -0400
+        id S2409810AbfIXQmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:42:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8DE6217D9;
-        Tue, 24 Sep 2019 16:42:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E442121850;
+        Tue, 24 Sep 2019 16:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343345;
-        bh=UFgLiUOs6x9PlG4jSctQ9LRTyjHREDnXiqnZJRJ+uuk=;
+        s=default; t=1569343352;
+        bh=NDBtYKgN3zzwF34NkX10fbsw48KNwYppKEDi5dL90zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJN/2VYmYHECtsXrFb06hzevjrAkQVh+NV8cPJIztGTrkqWsa65m/9PxUqB0pO4pP
-         2qUjP5/dyE7SQCZlq/9tyuKxx1S4Lz+AHyp4wGxqS0bt0OgXBKTiLXFpMh++A1wGIi
-         TjDHktelThWnk4O2znVHqWLIND2cXJ4N72FKdNd0=
+        b=Th9PVXcwK9SWn5RsaGP3X0CDN/iskb+laqek0elG++JJ3nHrrhTcZE0Bn0XMrcOjw
+         oUQYKSr4mTPNXuZ74uG3imQbmhSWH5BUaD4czFAdTsk3AQF+ow67XXj1JUaTaGCglg
+         v53Xka4xRVe5XOLUhJ77SfhFU1m/bAnvEcKk2Or0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Hersen Wu <hersen.wu@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 12/87] drm/amd/display: Copy GSL groups when committing a new context
-Date:   Tue, 24 Sep 2019 12:40:28 -0400
-Message-Id: <20190924164144.25591-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 15/87] drm/stm: attach gem fence to atomic state
+Date:   Tue, 24 Sep 2019 12:40:31 -0400
+Message-Id: <20190924164144.25591-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -45,74 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 21ffcc94d5b3dc024fedac700f1e7f9dacf4ab4f ]
+[ Upstream commit 8fabc9c3109a71b3577959a05408153ae69ccd8d ]
 
-[Why]
-DC configures the GSL group for the pipe when pipe_split is enabled
-and we're switching flip types (buffered <-> immediate flip) on DCN2.
+To properly synchronize with other devices the fence from the GEM
+object backing the framebuffer needs to be attached to the atomic
+state, so the commit work can wait on fence signaling.
 
-In order to record what GSL group the pipe is using DC stores it in
-the pipe's stream_res. DM is not aware of this internal grouping, nor
-is DC resource.
-
-So when DM creates a dc_state context and passes it to DC the current
-GSL group is lost - DM never knew about it in the first place.
-
-After 3 immediate flips we run out of GSL groups and we're no longer
-able to correctly perform *any* flip for multi-pipe scenarios.
-
-[How]
-The gsl_group needs to be copied to the new context.
-
-DM has no insight into GSL grouping and could even potentially create
-a brand new context without referencing current hardware state. So this
-makes the most sense to have happen in DC.
-
-There are two places where DC can apply a new context:
-- dc_commit_state
-- dc_commit_updates_for_stream
-
-But what's shared between both of these is apply_ctx_for_surface.
-
-This logic only matters for DCN2, so it can be placed in
-dcn20_apply_ctx_for_surface. Before doing any locking (where the GSL
-group is setup) we can copy over the GSL groups before committing the
-new context.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Hersen Wu <hersen.wu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712084228.8338-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/stm/ltdc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 2627e0a98a96a..f8abe98a576be 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1319,6 +1319,18 @@ static void dcn20_apply_ctx_for_surface(
- 	if (!top_pipe_to_program)
- 		return;
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index 2fe6c4a8d9155..3ab4fbf8eb0d1 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -26,6 +26,7 @@
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_cma_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+@@ -922,6 +923,7 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
+ };
  
-+	/* Carry over GSL groups in case the context is changing. */
-+	for (i = 0; i < dc->res_pool->pipe_count; i++) {
-+		struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
-+		struct pipe_ctx *old_pipe_ctx =
-+			&dc->current_state->res_ctx.pipe_ctx[i];
-+
-+		if (pipe_ctx->stream == stream &&
-+		    pipe_ctx->stream == old_pipe_ctx->stream)
-+			pipe_ctx->stream_res.gsl_group =
-+				old_pipe_ctx->stream_res.gsl_group;
-+	}
-+
- 	tg = top_pipe_to_program->stream_res.tg;
- 
- 	interdependent_update = top_pipe_to_program->plane_state &&
+ static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
++	.prepare_fb = drm_gem_fb_prepare_fb,
+ 	.atomic_check = ltdc_plane_atomic_check,
+ 	.atomic_update = ltdc_plane_atomic_update,
+ 	.atomic_disable = ltdc_plane_atomic_disable,
 -- 
 2.20.1
 
