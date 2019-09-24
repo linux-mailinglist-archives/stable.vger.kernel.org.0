@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF63BBCEFA
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4969DBCEFB
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410690AbfIXQuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:50:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42772 "EHLO mail.kernel.org"
+        id S2410708AbfIXQuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410688AbfIXQuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:50:06 -0400
+        id S2410698AbfIXQuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:50:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA82C21906;
-        Tue, 24 Sep 2019 16:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F52D21906;
+        Tue, 24 Sep 2019 16:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343806;
-        bh=0ZSwGD0yIhbn+Y46gEL7KTJq9btBY1FBXRX+yBn0Ofo=;
+        s=default; t=1569343810;
+        bh=8XSBu4iP+B1nv+uWJfFddyRTbUf4PPKNBgNrWHITyPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BektQUD5l4BqnO4rFSPOfQArmzoNksvxPS4NC3WK9QiL/wcxLgFMuRzdJ7xu1FjkG
-         dFAR11lJe5QL8uvlWygCtH02ZE3jcSNOPC/HvwMysletscYEI8u42J2OoecR8U+DEv
-         gdsfdX+flo6t22XP1e19eP1Mym+s+4ML4kSOOyGo=
+        b=w9Bity/sUY/8yg0JCCPZ67jVMpGYbjAQxEfja0T2wzGAEgh1a8NhgjufMKMRXAip0
+         fXAMP6If6GPfjxIaUEtsb6m5ulocxPwEiz/+ncJu5E70Xs0EAwhERRUnBS9BkIfoMF
+         Ua/Q8aVZzlj2WYmgYJTaMBWkThAd5Qh0rKor+se8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 37/50] powerpc/64s/exception: machine check use correct cfar for late handler
-Date:   Tue, 24 Sep 2019 12:48:34 -0400
-Message-Id: <20190924164847.27780-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 39/50] powerpc/imc: Dont create debugfs files for cpu-less nodes
+Date:   Tue, 24 Sep 2019 12:48:36 -0400
+Message-Id: <20190924164847.27780-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -43,42 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
 
-[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
+[ Upstream commit 41ba17f20ea835c489e77bd54e2da73184e22060 ]
 
-Bare metal machine checks run an "early" handler in real mode before
-running the main handler which reports the event.
+Commit <684d984038aa> ('powerpc/powernv: Add debugfs interface for
+imc-mode and imc') added debugfs interface for the nest imc pmu
+devices to support changing of different ucode modes. Primarily adding
+this capability for debug. But when doing so, the code did not
+consider the case of cpu-less nodes. So when reading the _cmd_ or
+_mode_ file of a cpu-less node will create this crash.
 
-The main handler runs exactly as a normal interrupt handler, after the
-"windup" which sets registers back as they were at interrupt entry.
-CFAR does not get restored by the windup code, so that will be wrong
-when the handler is run.
+  Faulting instruction address: 0xc0000000000d0d58
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  ...
+  CPU: 67 PID: 5301 Comm: cat Not tainted 5.2.0-rc6-next-20190627+ #19
+  NIP:  c0000000000d0d58 LR: c00000000049aa18 CTR:c0000000000d0d50
+  REGS: c00020194548f9e0 TRAP: 0300   Not tainted  (5.2.0-rc6-next-20190627+)
+  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR:28022822  XER: 00000000
+  CFAR: c00000000049aa14 DAR: 000000000003fc08 DSISR:40000000 IRQMASK: 0
+  ...
+  NIP imc_mem_get+0x8/0x20
+  LR  simple_attr_read+0x118/0x170
+  Call Trace:
+    simple_attr_read+0x70/0x170 (unreliable)
+    debugfs_attr_read+0x6c/0xb0
+    __vfs_read+0x3c/0x70
+     vfs_read+0xbc/0x1a0
+    ksys_read+0x7c/0x140
+    system_call+0x5c/0x70
 
-Restore the CFAR to the saved value before running the late handler.
+Patch fixes the issue with a more robust check for vbase to NULL.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Before patch, ls output for the debugfs imc directory
+
+  # ls /sys/kernel/debug/powerpc/imc/
+  imc_cmd_0    imc_cmd_251  imc_cmd_253  imc_cmd_255  imc_mode_0    imc_mode_251  imc_mode_253  imc_mode_255
+  imc_cmd_250  imc_cmd_252  imc_cmd_254  imc_cmd_8    imc_mode_250  imc_mode_252  imc_mode_254  imc_mode_8
+
+After patch, ls output for the debugfs imc directory
+
+  # ls /sys/kernel/debug/powerpc/imc/
+  imc_cmd_0  imc_cmd_8  imc_mode_0  imc_mode_8
+
+Actual bug here is that, we have two loops with potentially different
+loop counts. That is, in imc_get_mem_addr_nest(), loop count is
+obtained from the dt entries. But in case of export_imc_mode_and_cmd(),
+loop was based on for_each_nid() count. Patch fixes the loop count in
+latter based on the struct mem_info. Ideally it would be better to
+have array size in struct imc_pmu.
+
+Fixes: 684d984038aa ('powerpc/powernv: Add debugfs interface for imc-mode and imc')
+Reported-by: Qian Cai <cai@lca.pw>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20190827101635.6942-1-maddy@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/platforms/powernv/opal-imc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 06cc77813dbb7..90af86f143a91 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -520,6 +520,10 @@ EXC_COMMON_BEGIN(machine_check_handle_early)
- 	RFI_TO_USER_OR_KERNEL
- 9:
- 	/* Deliver the machine check to host kernel in V mode. */
-+BEGIN_FTR_SECTION
-+	ld	r10,ORIG_GPR3(r1)
-+	mtspr	SPRN_CFAR,r10
-+END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
- 	MACHINE_CHECK_HANDLER_WINDUP
- 	b	machine_check_pSeries
+diff --git a/arch/powerpc/platforms/powernv/opal-imc.c b/arch/powerpc/platforms/powernv/opal-imc.c
+index 828f6656f8f74..649fb268f4461 100644
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -57,9 +57,9 @@ static void export_imc_mode_and_cmd(struct device_node *node,
+ 				    struct imc_pmu *pmu_ptr)
+ {
+ 	static u64 loc, *imc_mode_addr, *imc_cmd_addr;
+-	int chip = 0, nid;
+ 	char mode[16], cmd[16];
+ 	u32 cb_offset;
++	struct imc_mem_info *ptr = pmu_ptr->mem_info;
+ 
+ 	imc_debugfs_parent = debugfs_create_dir("imc", powerpc_debugfs_root);
+ 
+@@ -73,20 +73,20 @@ static void export_imc_mode_and_cmd(struct device_node *node,
+ 	if (of_property_read_u32(node, "cb_offset", &cb_offset))
+ 		cb_offset = IMC_CNTL_BLK_OFFSET;
+ 
+-	for_each_node(nid) {
+-		loc = (u64)(pmu_ptr->mem_info[chip].vbase) + cb_offset;
++	while (ptr->vbase != NULL) {
++		loc = (u64)(ptr->vbase) + cb_offset;
+ 		imc_mode_addr = (u64 *)(loc + IMC_CNTL_BLK_MODE_OFFSET);
+-		sprintf(mode, "imc_mode_%d", nid);
++		sprintf(mode, "imc_mode_%d", (u32)(ptr->id));
+ 		if (!imc_debugfs_create_x64(mode, 0600, imc_debugfs_parent,
+ 					    imc_mode_addr))
+ 			goto err;
+ 
+ 		imc_cmd_addr = (u64 *)(loc + IMC_CNTL_BLK_CMD_OFFSET);
+-		sprintf(cmd, "imc_cmd_%d", nid);
++		sprintf(cmd, "imc_cmd_%d", (u32)(ptr->id));
+ 		if (!imc_debugfs_create_x64(cmd, 0600, imc_debugfs_parent,
+ 					    imc_cmd_addr))
+ 			goto err;
+-		chip++;
++		ptr++;
+ 	}
+ 	return;
  
 -- 
 2.20.1
