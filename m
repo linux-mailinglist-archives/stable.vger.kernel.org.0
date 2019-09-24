@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA68BCF26
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9337EBCF18
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410883AbfIXQwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:52:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44224 "EHLO mail.kernel.org"
+        id S2411154AbfIXQvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441544AbfIXQvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:51:03 -0400
+        id S2410877AbfIXQvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:51:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5865721655;
-        Tue, 24 Sep 2019 16:51:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F11F21A4A;
+        Tue, 24 Sep 2019 16:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343862;
-        bh=V6xVQoeu2fDcplB1iBbsCGRGy308EHq5ck/SPjxZkyc=;
+        s=default; t=1569343881;
+        bh=WZWvLpu91GzMfveMKVhwBFKltwv+EJOdKuq185tjW3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFdhV1QxYk/AYhM1ceWL6mRMvSPa/XmdXu5+QT4uwRrM5JFtjDNTmHKLxY28QlB/U
-         1xS4b/Yft+ynAWenU5QhRnBD8vhv6Xw1lEprhHzkQ3XDdUcbp2wa06sOHiSHMbD754
-         ymlCOmRAs2ecABlkI7ZZs1xitNELgwCfkIRirB04=
+        b=TPGWOZAuKuQE5NtgSaZGJ1bg4pRSgLl35la/687fRlfrshU7BalK43DnmOvkY3fMR
+         SvYBx4j+Dodmtv4uD6jHO5sG0cxaqYVOZVPnRKB8e0QEq+vYQ863mIl4+7jJl0E+3i
+         xw3wLI/D5l4eMMcU3YrvSwqXkQWt/6k6DlFILE24=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 17/28] powerpc/64s/radix: Remove redundant pfn_pte bitop, add VM_BUG_ON
-Date:   Tue, 24 Sep 2019 12:50:20 -0400
-Message-Id: <20190924165031.28292-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 24/28] powerpc/pseries: correctly track irq state in default idle
+Date:   Tue, 24 Sep 2019 12:50:27 -0400
+Message-Id: <20190924165031.28292-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924165031.28292-1-sashal@kernel.org>
 References: <20190924165031.28292-1-sashal@kernel.org>
@@ -44,62 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 6bb25170d7a44ef0ed9677814600f0785e7421d1 ]
+[ Upstream commit 92c94dfb69e350471473fd3075c74bc68150879e ]
 
-pfn_pte is never given a pte above the addressable physical memory
-limit, so the masking is redundant. In case of a software bug, it
-is not obviously better to silently truncate the pfn than to corrupt
-the pte (either one will result in memory corruption or crashes),
-so there is no reason to add this to the fast path.
+prep_irq_for_idle() is intended to be called before entering
+H_CEDE (and it is used by the pseries cpuidle driver). However the
+default pseries idle routine does not call it, leading to mismanaged
+lazy irq state when the cpuidle driver isn't in use. Manifestations of
+this include:
 
-Add VM_BUG_ON to catch cases where the pfn is invalid. These would
-catch the create_section_mapping bug fixed by a previous commit.
+* Dropped IPIs in the time immediately after a cpu comes
+  online (before it has installed the cpuidle handler), making the
+  online operation block indefinitely waiting for the new cpu to
+  respond.
 
-  [16885.256466] ------------[ cut here ]------------
-  [16885.256492] kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-  cpu 0x0: Vector: 700 (Program Check) at [c0000000ee0a36d0]
-      pc: c000000000080738: __map_kernel_page+0x248/0x6f0
-      lr: c000000000080ac0: __map_kernel_page+0x5d0/0x6f0
-      sp: c0000000ee0a3960
-     msr: 9000000000029033
-    current = 0xc0000000ec63b400
-    paca    = 0xc0000000017f0000   irqmask: 0x03   irq_happened: 0x01
-      pid   = 85, comm = sh
-  kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-  Linux version 5.3.0-rc1-00001-g0fe93e5f3394
-  enter ? for help
-  [c0000000ee0a3a00] c000000000d37378 create_physical_mapping+0x260/0x360
-  [c0000000ee0a3b10] c000000000d370bc create_section_mapping+0x1c/0x3c
-  [c0000000ee0a3b30] c000000000071f54 arch_add_memory+0x74/0x130
+* Hitting this WARN_ON in arch_local_irq_restore():
+	/*
+	 * We should already be hard disabled here. We had bugs
+	 * where that wasn't the case so let's dbl check it and
+	 * warn if we are wrong. Only do that when IRQ tracing
+	 * is enabled as mfmsr() can be costly.
+	 */
+	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
+		__hard_irq_disable();
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
+result.
+
+Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190724084638.24982-5-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/pgtable.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/setup.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 4dd13b503dbbd..5f37d8c3b4798 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -555,8 +555,10 @@ static inline int pte_present(pte_t pte)
-  */
- static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
- {
--	return __pte((((pte_basic_t)(pfn) << PAGE_SHIFT) & PTE_RPN_MASK) |
--		     pgprot_val(pgprot));
-+	VM_BUG_ON(pfn >> (64 - PAGE_SHIFT));
-+	VM_BUG_ON((pfn << PAGE_SHIFT) & ~PTE_RPN_MASK);
-+
-+	return __pte(((pte_basic_t)pfn << PAGE_SHIFT) | pgprot_val(pgprot));
- }
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 6a0ad56e89b93..7a9945b350536 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -307,6 +307,9 @@ static void pseries_lpar_idle(void)
+ 	 * low power mode by ceding processor to hypervisor
+ 	 */
  
- static inline unsigned long pte_pfn(pte_t pte)
++	if (!prep_irq_for_idle())
++		return;
++
+ 	/* Indicate to hypervisor that we are idle. */
+ 	get_lppaca()->idle = 1;
+ 
 -- 
 2.20.1
 
