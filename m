@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDDDBCEA1
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7CAABCEA3
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404165AbfIXQpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:45:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
+        id S2390699AbfIXQpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:45:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410021AbfIXQpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:45:45 -0400
+        id S2410018AbfIXQpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:45:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A677621D7B;
-        Tue, 24 Sep 2019 16:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87C83217D9;
+        Tue, 24 Sep 2019 16:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343544;
-        bh=zLCAEo97goiHu6MVJZAlQJZVwD4ZpfNgGIsrNb/zL0Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpB6BTVt0mJyTaWZBG5hNECfX02R5vqOSx5fFU75rtRwYWrarPU7Yofs4i5qS1CPV
-         YrDDVcxEPomaX+hIkOXLqXbzfKNpN3B2o8AH+LCt2U22Eded0zT809yAC0bXsl0nn7
-         Kf8qaDuA0ZGf0KBp9zpsQpchIHXv8kSx/ELK8+20=
+        s=default; t=1569343551;
+        bh=rIKf7LtdZcL+QQJa9NkH9hjNvOfePb4mc/FQ3u++flo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vQzK7NxO6DNdqsX2ZBWTqw+IaRr/h7sHhDI6wfYb5CANoNhr9C8P9LnnXkrjIMzye
+         uVYVKYwREFbB4mK/Ah0lLcqCigAyJgDxZ/5yQpL18ReSBwpWxEL63tLKsp6DD0sMj1
+         pJPeCkngs4V0UfUhA7QXjdTQTyq1h/cAhHsZtem0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>,
-        syzbot+1e470567330b7ad711d5@syzkaller.appspotmail.com,
-        Theodore Ts'o <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 87/87] ext4: fix potential use after free after remounting with noblock_validity
-Date:   Tue, 24 Sep 2019 12:41:43 -0400
-Message-Id: <20190924164144.25591-87-sashal@kernel.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Shayenne Moura <shayenneluzmoura@gmail.com>,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Haneen Mohammed <hamohammed.sa@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 01/70] drm/vkms: Fix crc worker races
+Date:   Tue, 24 Sep 2019 12:44:40 -0400
+Message-Id: <20190924164549.27058-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
-References: <20190924164144.25591-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,392 +46,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 7727ae52975d4f4ef7ff69ed8e6e25f6a4168158 ]
+[ Upstream commit 18d0952a838ba559655b0cd9cf85097ad63d9bca ]
 
-Remount process will release system zone which was allocated before if
-"noblock_validity" is specified. If we mount an ext4 file system to two
-mountpoints with default mount options, and then remount one of them
-with "noblock_validity", it may trigger a use after free problem when
-someone accessing the other one.
+The issue we have is that the crc worker might fall behind. We've
+tried to handle this by tracking both the earliest frame for which it
+still needs to compute a crc, and the last one. Plus when the
+crtc_state changes, we have a new work item, which are all run in
+order due to the ordered workqueue we allocate for each vkms crtc.
 
- # mount /dev/sda foo
- # mount /dev/sda bar
+Trouble is there's been a few small issues in the current code:
+- we need to capture frame_end in the vblank hrtimer, not in the
+  worker. The worker might run much later, and then we generate a lot
+  of crc for which there's already a different worker queued up.
+- frame number might be 0, so create a new crc_pending boolean to
+  track this without confusion.
+- we need to atomically grab frame_start/end and clear it, so do that
+  all in one go. This is not going to create a new race, because if we
+  race with the hrtimer then our work will be re-run.
+- only race that can happen is the following:
+  1. worker starts
+  2. hrtimer runs and updates frame_end
+  3. worker grabs frame_start/end, already reading the new frame_end,
+  and clears crc_pending
+  4. hrtimer calls queue_work()
+  5. worker completes
+  6. worker gets  re-run, crc_pending is false
+  Explain this case a bit better by rewording the comment.
 
-User access mountpoint "foo"   |   Remount mountpoint "bar"
-                               |
-ext4_map_blocks()              |   ext4_remount()
-check_block_validity()         |   ext4_setup_system_zone()
-ext4_data_block_valid()        |   ext4_release_system_zone()
-                               |   free system_blks rb nodes
-access system_blks rb nodes    |
-trigger use after free         |
+v2: Demote warning level output to debug when we fail to requeue, this
+is expected under high load when the crc worker can't quite keep up.
 
-This problem can also be reproduced by one mountpint, At the same time,
-add_system_zone() can get called during remount as well so there can be
-racing ext4_data_block_valid() reading the rbtree at the same time.
-
-This patch add RCU to protect system zone from releasing or building
-when doing a remount which inverse current "noblock_validity" mount
-option. It assign the rbtree after the whole tree was complete and
-do actual freeing after rcu grace period, avoid any intermediate state.
-
-Reported-by: syzbot+1e470567330b7ad711d5@syzkaller.appspotmail.com
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Shayenne Moura <shayenneluzmoura@gmail.com>
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Reviewed-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Tested-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Signed-off-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190606222751.32567-2-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c | 189 ++++++++++++++++++++++++++++-----------
- fs/ext4/ext4.h           |  10 ++-
- 2 files changed, 147 insertions(+), 52 deletions(-)
+ drivers/gpu/drm/vkms/vkms_crc.c  | 27 +++++++++++++--------------
+ drivers/gpu/drm/vkms/vkms_crtc.c |  9 +++++++--
+ drivers/gpu/drm/vkms/vkms_drv.h  |  2 ++
+ 3 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-index 8e83741b02e03..d4d4fdfac1a65 100644
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -38,6 +38,7 @@ int __init ext4_init_system_zone(void)
+diff --git a/drivers/gpu/drm/vkms/vkms_crc.c b/drivers/gpu/drm/vkms/vkms_crc.c
+index d7b409a3c0f8c..66603da634fe3 100644
+--- a/drivers/gpu/drm/vkms/vkms_crc.c
++++ b/drivers/gpu/drm/vkms/vkms_crc.c
+@@ -166,16 +166,24 @@ void vkms_crc_work_handle(struct work_struct *work)
+ 	struct drm_plane *plane;
+ 	u32 crc32 = 0;
+ 	u64 frame_start, frame_end;
++	bool crc_pending;
+ 	unsigned long flags;
  
- void ext4_exit_system_zone(void)
- {
-+	rcu_barrier();
- 	kmem_cache_destroy(ext4_system_zone_cachep);
- }
+ 	spin_lock_irqsave(&out->state_lock, flags);
+ 	frame_start = crtc_state->frame_start;
+ 	frame_end = crtc_state->frame_end;
++	crc_pending = crtc_state->crc_pending;
++	crtc_state->frame_start = 0;
++	crtc_state->frame_end = 0;
++	crtc_state->crc_pending = false;
+ 	spin_unlock_irqrestore(&out->state_lock, flags);
  
-@@ -49,17 +50,26 @@ static inline int can_merge(struct ext4_system_zone *entry1,
- 	return 0;
- }
- 
-+static void release_system_zone(struct ext4_system_blocks *system_blks)
-+{
-+	struct ext4_system_zone	*entry, *n;
-+
-+	rbtree_postorder_for_each_entry_safe(entry, n,
-+				&system_blks->root, node)
-+		kmem_cache_free(ext4_system_zone_cachep, entry);
-+}
-+
- /*
-  * Mark a range of blocks as belonging to the "system zone" --- that
-  * is, filesystem metadata blocks which should never be used by
-  * inodes.
-  */
--static int add_system_zone(struct ext4_sb_info *sbi,
-+static int add_system_zone(struct ext4_system_blocks *system_blks,
- 			   ext4_fsblk_t start_blk,
- 			   unsigned int count)
- {
- 	struct ext4_system_zone *new_entry = NULL, *entry;
--	struct rb_node **n = &sbi->system_blks.rb_node, *node;
-+	struct rb_node **n = &system_blks->root.rb_node, *node;
- 	struct rb_node *parent = NULL, *new_node = NULL;
- 
- 	while (*n) {
-@@ -91,7 +101,7 @@ static int add_system_zone(struct ext4_sb_info *sbi,
- 		new_node = &new_entry->node;
- 
- 		rb_link_node(new_node, parent, n);
--		rb_insert_color(new_node, &sbi->system_blks);
-+		rb_insert_color(new_node, &system_blks->root);
- 	}
- 
- 	/* Can we merge to the left? */
-@@ -101,7 +111,7 @@ static int add_system_zone(struct ext4_sb_info *sbi,
- 		if (can_merge(entry, new_entry)) {
- 			new_entry->start_blk = entry->start_blk;
- 			new_entry->count += entry->count;
--			rb_erase(node, &sbi->system_blks);
-+			rb_erase(node, &system_blks->root);
- 			kmem_cache_free(ext4_system_zone_cachep, entry);
- 		}
- 	}
-@@ -112,7 +122,7 @@ static int add_system_zone(struct ext4_sb_info *sbi,
- 		entry = rb_entry(node, struct ext4_system_zone, node);
- 		if (can_merge(new_entry, entry)) {
- 			new_entry->count += entry->count;
--			rb_erase(node, &sbi->system_blks);
-+			rb_erase(node, &system_blks->root);
- 			kmem_cache_free(ext4_system_zone_cachep, entry);
- 		}
- 	}
-@@ -126,7 +136,7 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
- 	int first = 1;
- 
- 	printk(KERN_INFO "System zones: ");
--	node = rb_first(&sbi->system_blks);
-+	node = rb_first(&sbi->system_blks->root);
- 	while (node) {
- 		entry = rb_entry(node, struct ext4_system_zone, node);
- 		printk(KERN_CONT "%s%llu-%llu", first ? "" : ", ",
-@@ -137,7 +147,47 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
- 	printk(KERN_CONT "\n");
- }
- 
--static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
-+/*
-+ * Returns 1 if the passed-in block region (start_blk,
-+ * start_blk+count) is valid; 0 if some part of the block region
-+ * overlaps with filesystem metadata blocks.
-+ */
-+static int ext4_data_block_valid_rcu(struct ext4_sb_info *sbi,
-+				     struct ext4_system_blocks *system_blks,
-+				     ext4_fsblk_t start_blk,
-+				     unsigned int count)
-+{
-+	struct ext4_system_zone *entry;
-+	struct rb_node *n;
-+
-+	if ((start_blk <= le32_to_cpu(sbi->s_es->s_first_data_block)) ||
-+	    (start_blk + count < start_blk) ||
-+	    (start_blk + count > ext4_blocks_count(sbi->s_es))) {
-+		sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
-+		return 0;
-+	}
-+
-+	if (system_blks == NULL)
-+		return 1;
-+
-+	n = system_blks->root.rb_node;
-+	while (n) {
-+		entry = rb_entry(n, struct ext4_system_zone, node);
-+		if (start_blk + count - 1 < entry->start_blk)
-+			n = n->rb_left;
-+		else if (start_blk >= (entry->start_blk + entry->count))
-+			n = n->rb_right;
-+		else {
-+			sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+static int ext4_protect_reserved_inode(struct super_block *sb,
-+				       struct ext4_system_blocks *system_blks,
-+				       u32 ino)
- {
- 	struct inode *inode;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-@@ -163,14 +213,15 @@ static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
- 		if (n == 0) {
- 			i++;
- 		} else {
--			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
-+			if (!ext4_data_block_valid_rcu(sbi, system_blks,
-+						map.m_pblk, n)) {
- 				ext4_error(sb, "blocks %llu-%llu from inode %u "
- 					   "overlap system zone", map.m_pblk,
- 					   map.m_pblk + map.m_len - 1, ino);
- 				err = -EFSCORRUPTED;
- 				break;
- 			}
--			err = add_system_zone(sbi, map.m_pblk, n);
-+			err = add_system_zone(system_blks, map.m_pblk, n);
- 			if (err < 0)
- 				break;
- 			i += n;
-@@ -180,94 +231,130 @@ static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
- 	return err;
- }
- 
-+static void ext4_destroy_system_zone(struct rcu_head *rcu)
-+{
-+	struct ext4_system_blocks *system_blks;
-+
-+	system_blks = container_of(rcu, struct ext4_system_blocks, rcu);
-+	release_system_zone(system_blks);
-+	kfree(system_blks);
-+}
-+
-+/*
-+ * Build system zone rbtree which is used for block validity checking.
-+ *
-+ * The update of system_blks pointer in this function is protected by
-+ * sb->s_umount semaphore. However we have to be careful as we can be
-+ * racing with ext4_data_block_valid() calls reading system_blks rbtree
-+ * protected only by RCU. That's why we first build the rbtree and then
-+ * swap it in place.
-+ */
- int ext4_setup_system_zone(struct super_block *sb)
- {
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_system_blocks *system_blks;
- 	struct ext4_group_desc *gdp;
- 	ext4_group_t i;
- 	int flex_size = ext4_flex_bg_size(sbi);
- 	int ret;
- 
- 	if (!test_opt(sb, BLOCK_VALIDITY)) {
--		if (sbi->system_blks.rb_node)
-+		if (sbi->system_blks)
- 			ext4_release_system_zone(sb);
- 		return 0;
- 	}
--	if (sbi->system_blks.rb_node)
-+	if (sbi->system_blks)
- 		return 0;
- 
-+	system_blks = kzalloc(sizeof(*system_blks), GFP_KERNEL);
-+	if (!system_blks)
-+		return -ENOMEM;
-+
- 	for (i=0; i < ngroups; i++) {
- 		cond_resched();
- 		if (ext4_bg_has_super(sb, i) &&
- 		    ((i < 5) || ((i % flex_size) == 0)))
--			add_system_zone(sbi, ext4_group_first_block_no(sb, i),
-+			add_system_zone(system_blks,
-+					ext4_group_first_block_no(sb, i),
- 					ext4_bg_num_gdb(sb, i) + 1);
- 		gdp = ext4_get_group_desc(sb, i, NULL);
--		ret = add_system_zone(sbi, ext4_block_bitmap(sb, gdp), 1);
-+		ret = add_system_zone(system_blks,
-+				ext4_block_bitmap(sb, gdp), 1);
- 		if (ret)
--			return ret;
--		ret = add_system_zone(sbi, ext4_inode_bitmap(sb, gdp), 1);
-+			goto err;
-+		ret = add_system_zone(system_blks,
-+				ext4_inode_bitmap(sb, gdp), 1);
- 		if (ret)
--			return ret;
--		ret = add_system_zone(sbi, ext4_inode_table(sb, gdp),
-+			goto err;
-+		ret = add_system_zone(system_blks,
-+				ext4_inode_table(sb, gdp),
- 				sbi->s_itb_per_group);
- 		if (ret)
--			return ret;
-+			goto err;
- 	}
- 	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
--		ret = ext4_protect_reserved_inode(sb,
-+		ret = ext4_protect_reserved_inode(sb, system_blks,
- 				le32_to_cpu(sbi->s_es->s_journal_inum));
- 		if (ret)
--			return ret;
-+			goto err;
- 	}
- 
+-	/* _vblank_handle() hasn't updated frame_start yet */
+-	if (!frame_start || frame_start == frame_end)
+-		goto out;
 +	/*
-+	 * System blks rbtree complete, announce it once to prevent racing
-+	 * with ext4_data_block_valid() accessing the rbtree at the same
-+	 * time.
++	 * We raced with the vblank hrtimer and previous work already computed
++	 * the crc, nothing to do.
 +	 */
-+	rcu_assign_pointer(sbi->system_blks, system_blks);
-+
- 	if (test_opt(sb, DEBUG))
- 		debug_print_tree(sbi);
- 	return 0;
-+err:
-+	release_system_zone(system_blks);
-+	kfree(system_blks);
-+	return ret;
- }
++	if (!crc_pending)
++		return;
  
--/* Called when the filesystem is unmounted */
-+/*
-+ * Called when the filesystem is unmounted or when remounting it with
-+ * noblock_validity specified.
-+ *
-+ * The update of system_blks pointer in this function is protected by
-+ * sb->s_umount semaphore. However we have to be careful as we can be
-+ * racing with ext4_data_block_valid() calls reading system_blks rbtree
-+ * protected only by RCU. So we first clear the system_blks pointer and
-+ * then free the rbtree only after RCU grace period expires.
-+ */
- void ext4_release_system_zone(struct super_block *sb)
- {
--	struct ext4_system_zone	*entry, *n;
-+	struct ext4_system_blocks *system_blks;
+ 	drm_for_each_plane(plane, &vdev->drm) {
+ 		struct vkms_plane_state *vplane_state;
+@@ -196,20 +204,11 @@ void vkms_crc_work_handle(struct work_struct *work)
+ 	if (primary_crc)
+ 		crc32 = _vkms_get_crc(primary_crc, cursor_crc);
  
--	rbtree_postorder_for_each_entry_safe(entry, n,
--			&EXT4_SB(sb)->system_blks, node)
--		kmem_cache_free(ext4_system_zone_cachep, entry);
-+	system_blks = rcu_dereference_protected(EXT4_SB(sb)->system_blks,
-+					lockdep_is_held(&sb->s_umount));
-+	rcu_assign_pointer(EXT4_SB(sb)->system_blks, NULL);
- 
--	EXT4_SB(sb)->system_blks = RB_ROOT;
-+	if (system_blks)
-+		call_rcu(&system_blks->rcu, ext4_destroy_system_zone);
- }
- 
--/*
-- * Returns 1 if the passed-in block region (start_blk,
-- * start_blk+count) is valid; 0 if some part of the block region
-- * overlaps with filesystem metadata blocks.
-- */
- int ext4_data_block_valid(struct ext4_sb_info *sbi, ext4_fsblk_t start_blk,
- 			  unsigned int count)
- {
--	struct ext4_system_zone *entry;
--	struct rb_node *n = sbi->system_blks.rb_node;
-+	struct ext4_system_blocks *system_blks;
-+	int ret;
- 
--	if ((start_blk <= le32_to_cpu(sbi->s_es->s_first_data_block)) ||
--	    (start_blk + count < start_blk) ||
--	    (start_blk + count > ext4_blocks_count(sbi->s_es))) {
--		sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
--		return 0;
--	}
--	while (n) {
--		entry = rb_entry(n, struct ext4_system_zone, node);
--		if (start_blk + count - 1 < entry->start_blk)
--			n = n->rb_left;
--		else if (start_blk >= (entry->start_blk + entry->count))
--			n = n->rb_right;
--		else {
--			sbi->s_es->s_last_error_block = cpu_to_le64(start_blk);
--			return 0;
--		}
--	}
--	return 1;
+-	frame_end = drm_crtc_accurate_vblank_count(crtc);
+-
+-	/* queue_work can fail to schedule crc_work; add crc for
+-	 * missing frames
 +	/*
-+	 * Lock the system zone to prevent it being released concurrently
-+	 * when doing a remount which inverse current "[no]block_validity"
-+	 * mount option.
-+	 */
-+	rcu_read_lock();
-+	system_blks = rcu_dereference(sbi->system_blks);
-+	ret = ext4_data_block_valid_rcu(sbi, system_blks, start_blk,
-+					count);
-+	rcu_read_unlock();
-+	return ret;
++	 * The worker can fall behind the vblank hrtimer, make sure we catch up.
+ 	 */
+ 	while (frame_start <= frame_end)
+ 		drm_crtc_add_crc_entry(crtc, true, frame_start++, &crc32);
+-
+-out:
+-	/* to avoid using the same value for frame number again */
+-	spin_lock_irqsave(&out->state_lock, flags);
+-	crtc_state->frame_end = frame_end;
+-	crtc_state->frame_start = 0;
+-	spin_unlock_irqrestore(&out->state_lock, flags);
  }
  
- int ext4_check_blockref(const char *function, unsigned int line,
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index bf660aa7a9e08..c025efcbcf27c 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -184,6 +184,14 @@ struct ext4_map_blocks {
- 	unsigned int m_flags;
+ static int vkms_crc_parse_source(const char *src_name, bool *enabled)
+diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
+index e447b7588d06e..77a1f5fa5d5c8 100644
+--- a/drivers/gpu/drm/vkms/vkms_crtc.c
++++ b/drivers/gpu/drm/vkms/vkms_crtc.c
+@@ -30,13 +30,18 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
+ 		 * has read the data
+ 		 */
+ 		spin_lock(&output->state_lock);
+-		if (!state->frame_start)
++		if (!state->crc_pending)
+ 			state->frame_start = frame;
++		else
++			DRM_DEBUG_DRIVER("crc worker falling behind, frame_start: %llu, frame_end: %llu\n",
++					 state->frame_start, frame);
++		state->frame_end = frame;
++		state->crc_pending = true;
+ 		spin_unlock(&output->state_lock);
+ 
+ 		ret = queue_work(output->crc_workq, &state->crc_work);
+ 		if (!ret)
+-			DRM_WARN("failed to queue vkms_crc_work_handle");
++			DRM_DEBUG_DRIVER("vkms_crc_work_handle already queued\n");
+ 	}
+ 
+ 	spin_unlock(&output->lock);
+diff --git a/drivers/gpu/drm/vkms/vkms_drv.h b/drivers/gpu/drm/vkms/vkms_drv.h
+index 81f1cfbeb9362..3c7e06b19efd5 100644
+--- a/drivers/gpu/drm/vkms/vkms_drv.h
++++ b/drivers/gpu/drm/vkms/vkms_drv.h
+@@ -56,6 +56,8 @@ struct vkms_plane_state {
+ struct vkms_crtc_state {
+ 	struct drm_crtc_state base;
+ 	struct work_struct crc_work;
++
++	bool crc_pending;
+ 	u64 frame_start;
+ 	u64 frame_end;
  };
- 
-+/*
-+ * Block validity checking, system zone rbtree.
-+ */
-+struct ext4_system_blocks {
-+	struct rb_root root;
-+	struct rcu_head rcu;
-+};
-+
- /*
-  * Flags for ext4_io_end->flags
-  */
-@@ -1421,7 +1429,7 @@ struct ext4_sb_info {
- 	int s_jquota_fmt;			/* Format of quota to use */
- #endif
- 	unsigned int s_want_extra_isize; /* New inodes should reserve # bytes */
--	struct rb_root system_blks;
-+	struct ext4_system_blocks __rcu *system_blks;
- 
- #ifdef EXTENTS_STATS
- 	/* ext4 extents stats */
 -- 
 2.20.1
 
