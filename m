@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8524BCFF6
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB5CBCFD0
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411065AbfIXRCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 13:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60468 "EHLO mail.kernel.org"
+        id S2633031AbfIXQng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633015AbfIXQnd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:43:33 -0400
+        id S2633029AbfIXQnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:43:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C08621928;
-        Tue, 24 Sep 2019 16:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8623D21783;
+        Tue, 24 Sep 2019 16:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343412;
-        bh=ghPfPE3Dv9KM5BihfJgp2aHVM6ja4supiXXbg586G2g=;
+        s=default; t=1569343415;
+        bh=3loIcDQngfLweMnZa6U8G6TzR0+So+oYGalFp8PX9FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fn9qKZVgVqQsHe8ut5F/IUcQl9ApKfoIUg7DWF7iqIbLlsfO4Q6GXY3SIQGwhQRUg
-         j4fZIqOCOAGRtNE6rKtfaTcLSJrvTNtkVv3wqcjBp6TOxzsrVJlR4PdBxe5Tzvv0pz
-         xMqq8YfkZoN7+vREIiiXJnnNsH+MUQ5fSZAlwlgE=
+        b=YQ3iZUKL242p9lOOq0iYnIJvRngFeB7O2gj+2Zgb3Z4Zr3KY8l03XHWNJKfLW9W89
+         m1v+2wk6qMyF/fv2IGMGXZUwRnV+O2qnfP5sHd/8EKIYtdK7UTX2Ny8ZDH0BAxmR7n
+         m91msdRcinaKCWyg9ldcXuSkBzND7XPX8fuFl+/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <sboyd@kernel.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 41/87] clk: sunxi: Don't call clk_hw_get_name() on a hw that isn't registered
-Date:   Tue, 24 Sep 2019 12:40:57 -0400
-Message-Id: <20190924164144.25591-41-sashal@kernel.org>
+Cc:     =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.3 42/87] powerpc/xmon: Check for HV mode when dumping XIVE info from OPAL
+Date:   Tue, 24 Sep 2019 12:40:58 -0400
+Message-Id: <20190924164144.25591-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,46 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit a7b85ad25a97cf897b4819a121655c483d86156f ]
+[ Upstream commit c3e0dbd7f780a58c4695f1cd8fc8afde80376737 ]
 
-The implementation of clk_hw_get_name() relies on the clk_core
-associated with the clk_hw pointer existing. If of_clk_hw_register()
-fails, there isn't a clk_core created yet, so calling clk_hw_get_name()
-here fails. Extract the name first so we can print it later.
+Currently, the xmon 'dx' command calls OPAL to dump the XIVE state in
+the OPAL logs and also outputs some of the fields of the internal XIVE
+structures in Linux. The OPAL calls can only be done on baremetal
+(PowerNV) and they crash a pseries machine. Fix by checking the
+hypervisor feature of the CPU.
 
-Fixes: 1d80c14248d6 ("clk: sunxi-ng: Add common infrastructure")
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190814154754.23682-2-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu_common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/xmon/xmon.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu_common.c b/drivers/clk/sunxi-ng/ccu_common.c
-index 7fe3ac980e5f9..2e20e650b6c01 100644
---- a/drivers/clk/sunxi-ng/ccu_common.c
-+++ b/drivers/clk/sunxi-ng/ccu_common.c
-@@ -97,14 +97,15 @@ int sunxi_ccu_probe(struct device_node *node, void __iomem *reg,
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index 14e56c25879fa..25d4adccf750f 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -2534,13 +2534,16 @@ static void dump_pacas(void)
+ static void dump_one_xive(int cpu)
+ {
+ 	unsigned int hwid = get_hard_smp_processor_id(cpu);
+-
+-	opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
+-	opal_xive_dump(XIVE_DUMP_VP, hwid);
+-	opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	bool hv = cpu_has_feature(CPU_FTR_HVMODE);
++
++	if (hv) {
++		opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
++		opal_xive_dump(XIVE_DUMP_VP, hwid);
++		opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	}
  
- 	for (i = 0; i < desc->hw_clks->num ; i++) {
- 		struct clk_hw *hw = desc->hw_clks->hws[i];
-+		const char *name;
- 
- 		if (!hw)
- 			continue;
- 
-+		name = hw->init->name;
- 		ret = of_clk_hw_register(node, hw);
- 		if (ret) {
--			pr_err("Couldn't register clock %d - %s\n",
--			       i, clk_hw_get_name(hw));
-+			pr_err("Couldn't register clock %d - %s\n", i, name);
- 			goto err_clk_unreg;
- 		}
- 	}
+ 	if (setjmp(bus_error_jmp) != 0) {
+ 		catch_memory_errors = 0;
 -- 
 2.20.1
 
