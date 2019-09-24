@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66253BCE36
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B18A3BCE39
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404239AbfIXQtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
+        id S2410112AbfIXQty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390917AbfIXQtr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:49:47 -0400
+        id S2390677AbfIXQtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:49:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78F60222BF;
-        Tue, 24 Sep 2019 16:49:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D5BD21971;
+        Tue, 24 Sep 2019 16:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343786;
-        bh=dV1r5TVToozdpjKjl7WaNviSQc4NOnz8fjIm0uFFHSA=;
+        s=default; t=1569343792;
+        bh=xnovLF+3uh2WwoA52FYSiy8zjjoMSiF+mmojNkCbgjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfvgEmdxiK8Am407xqvntgqQKvdBRds1YbJn34+BoKFThRnNVmFR3A6ychh6W+ltB
-         mKRfyJPlMyHfQQdD+N1qppwtKKsWR4d9n+dJ8cSj9WzxG2zTPRQ5YkhwedGLL/nP3P
-         4BneyIJi9fNexzZBIa4zyScnF7ot9oYzDa2yK7SQ=
+        b=wagG87v4g9pTJqBxynBcKlllWJn/sz7SqItoactpvosaMxqSVdVup8T/HrvpI5XHb
+         hg1EvSueyTuoPo6jENUVB8SfZUncGz9JDMHd2RlkhrB5wg9aRx+EiTi46zfh86Z4ly
+         EvHzSZNc0Y5EVJDB2lLwIr0yTfqa/9FmVANx4U8g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 29/50] powerpc/eeh: Clear stale EEH_DEV_NO_HANDLER flag
-Date:   Tue, 24 Sep 2019 12:48:26 -0400
-Message-Id: <20190924164847.27780-29-sashal@kernel.org>
+Cc:     Mark Menzynski <mmenzyns@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 31/50] drm/nouveau/volt: Fix for some cards having 0 maximum voltage
+Date:   Tue, 24 Sep 2019 12:48:28 -0400
+Message-Id: <20190924164847.27780-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -43,73 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: Mark Menzynski <mmenzyns@redhat.com>
 
-[ Upstream commit aa06e3d60e245284d1e55497eb3108828092818d ]
+[ Upstream commit a1af2afbd244089560794c260b2d4326a86e39b6 ]
 
-The EEH_DEV_NO_HANDLER flag is used by the EEH system to prevent the
-use of driver callbacks in drivers that have been bound part way
-through the recovery process. This is necessary to prevent later stage
-handlers from being called when the earlier stage handlers haven't,
-which can be confusing for drivers.
+Some, mostly Fermi, vbioses appear to have zero max voltage. That causes Nouveau to not parse voltage entries, thus users not being able to set higher clocks.
 
-However, the flag is set for all devices that are added after boot
-time and only cleared at the end of the EEH recovery process. This
-results in hot plugged devices erroneously having the flag set during
-the first recovery after they are added (causing their driver's
-handlers to be incorrectly ignored).
+When changing this value Nvidia driver still appeared to ignore it, and I wasn't able to find out why, thus the code is ignoring the value if it is zero.
 
-To remedy this, clear the flag at the beginning of recovery
-processing. The flag is still cleared at the end of recovery
-processing, although it is no longer really necessary.
-
-Also clear the flag during eeh_handle_special_event(), for the same
-reasons.
-
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b8ca5629d27de74c957d4f4b250177d1b6fc4bbd.1565930772.git.sbobroff@linux.ibm.com
+CC: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Mark Menzynski <mmenzyns@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_driver.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
-index 67619b4b3f96c..110eba400de7c 100644
---- a/arch/powerpc/kernel/eeh_driver.c
-+++ b/arch/powerpc/kernel/eeh_driver.c
-@@ -811,6 +811,10 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
- 	pr_warn("EEH: This PCI device has failed %d times in the last hour and will be permanently disabled after %d failures.\n",
- 		pe->freeze_count, eeh_max_freezes);
- 
-+	eeh_for_each_pe(pe, tmp_pe)
-+		eeh_pe_for_each_dev(tmp_pe, edev, tmp)
-+			edev->mode &= ~EEH_DEV_NO_HANDLER;
-+
- 	/* Walk the various device drivers attached to this slot through
- 	 * a reset sequence, giving each an opportunity to do what it needs
- 	 * to accomplish the reset.  Each child gets a report of the
-@@ -1004,7 +1008,8 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
-  */
- void eeh_handle_special_event(void)
- {
--	struct eeh_pe *pe, *phb_pe;
-+	struct eeh_pe *pe, *phb_pe, *tmp_pe;
-+	struct eeh_dev *edev, *tmp_edev;
- 	struct pci_bus *bus;
- 	struct pci_controller *hose;
- 	unsigned long flags;
-@@ -1075,6 +1080,10 @@ void eeh_handle_special_event(void)
- 				    (phb_pe->state & EEH_PE_RECOVERING))
- 					continue;
- 
-+				eeh_for_each_pe(pe, tmp_pe)
-+					eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
-+						edev->mode &= ~EEH_DEV_NO_HANDLER;
-+
- 				/* Notify all devices to be down */
- 				eeh_pe_state_clear(pe, EEH_PE_PRI_BUS);
- 				eeh_set_channel_state(pe, pci_channel_io_perm_failure);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
+index 7143ea4611aa3..33a9fb5ac5585 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
+@@ -96,6 +96,8 @@ nvbios_volt_parse(struct nvkm_bios *bios, u8 *ver, u8 *hdr, u8 *cnt, u8 *len,
+ 		info->min     = min(info->base,
+ 				    info->base + info->step * info->vidmask);
+ 		info->max     = nvbios_rd32(bios, volt + 0x0e);
++		if (!info->max)
++			info->max = max(info->base, info->base + info->step * info->vidmask);
+ 		break;
+ 	case 0x50:
+ 		info->min     = nvbios_rd32(bios, volt + 0x0a);
 -- 
 2.20.1
 
