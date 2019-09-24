@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB71BCCE6
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4347BCD14
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409859AbfIXQmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:42:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S2632907AbfIXQnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409852AbfIXQmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:42:46 -0400
+        id S2632903AbfIXQnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:43:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 115B4217F4;
-        Tue, 24 Sep 2019 16:42:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8623720872;
+        Tue, 24 Sep 2019 16:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343365;
-        bh=YhMxZFoY6IL1aOj/xsge9Nvb1sMx8PA81BVaG9x7qes=;
+        s=default; t=1569343386;
+        bh=kJPCE82rI93/+BFjcENy+vQCcMAun9/PciZCTpTNdVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iw9cy7aldZbXmWlIU8gSG8xe7tHvB0CqlwjC9RpvuVvTGI0vAOFuwa75L41lTKcnn
-         6LqbRxz2NcM8dO0bjSRrE6lrwWAoYCr1Zk94AKWX/2OxP/hvbkFuvVgVAhsOHGP1gu
-         SDUeQr40oWJwy3SI0EDGPcoJz9iwhf9PBunYp09o=
+        b=ZXKcPXYOWhf8U0BEFy8k8PQfybeWbs73VEq3XnyaFuEYwc+KekS0vUPU2wfzhJ9Y1
+         yml8SChiAB8n4Mkz6CZnCgATnHOl0dW9UJeZ7auuMVsb32q1cJ052VLZXk9she2TiD
+         dR1UKujofniZjJqrAwa5so3aK05SpBU148HN/Z4k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Leo Li <sunpeng.li@amd.com>,
+Cc:     Bayan Zabihiyan <bayan.zabihiyan@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.3 20/87] drm/amd/display: Use proper enum conversion functions
-Date:   Tue, 24 Sep 2019 12:40:36 -0400
-Message-Id: <20190924164144.25591-20-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 31/87] drm/amd/display: Fix frames_to_insert math
+Date:   Tue, 24 Sep 2019 12:40:47 -0400
+Message-Id: <20190924164144.25591-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,61 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Bayan Zabihiyan <bayan.zabihiyan@amd.com>
 
-[ Upstream commit d196bbbc28fab82624f7686f8b0da8e8644b6e6a ]
+[ Upstream commit a463b263032f7c98c5912207db43be1aa34a6438 ]
 
-clang warns:
+[Why]
+The math on deciding on how many
+"frames to insert" sometimes sent us over the max refresh rate.
+Also integer overflow can occur if we have high refresh rates.
 
-drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amdgpu_dm_pp_smu.c:336:8:
-warning: implicit conversion from enumeration type 'enum smu_clk_type'
-to different enumeration type 'enum amd_pp_clock_type'
-[-Wenum-conversion]
-                                        dc_to_smu_clock_type(clk_type),
-                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amdgpu_dm_pp_smu.c:421:14:
-warning: implicit conversion from enumeration type 'enum
-amd_pp_clock_type' to different enumeration type 'enum smu_clk_type'
-[-Wenum-conversion]
-                                        dc_to_pp_clock_type(clk_type),
-                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[How]
+Instead of clipping the  frame duration such that it doesn’t go below the min,
+just remove a frame from the number of frames to insert. +
+Use unsigned long long for intermediate calculations to prevent
+integer overflow.
 
-There are functions to properly convert between all of these types, use
-them so there are no longer any warnings.
-
-Fixes: a43913ea50a5 ("drm/amd/powerplay: add function get_clock_by_type_with_latency for navi10")
-Fixes: e5e4e22391c2 ("drm/amd/powerplay: add interface to get clock by type with latency for display (v2)")
-Link: https://github.com/ClangBuiltLinux/linux/issues/586
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Bayan Zabihiyan <bayan.zabihiyan@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../amd/display/modules/freesync/freesync.c   | 27 ++++++++++++-------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-index 592fa499c9f86..9594c154664fc 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_pp_smu.c
-@@ -334,7 +334,7 @@ bool dm_pp_get_clock_levels_by_type(
- 		}
- 	} else if (adev->smu.funcs && adev->smu.funcs->get_clock_by_type) {
- 		if (smu_get_clock_by_type(&adev->smu,
--					  dc_to_smu_clock_type(clk_type),
-+					  dc_to_pp_clock_type(clk_type),
- 					  &pp_clks)) {
- 			get_default_clock_levels(clk_type, dc_clks);
- 			return true;
-@@ -419,7 +419,7 @@ bool dm_pp_get_clock_levels_by_type_with_latency(
- 			return false;
- 	} else if (adev->smu.ppt_funcs && adev->smu.ppt_funcs->get_clock_by_type_with_latency) {
- 		if (smu_get_clock_by_type_with_latency(&adev->smu,
--						       dc_to_pp_clock_type(clk_type),
-+						       dc_to_smu_clock_type(clk_type),
- 						       &pp_clks))
- 			return false;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index 7c20171a3b6da..a53666ff6cf89 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -435,6 +435,12 @@ static void apply_below_the_range(struct core_freesync *core_freesync,
+ 		/* Either we've calculated the number of frames to insert,
+ 		 * or we need to insert min duration frames
+ 		 */
++		if (last_render_time_in_us / frames_to_insert <
++				in_out_vrr->min_duration_in_us){
++			frames_to_insert -= (frames_to_insert > 1) ?
++					1 : 0;
++		}
++
+ 		if (frames_to_insert > 0)
+ 			inserted_frame_duration_in_us = last_render_time_in_us /
+ 							frames_to_insert;
+@@ -887,8 +893,8 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	struct core_freesync *core_freesync = NULL;
+ 	unsigned long long nominal_field_rate_in_uhz = 0;
+ 	unsigned int refresh_range = 0;
+-	unsigned int min_refresh_in_uhz = 0;
+-	unsigned int max_refresh_in_uhz = 0;
++	unsigned long long min_refresh_in_uhz = 0;
++	unsigned long long max_refresh_in_uhz = 0;
+ 
+ 	if (mod_freesync == NULL)
+ 		return;
+@@ -915,7 +921,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		min_refresh_in_uhz = nominal_field_rate_in_uhz;
+ 
+ 	if (!vrr_settings_require_update(core_freesync,
+-			in_config, min_refresh_in_uhz, max_refresh_in_uhz,
++			in_config, (unsigned int)min_refresh_in_uhz, (unsigned int)max_refresh_in_uhz,
+ 			in_out_vrr))
+ 		return;
+ 
+@@ -931,15 +937,15 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		return;
+ 
+ 	} else {
+-		in_out_vrr->min_refresh_in_uhz = min_refresh_in_uhz;
++		in_out_vrr->min_refresh_in_uhz = (unsigned int)min_refresh_in_uhz;
+ 		in_out_vrr->max_duration_in_us =
+ 				calc_duration_in_us_from_refresh_in_uhz(
+-						min_refresh_in_uhz);
++						(unsigned int)min_refresh_in_uhz);
+ 
+-		in_out_vrr->max_refresh_in_uhz = max_refresh_in_uhz;
++		in_out_vrr->max_refresh_in_uhz = (unsigned int)max_refresh_in_uhz;
+ 		in_out_vrr->min_duration_in_us =
+ 				calc_duration_in_us_from_refresh_in_uhz(
+-						max_refresh_in_uhz);
++						(unsigned int)max_refresh_in_uhz);
+ 
+ 		refresh_range = in_out_vrr->max_refresh_in_uhz -
+ 				in_out_vrr->min_refresh_in_uhz;
+@@ -950,17 +956,18 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	in_out_vrr->fixed.ramping_active = in_config->ramping;
+ 
+ 	in_out_vrr->btr.btr_enabled = in_config->btr;
++
+ 	if (in_out_vrr->max_refresh_in_uhz <
+ 			2 * in_out_vrr->min_refresh_in_uhz)
+ 		in_out_vrr->btr.btr_enabled = false;
++
+ 	in_out_vrr->btr.btr_active = false;
+ 	in_out_vrr->btr.inserted_duration_in_us = 0;
+ 	in_out_vrr->btr.frames_to_insert = 0;
+ 	in_out_vrr->btr.frame_counter = 0;
+ 	in_out_vrr->btr.mid_point_in_us =
+-			in_out_vrr->min_duration_in_us +
+-				(in_out_vrr->max_duration_in_us -
+-				in_out_vrr->min_duration_in_us) / 2;
++				(in_out_vrr->min_duration_in_us +
++				 in_out_vrr->max_duration_in_us) / 2;
+ 
+ 	if (in_out_vrr->state == VRR_STATE_UNSUPPORTED) {
+ 		in_out_vrr->adjust.v_total_min = stream->timing.v_total;
 -- 
 2.20.1
 
