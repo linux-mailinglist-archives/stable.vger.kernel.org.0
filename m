@@ -2,115 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07A00BD31B
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 21:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1842DBD463
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 23:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731206AbfIXTxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 15:53:19 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:53123 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727204AbfIXTxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 15:53:18 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8E84453B;
-        Tue, 24 Sep 2019 15:53:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 24 Sep 2019 15:53:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=0
-        DABbGHI1KsUtv7Qm/bD2WsnuLzwF7uA1zmazrd6eu4=; b=Y2A0xNKZS7esPyqk1
-        qTugC0xUe3Avu21TqD4NDWOinX1odr/Zp6uGA/moqaw46pGGT/hqwGP9Kxb4h+fa
-        xN1+Aty3rs0Rkpop4OtXKQUJ7XD6qRDF0RNZwtO8rGW6G6JNMLCY7FC5agJadH7c
-        FnKI2XOF4XL+aM2LYn48CTP+bZh6wLrWQFkAiJEBOuUNncOypLtcKkkoHyWEmrlW
-        J4SnojqgMqGRKaw8uOfuHC/rTjrS5LaefuJOulaRBqJl/LDbCkSzm5IJtDyLwATK
-        xPIEmOxvbK03SNnU8i6aCQacVevCdO6/ajYCygZFxTinWD4+j+2qqHZZ5HU5zDJ0
-        2yaJQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=0DABbGHI1KsUtv7Qm/bD2WsnuLzwF7uA1zmazrd6e
-        u4=; b=TLjZsfRNp6+ZsS1FIJbJP3+0vOToLYpprblLGNFWvs/Qs3LZ27SeGlDoB
-        NLh1olliRj+hd6xwep0hiSlWxGKZCj8LG6Ulfo4X2Ra6jJ3qxvElr8NSSt7Od2Dv
-        R1tsp5yEWOjRmboYqaGgP2x7j/AvYywvolTGuiATmPw1SBPY15EO11IlZ59C0NSn
-        uYjW6pkaAWQzai56NstRiEoYbwqLz7mpT9SZLw5hbFPlLLlqkO9Px60hzNHhskCQ
-        +QKQH2SXeHY1G4Xyz+QCIRGcfhSkCnYOBpA5ItA+5tt5f2XGJ1o7S/UbM1+S4X1a
-        EpsecSzok12Ui6bCv1UipPUCrPu0g==
-X-ME-Sender: <xms:LHSKXXP4OdWllSz58l8FCHDZ9xteUDXDu6M15VeCasZ9LNNDgAY_0g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrfedtgddugedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtredunecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:LHSKXZDgjsIBbuVSqlVdaq-1pjsWxzEalCuWL3H5kpxNyZSTrkjsBw>
-    <xmx:LHSKXaiujaiQhVBxx42wagGRGKUATyKCSace0F2XeQl9_U8E1xuQRA>
-    <xmx:LHSKXecpo1LoBFUPfeI7AyvfrKQoKKeGzxEppMWIDRryNfReXTjwXw>
-    <xmx:LXSKXW2WTNU-cxeqys7ah0B5rYuWd2N7wKipZ9pZnRjOGih8jLVdLA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 89718D6005E;
-        Tue, 24 Sep 2019 15:53:16 -0400 (EDT)
-Date:   Tue, 24 Sep 2019 21:53:13 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jeremy Cline <jcline@redhat.com>
-Cc:     stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Filipe =?iso-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Subject: Re: [PATCH] Partially revert "HID: logitech-hidpp: add USB PID for a
- few more supported mice"
-Message-ID: <20190924195313.GA1000135@kroah.com>
-References: <20190924191311.22413-1-jcline@redhat.com>
+        id S1728241AbfIXVhq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 24 Sep 2019 17:37:46 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53478 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730932AbfIXVhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 17:37:46 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 903483082131
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 21:37:45 +0000 (UTC)
+Received: from [172.54.128.67] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 483CA5C219;
+        Tue, 24 Sep 2019 21:37:43 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190924191311.22413-1-jcline@redhat.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.B111386C6F.9ODN9PRT61@redhat.com>
+X-Gitlab-Pipeline-ID: 185311
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/185311
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Tue, 24 Sep 2019 21:37:45 +0000 (UTC)
+Date:   Tue, 24 Sep 2019 17:37:46 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 24, 2019 at 07:13:11PM +0000, Jeremy Cline wrote:
-> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> commit addf3382c47c033e579c9c88f18e36c4e75d806a upstream.
-> 
-> This partially reverts commit 27fc32fd9417968a459d43d9a7c50fd423d53eb9.
-> 
-> It turns out that the G502 has some issues with hid-logitech-hidpp:
-> when plugging it in, the driver tries to contact it but it fails.
-> So the driver bails out leaving only the mouse event node available.
-> 
-> This timeout is problematic as it introduce a delay in the boot,
-> and having only the mouse event node means that the hardware
-> macros keys can not be relayed to the userspace.
-> 
-> Filipe and I just gave a shot at the following devices:
-> 
-> G403 Wireless (0xC082)
-> G703 (0xC087)
-> G703 Hero (0xC090)
-> G903 (0xC086)
-> G903 Hero (0xC091)
-> G Pro (0xC088)
-> 
-> Reverting the devices we are not sure that works flawlessly.
-> 
-> Reviewed-by: Filipe La�ns <lains@archlinux.org>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Jeremy Cline <jcline@redhat.com>
-> ---
-> 
-> For the v5.2 stable kernels. v5.2.11 picked up upstream commit
-> 27fc32fd9417 ("HID: logitech-hidpp: add USB PID for a few more supported
-> mice") and v5.2.12 picked up commit a3384b8d9f63cc0 ("HID:
-> logitech-hidpp: remove support for the G700 over USB") with some
-> conflicts because this patch wasn't picked up. This backport resolves
-> the conflicts against v5.2.17.
 
-Thanks, now queued up.
+Hello,
 
-greg k-h
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c9a59a82366b - Linux 5.3.1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/185311
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c9a59a82366b - Linux 5.3.1
+
+
+We grabbed the 89ab16b88193 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
+  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
+  clocksource-drivers-do-not-warn-on-probe-defer.patch
+  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
+  drm-amd-display-skip-determining-update-type-for-async-updates.patch
+  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
+  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
+  powerpc-xive-fix-bogus-error-code-returned-by-opal.patch
+  hid-prodikeys-fix-general-protection-fault-during-probe.patch
+  hid-sony-fix-memory-corruption-issue-on-cleanup.patch
+  hid-logitech-fix-general-protection-fault-caused-by-logitech-driver.patch
+  hid-logitech-dj-fix-crash-when-initial-logi_dj_recv_query_paired_devices-fails.patch
+  hid-hidraw-fix-invalid-read-in-hidraw_ioctl.patch
+  hid-add-quirk-for-hp-x500-pixart-oem-mouse.patch
+  mtd-cfi_cmdset_0002-use-chip_good-to-retry-in-do_write_oneword.patch
+  crypto-talitos-fix-missing-break-in-switch-statement.patch
+  clk-imx-imx8mm-fix-audio-pll-setting.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         🚧 ✅ LTP lite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
