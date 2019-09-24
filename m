@@ -2,81 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D69A8BC3E3
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 10:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E5DBC4EA
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 11:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406257AbfIXIKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 04:10:14 -0400
-Received: from mail-vs1-f67.google.com ([209.85.217.67]:33133 "EHLO
-        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405392AbfIXIKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 04:10:13 -0400
-Received: by mail-vs1-f67.google.com with SMTP id p13so739490vso.0
-        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 01:10:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zk1XPSy8x8C5XqXPXdU1bsBIXPn9nQq8Z31r0wdKisI=;
-        b=jRHMe2MR+0Vu3GtYqkB97UZb9wTysGfjqVvfy+agPpkvmHeLD+Qw5sH5kWLzQwSGw5
-         1xLff2FbPVQw3IkY281+Z536cjkFPmPdOAO1I4hDudArOlhcwMOqdpr1cvj9bm7Z5JTP
-         RdZeEq13b6WoGFjDToY35EUgAIzWf5dpsVh1kKZiCShf0yKikHxadrzibQWkgIe63tUM
-         qxYUiNAIKeXXgjqimOQeVmzGxSVbAPClTm2XjP7rplMMOsHIm3Xduo1ClLGlE6vIvumg
-         jxLtWqk3+lKkRAnj2DY8Eh66S3Eezf7CzApVfhOOBsP09WqefQQ7aQTB/KrFSmQHtnOz
-         gIBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zk1XPSy8x8C5XqXPXdU1bsBIXPn9nQq8Z31r0wdKisI=;
-        b=bMpek8KtGn7w/XXfLfmKdZ1l0bg7LIuEl3rCuQ4AWI0E88Dbp62AhuX4BingkzLKjX
-         IVNfgZuR6m1ZUZvkNlDIgNt8n1PC1VWylIZ1J/EpJImQ/iBKHOYnV38FkJmT5CQ1c/zO
-         GtjUCGQzp6/dLzHBBHl17h+iG3b1ve28ZBGKd1XCFAN31sQBNQVtlQmysA7xIoxou5+E
-         3MQniwHjBHXb4upEmJeOuahcWSB0EJK/02D3QUPmdbLz7xP0Pxz1rNiIoifU3OKLQ3r6
-         qeb57OsVHHqyg3Fm2V7F3mzLKDSTSMAWaKh0v9r0pcA8FJwU+1EYKrCAeIBj04OGQeAG
-         AwTQ==
-X-Gm-Message-State: APjAAAUM+cChxP7KSQykc9otkb8LBA3/wTeZRTfPJHRjlMXqitwr31bA
-        t+lQ+a+6o3Dn/o4d2OSRWYxsvppNj5lCPQenhX0=
-X-Google-Smtp-Source: APXvYqwgUKx39Qpiv8p6U42BJ2LCbpe8Er5dGiKZmUAS2V/843lVkZw49zM3QqanX4vYn6mm18Sg3a5Kxi6VA3SbPjE=
-X-Received: by 2002:a67:c018:: with SMTP id v24mr55001vsi.23.1569312612878;
- Tue, 24 Sep 2019 01:10:12 -0700 (PDT)
+        id S2504252AbfIXJeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 05:34:12 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:2773 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2504239AbfIXJeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 05:34:12 -0400
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id D9E1F99325EA1F14D8C6;
+        Tue, 24 Sep 2019 17:34:10 +0800 (CST)
+Received: from [127.0.0.1] (10.177.96.96) by DGGEMS408-HUB.china.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server id 14.3.439.0; Tue, 24 Sep 2019
+ 17:34:05 +0800
+Subject: Re: [PATCH stable 4.4 net] net: rds: Fix NULL ptr use in
+ rds_tcp_kill_sock
+From:   maowenan <maowenan@huawei.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <chien.yen@oracle.com>, <davem@davemloft.net>,
+        <stable@vger.kernel.org>, <rds-devel@oss.oracle.com>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <kernel-janitors@vger.kernel.org>
+References: <20190918083733.50266-1-maowenan@huawei.com>
+ <20190918083253.GA1862222@kroah.com>
+ <c8953355-2b98-c4d0-2af2-4a69ad3e2d2d@huawei.com>
+Message-ID: <8b5b7fd5-dd53-4a73-371d-c997b1b3ce78@huawei.com>
+Date:   Tue, 24 Sep 2019 17:33:56 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.0
 MIME-Version: 1.0
-References: <20190920121821.7223-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20190920121821.7223-1-chris@chris-wilson.co.uk>
-From:   Matthew Auld <matthew.william.auld@gmail.com>
-Date:   Tue, 24 Sep 2019 09:09:48 +0100
-Message-ID: <CAM0jSHO3ah0Sv+fumOBp1qsaYXbz+dnK_4KHjwiHk-1C0egKAA@mail.gmail.com>
-Subject: Re: [PATCH] drm/i915: Mark contents as dirty on a write fault
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <c8953355-2b98-c4d0-2af2-4a69ad3e2d2d@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.177.96.96]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Sep 2019 at 13:18, Chris Wilson <chris@chris-wilson.co.uk> wrote=
-:
->
-> Since dropping the set-to-gtt-domain in commit a679f58d0510 ("drm/i915:
-> Flush pages on acquisition"), we no longer mark the contents as dirty on
-> a write fault. This has the issue of us then not marking the pages as
-> dirty on releasing the buffer, which means the contents are not written
-> out to the swap device (should we ever pick that buffer as a victim).
-> Notably, this is visible in the dumb buffer interface used for cursors.
-> Having updated the cursor contents via mmap, and swapped away, if the
-> shrinker should evict the old cursor, upon next reuse, the cursor would
-> be invisible.
->
-> E.g. echo 80 > /proc/sys/kernel/sysrq ; echo f > /proc/sysrq-trigger
->
-> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=3D111541
-> Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Matthew Auld <matthew.william.auld@gmail.com>
-> Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
+Kindly ping...
+
+On 2019/9/18 17:02, maowenan wrote:
+> 
+> 
+> On 2019/9/18 16:32, Greg KH wrote:
+>> On Wed, Sep 18, 2019 at 04:37:33PM +0800, Mao Wenan wrote:
+>>> After the commit c4e97b06cfdc ("net: rds: force to destroy
+>>> connection if t_sock is NULL in rds_tcp_kill_sock()."),
+>>> it introduced null-ptr-deref in rds_tcp_kill_sock as below:
+>>>
+>>> BUG: KASAN: null-ptr-deref on address 0000000000000020
+>>> Read of size 8 by task kworker/u16:10/910
+>>> CPU: 3 PID: 910 Comm: kworker/u16:10 Not tainted 4.4.178+ #3
+>>> Hardware name: linux,dummy-virt (DT)
+>>> Workqueue: netns cleanup_net
+>>> Call trace:
+>>> [<ffffff90080abb50>] dump_backtrace+0x0/0x618
+>>> [<ffffff90080ac1a0>] show_stack+0x38/0x60
+>>> [<ffffff9008c42b78>] dump_stack+0x1a8/0x230
+>>> [<ffffff90085d469c>] kasan_report_error+0xc8c/0xfc0
+>>> [<ffffff90085d54a4>] kasan_report+0x94/0xd8
+>>> [<ffffff90085d1b28>] __asan_load8+0x88/0x150
+>>> [<ffffff9009c9cc2c>] rds_tcp_dev_event+0x734/0xb48
+>>> [<ffffff90081eacb0>] raw_notifier_call_chain+0x150/0x1e8
+>>> [<ffffff900973fec0>] call_netdevice_notifiers_info+0x90/0x110
+>>> [<ffffff9009764874>] netdev_run_todo+0x2f4/0xb08
+>>> [<ffffff9009796d34>] rtnl_unlock+0x2c/0x48
+>>> [<ffffff9009756484>] default_device_exit_batch+0x444/0x528
+>>> [<ffffff9009720498>] ops_exit_list+0x1c0/0x240
+>>> [<ffffff9009724a80>] cleanup_net+0x738/0xbf8
+>>> [<ffffff90081ca6cc>] process_one_work+0x96c/0x13e0
+>>> [<ffffff90081cf370>] worker_thread+0x7e0/0x1910
+>>> [<ffffff90081e7174>] kthread+0x304/0x390
+>>> [<ffffff9008094280>] ret_from_fork+0x10/0x50
+>>>
+>>> If the first loop add the tc->t_sock = NULL to the tmp_list,
+>>> 1). list_for_each_entry_safe(tc, _tc, &rds_tcp_conn_list, t_tcp_node)
+>>>
+>>> then the second loop is to find connections to destroy, tc->t_sock
+>>> might equal NULL, and tc->t_sock->sk happens null-ptr-deref.
+>>> 2). list_for_each_entry_safe(tc, _tc, &tmp_list, t_tcp_node)
+>>>
+>>> Fixes: c4e97b06cfdc ("net: rds: force to destroy connection if t_sock is NULL in rds_tcp_kill_sock().")
+>>> Signed-off-by: Mao Wenan <maowenan@huawei.com>
+>>> ---
+>>>  net/rds/tcp.c | 8 +++++---
+>>>  1 file changed, 5 insertions(+), 3 deletions(-)
+>>
+>> Why is this not needed upstream as well?
+> Upstream does not use tc->t_sock in the second loop after below two patches.
+> afb4164d91c7 ("RDS: TCP: Refactor connection destruction to handle multiple paths") and
+> 2d746c93b6e5 ("rds: tcp: remove redundant function rds_tcp_conn_paths_destroy()")
+> 
+>>
+>> 4.9.y?  4.14.y?  anything else?
+> 4.19.y and 4.14.y exist rds_tcp_conn_paths_destroy()
+> to guarantee that.
+> +static void rds_tcp_conn_paths_destroy(struct rds_connection *conn)
+> +{
+> +       struct rds_conn_path *cp;
+> +       struct rds_tcp_connection *tc;
+> +       int i;
+> +       struct sock *sk;
+> +
+> +       for (i = 0; i < RDS_MPATH_WORKERS; i++) {
+> +               cp = &conn->c_path[i];
+> +               tc = cp->cp_transport_data;
+> +               if (!tc->t_sock)
+> +                       continue;
+> +               sk = tc->t_sock->sk;
+> +               sk->sk_prot->disconnect(sk, 0);
+> +               tcp_done(sk);
+> +       }
+> +}
+> +
+> 
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>> .
+>>
+> 
+> 
+> .
+> 
+
