@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AFEBCD6F
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FEBBCD76
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410026AbfIXQpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:45:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35702 "EHLO mail.kernel.org"
+        id S2392012AbfIXQp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410018AbfIXQpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:45:42 -0400
+        id S2410058AbfIXQp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:45:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CA0E21928;
-        Tue, 24 Sep 2019 16:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 014CA20673;
+        Tue, 24 Sep 2019 16:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343542;
-        bh=rPaLg1m9winrfrc8LJ+1bVDOdUBp4c8jxgZhSx0iDT4=;
+        s=default; t=1569343556;
+        bh=RG54gPf8RJBC3CZTe5FkLegpYlLjZnCyXCk/BtTrOEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqIpCUFg9TOODjOUyRH8v9Lko9QdN8XrCyGQz0QxDnG3yoQp1rok+kiVRxmAsHZX7
-         FntmErs6UuinNWc/lY2I8U7XaWoedaODJ70oeXlh1/hTf4mNc/s7BdoowR2U+8Ph3b
-         m2yr0ntG3hbsN8EnY8KNGdudiA+UYh6H8FY4uwhw=
+        b=guiLNyHjuF87NIFgqi15V5UkptY1yUqFpG2zh89NQWy4K3cKP6AsimZPrFVnlRRvq
+         XcmNUNsYMDWcIEBOMHDg3sWoYWIZ5GL/h3+AZ4hdaEuMNizt9iI//HeK7KuYu40R3G
+         RNSNz27fEhU98nF4X0hQwxXgWiWkAPzvFWVcazG0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?G=C3=B6ran=20Uddeborg?= <goeran@uddeborg.se>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+Cc:     Matt Redfearn <matt.redfearn@thinci.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 85/87] drm: fix module name in edid_firmware log message
-Date:   Tue, 24 Sep 2019 12:41:41 -0400
-Message-Id: <20190924164144.25591-85-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 03/70] drm/bridge: adv7511: Attach to DSI host at probe time
+Date:   Tue, 24 Sep 2019 12:44:42 -0400
+Message-Id: <20190924164549.27058-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
-References: <20190924164144.25591-1-sashal@kernel.org>
+In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
+References: <20190924164549.27058-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,36 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Matt Redfearn <matt.redfearn@thinci.com>
 
-[ Upstream commit ade925995b172f1d7410d1c665b2f47c5e99bef0 ]
+[ Upstream commit 83f35bc3a852f1c3892c7474998c5cec707c7ba3 ]
 
-The module is drm_kms_helper, not drm_kms_firmware.
+In contrast to all of the DSI panel drivers in drivers/gpu/drm/panel
+which attach to the DSI host via mipi_dsi_attach() at probe time, the
+ADV7533 bridge device does not. Instead it defers this to the point that
+the upstream device connects to its bridge via drm_bridge_attach().
+The generic Synopsys MIPI DSI host driver does not register it's own
+drm_bridge until the MIPI DSI has attached. But it does not call
+drm_bridge_attach() on the downstream device until the upstream device
+has attached. This leads to a chicken and the egg failure and the DRM
+pipeline does not complete.
+Since all other mipi_dsi_device drivers call mipi_dsi_attach() in
+probe(), make the adv7533 mipi_dsi_device do the same. This ensures that
+the Synopsys MIPI DSI host registers it's bridge such that it is
+available for the upstream device to connect to.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204549
-Reported-by: Göran Uddeborg <goeran@uddeborg.se>
-Fixes: ac6c35a4d8c7 ("drm: add backwards compatibility support for drm_kms_helper.edid_firmware")
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190821094312.5514-1-jani.nikula@intel.com
+Signed-off-by: Matt Redfearn <matt.redfearn@thinci.com>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190627151740.2277-1-matt.redfearn@thinci.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_kms_helper_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_kms_helper_common.c b/drivers/gpu/drm/drm_kms_helper_common.c
-index d9a5ac81949e2..221a8528c9937 100644
---- a/drivers/gpu/drm/drm_kms_helper_common.c
-+++ b/drivers/gpu/drm/drm_kms_helper_common.c
-@@ -40,7 +40,7 @@ MODULE_LICENSE("GPL and additional rights");
- /* Backward compatibility for drm_kms_helper.edid_firmware */
- static int edid_firmware_set(const char *val, const struct kernel_param *kp)
- {
--	DRM_NOTE("drm_kms_firmware.edid_firmware is deprecated, please use drm.edid_firmware instead.\n");
-+	DRM_NOTE("drm_kms_helper.edid_firmware is deprecated, please use drm.edid_firmware instead.\n");
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 0e3e868850d55..018f39e0e3754 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -874,9 +874,6 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)
+ 				 &adv7511_connector_helper_funcs);
+ 	drm_connector_attach_encoder(&adv->connector, bridge->encoder);
  
- 	return __drm_set_edid_firmware_path(val);
- }
+-	if (adv->type == ADV7533)
+-		ret = adv7533_attach_dsi(adv);
+-
+ 	if (adv->i2c_main->irq)
+ 		regmap_write(adv->regmap, ADV7511_REG_INT_ENABLE(0),
+ 			     ADV7511_INT0_HPD);
+@@ -1222,8 +1219,17 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	drm_bridge_add(&adv7511->bridge);
+ 
+ 	adv7511_audio_init(dev, adv7511);
++
++	if (adv7511->type == ADV7533) {
++		ret = adv7533_attach_dsi(adv7511);
++		if (ret)
++			goto err_remove_bridge;
++	}
++
+ 	return 0;
+ 
++err_remove_bridge:
++	drm_bridge_remove(&adv7511->bridge);
+ err_unregister_cec:
+ 	i2c_unregister_device(adv7511->i2c_cec);
+ 	if (adv7511->cec_clk)
 -- 
 2.20.1
 
