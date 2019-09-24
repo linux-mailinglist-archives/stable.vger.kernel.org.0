@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA89DBCE70
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01EC2BCE73
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441560AbfIXQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45424 "EHLO mail.kernel.org"
+        id S2436575AbfIXQwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405125AbfIXQvz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:51:55 -0400
+        id S2441568AbfIXQv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:51:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 209DD21D80;
-        Tue, 24 Sep 2019 16:51:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B7AB217D9;
+        Tue, 24 Sep 2019 16:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343915;
-        bh=Rx6N0Sztt597jJ0U1M8H59Tn/bYkHwhyjGXmagEO2vU=;
+        s=default; t=1569343918;
+        bh=ij+mSy5wxHV3v0dddhDXZrbmJdwcKRgW8kPo4Yms1JE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRwBLW6VBb1dVvz6GVff5X5UaQJ2Wc4k+NLwaGtYyZ0niNHKFe9rMCrvR67Rz3+8X
-         hUIyGeQKqa0RSYr6MZLTGTVOX+jh1B5eUufBwU++ewn8CO3qP8wOi1CMajN6596zRm
-         n7Q7oL0aCccBmyzWZY352qWLieCgdekFcoUMyQ28=
+        b=T+pIcQfFd8ytJB8mmRmYcUpu3B5P9fFQQxGysxIt3ytJ40wKRk+xd07BWGPwJyhQY
+         7IRL8PbCHy6N3Z+b4+BTRWsp4oat7aYY235TY2ZhdtV7MESP3IET502ifu1NZRaHm9
+         zkBKuuudFYW2nEW5vgyQyzdxyn/btHFICGalf6tA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/19] pinctrl: tegra: Fix write barrier placement in pmx_writel
-Date:   Tue, 24 Sep 2019 12:51:23 -0400
-Message-Id: <20190924165130.28625-12-sashal@kernel.org>
+Cc:     hexin <hexin.op@gmail.com>, hexin <hexin15@baidu.com>,
+        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/19] vfio_pci: Restore original state on release
+Date:   Tue, 24 Sep 2019 12:51:24 -0400
+Message-Id: <20190924165130.28625-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924165130.28625-1-sashal@kernel.org>
 References: <20190924165130.28625-1-sashal@kernel.org>
@@ -46,42 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: hexin <hexin.op@gmail.com>
 
-[ Upstream commit c2cf351eba2ff6002ce8eb178452219d2521e38e ]
+[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
 
-pmx_writel uses writel which inserts write barrier before the
-register write.
+vfio_pci_enable() saves the device's initial configuration information
+with the intent that it is restored in vfio_pci_disable().  However,
+the commit referenced in Fixes: below replaced the call to
+__pci_reset_function_locked(), which is not wrapped in a state save
+and restore, with pci_try_reset_function(), which overwrites the
+restored device state with the current state before applying it to the
+device.  Reinstate use of __pci_reset_function_locked() to return to
+the desired behavior.
 
-This patch has fix to replace writel with writel_relaxed followed
-by a readback and memory barrier to ensure write operation is
-completed for successful pinctrl change.
-
-Acked-by: Thierry Reding <treding@nvidia.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Link: https://lore.kernel.org/r/1565984527-5272-2-git-send-email-skomatineni@nvidia.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
+Signed-off-by: hexin <hexin15@baidu.com>
+Signed-off-by: Liu Qi <liuqi16@baidu.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/tegra/pinctrl-tegra.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/tegra/pinctrl-tegra.c b/drivers/pinctrl/tegra/pinctrl-tegra.c
-index 277622b4b6fb9..1d9f63e954c71 100644
---- a/drivers/pinctrl/tegra/pinctrl-tegra.c
-+++ b/drivers/pinctrl/tegra/pinctrl-tegra.c
-@@ -52,7 +52,9 @@ static inline u32 pmx_readl(struct tegra_pmx *pmx, u32 bank, u32 reg)
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index f9a75df2d22d1..a1a712d18e028 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -356,11 +356,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
  
- static inline void pmx_writel(struct tegra_pmx *pmx, u32 val, u32 bank, u32 reg)
- {
--	writel(val, pmx->regs[bank] + reg);
-+	writel_relaxed(val, pmx->regs[bank] + reg);
-+	/* make sure pinmux register write completed */
-+	pmx_readl(pmx, bank, reg);
- }
+ 	/*
+-	 * Try to reset the device.  The success of this is dependent on
+-	 * being able to lock the device, which is not always possible.
++	 * Try to get the locks ourselves to prevent a deadlock. The
++	 * success of this is dependent on being able to lock the device,
++	 * which is not always possible.
++	 * We can not use the "try" reset interface here, which will
++	 * overwrite the previously restored configuration information.
+ 	 */
+-	if (vdev->reset_works && !pci_try_reset_function(pdev))
+-		vdev->needs_reset = false;
++	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
++		if (device_trylock(&pdev->dev)) {
++			if (!__pci_reset_function_locked(pdev))
++				vdev->needs_reset = false;
++			device_unlock(&pdev->dev);
++		}
++		pci_cfg_access_unlock(pdev);
++	}
  
- static int tegra_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
+ 	pci_restore_state(pdev);
+ out:
 -- 
 2.20.1
 
