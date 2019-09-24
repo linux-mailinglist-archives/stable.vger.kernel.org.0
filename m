@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E30BCD50
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D15AABCD54
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409933AbfIXQo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34400 "EHLO mail.kernel.org"
+        id S2409911AbfIXQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409911AbfIXQo6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:44:58 -0400
+        id S2633210AbfIXQpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:45:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C21A621783;
-        Tue, 24 Sep 2019 16:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46F7220872;
+        Tue, 24 Sep 2019 16:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343497;
-        bh=PWhTwKba2ZSNQzRTJqTmC99Bkw2ToZ0yxWIRCb0nwZY=;
+        s=default; t=1569343504;
+        bh=eSh8T2nSPy8y2TgRE1CffHRlokwH0nJvPtRMTdfQcbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fj8W8+PQ2yv3VqaJ0FUs/bLEQbPNd0EsFh0Hs8J42j9JLBH63qcLVuuPO5R7Mjz0
-         6O56794Z9mXV6ioV9NvjxuY3hlkq3ixnQkHXJTx5eLm4VSKb1th2Gwip7RXqBkdmfY
-         VVRr1YvNg+WGl02jDrNdOrUrRR9F5zX+NESgKjyc=
+        b=jqd6KE8Q9UAs0U3q/QXICXIdV9Xg1i+YVkSZQ49R7ajC8JSIm5jtUIYpQLgVfGN8U
+         /+ADa+WoFp0HEq4LXZx1/ibX0nDTq5uToj74OkKA6noc4nho+1Cs2ukhxovBJZ4wjf
+         hHsgdO7iWDjIVta9v35csCJdXIFFripL7ncLGmOg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Otto Meier <gf435@gmx.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 72/87] pinctrl: meson-gxbb: Fix wrong pinning definition for uart_c
-Date:   Tue, 24 Sep 2019 12:41:28 -0400
-Message-Id: <20190924164144.25591-72-sashal@kernel.org>
+Cc:     Bibby Hsieh <bibby.hsieh@mediatek.com>, CK Hu <ck.hu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 73/87] mailbox: mediatek: cmdq: clear the event in cmdq initial flow
+Date:   Tue, 24 Sep 2019 12:41:29 -0400
+Message-Id: <20190924164144.25591-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -44,61 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Otto Meier <gf435@gmx.net>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit cb0438e4436085d89706b5ccfce4d5da531253de ]
+[ Upstream commit 6058f11870b8e6d4f5cc7b591097c00bf69a000d ]
 
-Hi i tried to use the uart_C of the the odroid-c2.
+GCE hardware stored event information in own internal sysram,
+if the initial value in those sysram is not zero value
+it will cause a situation that gce can wait the event immediately
+after client ask gce to wait event but not really trigger the
+corresponding hardware.
 
-I enabled it in the dts file. During boot it crashed when the
-the sdcard slot is addressed.
+In order to make sure that the wait event function is
+exactly correct, we need to clear the sysram value in
+cmdq initial flow.
 
-After long search in the net i found this:
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
 
-https://forum.odroid.com/viewtopic.php?f=139&t=25371&p=194370&hilit=uart_C#p177856
-
-After changing the pin definitions accordingly erverything works.
-Uart_c is functioning and sdcard ist working.
-
-Fixes: 6db0f3a8a04e46 ("pinctrl: amlogic: gxbb: add more UART pins")
-Signed-off-by: Otto Meier <gf435@gmx.net>
-Link: https://lore.kernel.org/r/1cc32a18-464d-5531-7a1c-084390e2ecb1@gmx.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/meson/pinctrl-meson-gxbb.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/mailbox/mtk-cmdq-mailbox.c       | 5 +++++
+ include/linux/mailbox/mtk-cmdq-mailbox.h | 3 +++
+ include/linux/soc/mediatek/mtk-cmdq.h    | 3 ---
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/meson/pinctrl-meson-gxbb.c b/drivers/pinctrl/meson/pinctrl-meson-gxbb.c
-index 6c640837073ef..5bfa56f3847ef 100644
---- a/drivers/pinctrl/meson/pinctrl-meson-gxbb.c
-+++ b/drivers/pinctrl/meson/pinctrl-meson-gxbb.c
-@@ -192,8 +192,8 @@ static const unsigned int uart_rts_b_pins[]	= { GPIODV_27 };
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index 00d5219094e5d..48bba49139523 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -22,6 +22,7 @@
+ #define CMDQ_NUM_CMD(t)			(t->cmd_buf_size / CMDQ_INST_SIZE)
  
- static const unsigned int uart_tx_c_pins[]	= { GPIOY_13 };
- static const unsigned int uart_rx_c_pins[]	= { GPIOY_14 };
--static const unsigned int uart_cts_c_pins[]	= { GPIOX_11 };
--static const unsigned int uart_rts_c_pins[]	= { GPIOX_12 };
-+static const unsigned int uart_cts_c_pins[]	= { GPIOY_11 };
-+static const unsigned int uart_rts_c_pins[]	= { GPIOY_12 };
+ #define CMDQ_CURR_IRQ_STATUS		0x10
++#define CMDQ_SYNC_TOKEN_UPDATE		0x68
+ #define CMDQ_THR_SLOT_CYCLES		0x30
+ #define CMDQ_THR_BASE			0x100
+ #define CMDQ_THR_SIZE			0x80
+@@ -104,8 +105,12 @@ static void cmdq_thread_resume(struct cmdq_thread *thread)
  
- static const unsigned int i2c_sck_a_pins[]	= { GPIODV_25 };
- static const unsigned int i2c_sda_a_pins[]	= { GPIODV_24 };
-@@ -439,10 +439,10 @@ static struct meson_pmx_group meson_gxbb_periphs_groups[] = {
- 	GROUP(pwm_f_x,		3,	18),
+ static void cmdq_init(struct cmdq *cmdq)
+ {
++	int i;
++
+ 	WARN_ON(clk_enable(cmdq->clock) < 0);
+ 	writel(CMDQ_THR_ACTIVE_SLOT_CYCLES, cmdq->base + CMDQ_THR_SLOT_CYCLES);
++	for (i = 0; i <= CMDQ_MAX_EVENT; i++)
++		writel(i, cmdq->base + CMDQ_SYNC_TOKEN_UPDATE);
+ 	clk_disable(cmdq->clock);
+ }
  
- 	/* Bank Y */
--	GROUP(uart_cts_c,	1,	19),
--	GROUP(uart_rts_c,	1,	18),
--	GROUP(uart_tx_c,	1,	17),
--	GROUP(uart_rx_c,	1,	16),
-+	GROUP(uart_cts_c,	1,	17),
-+	GROUP(uart_rts_c,	1,	16),
-+	GROUP(uart_tx_c,	1,	19),
-+	GROUP(uart_rx_c,	1,	18),
- 	GROUP(pwm_a_y,		1,	21),
- 	GROUP(pwm_f_y,		1,	20),
- 	GROUP(i2s_out_ch23_y,	1,	5),
+diff --git a/include/linux/mailbox/mtk-cmdq-mailbox.h b/include/linux/mailbox/mtk-cmdq-mailbox.h
+index ccb73422c2fa2..e6f54ef6698b1 100644
+--- a/include/linux/mailbox/mtk-cmdq-mailbox.h
++++ b/include/linux/mailbox/mtk-cmdq-mailbox.h
+@@ -20,6 +20,9 @@
+ #define CMDQ_WFE_WAIT			BIT(15)
+ #define CMDQ_WFE_WAIT_VALUE		0x1
+ 
++/** cmdq event maximum */
++#define CMDQ_MAX_EVENT			0x3ff
++
+ /*
+  * CMDQ_CODE_MASK:
+  *   set write mask
+diff --git a/include/linux/soc/mediatek/mtk-cmdq.h b/include/linux/soc/mediatek/mtk-cmdq.h
+index 54ade13a9b157..4e8899972db4d 100644
+--- a/include/linux/soc/mediatek/mtk-cmdq.h
++++ b/include/linux/soc/mediatek/mtk-cmdq.h
+@@ -13,9 +13,6 @@
+ 
+ #define CMDQ_NO_TIMEOUT		0xffffffffu
+ 
+-/** cmdq event maximum */
+-#define CMDQ_MAX_EVENT				0x3ff
+-
+ struct cmdq_pkt;
+ 
+ struct cmdq_client {
 -- 
 2.20.1
 
