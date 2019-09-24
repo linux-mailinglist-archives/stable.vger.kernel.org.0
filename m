@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95496BCF48
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F2EBCF44
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731124AbfIXQyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S2410923AbfIXQyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441631AbfIXQwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:52:17 -0400
+        id S2410878AbfIXQwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:52:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF233217D9;
-        Tue, 24 Sep 2019 16:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52620222C2;
+        Tue, 24 Sep 2019 16:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343937;
-        bh=kLpdyiyaKSkUkZH7ucq8Vfr+n9PdgsA9ejhy5q8h7sA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZhlMhWi5DRpUkZx2gw2YCuntEkBFmq6i23mgMmjImaRzm1TJeEScNOaSpn7DR+5HB
-         3C91kL6eq6DAy3RszKtrsSIjOBYaQG9Dfs4Yy9TAJ90l4v+MGGtRA8HztJXGFkQUT5
-         VSJ2JBZhFvy6Gm55heRkGeYtOnOBjGpztA5wlFVM=
+        s=default; t=1569343938;
+        bh=wykaysPxuwQ0fYQrbjSrqse1BzOP7BsJuJ3GBhpQirg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=upbGk47vWe4TMcyYewDNTGY5BxBvYqwaiNFEko27K8hlXVlLfT1RTJXAmlWjFlgzV
+         3IYM7UtoxXgzOm5Dhn+StILs6xwH1hra8P29GzWxEbz6YF4cKaSNvCYYFc9+HIq0cm
+         axSpa0UzfvKzpUViszfBi0e7hVpnV0IQZuobrwuY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marko Kohtala <marko.kohtala@okoko.fi>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 01/14] video: ssd1307fb: Start page range at page_offset
-Date:   Tue, 24 Sep 2019 12:51:59 -0400
-Message-Id: <20190924165214.28857-1-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 02/14] gpu: drm: radeon: Fix a possible null-pointer dereference in radeon_connector_set_property()
+Date:   Tue, 24 Sep 2019 12:52:00 -0400
+Message-Id: <20190924165214.28857-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190924165214.28857-1-sashal@kernel.org>
+References: <20190924165214.28857-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,42 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marko Kohtala <marko.kohtala@okoko.fi>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit dd9782834dd9dde3624ff1acea8859f3d3e792d4 ]
+[ Upstream commit f3eb9b8f67bc28783eddc142ad805ebdc53d6339 ]
 
-The page_offset was only applied to the end of the page range. This caused
-the display updates to cause a scrolling effect on the display because the
-amount of data written to the display did not match the range display
-expected.
+In radeon_connector_set_property(), there is an if statement on line 743
+to check whether connector->encoder is NULL:
+    if (connector->encoder)
 
-Fixes: 301bc0675b67 ("video: ssd1307fb: Make use of horizontal addressing mode")
-Signed-off-by: Marko Kohtala <marko.kohtala@okoko.fi>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Michal Vokáč <michal.vokac@ysoft.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618074111.9309-4-marko.kohtala@okoko.fi
+When connector->encoder is NULL, it is used on line 755:
+    if (connector->encoder->crtc)
+
+Thus, a possible null-pointer dereference may occur.
+
+To fix this bug, connector->encoder is checked before being used.
+
+This bug is found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/ssd1307fb.c | 2 +-
+ drivers/gpu/drm/radeon/radeon_connectors.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index fa3480815cdb6..88e0763edcc72 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -421,7 +421,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index c6bf378534f83..bebcef2ce6b88 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -758,7 +758,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
  
--	ret = ssd1307fb_write_cmd(par->client, 0x0);
-+	ret = ssd1307fb_write_cmd(par->client, par->page_offset);
- 	if (ret < 0)
- 		return ret;
+ 		radeon_encoder->output_csc = val;
  
+-		if (connector->encoder->crtc) {
++		if (connector->encoder && connector->encoder->crtc) {
+ 			struct drm_crtc *crtc  = connector->encoder->crtc;
+ 			const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+ 			struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
 -- 
 2.20.1
 
