@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3231BCE00
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77F80BCE0F
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404310AbfIXQsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:48:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39670 "EHLO mail.kernel.org"
+        id S2410502AbfIXQs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410432AbfIXQsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:48:06 -0400
+        id S2405771AbfIXQs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:48:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 165AD20673;
-        Tue, 24 Sep 2019 16:48:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17CF420673;
+        Tue, 24 Sep 2019 16:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343685;
-        bh=7n+wym7xP2UaLFtaocy+zLj89/hGGwRuD0CgKErsl84=;
+        s=default; t=1569343704;
+        bh=VuxlzBzhQeFjKHVvyyE52Ljx9pPrF9R8j1sj9Gw04SM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjKKPRBMDJDIQ1LgFCpBLnIKMn/1nLTeBgy5d24qgahmCYJtU3FN11RNkKIfzuaFh
-         CwD2beSGcSOF/oak9G8LwwZqwTi3DqTj6qX1cGHosBFOvBithLXKC7V7JMfzrggG2Q
-         8A66moH2UNK1Q7bbosB/NFYEfWH9cXh+1ErQtO5Y=
+        b=Ux0qtR1PaP9GPAzLpgwbWurZ5oAy/6We91QP1meKxSwlVzO+N1LY8v31NzMtV7/sp
+         WRlO+zQdMY0sz1FjH14Jk5yf3P7xHqISyNFnvQ9/dHEU9PWdnf6/bIAZsUdsfR1vcL
+         BZ6v6KPB+Na0c3onqlKa1mxRQwPlv+ABIs7ZWc4w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.2 55/70] powerpc/pseries: correctly track irq state in default idle
-Date:   Tue, 24 Sep 2019 12:45:34 -0400
-Message-Id: <20190924164549.27058-55-sashal@kernel.org>
+Cc:     Peng Fan <peng.fan@nxp.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 60/70] clk: imx: pll14xx: avoid glitch when set rate
+Date:   Tue, 24 Sep 2019 12:45:39 -0400
+Message-Id: <20190924164549.27058-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -43,57 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 92c94dfb69e350471473fd3075c74bc68150879e ]
+[ Upstream commit dee1bc9c23cd41fe32549c0adbe6cb57cab02282 ]
 
-prep_irq_for_idle() is intended to be called before entering
-H_CEDE (and it is used by the pseries cpuidle driver). However the
-default pseries idle routine does not call it, leading to mismanaged
-lazy irq state when the cpuidle driver isn't in use. Manifestations of
-this include:
+According to PLL1443XA and PLL1416X spec,
+"When BYPASS is 0 and RESETB is changed from 0 to 1, FOUT starts to
+output unstable clock until lock time passes. PLL1416X/PLL1443XA may
+generate a glitch at FOUT."
 
-* Dropped IPIs in the time immediately after a cpu comes
-  online (before it has installed the cpuidle handler), making the
-  online operation block indefinitely waiting for the new cpu to
-  respond.
+So set BYPASS when RESETB is changed from 0 to 1 to avoid glitch.
+In the end of set rate, BYPASS will be cleared.
 
-* Hitting this WARN_ON in arch_local_irq_restore():
-	/*
-	 * We should already be hard disabled here. We had bugs
-	 * where that wasn't the case so let's dbl check it and
-	 * warn if we are wrong. Only do that when IRQ tracing
-	 * is enabled as mfmsr() can be costly.
-	 */
-	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
-		__hard_irq_disable();
+When prepare clock, also need to take care to avoid glitch. So
+we also follow Spec to set BYPASS before RESETB changed from 0 to 1.
+And add a check if the RESETB is already 0, directly return 0;
 
-Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
-result.
-
-Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
+Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lkml.kernel.org/r/1568043491-20680-2-git-send-email-peng.fan@nxp.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/imx/clk-pll14xx.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 8fa012a65a712..cc682759feae8 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -344,6 +344,9 @@ static void pseries_lpar_idle(void)
- 	 * low power mode by ceding processor to hypervisor
- 	 */
+diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
+index b7213023b238f..656f48b002dd3 100644
+--- a/drivers/clk/imx/clk-pll14xx.c
++++ b/drivers/clk/imx/clk-pll14xx.c
+@@ -191,6 +191,10 @@ static int clk_pll1416x_set_rate(struct clk_hw *hw, unsigned long drate,
+ 	tmp &= ~RST_MASK;
+ 	writel_relaxed(tmp, pll->base);
  
-+	if (!prep_irq_for_idle())
-+		return;
++	/* Enable BYPASS */
++	tmp |= BYPASS_MASK;
++	writel(tmp, pll->base);
 +
- 	/* Indicate to hypervisor that we are idle. */
- 	get_lppaca()->idle = 1;
+ 	div_val = (rate->mdiv << MDIV_SHIFT) | (rate->pdiv << PDIV_SHIFT) |
+ 		(rate->sdiv << SDIV_SHIFT);
+ 	writel_relaxed(div_val, pll->base + 0x4);
+@@ -250,6 +254,10 @@ static int clk_pll1443x_set_rate(struct clk_hw *hw, unsigned long drate,
+ 	tmp &= ~RST_MASK;
+ 	writel_relaxed(tmp, pll->base);
  
++	/* Enable BYPASS */
++	tmp |= BYPASS_MASK;
++	writel_relaxed(tmp, pll->base);
++
+ 	div_val = (rate->mdiv << MDIV_SHIFT) | (rate->pdiv << PDIV_SHIFT) |
+ 		(rate->sdiv << SDIV_SHIFT);
+ 	writel_relaxed(div_val, pll->base + 0x4);
+@@ -283,16 +291,28 @@ static int clk_pll14xx_prepare(struct clk_hw *hw)
+ {
+ 	struct clk_pll14xx *pll = to_clk_pll14xx(hw);
+ 	u32 val;
++	int ret;
+ 
+ 	/*
+ 	 * RESETB = 1 from 0, PLL starts its normal
+ 	 * operation after lock time
+ 	 */
+ 	val = readl_relaxed(pll->base + GNRL_CTL);
++	if (val & RST_MASK)
++		return 0;
++	val |= BYPASS_MASK;
++	writel_relaxed(val, pll->base + GNRL_CTL);
+ 	val |= RST_MASK;
+ 	writel_relaxed(val, pll->base + GNRL_CTL);
+ 
+-	return clk_pll14xx_wait_lock(pll);
++	ret = clk_pll14xx_wait_lock(pll);
++	if (ret)
++		return ret;
++
++	val &= ~BYPASS_MASK;
++	writel_relaxed(val, pll->base + GNRL_CTL);
++
++	return 0;
+ }
+ 
+ static int clk_pll14xx_is_prepared(struct clk_hw *hw)
 -- 
 2.20.1
 
