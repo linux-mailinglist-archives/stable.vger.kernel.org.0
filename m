@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47125BCEB1
+	by mail.lfdr.de (Postfix) with ESMTP id B51CCBCEB2
 	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410181AbfIXQq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S2410230AbfIXQq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410093AbfIXQqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:46:55 -0400
+        id S2410186AbfIXQq5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:46:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B100421906;
-        Tue, 24 Sep 2019 16:46:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DF78217D9;
+        Tue, 24 Sep 2019 16:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343614;
-        bh=8RTrsxUPtiQV8fJJjQUR1PBXXKK19v9iUcCIGPA+was=;
+        s=default; t=1569343617;
+        bh=BwH26qSMRuY2Or+00XXUuLtnuq5qjhb/CwLUsd9ahE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjwmaz+s1EUtmFpZmrOMXaNSM6UC/mxE3xVcN7buvVZiAUUIAxPeHf9hNXm7OgTTs
-         bWz6X32QY3IFVfkq/pdk3IsP0xlbTv8Kf1O6+XW+O3kUdI7drQEGJR32iGU7ycvRb+
-         WbXSIveolWJJZIUprNLw4+Ps4NdS6PO7AmqDR/Jg=
+        b=k0+45jSxHbxq3Q/CXduOUK0J1RUXZzZVU09YIiFac1L91g88X/6w9dM3vgzXFweHI
+         EIYX8GnR9aMxITsZUloe3LXxr+ShgIrA8yXBDJWKVB11bGKV5SRHpIvRx/zjCLev64
+         XcuS2iUeWOEB+urponEi0iFswZyJVSrEMTpKo11Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ahzo <Ahzo@tutanota.com>, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 26/70] drm/amd/powerplay/smu7: enforce minimal VBITimeout (v2)
-Date:   Tue, 24 Sep 2019 12:45:05 -0400
-Message-Id: <20190924164549.27058-26-sashal@kernel.org>
+Cc:     Stephen Boyd <sboyd@kernel.org>, Guo Zeng <Guo.Zeng@csr.com>,
+        Barry Song <Baohua.Song@csr.com>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 28/70] clk: sirf: Don't reference clk_init_data after registration
+Date:   Tue, 24 Sep 2019 12:45:07 -0400
+Message-Id: <20190924164549.27058-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -44,39 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahzo <Ahzo@tutanota.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-[ Upstream commit f659bb6dae58c113805f92822e4c16ddd3156b79 ]
+[ Upstream commit af55dadfbce35b4f4c6247244ce3e44b2e242b84 ]
 
-This fixes screen corruption/flickering on 75 Hz displays.
+A future patch is going to change semantics of clk_register() so that
+clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
+referencing this member here so that we don't run into NULL pointer
+exceptions.
 
-v2: make print statement debug only (Alex)
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=102646
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Ahzo <Ahzo@tutanota.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Guo Zeng <Guo.Zeng@csr.com>
+Cc: Barry Song <Baohua.Song@csr.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20190731193517.237136-6-sboyd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/clk/sirf/clk-common.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-index 048757e8f4949..d1919d343cce4 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-@@ -4064,6 +4064,11 @@ static int smu7_program_display_gap(struct pp_hwmgr *hwmgr)
+diff --git a/drivers/clk/sirf/clk-common.c b/drivers/clk/sirf/clk-common.c
+index ad7951b6b285e..dcf4e25a02168 100644
+--- a/drivers/clk/sirf/clk-common.c
++++ b/drivers/clk/sirf/clk-common.c
+@@ -297,9 +297,10 @@ static u8 dmn_clk_get_parent(struct clk_hw *hw)
+ {
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
  
- 	data->frame_time_x2 = frame_time_in_us * 2 / 100;
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return 4;
  
-+	if (data->frame_time_x2 < 280) {
-+		pr_debug("%s: enforce minimal VBITimeout: %d -> 280\n", __func__, data->frame_time_x2);
-+		data->frame_time_x2 = 280;
-+	}
-+
- 	display_gap2 = pre_vbi_time_in_us * (ref_clock / 100);
+ 	WARN_ON((cfg & (BIT(3) - 1)) > 4);
+@@ -311,9 +312,10 @@ static int dmn_clk_set_parent(struct clk_hw *hw, u8 parent)
+ {
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
  
- 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCG_DISPLAY_GAP_CNTL2, display_gap2);
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return -EINVAL;
+ 
+ 	cfg &= ~(BIT(3) - 1);
+@@ -353,7 +355,8 @@ static long dmn_clk_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = *parent_rate;
+ 	ratio = fin / rate;
+@@ -375,7 +378,8 @@ static int dmn_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold, reg;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = parent_rate;
+ 	ratio = fin / rate;
 -- 
 2.20.1
 
