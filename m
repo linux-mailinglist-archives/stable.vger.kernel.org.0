@@ -2,164 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8313BCC65
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D30BCC71
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441456AbfIXQZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:25:29 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:44449 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725963AbfIXQZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 12:25:28 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 9366052D;
-        Tue, 24 Sep 2019 12:25:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 24 Sep 2019 12:25:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=6qqrID0O1UemIFj3no7x8G/XgOH
-        ncrLHa/bLupLvoSA=; b=cjbc9evmKqxSwvmsiFb82T13g8jgZsb1sp2VRq3z4TZ
-        8GXu9JHiZvPGCsxnD3HQccZ+F3/T2WMLV6IdRDsRiOy4d2/7nhllItC2lDyQ2pLc
-        keyZC6/HZiZotFAt688k4hL16xjDjp3Pp5c/jNDSGNWfR4i2TppzMd0VWByQ9pJY
-        q0LJcRVR1OHpZ3zg7BwEZIrZ+1YeKks2AENV6xQHS9MMBoNiRPemK9vFJO57rs6T
-        EMURPNrDvAE7YnKOy+0puqezTOrVWl1mlcYkKNveJqEIdDpMTMdR2B0ee83areEP
-        zwb3J7I3pF9HIZckmNNAQZ8iMur37XiEASk2ER0nFTA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6qqrID
-        0O1UemIFj3no7x8G/XgOHncrLHa/bLupLvoSA=; b=mrraf13GYOS6WZYuf+zi8s
-        Dw1nWcPfTE98SgrIZUiPnKLx49BLjRVxGv2n2ZIvXspUJWzIu87rwDw2kkui4stA
-        zS3ydl9ao2C12jNn8b7X3oTDfS3EtzdlIKstP7Tv02epAbayb+VLpPDgIK5kLbKh
-        cBt85n57s5issdY1UAW98pK8S0UEUacf3MK5fn6xwFeJuvQ/kXa7aaDvXD6Adhxp
-        f0piL4vUd85TSAeUD6AyrhXfzKMwuiHGVsrfmSViRxiLG/noKwc1jUSmP+FHB+rm
-        rg8SjpMTbqrTmPv2ekqRPvPt7N7P2PxYttV8iZ/s/RKOdEk7KI2S8vce5lunDG/Q
-        ==
-X-ME-Sender: <xms:d0OKXVigPnq7W9E3jsdQhBCi-W02533tlwCHR_kwIIuAi2Ic7-35SQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrfedtgdellecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjfgesthdtre
-    dttdervdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
-    necuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:d0OKXW4q9_h0Ks_oQm61r_bf6O6_r2vANnHb9mSQQ4wQ6tppO67P9Q>
-    <xmx:d0OKXU2aUKBuC5DGmAg9F7DQN3E-0CaLRltQbwhns96sqnvRu4yQ3w>
-    <xmx:d0OKXZsQbzMXQb1c1Twu1k1GoUSCsuE3nh8XolG9mc_jRAy31lWo7Q>
-    <xmx:d0OKXdwrWSsBalKS0fKeQ-5Xb7R2Sy1HfM8nMazZ40YmzMTnU0jwhw>
+        id S2441463AbfIXQ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:28:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52196 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2437807AbfIXQ2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:28:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B3FA6D6005B;
-        Tue, 24 Sep 2019 12:25:26 -0400 (EDT)
-Date:   Tue, 24 Sep 2019 18:25:23 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pavel Shilovsky <piastryyy@gmail.com>
-Cc:     Stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] CIFS: fix deadlock in cached root handling
-Message-ID: <20190924162523.GB793386@kroah.com>
-References: <20190920210803.4405-1-pshilov@microsoft.com>
- <CAKywueSieSuPBkSbaLkzFq7i=BDCjQidz9i09NeY5WmGRa9Q=g@mail.gmail.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61B6E2146E;
+        Tue, 24 Sep 2019 16:28:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569342511;
+        bh=gpnIkcA2Sc4+vF8ZGFxu6NtNfcgnFR+Awsv13jfaTLY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CoSdAujrxScdh4N76DBI3QuutuxZBIlC0vvwsuP3FZwA6JuZIP7PHKXNzv8/0bsyn
+         3HZx0QY+N3K5vusP92TNIW4gT4G/fNUMRpdcrinIYfzz5+ouGNmJCXKalJb66E8ngM
+         JeexCx4lh/+OSR5IZM5FcIQ3xuu9cdGm7GPX4RPo=
+Date:   Tue, 24 Sep 2019 18:28:29 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     David Miller <davem@davemloft.net>
+Cc:     saeedm@mellanox.com, netdev@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19-stable 0/7] mlx5 checksum fixes for 4.19
+Message-ID: <20190924162829.GC793386@kroah.com>
+References: <20190923123917.16817-1-saeedm@mellanox.com>
+ <20190923.175106.799482393811705736.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKywueSieSuPBkSbaLkzFq7i=BDCjQidz9i09NeY5WmGRa9Q=g@mail.gmail.com>
+In-Reply-To: <20190923.175106.799482393811705736.davem@davemloft.net>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 20, 2019 at 02:23:00PM -0700, Pavel Shilovsky wrote:
-> Fri, Sep 20, 2019 at 14:08, Pavel Shilovsky <piastryyy@gmail.com>:
-> >
-> > From: Aurelien Aptel <aaptel@suse.com>
-> >
-> > Commit 7e5a70ad88b1 ("CIFS: fix deadlock in cached root handling") upstream.
-> >
-> > Prevent deadlock between open_shroot() and
-> > cifs_mark_open_files_invalid() by releasing the lock before entering
-> > SMB2_open, taking it again after and checking if we still need to use
-> > the result.
-> >
-> > CC: <stable@vger.kernel.org> # v4.19+
-> > Link: https://lore.kernel.org/linux-cifs/684ed01c-cbca-2716-bc28-b0a59a0f8521@prodrive-technologies.com/T/#u
-> > Fixes: 3d4ef9a15343 ("smb3: fix redundant opens on root")
-> > Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-> > Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-> > ---
-> >  fs/cifs/smb2ops.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 44 insertions(+)
-> >
-> > diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-> > index cc9e846a3865..094be406cde4 100644
-> > --- a/fs/cifs/smb2ops.c
-> > +++ b/fs/cifs/smb2ops.c
-> > @@ -553,7 +553,50 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
-> >         oparams.fid = pfid;
-> >         oparams.reconnect = false;
-> >
-> > +       /*
-> > +        * We do not hold the lock for the open because in case
-> > +        * SMB2_open needs to reconnect, it will end up calling
-> > +        * cifs_mark_open_files_invalid() which takes the lock again
-> > +        * thus causing a deadlock
-> > +        */
-> > +       mutex_unlock(&tcon->crfid.fid_mutex);
-> >         rc = SMB2_open(xid, &oparams, &srch_path, &oplock, NULL, NULL, NULL);
-> > +       mutex_lock(&tcon->crfid.fid_mutex);
-> > +
-> > +       /*
-> > +        * Now we need to check again as the cached root might have
-> > +        * been successfully re-opened from a concurrent process
-> > +        */
-> > +
-> > +       if (tcon->crfid.is_valid) {
-> > +               /* work was already done */
-> > +
-> > +               /* stash fids for close() later */
-> > +               struct cifs_fid fid = {
-> > +                       .persistent_fid = pfid->persistent_fid,
-> > +                       .volatile_fid = pfid->volatile_fid,
-> > +               };
-> > +
-> > +               /*
-> > +                * Caller expects this func to set pfid to a valid
-> > +                * cached root, so we copy the existing one and get a
-> > +                * reference
-> > +                */
-> > +               memcpy(pfid, tcon->crfid.fid, sizeof(*pfid));
-> > +               kref_get(&tcon->crfid.refcount);
-> > +
-> > +               mutex_unlock(&tcon->crfid.fid_mutex);
-> > +
-> > +               if (rc == 0) {
-> > +                       /* close extra handle outside of critical section */
-> > +                       SMB2_close(xid, tcon, fid.persistent_fid,
-> > +                                  fid.volatile_fid);
-> > +               }
-> > +               return 0;
-> > +       }
-> > +
-> > +       /* Cached root is still invalid, continue normaly */
-> > +
-> >         if (rc == 0) {
-> >                 memcpy(tcon->crfid.fid, pfid, sizeof(struct cifs_fid));
-> >                 tcon->crfid.tcon = tcon;
-> > @@ -561,6 +604,7 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
-> >                 kref_init(&tcon->crfid.refcount);
-> >                 kref_get(&tcon->crfid.refcount);
-> >         }
-> > +
-> >         mutex_unlock(&tcon->crfid.fid_mutex);
-> >         return rc;
-> >  }
-> > --
-> > 2.17.1
-> >
+On Mon, Sep 23, 2019 at 05:51:06PM +0200, David Miller wrote:
+> From: Saeed Mahameed <saeedm@mellanox.com>
+> Date: Mon, 23 Sep 2019 12:39:57 +0000
 > 
-> Forgot to mention that kernels 5.1.y and above already have the
-> appropriate patch. This is a backport for 4.19.
+> > This series includes some upstream patches aimed to fix multiple checksum
+> > issues with mlx5 driver in 4.19-stable kernels.
+> > 
+> > Since the patches didn't apply cleanly to 4.19 back when they were
+> > submitted for the first time around 5.1 kernel release to the netdev
+> > mailing list, i couldn't mark them for -stable 4.19, so now as the issue
+> > is being reported on 4.19 LTS kernels, I had to do the backporting and
+> > this submission myself.
+> >  
+> > This series required some dependency patches and some manual touches
+> > to apply some of them.
+> > 
+> > Please apply to 4.19-stable and let me know if there's any problem.
+> > I tested and the patches apply cleanly and work on top of: v4.19.75
+> 
+> FWIW, I'm fine with this.
 
-Now queued up, thanks!
+Thanks for the review, will go queue these up now...
 
 greg k-h
