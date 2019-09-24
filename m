@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A1CBCE26
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6C1BCE2B
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410284AbfIXQtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41424 "EHLO mail.kernel.org"
+        id S2410310AbfIXQt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:49:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404651AbfIXQtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:49:12 -0400
+        id S2410111AbfIXQt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:49:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A91D217D9;
-        Tue, 24 Sep 2019 16:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC4A820673;
+        Tue, 24 Sep 2019 16:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343752;
-        bh=8+Q61p1nO2TGy2yeA+CnpmaJNs2+Q8eCuUlUoLVx6KI=;
+        s=default; t=1569343765;
+        bh=QupKWh7rUQgJ8ktqyzVPLYtsgPGbrWH0XN6BQUvicMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tr+5eZWl2dgoe5V/rQ5UlhgU4C+iTmxbeOoC8dsPL0nxSLuuHBTXpW0WNLq2xB8l0
-         a5uHE9+j3elWcQ8iGrrLTba+FwyN+Q+dKfeYVrE1srVZonZZQR5HKwrgS5dbQ4otKJ
-         LJAEz+XbPD1hdnLVwMaH09Cw4K/jcg+NMKKZ71G0=
+        b=F4wVI3AaDucl4NR8cjoi5hkgDdQyw742kq5KHvSwSj8mcVDA47uzCOWaolbr20KEg
+         u0ZHFwA/pOBOQGTbpFwnaJWifk3YxoDQJ9u57+m8n/zwdWnVqRR5Z9v2fU/pvkvU33
+         xtPZd4yVpPQjefsTf4oW2x3WhATBFOnsY8crncOM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Koo <Anthony.Koo@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 15/50] drm/amd/display: fix issue where 252-255 values are clipped
-Date:   Tue, 24 Sep 2019 12:48:12 -0400
-Message-Id: <20190924164847.27780-15-sashal@kernel.org>
+Cc:     Stephen Boyd <sboyd@kernel.org>, Guo Zeng <Guo.Zeng@csr.com>,
+        Barry Song <Baohua.Song@csr.com>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 20/50] clk: sirf: Don't reference clk_init_data after registration
+Date:   Tue, 24 Sep 2019 12:48:17 -0400
+Message-Id: <20190924164847.27780-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -45,44 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-[ Upstream commit 1cbcfc975164f397b449efb17f59d81a703090db ]
+[ Upstream commit af55dadfbce35b4f4c6247244ce3e44b2e242b84 ]
 
-[Why]
-When endpoint is at the boundary of a region, such as at 2^0=1
-we find that the last segment has a sharp slope and some points
-are clipped at the top.
+A future patch is going to change semantics of clk_register() so that
+clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
+referencing this member here so that we don't run into NULL pointer
+exceptions.
 
-[How]
-If end point is 1, which is exactly at the 2^0 region boundary, we
-need to program an additional region beyond this point.
-
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Guo Zeng <Guo.Zeng@csr.com>
+Cc: Barry Song <Baohua.Song@csr.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20190731193517.237136-6-sboyd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/sirf/clk-common.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-index 5d95a997fd9f9..f8904f73f57b0 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-@@ -292,9 +292,10 @@ bool cm_helper_translate_curve_to_hw_format(
- 		seg_distr[7] = 4;
- 		seg_distr[8] = 4;
- 		seg_distr[9] = 4;
-+		seg_distr[10] = 1;
+diff --git a/drivers/clk/sirf/clk-common.c b/drivers/clk/sirf/clk-common.c
+index d8f9efa5129ad..25351d6a55ba2 100644
+--- a/drivers/clk/sirf/clk-common.c
++++ b/drivers/clk/sirf/clk-common.c
+@@ -298,9 +298,10 @@ static u8 dmn_clk_get_parent(struct clk_hw *hw)
+ {
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
  
- 		region_start = -10;
--		region_end = 0;
-+		region_end = 1;
- 	}
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return 4;
  
- 	for (i = region_end - region_start; i < MAX_REGIONS_NUMBER ; i++)
+ 	WARN_ON((cfg & (BIT(3) - 1)) > 4);
+@@ -312,9 +313,10 @@ static int dmn_clk_set_parent(struct clk_hw *hw, u8 parent)
+ {
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
+ 
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return -EINVAL;
+ 
+ 	cfg &= ~(BIT(3) - 1);
+@@ -354,7 +356,8 @@ static long dmn_clk_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = *parent_rate;
+ 	ratio = fin / rate;
+@@ -376,7 +379,8 @@ static int dmn_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold, reg;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = parent_rate;
+ 	ratio = fin / rate;
 -- 
 2.20.1
 
