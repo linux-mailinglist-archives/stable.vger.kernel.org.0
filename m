@@ -2,137 +2,275 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3C4BD571
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 01:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183A2BD582
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 01:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411193AbfIXXXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 19:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S2442102AbfIXXh4 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 24 Sep 2019 19:37:56 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:42654 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411192AbfIXXXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 19:23:04 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2442101AbfIXXhz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 19:37:55 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 251422146E;
-        Tue, 24 Sep 2019 23:23:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569367383;
-        bh=IZOGoiThbQyHcoidP4y3x1AvffuwXT6fGxUOub48fVo=;
-        h=Date:From:To:Subject:From;
-        b=VtHUxfOCcusMaypO3VaBFL0USUsx16USQHH73wl5YS5ukqax/r0VivxTo6xOXXHea
-         I91fNRS0TtbzP2LtzPKK51Skfv0V282APAS/Ect8/OtRf3ZPM3Q1ZYYFYTY+kqbF0R
-         SUdIXN//qEP1zNUXz13Tl/ICzsdO9Rfz1a8OHcxc=
-Date:   Tue, 24 Sep 2019 16:23:02 -0700
-From:   akpm@linux-foundation.org
-To:     axboe@kernel.dk, clm@fb.com, jack@suse.cz,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org
-Subject:  +
- writeback-fix-use-after-free-in-finish_writeback_work.patch added to -mm
- tree
-Message-ID: <20190924232302.Y87slbHE_%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mx1.redhat.com (Postfix) with ESMTPS id 570F9356CE
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 23:37:55 +0000 (UTC)
+Received: from [172.54.128.67] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C304F5B69A;
+        Tue, 24 Sep 2019 23:37:50 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.2-rc1-e326a3d.cki
+ (stable)
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.7ABE258C7B.UZNH3U8G6Q@redhat.com>
+X-Gitlab-Pipeline-ID: 184613
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/184613
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Tue, 24 Sep 2019 23:37:55 +0000 (UTC)
+Date:   Tue, 24 Sep 2019 19:37:55 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: writeback: fix use-after-free in finish_writeback_work()
-has been added to the -mm tree.  Its filename is
-     writeback-fix-use-after-free-in-finish_writeback_work.patch
+Hello,
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/writeback-fix-use-after-free-in-finish_writeback_work.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/writeback-fix-use-after-free-in-finish_writeback_work.patch
+We ran automated tests on a recent commit from this kernel tree:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: e326a3d431f9 - Linux 5.3.2-rc1
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+The results of these automated tests are provided below.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-------------------------------------------------------
-From: Tejun Heo <tj@kernel.org>
-Subject: writeback: fix use-after-free in finish_writeback_work()
+All kernel binaries, config files, and logs are available for download here:
 
-finish_writeback_work() reads @done->waitq after decrementing @done->cnt. 
-However, once @done->cnt reaches zero, @done may be freed (from stack) at
-any moment and @done->waitq can contain something unrelated by the time
-finish_writeback_work() tries to read it.  This led to the following
-crash.
+  https://artifacts.cki-project.org/pipelines/184613
 
-  "BUG: kernel NULL pointer dereference, address: 0000000000000002"
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0002) - not-present page
-  PGD 0 P4D 0
-  Oops: 0002 [#1] SMP DEBUG_PAGEALLOC
-  CPU: 40 PID: 555153 Comm: kworker/u98:50 Kdump: loaded Not tainted
-  ...
-  Workqueue: writeback wb_workfn (flush-btrfs-1)
-  RIP: 0010:_raw_spin_lock_irqsave+0x10/0x30
-  Code: 48 89 d8 5b c3 e8 50 db 6b ff eb f4 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 9c 5b fa 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 05 48 89 d8 5b c3 89 c6 e8 fe ca 6b ff eb f2 66 90
-  RSP: 0018:ffffc90049b27d98 EFLAGS: 00010046
-  RAX: 0000000000000000 RBX: 0000000000000246 RCX: 0000000000000000
-  RDX: 0000000000000001 RSI: 0000000000000003 RDI: 0000000000000002
-  RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
-  R10: ffff889fff407600 R11: ffff88ba9395d740 R12: 000000000000e300
-  R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
-  FS:  0000000000000000(0000) GS:ffff88bfdfa00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000002 CR3: 0000000002409005 CR4: 00000000001606e0
-  Call Trace:
-   __wake_up_common_lock+0x63/0xc0
-   wb_workfn+0xd2/0x3e0
-   process_one_work+0x1f5/0x3f0
-   worker_thread+0x2d/0x3d0
-   kthread+0x111/0x130
-   ret_from_fork+0x1f/0x30
+One or more kernel tests failed:
 
-Fix it by reading and caching @done->waitq before decrementing
-@done->cnt.
+    x86_64:
+      ❌ Boot test
 
-Link: http://lkml.kernel.org/r/20190924010631.GH2233839@devbig004.ftw2.facebook.com
-Fixes: 5b9cce4c7eb069 ("writeback: Generalize and expose wb_completion")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Debugged-by: Chris Mason <clm@fb.com>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Cc: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
 
- fs/fs-writeback.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
---- a/fs/fs-writeback.c~writeback-fix-use-after-free-in-finish_writeback_work
-+++ a/fs/fs-writeback.c
-@@ -164,8 +164,13 @@ static void finish_writeback_work(struct
- 
- 	if (work->auto_free)
- 		kfree(work);
--	if (done && atomic_dec_and_test(&done->cnt))
--		wake_up_all(done->waitq);
-+	if (done) {
-+		wait_queue_head_t *waitq = done->waitq;
-+
-+		/* @done can't be accessed after the following dec */
-+		if (atomic_dec_and_test(&done->cnt))
-+			wake_up_all(waitq);
-+	}
- }
- 
- static void wb_queue_work(struct bdi_writeback *wb,
-_
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-Patches currently in -mm which might be from tj@kernel.org are
+Compile testing
+---------------
 
-writeback-fix-use-after-free-in-finish_writeback_work.patch
+We compiled the kernel for 3 architectures:
 
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ❌ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+  x86_64:
+      Host 1:
+         ❌ Boot test
+         ⚡⚡⚡ xfstests: ext4
+         ⚡⚡⚡ xfstests: xfs
+         ⚡⚡⚡ selinux-policy: serge-testsuite
+         ⚡⚡⚡ lvm thinp sanity
+         ⚡⚡⚡ storage: software RAID testing
+         🚧 ⚡⚡⚡ IOMMU boot test
+         🚧 ⚡⚡⚡ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+      Host 3:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 4:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ⚡⚡⚡ trace: ftrace/tracer
+         🚧 ⚡⚡⚡ Networking route_func: local
+         🚧 ⚡⚡⚡ Networking route_func: forward
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
