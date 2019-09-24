@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2321ABCE91
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD6EBCE90
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441760AbfIXQxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46528 "EHLO mail.kernel.org"
+        id S1731972AbfIXQxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441745AbfIXQwn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:52:43 -0400
+        id S2441760AbfIXQwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:52:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1CB92054F;
-        Tue, 24 Sep 2019 16:52:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4849721D80;
+        Tue, 24 Sep 2019 16:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343963;
-        bh=iPEH/I3u7cWV6fjDgTXUXyANlZ47x/PQT5QxbCG2sac=;
+        s=default; t=1569343966;
+        bh=JWnS6eCa3vkdo1jTO8fCCNR5Mxxo+4+dhhhRNHODc+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8NatXUsqdsFpiPWg1mHkn8Kdz08Uzt1VzKnkZqY2TKVlFPcL7ErkrWywM7+R5mdS
-         2W2NQxHkZL4PS2lC+ylytlq8FHLSEkKY3DsuUwXq7v6QLwh6jMZRNeyZRXhOZleq7s
-         aPdPmS5pedgwmdJ07F4hkuOnIP9Fmzzod++Wb4U0=
+        b=Q1S1b0b0lxxT9ARluQhG7x+yfSdDdcl1s0Zf5wah9Nw1IMWbjoCDEr3NNtqDw6eQX
+         77ng/vUflUvWTuLYrE+b1X0YfktFlneIty2gmApklG/Fef4pqeuTsg//1lq5Km8l3V
+         svkkTbV5BRhtqJHew3ZwqSQPPP3kCmpgpsP0simI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 12/14] powerpc/64s/exception: machine check use correct cfar for late handler
-Date:   Tue, 24 Sep 2019 12:52:10 -0400
-Message-Id: <20190924165214.28857-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 13/14] powerpc/pseries: correctly track irq state in default idle
+Date:   Tue, 24 Sep 2019 12:52:11 -0400
+Message-Id: <20190924165214.28857-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924165214.28857-1-sashal@kernel.org>
 References: <20190924165214.28857-1-sashal@kernel.org>
@@ -43,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
+[ Upstream commit 92c94dfb69e350471473fd3075c74bc68150879e ]
 
-Bare metal machine checks run an "early" handler in real mode before
-running the main handler which reports the event.
+prep_irq_for_idle() is intended to be called before entering
+H_CEDE (and it is used by the pseries cpuidle driver). However the
+default pseries idle routine does not call it, leading to mismanaged
+lazy irq state when the cpuidle driver isn't in use. Manifestations of
+this include:
 
-The main handler runs exactly as a normal interrupt handler, after the
-"windup" which sets registers back as they were at interrupt entry.
-CFAR does not get restored by the windup code, so that will be wrong
-when the handler is run.
+* Dropped IPIs in the time immediately after a cpu comes
+  online (before it has installed the cpuidle handler), making the
+  online operation block indefinitely waiting for the new cpu to
+  respond.
 
-Restore the CFAR to the saved value before running the late handler.
+* Hitting this WARN_ON in arch_local_irq_restore():
+	/*
+	 * We should already be hard disabled here. We had bugs
+	 * where that wasn't the case so let's dbl check it and
+	 * warn if we are wrong. Only do that when IRQ tracing
+	 * is enabled as mfmsr() can be costly.
+	 */
+	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
+		__hard_irq_disable();
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
+result.
+
+Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/platforms/pseries/setup.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index a44f1755dc4bf..536718ed033fc 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1465,6 +1465,10 @@ machine_check_handle_early:
- 	RFI_TO_USER_OR_KERNEL
- 9:
- 	/* Deliver the machine check to host kernel in V mode. */
-+BEGIN_FTR_SECTION
-+	ld	r10,ORIG_GPR3(r1)
-+	mtspr	SPRN_CFAR,r10
-+END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
- 	MACHINE_CHECK_HANDLER_WINDUP
- 	b	machine_check_pSeries
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 9cc976ff7fecc..88fcf6a95fa67 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -369,6 +369,9 @@ static void pseries_lpar_idle(void)
+ 	 * low power mode by cedeing processor to hypervisor
+ 	 */
+ 
++	if (!prep_irq_for_idle())
++		return;
++
+ 	/* Indicate to hypervisor that we are idle. */
+ 	get_lppaca()->idle = 1;
  
 -- 
 2.20.1
