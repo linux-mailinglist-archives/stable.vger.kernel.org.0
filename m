@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DE9BCFCD
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A650BCFEE
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633119AbfIXQoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:44:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33014 "EHLO mail.kernel.org"
+        id S2633117AbfIXQoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:44:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633117AbfIXQoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:44:06 -0400
+        id S2390485AbfIXQoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:44:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D39920872;
-        Tue, 24 Sep 2019 16:44:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2857320872;
+        Tue, 24 Sep 2019 16:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343446;
-        bh=C/gvul4pQ/MCqY9bjfcyrpOzvUH27jWmlmQUkP3PWqs=;
+        s=default; t=1569343451;
+        bh=c7zXr1QtC0TThWpH9wNCX5riuVJELFhrzHMZGgtypPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdGLwFzNXQ2G87DkOXve0gdPugSt2HOdYKcaFlLA3y4iGS7RI3wt+yNpuhUrk4cKU
-         mjNyjpiLfn2LLoyirEY5iOm7rcVYRKEj7O2d31qVjAxPv1EzFmvNMg3WkdteOGWiQu
-         bGxioaEAZsDQcqR7mrGcEwg5dCpF0TOqcVQuzmhI=
+        b=QCtP2ZkeJkep2VHzmlKV+RjZJFyOmIWHFS2tQZ6x8w/XmdbxUaFsKOackClOP95P9
+         7tsycYBEuzoLZ5wKTs5fD0t0ltIsrbbz6LAoLHGszKcigj5pa3LDIRxSxutmCNtx2w
+         dZTwRAR7ff2hk6CRtdOpK/TpcAcgzpnL6/23jVl4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     hexin <hexin.op@gmail.com>, hexin <hexin15@baidu.com>,
-        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 52/87] vfio_pci: Restore original state on release
-Date:   Tue, 24 Sep 2019 12:41:08 -0400
-Message-Id: <20190924164144.25591-52-sashal@kernel.org>
+Cc:     Xiaojie Yuan <xiaojie.yuan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 53/87] drm/amdgpu/sdma5: fix number of sdma5 trap irq types for navi1x
+Date:   Tue, 24 Sep 2019 12:41:09 -0400
+Message-Id: <20190924164144.25591-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -44,58 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hexin <hexin.op@gmail.com>
+From: Xiaojie Yuan <xiaojie.yuan@amd.com>
 
-[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
+[ Upstream commit 9e48495017342c5d445b25eedd86d6fd884a6496 ]
 
-vfio_pci_enable() saves the device's initial configuration information
-with the intent that it is restored in vfio_pci_disable().  However,
-the commit referenced in Fixes: below replaced the call to
-__pci_reset_function_locked(), which is not wrapped in a state save
-and restore, with pci_try_reset_function(), which overwrites the
-restored device state with the current state before applying it to the
-device.  Reinstate use of __pci_reset_function_locked() to return to
-the desired behavior.
+v2: set num_types based on num_instances
 
-Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
-Signed-off-by: hexin <hexin15@baidu.com>
-Signed-off-by: Liu Qi <liuqi16@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+navi1x has 2 sdma engines but commit
+"e7b58d03b678 drm/amdgpu: reorganize sdma v4 code to support more instances"
+changes the max number of sdma irq types (AMDGPU_SDMA_IRQ_LAST) from 2 to 8
+which causes amdgpu_irq_gpu_reset_resume_helper() to recover irq of sdma
+engines with following logic:
+
+(enable irq for sdma0) * 1 time
+(enable irq for sdma1) * 1 time
+(disable irq for sdma1) * 6 times
+
+as a result, after gpu reset, interrupt for sdma1 is lost.
+
+Signed-off-by: Xiaojie Yuan <xiaojie.yuan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 703948c9fbe10..02206162eaa9e 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -438,11 +438,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+index 3747c3f1f0cc8..15c371fac469e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+@@ -1583,7 +1583,8 @@ static const struct amdgpu_irq_src_funcs sdma_v5_0_illegal_inst_irq_funcs = {
  
- 	/*
--	 * Try to reset the device.  The success of this is dependent on
--	 * being able to lock the device, which is not always possible.
-+	 * Try to get the locks ourselves to prevent a deadlock. The
-+	 * success of this is dependent on being able to lock the device,
-+	 * which is not always possible.
-+	 * We can not use the "try" reset interface here, which will
-+	 * overwrite the previously restored configuration information.
- 	 */
--	if (vdev->reset_works && !pci_try_reset_function(pdev))
--		vdev->needs_reset = false;
-+	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
-+		if (device_trylock(&pdev->dev)) {
-+			if (!__pci_reset_function_locked(pdev))
-+				vdev->needs_reset = false;
-+			device_unlock(&pdev->dev);
-+		}
-+		pci_cfg_access_unlock(pdev);
-+	}
- 
- 	pci_restore_state(pdev);
- out:
+ static void sdma_v5_0_set_irq_funcs(struct amdgpu_device *adev)
+ {
+-	adev->sdma.trap_irq.num_types = AMDGPU_SDMA_IRQ_LAST;
++	adev->sdma.trap_irq.num_types = AMDGPU_SDMA_IRQ_INSTANCE0 +
++					adev->sdma.num_instances;
+ 	adev->sdma.trap_irq.funcs = &sdma_v5_0_trap_irq_funcs;
+ 	adev->sdma.illegal_inst_irq.funcs = &sdma_v5_0_illegal_inst_irq_funcs;
+ }
 -- 
 2.20.1
 
