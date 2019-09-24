@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBACBBCEDB
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A427FBCEDD
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410518AbfIXQsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
+        id S2410530AbfIXQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:48:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410512AbfIXQsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:48:32 -0400
+        id S2410512AbfIXQsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:48:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FD2121971;
-        Tue, 24 Sep 2019 16:48:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2063920673;
+        Tue, 24 Sep 2019 16:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343712;
-        bh=2w4J4EU+vkn9b/OZxn8whPVPfDR0AZ6c1hgoTTdibcM=;
+        s=default; t=1569343715;
+        bh=7DJSolCrQCCDsfBhpfU09oTsWICrh81yjcangCFS3fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MckfMuyK1T+OOoJm58AK6bNGd7WHzLzvJwXCd7TB0jLw5EEcdADvc2YbAh0qAKOkN
-         ATEw99YD8F3LA2k5Abmr2QyCMAN2MFpeA1oJkjKtFtLwjjALNBsbLNhUjc3tx2R/CK
-         K291nWbGHkiqWQVDW5DYygZZaOt/TAnodmvOZak8=
+        b=yz7mqWyPLlhTLd63y/szmpxHk5Q4Td/BEdpVdqbl9N9fgaSeYcWPilef+YA5YvYK7
+         RTeP9BUAaMX1owfYBh4ER31zebSn6kKhw6FPJJH2vup4sg91ddbt0hAMR7Xof2BSE9
+         MYxQbk7Foe29BMfFOactHrIN4tnHsnN38ABUvpRE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 62/70] clk: Make clk_bulk_get_all() return a valid "id"
-Date:   Tue, 24 Sep 2019 12:45:41 -0400
-Message-Id: <20190924164549.27058-62-sashal@kernel.org>
+Cc:     Ganesh Goudar <ganeshgr@linux.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.2 63/70] powerpc: dump kernel log before carrying out fadump or kdump
+Date:   Tue, 24 Sep 2019 12:45:42 -0400
+Message-Id: <20190924164549.27058-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -45,51 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Ganesh Goudar <ganeshgr@linux.ibm.com>
 
-[ Upstream commit 7f81c2426587b34bf73e643c1a6d080dfa14cf8a ]
+[ Upstream commit e7ca44ed3ba77fc26cf32650bb71584896662474 ]
 
-The adreno driver expects the "id" field of the returned clk_bulk_data
-to be filled in with strings from the clock-names property.
+Since commit 4388c9b3a6ee ("powerpc: Do not send system reset request
+through the oops path"), pstore dmesg file is not updated when dump is
+triggered from HMC. This commit modified system reset (sreset) handler
+to invoke fadump or kdump (if configured), without pushing dmesg to
+pstore. This leaves pstore to have old dmesg data which won't be much
+of a help if kdump fails to capture the dump. This patch fixes that by
+calling kmsg_dump() before heading to fadump ot kdump.
 
-But due to the use of kmalloc_array() in of_clk_bulk_get_all() it
-receives a list of bogus pointers instead.
-
-Zero-initialize the "id" field and attempt to populate with strings from
-the clock-names property to resolve both these issues.
-
-Fixes: 616e45df7c4a ("clk: add new APIs to operate on all available clocks")
-Fixes: 8e3e791d20d2 ("drm/msm: Use generic bulk clock function")
-Cc: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lkml.kernel.org/r/20190913024029.2640-1-bjorn.andersson@linaro.org
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 4388c9b3a6ee ("powerpc: Do not send system reset request through the oops path")
+Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190904075949.15607-1-ganeshgr@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-bulk.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/traps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/clk-bulk.c b/drivers/clk/clk-bulk.c
-index 06499568cf076..db5096fa9a170 100644
---- a/drivers/clk/clk-bulk.c
-+++ b/drivers/clk/clk-bulk.c
-@@ -18,10 +18,13 @@ static int __must_check of_clk_bulk_get(struct device_node *np, int num_clks,
- 	int ret;
- 	int i;
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 47df30982de1b..c8ea3a253b815 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -472,6 +472,7 @@ void system_reset_exception(struct pt_regs *regs)
+ 	if (debugger(regs))
+ 		goto out;
  
--	for (i = 0; i < num_clks; i++)
-+	for (i = 0; i < num_clks; i++) {
-+		clks[i].id = NULL;
- 		clks[i].clk = NULL;
-+	}
- 
- 	for (i = 0; i < num_clks; i++) {
-+		of_property_read_string_index(np, "clock-names", i, &clks[i].id);
- 		clks[i].clk = of_clk_get(np, i);
- 		if (IS_ERR(clks[i].clk)) {
- 			ret = PTR_ERR(clks[i].clk);
++	kmsg_dump(KMSG_DUMP_OOPS);
+ 	/*
+ 	 * A system reset is a request to dump, so we always send
+ 	 * it through the crashdump code (if fadump or kdump are
 -- 
 2.20.1
 
