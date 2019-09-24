@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FEABCF9F
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A8EBCEAB
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728458AbfIXQ7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:59:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37300 "EHLO mail.kernel.org"
+        id S2633258AbfIXQqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633242AbfIXQqe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:46:34 -0400
+        id S2633250AbfIXQqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:46:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C778D222C0;
-        Tue, 24 Sep 2019 16:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BE1821D82;
+        Tue, 24 Sep 2019 16:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343593;
-        bh=JBhdDSSss2eudgVivo9Q/gm5mgjlec3dT/EGLxmVpb4=;
+        s=default; t=1569343594;
+        bh=onWG5fEy79m+P5MeMD3OfBF+FFwESVPrTUiJrrE519s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzLozAj1dJ3YxoEzkYKX7vldF5UvZrJujea3Q4/ZfMHhhyL6/7cHjpNh3EkyeRUNw
-         MFK5VlY/3S8uqMvc/FjXkAHVvlq56Fzmu1zjdUw0gobcgbe5+LgHOrwHW2kNtvcetm
-         IC4XDqBxAwvJEnToNfNLXE5ROmGg0T418X/gOqaU=
+        b=QO9+BMVEgL9DaDW6HbyOe6wjdZY2+cR3+fdJGdGX6oWguopShA5L53YcFOqgIuGnp
+         Gnqiqttn0eTSPE+lp++QqFy5/C+/IqudOEa5H7dgm3L47IWqQA6N4XCYXGhWb+HMQ6
+         +XkbNGcLl8pXApQutNA8g75kddSR88YTFv6sd8vA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Huckleberry <nhuck@google.com>,
-        clang-built-linux@googlegroups.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Scott Wood <oss@buserror.net>, Stephen Boyd <sboyd@kernel.org>,
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 20/70] clk: qoriq: Fix -Wunused-const-variable
-Date:   Tue, 24 Sep 2019 12:44:59 -0400
-Message-Id: <20190924164549.27058-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 21/70] clk: sunxi-ng: v3s: add missing clock slices for MMC2 module clocks
+Date:   Tue, 24 Sep 2019 12:45:00 -0400
+Message-Id: <20190924164549.27058-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -45,47 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit a95fb581b144b5e73da382eaedb2e32027610597 ]
+[ Upstream commit 720099603d1f62e37b789366d7e89824b009ca28 ]
 
-drivers/clk/clk-qoriq.c:138:38: warning: unused variable
-'p5020_cmux_grp1' [-Wunused-const-variable] static const struct
-clockgen_muxinfo p5020_cmux_grp1
+The MMC2 clock slices are currently not defined in V3s CCU driver, which
+makes MMC2 not working.
 
-drivers/clk/clk-qoriq.c:146:38: warning: unused variable
-'p5020_cmux_grp2' [-Wunused-const-variable] static const struct
-clockgen_muxinfo p5020_cmux_grp2
+Fix this issue.
 
-In the definition of the p5020 chip, the p2041 chip's info was used
-instead.  The p5020 and p2041 chips have different info. This is most
-likely a typo.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/525
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Link: https://lkml.kernel.org/r/20190627220642.78575-1-nhuck@google.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Scott Wood <oss@buserror.net>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d0f11d14b0bc ("clk: sunxi-ng: add support for V3s CCU")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/sunxi-ng/ccu-sun8i-v3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index dd93d3acc67d8..8724ef6c469ab 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -675,7 +675,7 @@ static const struct clockgen_chipinfo chipinfo[] = {
- 		.guts_compat = "fsl,qoriq-device-config-1.0",
- 		.init_periph = p5020_init_periph,
- 		.cmux_groups = {
--			&p2041_cmux_grp1, &p2041_cmux_grp2
-+			&p5020_cmux_grp1, &p5020_cmux_grp2
- 		},
- 		.cmux_to_group = {
- 			0, 1, -1
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+index cbbf06d42c2c2..408a6750ddda2 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+@@ -493,6 +493,9 @@ static struct clk_hw_onecell_data sun8i_v3s_hw_clks = {
+ 		[CLK_MMC1]		= &mmc1_clk.common.hw,
+ 		[CLK_MMC1_SAMPLE]	= &mmc1_sample_clk.common.hw,
+ 		[CLK_MMC1_OUTPUT]	= &mmc1_output_clk.common.hw,
++		[CLK_MMC2]		= &mmc2_clk.common.hw,
++		[CLK_MMC2_SAMPLE]	= &mmc2_sample_clk.common.hw,
++		[CLK_MMC2_OUTPUT]	= &mmc2_output_clk.common.hw,
+ 		[CLK_CE]		= &ce_clk.common.hw,
+ 		[CLK_SPI0]		= &spi0_clk.common.hw,
+ 		[CLK_USB_PHY0]		= &usb_phy0_clk.common.hw,
 -- 
 2.20.1
 
