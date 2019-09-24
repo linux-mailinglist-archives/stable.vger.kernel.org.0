@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5A9BCD3E
+	by mail.lfdr.de (Postfix) with ESMTP id 7072DBCD3B
 	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389305AbfIXQo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2633172AbfIXQo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Sep 2019 12:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33546 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633165AbfIXQo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2633170AbfIXQo2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Sep 2019 12:44:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A991A217D9;
-        Tue, 24 Sep 2019 16:44:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 003A121783;
+        Tue, 24 Sep 2019 16:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343466;
-        bh=rvdn6CM18sRU3iihANkuQJrrZFTaDeCo9vZzLOAkUgQ=;
+        s=default; t=1569343467;
+        bh=0QVKQtbYTzc53uwo95bKg2rV7mwigxbBZrR2N+aprkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsPbXDRhvX8anlcC1oZrqxIBCIyWiQx03dJ754UwbTa/bDKLvrCIVq52S0cZMERsm
-         Bb4hfKr4t8tsD3KPwLI0DRTZdAS7LLKd/ad8jrzMkYiRACEunXTpfdffLCuz4AZdRs
-         QdHfaT8jt+9RsfQx4d9xiPmJFpj/i+/hpDCtHJR0=
+        b=k6kANdGBLF7IZyE2XaSxhP8zjjK+1sjLAqmbd1HcDHlXCEn41AhMqjMdl6iEaMw1B
+         JU7g4XLUSSHck+K2hoktykfKVJfmDo+llHhr+lKcYbpaByoGv5Pj3xP5i6wGg1YTan
+         zw+YYH8TQwy/X3j8auhgJp4Q2GgNfhjB8ejGaUBw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charlene Liu <charlene.liu@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+Cc:     Kevin Wang <kevin1.wang@amd.com>, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 59/87] drm/amd/display: support spdif
-Date:   Tue, 24 Sep 2019 12:41:15 -0400
-Message-Id: <20190924164144.25591-59-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 60/87] drm/amd/powerpaly: fix navi series custom peak level value error
+Date:   Tue, 24 Sep 2019 12:41:16 -0400
+Message-Id: <20190924164144.25591-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -46,105 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <charlene.liu@amd.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-[ Upstream commit b5a41620bb88efb9fb31a4fa5e652e3d5bead7d4 ]
+[ Upstream commit 706feb26f890e1b8297b5d14975160de361edf4f ]
 
-[Description]
-port spdif fix to staging:
- spdif hardwired to afmt inst 1.
- spdif func pointer
- spdif resource allocation (reserve last audio endpoint for spdif only)
+fix other navi asic set peak performance level error.
+because the navi10_ppt.c will handle navi12 14 asic,
+it will use navi10 peak value to set other asic, it is not correct.
 
-Signed-off-by: Charlene Liu <charlene.liu@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+after patch:
+only navi10 use custom peak value, other asic will used default value.
+
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/core/dc_resource.c   | 17 ++++++++---------
- drivers/gpu/drm/amd/display/dc/dce/dce_audio.c  |  4 ++--
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/powerplay/navi10_ppt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 2ceaab4fb5deb..68db60e4caf32 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -265,12 +265,10 @@ bool resource_construct(
- 				DC_ERR("DC: failed to create audio!\n");
- 				return false;
- 			}
--
- 			if (!aud->funcs->endpoint_valid(aud)) {
- 				aud->funcs->destroy(&aud);
- 				break;
- 			}
--
- 			pool->audios[i] = aud;
- 			pool->audio_count++;
- 		}
-@@ -1659,24 +1657,25 @@ static struct audio *find_first_free_audio(
- 		const struct resource_pool *pool,
- 		enum engine_id id)
+diff --git a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+index b81c7e715dc94..9aaf2deff6e94 100644
+--- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+@@ -1627,6 +1627,10 @@ static int navi10_set_peak_clock_by_device(struct smu_context *smu)
+ static int navi10_set_performance_level(struct smu_context *smu, enum amd_dpm_forced_level level)
  {
--	int i;
--	for (i = 0; i < pool->audio_count; i++) {
-+	int i, available_audio_count;
+ 	int ret = 0;
++	struct amdgpu_device *adev = smu->adev;
 +
-+	available_audio_count = pool->audio_count;
-+
-+	for (i = 0; i < available_audio_count; i++) {
- 		if ((res_ctx->is_audio_acquired[i] == false) && (res_ctx->is_stream_enc_acquired[i] == true)) {
- 			/*we have enough audio endpoint, find the matching inst*/
- 			if (id != i)
- 				continue;
--
- 			return pool->audios[i];
- 		}
- 	}
++	if (adev->asic_type != CHIP_NAVI10)
++		return -EINVAL;
  
--    /* use engine id to find free audio */
--	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
-+	/* use engine id to find free audio */
-+	if ((id < available_audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
- 		return pool->audios[id];
- 	}
--
- 	/*not found the matching one, first come first serve*/
--	for (i = 0; i < pool->audio_count; i++) {
-+	for (i = 0; i < available_audio_count; i++) {
- 		if (res_ctx->is_audio_acquired[i] == false) {
- 			return pool->audios[i];
- 		}
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-index 4a10a5d22c90b..5de9623bdf66b 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-@@ -613,6 +613,8 @@ void dce_aud_az_configure(
- 
- 	AZ_REG_WRITE(AZALIA_F0_CODEC_PIN_CONTROL_SINK_INFO1,
- 		value);
-+	DC_LOG_HW_AUDIO("\n\tAUDIO:az_configure: index: %u data, 0x%x, displayName %s: \n",
-+		audio->inst, value, audio_info->display_name);
- 
- 	/*
- 	*write the port ID:
-@@ -922,7 +924,6 @@ static const struct audio_funcs funcs = {
- 	.az_configure = dce_aud_az_configure,
- 	.destroy = dce_aud_destroy,
- };
--
- void dce_aud_destroy(struct audio **audio)
- {
- 	struct dce_audio *aud = DCE_AUD(*audio);
-@@ -953,7 +954,6 @@ struct audio *dce_audio_create(
- 	audio->regs = reg;
- 	audio->shifts = shifts;
- 	audio->masks = masks;
--
- 	return &audio->base;
- }
- 
+ 	switch (level) {
+ 	case AMD_DPM_FORCED_LEVEL_PROFILE_PEAK:
 -- 
 2.20.1
 
