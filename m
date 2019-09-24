@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 760F2BCE64
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE954BCE7E
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393239AbfIXQvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:51:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S2441633AbfIXQwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410868AbfIXQvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:51:19 -0400
+        id S2410902AbfIXQvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:51:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E0FF21850;
-        Tue, 24 Sep 2019 16:51:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C53121D6C;
+        Tue, 24 Sep 2019 16:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343878;
-        bh=z9UtvtB1+9egErQtQisaNM4KXdtr1rv4rpMpXyL4+Ko=;
+        s=default; t=1569343883;
+        bh=9SHFMyTZ1b8A1lNB7zidcHr+FW0PPNHHLbMg322wdgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cocEoBzWiQFBpf+IEuiCgz0pjQc7lVRM6mLk+pZRE54LtBOjLoYh9fK69PV2oo23r
-         nmYcIXWoEBZOVVd0grYPn9KIErM7LwFQspcUe4YLPH9cFg8BfYuLrNDip4kZWRhlOS
-         GwSPJdmmxqzKZkEh66rUDwB/O0RYpW6R1daZEjuA=
+        b=n3v7pfrD5a48NmC4st/5laIo+dPH7ktktjQaP51l0N34yufjut64u25qV/icSAs8a
+         1IJLIrDfMhRw8j+OrHfbAzWu3LgPq22BxzWVZn+k67G9M2L8+07g+DpTd6hdJDTf3N
+         WIABtuBCqWPketzi+VsUkoV3I5o+04caSfRIA2Go=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 23/28] powerpc/64s/exception: machine check use correct cfar for late handler
-Date:   Tue, 24 Sep 2019 12:50:26 -0400
-Message-Id: <20190924165031.28292-23-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 25/28] arm64: fix unreachable code issue with cmpxchg
+Date:   Tue, 24 Sep 2019 12:50:28 -0400
+Message-Id: <20190924165031.28292-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924165031.28292-1-sashal@kernel.org>
 References: <20190924165031.28292-1-sashal@kernel.org>
@@ -43,43 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
+[ Upstream commit 920fdab7b3ce98c14c840261e364f490f3679a62 ]
 
-Bare metal machine checks run an "early" handler in real mode before
-running the main handler which reports the event.
+On arm64 build with clang, sometimes the __cmpxchg_mb is not inlined
+when CONFIG_OPTIMIZE_INLINING is set.
+Clang then fails a compile-time assertion, because it cannot tell at
+compile time what the size of the argument is:
 
-The main handler runs exactly as a normal interrupt handler, after the
-"windup" which sets registers back as they were at interrupt entry.
-CFAR does not get restored by the windup code, so that will be wrong
-when the handler is run.
+mm/memcontrol.o: In function `__cmpxchg_mb':
+memcontrol.c:(.text+0x1a4c): undefined reference to `__compiletime_assert_175'
+memcontrol.c:(.text+0x1a4c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__compiletime_assert_175'
 
-Restore the CFAR to the saved value before running the late handler.
+Mark all of the cmpxchg() style functions as __always_inline to
+ensure that the compiler can see the result.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/648
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Tested-by: Andrew Murray <andrew.murray@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/include/asm/cmpxchg.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 43cde6c602795..cdc53fd905977 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -464,6 +464,10 @@ EXC_COMMON_BEGIN(machine_check_handle_early)
- 	RFI_TO_USER_OR_KERNEL
- 9:
- 	/* Deliver the machine check to host kernel in V mode. */
-+BEGIN_FTR_SECTION
-+	ld	r10,ORIG_GPR3(r1)
-+	mtspr	SPRN_CFAR,r10
-+END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
- 	MACHINE_CHECK_HANDLER_WINDUP
- 	b	machine_check_pSeries
+diff --git a/arch/arm64/include/asm/cmpxchg.h b/arch/arm64/include/asm/cmpxchg.h
+index 0f2e1ab5e1666..9b2e2e2e728ae 100644
+--- a/arch/arm64/include/asm/cmpxchg.h
++++ b/arch/arm64/include/asm/cmpxchg.h
+@@ -73,7 +73,7 @@ __XCHG_CASE( ,  ,  mb_8, dmb ish, nop,  , a, l, "memory")
+ #undef __XCHG_CASE
  
+ #define __XCHG_GEN(sfx)							\
+-static inline unsigned long __xchg##sfx(unsigned long x,		\
++static __always_inline  unsigned long __xchg##sfx(unsigned long x,	\
+ 					volatile void *ptr,		\
+ 					int size)			\
+ {									\
+@@ -115,7 +115,7 @@ __XCHG_GEN(_mb)
+ #define xchg(...)		__xchg_wrapper( _mb, __VA_ARGS__)
+ 
+ #define __CMPXCHG_GEN(sfx)						\
+-static inline unsigned long __cmpxchg##sfx(volatile void *ptr,		\
++static __always_inline unsigned long __cmpxchg##sfx(volatile void *ptr,	\
+ 					   unsigned long old,		\
+ 					   unsigned long new,		\
+ 					   int size)			\
+@@ -248,7 +248,7 @@ __CMPWAIT_CASE( ,  , 8);
+ #undef __CMPWAIT_CASE
+ 
+ #define __CMPWAIT_GEN(sfx)						\
+-static inline void __cmpwait##sfx(volatile void *ptr,			\
++static __always_inline void __cmpwait##sfx(volatile void *ptr,		\
+ 				  unsigned long val,			\
+ 				  int size)				\
+ {									\
 -- 
 2.20.1
 
