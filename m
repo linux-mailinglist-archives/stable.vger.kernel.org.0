@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32139BCD7B
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12797BCD7E
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404430AbfIXQqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36406 "EHLO mail.kernel.org"
+        id S1728270AbfIXQqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404298AbfIXQqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:46:05 -0400
+        id S2410091AbfIXQqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:46:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD7E421783;
-        Tue, 24 Sep 2019 16:46:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D92217D9;
+        Tue, 24 Sep 2019 16:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343564;
-        bh=J1zur49gsnGltUJR6USs8KZFsOWEQRy5Y0FIf5lKH6Q=;
+        s=default; t=1569343568;
+        bh=n8/k4oZ0PLenkMBuev9BeTxhWUwwjV3am2iTIBr4tZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oU2xfg2y2cB/gUBPjb9KzLFbY5FSnfpj/20O2rdAASQr0PJ8lLJRNLaUFOD8cMWrs
-         pOoxrlPzg9MpNDvNK4KCxPrTKlOm7x4lMCw+IXYEVoPqtnusl1YOgF1INeaqO6zDw8
-         Rw8oDxb2ysVluQVocSY/PZHm9/UEwfJv7wyo0xaU=
+        b=Iqq/nA10fu268/9AR3Eru3AlNgGabVJqFX9d6ZzWSVz5Mbv6ukEEbt0Ef9FxYYVhz
+         GKgWN4nQ+13vkSB8F8a40sDF1IHdSosMSRWhPKqm08IsllT7rf7kW9Ni87YGqT7iRx
+         QYirqzvvNtUdCpNaT7zGNQnnLHRHzXgMldaEuKCY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Koo <anthony.koo@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 07/70] drm/amd/display: add monitor patch to add T7 delay
-Date:   Tue, 24 Sep 2019 12:44:46 -0400
-Message-Id: <20190924164549.27058-7-sashal@kernel.org>
+Cc:     Marko Kohtala <marko.kohtala@okoko.fi>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 08/70] video: ssd1307fb: Start page range at page_offset
+Date:   Tue, 24 Sep 2019 12:44:47 -0400
+Message-Id: <20190924164549.27058-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,62 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <anthony.koo@amd.com>
+From: Marko Kohtala <marko.kohtala@okoko.fi>
 
-[ Upstream commit 88eac241a1fc500ce5274a09ddc4bd5fc2b5adb6 ]
+[ Upstream commit dd9782834dd9dde3624ff1acea8859f3d3e792d4 ]
 
-[Why]
-Specifically to one panel,
-TCON is able to accept active video signal quickly, but
-the Source Driver requires 2-3 frames of extra time.
+The page_offset was only applied to the end of the page range. This caused
+the display updates to cause a scrolling effect on the display because the
+amount of data written to the display did not match the range display
+expected.
 
-It is a Panel issue since TCON needs to take care of
-all Sink requirements including Source Driver. But in
-this case it does not.
-
-Customer is asking to add fixed T7 delay as panel
-workaround.
-
-[How]
-Add monitor specific patch to add T7 delay
-
-Signed-off-by: Anthony Koo <anthony.koo@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 301bc0675b67 ("video: ssd1307fb: Make use of horizontal addressing mode")
+Signed-off-by: Marko Kohtala <marko.kohtala@okoko.fi>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Michal Vokáč <michal.vokac@ysoft.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190618074111.9309-4-marko.kohtala@okoko.fi
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c | 4 ++++
- drivers/gpu/drm/amd/display/dc/dc_types.h          | 1 +
- 2 files changed, 5 insertions(+)
+ drivers/video/fbdev/ssd1307fb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-index b0dea759cd860..8aecf044e2ae8 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-@@ -154,6 +154,10 @@ bool edp_receiver_ready_T7(struct dc_link *link)
- 			break;
- 		udelay(25); //MAx T7 is 50ms
- 	} while (++tries < 300);
-+
-+	if (link->local_sink->edid_caps.panel_patch.extra_t7_ms > 0)
-+		udelay(link->local_sink->edid_caps.panel_patch.extra_t7_ms * 1000);
-+
- 	return result;
- }
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index 021b727e8b5c4..6afd0d3ae5690 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -432,7 +432,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 	if (ret < 0)
+ 		return ret;
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dc_types.h b/drivers/gpu/drm/amd/display/dc/dc_types.h
-index 6c2a3d9a4c2e7..283082666be51 100644
---- a/drivers/gpu/drm/amd/display/dc/dc_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc_types.h
-@@ -202,6 +202,7 @@ struct dc_panel_patch {
- 	unsigned int dppowerup_delay;
- 	unsigned int extra_t12_ms;
- 	unsigned int extra_delay_backlight_off;
-+	unsigned int extra_t7_ms;
- };
+-	ret = ssd1307fb_write_cmd(par->client, 0x0);
++	ret = ssd1307fb_write_cmd(par->client, par->page_offset);
+ 	if (ret < 0)
+ 		return ret;
  
- struct dc_edid_caps {
 -- 
 2.20.1
 
