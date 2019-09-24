@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75664BCF87
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81EC7BCF69
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392435AbfIXQ6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:58:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42278 "EHLO mail.kernel.org"
+        id S2410116AbfIXQ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410628AbfIXQtt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:49:49 -0400
+        id S2405050AbfIXQty (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:49:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5427221971;
-        Tue, 24 Sep 2019 16:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 869A7217D9;
+        Tue, 24 Sep 2019 16:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343789;
-        bh=5PN5gHuZThoRxTF4pnmnlVuDVJAKrvmI1Q8ep/YnmwI=;
+        s=default; t=1569343793;
+        bh=kAO61HjFeH1doRYmWN6z62Ejk2alckKKZ1JNaT4YbW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WnByi90U/5meoa2sq7WCqETuJH2FBWc0ZiJqyeX+fDiIOth9pupYjVRgPDQbKyoC2
-         f34yCOjIGq5Xfa0tTP/PPg7w0AI9aan+xGsLU5Yr7wSgUoBilExk21Lshv7iJ4zM0U
-         zJhIVAdbNlhpXc/bT7II1a2e+xoawyeZurmwhUJA=
+        b=wiMyStoIMj9JnzqXoFKbcqbL+7fhtDxB+7EKrbf985qw/GrvHutrGwaugMW3FGeYh
+         ecdbn3ZTytwx14fFfNj5eFTNYs0KLNFvtD674vTOloitHwmQQMRAZt6cqh9zKu+FZ6
+         73BbyrcHSsWDZqYQ3x6RyXZ3mRIHi/MomR4QldcM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     hexin <hexin.op@gmail.com>, hexin <hexin15@baidu.com>,
-        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/50] vfio_pci: Restore original state on release
-Date:   Tue, 24 Sep 2019 12:48:27 -0400
-Message-Id: <20190924164847.27780-30-sashal@kernel.org>
+Cc:     Daniel Drake <drake@endlessm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 32/50] pinctrl: amd: disable spurious-firing GPIO IRQs
+Date:   Tue, 24 Sep 2019 12:48:29 -0400
+Message-Id: <20190924164847.27780-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -44,58 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hexin <hexin.op@gmail.com>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
+[ Upstream commit d21b8adbd475dba19ac2086d3306327b4a297418 ]
 
-vfio_pci_enable() saves the device's initial configuration information
-with the intent that it is restored in vfio_pci_disable().  However,
-the commit referenced in Fixes: below replaced the call to
-__pci_reset_function_locked(), which is not wrapped in a state save
-and restore, with pci_try_reset_function(), which overwrites the
-restored device state with the current state before applying it to the
-device.  Reinstate use of __pci_reset_function_locked() to return to
-the desired behavior.
+When cold-booting Asus X434DA, GPIO 7 is found to be already configured
+as an interrupt, and the GPIO level is found to be in a state that
+causes the interrupt to fire.
 
-Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
-Signed-off-by: hexin <hexin15@baidu.com>
-Signed-off-by: Liu Qi <liuqi16@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+As soon as pinctrl-amd probes, this interrupt fires and invokes
+amd_gpio_irq_handler(). The IRQ is acked, but no GPIO-IRQ handler was
+invoked, so the GPIO level being unchanged just causes another interrupt
+to fire again immediately after.
+
+This results in an interrupt storm causing this platform to hang
+during boot, right after pinctrl-amd is probed.
+
+Detect this situation and disable the GPIO interrupt when this happens.
+This enables the affected platform to boot as normal. GPIO 7 actually is
+the I2C touchpad interrupt line, and later on, i2c-multitouch loads and
+re-enables this interrupt when it is ready to handle it.
+
+Instead of this approach, I considered disabling all GPIO interrupts at
+probe time, however that seems a little risky, and I also confirmed that
+Windows does not seem to have this behaviour: the same 41 GPIO IRQs are
+enabled under both Linux and Windows, which is a far larger collection
+than the GPIOs referenced by the DSDT on this platform.
+
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/r/20190814090540.7152-1-drake@endlessm.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 6cf00d9f512b7..a92c2868d9021 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -373,11 +373,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 1425c2874d402..cd7a5d95b499a 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -569,15 +569,25 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
+ 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
+ 				continue;
+ 			irq = irq_find_mapping(gc->irq.domain, irqnr + i);
+-			generic_handle_irq(irq);
++			if (irq != 0)
++				generic_handle_irq(irq);
  
- 	/*
--	 * Try to reset the device.  The success of this is dependent on
--	 * being able to lock the device, which is not always possible.
-+	 * Try to get the locks ourselves to prevent a deadlock. The
-+	 * success of this is dependent on being able to lock the device,
-+	 * which is not always possible.
-+	 * We can not use the "try" reset interface here, which will
-+	 * overwrite the previously restored configuration information.
- 	 */
--	if (vdev->reset_works && !pci_try_reset_function(pdev))
--		vdev->needs_reset = false;
-+	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
-+		if (device_trylock(&pdev->dev)) {
-+			if (!__pci_reset_function_locked(pdev))
-+				vdev->needs_reset = false;
-+			device_unlock(&pdev->dev);
-+		}
-+		pci_cfg_access_unlock(pdev);
-+	}
- 
- 	pci_restore_state(pdev);
- out:
+ 			/* Clear interrupt.
+ 			 * We must read the pin register again, in case the
+ 			 * value was changed while executing
+ 			 * generic_handle_irq() above.
++			 * If we didn't find a mapping for the interrupt,
++			 * disable it in order to avoid a system hang caused
++			 * by an interrupt storm.
+ 			 */
+ 			raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 			regval = readl(regs + i);
++			if (irq == 0) {
++				regval &= ~BIT(INTERRUPT_ENABLE_OFF);
++				dev_dbg(&gpio_dev->pdev->dev,
++					"Disabling spurious GPIO IRQ %d\n",
++					irqnr + i);
++			}
+ 			writel(regval, regs + i);
+ 			raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+ 			ret = IRQ_HANDLED;
 -- 
 2.20.1
 
