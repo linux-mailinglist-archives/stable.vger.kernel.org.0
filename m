@@ -2,142 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A27FBCC14
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8313BCC65
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439162AbfIXQGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:06:37 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50034 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439158AbfIXQGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 12:06:37 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8OFkkXZ104055
-        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 12:06:36 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2v7n6pknye-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 12:06:35 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <maier@linux.ibm.com>;
-        Tue, 24 Sep 2019 17:06:33 +0100
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
-        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Tue, 24 Sep 2019 17:06:32 +0100
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8OG6UaZ21299342
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 Sep 2019 16:06:30 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6865A4204B;
-        Tue, 24 Sep 2019 16:06:30 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 11B6642047;
-        Tue, 24 Sep 2019 16:06:30 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 24 Sep 2019 16:06:30 +0000 (GMT)
-From:   Steffen Maier <maier@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH] zfcp: fix reaction on bit error theshold notification with adapter close
-Date:   Tue, 24 Sep 2019 18:06:16 +0200
-X-Mailer: git-send-email 2.17.1
-X-TM-AS-GCONF: 00
-x-cbid: 19092416-0008-0000-0000-0000031A6E51
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19092416-0009-0000-0000-00004A3902C3
-Message-Id: <20190924160616.15301-1-maier@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-24_06:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1909240147
+        id S2441456AbfIXQZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:25:29 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:44449 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725963AbfIXQZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 12:25:28 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 9366052D;
+        Tue, 24 Sep 2019 12:25:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 24 Sep 2019 12:25:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=6qqrID0O1UemIFj3no7x8G/XgOH
+        ncrLHa/bLupLvoSA=; b=cjbc9evmKqxSwvmsiFb82T13g8jgZsb1sp2VRq3z4TZ
+        8GXu9JHiZvPGCsxnD3HQccZ+F3/T2WMLV6IdRDsRiOy4d2/7nhllItC2lDyQ2pLc
+        keyZC6/HZiZotFAt688k4hL16xjDjp3Pp5c/jNDSGNWfR4i2TppzMd0VWByQ9pJY
+        q0LJcRVR1OHpZ3zg7BwEZIrZ+1YeKks2AENV6xQHS9MMBoNiRPemK9vFJO57rs6T
+        EMURPNrDvAE7YnKOy+0puqezTOrVWl1mlcYkKNveJqEIdDpMTMdR2B0ee83areEP
+        zwb3J7I3pF9HIZckmNNAQZ8iMur37XiEASk2ER0nFTA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6qqrID
+        0O1UemIFj3no7x8G/XgOHncrLHa/bLupLvoSA=; b=mrraf13GYOS6WZYuf+zi8s
+        Dw1nWcPfTE98SgrIZUiPnKLx49BLjRVxGv2n2ZIvXspUJWzIu87rwDw2kkui4stA
+        zS3ydl9ao2C12jNn8b7X3oTDfS3EtzdlIKstP7Tv02epAbayb+VLpPDgIK5kLbKh
+        cBt85n57s5issdY1UAW98pK8S0UEUacf3MK5fn6xwFeJuvQ/kXa7aaDvXD6Adhxp
+        f0piL4vUd85TSAeUD6AyrhXfzKMwuiHGVsrfmSViRxiLG/noKwc1jUSmP+FHB+rm
+        rg8SjpMTbqrTmPv2ekqRPvPt7N7P2PxYttV8iZ/s/RKOdEk7KI2S8vce5lunDG/Q
+        ==
+X-ME-Sender: <xms:d0OKXVigPnq7W9E3jsdQhBCi-W02533tlwCHR_kwIIuAi2Ic7-35SQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrfedtgdellecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjfgesthdtre
+    dttdervdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
+    necuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:d0OKXW4q9_h0Ks_oQm61r_bf6O6_r2vANnHb9mSQQ4wQ6tppO67P9Q>
+    <xmx:d0OKXU2aUKBuC5DGmAg9F7DQN3E-0CaLRltQbwhns96sqnvRu4yQ3w>
+    <xmx:d0OKXZsQbzMXQb1c1Twu1k1GoUSCsuE3nh8XolG9mc_jRAy31lWo7Q>
+    <xmx:d0OKXdwrWSsBalKS0fKeQ-5Xb7R2Sy1HfM8nMazZ40YmzMTnU0jwhw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B3FA6D6005B;
+        Tue, 24 Sep 2019 12:25:26 -0400 (EDT)
+Date:   Tue, 24 Sep 2019 18:25:23 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Pavel Shilovsky <piastryyy@gmail.com>
+Cc:     Stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] CIFS: fix deadlock in cached root handling
+Message-ID: <20190924162523.GB793386@kroah.com>
+References: <20190920210803.4405-1-pshilov@microsoft.com>
+ <CAKywueSieSuPBkSbaLkzFq7i=BDCjQidz9i09NeY5WmGRa9Q=g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKywueSieSuPBkSbaLkzFq7i=BDCjQidz9i09NeY5WmGRa9Q=g@mail.gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Kernel message explanation:
+On Fri, Sep 20, 2019 at 02:23:00PM -0700, Pavel Shilovsky wrote:
+> Fri, Sep 20, 2019 at 14:08, Pavel Shilovsky <piastryyy@gmail.com>:
+> >
+> > From: Aurelien Aptel <aaptel@suse.com>
+> >
+> > Commit 7e5a70ad88b1 ("CIFS: fix deadlock in cached root handling") upstream.
+> >
+> > Prevent deadlock between open_shroot() and
+> > cifs_mark_open_files_invalid() by releasing the lock before entering
+> > SMB2_open, taking it again after and checking if we still need to use
+> > the result.
+> >
+> > CC: <stable@vger.kernel.org> # v4.19+
+> > Link: https://lore.kernel.org/linux-cifs/684ed01c-cbca-2716-bc28-b0a59a0f8521@prodrive-technologies.com/T/#u
+> > Fixes: 3d4ef9a15343 ("smb3: fix redundant opens on root")
+> > Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+> > Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+> > ---
+> >  fs/cifs/smb2ops.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 44 insertions(+)
+> >
+> > diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+> > index cc9e846a3865..094be406cde4 100644
+> > --- a/fs/cifs/smb2ops.c
+> > +++ b/fs/cifs/smb2ops.c
+> > @@ -553,7 +553,50 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
+> >         oparams.fid = pfid;
+> >         oparams.reconnect = false;
+> >
+> > +       /*
+> > +        * We do not hold the lock for the open because in case
+> > +        * SMB2_open needs to reconnect, it will end up calling
+> > +        * cifs_mark_open_files_invalid() which takes the lock again
+> > +        * thus causing a deadlock
+> > +        */
+> > +       mutex_unlock(&tcon->crfid.fid_mutex);
+> >         rc = SMB2_open(xid, &oparams, &srch_path, &oplock, NULL, NULL, NULL);
+> > +       mutex_lock(&tcon->crfid.fid_mutex);
+> > +
+> > +       /*
+> > +        * Now we need to check again as the cached root might have
+> > +        * been successfully re-opened from a concurrent process
+> > +        */
+> > +
+> > +       if (tcon->crfid.is_valid) {
+> > +               /* work was already done */
+> > +
+> > +               /* stash fids for close() later */
+> > +               struct cifs_fid fid = {
+> > +                       .persistent_fid = pfid->persistent_fid,
+> > +                       .volatile_fid = pfid->volatile_fid,
+> > +               };
+> > +
+> > +               /*
+> > +                * Caller expects this func to set pfid to a valid
+> > +                * cached root, so we copy the existing one and get a
+> > +                * reference
+> > +                */
+> > +               memcpy(pfid, tcon->crfid.fid, sizeof(*pfid));
+> > +               kref_get(&tcon->crfid.refcount);
+> > +
+> > +               mutex_unlock(&tcon->crfid.fid_mutex);
+> > +
+> > +               if (rc == 0) {
+> > +                       /* close extra handle outside of critical section */
+> > +                       SMB2_close(xid, tcon, fid.persistent_fid,
+> > +                                  fid.volatile_fid);
+> > +               }
+> > +               return 0;
+> > +       }
+> > +
+> > +       /* Cached root is still invalid, continue normaly */
+> > +
+> >         if (rc == 0) {
+> >                 memcpy(tcon->crfid.fid, pfid, sizeof(struct cifs_fid));
+> >                 tcon->crfid.tcon = tcon;
+> > @@ -561,6 +604,7 @@ int open_shroot(unsigned int xid, struct cifs_tcon *tcon, struct cifs_fid *pfid)
+> >                 kref_init(&tcon->crfid.refcount);
+> >                 kref_get(&tcon->crfid.refcount);
+> >         }
+> > +
+> >         mutex_unlock(&tcon->crfid.fid_mutex);
+> >         return rc;
+> >  }
+> > --
+> > 2.17.1
+> >
+> 
+> Forgot to mention that kernels 5.1.y and above already have the
+> appropriate patch. This is a backport for 4.19.
 
- * Description:
- * The FCP channel reported that its bit error threshold has been exceeded.
- * These errors might result from a problem with the physical components
- * of the local fibre link into the FCP channel.
- * The problem might be damage or malfunction of the cable or
- * cable connection between the FCP channel and
- * the adjacent fabric switch port or the point-to-point peer.
- * Find details about the errors in the HBA trace for the FCP device.
- * The zfcp device driver closed down the FCP device
- * to limit the performance impact from possible I/O command timeouts.
- * User action:
- * Check for problems on the local fibre link, ensure that fibre optics are
- * clean and functional, and all cables are properly plugged.
- * After the repair action, you can manually recover the FCP device by
- * writing "0" into its "failed" sysfs attribute.
- * If recovery through sysfs is not possible, set the CHPID of the device
- * offline and back online on the service element.
+Now queued up, thanks!
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: <stable@vger.kernel.org> #2.6.30+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
----
-
-Martin, James,
-
-an important zfcp fix for v5.4-rc.
-It applies to Martin's 5.4/scsi-fixes or to James' fixes branch.
-
-
- drivers/s390/scsi/zfcp_fsf.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 296bbc3c4606..cf63916814cc 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -27,6 +27,11 @@
- 
- struct kmem_cache *zfcp_fsf_qtcb_cache;
- 
-+static bool ber_stop = true;
-+module_param(ber_stop, bool, 0600);
-+MODULE_PARM_DESC(ber_stop,
-+		 "Shuts down FCP devices for FCP channels that report a bit-error count in excess of its threshold (default on)");
-+
- static void zfcp_fsf_request_timeout_handler(struct timer_list *t)
- {
- 	struct zfcp_fsf_req *fsf_req = from_timer(fsf_req, t, timer);
-@@ -236,10 +241,15 @@ static void zfcp_fsf_status_read_handler(struct zfcp_fsf_req *req)
- 	case FSF_STATUS_READ_SENSE_DATA_AVAIL:
- 		break;
- 	case FSF_STATUS_READ_BIT_ERROR_THRESHOLD:
--		dev_warn(&adapter->ccw_device->dev,
--			 "The error threshold for checksum statistics "
--			 "has been exceeded\n");
- 		zfcp_dbf_hba_bit_err("fssrh_3", req);
-+		if (ber_stop) {
-+			dev_warn(&adapter->ccw_device->dev,
-+				 "All paths over this FCP device are disused because of excessive bit errors\n");
-+			zfcp_erp_adapter_shutdown(adapter, 0, "fssrh_b");
-+		} else {
-+			dev_warn(&adapter->ccw_device->dev,
-+				 "The error threshold for checksum statistics has been exceeded\n");
-+		}
- 		break;
- 	case FSF_STATUS_READ_LINK_DOWN:
- 		zfcp_fsf_status_read_link_down(req);
--- 
-2.17.1
-
+greg k-h
