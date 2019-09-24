@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B30BCF60
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B7EBCF00
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbfIXQzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:55:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43238 "EHLO mail.kernel.org"
+        id S2410770AbfIXQua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:50:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391488AbfIXQuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:50:24 -0400
+        id S2410756AbfIXQu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:50:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 035FF21906;
-        Tue, 24 Sep 2019 16:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C86D6222C0;
+        Tue, 24 Sep 2019 16:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343823;
-        bh=JpYnaaRnpqG1IJ9LpF43Ky4t2CfiGETqsYi76zPHC88=;
+        s=default; t=1569343826;
+        bh=RWaQefVK8ASVG6pbqzbUIqMWiTGMpl6fvlxtzPjJeq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tydnbpSdLWD2ib+QF5eEyCNFQDv0BTwD90owdwhLmyQUex1QNmMecfLRvj7EUTHyt
-         oXgHx1jdnKOV2t4t5lRKxekC/vrEsH3RtpGikBmrq6aletWYEAdjJnB7whGbE8L510
-         ppeFtCCmw1RuNHUogU+6m2SWvEmkj0WCJr+gzTxM=
+        b=WdYsNjXB8cxfseintxqC7ZxjZWwQzyPd+V5ziXpYLYd/L1mQ/ztTpE6/bptggsEQw
+         Ep4M9kdr/RTGAAuoTXPrTBkiXz3ENm3/U/ux4wDVDqTbe7Iu1VA3cBiL86B34lBSJg
+         p24uMLffYH5Gqg6Q6VlVxy3NEpdAgnT606Cr53w0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 46/50] mbox: qcom: add APCS child device for QCS404
-Date:   Tue, 24 Sep 2019 12:48:43 -0400
-Message-Id: <20190924164847.27780-46-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 47/50] clk: sprd: add missing kfree
+Date:   Tue, 24 Sep 2019 12:48:44 -0400
+Message-Id: <20190924164847.27780-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -46,57 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-[ Upstream commit 78c86458a440ff356073c21b568cb58ddb67b82b ]
+[ Upstream commit 5e75ea9c67433a065b0e8595ad3c91c7c0ca0d2d ]
 
-There is clock controller functionality in the APCS hardware block of
-qcs404 devices similar to msm8916.
+The number of config registers for different pll clocks probably are not
+same, so we have to use malloc, and should free the memory before return.
 
-Co-developed-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 3e37b005580b ("clk: sprd: add adjustable pll support")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Chunyan Zhang <zhang.lyra@gmail.com>
+Link: https://lkml.kernel.org/r/20190905103009.27166-1-zhang.lyra@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/qcom-apcs-ipc-mailbox.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/sprd/pll.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mailbox/qcom-apcs-ipc-mailbox.c b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-index 333ed4a9d4b8f..5255dcb551a78 100644
---- a/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-+++ b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-@@ -55,7 +55,6 @@ static const struct mbox_chan_ops qcom_apcs_ipc_ops = {
- 
- static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- {
--	struct device_node *np = pdev->dev.of_node;
- 	struct qcom_apcs_ipc *apcs;
- 	struct regmap *regmap;
- 	struct resource *res;
-@@ -63,6 +62,11 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- 	void __iomem *base;
- 	unsigned long i;
- 	int ret;
-+	const struct of_device_id apcs_clk_match_table[] = {
-+		{ .compatible = "qcom,msm8916-apcs-kpss-global", },
-+		{ .compatible = "qcom,qcs404-apcs-apps-global", },
-+		{}
-+	};
- 
- 	apcs = devm_kzalloc(&pdev->dev, sizeof(*apcs), GFP_KERNEL);
- 	if (!apcs)
-@@ -97,7 +101,7 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- 		return ret;
+diff --git a/drivers/clk/sprd/pll.c b/drivers/clk/sprd/pll.c
+index 36b4402bf09e3..640270f51aa56 100644
+--- a/drivers/clk/sprd/pll.c
++++ b/drivers/clk/sprd/pll.c
+@@ -136,6 +136,7 @@ static unsigned long _sprd_pll_recalc_rate(const struct sprd_pll *pll,
+ 					 k2 + refin * nint * CLK_PLL_1M;
  	}
  
--	if (of_device_is_compatible(np, "qcom,msm8916-apcs-kpss-global")) {
-+	if (of_match_device(apcs_clk_match_table, &pdev->dev)) {
- 		apcs->clk = platform_device_register_data(&pdev->dev,
- 							  "qcom-apcs-msm8916-clk",
- 							  -1, NULL, 0);
++	kfree(cfg);
+ 	return rate;
+ }
+ 
+@@ -222,6 +223,7 @@ static int _sprd_pll_set_rate(const struct sprd_pll *pll,
+ 	if (!ret)
+ 		udelay(pll->udelay);
+ 
++	kfree(cfg);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
