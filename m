@@ -2,87 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 349E5BC9A9
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 16:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0391BC9E0
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 16:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441222AbfIXOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 10:02:38 -0400
-Received: from mga06.intel.com ([134.134.136.31]:58531 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441223AbfIXOCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 10:02:37 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Sep 2019 07:02:36 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,544,1559545200"; 
-   d="scan'208";a="191029287"
-Received: from fbielich-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.54.55])
-  by orsmga003.jf.intel.com with ESMTP; 24 Sep 2019 07:02:31 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-stable@vger.kernel.org
-Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-integrity@vger.kernel.org (open list:TPM DEVICE DRIVER),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-Date:   Tue, 24 Sep 2019 17:02:02 +0300
-Message-Id: <20190924140202.11360-4-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190924140202.11360-1-jarkko.sakkinen@linux.intel.com>
-References: <20190924140202.11360-1-jarkko.sakkinen@linux.intel.com>
+        id S2409715AbfIXOKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 10:10:42 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:38946 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730778AbfIXOKm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 10:10:42 -0400
+Received: by mail-wr1-f66.google.com with SMTP id r3so2126846wrj.6
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 07:10:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5mduAKge7IHsbdrkZ6k0HKeFRGLej9tudRnPcpHaYeM=;
+        b=Z/2hFtlCR7H8sFRsfE1is0S84pkDv3jjpYwDAHu+rLB3hSrnGJWmpZPgwM8hqu2sGO
+         5gNvzBve/sTqrOpvcJmGX+JtotawQG560fGDRYfpB6GAJCT7Tz4/+MTAbNzsnzzKiAVD
+         aPoOycNZ/dPCvQvbmohGw5tvKmf85rTJhIeEWmLlgtoHsu8h3j+s3LOlkQbNUYE0MihV
+         Ww+PNXsk3ODqEE2lJNY4SdwcjFMe5eeBg7p9IliVAtvGiaZcqKEJAHaQ64X/A3Jc0w5r
+         U6RepmaOL6JllDbKPlKqeVWYTUyWtA5d9Y24DjT2qoxOKVn4CBkaqrCMNWKN7dmW2jgU
+         EAiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5mduAKge7IHsbdrkZ6k0HKeFRGLej9tudRnPcpHaYeM=;
+        b=lDsNHOHc5fnBTFvB1WdoevRhO89I1PXqsl44DYsdFVhz/NzkMKPLhW39L5vIx3f6HW
+         BoWrhZtSoddfKxJ0fn908rqJiUclFg4OLX+npxulbiC/AiqInfKtjpeQrMDb7TEH7wcL
+         d6YXFzipvz23thW7WeqUBDrL+RiTw5DHIqY+KMzQf52Ui+XlmrjZMwTTKXjuPCBFWKaf
+         SIVZ2NmpzUmuRZf63thxiqiWdIbdWePgEp9oP2j0EOwCST+yeQTHMJqHic2urt7kNiih
+         JEzPGPChp+A9OWsURvb3WpKJQHkxShsP5knKFZvdzq+f+c2eqejrTBGE1ZiJhPJ6dfnt
+         J0EQ==
+X-Gm-Message-State: APjAAAX4201/U7vgDG3qc5wpIR1dMtroEh9EHirE1Ofahwk0lPB0ClvR
+        0YAGZ3DTXncAuzQEmBGk7M0/YUWFsAk8Hw==
+X-Google-Smtp-Source: APXvYqzQtdOdbSWDGm5mptY8AGZ8iucEf1IHOfMNo39InfaE5RM0DHMl7uOrewxCOrJyRfAvkAxk4w==
+X-Received: by 2002:a5d:6049:: with SMTP id j9mr2630415wrt.213.1569334240238;
+        Tue, 24 Sep 2019 07:10:40 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r13sm2678389wrn.0.2019.09.24.07.10.39
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 24 Sep 2019 07:10:39 -0700 (PDT)
+Message-ID: <5d8a23df.1c69fb81.215d9.c48e@mx.google.com>
+Date:   Tue, 24 Sep 2019 07:10:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.17-19-gd6054a8738d2
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y boot: 139 boots: 1 failed,
+ 126 passed with 12 offline (v5.2.17-19-gd6054a8738d2)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Sukhomlinov <sukhomlinov@google.com>
+stable-rc/linux-5.2.y boot: 139 boots: 1 failed, 126 passed with 12 offline=
+ (v5.2.17-19-gd6054a8738d2)
 
-commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.17-19-gd6054a8738d2/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.17-19-gd6054a8738d2/
 
-TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-future TPM operations. TPM 1.2 behavior was different, future TPM
-operations weren't disabled, causing rare issues. This patch ensures
-that future TPM operations are disabled.
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.17-19-gd6054a8738d2
+Git Commit: d6054a8738d2bfaa10b73bf69530578f92d3efda
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 84 unique boards, 27 SoC families, 18 builds out of 209
 
-Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-[dianders: resolved merge conflicts with mainline]
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- drivers/char/tpm/tpm-chip.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 0eca20c5a80c..ede8c1deca97 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -158,12 +158,15 @@ static int tpm_class_shutdown(struct device *dev)
- {
- 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
- 
-+	down_write(&chip->ops_sem);
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
- 		down_write(&chip->ops_sem);
- 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
- 		chip->ops = NULL;
- 		up_write(&chip->ops_sem);
- 	}
-+	chip->ops = NULL;
-+	up_write(&chip->ops_sem);
- 
- 	return 0;
- }
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
