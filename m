@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45403BCEE5
+	by mail.lfdr.de (Postfix) with ESMTP id B396BBCEE6
 	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731333AbfIXQsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40852 "EHLO mail.kernel.org"
+        id S2392950AbfIXQsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730722AbfIXQsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:48:53 -0400
+        id S2392951AbfIXQsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:48:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57D7A21906;
-        Tue, 24 Sep 2019 16:48:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76BC7222C1;
+        Tue, 24 Sep 2019 16:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343733;
-        bh=mS7XH/egN7Y8EIFLKylZVlOZdLKV0EKtqjwNDmpgFtg=;
+        s=default; t=1569343734;
+        bh=TivASpM3/86zANGlVZN2Uu3v/DewE3+KHlZDVvnmyWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFv6bqfB66KIJKvopgOR5Iqth8jCJ5oR83WvdGm4E4xaxSmvwQh1U3CJRg3baEFN4
-         EgjDxcOkN0+dERWVYGKwSYWOiyOq4MOJsQZhbsDTBO/zAhGHD9wImjEoeYVBtD4c1G
-         kQ3zVfdeP1FdkyPUqNG1NufY0cCvQbG9fAK5Msq8=
+        b=KpFCRjdfG4wLwOYUarWR+sOoFZkWMiRqsw/Q9KMfOfovDKyBnQWyX5UIRpHvwyW78
+         2gxrEeyoKmFAFxNjuDqba15r1UC9GJgg1fTNLMQphIIfDhL+3cyfDBrCR0Tro2s85U
+         ptgNAhXfbViVjZ6/i8gOFL2vcJwCWHQD7VT3J2+w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <sean@poorly.run>,
-        Daniel Vetter <daniel.vetter@intel.com>,
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 03/50] drm/kms: Catch mode_object lifetime errors
-Date:   Tue, 24 Sep 2019 12:48:00 -0400
-Message-Id: <20190924164847.27780-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 04/50] drm/panel: simple: fix AUO g185han01 horizontal blanking
+Date:   Tue, 24 Sep 2019 12:48:01 -0400
+Message-Id: <20190924164847.27780-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -45,75 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 4f5368b5541a902f6596558b05f5c21a9770dd32 ]
+[ Upstream commit f8c6bfc612b56f02e1b8fae699dff12738aaf889 ]
 
-Only dynamic mode objects, i.e. those which are refcounted and have a free
-callback, can be added while the overall drm_device is visible to
-userspace. All others must be added before drm_dev_register and
-removed after drm_dev_unregister.
+The horizontal blanking periods are too short, as the values are
+specified for a single LVDS channel. Since this panel is dual LVDS
+they need to be doubled. With this change the panel reaches its
+nominal vrefresh rate of 60Fps, instead of the 64Fps with the
+current wrong blanking.
 
-Small issue around drivers still using the load/unload callbacks, we
-need to make sure we set dev->registered so that load/unload code in
-these callbacks doesn't trigger false warnings. Only a small
-adjustement in drm_dev_register was needed.
+Philipp Zabel added:
+The datasheet specifies 960 active clocks + 40/128/160 clocks blanking
+on each of the two LVDS channels (min/typical/max), so doubled this is
+now correct.
 
-Motivated by some irc discussions about object ids of dynamic objects
-like blobs become invalid, and me going on a bit an audit spree.
-
-Reviewed-by: Sean Paul <sean@poorly.run>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190614061723.1173-1-daniel.vetter@ffwll.ch
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1562764060.23869.12.camel@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_drv.c         | 4 ++--
- drivers/gpu/drm/drm_mode_object.c | 4 ++++
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index d8ae4ca129c70..1df30ef9f455a 100644
---- a/drivers/gpu/drm/drm_drv.c
-+++ b/drivers/gpu/drm/drm_drv.c
-@@ -810,14 +810,14 @@ int drm_dev_register(struct drm_device *dev, unsigned long flags)
- 	if (ret)
- 		goto err_minors;
- 
--	dev->registered = true;
--
- 	if (dev->driver->load) {
- 		ret = dev->driver->load(dev, flags);
- 		if (ret)
- 			goto err_minors;
- 	}
- 
-+	dev->registered = true;
-+
- 	if (drm_core_check_feature(dev, DRIVER_MODESET))
- 		drm_modeset_register_all(dev);
- 
-diff --git a/drivers/gpu/drm/drm_mode_object.c b/drivers/gpu/drm/drm_mode_object.c
-index 57cc9aa6683a0..30bf0d08dbf2f 100644
---- a/drivers/gpu/drm/drm_mode_object.c
-+++ b/drivers/gpu/drm/drm_mode_object.c
-@@ -37,6 +37,8 @@ int __drm_mode_object_add(struct drm_device *dev, struct drm_mode_object *obj,
- {
- 	int ret;
- 
-+	WARN_ON(dev->registered && !obj_free_cb);
-+
- 	mutex_lock(&dev->mode_config.idr_mutex);
- 	ret = idr_alloc(&dev->mode_config.crtc_idr, register_obj ? obj : NULL, 1, 0, GFP_KERNEL);
- 	if (ret >= 0) {
-@@ -96,6 +98,8 @@ void drm_mode_object_register(struct drm_device *dev,
- void drm_mode_object_unregister(struct drm_device *dev,
- 				struct drm_mode_object *object)
- {
-+	WARN_ON(dev->registered && !object->free_cb);
-+
- 	mutex_lock(&dev->mode_config.idr_mutex);
- 	if (object->id) {
- 		idr_remove(&dev->mode_config.crtc_idr, object->id);
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 5fd94e2060297..654fea2b43124 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -689,9 +689,9 @@ static const struct panel_desc auo_g133han01 = {
+ static const struct display_timing auo_g185han01_timings = {
+ 	.pixelclock = { 120000000, 144000000, 175000000 },
+ 	.hactive = { 1920, 1920, 1920 },
+-	.hfront_porch = { 18, 60, 74 },
+-	.hback_porch = { 12, 44, 54 },
+-	.hsync_len = { 10, 24, 32 },
++	.hfront_porch = { 36, 120, 148 },
++	.hback_porch = { 24, 88, 108 },
++	.hsync_len = { 20, 48, 64 },
+ 	.vactive = { 1080, 1080, 1080 },
+ 	.vfront_porch = { 6, 10, 40 },
+ 	.vback_porch = { 2, 5, 20 },
 -- 
 2.20.1
 
