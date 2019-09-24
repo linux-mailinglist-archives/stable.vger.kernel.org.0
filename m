@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F36F7BCEC1
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8ECBCEC2
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410394AbfIXQrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38808 "EHLO mail.kernel.org"
+        id S2633283AbfIXQrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:47:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391148AbfIXQrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:47:32 -0400
+        id S2389135AbfIXQre (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:47:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 494B321D7B;
-        Tue, 24 Sep 2019 16:47:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A60E217D9;
+        Tue, 24 Sep 2019 16:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343651;
-        bh=C/gvul4pQ/MCqY9bjfcyrpOzvUH27jWmlmQUkP3PWqs=;
+        s=default; t=1569343653;
+        bh=GMQqub5xp0/4XAi4fDZg0COcqBv/GhT/CjZ1rK/+jCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2KAZcICG41340S0GE/X6YprHe7G0HqxwhC+x+hXksuLibN2puEyTj69H7w1A2PUB
-         MJjFLyHAaJcyuY7SQO/ASP8JvlK6k9WS+gs4G6gkUAouiR/nJBclnzTuvkyDeFOZwx
-         QEyFGZGNx11GjNWGeVPGxSBpZ6ilKoF53/RluQ34=
+        b=yHWXS9pVp/fINJFumqi+jY8lOpKH6fWKexY1DEFzYo99h0opjcaNWtMNNgplpt5RT
+         tzrVcw+x/EbGTF72W0aRa0FyjOgMOWqzKIEc6mV6045y6kkmlD2vOkFElwkIqAipxk
+         eR7T11LIyPtbt9VG3/NBZMJZfL8c2uCuYqJU0VFE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     hexin <hexin.op@gmail.com>, hexin <hexin15@baidu.com>,
-        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 41/70] vfio_pci: Restore original state on release
-Date:   Tue, 24 Sep 2019 12:45:20 -0400
-Message-Id: <20190924164549.27058-41-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 42/70] drm/nouveau/kms/tu102-: disable input lut when input is already FP16
+Date:   Tue, 24 Sep 2019 12:45:21 -0400
+Message-Id: <20190924164549.27058-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -44,58 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hexin <hexin.op@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
+[ Upstream commit 1e339ab2ac3c769c1b06b9fb7d532f8495ebc56d ]
 
-vfio_pci_enable() saves the device's initial configuration information
-with the intent that it is restored in vfio_pci_disable().  However,
-the commit referenced in Fixes: below replaced the call to
-__pci_reset_function_locked(), which is not wrapped in a state save
-and restore, with pci_try_reset_function(), which overwrites the
-restored device state with the current state before applying it to the
-device.  Reinstate use of __pci_reset_function_locked() to return to
-the desired behavior.
+On Turing, an input LUT is required to transform inputs in fixed-point
+formats to FP16 for the internal display pipe.  We provide an identity
+mapping whenever a window is enabled for this reason.
 
-Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
-Signed-off-by: hexin <hexin15@baidu.com>
-Signed-off-by: Liu Qi <liuqi16@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+HW has error checks to ensure when the input is already FP16, that the
+input LUT is also disabled.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv50/wndw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 703948c9fbe10..02206162eaa9e 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -438,11 +438,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.c b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
+index 283ff690350ea..50303ec194bbc 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
+@@ -320,7 +320,9 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
+ 		asyh->wndw.olut &= ~BIT(wndw->id);
+ 	}
  
- 	/*
--	 * Try to reset the device.  The success of this is dependent on
--	 * being able to lock the device, which is not always possible.
-+	 * Try to get the locks ourselves to prevent a deadlock. The
-+	 * success of this is dependent on being able to lock the device,
-+	 * which is not always possible.
-+	 * We can not use the "try" reset interface here, which will
-+	 * overwrite the previously restored configuration information.
- 	 */
--	if (vdev->reset_works && !pci_try_reset_function(pdev))
--		vdev->needs_reset = false;
-+	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
-+		if (device_trylock(&pdev->dev)) {
-+			if (!__pci_reset_function_locked(pdev))
-+				vdev->needs_reset = false;
-+			device_unlock(&pdev->dev);
-+		}
-+		pci_cfg_access_unlock(pdev);
-+	}
- 
- 	pci_restore_state(pdev);
- out:
+-	if (!ilut && wndw->func->ilut_identity) {
++	if (!ilut && wndw->func->ilut_identity &&
++	    asyw->state.fb->format->format != DRM_FORMAT_XBGR16161616F &&
++	    asyw->state.fb->format->format != DRM_FORMAT_ABGR16161616F) {
+ 		static struct drm_property_blob dummy = {};
+ 		ilut = &dummy;
+ 	}
 -- 
 2.20.1
 
