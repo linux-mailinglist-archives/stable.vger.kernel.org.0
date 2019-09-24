@@ -2,66 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D30BCC71
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75575BCC9B
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441463AbfIXQ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52196 "EHLO mail.kernel.org"
+        id S2388281AbfIXQlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437807AbfIXQ2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:28:32 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2387489AbfIXQlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:41:47 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61B6E2146E;
-        Tue, 24 Sep 2019 16:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5373C20872;
+        Tue, 24 Sep 2019 16:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569342511;
-        bh=gpnIkcA2Sc4+vF8ZGFxu6NtNfcgnFR+Awsv13jfaTLY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CoSdAujrxScdh4N76DBI3QuutuxZBIlC0vvwsuP3FZwA6JuZIP7PHKXNzv8/0bsyn
-         3HZx0QY+N3K5vusP92TNIW4gT4G/fNUMRpdcrinIYfzz5+ouGNmJCXKalJb66E8ngM
-         JeexCx4lh/+OSR5IZM5FcIQ3xuu9cdGm7GPX4RPo=
-Date:   Tue, 24 Sep 2019 18:28:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Miller <davem@davemloft.net>
-Cc:     saeedm@mellanox.com, netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19-stable 0/7] mlx5 checksum fixes for 4.19
-Message-ID: <20190924162829.GC793386@kroah.com>
-References: <20190923123917.16817-1-saeedm@mellanox.com>
- <20190923.175106.799482393811705736.davem@davemloft.net>
+        s=default; t=1569343306;
+        bh=TxigC21+DLiMafdGXO5lPtQ6kQiOwS68oR4xLUldI8Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Phh+3nx9nEsDiJ3olqQffFCpXFEx8u10y72GMSFhM1uKrvtvVf0ViF6BtTW/45Esk
+         4AKf5BCoFGPNuqCt2tAn4FbvNNaBgPytkKVKTIKCABLAJfpTY54o/7CEYmU/AMikXK
+         tp5FEiT/ougEhnRy6vtVmHICr6ayuh2F8YJoZc9s=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Shayenne Moura <shayenneluzmoura@gmail.com>,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Haneen Mohammed <hamohammed.sa@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 01/87] drm/vkms: Fix crc worker races
+Date:   Tue, 24 Sep 2019 12:40:17 -0400
+Message-Id: <20190924164144.25591-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190923.175106.799482393811705736.davem@davemloft.net>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 05:51:06PM +0200, David Miller wrote:
-> From: Saeed Mahameed <saeedm@mellanox.com>
-> Date: Mon, 23 Sep 2019 12:39:57 +0000
-> 
-> > This series includes some upstream patches aimed to fix multiple checksum
-> > issues with mlx5 driver in 4.19-stable kernels.
-> > 
-> > Since the patches didn't apply cleanly to 4.19 back when they were
-> > submitted for the first time around 5.1 kernel release to the netdev
-> > mailing list, i couldn't mark them for -stable 4.19, so now as the issue
-> > is being reported on 4.19 LTS kernels, I had to do the backporting and
-> > this submission myself.
-> >  
-> > This series required some dependency patches and some manual touches
-> > to apply some of them.
-> > 
-> > Please apply to 4.19-stable and let me know if there's any problem.
-> > I tested and the patches apply cleanly and work on top of: v4.19.75
-> 
-> FWIW, I'm fine with this.
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-Thanks for the review, will go queue these up now...
+[ Upstream commit 18d0952a838ba559655b0cd9cf85097ad63d9bca ]
 
-greg k-h
+The issue we have is that the crc worker might fall behind. We've
+tried to handle this by tracking both the earliest frame for which it
+still needs to compute a crc, and the last one. Plus when the
+crtc_state changes, we have a new work item, which are all run in
+order due to the ordered workqueue we allocate for each vkms crtc.
+
+Trouble is there's been a few small issues in the current code:
+- we need to capture frame_end in the vblank hrtimer, not in the
+  worker. The worker might run much later, and then we generate a lot
+  of crc for which there's already a different worker queued up.
+- frame number might be 0, so create a new crc_pending boolean to
+  track this without confusion.
+- we need to atomically grab frame_start/end and clear it, so do that
+  all in one go. This is not going to create a new race, because if we
+  race with the hrtimer then our work will be re-run.
+- only race that can happen is the following:
+  1. worker starts
+  2. hrtimer runs and updates frame_end
+  3. worker grabs frame_start/end, already reading the new frame_end,
+  and clears crc_pending
+  4. hrtimer calls queue_work()
+  5. worker completes
+  6. worker gets  re-run, crc_pending is false
+  Explain this case a bit better by rewording the comment.
+
+v2: Demote warning level output to debug when we fail to requeue, this
+is expected under high load when the crc worker can't quite keep up.
+
+Cc: Shayenne Moura <shayenneluzmoura@gmail.com>
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Reviewed-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Tested-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Signed-off-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190606222751.32567-2-daniel.vetter@ffwll.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/vkms/vkms_crc.c  | 27 +++++++++++++--------------
+ drivers/gpu/drm/vkms/vkms_crtc.c |  9 +++++++--
+ drivers/gpu/drm/vkms/vkms_drv.h  |  2 ++
+ 3 files changed, 22 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/gpu/drm/vkms/vkms_crc.c b/drivers/gpu/drm/vkms/vkms_crc.c
+index e66ff25c008e6..e9fb4ebb789fd 100644
+--- a/drivers/gpu/drm/vkms/vkms_crc.c
++++ b/drivers/gpu/drm/vkms/vkms_crc.c
+@@ -166,16 +166,24 @@ void vkms_crc_work_handle(struct work_struct *work)
+ 	struct drm_plane *plane;
+ 	u32 crc32 = 0;
+ 	u64 frame_start, frame_end;
++	bool crc_pending;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&out->state_lock, flags);
+ 	frame_start = crtc_state->frame_start;
+ 	frame_end = crtc_state->frame_end;
++	crc_pending = crtc_state->crc_pending;
++	crtc_state->frame_start = 0;
++	crtc_state->frame_end = 0;
++	crtc_state->crc_pending = false;
+ 	spin_unlock_irqrestore(&out->state_lock, flags);
+ 
+-	/* _vblank_handle() hasn't updated frame_start yet */
+-	if (!frame_start || frame_start == frame_end)
+-		goto out;
++	/*
++	 * We raced with the vblank hrtimer and previous work already computed
++	 * the crc, nothing to do.
++	 */
++	if (!crc_pending)
++		return;
+ 
+ 	drm_for_each_plane(plane, &vdev->drm) {
+ 		struct vkms_plane_state *vplane_state;
+@@ -196,20 +204,11 @@ void vkms_crc_work_handle(struct work_struct *work)
+ 	if (primary_crc)
+ 		crc32 = _vkms_get_crc(primary_crc, cursor_crc);
+ 
+-	frame_end = drm_crtc_accurate_vblank_count(crtc);
+-
+-	/* queue_work can fail to schedule crc_work; add crc for
+-	 * missing frames
++	/*
++	 * The worker can fall behind the vblank hrtimer, make sure we catch up.
+ 	 */
+ 	while (frame_start <= frame_end)
+ 		drm_crtc_add_crc_entry(crtc, true, frame_start++, &crc32);
+-
+-out:
+-	/* to avoid using the same value for frame number again */
+-	spin_lock_irqsave(&out->state_lock, flags);
+-	crtc_state->frame_end = frame_end;
+-	crtc_state->frame_start = 0;
+-	spin_unlock_irqrestore(&out->state_lock, flags);
+ }
+ 
+ static const char * const pipe_crc_sources[] = {"auto"};
+diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
+index 4d11292bc6f38..f392fa13015b8 100644
+--- a/drivers/gpu/drm/vkms/vkms_crtc.c
++++ b/drivers/gpu/drm/vkms/vkms_crtc.c
+@@ -30,13 +30,18 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
+ 		 * has read the data
+ 		 */
+ 		spin_lock(&output->state_lock);
+-		if (!state->frame_start)
++		if (!state->crc_pending)
+ 			state->frame_start = frame;
++		else
++			DRM_DEBUG_DRIVER("crc worker falling behind, frame_start: %llu, frame_end: %llu\n",
++					 state->frame_start, frame);
++		state->frame_end = frame;
++		state->crc_pending = true;
+ 		spin_unlock(&output->state_lock);
+ 
+ 		ret = queue_work(output->crc_workq, &state->crc_work);
+ 		if (!ret)
+-			DRM_WARN("failed to queue vkms_crc_work_handle");
++			DRM_DEBUG_DRIVER("vkms_crc_work_handle already queued\n");
+ 	}
+ 
+ 	spin_unlock(&output->lock);
+diff --git a/drivers/gpu/drm/vkms/vkms_drv.h b/drivers/gpu/drm/vkms/vkms_drv.h
+index b92c30c66a6f2..2b37eb1062d34 100644
+--- a/drivers/gpu/drm/vkms/vkms_drv.h
++++ b/drivers/gpu/drm/vkms/vkms_drv.h
+@@ -48,6 +48,8 @@ struct vkms_plane_state {
+ struct vkms_crtc_state {
+ 	struct drm_crtc_state base;
+ 	struct work_struct crc_work;
++
++	bool crc_pending;
+ 	u64 frame_start;
+ 	u64 frame_end;
+ };
+-- 
+2.20.1
+
