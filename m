@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A28DABCF74
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DD8BCEED
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfIXQ45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S2392344AbfIXQtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbfIXQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:49:09 -0400
+        id S2410294AbfIXQtQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:49:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66D7221906;
-        Tue, 24 Sep 2019 16:49:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F8D020673;
+        Tue, 24 Sep 2019 16:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343749;
-        bh=zL1w5syTRE29MPGD3HK6k4a/25ozxavpM0xkeCziFPM=;
+        s=default; t=1569343755;
+        bh=ZW7DZIoYB8ha0qMnMTt72e6WQLNti6SiK+zXWEE454I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiG4kkP+CMBu3Z1irJUc6Zt2HgHxuCiF+9FME2jK3ysMRVgQhqJpPm4sujHLXwRbb
-         Q7EFdtByTwVnIXvCGiZj+xoTbdH3ts2ZDhlLbbsAEUEyIXSWnAkZlAZ0pTd07uSGJI
-         Fkh61Z6Oe0X74p/ypJ4MEAzc6wOCW3QJaVVsdHlw=
+        b=kmXs9Ity0b9XlYyrF1OPjhl8X+S4fpIjeiv4Br20BCCdEsb30SrTsB/cW8wA1bOza
+         QhiEFjh4B/iOAl9AKUdCKv5g9R3Jgx2LTD1xRNfaQFIT1NZ/1XN5LZJcMwqYIVkQ3q
+         LxvJa8NyoIcgj1VCVV0dfryYLn8mh3KAVYprZDms=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Icenowy Zheng <icenowy@aosc.io>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/50] clk: sunxi-ng: v3s: add missing clock slices for MMC2 module clocks
-Date:   Tue, 24 Sep 2019 12:48:11 -0400
-Message-Id: <20190924164847.27780-14-sashal@kernel.org>
+Cc:     Lewis Huang <Lewis.Huang@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Eric Yang <eric.yang2@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 16/50] drm/amd/display: reprogram VM config when system resume
+Date:   Tue, 24 Sep 2019 12:48:13 -0400
+Message-Id: <20190924164847.27780-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164847.27780-1-sashal@kernel.org>
 References: <20190924164847.27780-1-sashal@kernel.org>
@@ -43,37 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Lewis Huang <Lewis.Huang@amd.com>
 
-[ Upstream commit 720099603d1f62e37b789366d7e89824b009ca28 ]
+[ Upstream commit e5382701c3520b3ed66169a6e4aa6ce5df8c56e0 ]
 
-The MMC2 clock slices are currently not defined in V3s CCU driver, which
-makes MMC2 not working.
+[Why]
+The vm config will be clear to 0 when system enter S4. It will
+cause hubbub didn't know how to fetch data when system resume.
+The flip always pending because earliest_inuse_address and
+request_address are different.
 
-Fix this issue.
+[How]
+Reprogram VM config when system resume
 
-Fixes: d0f11d14b0bc ("clk: sunxi-ng: add support for V3s CCU")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Lewis Huang <Lewis.Huang@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun8i-v3s.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
-index ac12f261f8caa..9e3f4088724b4 100644
---- a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
-@@ -499,6 +499,9 @@ static struct clk_hw_onecell_data sun8i_v3s_hw_clks = {
- 		[CLK_MMC1]		= &mmc1_clk.common.hw,
- 		[CLK_MMC1_SAMPLE]	= &mmc1_sample_clk.common.hw,
- 		[CLK_MMC1_OUTPUT]	= &mmc1_output_clk.common.hw,
-+		[CLK_MMC2]		= &mmc2_clk.common.hw,
-+		[CLK_MMC2_SAMPLE]	= &mmc2_sample_clk.common.hw,
-+		[CLK_MMC2_OUTPUT]	= &mmc2_output_clk.common.hw,
- 		[CLK_CE]		= &ce_clk.common.hw,
- 		[CLK_SPI0]		= &spi0_clk.common.hw,
- 		[CLK_USB_PHY0]		= &usb_phy0_clk.common.hw,
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index f4b89d1ea6f6f..2b2efe443c36d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1585,6 +1585,14 @@ void dc_set_power_state(
+ 		dc_resource_state_construct(dc, dc->current_state);
+ 
+ 		dc->hwss.init_hw(dc);
++
++#ifdef CONFIG_DRM_AMD_DC_DCN2_0
++		if (dc->hwss.init_sys_ctx != NULL &&
++			dc->vm_pa_config.valid) {
++			dc->hwss.init_sys_ctx(dc->hwseq, dc, &dc->vm_pa_config);
++		}
++#endif
++
+ 		break;
+ 	default:
+ 
 -- 
 2.20.1
 
