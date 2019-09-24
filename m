@@ -2,66 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 929C7BC925
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 15:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB95BC966
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 15:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbfIXNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 09:50:15 -0400
-Received: from frisell.zx2c4.com ([192.95.5.64]:55843 "EHLO frisell.zx2c4.com"
+        id S2409667AbfIXNzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 09:55:43 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:42718 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727500AbfIXNuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 09:50:15 -0400
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 4888bebe;
-        Tue, 24 Sep 2019 13:04:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to:cc
-        :content-type; s=mail; bh=V5uxGnCTUhNAnRktrNC2jwCDhAo=; b=WxfFkC
-        SvZ6oQtgWyhpdQFEC27viS5d0Znh1e9eyEEdZ602mZSdouvvR8Jn48nv7FhYsmKe
-        R5IN5yq0h/QLYHUM476O76xzY1fVBpZpiFdPUw0zq+qXV6+5hvj3LqL0e+IPypte
-        CNy95ik+sdX2+ESFM4HuMfVsnlSpoaeTNsCZwm77dqMjDpIbb76rCvJmFvmKrkYU
-        mneGxRg8U48I9t1NvcYieCDo37ebLcDbOgK+AX5fxy0iJ5YWJntdc5xMUizEjg2X
-        PsNIWN5SrVMfMSXzzUiqhkagu/Iec37l4kh9sU1gkhjg3e9d1KmrB56ltI9RZ/Qb
-        mQIDZX2AUcA7m5hg==
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id ad92a611 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Tue, 24 Sep 2019 13:04:35 +0000 (UTC)
-Received: by mail-ot1-f45.google.com with SMTP id y39so1512645ota.7;
-        Tue, 24 Sep 2019 06:50:12 -0700 (PDT)
-X-Gm-Message-State: APjAAAXr8cwE1t1EL2V2Rs9iuxVMeKgAWDeko3cUDRcgORqnBSoeb8uK
-        zKdInBsdloWil+PuEwUIl1VRjFvEs8QYw0RymEE=
-X-Google-Smtp-Source: APXvYqxhjyyZtdQ1jPkoocQ2RBFHJqNTYK/8voSdw785snav/9xtFXMs5ge5NC5iVBpBRGv+e0gGcRBgltcy/qptyRU=
-X-Received: by 2002:a05:6830:20cd:: with SMTP id z13mr1933474otq.243.1569333011999;
- Tue, 24 Sep 2019 06:50:11 -0700 (PDT)
+        id S2409668AbfIXNzn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 09:55:43 -0400
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com [209.85.221.72])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 98D626412B
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 13:55:42 +0000 (UTC)
+Received: by mail-wr1-f72.google.com with SMTP id q10so597928wro.22
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 06:55:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=OsafvY49lv+IdkcQBZiY+1pyMhsITwm284eCfBsvG3Q=;
+        b=lS3dTHICi7RmSz+9JtCpY6xxL6l7mKrL1YhyaBBH7NyzHJX+JRBuSIuXHdkHLVv/A2
+         g/S10bXN0S23Oa9VW4cb3DM8nA8oxnEOOKoKbeEszg+kog1GqgjRIEfOk9wWArDhQBQ9
+         hVQ6aEFhr5alv3ustIdZV/JfEO/0PzxTDBdHRiqOrfNq/7h9l4gpFri7npNDHsU6wBzN
+         NvEqf/nHvqzIl4QANx8sqyaQRScAGNoDBAeJ9HOyMft6A7kLBswzvX9APx9v6idVf871
+         83XlBP/tB84E0ggSe/mlUcK07mDOOoHtKXxBXiKUIB1iuSU1+6LsxE0+qxpSE//l40ga
+         BOVQ==
+X-Gm-Message-State: APjAAAWh6YpBGgAbifBHpg924bHMz8Z1YVJ7iL7QI0d8oQ9kjkG5eXDP
+        x9HO6svCNWTt5fdQtTaD7VlP6tWEjL4lTjeUZ5sGtP652s/LywrEX+f3K6JcbeL7+QtEs87r2wX
+        V2SdjBdOu/qyl26r5
+X-Received: by 2002:a05:6000:12:: with SMTP id h18mr2412459wrx.156.1569333340904;
+        Tue, 24 Sep 2019 06:55:40 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqwg4Zkq5DqRbVkfGA29BmZtf2KR4d9hVorp2wEdWQ5fXNb3WiB0tDW4Xw1GTkf7h7ZkJFH54w==
+X-Received: by 2002:a05:6000:12:: with SMTP id h18mr2412442wrx.156.1569333340651;
+        Tue, 24 Sep 2019 06:55:40 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:9520:22e6:6416:5c36? ([2001:b07:6468:f312:9520:22e6:6416:5c36])
+        by smtp.gmail.com with ESMTPSA id s1sm4225070wrg.80.2019.09.24.06.55.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Sep 2019 06:55:39 -0700 (PDT)
+Subject: Re: [PATCH v2 2/3] KVM: X86: Fix userspace set broken combinations of
+ CPUID and CR4
+To:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Wanpeng Li <kernellwp@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
+References: <1568708186-20260-1-git-send-email-wanpengli@tencent.com>
+ <1568708186-20260-2-git-send-email-wanpengli@tencent.com>
+ <20190917173258.GB2876@linux.intel.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <d0c35f21-b262-2c4e-9109-4ab803487705@redhat.com>
+Date:   Tue, 24 Sep 2019 15:55:38 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20190924073615.31704-1-Jason@zx2c4.com> <20190924.145257.2013712373872209531.davem@davemloft.net>
- <CAHmME9oqRg9L+wdhOra=UO3ypuy9N82DHVrbDJDgLpxSmS-rHQ@mail.gmail.com> <20190924.153008.1663682877890370513.davem@davemloft.net>
-In-Reply-To: <20190924.153008.1663682877890370513.davem@davemloft.net>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Tue, 24 Sep 2019 15:49:59 +0200
-X-Gmail-Original-Message-ID: <CAHmME9oL7qP=pGnXRT1hmPmRpQ1_0r__vHkuBe-LbfgZTEMV_g@mail.gmail.com>
-Message-ID: <CAHmME9oL7qP=pGnXRT1hmPmRpQ1_0r__vHkuBe-LbfgZTEMV_g@mail.gmail.com>
-Subject: Re: [PATCH] ipv6: do not free rt if FIB_LOOKUP_NOREF is set on
- suppress rule
-To:     David Miller <davem@davemloft.net>
-Cc:     Netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190917173258.GB2876@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 24, 2019 at 3:30 PM David Miller <davem@davemloft.net> wrote
-> I'm asking you to make a non-wireguard test that triggers the problem.
-Oh, gotcha. No problem.
+On 17/09/19 19:32, Sean Christopherson wrote:
+> 
+> Paolo, can you provide an "official" ruling on how KVM_SET_SREGS should
+> interact with reserved bits?  It's not at all clear from the git history
+> if skipping the checks was intentional or an oversight.
 
->
-> Or would you like a situation you're interested in to break from time
-> to time.
-My test suite should catch it in the future now that it's there, so I'm fine.
+It's okay to make it fail as long as KVM already checks the value of the
+reserved bits on vmexit.  If not, some care might be required.
 
-> Jason, please don't be difficult about this and write a proper test
-> case just like I would ask anyone else fixing bugs like this to write.
-I'm not being difficult. I just thought you didn't see what the test
-case I linked to actually was. I have no qualms about reimplementing
-it with the dummy interface, for a v2 of this patch. Coming your way
-shortly.
+Paolo
