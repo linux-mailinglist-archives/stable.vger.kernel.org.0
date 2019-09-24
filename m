@@ -2,140 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97728BD00C
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B53BD272
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 21:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732117AbfIXRCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 13:02:55 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:41441 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726897AbfIXRCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 13:02:55 -0400
-Received: by mail-io1-f68.google.com with SMTP id r26so6191341ioh.8
-        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 10:02:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2Y7JDpusl8uM4l8mJlIUSosd+8pd0KgH/eg88o1tZ+U=;
-        b=bBjik4oxylm4BFTFdST470SXp7tQAXIXXCllcfpIbvpSGjjRBij5rJlT4f9moVFwVd
-         yJyY9XiRopDZW9w6enKsHkDk6hUAVaDkV+sSltjPN+TOoA+ugIQsc4riRdaWLsEjaqWG
-         9myLovEFNhXFizb3cXpb2n7XnotNVUKjcwMtZcwQxYBvtIuYSUfCo80jjoUM+Gq5AIil
-         5NFy2LvkwmLWALy4eSt/ikTBnTPzzY5Oh2qIivwuyU72F/ymNSybxXBTpfk7Cgb3BNty
-         EmwJ211u1yoWy6TpjEOJvCnSJJUNwjBledeadjd+aZxMeTPDvF8vZxiPZzBLGkbnCFXd
-         8d9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2Y7JDpusl8uM4l8mJlIUSosd+8pd0KgH/eg88o1tZ+U=;
-        b=RHwLMy86JPT00uTuW6h+RVERsif8UnTVUdQ8FgQpKPhNSksY+4DvrHjPYZsBg9SN0c
-         xPQv3LE+L9EtGW+VmlM2Le2DX0j+QV8CTrOOh4dbp2G6p7sAYTjmpaJqnKu7zk73YIub
-         3OwxC7Pn5s7OPHzvC/HfJSAJx98ZyjMGe06MApZvb1WlvjC+UtkeEn3demyx6pWp5hJP
-         z6zs/k2Gw/QVYe0Y697d+CvTpDmjIg3iR2fFY3jLlEkxuM8vUQtzRLyUfJFZ346da9/D
-         +0CouJJvbQBg47cgEsKq8LmX+UHBWYw0meN2ztEgC1NUbhKwqAE12xCvNG3kmJAtCA1u
-         imVQ==
-X-Gm-Message-State: APjAAAW9WsQ+wIR0rp0mV5qbFVMrvpOycjPY0WoCSP/hdfXGdVemnZtA
-        R8EnefDTGDgoD813HulbFZTqyalqwVSvafVlSTC7Eg==
-X-Google-Smtp-Source: APXvYqwZqEsuY5Y4M14Cr+5pAyN6PG6t2sd2N11O8P+s+hLu+UoU104Vs8aiyqs/fdO096/rYroxhs0sMoBn8tQLibs=
-X-Received: by 2002:a5e:da0a:: with SMTP id x10mr100562ioj.286.1569344573717;
- Tue, 24 Sep 2019 10:02:53 -0700 (PDT)
+        id S2392221AbfIXTN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 15:13:26 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:39966 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390196AbfIXTNZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 15:13:25 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 67D00301A638;
+        Tue, 24 Sep 2019 19:13:25 +0000 (UTC)
+Received: from builder (ovpn-121-117.rdu2.redhat.com [10.10.121.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E758F60E1C;
+        Tue, 24 Sep 2019 19:13:22 +0000 (UTC)
+Received: from builder.jcline.org.com (localhost [IPv6:::1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by builder (Postfix) with ESMTPS id D60F06E78C0;
+        Tue, 24 Sep 2019 19:13:21 +0000 (UTC)
+From:   Jeremy Cline <jcline@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>,
+        Jeremy Cline <jcline@redhat.com>
+Subject: [PATCH] Partially revert "HID: logitech-hidpp: add USB PID for a few more supported mice"
+Date:   Tue, 24 Sep 2019 19:13:11 +0000
+Message-Id: <20190924191311.22413-1-jcline@redhat.com>
 MIME-Version: 1.0
-References: <20190924.145257.2013712373872209531.davem@davemloft.net> <20190924140128.19394-1-Jason@zx2c4.com>
-In-Reply-To: <20190924140128.19394-1-Jason@zx2c4.com>
-From:   Wei Wang <weiwan@google.com>
-Date:   Tue, 24 Sep 2019 10:02:42 -0700
-Message-ID: <CAEA6p_CEzzpgdQMw0KnOJYN+HVEFoShwnn0tAUqaQjO2+44BcQ@mail.gmail.com>
-Subject: Re: [PATCH v2] ipv6: do not free rt if FIB_LOOKUP_NOREF is set on
- suppress rule
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 24 Sep 2019 19:13:25 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 24, 2019 at 7:01 AM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
->
-> Commit 7d9e5f422150 removed references from certain dsts, but accounting
-> for this never translated down into the fib6 suppression code. This bug
-> was triggered by WireGuard users who use wg-quick(8), which uses the
-> "suppress-prefix" directive to ip-rule(8) for routing all of their
-> internet traffic without routing loops. The test case added here
-> causes the reference underflow by causing packets to evaluate a suppress
-> rule.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 7d9e5f422150 ("ipv6: convert major tx path to use RT6_LOOKUP_F_DST_NOREF")
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
-Acked-by: Wei Wang <weiwan@google.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Good catch. Thanks for the fix.
+commit addf3382c47c033e579c9c88f18e36c4e75d806a upstream.
 
->  net/ipv6/fib6_rules.c                    |  3 ++-
->  tools/testing/selftests/net/fib_tests.sh | 17 ++++++++++++++++-
->  2 files changed, 18 insertions(+), 2 deletions(-)
->
-> diff --git a/net/ipv6/fib6_rules.c b/net/ipv6/fib6_rules.c
-> index d22b6c140f23..f9e8fe3ff0c5 100644
-> --- a/net/ipv6/fib6_rules.c
-> +++ b/net/ipv6/fib6_rules.c
-> @@ -287,7 +287,8 @@ static bool fib6_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg
->         return false;
->
->  suppress_route:
-> -       ip6_rt_put(rt);
-> +       if (!(arg->flags & FIB_LOOKUP_NOREF))
-> +               ip6_rt_put(rt);
->         return true;
->  }
->
-> diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
-> index 4465fc2dae14..c2c5f2bf0f95 100755
-> --- a/tools/testing/selftests/net/fib_tests.sh
-> +++ b/tools/testing/selftests/net/fib_tests.sh
-> @@ -9,7 +9,7 @@ ret=0
->  ksft_skip=4
->
->  # all tests in this script. Can be overridden with -t option
-> -TESTS="unregister down carrier nexthop ipv6_rt ipv4_rt ipv6_addr_metric ipv4_addr_metric ipv6_route_metrics ipv4_route_metrics ipv4_route_v6_gw rp_filter"
-> +TESTS="unregister down carrier nexthop suppress ipv6_rt ipv4_rt ipv6_addr_metric ipv4_addr_metric ipv6_route_metrics ipv4_route_metrics ipv4_route_v6_gw rp_filter"
->
->  VERBOSE=0
->  PAUSE_ON_FAIL=no
-> @@ -614,6 +614,20 @@ fib_nexthop_test()
->         cleanup
->  }
->
-> +fib_suppress_test()
-> +{
-> +       $IP link add dummy1 type dummy
-> +       $IP link set dummy1 up
-> +       $IP -6 route add default dev dummy1
-> +       $IP -6 rule add table main suppress_prefixlength 0
-> +       ping -f -c 1000 -W 1 1234::1 || true
-> +       $IP -6 rule del table main suppress_prefixlength 0
-> +       $IP link del dummy1
-> +
-> +       # If we got here without crashing, we're good.
-> +       return 0
-> +}
-> +
->  ################################################################################
->  # Tests on route add and replace
->
-> @@ -1591,6 +1605,7 @@ do
->         fib_carrier_test|carrier)       fib_carrier_test;;
->         fib_rp_filter_test|rp_filter)   fib_rp_filter_test;;
->         fib_nexthop_test|nexthop)       fib_nexthop_test;;
-> +       fib_suppress_test|suppress)     fib_suppress_test;;
->         ipv6_route_test|ipv6_rt)        ipv6_route_test;;
->         ipv4_route_test|ipv4_rt)        ipv4_route_test;;
->         ipv6_addr_metric)               ipv6_addr_metric_test;;
-> --
-> 2.21.0
->
+This partially reverts commit 27fc32fd9417968a459d43d9a7c50fd423d53eb9.
+
+It turns out that the G502 has some issues with hid-logitech-hidpp:
+when plugging it in, the driver tries to contact it but it fails.
+So the driver bails out leaving only the mouse event node available.
+
+This timeout is problematic as it introduce a delay in the boot,
+and having only the mouse event node means that the hardware
+macros keys can not be relayed to the userspace.
+
+Filipe and I just gave a shot at the following devices:
+
+G403 Wireless (0xC082)
+G703 (0xC087)
+G703 Hero (0xC090)
+G903 (0xC086)
+G903 Hero (0xC091)
+G Pro (0xC088)
+
+Reverting the devices we are not sure that works flawlessly.
+
+Reviewed-by: Filipe Laíns <lains@archlinux.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+---
+
+For the v5.2 stable kernels. v5.2.11 picked up upstream commit
+27fc32fd9417 ("HID: logitech-hidpp: add USB PID for a few more supported
+mice") and v5.2.12 picked up commit a3384b8d9f63cc0 ("HID:
+logitech-hidpp: remove support for the G700 over USB") with some
+conflicts because this patch wasn't picked up. This backport resolves
+the conflicts against v5.2.17.
+
+ drivers/hid/hid-logitech-hidpp.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 4effce12607b..424d0f775ffa 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3749,28 +3749,8 @@ static const struct hid_device_id hidpp_devices[] = {
+ 
+ 	{ L27MHZ_DEVICE(HID_ANY_ID) },
+ 
+-	{ /* Logitech G203/Prodigy Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC084) },
+-	{ /* Logitech G302 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07F) },
+-	{ /* Logitech G303 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC080) },
+-	{ /* Logitech G400 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07E) },
+ 	{ /* Logitech G403 Wireless Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC082) },
+-	{ /* Logitech G403 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC083) },
+-	{ /* Logitech G403 Hero Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08F) },
+-	{ /* Logitech G502 Proteus Core Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07D) },
+-	{ /* Logitech G502 Proteus Spectrum Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC332) },
+-	{ /* Logitech G502 Hero Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08B) },
+-	{ /* Logitech G700s Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07C) },
+ 	{ /* Logitech G703 Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC087) },
+ 	{ /* Logitech G703 Hero Gaming Mouse over USB */
+-- 
+2.21.0
+
