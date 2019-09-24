@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DDBBCDF1
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2125CBCDF9
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633286AbfIXQrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:47:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
+        id S2633329AbfIXQr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:47:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729107AbfIXQrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:47:40 -0400
+        id S2633314AbfIXQr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:47:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E60321906;
-        Tue, 24 Sep 2019 16:47:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B45B20673;
+        Tue, 24 Sep 2019 16:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343658;
-        bh=2Qwsm8loPfoLwUa6cnWbCON9/e9C/jsrHa0Bssbv39I=;
+        s=default; t=1569343676;
+        bh=2n/Df1WVmgoy0vgbYlwsWecg+mwB5LQ52yY6MOGpQcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXl9LYAHCVvKnxGhjRBr+3hjIr/QpL3XFMRRLXkHUR4qAvZBvTuWx/UICtEfJvYYv
-         ZUgsAlHGFuwPHnneVytEFStsYXp3d6nKdBQ7Fbq4vVFqM+jL42qxua8C+pWH9siXOo
-         fZikWQRtK/KTQCOzEtc9+5x+WaWft2Wl1CdOe/aQ=
+        b=mFsQ2xpQVPeHRY2xtuVd3zMb6Ws5rnFw9Puy0IuxLbgejGqjL6IbPmwIyU8QfIPzV
+         kAO0ETES2OAlsXEUIQanlV5CFXJwyqY663fVMUWdDzCZCl+WTpEdYaYgS6peN4FuvU
+         GzXQVeF2cdUwyzBxv992NEJK9Ezsndy73RJyYtNc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Drake <drake@endlessm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 44/70] pinctrl: amd: disable spurious-firing GPIO IRQs
-Date:   Tue, 24 Sep 2019 12:45:23 -0400
-Message-Id: <20190924164549.27058-44-sashal@kernel.org>
+Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeff Layton <jlayton@kernel.org>, anton@enomsg.org,
+        ccross@android.com, tony.luck@intel.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 51/70] pstore: fs superblock limits
+Date:   Tue, 24 Sep 2019 12:45:30 -0400
+Message-Id: <20190924164549.27058-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164549.27058-1-sashal@kernel.org>
 References: <20190924164549.27058-1-sashal@kernel.org>
@@ -43,72 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
 
-[ Upstream commit d21b8adbd475dba19ac2086d3306327b4a297418 ]
+[ Upstream commit 83b8a3fbe3aa82ac3c253b698ae6a9be2dbdd5e0 ]
 
-When cold-booting Asus X434DA, GPIO 7 is found to be already configured
-as an interrupt, and the GPIO level is found to be in a state that
-causes the interrupt to fire.
+Leaving granularity at 1ns because it is dependent on the specific
+attached backing pstore module. ramoops has microsecond resolution.
 
-As soon as pinctrl-amd probes, this interrupt fires and invokes
-amd_gpio_irq_handler(). The IRQ is acked, but no GPIO-IRQ handler was
-invoked, so the GPIO level being unchanged just causes another interrupt
-to fire again immediately after.
+Fix the readback of ramoops fractional timestamp microseconds,
+which has incorrectly been reporting the value as nanoseconds.
 
-This results in an interrupt storm causing this platform to hang
-during boot, right after pinctrl-amd is probed.
+Fixes: 3f8f80f0cfeb ("pstore/ram: Read and write to the 'compressed' flag of pstore").
 
-Detect this situation and disable the GPIO interrupt when this happens.
-This enables the affected platform to boot as normal. GPIO 7 actually is
-the I2C touchpad interrupt line, and later on, i2c-multitouch loads and
-re-enables this interrupt when it is ready to handle it.
-
-Instead of this approach, I considered disabling all GPIO interrupts at
-probe time, however that seems a little risky, and I also confirmed that
-Windows does not seem to have this behaviour: the same 41 GPIO IRQs are
-enabled under both Linux and Windows, which is a far larger collection
-than the GPIOs referenced by the DSDT on this platform.
-
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Link: https://lore.kernel.org/r/20190814090540.7152-1-drake@endlessm.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Jeff Layton <jlayton@kernel.org>
+Cc: anton@enomsg.org
+Cc: ccross@android.com
+Cc: keescook@chromium.org
+Cc: tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/pstore/ram.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 9b9c61e3f0652..977792654e017 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -565,15 +565,25 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
- 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
- 				continue;
- 			irq = irq_find_mapping(gc->irq.domain, irqnr + i);
--			generic_handle_irq(irq);
-+			if (irq != 0)
-+				generic_handle_irq(irq);
- 
- 			/* Clear interrupt.
- 			 * We must read the pin register again, in case the
- 			 * value was changed while executing
- 			 * generic_handle_irq() above.
-+			 * If we didn't find a mapping for the interrupt,
-+			 * disable it in order to avoid a system hang caused
-+			 * by an interrupt storm.
- 			 */
- 			raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 			regval = readl(regs + i);
-+			if (irq == 0) {
-+				regval &= ~BIT(INTERRUPT_ENABLE_OFF);
-+				dev_dbg(&gpio_dev->pdev->dev,
-+					"Disabling spurious GPIO IRQ %d\n",
-+					irqnr + i);
-+			}
- 			writel(regval, regs + i);
- 			raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
- 			ret = IRQ_HANDLED;
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index 5b77098944151..db9f67d34af37 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -144,6 +144,7 @@ static int ramoops_read_kmsg_hdr(char *buffer, struct timespec64 *time,
+ 	if (sscanf(buffer, RAMOOPS_KERNMSG_HDR "%lld.%lu-%c\n%n",
+ 		   (time64_t *)&time->tv_sec, &time->tv_nsec, &data_type,
+ 		   &header_length) == 3) {
++		time->tv_nsec *= 1000;
+ 		if (data_type == 'C')
+ 			*compressed = true;
+ 		else
+@@ -151,6 +152,7 @@ static int ramoops_read_kmsg_hdr(char *buffer, struct timespec64 *time,
+ 	} else if (sscanf(buffer, RAMOOPS_KERNMSG_HDR "%lld.%lu\n%n",
+ 			  (time64_t *)&time->tv_sec, &time->tv_nsec,
+ 			  &header_length) == 2) {
++		time->tv_nsec *= 1000;
+ 		*compressed = false;
+ 	} else {
+ 		time->tv_sec = 0;
 -- 
 2.20.1
 
