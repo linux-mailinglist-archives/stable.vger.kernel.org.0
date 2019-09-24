@@ -2,152 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFAC7BD56B
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 01:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3C4BD571
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 01:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411136AbfIXXR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 19:17:28 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:35902 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2411114AbfIXXR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 19:17:28 -0400
-Received: by mail-pg1-f195.google.com with SMTP id t14so1682112pgs.3
-        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 16:17:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=9IB7bdIDm0JVlGPOX0oJIP58ZPbz3ymQiR2AH5kF6ng=;
-        b=CcmgROgDS7xGnm6hwGZbptpdg/Yp2sffhbyJar2RTlXPhD9oQu0yl1JI4KTx4YNUZK
-         lyUWlT6Vfe4xxRWzflmrg+CKWu9tN7CDOvXYxm+UouHxX6MAh66EgSpPtNWzbg7oLBsD
-         /4lK4/dH+15MDBtlWbPqqdtt725cDdvODQcEv2mhYrm2C4mya/hkWC/MQGLYcsppFRNI
-         +sXUSPXSZZK/9TtoPBWmWM/AUZG7cnp90vjFqEOSkRJXvPfqtq7KokWSzYNEW9txzCM7
-         +Gka3f80E4gzYErOGmAzb+4Xaf//VGWy/t3jUEoH3VwA+EJXeDYyiO2Rsj8YItKixk5k
-         nBvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9IB7bdIDm0JVlGPOX0oJIP58ZPbz3ymQiR2AH5kF6ng=;
-        b=SRZCpKgR7u/vN78nf4273ccbkkSnTXDaBaWEO39jthnmWTzFzcW8LzP+ax6P0b+gax
-         c3f8QFequffgBL5T1nF0EMaSY2hzFl6+l2pZMv1ZHQ2pjdshYY2enAUmL4TDLF9O7Zf4
-         6Srmb4UneOGqfm4u1tuonfNReAG2yp3iXbMGl+e9zB90QjFQcN3aOTQpaHwHWlN5Q311
-         Ma5M97aKS7XJhR8fcr1ydzJ8ptSqYUfkHwAJMPfPxIgEivWVp057g8Vcftx0qCJWa876
-         dejHEc4A3LZj9je8guCytUY4IXcESKSX1hqnb1R3NQ//BNcz5PrUh3jL6Qis+kpAWK/r
-         Geng==
-X-Gm-Message-State: APjAAAV0jAOSFcL54iOmpx5erfVpr0cBwcdezW9WdMUsnRXvD11qUSom
-        SiCxdA966l+qKfBfQTA1Ey/CFg==
-X-Google-Smtp-Source: APXvYqwSHjP7WUchWLaV5JFALdcAyPkAYEFwtgHTgmt7+uuhlJVE681CrUPfAxL4Y3fhpaLwSnpzoQ==
-X-Received: by 2002:a63:2364:: with SMTP id u36mr5412447pgm.449.1569367047521;
-        Tue, 24 Sep 2019 16:17:27 -0700 (PDT)
-Received: from centauri ([12.157.10.118])
-        by smtp.gmail.com with ESMTPSA id 197sm3264330pge.39.2019.09.24.16.17.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Sep 2019 16:17:26 -0700 (PDT)
-Date:   Wed, 25 Sep 2019 01:17:24 +0200
-From:   Niklas Cassel <niklas.cassel@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, will.deacon@arm.com
-Subject: Re: stable backport request, add cortex-a cpus to whitelist
-Message-ID: <20190924231724.GA7380@centauri>
-References: <20190909124501.GA14378@centauri>
- <20190919203247.GA258783@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-In-Reply-To: <20190919203247.GA258783@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S2411193AbfIXXXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 19:23:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2411192AbfIXXXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 19:23:04 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 251422146E;
+        Tue, 24 Sep 2019 23:23:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569367383;
+        bh=IZOGoiThbQyHcoidP4y3x1AvffuwXT6fGxUOub48fVo=;
+        h=Date:From:To:Subject:From;
+        b=VtHUxfOCcusMaypO3VaBFL0USUsx16USQHH73wl5YS5ukqax/r0VivxTo6xOXXHea
+         I91fNRS0TtbzP2LtzPKK51Skfv0V282APAS/Ect8/OtRf3ZPM3Q1ZYYFYTY+kqbF0R
+         SUdIXN//qEP1zNUXz13Tl/ICzsdO9Rfz1a8OHcxc=
+Date:   Tue, 24 Sep 2019 16:23:02 -0700
+From:   akpm@linux-foundation.org
+To:     axboe@kernel.dk, clm@fb.com, jack@suse.cz,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org
+Subject:  +
+ writeback-fix-use-after-free-in-finish_writeback_work.patch added to -mm
+ tree
+Message-ID: <20190924232302.Y87slbHE_%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch titled
+     Subject: writeback: fix use-after-free in finish_writeback_work()
+has been added to the -mm tree.  Its filename is
+     writeback-fix-use-after-free-in-finish_writeback_work.patch
 
-On Thu, Sep 19, 2019 at 10:32:47PM +0200, Greg KH wrote:
-> On Mon, Sep 09, 2019 at 02:45:01PM +0200, Niklas Cassel wrote:
-> > Hello,
-> > 
-> > I would like to request
-> > 2a355ec25729 ("arm64: kpti: Whitelist Cortex-A CPUs that don't implement the CSV3 field")
-> > 
-> > to be backported to 4.19 stable.
-> > 
-> > These CPUs are not susceptible to Meltdown, so enabling the mitigations
-> > for Meltdown (kpti) should be redundant, especially since we know that
-> > it can have a huge performance penalty for certain workloads.
-> > 
-> > kpti will still be automatically enabled if KASLR is enabled.
-> 
-> Now queued up, thanks.
-> 
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/writeback-fix-use-after-free-in-finish_writeback_work.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/writeback-fix-use-after-free-in-finish_writeback_work.patch
 
-Hello Greg, Will,
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-How about applying this also to v4.14 stable?
-(Since kpti is also enabled on Cortex-A CPUs in v4.14.)
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-2a355ec25729 does not apply cleanly on v4.14.y,
-since a LOT of things have changed in the file.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-git log --oneline 2a355ec25729053bb9a1a89b6c1d1cdd6c3b3fb1 --not linux-stable/linux-4.14.y arch/arm64/kernel/cpufeature.c | wc -l
-72
+------------------------------------------------------
+From: Tejun Heo <tj@kernel.org>
+Subject: writeback: fix use-after-free in finish_writeback_work()
 
-However, I've attached a simple backport of the commit.
+finish_writeback_work() reads @done->waitq after decrementing @done->cnt. 
+However, once @done->cnt reaches zero, @done may be freed (from stack) at
+any moment and @done->waitq can contain something unrelated by the time
+finish_writeback_work() tries to read it.  This led to the following
+crash.
 
+  "BUG: kernel NULL pointer dereference, address: 0000000000000002"
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0002) - not-present page
+  PGD 0 P4D 0
+  Oops: 0002 [#1] SMP DEBUG_PAGEALLOC
+  CPU: 40 PID: 555153 Comm: kworker/u98:50 Kdump: loaded Not tainted
+  ...
+  Workqueue: writeback wb_workfn (flush-btrfs-1)
+  RIP: 0010:_raw_spin_lock_irqsave+0x10/0x30
+  Code: 48 89 d8 5b c3 e8 50 db 6b ff eb f4 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 9c 5b fa 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 05 48 89 d8 5b c3 89 c6 e8 fe ca 6b ff eb f2 66 90
+  RSP: 0018:ffffc90049b27d98 EFLAGS: 00010046
+  RAX: 0000000000000000 RBX: 0000000000000246 RCX: 0000000000000000
+  RDX: 0000000000000001 RSI: 0000000000000003 RDI: 0000000000000002
+  RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
+  R10: ffff889fff407600 R11: ffff88ba9395d740 R12: 000000000000e300
+  R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+  FS:  0000000000000000(0000) GS:ffff88bfdfa00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000002 CR3: 0000000002409005 CR4: 00000000001606e0
+  Call Trace:
+   __wake_up_common_lock+0x63/0xc0
+   wb_workfn+0xd2/0x3e0
+   process_one_work+0x1f5/0x3f0
+   worker_thread+0x2d/0x3d0
+   kthread+0x111/0x130
+   ret_from_fork+0x1f/0x30
 
-Kind regards,
-Niklas
+Fix it by reading and caching @done->waitq before decrementing
+@done->cnt.
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-arm64-kpti-Whitelist-Cortex-A-CPUs-that-don-t-implem.patch"
-
-From 84406bca325ad4dc1c5d517801d298ae8c9b68a0 Mon Sep 17 00:00:00 2001
-From: Will Deacon <will.deacon@arm.com>
-Date: Thu, 13 Dec 2018 13:47:38 +0000
-Subject: [PATCH] arm64: kpti: Whitelist Cortex-A CPUs that don't implement the
- CSV3 field
-
-commit 2a355ec25729053bb9a1a89b6c1d1cdd6c3b3fb1 upstream.
-
-While the CSV3 field of the ID_AA64_PFR0 CPU ID register can be checked
-to see if a CPU is susceptible to Meltdown and therefore requires kpti
-to be enabled, existing CPUs do not implement this field.
-
-We therefore whitelist all unaffected Cortex-A CPUs that do not implement
-the CSV3 field.
-
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Link: http://lkml.kernel.org/r/20190924010631.GH2233839@devbig004.ftw2.facebook.com
+Fixes: 5b9cce4c7eb069 ("writeback: Generalize and expose wb_completion")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Debugged-by: Chris Mason <clm@fb.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>	[5.2+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-MIDR_CORTEX_A35 is not included, since the define does not exist in v4.14.y.
 
- arch/arm64/kernel/cpufeature.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/fs-writeback.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 3312d46fa29e..57ec681a8f11 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -838,6 +838,11 @@ static bool unmap_kernel_at_el0(const struct arm64_cpu_capabilities *entry,
- 	switch (read_cpuid_id() & MIDR_CPU_MODEL_MASK) {
- 	case MIDR_CAVIUM_THUNDERX2:
- 	case MIDR_BRCM_VULCAN:
-+	case MIDR_CORTEX_A53:
-+	case MIDR_CORTEX_A55:
-+	case MIDR_CORTEX_A57:
-+	case MIDR_CORTEX_A72:
-+	case MIDR_CORTEX_A73:
- 		return false;
- 	}
+--- a/fs/fs-writeback.c~writeback-fix-use-after-free-in-finish_writeback_work
++++ a/fs/fs-writeback.c
+@@ -164,8 +164,13 @@ static void finish_writeback_work(struct
  
--- 
-2.21.0
+ 	if (work->auto_free)
+ 		kfree(work);
+-	if (done && atomic_dec_and_test(&done->cnt))
+-		wake_up_all(done->waitq);
++	if (done) {
++		wait_queue_head_t *waitq = done->waitq;
++
++		/* @done can't be accessed after the following dec */
++		if (atomic_dec_and_test(&done->cnt))
++			wake_up_all(waitq);
++	}
+ }
+ 
+ static void wb_queue_work(struct bdi_writeback *wb,
+_
 
+Patches currently in -mm which might be from tj@kernel.org are
 
---a8Wt8u1KmwUX3Y2C--
+writeback-fix-use-after-free-in-finish_writeback_work.patch
+
