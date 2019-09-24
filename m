@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D51BCFB1
+	by mail.lfdr.de (Postfix) with ESMTP id 080D4BCFAF
 	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 19:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391540AbfIXQp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:45:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35242 "EHLO mail.kernel.org"
+        id S2391653AbfIXQpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391453AbfIXQp2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:45:28 -0400
+        id S2409989AbfIXQpf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:45:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7D7C20872;
-        Tue, 24 Sep 2019 16:45:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3C3520872;
+        Tue, 24 Sep 2019 16:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343527;
-        bh=vNJVuAcZSGd4JfMJeT1HcCWqm+jXlfUf9xrhXZuLZQE=;
+        s=default; t=1569343534;
+        bh=ENY7C6ndhTKXioNw1tKj1SAOP8oceyqR21UUp1PZOIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JjFmLxoRe5KEaa0ie6iqXLEP96e1UCQb06KieFOGezO+Bhiry1zpXeAn+ZipIsKv
-         kkTh5i5uUO+sPDXCLlTUbnDVDT0bTXMO2Mf4WOX5PeUy0bqyHnIbTB5CdmTBqDw0pM
-         koVR/22SpvFQPI7ywphHDwr4cGVHTIIfxKaDIb6A=
+        b=QFb+bzIK6wEaRLkfG9f7F1WDxdmReKbmdkPxC/kgFDahE3lubg3S9D6Wk2DFQ8pfw
+         JSXXAQY6BZNn4QBygxsiYJhmNTwq1Oz0FQJQebKYEO7nrltDkoggSEoxdnvTGS6lGk
+         nWF0BMGIeJ4pZXsGP1rDYxsNwe26LPgx2EhXqXBQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <peng.fan@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
+Cc:     Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 78/87] clk: imx: clk-pll14xx: unbypass PLL by default
-Date:   Tue, 24 Sep 2019 12:41:34 -0400
-Message-Id: <20190924164144.25591-78-sashal@kernel.org>
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 81/87] mbox: qcom: add APCS child device for QCS404
+Date:   Tue, 24 Sep 2019 12:41:37 -0400
+Message-Id: <20190924164144.25591-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -44,53 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 
-[ Upstream commit a9aa8306074d9519dd6e5fdf07240b01bac72e04 ]
+[ Upstream commit 78c86458a440ff356073c21b568cb58ddb67b82b ]
 
-When registering the PLL, unbypass the PLL.
-The PLL has two bypass control bit, BYPASS and EXT_BYPASS.
-we will expose EXT_BYPASS to clk driver for mux usage, and keep
-BYPASS inside pll14xx usage. The PLL has a restriction that
-when M/P change, need to RESET/BYPASS pll to avoid glitch, so
-we could not expose BYPASS.
+There is clock controller functionality in the APCS hardware block of
+qcs404 devices similar to msm8916.
 
-To make it easy for clk driver usage, unbypass PLL which does
-not hurt current function.
-
-Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lkml.kernel.org/r/1568043491-20680-3-git-send-email-peng.fan@nxp.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Co-developed-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-pll14xx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mailbox/qcom-apcs-ipc-mailbox.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
-index 656f48b002dd3..7a815ec76aa5c 100644
---- a/drivers/clk/imx/clk-pll14xx.c
-+++ b/drivers/clk/imx/clk-pll14xx.c
-@@ -368,6 +368,7 @@ struct clk *imx_clk_pll14xx(const char *name, const char *parent_name,
- 	struct clk_pll14xx *pll;
- 	struct clk *clk;
- 	struct clk_init_data init;
-+	u32 val;
+diff --git a/drivers/mailbox/qcom-apcs-ipc-mailbox.c b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
+index 705e17a5479cc..d3676fd3cf945 100644
+--- a/drivers/mailbox/qcom-apcs-ipc-mailbox.c
++++ b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
+@@ -47,7 +47,6 @@ static const struct mbox_chan_ops qcom_apcs_ipc_ops = {
  
- 	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
- 	if (!pll)
-@@ -399,6 +400,10 @@ struct clk *imx_clk_pll14xx(const char *name, const char *parent_name,
- 	pll->rate_table = pll_clk->rate_table;
- 	pll->rate_count = pll_clk->rate_count;
+ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	struct qcom_apcs_ipc *apcs;
+ 	struct regmap *regmap;
+ 	struct resource *res;
+@@ -55,6 +54,11 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ 	void __iomem *base;
+ 	unsigned long i;
+ 	int ret;
++	const struct of_device_id apcs_clk_match_table[] = {
++		{ .compatible = "qcom,msm8916-apcs-kpss-global", },
++		{ .compatible = "qcom,qcs404-apcs-apps-global", },
++		{}
++	};
  
-+	val = readl_relaxed(pll->base + GNRL_CTL);
-+	val &= ~BYPASS_MASK;
-+	writel_relaxed(val, pll->base + GNRL_CTL);
-+
- 	clk = clk_register(NULL, &pll->hw);
- 	if (IS_ERR(clk)) {
- 		pr_err("%s: failed to register pll %s %lu\n",
+ 	apcs = devm_kzalloc(&pdev->dev, sizeof(*apcs), GFP_KERNEL);
+ 	if (!apcs)
+@@ -89,7 +93,7 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	if (of_device_is_compatible(np, "qcom,msm8916-apcs-kpss-global")) {
++	if (of_match_device(apcs_clk_match_table, &pdev->dev)) {
+ 		apcs->clk = platform_device_register_data(&pdev->dev,
+ 							  "qcom-apcs-msm8916-clk",
+ 							  -1, NULL, 0);
 -- 
 2.20.1
 
