@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 464ECBCD36
-	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5A9BCD3E
+	for <lists+stable@lfdr.de>; Tue, 24 Sep 2019 18:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390485AbfIXQoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 12:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
+        id S2389305AbfIXQo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 12:44:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404399AbfIXQoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:44:15 -0400
+        id S2633165AbfIXQo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:44:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24F8820872;
-        Tue, 24 Sep 2019 16:44:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A991A217D9;
+        Tue, 24 Sep 2019 16:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569343454;
-        bh=GMQqub5xp0/4XAi4fDZg0COcqBv/GhT/CjZ1rK/+jCo=;
+        s=default; t=1569343466;
+        bh=rvdn6CM18sRU3iihANkuQJrrZFTaDeCo9vZzLOAkUgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQOZl3RI9XjgJ9FrBdsLL+M5xwR+4uTBLdj1l6vfefsqNdo2nWDFludllxijVyvAL
-         ELX7O3RHvqht397FShpkotvM/V20Ovpr/k4U7WlbMhENtu22wcUd4to+adcWjPNIP9
-         0PJLLejNtv7e6KTHUg80oCaPzy74Kkr1a06VaOr0=
+        b=VsPbXDRhvX8anlcC1oZrqxIBCIyWiQx03dJ754UwbTa/bDKLvrCIVq52S0cZMERsm
+         Bb4hfKr4t8tsD3KPwLI0DRTZdAS7LLKd/ad8jrzMkYiRACEunXTpfdffLCuz4AZdRs
+         QdHfaT8jt+9RsfQx4d9xiPmJFpj/i+/hpDCtHJR0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 54/87] drm/nouveau/kms/tu102-: disable input lut when input is already FP16
-Date:   Tue, 24 Sep 2019 12:41:10 -0400
-Message-Id: <20190924164144.25591-54-sashal@kernel.org>
+Cc:     Charlene Liu <charlene.liu@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 59/87] drm/amd/display: support spdif
+Date:   Tue, 24 Sep 2019 12:41:15 -0400
+Message-Id: <20190924164144.25591-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190924164144.25591-1-sashal@kernel.org>
 References: <20190924164144.25591-1-sashal@kernel.org>
@@ -42,38 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Charlene Liu <charlene.liu@amd.com>
 
-[ Upstream commit 1e339ab2ac3c769c1b06b9fb7d532f8495ebc56d ]
+[ Upstream commit b5a41620bb88efb9fb31a4fa5e652e3d5bead7d4 ]
 
-On Turing, an input LUT is required to transform inputs in fixed-point
-formats to FP16 for the internal display pipe.  We provide an identity
-mapping whenever a window is enabled for this reason.
+[Description]
+port spdif fix to staging:
+ spdif hardwired to afmt inst 1.
+ spdif func pointer
+ spdif resource allocation (reserve last audio endpoint for spdif only)
 
-HW has error checks to ensure when the input is already FP16, that the
-input LUT is also disabled.
-
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Charlene Liu <charlene.liu@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/wndw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/core/dc_resource.c   | 17 ++++++++---------
+ drivers/gpu/drm/amd/display/dc/dce/dce_audio.c  |  4 ++--
+ 2 files changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.c b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-index 283ff690350ea..50303ec194bbc 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-@@ -320,7 +320,9 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
- 		asyh->wndw.olut &= ~BIT(wndw->id);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index 2ceaab4fb5deb..68db60e4caf32 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -265,12 +265,10 @@ bool resource_construct(
+ 				DC_ERR("DC: failed to create audio!\n");
+ 				return false;
+ 			}
+-
+ 			if (!aud->funcs->endpoint_valid(aud)) {
+ 				aud->funcs->destroy(&aud);
+ 				break;
+ 			}
+-
+ 			pool->audios[i] = aud;
+ 			pool->audio_count++;
+ 		}
+@@ -1659,24 +1657,25 @@ static struct audio *find_first_free_audio(
+ 		const struct resource_pool *pool,
+ 		enum engine_id id)
+ {
+-	int i;
+-	for (i = 0; i < pool->audio_count; i++) {
++	int i, available_audio_count;
++
++	available_audio_count = pool->audio_count;
++
++	for (i = 0; i < available_audio_count; i++) {
+ 		if ((res_ctx->is_audio_acquired[i] == false) && (res_ctx->is_stream_enc_acquired[i] == true)) {
+ 			/*we have enough audio endpoint, find the matching inst*/
+ 			if (id != i)
+ 				continue;
+-
+ 			return pool->audios[i];
+ 		}
  	}
  
--	if (!ilut && wndw->func->ilut_identity) {
-+	if (!ilut && wndw->func->ilut_identity &&
-+	    asyw->state.fb->format->format != DRM_FORMAT_XBGR16161616F &&
-+	    asyw->state.fb->format->format != DRM_FORMAT_ABGR16161616F) {
- 		static struct drm_property_blob dummy = {};
- 		ilut = &dummy;
+-    /* use engine id to find free audio */
+-	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
++	/* use engine id to find free audio */
++	if ((id < available_audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
+ 		return pool->audios[id];
  	}
+-
+ 	/*not found the matching one, first come first serve*/
+-	for (i = 0; i < pool->audio_count; i++) {
++	for (i = 0; i < available_audio_count; i++) {
+ 		if (res_ctx->is_audio_acquired[i] == false) {
+ 			return pool->audios[i];
+ 		}
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
+index 4a10a5d22c90b..5de9623bdf66b 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
+@@ -613,6 +613,8 @@ void dce_aud_az_configure(
+ 
+ 	AZ_REG_WRITE(AZALIA_F0_CODEC_PIN_CONTROL_SINK_INFO1,
+ 		value);
++	DC_LOG_HW_AUDIO("\n\tAUDIO:az_configure: index: %u data, 0x%x, displayName %s: \n",
++		audio->inst, value, audio_info->display_name);
+ 
+ 	/*
+ 	*write the port ID:
+@@ -922,7 +924,6 @@ static const struct audio_funcs funcs = {
+ 	.az_configure = dce_aud_az_configure,
+ 	.destroy = dce_aud_destroy,
+ };
+-
+ void dce_aud_destroy(struct audio **audio)
+ {
+ 	struct dce_audio *aud = DCE_AUD(*audio);
+@@ -953,7 +954,6 @@ struct audio *dce_audio_create(
+ 	audio->regs = reg;
+ 	audio->shifts = shifts;
+ 	audio->masks = masks;
+-
+ 	return &audio->base;
+ }
+ 
 -- 
 2.20.1
 
