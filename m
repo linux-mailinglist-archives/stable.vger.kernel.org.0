@@ -2,271 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E301CBD7A4
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 07:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A139BD7D0
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 07:40:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392206AbfIYFKx convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 25 Sep 2019 01:10:53 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33962 "EHLO mx1.redhat.com"
+        id S2404497AbfIYFkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 01:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388300AbfIYFKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 01:10:52 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2404361AbfIYFkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 01:40:55 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5571C30860C8
-        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 05:10:52 +0000 (UTC)
-Received: from [172.54.128.67] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9FA7D10013A1;
-        Wed, 25 Sep 2019 05:10:47 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id BAFD021D7C;
+        Wed, 25 Sep 2019 05:40:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569390054;
+        bh=0tqAfD6FQ5W1loZDV2vAy3YrFX1Q+XsOKeCKol0gfCg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NZmhKboWH1UxIDNzRV8hayCCN304Lyk3lGDe19y3M6Pp3vLKKTXAW0Xwglo/kv2jJ
+         68DgEIzzcpuMsAOHqMO0a0zCifGzQq/5oZspNlg2S6t+FhpBSAk3/m1QkdI1FVZP7p
+         Siy2LZPQFGZU6I5SN7VfH2wLTHXnY22u0I0Py+Ic=
+Date:   Wed, 25 Sep 2019 07:40:51 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Yufen Yu <yuyufen@huawei.com>
+Cc:     songliubraving@fb.com, linux-raid@vger.kernel.org, neilb@suse.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] md: no longer compare spare disk superblock events in
+ super_load
+Message-ID: <20190925054051.GA1436542@kroah.com>
+References: <20190925055449.30091-1-yuyufen@huawei.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.2-rc1-7d23e09.cki
- (stable)
-CC:     Xiong Zhou <xzhou@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.271DB2E61E.IG94LRYSDB@redhat.com>
-X-Gitlab-Pipeline-ID: 185667
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/185667
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Wed, 25 Sep 2019 05:10:52 +0000 (UTC)
-Date:   Wed, 25 Sep 2019 01:10:52 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190925055449.30091-1-yuyufen@huawei.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 25, 2019 at 01:54:49PM +0800, Yufen Yu wrote:
+> We have a test case as follow:
+> 
+>   mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
+>   mdadm -S /dev/md1
+>   mdadm -A /dev/md1 /dev/sd[b-c] --run --force
+> 
+>   mdadm --zero /dev/sda
+>   mdadm /dev/md1 -a /dev/sda
+> 
+>   echo offline > /sys/block/sdc/device/state
+>   echo offline > /sys/block/sdb/device/state
+>   sleep 5
+>   mdadm -S /dev/md1
+> 
+>   echo running > /sys/block/sdb/device/state
+>   echo running > /sys/block/sdc/device/state
+>   mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+> 
+> When we readd /dev/sda to the array, it started to do recovery.
+> After offline the other two disks in md1, the recovery have
+> been interrupted and superblock update info cannot be written
+> to the offline disks. While the spare disk (/dev/sda) can continue
+> to update superblock info.
+> 
+> After stopping the array and assemble it, we found the array
+> run fail, with the follow kernel message:
+> 
+> [  172.986064] md: kicking non-fresh sdb from array!
+> [  173.004210] md: kicking non-fresh sdc from array!
+> [  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+> [  173.022406] md1: failed to create bitmap (-5)
+> [  173.023466] md: md1 stopped.
+> 
+> Since both sdb and sdc have the value of 'sb->events' smaller than
+> that in sda, they have been kicked from the array. However, the only
+> remained disk sda is in 'spare' state before stop and it cannot be
+> added to conf->mirrors[] array. In the end, raid array assemble and run fail.
+> 
+> In fact, we can use the older disk sdb or sdc to assemble the array.
+> That means we should not choose the 'spare' disk as the fresh disk in
+> analyze_sbs().
+> 
+> To fix the problem, we do not compare superblock events when it is
+> a spare disk, as same as validate_super.
+> 
+> Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+> 
+> v1->v2:
+>   fix wrong return value in super_90_load
+> ---
+>  drivers/md/md.c | 44 ++++++++++++++++++++++++--------------------
+>  1 file changed, 24 insertions(+), 20 deletions(-)
 
-Hello,
+<formletter>
 
-We ran automated tests on a recent commit from this kernel tree:
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 7d23e0913649 - Linux 5.3.2-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/185667
-
-One or more kernel tests failed:
-
-    ppc64le:
-      ❌ xfstests: ext4
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-
-      Host 2:
-         ✅ Boot test
-         ❌ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-      Host 3:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ❌ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ IPMI driver test
-         🚧 ✅ IPMItool loop stress test
-         🚧 ❌ Memory function: kaslr
-         🚧 ⚡⚡⚡ Networking bridge: sanity
-         🚧 ⚡⚡⚡ Networking MACsec: sanity
-         🚧 ⚡⚡⚡ Networking route: pmtu
-         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
-         🚧 ⚡⚡⚡ L2TP basic test
-         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
-         🚧 ⚡⚡⚡ ALSA PCM loopback test
-         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
-         🚧 ⚡⚡⚡ trace: ftrace/tracer
-         🚧 ⚡⚡⚡ Networking route_func: local
-         🚧 ⚡⚡⚡ Networking route_func: forward
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
-
-      Host 4:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+</formletter>
