@@ -2,93 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81AE2BDBD0
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D46BDBF6
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbfIYKDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 06:03:53 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:42035 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387911AbfIYKDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 06:03:52 -0400
-Received: by mail-pg1-f195.google.com with SMTP id z12so2914218pgp.9
-        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 03:03:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=D2+Lw+Pa01X7BomivX93hO8QHJLkQUok4YlT1BdSE8Q=;
-        b=E5T74E7aiLNp58UWXnpZyalzu/mEv9i0J0gVytsV9dTDjmkgfai15/LekVtp2q1QcL
-         gaUVymGSBo5rrEU8HwK0LQX+zl+RCTe3huCu6qasixs/qsPmjPe0FjMPf+1/ysEXI4gr
-         QY0M7E5Xm3nU70nK+lwHwWAw3Cz7idV3KUWPfpiqvoXtfPDSilQp97dXeagEI3L2wun7
-         CHBsMtM3phTNDbBI0YHMjhb6eSItTo2M8qOB910EXVdoDmfkiqKoeggt1ynccRLa9e4o
-         VRAYo4oTP1CPOM3JmlA6MHB5owQWFCmvxN45t3Ys8AAd9TFxvLW5ATyKJk3K9NvvFbhH
-         DBTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=D2+Lw+Pa01X7BomivX93hO8QHJLkQUok4YlT1BdSE8Q=;
-        b=bH7+yY7akNM2MKhlOitGsAFj8hXge20PzTSg0gST5prpAAYYg0h1oqrLA/MuTsm9Q6
-         TF+mNc0poidKHZ2EulS8cwS+s3qYwdkj9uTwwi0hri5grIkvDmC5dtDDzsUrEc8dTX4v
-         W4FK3PCnui5G6ehPucz5MrCsf87CddMl3MNkD9hThcHSqL9Z37CHF+cpUXmjZatZGZeA
-         /3KARVdycbRNE2ZTxeCx8ro+WqC5HQNDANEXgaVH2BlAqVeSliMRNNEPOy01cENhb3Pe
-         ZD+/LXU5QAUX8DZa/c8+vyr67OH9X8zs9iKFW+5VuOOini4L9l9tqaSXfXCheQsXrQIH
-         PS6w==
-X-Gm-Message-State: APjAAAXqsxenu0yt09KrGo4gN0+T1xiBZE1NIpFRb3MR7M3+yRaJ613m
-        QSAGweCktvEC6PBCf+FT7pnhKpWTfenjWg==
-X-Google-Smtp-Source: APXvYqyK1/XMgIGTBB477BhqN6s74xUQ051y3HOsz4kjV9sUQYEjuuOo+dD5rVKeMURqOO2+apKG7Q==
-X-Received: by 2002:a17:90a:bf0e:: with SMTP id c14mr5285165pjs.69.1569405831188;
-        Wed, 25 Sep 2019 03:03:51 -0700 (PDT)
-Received: from baolinwangubtpc.spreadtrum.com ([117.18.48.82])
-        by smtp.gmail.com with ESMTPSA id j25sm4753752pfi.113.2019.09.25.03.03.47
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 25 Sep 2019 03:03:50 -0700 (PDT)
-From:   Baolin Wang <baolin.wang@linaro.org>
-To:     stable@vger.kernel.org, sre@kernel.org
-Cc:     david@lechnology.com, linux-pm@vger.kernel.org, arnd@arndb.de,
-        baolin.wang@linaro.org, orsonzhai@gmail.com,
-        vincent.guittot@linaro.org, linux-kernel@vger.kernel.org
-Subject: [BACKPORT 4.14.y v3 3/3] power: supply: sysfs: ratelimit property read error message
-Date:   Wed, 25 Sep 2019 18:03:35 +0800
-Message-Id: <c136c30f8b113ba9b0359f57d2a109766c1d7a70.1569405445.git.baolin.wang@linaro.org>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <cover.1569405445.git.baolin.wang@linaro.org>
-References: <cover.1569405445.git.baolin.wang@linaro.org>
+        id S2388943AbfIYKQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 06:16:00 -0400
+Received: from mga12.intel.com ([192.55.52.136]:34644 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388915AbfIYKP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 06:15:59 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Sep 2019 03:15:59 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,547,1559545200"; 
+   d="scan'208";a="203585405"
+Received: from dariusvo-mobl.ger.corp.intel.com (HELO localhost) ([10.249.39.150])
+  by fmsmga001.fm.intel.com with ESMTP; 25 Sep 2019 03:15:54 -0700
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>, stable@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
+Date:   Wed, 25 Sep 2019 13:15:32 +0300
+Message-Id: <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
+References: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Lechner <david@lechnology.com>
+From: Vadim Sukhomlinov <sukhomlinov@google.com>
 
-[Upstream commit 87a2b65fc855e6be50f791c2ebbb492541896827]
+commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
 
-This adds rate limiting to the message that is printed when reading a
-power supply property via sysfs returns an error. This will prevent
-userspace applications from unintentionally dDOSing the system by
-continuously reading a property that returns an error.
+TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+future TPM operations. TPM 1.2 behavior was different, future TPM
+operations weren't disabled, causing rare issues. This patch ensures
+that future TPM operations are disabled.
 
-Signed-off-by: David Lechner <david@lechnology.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+[dianders: resolved merge conflicts with mainline]
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 ---
- drivers/power/supply/power_supply_sysfs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/tpm/tpm-chip.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
-index eb5dc74..2ccaf4f 100644
---- a/drivers/power/supply/power_supply_sysfs.c
-+++ b/drivers/power/supply/power_supply_sysfs.c
-@@ -91,7 +91,8 @@ static ssize_t power_supply_show_property(struct device *dev,
- 				dev_dbg(dev, "driver has no data for `%s' property\n",
- 					attr->attr.name);
- 			else if (ret != -ENODEV && ret != -EAGAIN)
--				dev_err(dev, "driver failed to report `%s' property: %zd\n",
-+				dev_err_ratelimited(dev,
-+					"driver failed to report `%s' property: %zd\n",
- 					attr->attr.name, ret);
- 			return ret;
- 		}
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index 0eca20c5a80c..ede8c1deca97 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -158,12 +158,15 @@ static int tpm_class_shutdown(struct device *dev)
+ {
+ 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
+ 
++	down_write(&chip->ops_sem);
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+ 		down_write(&chip->ops_sem);
+ 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
+ 		chip->ops = NULL;
+ 		up_write(&chip->ops_sem);
+ 	}
++	chip->ops = NULL;
++	up_write(&chip->ops_sem);
+ 
+ 	return 0;
+ }
 -- 
-1.7.9.5
+2.20.1
 
