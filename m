@@ -2,170 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7029BDD97
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 14:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 154DDBDE3A
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 14:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405236AbfIYMAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 08:00:31 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:2781 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2405217AbfIYMAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 08:00:30 -0400
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id D7969ECF19B030580548;
-        Wed, 25 Sep 2019 20:00:27 +0800 (CST)
-Received: from huawei.com (10.175.124.28) by DGGEMS402-HUB.china.huawei.com
- (10.3.19.202) with Microsoft SMTP Server id 14.3.439.0; Wed, 25 Sep 2019
- 20:00:21 +0800
-From:   Yufen Yu <yuyufen@huawei.com>
-To:     <axboe@kernel.dk>
-CC:     <linux-block@vger.kernel.org>, Yufen Yu <yuyufen@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Keith Busch <keith.busch@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v4] block: fix null pointer dereference in blk_mq_rq_timed_out()
-Date:   Wed, 25 Sep 2019 20:20:25 +0800
-Message-ID: <20190925122025.31246-1-yuyufen@huawei.com>
-X-Mailer: git-send-email 2.17.2
+        id S1732470AbfIYMpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 08:45:17 -0400
+Received: from mail1.protonmail.ch ([185.70.40.18]:25195 "EHLO
+        mail1.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726369AbfIYMpR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 08:45:17 -0400
+Date:   Wed, 25 Sep 2019 12:45:06 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=harmenstoppels.nl;
+        s=protonmail; t=1569415512;
+        bh=s0dkSqKPl00TQROsjdWs18AylmDuaRW3gePyOunZ3oo=;
+        h=Date:To:From:Reply-To:Subject:Feedback-ID:From;
+        b=O0uCvnfNH7cEAUB6kY7dCF4GonVY2DhSHdKxChANBGg7yoUWTt0Hb/pmn2Lbk0cGY
+         8qpZYPJeJcpbwMcDZonculfiV/gneutdbzdeUe8uTWK0400/ZeF6dhTHdRzZkklazw
+         pU81Wh9/NhkeWMSNf8Sh4qXYbNpZq208n59D3AKE=
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+From:   Harmen Stoppels <me@harmenstoppels.nl>
+Reply-To: Harmen Stoppels <me@harmenstoppels.nl>
+Subject: Revert "Bluetooth: validate BLE connection interval updates"
+Message-ID: <vGzt5wshxYXxE0RkVBTLwAKuxpSX7Ik55SyACyeWo7B65PkEParWOuOFwOurc3KMTUcG4lmrGIsR35YBZlqFqQcMi9WuAYuZeuBoArlygRs=@harmenstoppels.nl>
+Feedback-ID: rdWrTHRoF_MHe1IVW0u8ihXn9c5rqtFcF9eCRubjTwp6JwB4q5jHhTfcJinDcVo8JNCHMqJlYdrJl20zDNyG_w==:Ext:ProtonMail
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.124.28]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha256; boundary="---------------------0ca449983f99785b10f6508a3abe5cc3"; charset=UTF-8
+X-Spam-Status: No, score=-1.2 required=7.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF autolearn=ham
+        autolearn_force=no version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.protonmail.ch
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We got a null pointer deference BUG_ON in blk_mq_rq_timed_out()
-as following:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+-----------------------0ca449983f99785b10f6508a3abe5cc3
+Content-Type: multipart/mixed;boundary=---------------------041aa1da58a1391277549bc81ac6d99d
 
-[  108.825472] BUG: kernel NULL pointer dereference, address: 0000000000000040
-[  108.827059] PGD 0 P4D 0
-[  108.827313] Oops: 0000 [#1] SMP PTI
-[  108.827657] CPU: 6 PID: 198 Comm: kworker/6:1H Not tainted 5.3.0-rc8+ #431
-[  108.829503] Workqueue: kblockd blk_mq_timeout_work
-[  108.829913] RIP: 0010:blk_mq_check_expired+0x258/0x330
-[  108.838191] Call Trace:
-[  108.838406]  bt_iter+0x74/0x80
-[  108.838665]  blk_mq_queue_tag_busy_iter+0x204/0x450
-[  108.839074]  ? __switch_to_asm+0x34/0x70
-[  108.839405]  ? blk_mq_stop_hw_queue+0x40/0x40
-[  108.839823]  ? blk_mq_stop_hw_queue+0x40/0x40
-[  108.840273]  ? syscall_return_via_sysret+0xf/0x7f
-[  108.840732]  blk_mq_timeout_work+0x74/0x200
-[  108.841151]  process_one_work+0x297/0x680
-[  108.841550]  worker_thread+0x29c/0x6f0
-[  108.841926]  ? rescuer_thread+0x580/0x580
-[  108.842344]  kthread+0x16a/0x1a0
-[  108.842666]  ? kthread_flush_work+0x170/0x170
-[  108.843100]  ret_from_fork+0x35/0x40
+-----------------------041aa1da58a1391277549bc81ac6d99d
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;charset=utf-8
 
-The bug is caused by the race between timeout handle and completion for
-flush request.
+Hi,
 
-When timeout handle function blk_mq_rq_timed_out() try to read
-'req->q->mq_ops', the 'req' have completed and reinitiated by next
-flush request, which would call blk_rq_init() to clear 'req' as 0.
+It would be great when 'Revert "Bluetooth: validate BLE connection interva=
+l updates"' was backported to Linux 4.14 (and above). The original patch '=
+Bluetooth: validate BLE connection interval updates' has caused BLE device=
+s to automatically disconnect after a few attempts negotiating connection =
+parameters with 'unacceptable' intervals as the defaults in the kernel cha=
+nged.
 
-After commit 12f5b93145 ("blk-mq: Remove generation seqeunce"),
-normal requests lifetime are protected by refcount. Until 'rq->ref'
-drop to zero, the request can really be free. Thus, these requests
-cannot been reused before timeout handle finish.
+subject: Revert "Bluetooth: validate BLE connection interval updates"
+commit id: 68d19d7d995759b96169da5aac313363f92a9075
 
-However, flush request has defined .end_io and rq->end_io() is still
-called even if 'rq->ref' doesn't drop to zero. After that, the 'flush_rq'
-can be reused by the next flush request handle, resulting in null
-pointer deference BUG ON.
+Best regards,
 
-We fix this problem by covering flush request with 'rq->ref'.
-If the refcount is not zero, flush_end_io() return and wait the
-last holder recall it. To record the request status, we add a new
-entry 'rq_status', which will be used in flush_end_io().
+Harmen Stoppels
+-----------------------041aa1da58a1391277549bc81ac6d99d
+Content-Type: application/pgp-keys; filename="publickey - me@harmenstoppels.nl - 0xFD537C88.asc"; name="publickey - me@harmenstoppels.nl - 0xFD537C88.asc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="publickey - me@harmenstoppels.nl - 0xFD537C88.asc"; name="publickey - me@harmenstoppels.nl - 0xFD537C88.asc"
 
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Keith Busch <keith.busch@intel.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: stable@vger.kernel.org # v4.18+
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tDQpWZXJzaW9uOiBPcGVuUEdQLmpz
+IHY0LjYuMg0KQ29tbWVudDogaHR0cHM6Ly9vcGVucGdwanMub3JnDQoNCnhzQk5CRm5SYTFJQkNB
+RE9yWkVyVVRjQ2pKYW0zZHpHK1MwYXRjZEthRnAydHJvRzV0aEt0WmlLdW9HRA0KVGZZaU9VRURE
+dXd1RlkvMWJBdmYvWHlmMXFYZTVyNmRTNFZNUGJYb2lqbTVMWmZjZnUzZVdLcysrZ1czDQp2N0g0
+MU5VbDRFa2pjalc2ejVEWXlKRkJ0amhFVmM4d3ZNY1dGQ3JwNWY0cnlxbWhpNTJVWTJxb0tEclUN
+CkpkNmw3OHNuemtHYlJsNVczSVRuRUx3TTdXU1dUeTRuOGVpdGRENkNsRFZPeGpEeGVIQXdXV296
+TW90eg0KR2dDd2ViWmgxV2htVXI0NVJDNEQvQ0pNMmRwa3NxM29uNXBwSEU0eFZORVJpL1pPVXZs
+Q01Gby8wOFg1DQpET2pmTmh3NTlkZFJyUHNsU2xMUU0vdWxaTVdBSnJHMGgyU0I3d3Y5ODgxQ252
+dTFXVDNvMUk1dEFCRUINCkFBSE5LMjFsUUdoaGNtMWxibk4wYjNCd1pXeHpMbTVzSUR4dFpVQm9Z
+WEp0Wlc1emRHOXdjR1ZzY3k1dQ0KYkQ3Q3dIOEVFQUVJQUNrRkFsblJhMVFHQ3drSENBTUNDUkNO
+SE9GdlpmbUVnZ1FWQ0FvQ0F4WUNBUUlaDQpBUUliQXdJZUFRQUtDUkNOSE9GdlpmbUVnbmU2Q0FD
+M3YwczVHYkpoWERSZkFia1dWTElDUm9oRWJWUm8NCjI2QWVBKy9YTHlKZmFNZThhWkFMRlBXaW5L
+VVNwdEY1N2JYQnQrVGJ2dEJmcjh3Wk1EZE5HMnI0U0E3dw0KTnFadC9Edks2Q2xlN0dybmZlRFl2
+NjlqT1QreXJ4aDhEc1IzV3p6QXZZV1FXVU1MRFVENjlDSEJIMjVkDQozbEFVYlFOWjgwQ09XYVJi
+ODFrVW1TUmN3ejNub1dPLyt0OS9JdU5MR3RvT25wamgrYWVtZzVBbVo5WDUNCnROeFBmcTc4Qzd6
+bUNXNGJ6dUV2QXM3N0tPZXdnZE9FWmFrOUJXTDFpQUlyS1pOS1NzVzd2V0kxUjF2NQ0KbU1Gbkk2
+NThVWnVtYUY1SWk4SzZsU00rTUQ2a1QreGhBZEQzaE5iRm03dnA3bWdaRjB6WnZkdXNBTGFKDQov
+RmpvRlB6QWtwZEN6c0JOQkZuUmExSUJDQURYRENEZmNhV053RkZwNytNSzRMVVlTOUZMVDRuK2pK
+RXcNCjNKNnNlVWNiQzNuTDIycEN5Vy9MZDdUVzl5bEw5aXM4M2xMVThsMG1Sb3NZZ2hvWktZMWpE
+RFJNQ2tZLw0Kaysrekt4dUJKZkh3QmZLY2ZvZzVmQnU4L2hjUm1ZQVFIK2dmZytGdU9yTXhwVTk0
+NmxsQVp1QkJ5SXh1DQpDNFpwK0lSTjlMbloxcFRPU0VqNmZYWXNsVzZsRnJqRW13MVFsMUxYME1C
+OXdpR1hrN2h4UkxCaVM5bmkNCkRrUTBRbVNGMjhPNkd1dGQrelZSYXJhSXkyUHhaL1Y0NHI1ejVS
+NDVNMFB5UXVUMVUzdUFXejYralBDMw0KT2NBa05QUy9MQ1hkdk16TmtxQXhSQmJ1cXZUd0JiTWhO
+YTZkdC9FeWUrY0F6WEFLNmJBTnhZai9rNk1mDQp3bkpodVllakFCRUJBQUhDd0drRUdBRUlBQk1G
+QWxuUmExVUpFSTBjNFc5bCtZU0NBaHNNQUFvSkVJMGMNCjRXOWwrWVNDT3dJSUFKUGE3QjdubDda
+RmNMYkV1WjlNWXhjaWgrYVNFOUJLdkt1WWhRWGo3ZHZZRFBBWg0KejFCOGxCTUVGbDcvT0t4TDlK
+c0NEMHJ4L2VhUWpXQU1IRUExSVJYQ0s0a2FKaVZOeElPb0FUc3laS1VyDQpxOEtrOWd6cGVrTFl5
+eU9PM1JUWFJMWFFtRDB6dWI0bEtNRnZqb0cwU2xrTDVBbm1QbWF2YlV4anJ6KzINClFIcGRQdUE2
+elZ3VzBOcjF2dldUVXZraWJIVFJLcFE5c3RLbFdyUzlqWWk1NDA1SWl0dnNjdDBEOWNmcA0KaWVX
+SXJJNGh3dzY2UEJidjhNTEFjSmYvaWplT1lEUGNBcWMwMzE2TlZIQUk3aWJuTFVjZ2FIRTRwMVVO
+DQpmRFcxM3dvb0VkdW5LZG5BOXNUbkx4bWZsMFpySXNBR3p0U2tEQ09zZVg4NWR1YlRwb3NTNjBZ
+PQ0KPU9MdWUNCi0tLS0tRU5EIFBHUCBQVUJMSUMgS0VZIEJMT0NLLS0tLS0NCg==
+-----------------------041aa1da58a1391277549bc81ac6d99d--
 
--------
-v2:
- - move rq_status from struct request to struct blk_flush_queue
-v3:
- - remove unnecessary '{}' pair.
-v4:
- - let spinlock to protect 'fq->rq_status'
----
- block/blk-flush.c | 10 ++++++++++
- block/blk-mq.c    |  5 ++++-
- block/blk.h       |  7 +++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+-----------------------0ca449983f99785b10f6508a3abe5cc3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-diff --git a/block/blk-flush.c b/block/blk-flush.c
-index aedd9320e605..1eec9cbe5a0a 100644
---- a/block/blk-flush.c
-+++ b/block/blk-flush.c
-@@ -214,6 +214,16 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
- 
- 	/* release the tag's ownership to the req cloned from */
- 	spin_lock_irqsave(&fq->mq_flush_lock, flags);
-+
-+	if (!refcount_dec_and_test(&flush_rq->ref)) {
-+		fq->rq_status = error;
-+		spin_unlock_irqrestore(&fq->mq_flush_lock, flags);
-+		return;
-+	}
-+
-+	if (fq->rq_status != BLK_STS_OK)
-+		error = fq->rq_status;
-+
- 	hctx = flush_rq->mq_hctx;
- 	if (!q->elevator) {
- 		blk_mq_tag_set_rq(hctx, flush_rq->tag, fq->orig_rq);
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 20a49be536b5..e04fa9ab5574 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -912,7 +912,10 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
- 	 */
- 	if (blk_mq_req_expired(rq, next))
- 		blk_mq_rq_timed_out(rq, reserved);
--	if (refcount_dec_and_test(&rq->ref))
-+
-+	if (is_flush_rq(rq, hctx))
-+		rq->end_io(rq, 0);
-+	else if (refcount_dec_and_test(&rq->ref))
- 		__blk_mq_free_request(rq);
- 
- 	return true;
-diff --git a/block/blk.h b/block/blk.h
-index ed347f7a97b1..de258e7b9db8 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -30,6 +30,7 @@ struct blk_flush_queue {
- 	 */
- 	struct request		*orig_rq;
- 	spinlock_t		mq_flush_lock;
-+	blk_status_t 		rq_status;
- };
- 
- extern struct kmem_cache *blk_requestq_cachep;
-@@ -47,6 +48,12 @@ static inline void __blk_get_queue(struct request_queue *q)
- 	kobject_get(&q->kobj);
- }
- 
-+static inline bool
-+is_flush_rq(struct request *req, struct blk_mq_hw_ctx *hctx)
-+{
-+	return hctx->fq->flush_rq == req;
-+}
-+
- struct blk_flush_queue *blk_alloc_flush_queue(struct request_queue *q,
- 		int node, int cmd_size, gfp_t flags);
- void blk_free_flush_queue(struct blk_flush_queue *q);
--- 
-2.17.2
+-----BEGIN PGP SIGNATURE-----
+Version: ProtonMail
+
+wsBcBAEBCAAGBQJdi2FRAAoJEI0c4W9l+YSCnQ8H/1tM1HdYhHlQT8H4uPnV
+BYRWWGwhdMgMBTk/lH6vBopXnGAdCVbR6N25TB1do3ENWK5lxytWKlFC6luN
+94rmpLr1dDtfseorEuxDLYmLtm7xali6T8ot0V7Un2tXHfhrkCVj2hcT/BRq
+73GxgCC8xLJo5F10H58YzcJOoctmr8WIhEM0/HZVts1rxMVsld6XEgBWXQyT
+5H9EHB0ZglN6jUx43iqB+13ArSn3DWPba/Pe/ZAioJ94XdViV9y8uyZeVa45
+mSj4YESY7OASwbcCizSAdEMYYEE8jL3UEu56OBgvuqVrVMiQzMakXYi3+2Xg
+qwx+GvM8mym0XStS0EGnSDw=
+=RGYd
+-----END PGP SIGNATURE-----
+
+
+-----------------------0ca449983f99785b10f6508a3abe5cc3--
 
