@@ -2,87 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9586BE83E
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 00:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3AFBE928
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 01:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729237AbfIYWXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 18:23:42 -0400
-Received: from mga03.intel.com ([134.134.136.65]:55986 "EHLO mga03.intel.com"
+        id S1733049AbfIYXpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 19:45:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727010AbfIYWXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 18:23:42 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Sep 2019 15:23:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,549,1559545200"; 
-   d="scan'208";a="340549867"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
-  by orsmga004.jf.intel.com with ESMTP; 25 Sep 2019 15:23:41 -0700
-Date:   Wed, 25 Sep 2019 15:23:41 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Wanpeng Li <kernellwp@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v3] KVM: X86: Fix userspace set invalid CR4
-Message-ID: <20190925222341.GO31852@linux.intel.com>
-References: <1568800210-3127-1-git-send-email-wanpengli@tencent.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1568800210-3127-1-git-send-email-wanpengli@tencent.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+        id S1729080AbfIYXpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 19:45:55 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 910CB20640;
+        Wed, 25 Sep 2019 23:45:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569455153;
+        bh=XfTo88z5IOF2DHU/5AuJrCCSKPMkXNk9oKnASWjnL5w=;
+        h=Date:From:To:Subject:From;
+        b=T7xTY6dy+OhR5hVQK2wDY9VvDWjcTwbT/2xSxTIX7o+K2/Xu3iofynENlyO0xQ1tz
+         uGjsHA++yZbcc6ugrZDNCZ0j6POnJIi3Me9LVzPiDnRbgdg4RfL9dDIwrAJ2dExecv
+         xZNX2vFsMnn1PgdLhLuksS8HE1gBNp7RDbImVty8=
+Date:   Wed, 25 Sep 2019 16:45:53 -0700
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, aryabinin@virtuozzo.com,
+        hannes@cmpxchg.org, mhocko@suse.com, mm-commits@vger.kernel.org,
+        penguin-kernel@i-love.sakura.ne.jp, shakeelb@google.com,
+        stable@vger.kernel.org, thomas.lindroth@gmail.com,
+        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
+Subject:  [patch 01/76] memcg, kmem: do not fail __GFP_NOFAIL
+ charges
+Message-ID: <20190925234553.JDOe4u1sM%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 05:50:10PM +0800, Wanpeng Li wrote:
-> From: Wanpeng Li <wanpengli@tencent.com>
-> 
-> Reported by syzkaller:
-> 
-> 	WARNING: CPU: 0 PID: 6544 at /home/kernel/data/kvm/arch/x86/kvm//vmx/vmx.c:4689 handle_desc+0x37/0x40 [kvm_intel]
-> 	CPU: 0 PID: 6544 Comm: a.out Tainted: G           OE     5.3.0-rc4+ #4
-> 	RIP: 0010:handle_desc+0x37/0x40 [kvm_intel]
-> 	Call Trace:
-> 	 vmx_handle_exit+0xbe/0x6b0 [kvm_intel]
-> 	 vcpu_enter_guest+0x4dc/0x18d0 [kvm]
-> 	 kvm_arch_vcpu_ioctl_run+0x407/0x660 [kvm]
-> 	 kvm_vcpu_ioctl+0x3ad/0x690 [kvm]
-> 	 do_vfs_ioctl+0xa2/0x690
-> 	 ksys_ioctl+0x6d/0x80
-> 	 __x64_sys_ioctl+0x1a/0x20
-> 	 do_syscall_64+0x74/0x720
-> 	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> 
-> When CR4.UMIP is set, guest should have UMIP cpuid flag. Current
-> kvm set_sregs function doesn't have such check when userspace inputs
-> sregs values. SECONDARY_EXEC_DESC is enabled on writes to CR4.UMIP
-> in vmx_set_cr4 though guest doesn't have UMIP cpuid flag. The testcast
-> triggers handle_desc warning when executing ltr instruction since
-> guest architectural CR4 doesn't set UMIP. This patch fixes it by
-> adding valid CR4 and CPUID combination checking in __set_sregs.
-> 
-> syzkaller source: https://syzkaller.appspot.com/x/repro.c?x=138efb99600000
-> 
-> Reported-by: syzbot+0f1819555fbdce992df9@syzkaller.appspotmail.com
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> ---
+From: Michal Hocko <mhocko@suse.com>
+Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
 
-Per Paolo, the additional checks should be ok:
+Thomas has noticed the following NULL ptr dereference when using cgroup
+v1 kmem limit:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 0
+P4D 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
+Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
+RIP: 0010:create_empty_buffers+0x24/0x100
+Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
+RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
+RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
+RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
+FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
+Call Trace:
+ create_page_buffers+0x4d/0x60
+ __block_write_begin_int+0x8e/0x5a0
+ ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
+ ? jbd2__journal_start+0xd7/0x1f0
+ ext4_da_write_begin+0x112/0x3d0
+ generic_perform_write+0xf1/0x1b0
+ ? file_update_time+0x70/0x140
+ __generic_file_write_iter+0x141/0x1a0
+ ext4_file_write_iter+0xef/0x3b0
+ __vfs_write+0x17e/0x1e0
+ vfs_write+0xa5/0x1a0
+ ksys_write+0x57/0xd0
+ do_syscall_64+0x55/0x160
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  https://lkml.kernel.org/r/d0c35f21-b262-2c4e-9109-4ab803487705@redhat.com
+Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
+fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
+behavior because nofail allocations are not allowed to fail.  Normal
+charge path simply forces the charge even if that means to cross the
+limit.  Kmem accounting should be doing the same.
 
-I'm pretty sure userspace can still induce a WARN storm by setting the
-cr4_fixed0/1 MSRs for a nested guest, but this is a good change regardless.
+Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
+Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+ mm/memcontrol.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+--- a/mm/memcontrol.c~memcg-kmem-do-not-fail-__gfp_nofail-charges
++++ a/mm/memcontrol.c
+@@ -2943,6 +2943,16 @@ int __memcg_kmem_charge_memcg(struct pag
+ 
+ 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
+ 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
++
++		/*
++		 * Enforce __GFP_NOFAIL allocation because callers are not
++		 * prepared to see failures and likely do not have any failure
++		 * handling code.
++		 */
++		if (gfp & __GFP_NOFAIL) {
++			page_counter_charge(&memcg->kmem, nr_pages);
++			return 0;
++		}
+ 		cancel_charge(memcg, nr_pages);
+ 		return -ENOMEM;
+ 	}
+_
