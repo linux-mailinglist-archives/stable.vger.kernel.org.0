@@ -2,141 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C60C6BE3BD
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 19:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C59BE43D
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 20:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727050AbfIYRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 13:48:54 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:51247 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728302AbfIYRsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 13:48:53 -0400
-Received: by mail-wm1-f67.google.com with SMTP id 7so6745606wme.1
-        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 10:48:52 -0700 (PDT)
+        id S1726482AbfIYSGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 14:06:11 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:43534 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726175AbfIYSGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 14:06:11 -0400
+Received: by mail-ed1-f68.google.com with SMTP id r9so3924486edl.10
+        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 11:06:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ebxFzT8nIL71E7fF2H7syY8mxEeNW0UnVZfk5obr57o=;
-        b=JVxVCrFTteo7kL3Q/6uyAeAdJ5jibVhsw2TEqNk0TzTj7auWG4Uf/aH7smqWnJomfc
-         CDUNJeF3M/kpeGdQ6+fXkLc+U4vMPNnvbqkqmh6LnYrNv6lWFWKmiLVVYNXuEuf2+uXl
-         a6zz/NmbMAVwYmW3jzHqode7PLKNYs5XKkRETfTpDOo2O80oX2FOG33GuM6dbmFiT5rv
-         GyaQeDrwN2ZF8uIWv7BmSlh4T/Hf75s6pWNAGiSZ6JpQMrhdGLN/VrNb2wyYQxKmmXib
-         tDH3xMzpJrJ4PL9uKf4CaYu3aPY6khfDev+4zGDMqpkfFJWuN+Wvw6qZk1rmB8TcfyNT
-         lsLg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=VLLeybKvCgWNEtje/WeNG+0XPyp6KF/m0azOyvHefkk=;
+        b=XCJ7spe+AWrPGJ/XE69w6Mba6CzjoP2EMz+g2br1E0NR5zlr0k97gEutWbtVhWXpRS
+         DelXAZWq3In5BcYGMchX5tH2UUumVYiEdh3Y36kdC5HjPPTI37tHy39zK+lGoogtSnYM
+         BDCWDvr4ucauqhzMJ+Vu2x82b29YWSPR8FXRI8FhTRkGntFhm8ylq35tIig6jQHySrAq
+         AlhOb2uTtrc5CEtGcQWeHJJZgmLCE/j5EVKK1EDyYlHN6n3e5pHzP3hHh+1/XHAyPnMT
+         GXPr7/Xta1fsCAOyVoIt+PMBVFShrsayrxpWMnWywW5ds8/vOrvG78agxeincKI/ZvMs
+         aGkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ebxFzT8nIL71E7fF2H7syY8mxEeNW0UnVZfk5obr57o=;
-        b=Jd4VS9UKgxSlxJOxCGWk2om523WkcQwLFaLxHFozmzMBHbF7YrYpT3wYsZsQY3RS7s
-         Y4SP1pVMZFJe/8ahSEKS6gNt+4Fai5C0uAo6cVzl2E3EqS9v8dU1C74ZMpAn2fOMtFNk
-         xzfEoUorRkYQA97htbRBjXeha7OLjOhnh6q310q3Ujh6Pvo0HzJE9lFdqZT85CyiUjMm
-         4ekOXVB7k2KqwrFIe5QrCmS7wThjAnG/5lsKFLldAu6VGYB1Wbqu0dDIkFQXzROr17cU
-         1POxqnenbtWD336GRcwD/f36w0zsaL3wBCuK9pTu2LQ8DXpe4TSDdM3+hBStkPPYeoWp
-         wGbA==
-X-Gm-Message-State: APjAAAWKfLM+3xvW/h4irX0uIVd/Es4FETWolBV3y35Jb1Az8SVVVL7T
-        DgodDrCGCYf/AhIlhUItgqAVP+IdriC2+glKJ+OrBg==
-X-Google-Smtp-Source: APXvYqyYALcK3m8CRmcocOzbXY3zrK/sT/SQ3+NBoFRSexJRHY7hSdwcSYHlmvCBBRp0Pb5Org/v//mZkMMDTp+qqFk=
-X-Received: by 2002:a1c:2546:: with SMTP id l67mr9183119wml.10.1569433731493;
- Wed, 25 Sep 2019 10:48:51 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=VLLeybKvCgWNEtje/WeNG+0XPyp6KF/m0azOyvHefkk=;
+        b=uUbPJ6QrgZkUlS3wRvoS56iZvETs+SF8gxUsISsF6ozV5oHQ442y+ygnv8f7WjVEZq
+         3+amGY2Ba9WM0eKyTITtq+IoitqiTSnt1K/ZMNzutS5yv2vjkJyEpNEN9EpVo+RvJZ7y
+         V0M85B2NdEaMypAxmFNjbSHnaLIgly5TMXyDMsg1tBZtF1k0V2GGLeKcWDJLXU4sKfPf
+         nxbDXqLYIvHOw00vqueNXgaqLGgQU8RTjQFvDkaMxsQHDrbEbBRkuiIoraF2HfPr+jAg
+         2bvEyYmHFmJlKIi+3T1dMDe2sdn2RWdYV08eZBI2l7Pi4/Z0psFhFCCjGWVma7sGDLWO
+         7qrw==
+X-Gm-Message-State: APjAAAUMlMUxLdRV6K4tm3PWdQLQIJxRpmMX0KzBr1OfiYZ6ITpU1fch
+        d6/K/yEpSTP30TGsJ/dKvMMIg45keOskODCz5cM=
+X-Google-Smtp-Source: APXvYqzY4/bn/xsjTla2Oyvf6lKthUOTe5VSPbNpB+y+RFU9WS9K1N+0SvOh+V1VGWMZE/b2Hh22EZANkY2bUfnUZOA=
+X-Received: by 2002:a50:9eac:: with SMTP id a41mr4459340edf.193.1569434768547;
+ Wed, 25 Sep 2019 11:06:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190925172705.17358-1-jsnitsel@redhat.com>
-In-Reply-To: <20190925172705.17358-1-jsnitsel@redhat.com>
-From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date:   Wed, 25 Sep 2019 19:48:39 +0200
-Message-ID: <CAKv+Gu_yq_9ZZCy5d3yfV5onyoc_qc-rvdVJ2_iyYvdFS5iCOw@mail.gmail.com>
-Subject: Re: [PATCH v3] tpm: only set efi_tpm_final_log_size after successful
- event log parsing
-To:     Jerry Snitselaar <jsnitsel@redhat.com>
-Cc:     linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Matthew Garrett <mjg59@google.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reply-To: mohammadouattara53@gmail.com
+Received: by 2002:a17:906:9718:0:0:0:0 with HTTP; Wed, 25 Sep 2019 11:06:08
+ -0700 (PDT)
+From:   Mohammad Ouattara <mohammad.ouattara3238@gmail.com>
+Date:   Wed, 25 Sep 2019 18:06:08 +0000
+X-Google-Sender-Auth: hjmPWpC93BQwtvx8zXHngje4W4E
+Message-ID: <CAJ4jTgogEMPRJwMh7TaS29kD1ADRy4Dx=urWDmU05SQ3xkqoGg@mail.gmail.com>
+Subject: I am expecting your urgent respond.
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 25 Sep 2019 at 19:27, Jerry Snitselaar <jsnitsel@redhat.com> wrote:
->
-> If __calc_tpm2_event_size fails to parse an event it will return 0,
-> resulting tpm2_calc_event_log_size returning -1. Currently there is
-> no check of this return value, and efi_tpm_final_log_size can end up
-> being set to this negative value resulting in a panic like the
-> the one given below.
->
-> Also __calc_tpm2_event_size returns a size of 0 when it fails
-> to parse an event, so update function documentation to reflect this.
->
-...
->
-> The root cause of the issue that caused the failure of event parsing
-> in this case is resolved by Peter Jone's patchset dealing with large
-> event logs where crossing over a page boundary causes the page with
-> the event count to be unmapped.
->
-> Fixes: c46f3405692de ("tpm: Reserve the TPM final events table")
-> Cc: linux-efi@vger.kernel.org
-> Cc: linux-integrity@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Cc: Matthew Garrett <mjg59@google.com>
-> Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+ Dear Friend!!!
 
-Thanks Jerry, I have queued this in the efi/urgent branch.
+I know that this message will come to you as a surprise.
+I am the Auditing and Accounting section manager in (BOA BANK)
+Ouagadougou Burkina Faso.
 
+I Hope that you will not expose or betray
+this trust and confident that I am about to repose on you for the
+mutual benefit of our both families. I need your assistance in
+transferring the sum of ($12.5M) Ten million, five hundred thousand
+united dollars into your account within 7 to 10 banking days. Of one
+of my Bank clients who died at the collapsing of the world trade
+center at the United States on September 11th 2001.
 
-> ---
-> v3: rebase on top of Peter Jone's patchset
-> v2: added FW_BUG to pr_err, and renamed label to out_calc.
->     Updated doc comment for __calc_tpm2_event_size.
->
->  drivers/firmware/efi/tpm.c   | 9 ++++++++-
->  include/linux/tpm_eventlog.h | 2 +-
->  2 files changed, 9 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-> index b9ae5c6f9b9c..703469c1ab8e 100644
-> --- a/drivers/firmware/efi/tpm.c
-> +++ b/drivers/firmware/efi/tpm.c
-> @@ -85,11 +85,18 @@ int __init efi_tpm_eventlog_init(void)
->                                                     final_tbl->nr_events,
->                                                     log_tbl->log);
->         }
-> +
-> +       if (tbl_size < 0) {
-> +               pr_err(FW_BUG "Failed to parse event in TPM Final Events Log\n");
-> +               goto out_calc;
-> +       }
-> +
->         memblock_reserve((unsigned long)final_tbl,
->                          tbl_size + sizeof(*final_tbl));
-> -       early_memunmap(final_tbl, sizeof(*final_tbl));
->         efi_tpm_final_log_size = tbl_size;
->
-> +out_calc:
-> +       early_memunmap(final_tbl, sizeof(*final_tbl));
->  out:
->         early_memunmap(log_tbl, sizeof(*log_tbl));
->         return ret;
-> diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
-> index 12584b69a3f3..2dfdd63ac034 100644
-> --- a/include/linux/tpm_eventlog.h
-> +++ b/include/linux/tpm_eventlog.h
-> @@ -152,7 +152,7 @@ struct tcg_algorithm_info {
->   * total. Once we've done this we know the offset of the data length field,
->   * and can calculate the total size of the event.
->   *
-> - * Return: size of the event on success, <0 on failure
-> + * Return: size of the event on success, 0 on failure
->   */
->
->  static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
-> --
-> 2.23.0
->
+If you are really interested in my proposal further details of the
+Transfer will be forwarded unto you as soon as I receive your
+willingness mail for a successful transfer.
+
+I am expecting your urgent respond.
+Have a great day,
+Mr mohammad ouattara.
