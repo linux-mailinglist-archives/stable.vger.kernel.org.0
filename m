@@ -2,94 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAAB6BDBFE
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D62FBDC23
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389161AbfIYKQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 06:16:39 -0400
-Received: from mga18.intel.com ([134.134.136.126]:21948 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727141AbfIYKQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 06:16:39 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Sep 2019 03:16:38 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,547,1559545200"; 
-   d="scan'208";a="340366339"
-Received: from dariusvo-mobl.ger.corp.intel.com (HELO localhost) ([10.249.39.150])
-  by orsmga004.jf.intel.com with ESMTP; 25 Sep 2019 03:16:35 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Peter Jones <pjones@redhat.com>, linux-efi@vger.kernel.org,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v2 2/2] efi+tpm: don't traverse an event log with no events
-Date:   Wed, 25 Sep 2019 13:16:19 +0300
-Message-Id: <20190925101622.31457-2-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190925101622.31457-1-jarkko.sakkinen@linux.intel.com>
-References: <20190925101622.31457-1-jarkko.sakkinen@linux.intel.com>
+        id S2387531AbfIYKZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 06:25:21 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:53664 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389010AbfIYKZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 06:25:20 -0400
+Received: by mail-wm1-f68.google.com with SMTP id i16so4663894wmd.3
+        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 03:25:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=YsAAEdAnYhuD24RBj5UQt7anrWgvey/6pgyZTzvHDNQ=;
+        b=UYwl+PkyE4LyhX9Bwrtb55DJgg0t6nDhFP4+vHYPs9lVb6ey6p7/I5j20teQl4ZfpR
+         Nk2jXO+EBFUtoef2hQdcvhCtLvcSZorF8q/9g5rWe9wlwTXl3Q8HkLxvmoumVf0eRrJu
+         b2E6WjNKME9ZLlZiD68k3jAe/290lCuRcyNDTDSxFv2j4Sm/YKV0bZPpv6BNUQFVrTlk
+         ar60ZfEexPr6n+3URWiNaDFmUFACj81yMsBRbamdwi0AwjhWif1dJEMu1tMGuntCU1ZW
+         p/gpStXXnCVfS4sN93ObS7XF8txCNS32KWSMhkX6+8Cux29ANksMX5NcbsJpj+6hhz75
+         uXVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YsAAEdAnYhuD24RBj5UQt7anrWgvey/6pgyZTzvHDNQ=;
+        b=IqDYBcrCOZF78uzU2h/a27Zsy5GCukS5u8XSB1wvmLPIeqyFUbIZdq+CPS/1OuMySq
+         fDrdF36WkxmPBtAqHx3lwFYmSbofZVEfTR+fqVbcupSPEVICUh0aoIPrU5+v7k/f3rYc
+         99vNi1ZeufmDAQ4IbMI+prpcI4knC9bD2UYhk7kuo43FfWWYHwYhhay+4iUhyJ/BNchg
+         YnaO+O9lDrF2+GhRWMEagiqtZ94NUN9ROr7ow4OHNjx7I5Bm7TpjbUsJEEpPQefQwu1M
+         KJjnYLngIzXiOw/kceQ1aTBbBUFmVw+TaglL2u5jvjnF0vLN53SqBTtZxZp4APVmjvTV
+         YZAg==
+X-Gm-Message-State: APjAAAXudpDlZkwYFO9jCYhtiAgTEETgOJ9lEM/OC8+92sQfPjZ+u/cA
+        yfvHsaDe1prBSPfqyirC3Ovxqx5zj5rjUGenbMRgtg==
+X-Google-Smtp-Source: APXvYqyMgrnfISClQMEiMxR6OyDaNMbH+h4WHpY7n7XWx+b/qrWGNgEE7v4W9or4yhiQx8R3PWEvEbMpiqSBoVaZx9w=
+X-Received: by 2002:a1c:e906:: with SMTP id q6mr6505018wmc.136.1569407117052;
+ Wed, 25 Sep 2019 03:25:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190925101622.31457-1-jarkko.sakkinen@linux.intel.com>
+In-Reply-To: <20190925101622.31457-1-jarkko.sakkinen@linux.intel.com>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Wed, 25 Sep 2019 12:25:05 +0200
+Message-ID: <CAKv+Gu9xLXWj8e70rs6Oy3aT_+qvemMJqtOETQG+7z==Nf_RcQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] efi+tpm: Don't access event->count when it isn't mapped.
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-integrity <linux-integrity@vger.kernel.org>,
+        Peter Jones <pjones@redhat.com>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Lyude Paul <lyude@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Bartosz Szczepanek <bsz@semihalf.com>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Jones <pjones@redhat.com>
+On Wed, 25 Sep 2019 at 12:16, Jarkko Sakkinen
+<jarkko.sakkinen@linux.intel.com> wrote:
+>
+> From: Peter Jones <pjones@redhat.com>
+>
+> Some machines generate a lot of event log entries.  When we're
+> iterating over them, the code removes the old mapping and adds a
+> new one, so once we cross the page boundary we're unmapping the page
+> with the count on it.  Hilarity ensues.
+>
+> This patch keeps the info from the header in local variables so we don't
+> need to access that page again or keep track of if it's mapped.
+>
+> Fixes: 44038bc514a2 ("tpm: Abstract crypto agile event size calculations")
+> Cc: linux-efi@vger.kernel.org
+> Cc: linux-integrity@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Peter Jones <pjones@redhat.com>
+> Tested-by: Lyude Paul <lyude@redhat.com>
+> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Acked-by: Matthew Garrett <mjg59@google.com>
+> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-When there are no entries to put into the final event log, some machines
-will return the template they would have populated anyway.  In this case
-the nr_events field is 0, but the rest of the log is just garbage.
+Thanks Jarkko.
 
-This patch stops us from trying to iterate the table with
-__calc_tpm2_event_size() when the number of events in the table is 0.
+Shall I take these through the EFI tree?
 
-Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
-Cc: linux-efi@vger.kernel.org
-Cc: linux-integrity@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Jones <pjones@redhat.com>
-Tested-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Acked-by: Matthew Garrett <mjg59@google.com>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- drivers/firmware/efi/tpm.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-index 1d3f5ca3eaaf..b9ae5c6f9b9c 100644
---- a/drivers/firmware/efi/tpm.c
-+++ b/drivers/firmware/efi/tpm.c
-@@ -75,11 +75,16 @@ int __init efi_tpm_eventlog_init(void)
- 		goto out;
- 	}
- 
--	tbl_size = tpm2_calc_event_log_size((void *)efi.tpm_final_log
--					    + sizeof(final_tbl->version)
--					    + sizeof(final_tbl->nr_events),
--					    final_tbl->nr_events,
--					    log_tbl->log);
-+	tbl_size = 0;
-+	if (final_tbl->nr_events != 0) {
-+		void *events = (void *)efi.tpm_final_log
-+				+ sizeof(final_tbl->version)
-+				+ sizeof(final_tbl->nr_events);
-+
-+		tbl_size = tpm2_calc_event_log_size(events,
-+						    final_tbl->nr_events,
-+						    log_tbl->log);
-+	}
- 	memblock_reserve((unsigned long)final_tbl,
- 			 tbl_size + sizeof(*final_tbl));
- 	early_memunmap(final_tbl, sizeof(*final_tbl));
--- 
-2.20.1
-
+> ---
+>  include/linux/tpm_eventlog.h | 14 +++++++++++---
+>  1 file changed, 11 insertions(+), 3 deletions(-)
+>
+> diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
+> index 63238c84dc0b..12584b69a3f3 100644
+> --- a/include/linux/tpm_eventlog.h
+> +++ b/include/linux/tpm_eventlog.h
+> @@ -170,6 +170,7 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+>         u16 halg;
+>         int i;
+>         int j;
+> +       u32 count, event_type;
+>
+>         marker = event;
+>         marker_start = marker;
+> @@ -190,16 +191,22 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+>         }
+>
+>         event = (struct tcg_pcr_event2_head *)mapping;
+> +       /*
+> +        * the loop below will unmap these fields if the log is larger than
+> +        * one page, so save them here for reference.
+> +        */
+> +       count = READ_ONCE(event->count);
+> +       event_type = READ_ONCE(event->event_type);
+>
+>         efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
+>
+>         /* Check if event is malformed. */
+> -       if (event->count > efispecid->num_algs) {
+> +       if (count > efispecid->num_algs) {
+>                 size = 0;
+>                 goto out;
+>         }
+>
+> -       for (i = 0; i < event->count; i++) {
+> +       for (i = 0; i < count; i++) {
+>                 halg_size = sizeof(event->digests[i].alg_id);
+>
+>                 /* Map the digest's algorithm identifier */
+> @@ -256,8 +263,9 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+>                 + event_field->event_size;
+>         size = marker - marker_start;
+>
+> -       if ((event->event_type == 0) && (event_field->event_size == 0))
+> +       if (event_type == 0 && event_field->event_size == 0)
+>                 size = 0;
+> +
+>  out:
+>         if (do_mapping)
+>                 TPM_MEMUNMAP(mapping, mapping_size);
+> --
+> 2.20.1
+>
