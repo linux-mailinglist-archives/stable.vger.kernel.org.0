@@ -2,81 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05AB2BE61A
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 22:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C88BE7A1
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 23:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390227AbfIYUHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 16:07:06 -0400
-Received: from pbmsgap02.intersil.com ([192.157.179.202]:52140 "EHLO
-        pbmsgap02.intersil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727743AbfIYUHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 16:07:06 -0400
-X-Greylist: delayed 1144 seconds by postgrey-1.27 at vger.kernel.org; Wed, 25 Sep 2019 16:07:04 EDT
-Received: from pps.filterd (pbmsgap02.intersil.com [127.0.0.1])
-        by pbmsgap02.intersil.com (8.16.0.27/8.16.0.27) with SMTP id x8PJXPCI005373;
-        Wed, 25 Sep 2019 15:43:54 -0400
-Received: from pbmxdp03.intersil.corp (pbmxdp03.pb.intersil.com [132.158.200.224])
-        by pbmsgap02.intersil.com with ESMTP id 2v60v8ae1j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Wed, 25 Sep 2019 15:43:54 -0400
-Received: from pbmxdp02.intersil.corp (132.158.200.223) by
- pbmxdp03.intersil.corp (132.158.200.224) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
- 15.1.1531.3; Wed, 25 Sep 2019 15:43:52 -0400
-Received: from localhost.localdomain (132.158.202.109) by
- pbmxdp02.intersil.corp (132.158.200.223) with Microsoft SMTP Server id
- 15.1.1531.3 via Frontend Transport; Wed, 25 Sep 2019 15:43:52 -0400
-From:   Chris Brandt <chris.brandt@renesas.com>
-To:     Wolfram Sang <wsa@the-dreams.de>
-CC:     <stable@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-renesas-soc@vger.kernel.org>,
-        Chris Brandt <chris.brandt@renesas.com>,
-        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-Subject: [PATCH] i2c: riic: Clear NACK in tend isr
-Date:   Wed, 25 Sep 2019 14:43:27 -0500
-Message-ID: <20190925194327.28109-1-chris.brandt@renesas.com>
-X-Mailer: git-send-email 2.23.0
+        id S1728430AbfIYViB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 17:38:01 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:45212 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728253AbfIYViB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 17:38:01 -0400
+Received: by mail-pg1-f193.google.com with SMTP id q7so16583pgi.12;
+        Wed, 25 Sep 2019 14:38:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZccWoHs0aZ7q3rRGAukQCFv+3XXyFmALCfYZzOtaP3U=;
+        b=eL09BxT48UtYPUKD39Szei4FINUzf9IfnaIA+aXUeoEWEY0srk5x0jHyCWHCTryHRr
+         e9McwamGNp4TbGVT36kh5Dt+LvRL3j1YMIS+Pa8NSf7UDMRQ/0sXYbmxPOUmpbkRPkyQ
+         yoVAHKbZTAYTCeyoa5sdixdLxaK7u+ScgS/Oc+4512908PO842zTk2VPzRj/x+mZP3B7
+         hF2u8f7DR/ScMj8ANUXqlfCSwcgwEFaOIljZjrGBLQuTfTQi62mEw+eSME/hOxO8vYxT
+         l8x4WqkkfRIoJB0fPBxsV/jz51KeyO2QQBIQ4ZwNXZo/Hjtnh8kJbcTXrzExvWvUhvON
+         V9Rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZccWoHs0aZ7q3rRGAukQCFv+3XXyFmALCfYZzOtaP3U=;
+        b=BpFoPc3DaaeHyMYE6WqHMsZHIgzWpReczHnXxAP+IZ8vKvntGP/C79rD0hYA6gWdwa
+         MNLRRwhz9MjAGeeUMvhaFqtfV9xljyUbkth6DzheC2Cx2tyBC9orEwkAf22OLeXSYu4R
+         57xtQPjmJlCnMLDgXL6vs0ub+HYMgPH+DV8CBBg1YX3YmduvNgiGObxrLSeG5fgHwIMG
+         BZj9eGHBIpHtWOn5Iu2VlWtb8SwpvWQoedAnzN9aqQCZ6UsrZEWyhIY4qFu4BBVfhLv0
+         1H/OSLSUwsNtGihxnSjets2ulefLR898s1jaLVelN9YL5ptmttSOo/MNeBJpz42QD35N
+         IRBA==
+X-Gm-Message-State: APjAAAX3unXuqrIXanJKB46grLsk1PyNZI+xu4QTaoyfubMIstaKQAMN
+        c+l//9cmvY1CE2AuIgtCqk0WBuWF
+X-Google-Smtp-Source: APXvYqy5EC/MPkIuEx5ZvT6ACo/QPHTMP0hx/Lw8kMfRH8DToRdLOanXABcaXgVj2063J3WYqQTvqQ==
+X-Received: by 2002:aa7:9d8e:: with SMTP id f14mr374658pfq.217.1569447480344;
+        Wed, 25 Sep 2019 14:38:00 -0700 (PDT)
+Received: from ?IPv6:2620:15c:2c1:200:55c7:81e6:c7d8:94b? ([2620:15c:2c1:200:55c7:81e6:c7d8:94b])
+        by smtp.gmail.com with ESMTPSA id j10sm36291pjn.3.2019.09.25.14.37.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Sep 2019 14:37:59 -0700 (PDT)
+Subject: Re: [PATCH] ipv6: Properly check reference count flag before taking
+ reference
+To:     Petr Vorel <pvorel@suse.cz>, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20190923144612.29668-1-Jason@zx2c4.com>
+ <20190923150600.GA27191@dell5510>
+From:   Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <222450f1-d0ab-f7ac-5331-b631ef78ec15@gmail.com>
+Date:   Wed, 25 Sep 2019 14:37:58 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-25_09:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=junk_notspam policy=junk score=0 suspectscore=2 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=589
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1908290000 definitions=main-1909250161
-X-Proofpoint-Spam-Reason: mlx
+In-Reply-To: <20190923150600.GA27191@dell5510>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
-description in HW manual.
 
-This issue shows up quickly when PREEMPT_RT is applied and a device is
-probed that is not plugged in (like a touchscreen controller). The result
-is endless interrupts that halt system boot.
 
-Fixes: 310c18a41450 ("i2c: riic: add driver")
-Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
----
- drivers/i2c/busses/i2c-riic.c | 1 +
- 1 file changed, 1 insertion(+)
+On 9/23/19 8:06 AM, Petr Vorel wrote:
+> Hi,
+> 
+>> People are reporting that WireGuard experiences erratic crashes on 5.3,
+>> and bisected it down to 7d30a7f6424e. Casually flipping through that
+>> commit I noticed that a flag is checked using `|` instead of `&`, which in
+>> this current case, means that a reference is never incremented, which
+>> would result in the use-after-free users are seeing. This commit changes
+>> the `|` to the proper `&` test.
+> 
+>> Cc: stable@vger.kernel.org
+>> Fixes: 7d30a7f6424e ("Merge branch 'ipv6-avoid-taking-refcnt-on-dst-during-route-lookup'")
+>> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> 
+> Reviewed-by: Petr Vorel <pvorel@suse.cz>
+> 
+> NOTE: this change was added in d64a1f574a29 ("ipv6: honor RT6_LOOKUP_F_DST_NOREF in rule lookup logic")
+> 
+> Kind regards,
+> Petr
+> 
 
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index f31413fd9521..800414886f6b 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -202,6 +202,7 @@ static irqreturn_t riic_tend_isr(int irq, void *data)
- 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
- 		/* We got a NACKIE */
- 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
-+		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
- 		riic->err = -ENXIO;
- 	} else if (riic->bytes_left) {
- 		return IRQ_NONE;
--- 
-2.23.0
+This was fixed earlier I think
 
+https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git/commit/?id=7b09c2d052db4b4ad0b27b97918b46a7746966fa
+
+>> ---
+>>  net/ipv6/ip6_fib.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+>> diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
+>> index 87f47bc55c5e..6e2af411cd9c 100644
+>> --- a/net/ipv6/ip6_fib.c
+>> +++ b/net/ipv6/ip6_fib.c
+>> @@ -318,7 +318,7 @@ struct dst_entry *fib6_rule_lookup(struct net *net, struct flowi6 *fl6,
+>>  	if (rt->dst.error == -EAGAIN) {
+>>  		ip6_rt_put_flags(rt, flags);
+>>  		rt = net->ipv6.ip6_null_entry;
+>> -		if (!(flags | RT6_LOOKUP_F_DST_NOREF))
+>> +		if (!(flags & RT6_LOOKUP_F_DST_NOREF))
+>>  			dst_hold(&rt->dst);
+>>  	}
