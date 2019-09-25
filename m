@@ -2,86 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D46BDBF6
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A10AEBDBF8
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388943AbfIYKQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 06:16:00 -0400
-Received: from mga12.intel.com ([192.55.52.136]:34644 "EHLO mga12.intel.com"
+        id S2388915AbfIYKQF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 25 Sep 2019 06:16:05 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38240 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388915AbfIYKP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 06:15:59 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Sep 2019 03:15:59 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,547,1559545200"; 
-   d="scan'208";a="203585405"
-Received: from dariusvo-mobl.ger.corp.intel.com (HELO localhost) ([10.249.39.150])
-  by fmsmga001.fm.intel.com with ESMTP; 25 Sep 2019 03:15:54 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-Date:   Wed, 25 Sep 2019 13:15:32 +0300
-Message-Id: <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
-References: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
+        id S1727141AbfIYKQE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 06:16:04 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CC4685859E
+        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 10:16:03 +0000 (UTC)
+Received: from [172.54.128.67] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C6B0F1001B2C;
+        Wed, 25 Sep 2019 10:16:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.AEA16D39A6.BWFQ6RAXWY@redhat.com>
+X-Gitlab-Pipeline-ID: 186403
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/186403
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 25 Sep 2019 10:16:03 +0000 (UTC)
+Date:   Wed, 25 Sep 2019 06:16:04 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Sukhomlinov <sukhomlinov@google.com>
 
-commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+Hello,
 
-TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-future TPM operations. TPM 1.2 behavior was different, future TPM
-operations weren't disabled, causing rare issues. This patch ensures
-that future TPM operations are disabled.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-[dianders: resolved merge conflicts with mainline]
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- drivers/char/tpm/tpm-chip.c | 3 +++
- 1 file changed, 3 insertions(+)
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c9a59a82366b - Linux 5.3.1
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 0eca20c5a80c..ede8c1deca97 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -158,12 +158,15 @@ static int tpm_class_shutdown(struct device *dev)
- {
- 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
- 
-+	down_write(&chip->ops_sem);
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
- 		down_write(&chip->ops_sem);
- 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
- 		chip->ops = NULL;
- 		up_write(&chip->ops_sem);
- 	}
-+	chip->ops = NULL;
-+	up_write(&chip->ops_sem);
- 
- 	return 0;
- }
--- 
-2.20.1
+The results of these automated tests are provided below.
 
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/186403
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c9a59a82366b - Linux 5.3.1
+
+
+We grabbed the 5542381c3819 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
+  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
+  clocksource-drivers-do-not-warn-on-probe-defer.patch
+  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
+  drm-amd-display-skip-determining-update-type-for-async-updates.patch
+  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
+  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
+  powerpc-xive-fix-bogus-error-code-returned-by-opal.patch
+  hid-prodikeys-fix-general-protection-fault-during-probe.patch
+  hid-sony-fix-memory-corruption-issue-on-cleanup.patch
+  hid-logitech-fix-general-protection-fault-caused-by-logitech-driver.patch
+  hid-logitech-dj-fix-crash-when-initial-logi_dj_recv_query_paired_devices-fails.patch
+  hid-hidraw-fix-invalid-read-in-hidraw_ioctl.patch
+  hid-add-quirk-for-hp-x500-pixart-oem-mouse.patch
+  mtd-cfi_cmdset_0002-use-chip_good-to-retry-in-do_write_oneword.patch
+  crypto-talitos-fix-missing-break-in-switch-statement.patch
+  clk-imx-imx8mm-fix-audio-pll-setting.patch
+  revert-mm-z3fold.c-fix-race-between-migration-and-destruction.patch
+  alsa-usb-audio-add-hiby-device-family-to-quirks-for-native-dsd-support.patch
+  alsa-usb-audio-add-dsd-support-for-evga-nu-audio.patch
+  alsa-dice-fix-wrong-packet-parameter-for-alesis-io26.patch
+  alsa-hda-add-laptop-imic-fixup-for-asus-m9v-laptop.patch
+  alsa-hda-apply-amd-controller-workaround-for-raven-platform.patch
+  platform-x86-i2c-multi-instantiate-derive-the-device-name-from-parent.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
