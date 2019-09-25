@@ -2,189 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8276BDC49
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 12:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7029BDD97
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 14:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbfIYKkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 06:40:37 -0400
-Received: from mga01.intel.com ([192.55.52.88]:44136 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727820AbfIYKkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 06:40:37 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Sep 2019 03:40:37 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,547,1559545200"; 
-   d="scan'208";a="189635278"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga007.fm.intel.com with SMTP; 25 Sep 2019 03:40:34 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 25 Sep 2019 13:40:34 +0300
-Date:   Wed, 25 Sep 2019 13:40:34 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915/dp: Fix dsc bpp calculations,
- v5.
-Message-ID: <20190925104034.GX1208@intel.com>
-References: <20190925082110.17439-1-maarten.lankhorst@linux.intel.com>
- <20190925102657.GW1208@intel.com>
- <f544f200-4062-4911-6a8d-8bdf51772a6f@linux.intel.com>
+        id S2405236AbfIYMAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 08:00:31 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:2781 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2405217AbfIYMAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 08:00:30 -0400
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id D7969ECF19B030580548;
+        Wed, 25 Sep 2019 20:00:27 +0800 (CST)
+Received: from huawei.com (10.175.124.28) by DGGEMS402-HUB.china.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server id 14.3.439.0; Wed, 25 Sep 2019
+ 20:00:21 +0800
+From:   Yufen Yu <yuyufen@huawei.com>
+To:     <axboe@kernel.dk>
+CC:     <linux-block@vger.kernel.org>, Yufen Yu <yuyufen@huawei.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Keith Busch <keith.busch@intel.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v4] block: fix null pointer dereference in blk_mq_rq_timed_out()
+Date:   Wed, 25 Sep 2019 20:20:25 +0800
+Message-ID: <20190925122025.31246-1-yuyufen@huawei.com>
+X-Mailer: git-send-email 2.17.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f544f200-4062-4911-6a8d-8bdf51772a6f@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Originating-IP: [10.175.124.28]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 25, 2019 at 12:34:17PM +0200, Maarten Lankhorst wrote:
-> Op 25-09-2019 om 12:26 schreef Ville Syrjälä:
-> > On Wed, Sep 25, 2019 at 10:21:09AM +0200, Maarten Lankhorst wrote:
-> >> There was a integer wraparound when mode_clock became too high,
-> >> and we didn't correct for the FEC overhead factor when dividing,
-> >> with the calculations breaking at HBR3.
-> >>
-> >> As a result our calculated bpp was way too high, and the link width
-> >> limitation never came into effect.
-> >>
-> >> Print out the resulting bpp calcululations as a sanity check, just
-> >> in case we ever have to debug it later on again.
-> >>
-> >> We also used the wrong factor for FEC. While bspec mentions 2.4%,
-> >> all the calculations use 1/0.972261, and the same ratio should be
-> >> applied to data M/N as well, so use it there when FEC is enabled.
-> >>
-> >> This fixes the FIFO underrun we are seeing with FEC enabled.
-> >>
-> >> Changes since v2:
-> >> - Handle fec_enable in intel_link_compute_m_n, so only data M/N is adjusted. (Ville)
-> >> - Fix initial hardware readout for FEC. (Ville)
-> >> Changes since v3:
-> >> - Remove bogus fec_to_mode_clock. (Ville)
-> >> Changes since v4:
-> >> - Use the correct register for icl. (Ville)
-> >> - Split hw readout to a separate patch.
-> >>
-> >> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> >> Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-> >> Cc: <stable@vger.kernel.org> # v5.0+
-> >> Cc: Manasi Navare <manasi.d.navare@intel.com>
-> >> ---
-> >>  drivers/gpu/drm/i915/display/intel_display.c |  12 +-
-> >>  drivers/gpu/drm/i915/display/intel_display.h |   2 +-
-> >>  drivers/gpu/drm/i915/display/intel_dp.c      | 184 ++++++++++---------
-> >>  drivers/gpu/drm/i915/display/intel_dp.h      |   6 +-
-> >>  drivers/gpu/drm/i915/display/intel_dp_mst.c  |   2 +-
-> >>  5 files changed, 107 insertions(+), 99 deletions(-)
-> >>
-> >> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> >> index 5ecf54270181..c4c9286be987 100644
-> >> --- a/drivers/gpu/drm/i915/display/intel_display.c
-> >> +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> >> @@ -7291,7 +7291,7 @@ static int ironlake_fdi_compute_config(struct intel_crtc *intel_crtc,
-> >>  	pipe_config->fdi_lanes = lane;
-> >>  
-> >>  	intel_link_compute_m_n(pipe_config->pipe_bpp, lane, fdi_dotclock,
-> >> -			       link_bw, &pipe_config->fdi_m_n, false);
-> >> +			       link_bw, &pipe_config->fdi_m_n, false, false);
-> >>  
-> >>  	ret = ironlake_check_fdi_lanes(dev, intel_crtc->pipe, pipe_config);
-> >>  	if (ret == -EDEADLK)
-> >> @@ -7538,11 +7538,15 @@ void
-> >>  intel_link_compute_m_n(u16 bits_per_pixel, int nlanes,
-> >>  		       int pixel_clock, int link_clock,
-> >>  		       struct intel_link_m_n *m_n,
-> >> -		       bool constant_n)
-> >> +		       bool constant_n, bool fec_enable)
-> >>  {
-> >> -	m_n->tu = 64;
-> >> +	u32 data_clock = bits_per_pixel * pixel_clock;
-> >> +
-> >> +	if (fec_enable)
-> >> +		data_clock = intel_dp_mode_to_fec_clock(data_clock);
-> >>  
-> >> -	compute_m_n(bits_per_pixel * pixel_clock,
-> >> +	m_n->tu = 64;
-> >> +	compute_m_n(data_clock,
-> >>  		    link_clock * nlanes * 8,
-> >>  		    &m_n->gmch_m, &m_n->gmch_n,
-> >>  		    constant_n);
-> >> diff --git a/drivers/gpu/drm/i915/display/intel_display.h b/drivers/gpu/drm/i915/display/intel_display.h
-> >> index 5cea6f8e107a..4b9e18e5a263 100644
-> >> --- a/drivers/gpu/drm/i915/display/intel_display.h
-> >> +++ b/drivers/gpu/drm/i915/display/intel_display.h
-> >> @@ -443,7 +443,7 @@ enum phy_fia {
-> >>  void intel_link_compute_m_n(u16 bpp, int nlanes,
-> >>  			    int pixel_clock, int link_clock,
-> >>  			    struct intel_link_m_n *m_n,
-> >> -			    bool constant_n);
-> >> +			    bool constant_n, bool fec_enable);
-> >>  bool is_ccs_modifier(u64 modifier);
-> >>  void lpt_disable_clkout_dp(struct drm_i915_private *dev_priv);
-> >>  u32 intel_plane_fb_max_stride(struct drm_i915_private *dev_priv,
-> >> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> >> index 829559f97440..2b1e71f992b0 100644
-> >> --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> >> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> >> @@ -76,8 +76,8 @@
-> >>  #define DP_DSC_MAX_ENC_THROUGHPUT_0		340000
-> >>  #define DP_DSC_MAX_ENC_THROUGHPUT_1		400000
-> >>  
-> >> -/* DP DSC FEC Overhead factor = (100 - 2.4)/100 */
-> >> -#define DP_DSC_FEC_OVERHEAD_FACTOR		976
-> >> +/* DP DSC FEC Overhead factor = 1/(0.972261) */
-> >> +#define DP_DSC_FEC_OVERHEAD_FACTOR		972261
-> >>  
-> >>  /* Compliance test status bits  */
-> >>  #define INTEL_DP_RESOLUTION_SHIFT_MASK	0
-> >> @@ -492,6 +492,97 @@ int intel_dp_get_link_train_fallback_values(struct intel_dp *intel_dp,
-> >>  	return 0;
-> >>  }
-> >>  
-> >> +u32 intel_dp_mode_to_fec_clock(u32 mode_clock)
-> >> +{
-> >> +	return div_u64(mul_u32_u32(mode_clock, 1000000U),
-> >> +		       DP_DSC_FEC_OVERHEAD_FACTOR);
-> >> +}
-> >> +
-> >> +static u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u32 lane_count,
-> >> +				       u32 mode_clock, u32 mode_hdisplay)
-> >> +{
-> >> +	u32 bits_per_pixel, max_bpp_small_joiner_ram;
-> >> +	int i;
-> >> +
-> >> +	/*
-> >> +	 * Available Link Bandwidth(Kbits/sec) = (NumberOfLanes)*
-> >> +	 * (LinkSymbolClock)* 8 * (TimeSlotsPerMTP)
-> >> +	 * for SST -> TimeSlotsPerMTP is 1,
-> >> +	 * for MST -> TimeSlotsPerMTP has to be calculated
-> >> +	 */
-> >> +	bits_per_pixel = (link_clock * lane_count * 8) /
-> >> +			 intel_dp_mode_to_fec_clock(mode_clock);
-> > Hmm. Aren't we adding the FEC overhead twice now when DSC is also
-> > enabled?
-> 
-> No? This is calculating the maximum bpp that can be used for DSC.
+We got a null pointer deference BUG_ON in blk_mq_rq_timed_out()
+as following:
 
-Ah, right. Seems fine then.
+[  108.825472] BUG: kernel NULL pointer dereference, address: 0000000000000040
+[  108.827059] PGD 0 P4D 0
+[  108.827313] Oops: 0000 [#1] SMP PTI
+[  108.827657] CPU: 6 PID: 198 Comm: kworker/6:1H Not tainted 5.3.0-rc8+ #431
+[  108.829503] Workqueue: kblockd blk_mq_timeout_work
+[  108.829913] RIP: 0010:blk_mq_check_expired+0x258/0x330
+[  108.838191] Call Trace:
+[  108.838406]  bt_iter+0x74/0x80
+[  108.838665]  blk_mq_queue_tag_busy_iter+0x204/0x450
+[  108.839074]  ? __switch_to_asm+0x34/0x70
+[  108.839405]  ? blk_mq_stop_hw_queue+0x40/0x40
+[  108.839823]  ? blk_mq_stop_hw_queue+0x40/0x40
+[  108.840273]  ? syscall_return_via_sysret+0xf/0x7f
+[  108.840732]  blk_mq_timeout_work+0x74/0x200
+[  108.841151]  process_one_work+0x297/0x680
+[  108.841550]  worker_thread+0x29c/0x6f0
+[  108.841926]  ? rescuer_thread+0x580/0x580
+[  108.842344]  kthread+0x16a/0x1a0
+[  108.842666]  ? kthread_flush_work+0x170/0x170
+[  108.843100]  ret_from_fork+0x35/0x40
 
-Series is
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+The bug is caused by the race between timeout handle and completion for
+flush request.
 
+When timeout handle function blk_mq_rq_timed_out() try to read
+'req->q->mq_ops', the 'req' have completed and reinitiated by next
+flush request, which would call blk_rq_init() to clear 'req' as 0.
 
-> 
-> "For cases where FEC is enabled, pixel clock is replaced by pixel clock/0.972261 in the above calculations."
-> 
-> This bpp check here is to ensure that data M <= N.
-> 
-> ~Maarten
+After commit 12f5b93145 ("blk-mq: Remove generation seqeunce"),
+normal requests lifetime are protected by refcount. Until 'rq->ref'
+drop to zero, the request can really be free. Thus, these requests
+cannot been reused before timeout handle finish.
 
+However, flush request has defined .end_io and rq->end_io() is still
+called even if 'rq->ref' doesn't drop to zero. After that, the 'flush_rq'
+can be reused by the next flush request handle, resulting in null
+pointer deference BUG ON.
+
+We fix this problem by covering flush request with 'rq->ref'.
+If the refcount is not zero, flush_end_io() return and wait the
+last holder recall it. To record the request status, we add a new
+entry 'rq_status', which will be used in flush_end_io().
+
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+
+-------
+v2:
+ - move rq_status from struct request to struct blk_flush_queue
+v3:
+ - remove unnecessary '{}' pair.
+v4:
+ - let spinlock to protect 'fq->rq_status'
+---
+ block/blk-flush.c | 10 ++++++++++
+ block/blk-mq.c    |  5 ++++-
+ block/blk.h       |  7 +++++++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index aedd9320e605..1eec9cbe5a0a 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -214,6 +214,16 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 
+ 	/* release the tag's ownership to the req cloned from */
+ 	spin_lock_irqsave(&fq->mq_flush_lock, flags);
++
++	if (!refcount_dec_and_test(&flush_rq->ref)) {
++		fq->rq_status = error;
++		spin_unlock_irqrestore(&fq->mq_flush_lock, flags);
++		return;
++	}
++
++	if (fq->rq_status != BLK_STS_OK)
++		error = fq->rq_status;
++
+ 	hctx = flush_rq->mq_hctx;
+ 	if (!q->elevator) {
+ 		blk_mq_tag_set_rq(hctx, flush_rq->tag, fq->orig_rq);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 20a49be536b5..e04fa9ab5574 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -912,7 +912,10 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
+ 	 */
+ 	if (blk_mq_req_expired(rq, next))
+ 		blk_mq_rq_timed_out(rq, reserved);
+-	if (refcount_dec_and_test(&rq->ref))
++
++	if (is_flush_rq(rq, hctx))
++		rq->end_io(rq, 0);
++	else if (refcount_dec_and_test(&rq->ref))
+ 		__blk_mq_free_request(rq);
+ 
+ 	return true;
+diff --git a/block/blk.h b/block/blk.h
+index ed347f7a97b1..de258e7b9db8 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -30,6 +30,7 @@ struct blk_flush_queue {
+ 	 */
+ 	struct request		*orig_rq;
+ 	spinlock_t		mq_flush_lock;
++	blk_status_t 		rq_status;
+ };
+ 
+ extern struct kmem_cache *blk_requestq_cachep;
+@@ -47,6 +48,12 @@ static inline void __blk_get_queue(struct request_queue *q)
+ 	kobject_get(&q->kobj);
+ }
+ 
++static inline bool
++is_flush_rq(struct request *req, struct blk_mq_hw_ctx *hctx)
++{
++	return hctx->fq->flush_rq == req;
++}
++
+ struct blk_flush_queue *blk_alloc_flush_queue(struct request_queue *q,
+ 		int node, int cmd_size, gfp_t flags);
+ void blk_free_flush_queue(struct blk_flush_queue *q);
 -- 
-Ville Syrjälä
-Intel
+2.17.2
+
