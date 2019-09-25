@@ -2,143 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 127A5BD6A9
-	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 05:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E073BD6AA
+	for <lists+stable@lfdr.de>; Wed, 25 Sep 2019 05:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411517AbfIYDWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Sep 2019 23:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34702 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411515AbfIYDWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Sep 2019 23:22:14 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B602A20640;
-        Wed, 25 Sep 2019 03:22:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569381732;
-        bh=mJBCBqFQ4RUlZsOQ89BU/gu6P3igf41HXcrwdatqQ5E=;
-        h=Date:From:To:Subject:From;
-        b=GNFGik8iOtWCTosO74HfhtZsf/f1ilNar2djy1OsWTX2Ij5BzTI6EmxoJw95ce9fh
-         t7S2knes0elU7rIvfYlnL+0zsvleV6hJsAwRCxH66FkHALzBRiMr5pMCNoM9i2ITcA
-         bHwTvYF5z4T9aiHChSU0NUCeweJ0MDsSx4eHuDwM=
-Date:   Tue, 24 Sep 2019 20:22:12 -0700
-From:   akpm@linux-foundation.org
-To:     ebiederm@xmission.com, mhocko@suse.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, xypron.glpk@gmx.de
-Subject:  +
- kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
- added to -mm tree
-Message-ID: <20190925032212.Miz0srJ7X%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S2411519AbfIYDXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Sep 2019 23:23:13 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:34704 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404183AbfIYDXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Sep 2019 23:23:13 -0400
+Received: by mail-wm1-f68.google.com with SMTP id y135so3047605wmc.1
+        for <stable@vger.kernel.org>; Tue, 24 Sep 2019 20:23:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Kp2rZ1PqpMj8HrU4k7u08TxT3drBYHHtwfCs78DD4xs=;
+        b=A4p22AxpAHz6D0MZ7KZeYK0rNZODQoV7wj5Q74khFyFcrx7HcVk/+UWJ2OeqwSe4yt
+         U3QIny/MlBGjpQlJ+TMRNdoNHg4Dj9Mxyu8WtPnytuMWEjaKNLYIlzbtNfYKL5s/M8ic
+         dSfprMZwMnTvbw7zXIP4sIyMHt/tcdFO9EATESJPOOP5pFkuxlmyV+iiSKmj7TcZzZvZ
+         WNmaumrBXwNvWNwm03QRyQzxFznnouSIZQU3woi3cEFhfGjhyKqFFc48sm7fpUBC7c40
+         2bdvrRvN5A5YSgfTeIGWK7s9qE44S+x/GjEFjKbGANUjzuE0jLaDSpFEf2tNLZYHj9Uu
+         SmIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Kp2rZ1PqpMj8HrU4k7u08TxT3drBYHHtwfCs78DD4xs=;
+        b=JYyzX2i7yjrUO80U2ZC9Cmp/XFWOahOq8ZN35UCB4YW5rYmVb0tW1btECZDh9cIk9m
+         2cU29OvRne6KDIOfaNonI+6Ksq5dqLM687/RW3U8JI7HM76/hKRsbGQQUXZy1by9BS6G
+         8vuoRQV+DKB5ZNxbdJN0CCvMo8O67Tb+fnhUckZURk8jbQq5yqqVpguV5Fa1Gl41kMhR
+         oh+t3miEAaEtez7U0gLDxIrTV3oepjjgrt7DANcQpOBexiiTOEu4W199IZOTMSETPDeL
+         2iEQDVhaEM+C3UcNUjKzLteN54jHss6xYb3lPQQz8xtr4uwkleVgxP+M6WTytpLuHZCc
+         PfmQ==
+X-Gm-Message-State: APjAAAU4SX9xbJoSPpSyD7NHcsdFyTf0sjRoayYEc/wpDtQ5kMal+9eA
+        Bgn7WOR/vN6HIdqYshmqGi7LjzokIDiZCw==
+X-Google-Smtp-Source: APXvYqxuw3Ll64fFmBWVJRV5P76eDa8WsJQiTOSsT+Zc8rzfV3jD4U2JtM3XO5j1G2ZwDLMsqEb+Ng==
+X-Received: by 2002:a1c:2144:: with SMTP id h65mr4697840wmh.114.1569381790778;
+        Tue, 24 Sep 2019 20:23:10 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e9sm5695601wme.3.2019.09.24.20.23.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 24 Sep 2019 20:23:10 -0700 (PDT)
+Message-ID: <5d8add9e.1c69fb81.64de9.b033@mx.google.com>
+Date:   Tue, 24 Sep 2019 20:23:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.2.17-22-g9dcf62869383
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y boot: 141 boots: 1 failed,
+ 129 passed with 10 offline, 1 untried/unknown (v5.2.17-22-g9dcf62869383)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.2.y boot: 141 boots: 1 failed, 129 passed with 10 offline=
+, 1 untried/unknown (v5.2.17-22-g9dcf62869383)
 
-The patch titled
-     Subject: kernel/sysctl.c: do not override max_threads provided by userspace
-has been added to the -mm tree.  Its filename is
-     kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.17-22-g9dcf62869383/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.17-22-g9dcf62869383/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.17-22-g9dcf62869383
+Git Commit: 9dcf62869383244d12bc6757695f9ff0df5fc76d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 84 unique boards, 27 SoC families, 18 builds out of 209
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Failure Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-cubieboard2: 1 failed lab
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Offline Platforms:
 
-------------------------------------------------------
-From: Michal Hocko <mhocko@suse.com>
-Subject: kernel/sysctl.c: do not override max_threads provided by userspace
+arm64:
 
-Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-limits") because the patch is causing a regression to any workload which
-needs to override the auto-tuning of the limit provided by kernel.
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-set_max_threads is implementing a boot time guesstimate to provide a
-sensible limit of the concurrently running threads so that runaways will
-not deplete all the memory.  This is a good thing in general but there are
-workloads which might need to increase this limit for an application to
-run (reportedly WebSpher MQ is affected) and that is simply not possible
-after the mentioned change.  It is also very dubious to override an admin
-decision by an estimation that doesn't have any direct relation to
-correctness of the kernel operation.
+arm:
 
-Fix this by dropping set_max_threads from sysctl_max_threads so any value
-is accepted as long as it fits into MAX_THREADS which is important to
-check because allowing more threads could break internal robust futex
-restriction.  While at it, do not use MIN_THREADS as the lower boundary
-because it is also only a heuristic for automatic estimation and admin
-might have a good reason to stop new threads to be created even when below
-this limit.
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-This became more severe when we switched x86 from 4k to 8k kernel stacks. 
-Starting since 6538b8ea886e ("x86_64: expand kernel stack to 16K") (3.16)
-we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned value.
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-In the particular case
-3.12
-kernel.threads-max = 515561
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-4.4
-kernel.threads-max = 200000
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-Neither of the two values is really insane on 32GB machine.
-
-I am not sure we want/need to tune the max_thread value further.  If
-anything the tuning should be removed altogether if proven not useful in
-general.  But we definitely need a way to override this auto-tuning.
-
-Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
-Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- kernel/fork.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/kernel/fork.c~kernel-sysctlc-do-not-override-max_threads-provided-by-userspace
-+++ a/kernel/fork.c
-@@ -2920,7 +2920,7 @@ int sysctl_max_threads(struct ctl_table
- 	struct ctl_table t;
- 	int ret;
- 	int threads = max_threads;
--	int min = MIN_THREADS;
-+	int min = 1;
- 	int max = MAX_THREADS;
- 
- 	t = *table;
-@@ -2932,7 +2932,7 @@ int sysctl_max_threads(struct ctl_table
- 	if (ret || !write)
- 		return ret;
- 
--	set_max_threads(threads);
-+	max_threads = threads;
- 
- 	return 0;
- }
-_
-
-Patches currently in -mm which might be from mhocko@suse.com are
-
-mm-oom-consider-present-pages-for-the-node-size.patch
-memcg-kmem-deprecate-kmemlimit_in_bytes.patch
-memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
-kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
-
+For more info write to <info@kernelci.org>
