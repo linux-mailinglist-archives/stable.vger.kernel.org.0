@@ -2,120 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3AFBE928
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 01:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B097BE931
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 01:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733049AbfIYXpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 19:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42780 "EHLO mail.kernel.org"
+        id S1733170AbfIYXsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Sep 2019 19:48:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729080AbfIYXpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 19:45:55 -0400
+        id S1728768AbfIYXsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 19:48:25 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 910CB20640;
-        Wed, 25 Sep 2019 23:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D2EA222C5;
+        Wed, 25 Sep 2019 23:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569455153;
-        bh=XfTo88z5IOF2DHU/5AuJrCCSKPMkXNk9oKnASWjnL5w=;
+        s=default; t=1569455304;
+        bh=aDH2TpPySJPqgmT2PsN5g49dcWh0DizBL2BmAH5JLNM=;
         h=Date:From:To:Subject:From;
-        b=T7xTY6dy+OhR5hVQK2wDY9VvDWjcTwbT/2xSxTIX7o+K2/Xu3iofynENlyO0xQ1tz
-         uGjsHA++yZbcc6ugrZDNCZ0j6POnJIi3Me9LVzPiDnRbgdg4RfL9dDIwrAJ2dExecv
-         xZNX2vFsMnn1PgdLhLuksS8HE1gBNp7RDbImVty8=
-Date:   Wed, 25 Sep 2019 16:45:53 -0700
+        b=qzfB1QC0Ghr/ZlSoXj0cMagHfPu1InD/sorCx2DoGe7asYw2xx++ECcJYkB3PZSsh
+         b3wSUy0wlwLIzEylrEeKJ36kD7s9DF+hC+kk1tNIvlYG1ZvJfIJOi0b8D/Idyh5I6t
+         vNbGwZTthIuFyS1TRUjdXOKBpcy4ncoXUwqcs5/8=
+Date:   Wed, 25 Sep 2019 16:48:24 -0700
 From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, aryabinin@virtuozzo.com,
-        hannes@cmpxchg.org, mhocko@suse.com, mm-commits@vger.kernel.org,
-        penguin-kernel@i-love.sakura.ne.jp, shakeelb@google.com,
-        stable@vger.kernel.org, thomas.lindroth@gmail.com,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
-Subject:  [patch 01/76] memcg, kmem: do not fail __GFP_NOFAIL
- charges
-Message-ID: <20190925234553.JDOe4u1sM%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
+        markus@oberhumer.com, minchan@kernel.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 51/76] lib/lzo/lzo1x_compress.c: fix alignment bug
+ in lzo-rle
+Message-ID: <20190925234824.V0yRYYixK%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
-Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
+From: Dave Rodgman <dave.rodgman@arm.com>
+Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
 
-Thomas has noticed the following NULL ptr dereference when using cgroup
-v1 kmem limit:
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-PGD 0
-P4D 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
-Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
-RIP: 0010:create_empty_buffers+0x24/0x100
-Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
-RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
-RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
-RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
-R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
-FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
-Call Trace:
- create_page_buffers+0x4d/0x60
- __block_write_begin_int+0x8e/0x5a0
- ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
- ? jbd2__journal_start+0xd7/0x1f0
- ext4_da_write_begin+0x112/0x3d0
- generic_perform_write+0xf1/0x1b0
- ? file_update_time+0x70/0x140
- __generic_file_write_iter+0x141/0x1a0
- ext4_file_write_iter+0xef/0x3b0
- __vfs_write+0x17e/0x1e0
- vfs_write+0xa5/0x1a0
- ksys_write+0x57/0xd0
- do_syscall_64+0x55/0x160
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Fix an unaligned access which breaks on platforms where this is not
+permitted (e.g., Sparc).
 
-Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
-fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
-behavior because nofail allocations are not allowed to fail.  Normal
-charge path simply forces the charge even if that means to cross the
-limit.  Kmem accounting should be doing the same.
-
-Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
-Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
+Link: http://lkml.kernel.org/r/20190912145502.35229-1-dave.rodgman@arm.com
+Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
+Cc: Minchan Kim <minchan@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memcontrol.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ lib/lzo/lzo1x_compress.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/mm/memcontrol.c~memcg-kmem-do-not-fail-__gfp_nofail-charges
-+++ a/mm/memcontrol.c
-@@ -2943,6 +2943,16 @@ int __memcg_kmem_charge_memcg(struct pag
- 
- 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
- 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
-+
-+		/*
-+		 * Enforce __GFP_NOFAIL allocation because callers are not
-+		 * prepared to see failures and likely do not have any failure
-+		 * handling code.
-+		 */
-+		if (gfp & __GFP_NOFAIL) {
-+			page_counter_charge(&memcg->kmem, nr_pages);
-+			return 0;
-+		}
- 		cancel_charge(memcg, nr_pages);
- 		return -ENOMEM;
- 	}
+--- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-alignment-bug-in-lzo-rle
++++ a/lib/lzo/lzo1x_compress.c
+@@ -83,17 +83,19 @@ next:
+ 					ALIGN((uintptr_t)ir, 4)) &&
+ 					(ir < limit) && (*ir == 0))
+ 				ir++;
+-			for (; (ir + 4) <= limit; ir += 4) {
+-				dv = *((u32 *)ir);
+-				if (dv) {
++			if (IS_ALIGNED((uintptr_t)ir, 4)) {
++				for (; (ir + 4) <= limit; ir += 4) {
++					dv = *((u32 *)ir);
++					if (dv) {
+ #  if defined(__LITTLE_ENDIAN)
+-					ir += __builtin_ctz(dv) >> 3;
++						ir += __builtin_ctz(dv) >> 3;
+ #  elif defined(__BIG_ENDIAN)
+-					ir += __builtin_clz(dv) >> 3;
++						ir += __builtin_clz(dv) >> 3;
+ #  else
+ #    error "missing endian definition"
+ #  endif
+-					break;
++						break;
++					}
+ 				}
+ 			}
+ #endif
 _
