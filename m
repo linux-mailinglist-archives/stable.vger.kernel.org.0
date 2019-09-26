@@ -2,131 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A449BEA60
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 04:04:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69077BEB72
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 06:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbfIZCEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 22:04:49 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34627 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728077AbfIZCEt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Sep 2019 22:04:49 -0400
-Received: by mail-lj1-f196.google.com with SMTP id j19so433741lja.1
-        for <stable@vger.kernel.org>; Wed, 25 Sep 2019 19:04:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iqIvO1/cRY3REy92QSmyBb/XxrlUuFl4iRm+RuLwMC8=;
-        b=NugwTEW4rRZD2qAs8X3uEZ9BKyuMoKS5D5w+bks29qqIEOGaOsBREORPdjhVUoUSHS
-         pCY5Zg4EuicvpuihX9HT7PHYEmZC2DqUaNcST/sR6rP1ZnwpB9enQycL0eMF+j8KBnDV
-         AykipfJVrJzJruuXcGTEw+f6u1BdZpk1ya///n1PUDPUqs1XB3ut//E53xuFSyGgrm5F
-         o+p1PLVFby++tHnOE8+sExz5w8i6tzlEmI+Mzht8sgheaKOQOu+NFM9JfKdRfzS8l4b3
-         66eImMyYdm0krsN9jV0ynhBYhcRldlEqLfcvHi/yfpKkeposa9FPnVT+eeQh+GNTlUzo
-         gf8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iqIvO1/cRY3REy92QSmyBb/XxrlUuFl4iRm+RuLwMC8=;
-        b=E+GSJgu0eD+hdh3fMjauTNIzQrKFX3NS1fYrvzWTAiWzhpEJ6xMsEHcZn4+jGgvSpc
-         bk5OHD02EhTDbzStL8pKAQM6ISouVN6QDwDHB1GP1Z0OQubArfF4ZhXqgZCign1ygS5c
-         c7erGgUkUefXr0YmqydXMnj6wejXi/thhXDpVQMaNZ5me4UG1lgDqiYIqDgbjwq6klLa
-         AV27MrIAVudQQ2wI2ucEfXmiaX4cY9FqJYd/jS4LoGe+zuK4HbH0U50LdN/mMZBnw3ul
-         owFCYVURZkBGGRkz4Qconz5HYFRv8mKTStVGD/f0dGSdLWMAQ9W2EDfstBP2jkJiFXCk
-         TVwA==
-X-Gm-Message-State: APjAAAU+qv9IauGQT1r+YHL546C3SDAaOswJaNpetbH8cACKo406xRLe
-        HE42CHepEhZZGUnylXZdGS5VeXu3Y7eFE9GfTIK34w==
-X-Google-Smtp-Source: APXvYqzr4GSxqb6AjtMPnutvvMqRRvOEPmaJrXJguS0rhSU/wUbzDgKSpgPMW4V3/Z8S7tqO6sLkZPfZV/pSy3857wU=
-X-Received: by 2002:a2e:a0c5:: with SMTP id f5mr795667ljm.114.1569463487576;
- Wed, 25 Sep 2019 19:04:47 -0700 (PDT)
+        id S2391863AbfIZEy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 00:54:57 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44398 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2391864AbfIZEy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 00:54:57 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8Q4qrkR042994
+        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 00:54:56 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2v8mmj4cq6-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 00:54:56 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
+        Thu, 26 Sep 2019 05:54:44 +0100
+Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 26 Sep 2019 05:54:40 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8Q4sCc233423804
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 26 Sep 2019 04:54:12 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8DA5011C054;
+        Thu, 26 Sep 2019 04:54:39 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 39E4311C04A;
+        Thu, 26 Sep 2019 04:54:39 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 26 Sep 2019 04:54:39 +0000 (GMT)
+Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id CA78AA00D3;
+        Thu, 26 Sep 2019 14:54:37 +1000 (AEST)
+From:   "Alastair D'Silva" <alastair@au1.ibm.com>
+To:     alastair@d-silva.org
+Cc:     stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Allison Randal <allison@lohutok.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v4 1/6] powerpc: Allow flush_icache_range to work across ranges >4GB
+Date:   Thu, 26 Sep 2019 14:54:07 +1000
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190926045419.22827-1-alastair@au1.ibm.com>
+References: <20190926045419.22827-1-alastair@au1.ibm.com>
 MIME-Version: 1.0
-References: <cover.1569405445.git.baolin.wang@linaro.org> <4ac2e84637ceaf5ec67cfc11ad58c489778693a8.1569405445.git.baolin.wang@linaro.org>
- <87e81724-9f1a-8716-5b4f-f2aac6f25c5a@redhat.com>
-In-Reply-To: <87e81724-9f1a-8716-5b4f-f2aac6f25c5a@redhat.com>
-From:   Baolin Wang <baolin.wang@linaro.org>
-Date:   Thu, 26 Sep 2019 10:04:35 +0800
-Message-ID: <CAMz4ku+1STvcpQ=WBVMdkAfcORiCxM4Q885eqWzNoUYMETM3Bg@mail.gmail.com>
-Subject: Re: [BACKPORT 4.14.y v3 1/3] locking/lockdep: Add debug_locks check
- in __lock_downgrade()
-To:     Waiman Long <longman@redhat.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19092604-0012-0000-0000-00000350CDA7
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19092604-0013-0000-0000-0000218B63B0
+Message-Id: <20190926045419.22827-2-alastair@au1.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-26_01:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=633 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1909260048
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 25 Sep 2019 at 22:05, Waiman Long <longman@redhat.com> wrote:
->
-> On 9/25/19 6:01 AM, Baolin Wang wrote:
-> > From: Waiman Long <longman@redhat.com>
-> >
-> > [Upstream commit 513e1073d52e55b8024b4f238a48de7587c64ccf]
-> >
-> > Tetsuo Handa had reported he saw an incorrect "downgrading a read lock"
-> > warning right after a previous lockdep warning. It is likely that the
-> > previous warning turned off lock debugging causing the lockdep to have
-> > inconsistency states leading to the lock downgrade warning.
-> >
-> > Fix that by add a check for debug_locks at the beginning of
-> > __lock_downgrade().
-> >
-> > Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-> > Reported-by: syzbot+53383ae265fb161ef488@syzkaller.appspotmail.com
-> > Signed-off-by: Waiman Long <longman@redhat.com>
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Will Deacon <will.deacon@arm.com>
-> > Link: https://lkml.kernel.org/r/1547093005-26085-1-git-send-email-longman@redhat.com
-> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> > ---
-> >  kernel/locking/lockdep.c |    3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-> > index 565005a..5c370c6 100644
-> > --- a/kernel/locking/lockdep.c
-> > +++ b/kernel/locking/lockdep.c
-> > @@ -3650,6 +3650,9 @@ static int reacquire_held_locks(struct task_struct *curr, unsigned int depth,
-> >       unsigned int depth;
-> >       int i;
-> >
-> > +     if (unlikely(!debug_locks))
-> > +             return 0;
-> > +
-> >       depth = curr->lockdep_depth;
-> >       /*
-> >        * This function is about (re)setting the class of a held lock,
->
-> Apparently, there are 2 such patches in the upstream kernel - commit
-> 513e1073d52e55b8024b4f238a48de7587c64ccf and
-> 71492580571467fb7177aade19c18ce7486267f5. These are probably caused by
-> the fact that there are 2 places in the code that can match the hunks.
-> Anyway, this looks like it is applying to the wrong function. It should
-> be applied to __lock_downgrade. Though it shouldn't harm if it is
-> applied to the wrong function.
+From: Alastair D'Silva <alastair@d-silva.org>
 
-Ah, I noticed there are 2 commits with the same commit message, though
-513e1073d52e55b8024b4f238a48de7587c64ccf patch did not change the
-__lock_downgrade(), which is really confusing. This patch
-(513e1073d52e55b8024b4f238a48de7587c64ccf) did the right thing, and
-71492580571467fb7177aade19c18ce7486267f5 patch should be applied to
-__lock_downgrade.
+When calling flush_icache_range with a size >4GB, we were masking
+off the upper 32 bits, so we would incorrectly flush a range smaller
+than intended.
 
-I'll backport commit 71492580571467fb7177aade19c18ce7486267f5 too in
-future. Thanks.
+This patch replaces the 32 bit shifts with 64 bit ones, so that
+the full size is accounted for.
 
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+Cc: stable@vger.kernel.org
+---
+ arch/powerpc/kernel/misc_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
+index b55a7b4cb543..9bc0aa9aeb65 100644
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -82,7 +82,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5		/* ensure we get enough */
+ 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 1:	dcbst	0,r6
+@@ -98,7 +98,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5
+ 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 2:	icbi	0,r6
 -- 
-Baolin Wang
-Best Regards
+2.21.0
+
