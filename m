@@ -2,110 +2,268 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C106BF76E
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 19:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 940CEBF781
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 19:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727512AbfIZRRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 13:17:33 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:39160 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbfIZRRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 13:17:33 -0400
-Received: by mail-oi1-f195.google.com with SMTP id w144so2779019oia.6;
-        Thu, 26 Sep 2019 10:17:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6iIyaUzF9v02p9F3h71C8x4tDacLmA6BNo4c1Ew2pJs=;
-        b=dZKovGgbdsd2S4YW1nmKU9AKCVrY3PrOkZC0M14UJMIpQ+qRDzwZPmVIIFqq0Xk+eR
-         4A95WaKJNw7EkpSPAYO/chkQFTbxnnTdC/9OHpPyt6nLSLZizpfd3UUROSkisuLJh6ij
-         hrJIkannXvZfTi9lJ2zi+c1d0WRsgEKhxPMxV7gcTOf/ZVatEEO1rPohku5TLrJWADSy
-         WZPR2APPq6hmVliPnTZ2jpXV/sR/u3+4Aw9uH0yzz44tvF5vCdCszeaP22atjbBH20tz
-         lSQQsQIDzDR592IF0apV8xXcxtRp6DmoBq0YXt0BmRzR5n5QI+f3DMQ9C5XLmGqVyHKc
-         17mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6iIyaUzF9v02p9F3h71C8x4tDacLmA6BNo4c1Ew2pJs=;
-        b=MJvuC0CkFKYxh7nTOzAiibo0AV1UdNgPkpv2xoWaNH09QCK6NKU+aPeDbIODsLVNr6
-         ZjgcARPd34zhArOKyL3G0UZWNDGbnEI16hRQd7kdGBkeyLLTLLrWWVV2gkwDhy6Afo/y
-         32I0BiLaH1moQIRrOPtojzb0nWVYPOhyIfEieOvTwfLUOeun/Etqrkd+W6FMMbFEeI9r
-         +ka9ZOALQYsVbLyoaZgUqMRHJG8V4aBC+ikKQOBMQtqCZdEanps5mQelmRnYNHD4XcrA
-         sBk6AIKPLzsgo2ewFn/B6Xqd2FM3BXuIHqi65AGs7BBRSiJqNAjM8MR9BbZtklFR6DhG
-         81VQ==
-X-Gm-Message-State: APjAAAXFLNPFcbVuejwililDx/HWbQEYqWtSzfATpQ5uUYlKoCsNPx5t
-        zTZ93YNwcu9aydjB7SBuyfOynDLM
-X-Google-Smtp-Source: APXvYqyMW3KcJHL1VGgFwmaSAlmnyTk+9Zx0q0T+8icx9Z83JVR+fdqIHjILb+MW+p+dEDxgp9V2WQ==
-X-Received: by 2002:aca:b256:: with SMTP id b83mr3379404oif.120.1569518252353;
-        Thu, 26 Sep 2019 10:17:32 -0700 (PDT)
-Received: from [192.168.1.112] (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id l19sm788637oie.22.2019.09.26.10.17.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Sep 2019 10:17:31 -0700 (PDT)
-Subject: Re: [PATCH] staging: rtl8188eu: fix HighestRate check in
- odm_ARFBRefresh_8188E()
-To:     Denis Efremov <efremov@linux.com>, devel@driverdev.osuosl.org
-Cc:     linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Michael Straube <straube.linux@gmail.com>,
-        stable@vger.kernel.org
-References: <20190926073138.12109-1-efremov@linux.com>
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-Message-ID: <24dbe004-2afe-97e6-b281-3b7109034dd9@lwfinger.net>
-Date:   Thu, 26 Sep 2019 12:17:30 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S1727580AbfIZRVj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 26 Sep 2019 13:21:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40404 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727579AbfIZRVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Sep 2019 13:21:39 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DCEB71108
+        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 17:21:38 +0000 (UTC)
+Received: from [172.54.103.100] (cpt-1044.paas.prod.upshift.rdu2.redhat.com [10.0.19.66])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2100660BE2;
+        Thu, 26 Sep 2019 17:21:34 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-In-Reply-To: <20190926073138.12109-1-efremov@linux.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.2-rc1-da10416.cki
+ (stable)
+CC:     William Gomeringer <wgomeringer@redhat.com>
+Message-ID: <cki.AEE7E4D9B1.7PB2FWQ5GY@redhat.com>
+X-Gitlab-Pipeline-ID: 188577
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/188577
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 26 Sep 2019 17:21:38 +0000 (UTC)
+Date:   Thu, 26 Sep 2019 13:21:39 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/26/19 2:31 AM, Denis Efremov wrote:
-> It's incorrect to compare HighestRate with 0x0b twice in the following
-> manner "if (HighestRate > 0x0b) ... else if (HighestRate > 0x0b) ...". The
-> "else if" branch is constantly false. The second comparision should be
-> with 0x03 according to the max_rate_idx in ODM_RAInfo_Init().
-> 
-> Cc: Larry Finger <Larry.Finger@lwfinger.net>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Michael Straube <straube.linux@gmail.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Denis Efremov <efremov@linux.com>
-> ---
->   drivers/staging/rtl8188eu/hal/hal8188e_rate_adaptive.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/staging/rtl8188eu/hal/hal8188e_rate_adaptive.c b/drivers/staging/rtl8188eu/hal/hal8188e_rate_adaptive.c
-> index 9ddd51685063..5792f491b59a 100644
-> --- a/drivers/staging/rtl8188eu/hal/hal8188e_rate_adaptive.c
-> +++ b/drivers/staging/rtl8188eu/hal/hal8188e_rate_adaptive.c
-> @@ -409,7 +409,7 @@ static int odm_ARFBRefresh_8188E(struct odm_dm_struct *dm_odm, struct odm_ra_inf
->   		pRaInfo->PTModeSS = 3;
->   	else if (pRaInfo->HighestRate > 0x0b)
->   		pRaInfo->PTModeSS = 2;
-> -	else if (pRaInfo->HighestRate > 0x0b)
-> +	else if (pRaInfo->HighestRate > 0x03)
->   		pRaInfo->PTModeSS = 1;
->   	else
->   		pRaInfo->PTModeSS = 0;
-> 
 
-I agree that the original code is wrong; however, I prefer that changes that 
-alter the execution should be tested. I see no evidence that such testing has 
-been done. It probably does not matter because a highest rate between 3 and 0xb 
-means 802.11g is in use, and that may no longer be a real-world situation.
+Hello,
 
-With any future patches, you need to indicate if testing has been done.
+We ran automated tests on a recent commit from this kernel tree:
 
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: da10416abf6a - Linux 5.3.2-rc1
 
-Larry
+The results of these automated tests are provided below.
 
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/188577
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         🚧 ⚡⚡⚡ LTP lite
+         🚧 ⚡⚡⚡ CIFS Connectathon
+         🚧 ⚡⚡⚡ POSIX pjd-fstest suites
+         🚧 ⚡⚡⚡ Memory function: kaslr
+         🚧 ⚡⚡⚡ Networking bridge: sanity
+         🚧 ⚡⚡⚡ Networking MACsec: sanity
+         🚧 ⚡⚡⚡ Networking route: pmtu
+         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
+         🚧 ⚡⚡⚡ L2TP basic test
+         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
+         🚧 ⚡⚡⚡ ALSA PCM loopback test
+         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
+         🚧 ⚡⚡⚡ trace: ftrace/tracer
+         🚧 ⚡⚡⚡ Networking route_func: local
+         🚧 ⚡⚡⚡ Networking route_func: forward
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ❌ IOMMU boot test
+         🚧 ✅ Storage blktests
+
+      Host 3:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 4:
+         ✅ Boot test
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+
+      Host 5:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
