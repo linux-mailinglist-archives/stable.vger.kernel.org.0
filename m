@@ -2,86 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B097BE931
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 01:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33049BE9CF
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 02:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733170AbfIYXsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Sep 2019 19:48:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44980 "EHLO mail.kernel.org"
+        id S1728769AbfIZAt6 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 25 Sep 2019 20:49:58 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:54188 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728768AbfIYXsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Sep 2019 19:48:25 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726961AbfIZAt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Sep 2019 20:49:58 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D2EA222C5;
-        Wed, 25 Sep 2019 23:48:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569455304;
-        bh=aDH2TpPySJPqgmT2PsN5g49dcWh0DizBL2BmAH5JLNM=;
-        h=Date:From:To:Subject:From;
-        b=qzfB1QC0Ghr/ZlSoXj0cMagHfPu1InD/sorCx2DoGe7asYw2xx++ECcJYkB3PZSsh
-         b3wSUy0wlwLIzEylrEeKJ36kD7s9DF+hC+kk1tNIvlYG1ZvJfIJOi0b8D/Idyh5I6t
-         vNbGwZTthIuFyS1TRUjdXOKBpcy4ncoXUwqcs5/8=
-Date:   Wed, 25 Sep 2019 16:48:24 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
-        markus@oberhumer.com, minchan@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 51/76] lib/lzo/lzo1x_compress.c: fix alignment bug
- in lzo-rle
-Message-ID: <20190925234824.V0yRYYixK%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mx1.redhat.com (Postfix) with ESMTPS id 68C1A307D91F
+        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 00:49:57 +0000 (UTC)
+Received: from [172.54.128.67] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1AE9D19C5B;
+        Thu, 26 Sep 2019 00:49:55 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.3BCE571D94.QG7VT3WZQ6@redhat.com>
+X-Gitlab-Pipeline-ID: 187466
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/187466
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Thu, 26 Sep 2019 00:49:57 +0000 (UTC)
+Date:   Wed, 25 Sep 2019 20:49:58 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Rodgman <dave.rodgman@arm.com>
-Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
 
-Fix an unaligned access which breaks on platforms where this is not
-permitted (e.g., Sparc).
+Hello,
 
-Link: http://lkml.kernel.org/r/20190912145502.35229-1-dave.rodgman@arm.com
-Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
- lib/lzo/lzo1x_compress.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 403129228229 - Linux 5.3.1
 
---- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-alignment-bug-in-lzo-rle
-+++ a/lib/lzo/lzo1x_compress.c
-@@ -83,17 +83,19 @@ next:
- 					ALIGN((uintptr_t)ir, 4)) &&
- 					(ir < limit) && (*ir == 0))
- 				ir++;
--			for (; (ir + 4) <= limit; ir += 4) {
--				dv = *((u32 *)ir);
--				if (dv) {
-+			if (IS_ALIGNED((uintptr_t)ir, 4)) {
-+				for (; (ir + 4) <= limit; ir += 4) {
-+					dv = *((u32 *)ir);
-+					if (dv) {
- #  if defined(__LITTLE_ENDIAN)
--					ir += __builtin_ctz(dv) >> 3;
-+						ir += __builtin_ctz(dv) >> 3;
- #  elif defined(__BIG_ENDIAN)
--					ir += __builtin_clz(dv) >> 3;
-+						ir += __builtin_clz(dv) >> 3;
- #  else
- #    error "missing endian definition"
- #  endif
--					break;
-+						break;
-+					}
- 				}
- 			}
- #endif
-_
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/187466
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 403129228229 - Linux 5.3.1
+
+
+We grabbed the 2677776209cb commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  netfilter-add-missing-is_enabled-config_nf_tables-check-to-header-file.patch
+  clocksource-drivers-timer-of-do-not-warn-on-deferred-probe.patch
+  clocksource-drivers-do-not-warn-on-probe-defer.patch
+  drm-amd-display-allow-cursor-async-updates-for-framebuffer-swaps.patch
+  drm-amd-display-skip-determining-update-type-for-async-updates.patch
+  drm-amd-display-don-t-replace-the-dc_state-for-fast-updates.patch
+  drm-amd-display-readd-msse2-to-prevent-clang-from-emitting-libcalls-to-undefined-sw-fp-routines.patch
+  powerpc-xive-fix-bogus-error-code-returned-by-opal.patch
+  hid-prodikeys-fix-general-protection-fault-during-probe.patch
+  hid-sony-fix-memory-corruption-issue-on-cleanup.patch
+  hid-logitech-fix-general-protection-fault-caused-by-logitech-driver.patch
+  hid-logitech-dj-fix-crash-when-initial-logi_dj_recv_query_paired_devices-fails.patch
+  hid-hidraw-fix-invalid-read-in-hidraw_ioctl.patch
+  hid-add-quirk-for-hp-x500-pixart-oem-mouse.patch
+  mtd-cfi_cmdset_0002-use-chip_good-to-retry-in-do_write_oneword.patch
+  crypto-talitos-fix-missing-break-in-switch-statement.patch
+  clk-imx-imx8mm-fix-audio-pll-setting.patch
+  revert-mm-z3fold.c-fix-race-between-migration-and-destruction.patch
+  alsa-usb-audio-add-hiby-device-family-to-quirks-for-native-dsd-support.patch
+  alsa-usb-audio-add-dsd-support-for-evga-nu-audio.patch
+  alsa-dice-fix-wrong-packet-parameter-for-alesis-io26.patch
+  alsa-hda-add-laptop-imic-fixup-for-asus-m9v-laptop.patch
+  alsa-hda-apply-amd-controller-workaround-for-raven-platform.patch
+  platform-x86-i2c-multi-instantiate-derive-the-device-name-from-parent.patch
+  objtool-clobber-user-cflags-variable.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+
+      Host 2:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
