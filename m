@@ -2,86 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC47BFB92
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 00:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DB00BFBE7
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 01:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728188AbfIZW4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 18:56:17 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:39096 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725943AbfIZW4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 18:56:17 -0400
-Received: by mail-wm1-f65.google.com with SMTP id v17so4177714wml.4;
-        Thu, 26 Sep 2019 15:56:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=q3J4HBnNW4Hl+Gjxw0HAbYQSV7ljaMhCOnbd8J0BKfw=;
-        b=OGcVLqNDzgAxc2ptvHjEJc0ZnwDU+dw0zjb3h1aCQBF9EI5cq/LjPDZNYcm8rVYcB3
-         yWUVna7KCPCAomjPQVODfwf2sBswGjY3TYOxR6o2BZ06XNQHTCLYinXTfDrDXwvsVJBW
-         NKQBR/jf7Itslea+zewbR842C8+FDa/rPHIT9dqYDJCjR71WO53XPlZMNUfTyJwkKpVr
-         NzgSobk/sbtPj6Lpwsjp8xAx6AkaVAtHx5B3lLFULed6HdOfoRwCQ6eEKo8Jbn7SUC81
-         xoCTp2AubiWE+YmzLRFgXGxALTme01kpIocxZ2x80dkidGoFp6X5kUjdemN0pTPT67Xt
-         iTzw==
-X-Gm-Message-State: APjAAAV6zLbTVlt/pc6MvSipCKYaXTaoYxJPMTZxthHBBq3mNP+5J12p
-        C0M6K4tFSA7eyjqroyjOzfo=
-X-Google-Smtp-Source: APXvYqxrKsKE3nBWyY+NBDRt5sgGhpX8jpg+uUmLH1ydlfeiF9neM0okf0pfLaVTq7mi5G3PAWSx4w==
-X-Received: by 2002:a1c:a516:: with SMTP id o22mr5117224wme.116.1569538575651;
-        Thu, 26 Sep 2019 15:56:15 -0700 (PDT)
-Received: from localhost.localdomain (broadband-188-32-48-208.ip.moscow.rt.ru. [188.32.48.208])
-        by smtp.googlemail.com with ESMTPSA id f17sm668350wru.29.2019.09.26.15.56.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Sep 2019 15:56:14 -0700 (PDT)
-From:   Denis Efremov <efremov@linux.com>
-Cc:     Denis Efremov <efremov@linux.com>, ath9k-devel@qca.qualcomm.com,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Rajkumar Manoharan <rmanohar@qca.qualcomm.com>,
-        "John W . Linville" <linville@tuxdriver.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Subject: [PATCH] ath9k_hw: fix uninitialized variable data
-Date:   Fri, 27 Sep 2019 01:56:04 +0300
-Message-Id: <20190926225604.9342-1-efremov@linux.com>
-X-Mailer: git-send-email 2.21.0
+        id S1728824AbfIZXW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 19:22:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39466 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728270AbfIZXW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Sep 2019 19:22:27 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E041207E0;
+        Thu, 26 Sep 2019 23:22:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569540146;
+        bh=GQUyMjye5vxmGMIj00o9cH/mVKe1NcXqBa/0DfTtHrw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lwe85V6TohEQw3nBBb9Bdqf+HrEz1OmN6GYeCI4L/QakpJQva0ND2s4ShvldrUl80
+         /uxq/DljbUWy73uB6bCvCcZXgo2OvbQ4+yiFr4ZEye2sXcnH2ZPUzwuzEym4AuHsaa
+         xn9dbAdK9tQycQVK6SlNYbuuWAyGi63AqRtoYHz8=
+Date:   Thu, 26 Sep 2019 19:22:25 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-integrity@vger.kernel.org,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future
+ TPM operations
+Message-ID: <20190926232225.GJ8171@sasha-vm>
+References: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
+ <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, data variable in ar9003_hw_thermo_cal_apply() could be
-uninitialized if ar9300_otp_read_word() will fail to read the value.
-Initialize data variable with 0 to prevent an undefined behavior. This
-will be enough to handle error case when ar9300_otp_read_word() fails.
+On Wed, Sep 25, 2019 at 01:15:32PM +0300, Jarkko Sakkinen wrote:
+>From: Vadim Sukhomlinov <sukhomlinov@google.com>
+>
+>commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+>
+>TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+>future TPM operations. TPM 1.2 behavior was different, future TPM
+>operations weren't disabled, causing rare issues. This patch ensures
+>that future TPM operations are disabled.
+>
+>Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+>[dianders: resolved merge conflicts with mainline]
+>Signed-off-by: Douglas Anderson <dianders@chromium.org>
+>Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-Fixes: 80fe43f2bbd5 ("ath9k_hw: Read and configure thermocal for AR9462")
-Cc: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
-Cc: John W. Linville <linville@tuxdriver.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I've queued it up for 4.19 and 4.14, thanks!
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-index 2b29bf4730f6..b4885a700296 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-@@ -4183,7 +4183,7 @@ static void ar9003_hw_thermometer_apply(struct ath_hw *ah)
- 
- static void ar9003_hw_thermo_cal_apply(struct ath_hw *ah)
- {
--	u32 data, ko, kg;
-+	u32 data = 0, ko, kg;
- 
- 	if (!AR_SREV_9462_20_OR_LATER(ah))
- 		return;
--- 
-2.21.0
-
+--
+Thanks,
+Sasha
