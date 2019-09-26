@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2C1BEE21
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 11:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30C2BEE26
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 11:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729347AbfIZJMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 05:12:48 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:42876 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725871AbfIZJMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 05:12:47 -0400
-Received: by mail-lf1-f67.google.com with SMTP id c195so1110637lfg.9;
-        Thu, 26 Sep 2019 02:12:45 -0700 (PDT)
+        id S1726083AbfIZJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 05:12:49 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:37924 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729167AbfIZJMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 05:12:49 -0400
+Received: by mail-lj1-f193.google.com with SMTP id b20so1362309ljj.5;
+        Thu, 26 Sep 2019 02:12:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
         bh=bKDYWL5jP7ajoKT3dPjrbKASExuHF8+ZZfOI4omjdpc=;
-        b=XPJR8h+FUoQQyVurHol5k/Y7gcXdi2mnwR4bdDWIHPvOChOULPSOM7zBDFnE8sVjY5
-         EFjX3axYcLd5W4eCWS5t2FfBW3RTHlhj34Hw2u9360SovmAcPMcr/TFBZY7n4mUJloy5
-         mH82PCqNBK7Gaae5miGac+aiuZWz55Adx9E4j4Yfkt0NffGgXM2x/mELJkjUp0YxkfWO
-         urveh8sFCCiFr/EQiPn/7NyQ9attjLdMSL+NIlbepJRdt9p0wCzWnWP+blpOjn6LMACg
-         Bl6qsgRfbQOxA4dc/LXkfVodHjCfC85ryWNNALdv/AjhTYWpy0YvCYtMl03yhNB/Yva7
-         MfkA==
-X-Gm-Message-State: APjAAAWJWULRABLTjNaDU0kDd5SMByB4Gi6T+Mg5w+wCKK7DfF/gIgBR
-        FZPwwcZ0BZ5FeoDQx/5YAZAjxmz3
-X-Google-Smtp-Source: APXvYqxLBm2G3bPS02nHgMMOQ+MjjSjzib9tQmAzzXHvuE7ivw25+HwU7ohsS3npSu1FDBtQ4NdXaA==
-X-Received: by 2002:ac2:48af:: with SMTP id u15mr1550965lfg.75.1569489164262;
-        Thu, 26 Sep 2019 02:12:44 -0700 (PDT)
+        b=IYsAtosY9TeDfqjWQ3OdSKovIJC7JyzIUJ3egyLLFbb/mIhR6ifF9lz5to6+9r8iuB
+         SNNd2/k6VCnrsJa8cVj/pNChRXjA7Eiyd32KtNY0zIH0yLKYSX50Z1o4R3RTPeoyAMgg
+         qKbEXNlF1/+A0rNTzvf4vmNGfGPaOvycIt9ebOa1O7ck3E4a84gruQnrb/Tc8jXFb8li
+         cPZXyS5ZulEMo5ua25Y7kpIGV/UACvw1eBubk1UKjG688KCPkvLvCM6s7kB3n2hulIJz
+         Ko3JPgNH5FjNHpf8c6A8dRKZbrV0JaerEGLHq16uHQ2DKtRWSo71adW2KnVCeVjUxpfR
+         Cm4g==
+X-Gm-Message-State: APjAAAUjqB0ynAxLoXe6i2DxB77sWGJ3Nhd6k8hLQmdbdjQK5Tw+G0v7
+        GJojAE8DjBZprHWHsCm4kNM=
+X-Google-Smtp-Source: APXvYqwaayLvoGLaMSOcgGVE5tNXXHFfJmLAnUyqQyYv+e5U1lunaclulcsNRdjRgsCcxuQNR5dbIQ==
+X-Received: by 2002:a2e:3902:: with SMTP id g2mr1844414lja.196.1569489167017;
+        Thu, 26 Sep 2019 02:12:47 -0700 (PDT)
 Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id k13sm369346ljc.96.2019.09.26.02.12.43
+        by smtp.gmail.com with ESMTPSA id u8sm446699lfb.36.2019.09.26.02.12.43
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 26 Sep 2019 02:12:43 -0700 (PDT)
+        Thu, 26 Sep 2019 02:12:45 -0700 (PDT)
 Received: from johan by xi.terra with local (Exim 4.92.2)
         (envelope-from <johan@xi.terra>)
-        id 1iDPpR-0006QS-PB; Thu, 26 Sep 2019 11:12:49 +0200
+        id 1iDPpS-0006Qs-7F; Thu, 26 Sep 2019 11:12:50 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable <stable@vger.kernel.org>
 Subject: [PATCH 1/4] USB: usblcd: fix I/O after disconnect
-Date:   Thu, 26 Sep 2019 11:12:20 +0200
-Message-Id: <20190926091228.24634-2-johan@kernel.org>
+Date:   Thu, 26 Sep 2019 11:12:25 +0200
+Message-Id: <20190926091228.24634-7-johan@kernel.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190926091228.24634-1-johan@kernel.org>
 References: <20190926091228.24634-1-johan@kernel.org>
