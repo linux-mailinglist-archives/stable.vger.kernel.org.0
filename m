@@ -2,90 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE26CBFA96
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 22:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E69BFB25
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 23:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728713AbfIZU0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 16:26:21 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:46728 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727868AbfIZU0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 16:26:21 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 7360660BE8; Thu, 26 Sep 2019 20:26:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1569529580;
-        bh=klE2jRqKJUtnFiAopZbhMcFxlATTT1rWa/g3XpqnOZ8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NYxqD2RxAGWwAMkyEjJ/VYccMgqpM4SJleo+1iy7S/zaJF1avpffloXMjVURWzHbl
-         e5TtrLI+7W342pirPpSNBkDu7gKLk6mvhDFISOsPP86G5zN9mfdfq1w6SeQ6Lyu+Uv
-         IYkD2id/ocsiD6S+eJI7211+1GAKBRePP5vEDjNo=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from cgoldswo-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1726607AbfIZVtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 17:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36826 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726546AbfIZVtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Sep 2019 17:49:03 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: cgoldswo@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id B21A7602CC;
-        Thu, 26 Sep 2019 20:26:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1569529580;
-        bh=klE2jRqKJUtnFiAopZbhMcFxlATTT1rWa/g3XpqnOZ8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NYxqD2RxAGWwAMkyEjJ/VYccMgqpM4SJleo+1iy7S/zaJF1avpffloXMjVURWzHbl
-         e5TtrLI+7W342pirPpSNBkDu7gKLk6mvhDFISOsPP86G5zN9mfdfq1w6SeQ6Lyu+Uv
-         IYkD2id/ocsiD6S+eJI7211+1GAKBRePP5vEDjNo=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org B21A7602CC
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=cgoldswo@codeaurora.org
-From:   Chris Goldsworthy <cgoldswo@codeaurora.org>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Chris Goldsworthy <cgoldswo@codeaurora.org>,
-        devicetree@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] of: reserved_mem: add missing of_node_put() for proper ref-counting
-Date:   Thu, 26 Sep 2019 13:26:10 -0700
-Message-Id: <1569529570-23530-1-git-send-email-cgoldswo@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FFD020835;
+        Thu, 26 Sep 2019 21:49:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569534542;
+        bh=JpPqb+AsRuqnZIAWaOF3EYEAFhT1hZwRk1AOl0mfYa8=;
+        h=Date:From:To:Subject:From;
+        b=v5msi2J2BfeW3gCxgNs6CPLjMVavgiNesYGw3zw0H16wfP52IcNRxYqs3T1jpbe0W
+         5DQavDx8fNeT6EMSl4A96pSuQQVnnk0tt/qZvbvR7LmGAYafvW518dsUHYTula/9v4
+         Qy9t1UwSDoDwjzKQ6MZfjsts7vF/waUclZ7dobkg=
+Date:   Thu, 26 Sep 2019 14:49:01 -0700
+From:   akpm@linux-foundation.org
+To:     aryabinin@virtuozzo.com, hannes@cmpxchg.org, mhocko@suse.com,
+        mm-commits@vger.kernel.org, penguin-kernel@i-love.sakura.ne.jp,
+        shakeelb@google.com, stable@vger.kernel.org,
+        thomas.lindroth@gmail.com, vdavydov.dev@gmail.com
+Subject:  [merged]
+ memcg-kmem-do-not-fail-__gfp_nofail-charges.patch removed from -mm tree
+Message-ID: <20190926214901.OgMjiMn6J%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit d698a388146c ("of: reserved-memory: ignore disabled memory-region
-nodes") added an early return in of_reserved_mem_device_init_by_idx(), but
-didn't call of_node_put() on a device_node whose ref-count was incremented
-in the call to of_parse_phandle() preceding the early exit.
 
-Fixes: d698a388146c ("of: reserved-memory: ignore disabled memory-region nodes")
-Signed-off-by: Chris Goldsworthy <cgoldswo@codeaurora.org>
-To: Rob Herring <robh+dt@kernel.org>
-Cc: devicetree@vger.kernel.org
-Cc: stable@vger.kernel.org
+The patch titled
+     Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
+has been removed from the -mm tree.  Its filename was
+     memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
+
+This patch was dropped because it was merged into mainline or a subsystem tree
+
+------------------------------------------------------
+From: Michal Hocko <mhocko@suse.com>
+Subject: memcg, kmem: do not fail __GFP_NOFAIL charges
+
+Thomas has noticed the following NULL ptr dereference when using cgroup
+v1 kmem limit:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 0
+P4D 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
+Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
+RIP: 0010:create_empty_buffers+0x24/0x100
+Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
+RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
+RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
+RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
+FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
+Call Trace:
+ create_page_buffers+0x4d/0x60
+ __block_write_begin_int+0x8e/0x5a0
+ ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
+ ? jbd2__journal_start+0xd7/0x1f0
+ ext4_da_write_begin+0x112/0x3d0
+ generic_perform_write+0xf1/0x1b0
+ ? file_update_time+0x70/0x140
+ __generic_file_write_iter+0x141/0x1a0
+ ext4_file_write_iter+0xef/0x3b0
+ __vfs_write+0x17e/0x1e0
+ vfs_write+0xa5/0x1a0
+ ksys_write+0x57/0xd0
+ do_syscall_64+0x55/0x160
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
+fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
+behavior because nofail allocations are not allowed to fail.  Normal
+charge path simply forces the charge even if that means to cross the
+limit.  Kmem accounting should be doing the same.
+
+Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
+Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/of/of_reserved_mem.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 7989703..6bd610e 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -324,8 +324,10 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
- 	if (!target)
- 		return -ENODEV;
+ mm/memcontrol.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+--- a/mm/memcontrol.c~memcg-kmem-do-not-fail-__gfp_nofail-charges
++++ a/mm/memcontrol.c
+@@ -2943,6 +2943,16 @@ int __memcg_kmem_charge_memcg(struct pag
  
--	if (!of_device_is_available(target))
-+	if (!of_device_is_available(target)) {
-+		of_node_put(target);
- 		return 0;
-+	}
- 
- 	rmem = __find_rmem(target);
- 	of_node_put(target);
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+ 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
+ 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
++
++		/*
++		 * Enforce __GFP_NOFAIL allocation because callers are not
++		 * prepared to see failures and likely do not have any failure
++		 * handling code.
++		 */
++		if (gfp & __GFP_NOFAIL) {
++			page_counter_charge(&memcg->kmem, nr_pages);
++			return 0;
++		}
+ 		cancel_charge(memcg, nr_pages);
+ 		return -ENOMEM;
+ 	}
+_
+
+Patches currently in -mm which might be from mhocko@suse.com are
+
+kernel-sysctlc-do-not-override-max_threads-provided-by-userspace.patch
 
