@@ -2,97 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B974BFB29
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 23:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F59BFB6C
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 00:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbfIZVvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 17:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38850 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726435AbfIZVvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Sep 2019 17:51:00 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727963AbfIZWsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 18:48:23 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:37552 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726140AbfIZWsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 18:48:23 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 370F660BF5; Thu, 26 Sep 2019 22:48:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1569538102;
+        bh=g3A8dwd0zmZ7Slh7dbZkQRsQqjR2/quJV4fThwUAG1E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=e+HGGBCBDggjT9Mfko2DHSpSSmoa1eB3BGF6q7CaSUiZi+ADcK67SG5YfrB1powy9
+         6D4Ka6EizAgaa6CorP7wJza2JDbZrdN5mtTerZb8aEzYJY4Hdwyq/VYJcaQ3b/KNZj
+         msXY3HKnQxCnlIitUga+7Ml0Pn+fVMnGrxRif0xg=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from cgoldswo-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ED2E22459;
-        Thu, 26 Sep 2019 21:50:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569534659;
-        bh=acBMVvJZx0Qy2l8t/1XUd7hk5TzAO+7/jpm2L7V7xM8=;
-        h=Date:From:To:Subject:From;
-        b=GxG9y6avPm031ovmj7I8922A0YmLOQA07MZ4eeNuFVqLSSCNbq9+WeMSI+m+vJHxT
-         HQ6Ua1CE8LwULyTszGql6Lxk0Bdwki3jr4CA0RHDua6HpVGy1sDVDsdy60bQQ37QgE
-         gOxv05Sj6gjy9odyyw7rlLna9Yl2ax8uSuzCYWc0=
-Date:   Thu, 26 Sep 2019 14:50:59 -0700
-From:   akpm@linux-foundation.org
-To:     dave.rodgman@arm.com, markus@oberhumer.com, minchan@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [merged] lib-lzo-fix-alignment-bug-in-lzo-rle.patch
- removed from -mm tree
-Message-ID: <20190926215059.pxyyHTQR4%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        (Authenticated sender: cgoldswo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id EB297602CC;
+        Thu, 26 Sep 2019 22:48:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1569538100;
+        bh=g3A8dwd0zmZ7Slh7dbZkQRsQqjR2/quJV4fThwUAG1E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GT/WkbGHtUFFaDmFFpQmgp8CpFnzZuVFRZgJlAUX+oQ1nnaqaMMQmVuXdumuTcPj8
+         lyFeATj2IjJ8V8wpCX3xy76P3TOKjpf2vIg6OPP3hGYC4pNAbZQPggI669cbNq4eHW
+         l2q/3R+aBG0oCXE7dtfBj7ux9UFapx0FA6hA0Hyw=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org EB297602CC
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=cgoldswo@codeaurora.org
+From:   Chris Goldsworthy <cgoldswo@codeaurora.org>
+To:     Rob Herring <robh+dt@kernel.org>
+Cc:     Chris Goldsworthy <cgoldswo@codeaurora.org>,
+        devicetree@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] of: reserved_mem: add missing of_node_put() for proper ref-counting
+Date:   Thu, 26 Sep 2019 15:48:12 -0700
+Message-Id: <1569538092-16913-1-git-send-email-cgoldswo@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit d698a388146c ("of: reserved-memory: ignore disabled memory-region
+nodes") added an early return in of_reserved_mem_device_init_by_idx(), but
+didn't call of_node_put() on a device_node whose ref-count was incremented
+in the call to of_parse_phandle() preceding the early exit.
 
-The patch titled
-     Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
-has been removed from the -mm tree.  Its filename was
-     lib-lzo-fix-alignment-bug-in-lzo-rle.patch
-
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Dave Rodgman <dave.rodgman@arm.com>
-Subject: lib/lzo/lzo1x_compress.c: fix alignment bug in lzo-rle
-
-Fix an unaligned access which breaks on platforms where this is not
-permitted (e.g., Sparc).
-
-Link: http://lkml.kernel.org/r/20190912145502.35229-1-dave.rodgman@arm.com
-Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: d698a388146c ("of: reserved-memory: ignore disabled memory-region nodes")
+Signed-off-by: Chris Goldsworthy <cgoldswo@codeaurora.org>
+To: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
 ---
+ drivers/of/of_reserved_mem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- lib/lzo/lzo1x_compress.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
---- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-alignment-bug-in-lzo-rle
-+++ a/lib/lzo/lzo1x_compress.c
-@@ -83,17 +83,19 @@ next:
- 					ALIGN((uintptr_t)ir, 4)) &&
- 					(ir < limit) && (*ir == 0))
- 				ir++;
--			for (; (ir + 4) <= limit; ir += 4) {
--				dv = *((u32 *)ir);
--				if (dv) {
-+			if (IS_ALIGNED((uintptr_t)ir, 4)) {
-+				for (; (ir + 4) <= limit; ir += 4) {
-+					dv = *((u32 *)ir);
-+					if (dv) {
- #  if defined(__LITTLE_ENDIAN)
--					ir += __builtin_ctz(dv) >> 3;
-+						ir += __builtin_ctz(dv) >> 3;
- #  elif defined(__BIG_ENDIAN)
--					ir += __builtin_clz(dv) >> 3;
-+						ir += __builtin_clz(dv) >> 3;
- #  else
- #    error "missing endian definition"
- #  endif
--					break;
-+						break;
-+					}
- 				}
- 			}
- #endif
-_
-
-Patches currently in -mm which might be from dave.rodgman@arm.com are
-
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index 7989703..6bd610e 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -324,8 +324,10 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
+ 	if (!target)
+ 		return -ENODEV;
+ 
+-	if (!of_device_is_available(target))
++	if (!of_device_is_available(target)) {
++		of_node_put(target);
+ 		return 0;
++	}
+ 
+ 	rmem = __find_rmem(target);
+ 	of_node_put(target);
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
