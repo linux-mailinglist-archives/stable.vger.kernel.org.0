@@ -2,124 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E13CBBEB73
-	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 06:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD664BEB75
+	for <lists+stable@lfdr.de>; Thu, 26 Sep 2019 06:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391895AbfIZEy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 00:54:57 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57390 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728905AbfIZEy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Sep 2019 00:54:56 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8Q4s3Uo117530
-        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 00:54:55 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v8kmhe93y-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 00:54:55 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
-        Thu, 26 Sep 2019 05:54:53 +0100
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
-        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Thu, 26 Sep 2019 05:54:48 +0100
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8Q4slgi56360998
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 26 Sep 2019 04:54:47 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE1514C040;
-        Thu, 26 Sep 2019 04:54:46 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 98B5D4C046;
-        Thu, 26 Sep 2019 04:54:46 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 26 Sep 2019 04:54:46 +0000 (GMT)
-Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2391926AbfIZEzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Sep 2019 00:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38200 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391864AbfIZEzD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Sep 2019 00:55:03 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 2B2B5A00D3;
-        Thu, 26 Sep 2019 14:54:45 +1000 (AEST)
-From:   "Alastair D'Silva" <alastair@au1.ibm.com>
-To:     alastair@d-silva.org
-Cc:     stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Thomas Gleixner <tglx@linutronix.de>, Qian Cai <cai@lca.pw>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 2/6] powerpc: Allow 64bit VDSO __kernel_sync_dicache to work across ranges >4GB
-Date:   Thu, 26 Sep 2019 14:54:08 +1000
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190926045419.22827-1-alastair@au1.ibm.com>
-References: <20190926045419.22827-1-alastair@au1.ibm.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 35321222BF;
+        Thu, 26 Sep 2019 04:55:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569473702;
+        bh=Dy3FWgnLF2rRHcTZKnQU1WGAzQbabQgxU3nhizjPzMY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=p0lpho/NYwDFBUrB/wdbmkktU3lh8S06jMi5TcKHj6MwV+sH7V19G9z7lNtk0qGl3
+         yQKRnZ+X3CKrzG55YUYfosfyLidXlVSpaXkoHWoP7OKIBUplShzswNBT4gsJPqMmRu
+         aR7tc61SIpi3J4ZwwwYZsLkhgnivE9B25jF6vp9c=
+Date:   Thu, 26 Sep 2019 06:54:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chris Brandt <chris.brandt@renesas.com>
+Cc:     Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+Subject: Re: [PATCH] i2c: riic: Clear NACK in tend isr
+Message-ID: <20190926045459.GA1560081@kroah.com>
+References: <20190925194327.28109-1-chris.brandt@renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19092604-0020-0000-0000-00000371CC3A
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19092604-0021-0000-0000-000021C79578
-Message-Id: <20190926045419.22827-3-alastair@au1.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-26_01:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=600 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1909260048
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190925194327.28109-1-chris.brandt@renesas.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alastair D'Silva <alastair@d-silva.org>
+On Wed, Sep 25, 2019 at 02:43:27PM -0500, Chris Brandt wrote:
+> The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+> description in HW manual.
+> 
+> This issue shows up quickly when PREEMPT_RT is applied and a device is
+> probed that is not plugged in (like a touchscreen controller). The result
+> is endless interrupts that halt system boot.
+> 
+> Fixes: 310c18a41450 ("i2c: riic: add driver")
+> Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> ---
+>  drivers/i2c/busses/i2c-riic.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+> index f31413fd9521..800414886f6b 100644
+> --- a/drivers/i2c/busses/i2c-riic.c
+> +++ b/drivers/i2c/busses/i2c-riic.c
+> @@ -202,6 +202,7 @@ static irqreturn_t riic_tend_isr(int irq, void *data)
+>  	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
+>  		/* We got a NACKIE */
+>  		readb(riic->base + RIIC_ICDRR);	/* dummy read */
+> +		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
+>  		riic->err = -ENXIO;
+>  	} else if (riic->bytes_left) {
+>  		return IRQ_NONE;
+> -- 
+> 2.23.0
+> 
 
-When calling __kernel_sync_dicache with a size >4GB, we were masking
-off the upper 32 bits, so we would incorrectly flush a range smaller
-than intended.
+<formletter>
 
-This patch replaces the 32 bit shifts with 64 bit ones, so that
-the full size is accounted for.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
-Cc: stable@vger.kernel.org
----
- arch/powerpc/kernel/vdso64/cacheflush.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/powerpc/kernel/vdso64/cacheflush.S b/arch/powerpc/kernel/vdso64/cacheflush.S
-index 3f92561a64c4..526f5ba2593e 100644
---- a/arch/powerpc/kernel/vdso64/cacheflush.S
-+++ b/arch/powerpc/kernel/vdso64/cacheflush.S
-@@ -35,7 +35,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,CFG_DCACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
-@@ -52,7 +52,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5
- 	lwz	r9,CFG_ICACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
--- 
-2.21.0
-
+</formletter>
