@@ -2,72 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DB00BFBE7
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 01:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41BFBFEE8
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 08:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728824AbfIZXW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Sep 2019 19:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39466 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728270AbfIZXW1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Sep 2019 19:22:27 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E041207E0;
-        Thu, 26 Sep 2019 23:22:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569540146;
-        bh=GQUyMjye5vxmGMIj00o9cH/mVKe1NcXqBa/0DfTtHrw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lwe85V6TohEQw3nBBb9Bdqf+HrEz1OmN6GYeCI4L/QakpJQva0ND2s4ShvldrUl80
-         /uxq/DljbUWy73uB6bCvCcZXgo2OvbQ4+yiFr4ZEye2sXcnH2ZPUzwuzEym4AuHsaa
-         xn9dbAdK9tQycQVK6SlNYbuuWAyGi63AqRtoYHz8=
-Date:   Thu, 26 Sep 2019 19:22:25 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     linux-integrity@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future
- TPM operations
-Message-ID: <20190926232225.GJ8171@sasha-vm>
-References: <20190925101532.31280-1-jarkko.sakkinen@linux.intel.com>
- <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
+        id S1725861AbfI0GNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Sep 2019 02:13:07 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:38445 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725836AbfI0GNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 02:13:07 -0400
+Received: by mail-io1-f68.google.com with SMTP id u8so13325292iom.5
+        for <stable@vger.kernel.org>; Thu, 26 Sep 2019 23:13:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=indeed.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6rLyBZgdgQPBTN+OLp2sJtbP71cPYzdGnLSNS6WRqeo=;
+        b=jDCeqonpm7nwM70XcKvxWDUEr1bd0StHCvROhyDCJf7NoFp/MfAD+HU2+OBj84hdPL
+         Blswu1oGRVy9ABVhI9WddHj+KFZMKK0CMraCa4pbUqq2cfLJVoVBqb81rf22JBboA8ba
+         gX8dzM/SU/6zT4qb9sHWloMWId2CtF0gYS5ck=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6rLyBZgdgQPBTN+OLp2sJtbP71cPYzdGnLSNS6WRqeo=;
+        b=KaI+1m4OziMJZlP/HNeCRrcAeddII7Lei5vOy4MvdH4fR7IKz151yRP7WN8hSRAT1h
+         U9jCartKzMAslfHpWVYVNH2EI7tjpVydYhEcF8JnpHVhI9t2vPmbhofbyRIe4sKS7P5Y
+         jYYOL+3O8V1h9GW5NiiVjKs3/gfASR2yEtqouj3r9x8Z1i/1GN5zU198UjCM9C5yXjkt
+         ydW3w64AcG4X228TXeD7OJ/4rivOT9oZEr5OIzxNBmunfTkyV5zH8U38XgTX+iYQl04w
+         zJIdQaY56ciNE9d8/IE+S47zItkxgvfGQnN9m1dAABPZKUzYbWC38bMjQkeAkzIJrp/F
+         UGAQ==
+X-Gm-Message-State: APjAAAWHMVZBwDSECvpg0jPctbRz7ZrzH68kD02vrdS7k+6m3w8IWZWg
+        m52CchDtCgML3hUYVmiTjO2+d3IxtwZhFsevMiNVoJQYfZ4nRg==
+X-Google-Smtp-Source: APXvYqzdaFiaPs7woG7muXEPJ9PGYdGbVpXDcQBVSVSRCKeriFLOmP9TPZdehA0ZXaxeaptft5rg0hlqgiNxc+/7+70=
+X-Received: by 2002:a92:8e4f:: with SMTP id k15mr3309606ilh.108.1569564786376;
+ Thu, 26 Sep 2019 23:13:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190925101532.31280-4-jarkko.sakkinen@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CAC=E7cUXpUDgpvsmMaMU6sAydbfD0FEJiK25R1r=e9=YtcPjGw@mail.gmail.com>
+ <20190925064414.GA1449297@kroah.com>
+In-Reply-To: <20190925064414.GA1449297@kroah.com>
+From:   Dave Chiluk <chiluk+linux@indeed.com>
+Date:   Fri, 27 Sep 2019 01:12:40 -0500
+Message-ID: <CAC=E7cXcujmbwMnmXeH2=80Lkki+j_b=WE4KCWaM1mYafDaWSA@mail.gmail.com>
+Subject: Re: Please backport de53fd7aedb1 : sched/fair: Fix low cpu usage with
+ high throttling by removing expiration of cpu-local slices
+To:     Greg KH <greg@kroah.com>, Ben Segall <bsegall@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Phil Auld <pauld@redhat.com>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 25, 2019 at 01:15:32PM +0300, Jarkko Sakkinen wrote:
->From: Vadim Sukhomlinov <sukhomlinov@google.com>
+On Wed, Sep 25, 2019 at 1:44 AM Greg KH <greg@kroah.com> wrote:
 >
->commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+> On Wed, Sep 25, 2019 at 12:53:48AM -0500, Dave Chiluk wrote:
+> > Commit de53fd7aedb1 ("sched/fair: Fix low cpu usage with high
+> > throttling by removing expiration of cpu-local slices") fixes a major
+> > performance issue for containerized clouds such as Kubernetes.
+> >
+> > Commit de53fd7aedb1 Fixes commit : 512ac999d275 ("sched/fair: Fix
+> > bandwidth timer clock drift condition").
+> >
+> > This should be applied to all stable kernels that applied commit
+> > 512ac999d275, and should probably be applied to all others as well.
 >
->TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
->future TPM operations. TPM 1.2 behavior was different, future TPM
->operations weren't disabled, causing rare issues. This patch ensures
->that future TPM operations are disabled.
->
->Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
->Cc: stable@vger.kernel.org
->Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
->[dianders: resolved merge conflicts with mainline]
->Signed-off-by: Douglas Anderson <dianders@chromium.org>
->Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
->Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> As this commit isn't in a released kernel just yet, we should wait to
+> see what happens when it hits people's machines, right?
 
-I've queued it up for 4.19 and 4.14, thanks!
+I think waiting till 5.4 is released would be irresponsible on this
+one.  512ac999 was recently pushed back into many of the distro
+kernels via the stable streams.  Additionally every major container
+running cloud provider (public and private), is likely hitting this
+whether they've noticed or not.  Before 512ac999 we would hit the
+issue that resolved once every 10000 application deployments or so *(I
+admit some providers appear to have been hit by that more often).
+However, the fix implemented by 512ac999 is guaranteed to affect 100%
+of cgroup cpu bandwidth constrained applications.
 
---
-Thanks,
-Sasha
+Our java applications are particularly hard hit as java tends to be
+very thread happy.   Doing some napkin math, given the roughly 9000
+applications we have running in our clouds we've had to over-allocate
+each one's CPU quota by roughly .5 cpu to account for this behavior
+change (worst case scenario is actually .01 cpu * cores in machine,
+but not all of our applications are affected equally).
+9000 applications * .5 CPU = 4500 cores
+4500 Cores / 88 cores per node = 51 additional machines required to
+satisfy the inflated quota requirements.
+Given each 88 core machine costs roughly $30k that equates to $1.5M
+that this issue is costing us.
+We have been able to alleviate this somewhat of this by turning on CPU
+overcommit on in the container scheduler. (Deploying more applications
+per host than the CPU would generally allow for).  This however leads
+to occasional overloaded machines, and regular high response
+times/wide response time distributions for applications.
+
+If you have a java or golang application running on a containerized
+cloud anywhere chances are you are either paying extra to get the CPU
+you need or your application is being throttled before using the quota
+you've paid for.  I'm sure other languages could be affected, but
+these are the two we've seen that by default generate enough threads
+to regularly hit this issue.
+
+All of these problems are leading the kubernetes community to change
+the defaulrs away from the cfs bandwidth scheduling mechanisms and
+towards other mechanisms or hackish workarounds. *(adjusting periods,
+turning off cfs bandwidth, moving to only soft limits).
+https://github.com/kubernetes/kubernetes/issues/67577
+https://github.com/kubernetes/kubernetes/issues/70585
+https://github.com/kubernetes/kubernetes/issues/51135
+
+I appreciate your reluctance to accept this patch, but I strongly
+believe pulling this sooner than later is the right thing to do.
+
+> Also, always cc: all of the people involved in the patch you are asking
+> for, so as to get their opinion.
+Fixed.  I'll submit a change to stable-kernel-rules.rst upon my return
+from vacation.
+
+> For some reason this patch did not
+> have a cc: stable tag on it, was that because the developers did not
+> think it was relevant for stable kernels?
+
+This was my fault, I was unaware I could simply cc: stable to have it
+auto-submitted.  I promise I'll be better in the future.
+
+> > It may also be prudent to also apply the not yet accepted patch that
+> > fixes some introduced compiler warnings discussed here.
+> > https://lkml.org/lkml/2019/9/18/925
+>
+> So we should wait for this to hit Linus's tree too, right?
+
+This patch contributes nothing materially to de53fd7aedb1, and only
+eliminates compiler warnings for unused variables *(which likely get
+optimized out anyway).  I'm not sure what the stable policy is with
+introduced compiler warnings, so I included the patch submission in
+this discussion for completeness.
+
+Thank you,
+Dave Chiluk
