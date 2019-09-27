@@ -2,224 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46217C04B6
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 13:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B23DEC04BA
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 13:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbfI0LyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Sep 2019 07:54:17 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55236 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727378AbfI0LyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 07:54:17 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8RBkjtu085147
-        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:15 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v9g6wbnxa-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:15 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <groug@kaod.org>;
-        Fri, 27 Sep 2019 12:54:13 +0100
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Fri, 27 Sep 2019 12:54:08 +0100
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8RBs7CE59506738
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Sep 2019 11:54:07 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B12AB11C058;
-        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BEA211C052;
-        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
-Received: from bahia.lan (unknown [9.145.172.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
-Subject: [PATCH v2 6/6] KVM: PPC: Book3S HV: XIVE: Allow userspace to set
- the # of VPs
-From:   Greg Kurz <groug@kaod.org>
-To:     Paul Mackerras <paulus@ozlabs.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        =?utf-8?q?C=C3=A9dric?= Le Goater <clg@kaod.org>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim =?utf-8?b?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        kvm-ppc@vger.kernel.org, kvm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Date:   Fri, 27 Sep 2019 13:54:07 +0200
-In-Reply-To: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
-References: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
-User-Agent: StGit/unknown-version
+        id S1726087AbfI0L5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Sep 2019 07:57:15 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:41946 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725992AbfI0L5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 07:57:15 -0400
+Received: by mail-ed1-f66.google.com with SMTP id f20so2067288edv.8
+        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 04:57:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=VudhGRJgGztFYCAmFPgwFvyUZFG1tYJLdgT5ME4hLeY=;
+        b=bmsRfqs16rp2xRphehEeZNwjV826IYwMPMC/4iuMJR81mrmjoqulVp3XYL+TdgATTk
+         8Q4Jo+ygWm+U2l/opABA/IstTdQmpNed85RcEyNv9KmqpuRyAGvl+Wym/TddifjVpjwi
+         xQNQLScqv39CCKbB06fjKX5pkVkX+DyLUdgYGvozeMmsdMUlO23YiJqJLNTvMfGd2aGm
+         ZqAIXcoB7lZV/9e78FVDWIpZxEbC2XQd0TyM5MqyJrk1oW2ZflunO2BwQvsulsBidVDv
+         HLbLcchKGBDTE7AaGT2kqFdYU7dQUSPyTSFQBuw9hYfOCqwlVnEMPfCXH2JzkpUipEP5
+         w53g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=VudhGRJgGztFYCAmFPgwFvyUZFG1tYJLdgT5ME4hLeY=;
+        b=gXZ36pGBBxgluJTEYhyEK/uKM2ThaRZ2akCG9soMoYElRuTa7E1F9qlDOfdRdhrwxl
+         2oQo5YimmtcGLE/a1qcwUsgc3Kvp+XldA5loB6ZU0RpOcnrcI8npFOfzupAMMeaIesqq
+         QtAcP46b9wwlLhGyz7Hf/drb7WMuyrApeijsSgupPc2CpHkixFxpErSbzUJ6AfogjFVX
+         2jh4qjDyqn6zuZFfw2+HP4t4B/y3JTcD2eQOgJQaCOi5Xmrr55XLemcyv16BxXe/5zkk
+         OHEGtGLLI068W4clwSVXIqJHj4mz9kl0l1UnhvsBMeSiIBqmGBQ/aCkscatmTWcIN3hT
+         UJsA==
+X-Gm-Message-State: APjAAAUXr2TmhQJoIkNaYeDK/pKg12zz/EqWiPnLDsf/RlAa+6Z9IJIx
+        t2asKAekPs8mADNBueKwMF3zK4i6WzU=
+X-Google-Smtp-Source: APXvYqz798rkVMKnUP+/uGjp05Qo2FrYkY/2/Btg5Ep+VtaO6NYKsAADg3aFlMlHZ9RCq8Mo6wsPBA==
+X-Received: by 2002:a05:6402:32f:: with SMTP id q15mr3980720edw.143.1569585433399;
+        Fri, 27 Sep 2019 04:57:13 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id h58sm481389edb.43.2019.09.27.04.57.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Sep 2019 04:57:12 -0700 (PDT)
+Date:   Fri, 27 Sep 2019 13:57:11 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable@vger.kernel.org
+Cc:     Yu Wang <yyuwang@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Please backport 79c92ca42b5a ("mac80211: handle
+ deauthentication/disassociation from TDLS peer") to 4.9
+Message-ID: <20190927115711.GA8961@eldamar.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19092711-0012-0000-0000-000003514B8B
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19092711-0013-0000-0000-0000218BE6CA
-Message-Id: <156958524691.1503771.2453080873820103723.stgit@bahia.lan>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-27_06:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1034 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1909270112
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add a new attribute to both XIVE and XICS-on-XIVE KVM devices so that
-userspace can tell how many interrupt servers it needs. If a VM needs
-less than the current default of KVM_MAX_VCPUS (2048), we can allocate
-less VPs in OPAL. Combined with a core stride (VSMT) that matches the
-number of guest threads per core, this may substantially increases the
-number of VMs that can run concurrently with an in-kernel XIVE device.
+Hi
 
-Since the legacy XIVE KVM device is exposed to userspace through the
-XICS KVM API, a new attribute group is added to it for this purpose.
-While here, fix the syntax of the existing KVM_DEV_XICS_GRP_SOURCES
-in the XICS documentation.
+79c92ca42b5a ("mac80211: handle deauthentication/disassociation from
+TDLS peer") was backported to various stable versions, back to 4.14,
+but not 4.9, because there is a conflict making it not applying
+cleanly to 4.9.
 
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Ben has done the work for 3.16, which got applied 3.16.74.
+
+Attached the backport for 4.9 for review, adjusting the context to
+make it apply on top of 4.9.194.
+
+Regards,
+Salvatore
+
+From 8e2d380a76d8cbf241390e4dfca634a1b97a89b7 Mon Sep 17 00:00:00 2001
+From: Yu Wang <yyuwang@codeaurora.org>
+Date: Fri, 10 May 2019 17:04:52 +0800
+Subject: [PATCH] mac80211: handle deauthentication/disassociation from TDLS
+ peer
+
+commit 79c92ca42b5a3e0ea172ea2ce8df8e125af237da upstream.
+
+When receiving a deauthentication/disassociation frame from a TDLS
+peer, a station should not disconnect the current AP, but only
+disable the current TDLS link if it's enabled.
+
+Without this change, a TDLS issue can be reproduced by following the
+steps as below:
+
+1. STA-1 and STA-2 are connected to AP, bidirection traffic is running
+   between STA-1 and STA-2.
+2. Set up TDLS link between STA-1 and STA-2, stay for a while, then
+   teardown TDLS link.
+3. Repeat step #2 and monitor the connection between STA and AP.
+
+During the test, one STA may send a deauthentication/disassociation
+frame to another, after TDLS teardown, with reason code 6/7, which
+means: Class 2/3 frame received from nonassociated STA.
+
+On receive this frame, the receiver STA will disconnect the current
+AP and then reconnect. It's not a expected behavior, purpose of this
+frame should be disabling the TDLS link, not the link with AP.
+
+Signed-off-by: Yu Wang <yyuwang@codeaurora.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[Salvatore Bonaccorso: Backported to 4.9: adjust context]
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 ---
-v2: - changelog update
----
- Documentation/virt/kvm/devices/xics.txt |   14 ++++++++++++--
- Documentation/virt/kvm/devices/xive.txt |    8 ++++++++
- arch/powerpc/include/uapi/asm/kvm.h     |    3 +++
- arch/powerpc/kvm/book3s_xive.c          |   10 ++++++++++
- arch/powerpc/kvm/book3s_xive_native.c   |    3 +++
- 5 files changed, 36 insertions(+), 2 deletions(-)
+ net/mac80211/ieee80211_i.h |  3 +++
+ net/mac80211/mlme.c        | 12 +++++++++++-
+ net/mac80211/tdls.c        | 23 +++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virt/kvm/devices/xics.txt b/Documentation/virt/kvm/devices/xics.txt
-index 42864935ac5d..423332dda7bc 100644
---- a/Documentation/virt/kvm/devices/xics.txt
-+++ b/Documentation/virt/kvm/devices/xics.txt
-@@ -3,9 +3,19 @@ XICS interrupt controller
- Device type supported: KVM_DEV_TYPE_XICS
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 6708de10a3e5..0b0de3030e0d 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -2123,6 +2123,9 @@ void ieee80211_tdls_cancel_channel_switch(struct wiphy *wiphy,
+ 					  const u8 *addr);
+ void ieee80211_teardown_tdls_peers(struct ieee80211_sub_if_data *sdata);
+ void ieee80211_tdls_chsw_work(struct work_struct *wk);
++void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
++				      const u8 *peer, u16 reason);
++const char *ieee80211_get_reason_code_string(u16 reason_code);
  
- Groups:
--  KVM_DEV_XICS_SOURCES
-+  1. KVM_DEV_XICS_GRP_SOURCES
-   Attributes: One per interrupt source, indexed by the source number.
+ extern const struct ethtool_ops ieee80211_ethtool_ops;
  
-+  2. KVM_DEV_XICS_GRP_CTRL
-+  Attributes:
-+    2.1 KVM_DEV_XICS_NR_SERVERS (write only)
-+  The kvm_device_attr.addr points to a __u32 value which is the number of
-+  interrupt server numbers (ie, highest possible vcpu id plus one).
-+  Errors:
-+    -EINVAL: Value greater than KVM_MAX_VCPU_ID.
-+    -EFAULT: Invalid user pointer for attr->addr.
-+    -EBUSY:  A vcpu is already connected to the device.
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index f462f026fc6a..c8409d6e2b88 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2755,7 +2755,7 @@ static void ieee80211_rx_mgmt_auth(struct ieee80211_sub_if_data *sdata,
+ #define case_WLAN(type) \
+ 	case WLAN_REASON_##type: return #type
+ 
+-static const char *ieee80211_get_reason_code_string(u16 reason_code)
++const char *ieee80211_get_reason_code_string(u16 reason_code)
+ {
+ 	switch (reason_code) {
+ 	case_WLAN(UNSPECIFIED);
+@@ -2820,6 +2820,11 @@ static void ieee80211_rx_mgmt_deauth(struct ieee80211_sub_if_data *sdata,
+ 	if (len < 24 + 2)
+ 		return;
+ 
++	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
++		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
++		return;
++	}
 +
- This device emulates the XICS (eXternal Interrupt Controller
- Specification) defined in PAPR.  The XICS has a set of interrupt
- sources, each identified by a 20-bit source number, and a set of
-@@ -38,7 +48,7 @@ least-significant end of the word:
+ 	if (ifmgd->associated &&
+ 	    ether_addr_equal(mgmt->bssid, ifmgd->associated->bssid)) {
+ 		const u8 *bssid = ifmgd->associated->bssid;
+@@ -2869,6 +2874,11 @@ static void ieee80211_rx_mgmt_disassoc(struct ieee80211_sub_if_data *sdata,
  
- Each source has 64 bits of state that can be read and written using
- the KVM_GET_DEVICE_ATTR and KVM_SET_DEVICE_ATTR ioctls, specifying the
--KVM_DEV_XICS_SOURCES attribute group, with the attribute number being
-+KVM_DEV_XICS_GRP_SOURCES attribute group, with the attribute number being
- the interrupt source number.  The 64 bit state word has the following
- bitfields, starting from the least-significant end of the word:
+ 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
  
-diff --git a/Documentation/virt/kvm/devices/xive.txt b/Documentation/virt/kvm/devices/xive.txt
-index 9a24a4525253..f5d1d6b5af61 100644
---- a/Documentation/virt/kvm/devices/xive.txt
-+++ b/Documentation/virt/kvm/devices/xive.txt
-@@ -78,6 +78,14 @@ the legacy interrupt mode, referred as XICS (POWER7/8).
-     migrating the VM.
-     Errors: none
- 
-+    1.3 KVM_DEV_XIVE_NR_SERVERS (write only)
-+    The kvm_device_attr.addr points to a __u32 value which is the number of
-+    interrupt server numbers (ie, highest possible vcpu id plus one).
-+    Errors:
-+      -EINVAL: Value greater than KVM_MAX_VCPU_ID.
-+      -EFAULT: Invalid user pointer for attr->addr.
-+      -EBUSY:  A vCPU is already connected to the device.
++	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
++		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
++		return;
++	}
 +
-   2. KVM_DEV_XIVE_GRP_SOURCE (write only)
-   Initializes a new source in the XIVE device and mask it.
-   Attributes:
-diff --git a/arch/powerpc/include/uapi/asm/kvm.h b/arch/powerpc/include/uapi/asm/kvm.h
-index b0f72dea8b11..264e266a85bf 100644
---- a/arch/powerpc/include/uapi/asm/kvm.h
-+++ b/arch/powerpc/include/uapi/asm/kvm.h
-@@ -667,6 +667,8 @@ struct kvm_ppc_cpu_char {
+ 	sdata_info(sdata, "disassociated from %pM (Reason: %u)\n",
+ 		   mgmt->sa, reason_code);
  
- /* PPC64 eXternal Interrupt Controller Specification */
- #define KVM_DEV_XICS_GRP_SOURCES	1	/* 64-bit source attributes */
-+#define KVM_DEV_XICS_GRP_CTRL		2
-+#define   KVM_DEV_XICS_NR_SERVERS	1
- 
- /* Layout of 64-bit source attribute values */
- #define  KVM_XICS_DESTINATION_SHIFT	0
-@@ -683,6 +685,7 @@ struct kvm_ppc_cpu_char {
- #define KVM_DEV_XIVE_GRP_CTRL		1
- #define   KVM_DEV_XIVE_RESET		1
- #define   KVM_DEV_XIVE_EQ_SYNC		2
-+#define   KVM_DEV_XIVE_NR_SERVERS	3
- #define KVM_DEV_XIVE_GRP_SOURCE		2	/* 64-bit source identifier */
- #define KVM_DEV_XIVE_GRP_SOURCE_CONFIG	3	/* 64-bit source identifier */
- #define KVM_DEV_XIVE_GRP_EQ_CONFIG	4	/* 64-bit EQ identifier */
-diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
-index 6c35b3d95986..66858b7d3c6b 100644
---- a/arch/powerpc/kvm/book3s_xive.c
-+++ b/arch/powerpc/kvm/book3s_xive.c
-@@ -1911,6 +1911,11 @@ static int xive_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
- 	switch (attr->group) {
- 	case KVM_DEV_XICS_GRP_SOURCES:
- 		return xive_set_source(xive, attr->attr, attr->addr);
-+	case KVM_DEV_XICS_GRP_CTRL:
-+		switch (attr->attr) {
-+		case KVM_DEV_XICS_NR_SERVERS:
-+			return kvmppc_xive_set_nr_servers(xive, attr->addr);
-+		}
+diff --git a/net/mac80211/tdls.c b/net/mac80211/tdls.c
+index c64ae68ae4f8..863f92c08701 100644
+--- a/net/mac80211/tdls.c
++++ b/net/mac80211/tdls.c
+@@ -2001,3 +2001,26 @@ void ieee80211_tdls_chsw_work(struct work_struct *wk)
  	}
- 	return -ENXIO;
+ 	rtnl_unlock();
  }
-@@ -1936,6 +1941,11 @@ static int xive_has_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
- 		    attr->attr < KVMPPC_XICS_NR_IRQS)
- 			return 0;
- 		break;
-+	case KVM_DEV_XICS_GRP_CTRL:
-+		switch (attr->attr) {
-+		case KVM_DEV_XICS_NR_SERVERS:
-+			return 0;
-+		}
- 	}
- 	return -ENXIO;
- }
-diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
-index 8ab333eabeef..34bd123fa024 100644
---- a/arch/powerpc/kvm/book3s_xive_native.c
-+++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -921,6 +921,8 @@ static int kvmppc_xive_native_set_attr(struct kvm_device *dev,
- 			return kvmppc_xive_reset(xive);
- 		case KVM_DEV_XIVE_EQ_SYNC:
- 			return kvmppc_xive_native_eq_sync(xive);
-+		case KVM_DEV_XIVE_NR_SERVERS:
-+			return kvmppc_xive_set_nr_servers(xive, attr->addr);
- 		}
- 		break;
- 	case KVM_DEV_XIVE_GRP_SOURCE:
-@@ -960,6 +962,7 @@ static int kvmppc_xive_native_has_attr(struct kvm_device *dev,
- 		switch (attr->attr) {
- 		case KVM_DEV_XIVE_RESET:
- 		case KVM_DEV_XIVE_EQ_SYNC:
-+		case KVM_DEV_XIVE_NR_SERVERS:
- 			return 0;
- 		}
- 		break;
++
++void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
++				      const u8 *peer, u16 reason)
++{
++	struct ieee80211_sta *sta;
++
++	rcu_read_lock();
++	sta = ieee80211_find_sta(&sdata->vif, peer);
++	if (!sta || !sta->tdls) {
++		rcu_read_unlock();
++		return;
++	}
++	rcu_read_unlock();
++
++	tdls_dbg(sdata, "disconnected from TDLS peer %pM (Reason: %u=%s)\n",
++		 peer, reason,
++		 ieee80211_get_reason_code_string(reason));
++
++	ieee80211_tdls_oper_request(&sdata->vif, peer,
++				    NL80211_TDLS_TEARDOWN,
++				    WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE,
++				    GFP_ATOMIC);
++}
+-- 
+2.23.0
 
