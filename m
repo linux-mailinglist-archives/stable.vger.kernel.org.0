@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 666D1C04B4
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 13:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46217C04B6
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 13:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbfI0LyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Sep 2019 07:54:10 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41416 "EHLO
+        id S1726540AbfI0LyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Sep 2019 07:54:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55236 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727366AbfI0LyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 07:54:10 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8RBkhJX116092
-        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:08 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2v9gjfav9t-1
+        by vger.kernel.org with ESMTP id S1727378AbfI0LyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 07:54:17 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8RBkjtu085147
+        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:15 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2v9g6wbnxa-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:08 -0400
+        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 07:54:15 -0400
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <stable@vger.kernel.org> from <groug@kaod.org>;
-        Fri, 27 Sep 2019 12:54:06 +0100
+        Fri, 27 Sep 2019 12:54:13 +0100
 Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
-        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
         (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Fri, 27 Sep 2019 12:54:02 +0100
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8RBs27J29819046
+        Fri, 27 Sep 2019 12:54:08 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x8RBs7CE59506738
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Sep 2019 11:54:02 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE7A04203F;
-        Fri, 27 Sep 2019 11:54:01 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 773D54204C;
-        Fri, 27 Sep 2019 11:54:01 +0000 (GMT)
+        Fri, 27 Sep 2019 11:54:07 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B12AB11C058;
+        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4BEA211C052;
+        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
 Received: from bahia.lan (unknown [9.145.172.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 27 Sep 2019 11:54:01 +0000 (GMT)
-Subject: [PATCH v2 5/6] KVM: PPC: Book3S HV: XIVE: Make VP block size
- configurable
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 27 Sep 2019 11:54:07 +0000 (GMT)
+Subject: [PATCH v2 6/6] KVM: PPC: Book3S HV: XIVE: Allow userspace to set
+ the # of VPs
 From:   Greg Kurz <groug@kaod.org>
 To:     Paul Mackerras <paulus@ozlabs.org>
 Cc:     Michael Ellerman <mpe@ellerman.id.au>,
@@ -51,18 +51,18 @@ Cc:     Michael Ellerman <mpe@ellerman.id.au>,
         Radim =?utf-8?b?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
         kvm-ppc@vger.kernel.org, kvm@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Date:   Fri, 27 Sep 2019 13:54:01 +0200
+Date:   Fri, 27 Sep 2019 13:54:07 +0200
 In-Reply-To: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
 References: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
 User-Agent: StGit/unknown-version
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-x-cbid: 19092711-0008-0000-0000-0000031BA648
+x-cbid: 19092711-0012-0000-0000-000003514B8B
 X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19092711-0009-0000-0000-00004A3A457B
-Message-Id: <156958524112.1503771.8635811810707913977.stgit@bahia.lan>
+x-cbparentid: 19092711-0013-0000-0000-0000218BE6CA
+Message-Id: <156958524691.1503771.2453080873820103723.stgit@bahia.lan>
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-09-27_06:,,
  signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
@@ -75,240 +75,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The XIVE VP is an internal structure which allow the XIVE interrupt
-controller to maintain the interrupt context state of vCPUs non
-dispatched on HW threads.
+Add a new attribute to both XIVE and XICS-on-XIVE KVM devices so that
+userspace can tell how many interrupt servers it needs. If a VM needs
+less than the current default of KVM_MAX_VCPUS (2048), we can allocate
+less VPs in OPAL. Combined with a core stride (VSMT) that matches the
+number of guest threads per core, this may substantially increases the
+number of VMs that can run concurrently with an in-kernel XIVE device.
 
-When a guest is started, the XIVE KVM device allocates a block of
-XIVE VPs in OPAL, enough to accommodate the highest possible vCPU
-id KVM_MAX_VCPU_ID (16384) packed down to KVM_MAX_VCPUS (2048).
-With a guest's core stride of 8 and a threading mode of 1 (QEMU's
-default), a VM must run at least 256 vCPUs to actually need such a
-range of VPs.
-
-A POWER9 system has a limited XIVE VP space : 512k and KVM is
-currently wasting this HW resource with large VP allocations,
-especially since a typical VM likely runs with a lot less vCPUs.
-
-Make the size of the VP block configurable. Add an nr_servers
-field to the XIVE structure and a function to set it for this
-purpose.
-
-Split VP allocation out of the device create function. Since the
-VP block isn't used before the first vCPU connects to the XIVE KVM
-device, allocation is now performed by kvmppc_xive_connect_vcpu().
-This gives the opportunity to set nr_servers in between:
-
-          kvmppc_xive_create() / kvmppc_xive_native_create()
-                               .
-                               .
-                     kvmppc_xive_set_nr_servers()
-                               .
-                               .
-    kvmppc_xive_connect_vcpu() / kvmppc_xive_native_connect_vcpu()
-
-The connect_vcpu() functions check that the vCPU id is below nr_servers
-and if it is the first vCPU they allocate the VP block. This is protected
-against a concurrent update of nr_servers by kvmppc_xive_set_nr_servers()
-with the xive->lock mutex.
-
-Also, the block is allocated once for the device lifetime: nr_servers
-should stay constant otherwise connect_vcpu() could generate a boggus
-VP id and likely crash OPAL. It is thus forbidden to update nr_servers
-once the block is allocated.
-
-If the VP allocation fail, return ENOSPC which seems more appropriate to
-report the depletion of system wide HW resource than ENOMEM or ENXIO.
-
-A VM using a stride of 8 and 1 thread per core with 32 vCPUs would hence
-only need 256 VPs instead of 2048. If the stride is set to match the number
-of threads per core, this goes further down to 32.
-
-This will be exposed to userspace by a subsequent patch.
+Since the legacy XIVE KVM device is exposed to userspace through the
+XICS KVM API, a new attribute group is added to it for this purpose.
+While here, fix the syntax of the existing KVM_DEV_XICS_GRP_SOURCES
+in the XICS documentation.
 
 Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
 ---
-v2: - update nr_server check and clip down to KVM_MAX_VCPUS
-      in kvmppc_xive_set_nr_servers()
+v2: - changelog update
 ---
- arch/powerpc/kvm/book3s_xive.c        |   65 +++++++++++++++++++++++++++------
- arch/powerpc/kvm/book3s_xive.h        |    4 ++
- arch/powerpc/kvm/book3s_xive_native.c |   18 +++------
- 3 files changed, 62 insertions(+), 25 deletions(-)
+ Documentation/virt/kvm/devices/xics.txt |   14 ++++++++++++--
+ Documentation/virt/kvm/devices/xive.txt |    8 ++++++++
+ arch/powerpc/include/uapi/asm/kvm.h     |    3 +++
+ arch/powerpc/kvm/book3s_xive.c          |   10 ++++++++++
+ arch/powerpc/kvm/book3s_xive_native.c   |    3 +++
+ 5 files changed, 36 insertions(+), 2 deletions(-)
 
+diff --git a/Documentation/virt/kvm/devices/xics.txt b/Documentation/virt/kvm/devices/xics.txt
+index 42864935ac5d..423332dda7bc 100644
+--- a/Documentation/virt/kvm/devices/xics.txt
++++ b/Documentation/virt/kvm/devices/xics.txt
+@@ -3,9 +3,19 @@ XICS interrupt controller
+ Device type supported: KVM_DEV_TYPE_XICS
+ 
+ Groups:
+-  KVM_DEV_XICS_SOURCES
++  1. KVM_DEV_XICS_GRP_SOURCES
+   Attributes: One per interrupt source, indexed by the source number.
+ 
++  2. KVM_DEV_XICS_GRP_CTRL
++  Attributes:
++    2.1 KVM_DEV_XICS_NR_SERVERS (write only)
++  The kvm_device_attr.addr points to a __u32 value which is the number of
++  interrupt server numbers (ie, highest possible vcpu id plus one).
++  Errors:
++    -EINVAL: Value greater than KVM_MAX_VCPU_ID.
++    -EFAULT: Invalid user pointer for attr->addr.
++    -EBUSY:  A vcpu is already connected to the device.
++
+ This device emulates the XICS (eXternal Interrupt Controller
+ Specification) defined in PAPR.  The XICS has a set of interrupt
+ sources, each identified by a 20-bit source number, and a set of
+@@ -38,7 +48,7 @@ least-significant end of the word:
+ 
+ Each source has 64 bits of state that can be read and written using
+ the KVM_GET_DEVICE_ATTR and KVM_SET_DEVICE_ATTR ioctls, specifying the
+-KVM_DEV_XICS_SOURCES attribute group, with the attribute number being
++KVM_DEV_XICS_GRP_SOURCES attribute group, with the attribute number being
+ the interrupt source number.  The 64 bit state word has the following
+ bitfields, starting from the least-significant end of the word:
+ 
+diff --git a/Documentation/virt/kvm/devices/xive.txt b/Documentation/virt/kvm/devices/xive.txt
+index 9a24a4525253..f5d1d6b5af61 100644
+--- a/Documentation/virt/kvm/devices/xive.txt
++++ b/Documentation/virt/kvm/devices/xive.txt
+@@ -78,6 +78,14 @@ the legacy interrupt mode, referred as XICS (POWER7/8).
+     migrating the VM.
+     Errors: none
+ 
++    1.3 KVM_DEV_XIVE_NR_SERVERS (write only)
++    The kvm_device_attr.addr points to a __u32 value which is the number of
++    interrupt server numbers (ie, highest possible vcpu id plus one).
++    Errors:
++      -EINVAL: Value greater than KVM_MAX_VCPU_ID.
++      -EFAULT: Invalid user pointer for attr->addr.
++      -EBUSY:  A vCPU is already connected to the device.
++
+   2. KVM_DEV_XIVE_GRP_SOURCE (write only)
+   Initializes a new source in the XIVE device and mask it.
+   Attributes:
+diff --git a/arch/powerpc/include/uapi/asm/kvm.h b/arch/powerpc/include/uapi/asm/kvm.h
+index b0f72dea8b11..264e266a85bf 100644
+--- a/arch/powerpc/include/uapi/asm/kvm.h
++++ b/arch/powerpc/include/uapi/asm/kvm.h
+@@ -667,6 +667,8 @@ struct kvm_ppc_cpu_char {
+ 
+ /* PPC64 eXternal Interrupt Controller Specification */
+ #define KVM_DEV_XICS_GRP_SOURCES	1	/* 64-bit source attributes */
++#define KVM_DEV_XICS_GRP_CTRL		2
++#define   KVM_DEV_XICS_NR_SERVERS	1
+ 
+ /* Layout of 64-bit source attribute values */
+ #define  KVM_XICS_DESTINATION_SHIFT	0
+@@ -683,6 +685,7 @@ struct kvm_ppc_cpu_char {
+ #define KVM_DEV_XIVE_GRP_CTRL		1
+ #define   KVM_DEV_XIVE_RESET		1
+ #define   KVM_DEV_XIVE_EQ_SYNC		2
++#define   KVM_DEV_XIVE_NR_SERVERS	3
+ #define KVM_DEV_XIVE_GRP_SOURCE		2	/* 64-bit source identifier */
+ #define KVM_DEV_XIVE_GRP_SOURCE_CONFIG	3	/* 64-bit source identifier */
+ #define KVM_DEV_XIVE_GRP_EQ_CONFIG	4	/* 64-bit EQ identifier */
 diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
-index d84da9f6ee88..6c35b3d95986 100644
+index 6c35b3d95986..66858b7d3c6b 100644
 --- a/arch/powerpc/kvm/book3s_xive.c
 +++ b/arch/powerpc/kvm/book3s_xive.c
-@@ -1213,13 +1213,13 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
- 
- static bool kvmppc_xive_vcpu_id_valid(struct kvmppc_xive *xive, u32 cpu)
- {
--	/* We have a block of KVM_MAX_VCPUS VPs. We just need to check
-+	/* We have a block of xive->nr_servers VPs. We just need to check
- 	 * raw vCPU ids are below the expected limit for this guest's
- 	 * core stride ; kvmppc_pack_vcpu_id() will pack them down to an
- 	 * index that can be safely used to compute a VP id that belongs
- 	 * to the VP block.
- 	 */
--	return cpu < KVM_MAX_VCPUS * xive->kvm->arch.emul_smt_mode;
-+	return cpu < xive->nr_servers * xive->kvm->arch.emul_smt_mode;
- }
- 
- int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp)
-@@ -1231,6 +1231,14 @@ int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp)
- 		return -EINVAL;
+@@ -1911,6 +1911,11 @@ static int xive_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ 	switch (attr->group) {
+ 	case KVM_DEV_XICS_GRP_SOURCES:
+ 		return xive_set_source(xive, attr->attr, attr->addr);
++	case KVM_DEV_XICS_GRP_CTRL:
++		switch (attr->attr) {
++		case KVM_DEV_XICS_NR_SERVERS:
++			return kvmppc_xive_set_nr_servers(xive, attr->addr);
++		}
  	}
- 
-+	if (xive->vp_base == XIVE_INVALID_VP) {
-+		xive->vp_base = xive_native_alloc_vp_block(xive->nr_servers);
-+		pr_devel("VP_Base=%x nr_servers=%d\n", xive->vp_base, xive->nr_servers);
-+
-+		if (xive->vp_base == XIVE_INVALID_VP)
-+			return -ENOSPC;
-+	}
-+
- 	vp_id = kvmppc_xive_vp(xive, cpu);
- 	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
- 		pr_devel("Duplicate !\n");
-@@ -1858,6 +1866,43 @@ int kvmppc_xive_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
- 	return 0;
+ 	return -ENXIO;
  }
- 
-+int kvmppc_xive_set_nr_servers(struct kvmppc_xive *xive, u64 addr)
-+{
-+	u32 __user *ubufp = (u32 __user *) addr;
-+	u32 nr_servers;
-+	int rc = 0;
-+
-+	if (get_user(nr_servers, ubufp))
-+		return -EFAULT;
-+
-+	pr_devel("%s nr_servers=%u\n", __func__, nr_servers);
-+
-+	if (!nr_servers || nr_servers > KVM_MAX_VCPU_ID)
-+		return -EINVAL;
-+
-+	mutex_lock(&xive->lock);
-+	if (xive->vp_base != XIVE_INVALID_VP)
-+		/* The VP block is allocated once and freed when the device
-+		 * is released. Better not allow to change its size since its
-+		 * used by connect_vcpu to validate vCPU ids are valid (eg,
-+		 * setting it back to a higher value could allow connect_vcpu
-+		 * to come up with a VP id that goes beyond the VP block, which
-+		 * is likely to cause a crash in OPAL).
-+		 */
-+		rc = -EBUSY;
-+	else if (nr_servers > KVM_MAX_VCPUS)
-+		/* We don't need more servers. Higher vCPU ids get packed
-+		 * down below KVM_MAX_VCPUS by kvmppc_pack_vcpu_id().
-+		 */
-+		xive->nr_servers = KVM_MAX_VCPUS;
-+	else
-+		xive->nr_servers = nr_servers;
-+
-+	mutex_unlock(&xive->lock);
-+
-+	return rc;
-+}
-+
- static int xive_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
- {
- 	struct kvmppc_xive *xive = dev->private;
-@@ -2025,7 +2070,6 @@ static int kvmppc_xive_create(struct kvm_device *dev, u32 type)
- {
- 	struct kvmppc_xive *xive;
- 	struct kvm *kvm = dev->kvm;
--	int ret = 0;
- 
- 	pr_devel("Creating xive for partition\n");
- 
-@@ -2049,18 +2093,15 @@ static int kvmppc_xive_create(struct kvm_device *dev, u32 type)
- 	else
- 		xive->q_page_order = xive->q_order - PAGE_SHIFT;
- 
--	/* Allocate a bunch of VPs */
--	xive->vp_base = xive_native_alloc_vp_block(KVM_MAX_VCPUS);
--	pr_devel("VP_Base=%x\n", xive->vp_base);
--
--	if (xive->vp_base == XIVE_INVALID_VP)
--		ret = -ENOMEM;
-+	/* VP allocation is delayed to the first call to connect_vcpu */
-+	xive->vp_base = XIVE_INVALID_VP;
-+	/* KVM_MAX_VCPUS limits the number of VMs to roughly 64 per sockets
-+	 * on a POWER9 system.
-+	 */
-+	xive->nr_servers = KVM_MAX_VCPUS;
- 
- 	xive->single_escalation = xive_native_has_single_escalation();
- 
--	if (ret)
--		return ret;
--
- 	kvm->arch.xive = xive;
- 	return 0;
+@@ -1936,6 +1941,11 @@ static int xive_has_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ 		    attr->attr < KVMPPC_XICS_NR_IRQS)
+ 			return 0;
+ 		break;
++	case KVM_DEV_XICS_GRP_CTRL:
++		switch (attr->attr) {
++		case KVM_DEV_XICS_NR_SERVERS:
++			return 0;
++		}
+ 	}
+ 	return -ENXIO;
  }
-diff --git a/arch/powerpc/kvm/book3s_xive.h b/arch/powerpc/kvm/book3s_xive.h
-index 90cf6ec35a68..382e3a56e789 100644
---- a/arch/powerpc/kvm/book3s_xive.h
-+++ b/arch/powerpc/kvm/book3s_xive.h
-@@ -135,6 +135,9 @@ struct kvmppc_xive {
- 	/* Flags */
- 	u8	single_escalation;
- 
-+	/* Number of entries in the VP block */
-+	u32	nr_servers;
-+
- 	struct kvmppc_xive_ops *ops;
- 	struct address_space   *mapping;
- 	struct mutex mapping_lock;
-@@ -297,6 +300,7 @@ struct kvmppc_xive *kvmppc_xive_get_device(struct kvm *kvm, u32 type);
- void xive_cleanup_single_escalation(struct kvm_vcpu *vcpu,
- 				    struct kvmppc_xive_vcpu *xc, int irq);
- int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp);
-+int kvmppc_xive_set_nr_servers(struct kvmppc_xive *xive, u64 addr);
- 
- #endif /* CONFIG_KVM_XICS */
- #endif /* _KVM_PPC_BOOK3S_XICS_H */
 diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
-index 5bb480b2aafd..8ab333eabeef 100644
+index 8ab333eabeef..34bd123fa024 100644
 --- a/arch/powerpc/kvm/book3s_xive_native.c
 +++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -1060,7 +1060,6 @@ static int kvmppc_xive_native_create(struct kvm_device *dev, u32 type)
- {
- 	struct kvmppc_xive *xive;
- 	struct kvm *kvm = dev->kvm;
--	int ret = 0;
- 
- 	pr_devel("Creating xive native device\n");
- 
-@@ -1077,23 +1076,16 @@ static int kvmppc_xive_native_create(struct kvm_device *dev, u32 type)
- 	mutex_init(&xive->mapping_lock);
- 	mutex_init(&xive->lock);
- 
--	/*
--	 * Allocate a bunch of VPs. KVM_MAX_VCPUS is a large value for
--	 * a default. Getting the max number of CPUs the VM was
--	 * configured with would improve our usage of the XIVE VP space.
-+	/* VP allocation is delayed to the first call to connect_vcpu */
-+	xive->vp_base = XIVE_INVALID_VP;
-+	/* KVM_MAX_VCPUS limits the number of VMs to roughly 64 per sockets
-+	 * on a POWER9 system.
- 	 */
--	xive->vp_base = xive_native_alloc_vp_block(KVM_MAX_VCPUS);
--	pr_devel("VP_Base=%x\n", xive->vp_base);
--
--	if (xive->vp_base == XIVE_INVALID_VP)
--		ret = -ENXIO;
-+	xive->nr_servers = KVM_MAX_VCPUS;
- 
- 	xive->single_escalation = xive_native_has_single_escalation();
- 	xive->ops = &kvmppc_xive_native_ops;
- 
--	if (ret)
--		return ret;
--
- 	kvm->arch.xive = xive;
- 	return 0;
- }
+@@ -921,6 +921,8 @@ static int kvmppc_xive_native_set_attr(struct kvm_device *dev,
+ 			return kvmppc_xive_reset(xive);
+ 		case KVM_DEV_XIVE_EQ_SYNC:
+ 			return kvmppc_xive_native_eq_sync(xive);
++		case KVM_DEV_XIVE_NR_SERVERS:
++			return kvmppc_xive_set_nr_servers(xive, attr->addr);
+ 		}
+ 		break;
+ 	case KVM_DEV_XIVE_GRP_SOURCE:
+@@ -960,6 +962,7 @@ static int kvmppc_xive_native_has_attr(struct kvm_device *dev,
+ 		switch (attr->attr) {
+ 		case KVM_DEV_XIVE_RESET:
+ 		case KVM_DEV_XIVE_EQ_SYNC:
++		case KVM_DEV_XIVE_NR_SERVERS:
+ 			return 0;
+ 		}
+ 		break;
 
