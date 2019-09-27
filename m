@@ -2,198 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C01ACC0C06
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 21:24:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38679C0C59
+	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 22:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725813AbfI0TYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Sep 2019 15:24:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725789AbfI0TYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Sep 2019 15:24:17 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B6DD205F4;
-        Fri, 27 Sep 2019 19:24:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569612256;
-        bh=eRZ7+I+1WONgfW1Rr4x5uWiA21gbhZKmHjr5+Skvnsk=;
-        h=Date:From:To:Subject:From;
-        b=q+6RZgyhm0Vgp8diR393uJ+FpgzYh7M2ygQDycHiZ+UbidG1E6jL10VpaEEdWqhTO
-         moIE95/GtpevQjUasw4uHlV//4Bn3iYsXGn29rqY31cQwUNZCFCTCr3sI8jfFSVfQA
-         q4xGdp8yDI72xcCzkO/zSgf9OYxPexhZ8RemjlqQ=
-Date:   Fri, 27 Sep 2019 12:24:15 -0700
-From:   akpm@linux-foundation.org
-To:     hch@lst.de, hirofumi@mail.parknet.co.jp,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [nacked]
- fat-add-nobarrier-to-workaround-the-strange-behavior-of-device.patch
- removed from -mm tree
-Message-ID: <20190927192415.qQ9DxTjeg%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727253AbfI0UDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Sep 2019 16:03:39 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:46865 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725802AbfI0UDj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 16:03:39 -0400
+Received: by mail-ed1-f65.google.com with SMTP id t3so3350591edw.13
+        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 13:03:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=MJv6I57WxylS6CeVH2HZp8R81qnloFhtV0boAtJeagg=;
+        b=KDwcjcK4Y8kV0RQvTVXKbASNEiisQq5NVpO9xE9KzL62iLxrmQhbFU2ciCuEcUoHhQ
+         51RBZSaLn5h73yvjYnHhtAULL3tBuoU1PDBnIYg5WPOffbZ5otOGtRUmTxH/5naM8Znq
+         3WIJpaWdnv8Ynuz37IMTa2boMHuO7oqq/7KPS4ebEsNQJT46DHBZKoQO6D+j34Ni+Hib
+         eTxZBxTr9vTjgyGX74HuhnzWWjv9W9+GHUi8bv9RtPYXBHbEmbFau1xUrgwS/g+w1JnS
+         L4PFgYgn4pbqtwjxFZ/Uv275mVmbxwlwCqjI8yz2nWbBl1ip23cmz+Y12Z7EV13kzgGa
+         HegA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=MJv6I57WxylS6CeVH2HZp8R81qnloFhtV0boAtJeagg=;
+        b=lRebSaa6DR8dLGG9o+ksuFKtY8m76QiwujGXv1vtOZHFbR/a4oRlf9kktA8HjaqtUy
+         /ik372jEK6QA92oAAW/Y9NkDLH/UV0SlIDzy9JISR4j7HP2HKoKtyDtrADCOx0D/bV6h
+         obZth/oT1C8p0ON2OLfMkjzpNeldhA9gFaRYYD4D2RltqU7yAW+0GPGVd0EiVDc6HBIN
+         t30/KvFkJR/pR9psLPgqB6bV2ohSyZHTZAkQBODnuhes7RB97TcOeUhBWkjjwrmQSE4j
+         rbGP5s6NW6cYM2ItfLfLtB73yg2GcpW6ZaJEQKvOtbopHoOV+y9veCt/9GkVGnuWNkB+
+         rqAA==
+X-Gm-Message-State: APjAAAV+SLKrOZVp9IZbjtikOSRZYguuBftaUuJ4UzhBzV5OWDbEeFAM
+        0+C7K427m/misExVPKyURKr1NmBJwlRJj5SsA2c=
+X-Google-Smtp-Source: APXvYqzjMLvb15Uv2k6R5FQFs1i1Mu4lMdRL97aITSOrFwnnM3TUOTRDNGO9VNjScoGRCMyugARMpQJB0fjk2aRQo3g=
+X-Received: by 2002:a17:906:5acd:: with SMTP id x13mr9154419ejs.186.1569614618040;
+ Fri, 27 Sep 2019 13:03:38 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:aa7:db16:0:0:0:0:0 with HTTP; Fri, 27 Sep 2019 13:03:37
+ -0700 (PDT)
+Reply-To: joeakaba00@gmail.com
+From:   joe akaba <edemhoegbesso@gmail.com>
+Date:   Fri, 27 Sep 2019 22:03:37 +0200
+Message-ID: <CAPM9i6_mg=3qKFuXHOFKP9aLm-7c3XCtuX5m=p9TTir6uZrLQg@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello
 
-The patch titled
-     Subject: fat: add nobarrier to workaround the strange behavior of device
-has been removed from the -mm tree.  Its filename was
-     fat-add-nobarrier-to-workaround-the-strange-behavior-of-device.patch
+My name is Joe Akaba I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($8.5 Million)
+dollars my client left in the bank before his death.
 
-This patch was dropped because it was nacked
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:joeakaba00@gmail.com
 
-------------------------------------------------------
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: fat: add nobarrier to workaround the strange behavior of device
-
-There was a report of strange behavior of device with recent
-blkdev_issue_flush() position change.
-
-The following is simplified usbmon trace:
-
- 4203   9.160230         host -> 1.25.1       USBMS 95 SCSI: Synchronize Cache(10) LUN: 0x00 (LBA: 0x00000000, Len: 0)
- 4206   9.164911       1.25.1 -> host         USBMS 77 SCSI: Response LUN: 0x00 (Synchronize Cache(10)) (Good)
- 4207   9.323927         host -> 1.25.1       USBMS 95 SCSI: Read(10) LUN: 0x00 (LBA: 0x00279950, Len: 240)
- 4212   9.327138       1.25.1 -> host         USBMS 77 SCSI: Response LUN: 0x00 (Read(10)) (Good)
-
-[...]
-
- 7323  10.202167         host -> 1.25.1       USBMS 95 SCSI: Synchronize Cache(10) LUN: 0x00 (LBA: 0x00000000, Len: 0)
- 7326  10.432266       1.25.1 -> host         USBMS 77 SCSI: Response LUN: 0x00 (Synchronize Cache(10)) (Good)
- 7327  10.769092         host -> 1.25.1       USBMS 95 SCSI: Test Unit Ready LUN: 0x00 
- 7330  10.769192       1.25.1 -> host         USBMS 77 SCSI: Response LUN: 0x00 (Test Unit Ready) (Good)
- 7335  12.849093         host -> 1.25.1       USBMS 95 SCSI: Test Unit Ready LUN: 0x00 
- 7338  12.849206       1.25.1 -> host         USBMS 77 SCSI: Response LUN: 0x00 (Test Unit Ready) (Check Condition)
- 7339  12.849209         host -> 1.25.1       USBMS 95 SCSI: Request Sense LUN: 0x00
-
-If "Synchronize Cache" command issued then there is idle time, the device
-stop to process further commands, and behave as like no media.  (it
-returns NOT_READY [MEDIUM NOT PRESENT] for SENSE command, and this
-happened on Kindle) [just a guess, the device is trying to detect the
-"safe-unplug" operation of Windows or such?]
-
-To work around those devices and provide flexibility, this adds
-"barrier"/"nobarrier" mount options to fat driver.
-
-Link: http://lkml.kernel.org/r/87woh5pyqh.fsf@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/fat/fat.h   |    1 +
- fs/fat/file.c  |    8 ++++++--
- fs/fat/inode.c |   22 +++++++++++++++++-----
- 3 files changed, 24 insertions(+), 7 deletions(-)
-
---- a/fs/fat/fat.h~fat-add-nobarrier-to-workaround-the-strange-behavior-of-device
-+++ a/fs/fat/fat.h
-@@ -51,6 +51,7 @@ struct fat_mount_options {
- 		 tz_set:1,	   /* Filesystem timestamps' offset set */
- 		 rodir:1,	   /* allow ATTR_RO for directory */
- 		 discard:1,	   /* Issue discard requests on deletions */
-+		 barrier:1,	   /* Issue FLUSH command */
- 		 dos1xfloppy:1;	   /* Assume default BPB for DOS 1.x floppies */
- };
- 
---- a/fs/fat/file.c~fat-add-nobarrier-to-workaround-the-strange-behavior-of-device
-+++ a/fs/fat/file.c
-@@ -194,17 +194,21 @@ static int fat_file_release(struct inode
- int fat_file_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
- {
- 	struct inode *inode = filp->f_mapping->host;
-+	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
- 	int err;
- 
- 	err = __generic_file_fsync(filp, start, end, datasync);
- 	if (err)
- 		return err;
- 
--	err = sync_mapping_buffers(MSDOS_SB(inode->i_sb)->fat_inode->i_mapping);
-+	err = sync_mapping_buffers(sbi->fat_inode->i_mapping);
- 	if (err)
- 		return err;
- 
--	return blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
-+	if (sbi->options.barrier)
-+		err = blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
-+
-+	return err;
- }
- 
- 
---- a/fs/fat/inode.c~fat-add-nobarrier-to-workaround-the-strange-behavior-of-device
-+++ a/fs/fat/inode.c
-@@ -1016,6 +1016,8 @@ static int fat_show_options(struct seq_f
- 		seq_puts(m, ",nfs=stale_rw");
- 	if (opts->discard)
- 		seq_puts(m, ",discard");
-+	if (!opts->barrier)
-+		seq_puts(m, ",nobarrier");
- 	if (opts->dos1xfloppy)
- 		seq_puts(m, ",dos1xfloppy");
- 
-@@ -1031,8 +1033,9 @@ enum {
- 	Opt_shortname_winnt, Opt_shortname_mixed, Opt_utf8_no, Opt_utf8_yes,
- 	Opt_uni_xl_no, Opt_uni_xl_yes, Opt_nonumtail_no, Opt_nonumtail_yes,
- 	Opt_obsolete, Opt_flush, Opt_tz_utc, Opt_rodir, Opt_err_cont,
--	Opt_err_panic, Opt_err_ro, Opt_discard, Opt_nfs, Opt_time_offset,
--	Opt_nfs_stale_rw, Opt_nfs_nostale_ro, Opt_err, Opt_dos1xfloppy,
-+	Opt_err_panic, Opt_err_ro, Opt_discard, Opt_barrier, Opt_nobarrier,
-+	Opt_nfs, Opt_time_offset, Opt_nfs_stale_rw, Opt_nfs_nostale_ro,
-+	Opt_err, Opt_dos1xfloppy,
- };
- 
- static const match_table_t fat_tokens = {
-@@ -1062,6 +1065,8 @@ static const match_table_t fat_tokens =
- 	{Opt_err_panic, "errors=panic"},
- 	{Opt_err_ro, "errors=remount-ro"},
- 	{Opt_discard, "discard"},
-+	{Opt_barrier, "barrier"},
-+	{Opt_nobarrier, "nobarrier"},
- 	{Opt_nfs_stale_rw, "nfs"},
- 	{Opt_nfs_stale_rw, "nfs=stale_rw"},
- 	{Opt_nfs_nostale_ro, "nfs=nostale_ro"},
-@@ -1146,6 +1151,7 @@ static int parse_options(struct super_bl
- 	opts->numtail = 1;
- 	opts->usefree = opts->nocase = 0;
- 	opts->tz_set = 0;
-+	opts->barrier = 1;
- 	opts->nfs = 0;
- 	opts->errors = FAT_ERRORS_RO;
- 	*debug = 0;
-@@ -1269,6 +1275,15 @@ static int parse_options(struct super_bl
- 		case Opt_err_ro:
- 			opts->errors = FAT_ERRORS_RO;
- 			break;
-+		case Opt_discard:
-+			opts->discard = 1;
-+			break;
-+		case Opt_barrier:
-+			opts->barrier = 1;
-+			break;
-+		case Opt_nobarrier:
-+			opts->barrier = 0;
-+			break;
- 		case Opt_nfs_stale_rw:
- 			opts->nfs = FAT_NFS_STALE_RW;
- 			break;
-@@ -1332,9 +1347,6 @@ static int parse_options(struct super_bl
- 		case Opt_rodir:
- 			opts->rodir = 1;
- 			break;
--		case Opt_discard:
--			opts->discard = 1;
--			break;
- 
- 		/* obsolete mount options */
- 		case Opt_obsolete:
-_
-
-Patches currently in -mm which might be from hirofumi@mail.parknet.co.jp are
+Many thanks in advance,
+Mr.Joe Akaba
 
 
+Hallo
+
+Mein Name ist Joe Akaba . Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
+($8.5 Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
+
+Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
+bei einem Autounfall ums Leben gekommen ist
+und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
+nd 50%
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: joeakaba00@gmail.com
+
+Vielen Dank im Voraus,
+Mr.Joe Akaba
