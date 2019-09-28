@@ -2,90 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38679C0C59
-	for <lists+stable@lfdr.de>; Fri, 27 Sep 2019 22:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFB8C1034
+	for <lists+stable@lfdr.de>; Sat, 28 Sep 2019 10:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727253AbfI0UDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Sep 2019 16:03:39 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:46865 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725802AbfI0UDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Sep 2019 16:03:39 -0400
-Received: by mail-ed1-f65.google.com with SMTP id t3so3350591edw.13
-        for <stable@vger.kernel.org>; Fri, 27 Sep 2019 13:03:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=MJv6I57WxylS6CeVH2HZp8R81qnloFhtV0boAtJeagg=;
-        b=KDwcjcK4Y8kV0RQvTVXKbASNEiisQq5NVpO9xE9KzL62iLxrmQhbFU2ciCuEcUoHhQ
-         51RBZSaLn5h73yvjYnHhtAULL3tBuoU1PDBnIYg5WPOffbZ5otOGtRUmTxH/5naM8Znq
-         3WIJpaWdnv8Ynuz37IMTa2boMHuO7oqq/7KPS4ebEsNQJT46DHBZKoQO6D+j34Ni+Hib
-         eTxZBxTr9vTjgyGX74HuhnzWWjv9W9+GHUi8bv9RtPYXBHbEmbFau1xUrgwS/g+w1JnS
-         L4PFgYgn4pbqtwjxFZ/Uv275mVmbxwlwCqjI8yz2nWbBl1ip23cmz+Y12Z7EV13kzgGa
-         HegA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=MJv6I57WxylS6CeVH2HZp8R81qnloFhtV0boAtJeagg=;
-        b=lRebSaa6DR8dLGG9o+ksuFKtY8m76QiwujGXv1vtOZHFbR/a4oRlf9kktA8HjaqtUy
-         /ik372jEK6QA92oAAW/Y9NkDLH/UV0SlIDzy9JISR4j7HP2HKoKtyDtrADCOx0D/bV6h
-         obZth/oT1C8p0ON2OLfMkjzpNeldhA9gFaRYYD4D2RltqU7yAW+0GPGVd0EiVDc6HBIN
-         t30/KvFkJR/pR9psLPgqB6bV2ohSyZHTZAkQBODnuhes7RB97TcOeUhBWkjjwrmQSE4j
-         rbGP5s6NW6cYM2ItfLfLtB73yg2GcpW6ZaJEQKvOtbopHoOV+y9veCt/9GkVGnuWNkB+
-         rqAA==
-X-Gm-Message-State: APjAAAV+SLKrOZVp9IZbjtikOSRZYguuBftaUuJ4UzhBzV5OWDbEeFAM
-        0+C7K427m/misExVPKyURKr1NmBJwlRJj5SsA2c=
-X-Google-Smtp-Source: APXvYqzjMLvb15Uv2k6R5FQFs1i1Mu4lMdRL97aITSOrFwnnM3TUOTRDNGO9VNjScoGRCMyugARMpQJB0fjk2aRQo3g=
-X-Received: by 2002:a17:906:5acd:: with SMTP id x13mr9154419ejs.186.1569614618040;
- Fri, 27 Sep 2019 13:03:38 -0700 (PDT)
+        id S1726560AbfI1IZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Sep 2019 04:25:54 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:62593 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725856AbfI1IZy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Sep 2019 04:25:54 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 18647745-1500050 
+        for multiple; Sat, 28 Sep 2019 09:25:50 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
+Subject: [PATCH v2] drm/i915/userptr: Never allow userptr into the mappable GGTT
+Date:   Sat, 28 Sep 2019 09:25:46 +0100
+Message-Id: <20190928082546.3473-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20190927163400.22767-1-chris@chris-wilson.co.uk>
+References: <20190927163400.22767-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Received: by 2002:aa7:db16:0:0:0:0:0 with HTTP; Fri, 27 Sep 2019 13:03:37
- -0700 (PDT)
-Reply-To: joeakaba00@gmail.com
-From:   joe akaba <edemhoegbesso@gmail.com>
-Date:   Fri, 27 Sep 2019 22:03:37 +0200
-Message-ID: <CAPM9i6_mg=3qKFuXHOFKP9aLm-7c3XCtuX5m=p9TTir6uZrLQg@mail.gmail.com>
-Subject: hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello
+Daniel Vetter uncovered a nasty cycle in using the mmu-notifiers to
+invalidate userptr objects which also happen to be pulled into GGTT
+mmaps. That is when we unbind the userptr object (on mmu invalidation),
+we revoke all CPU mmaps, which may then recurse into mmu invalidation.
 
-My name is Joe Akaba I am a lawyer by profession. I wish to offer you
-the next of kin to my client. You will inherit the sum of ($8.5 Million)
-dollars my client left in the bank before his death.
+We looked for ways of breaking the cycle, but the revocation on
+invalidation is required and cannot be avoided. The only solution we
+could see was to not allow such GGTT bindings of userptr objects in the
+first place. In practice, no one really wants to use a GGTT mmapping of
+a CPU pointer...
 
-My client is a citizen of your country who died in auto crash with his wife
-and only son. I will be entitled with 50% of the total fund while 50% will
-be for you.
-Please contact my private email here for more details:joeakaba00@gmail.com
+Just before Daniel's explosive lockdep patches land in rc1, we got a
+genuine blip from CI:
 
-Many thanks in advance,
-Mr.Joe Akaba
+<4>[  246.793958] ======================================================
+<4>[  246.793972] WARNING: possible circular locking dependency detected
+<4>[  246.793989] 5.3.0-gbd6c56f50d15-drmtip_372+ #1 Tainted: G     U
+<4>[  246.794003] ------------------------------------------------------
+<4>[  246.794017] kswapd0/145 is trying to acquire lock:
+<4>[  246.794030] 000000003f565be6 (&dev->struct_mutex/1){+.+.}, at: userptr_mn_invalidate_range_start+0x18f/0x220 [i915]
+<4>[  246.794250]
+                  but task is already holding lock:
+<4>[  246.794263] 000000001799cef9 (&anon_vma->rwsem){++++}, at: page_lock_anon_vma_read+0xe6/0x2a0
+<4>[  246.794291]
+                  which lock already depends on the new lock.
 
+<4>[  246.794307]
+                  the existing dependency chain (in reverse order) is:
+<4>[  246.794322]
+                  -> #3 (&anon_vma->rwsem){++++}:
+<4>[  246.794344]        down_write+0x33/0x70
+<4>[  246.794357]        __vma_adjust+0x3d9/0x7b0
+<4>[  246.794370]        __split_vma+0x16a/0x180
+<4>[  246.794385]        mprotect_fixup+0x2a5/0x320
+<4>[  246.794399]        do_mprotect_pkey+0x208/0x2e0
+<4>[  246.794413]        __x64_sys_mprotect+0x16/0x20
+<4>[  246.794429]        do_syscall_64+0x55/0x1c0
+<4>[  246.794443]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  246.794456]
+                  -> #2 (&mapping->i_mmap_rwsem){++++}:
+<4>[  246.794478]        down_write+0x33/0x70
+<4>[  246.794493]        unmap_mapping_pages+0x48/0x130
+<4>[  246.794519]        i915_vma_revoke_mmap+0x81/0x1b0 [i915]
+<4>[  246.794519]        i915_vma_unbind+0x11d/0x4a0 [i915]
+<4>[  246.794519]        i915_vma_destroy+0x31/0x300 [i915]
+<4>[  246.794519]        __i915_gem_free_objects+0xb8/0x4b0 [i915]
+<4>[  246.794519]        drm_file_free.part.0+0x1e6/0x290
+<4>[  246.794519]        drm_release+0xa6/0xe0
+<4>[  246.794519]        __fput+0xc2/0x250
+<4>[  246.794519]        task_work_run+0x82/0xb0
+<4>[  246.794519]        do_exit+0x35b/0xdb0
+<4>[  246.794519]        do_group_exit+0x34/0xb0
+<4>[  246.794519]        __x64_sys_exit_group+0xf/0x10
+<4>[  246.794519]        do_syscall_64+0x55/0x1c0
+<4>[  246.794519]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  246.794519]
+                  -> #1 (&vm->mutex){+.+.}:
+<4>[  246.794519]        i915_gem_shrinker_taints_mutex+0x6d/0xe0 [i915]
+<4>[  246.794519]        i915_address_space_init+0x9f/0x160 [i915]
+<4>[  246.794519]        i915_ggtt_init_hw+0x55/0x170 [i915]
+<4>[  246.794519]        i915_driver_probe+0xc9f/0x1620 [i915]
+<4>[  246.794519]        i915_pci_probe+0x43/0x1b0 [i915]
+<4>[  246.794519]        pci_device_probe+0x9e/0x120
+<4>[  246.794519]        really_probe+0xea/0x3d0
+<4>[  246.794519]        driver_probe_device+0x10b/0x120
+<4>[  246.794519]        device_driver_attach+0x4a/0x50
+<4>[  246.794519]        __driver_attach+0x97/0x130
+<4>[  246.794519]        bus_for_each_dev+0x74/0xc0
+<4>[  246.794519]        bus_add_driver+0x13f/0x210
+<4>[  246.794519]        driver_register+0x56/0xe0
+<4>[  246.794519]        do_one_initcall+0x58/0x300
+<4>[  246.794519]        do_init_module+0x56/0x1f6
+<4>[  246.794519]        load_module+0x25bd/0x2a40
+<4>[  246.794519]        __se_sys_finit_module+0xd3/0xf0
+<4>[  246.794519]        do_syscall_64+0x55/0x1c0
+<4>[  246.794519]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  246.794519]
+                  -> #0 (&dev->struct_mutex/1){+.+.}:
+<4>[  246.794519]        __lock_acquire+0x15d8/0x1e90
+<4>[  246.794519]        lock_acquire+0xa6/0x1c0
+<4>[  246.794519]        __mutex_lock+0x9d/0x9b0
+<4>[  246.794519]        userptr_mn_invalidate_range_start+0x18f/0x220 [i915]
+<4>[  246.794519]        __mmu_notifier_invalidate_range_start+0x85/0x110
+<4>[  246.794519]        try_to_unmap_one+0x76b/0x860
+<4>[  246.794519]        rmap_walk_anon+0x104/0x280
+<4>[  246.794519]        try_to_unmap+0xc0/0xf0
+<4>[  246.794519]        shrink_page_list+0x561/0xc10
+<4>[  246.794519]        shrink_inactive_list+0x220/0x440
+<4>[  246.794519]        shrink_node_memcg+0x36e/0x740
+<4>[  246.794519]        shrink_node+0xcb/0x490
+<4>[  246.794519]        balance_pgdat+0x241/0x580
+<4>[  246.794519]        kswapd+0x16c/0x530
+<4>[  246.794519]        kthread+0x119/0x130
+<4>[  246.794519]        ret_from_fork+0x24/0x50
+<4>[  246.794519]
+                  other info that might help us debug this:
 
-Hallo
+<4>[  246.794519] Chain exists of:
+                    &dev->struct_mutex/1 --> &mapping->i_mmap_rwsem --> &anon_vma->rwsem
 
-Mein Name ist Joe Akaba . Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
-Ihnen anbieten
-die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
-($8.5 Millionen US-Dollar)
-Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
+<4>[  246.794519]  Possible unsafe locking scenario:
 
-Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
-bei einem Autounfall ums Leben gekommen ist
-und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
-nd 50%
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
-Informationen: joeakaba00@gmail.com
+<4>[  246.794519]        CPU0                    CPU1
+<4>[  246.794519]        ----                    ----
+<4>[  246.794519]   lock(&anon_vma->rwsem);
+<4>[  246.794519]                                lock(&mapping->i_mmap_rwsem);
+<4>[  246.794519]                                lock(&anon_vma->rwsem);
+<4>[  246.794519]   lock(&dev->struct_mutex/1);
+<4>[  246.794519]
+                   *** DEADLOCK ***
 
-Vielen Dank im Voraus,
-Mr.Joe Akaba
+v2: Say no to mmap_ioctl
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111744
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/gem/i915_gem_mman.c         | 7 +++++++
+ drivers/gpu/drm/i915/gem/i915_gem_object.h       | 6 ++++++
+ drivers/gpu/drm/i915/gem/i915_gem_object_types.h | 3 ++-
+ drivers/gpu/drm/i915/gem/i915_gem_userptr.c      | 1 +
+ drivers/gpu/drm/i915/i915_gem.c                  | 3 +++
+ 5 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+index 860b751c51f1..dd0c2840ba4d 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+@@ -343,6 +343,7 @@ vm_fault_t i915_gem_fault(struct vm_fault *vmf)
+ 		/* fallthrough */
+ 	case -EIO: /* shmemfs failure from swap device */
+ 	case -EFAULT: /* purged object */
++	case -ENODEV: /* bad object, how did you get here! */
+ 		return VM_FAULT_SIGBUS;
+ 
+ 	case -ENOSPC: /* shmemfs allocation failure */
+@@ -466,10 +467,16 @@ i915_gem_mmap_gtt(struct drm_file *file,
+ 	if (!obj)
+ 		return -ENOENT;
+ 
++	if (i915_gem_object_never_bind_ggtt(obj)) {
++		ret = -ENODEV;
++		goto out;
++	}
++
+ 	ret = create_mmap_offset(obj);
+ 	if (ret == 0)
+ 		*offset = drm_vma_node_offset_addr(&obj->base.vma_node);
+ 
++out:
+ 	i915_gem_object_put(obj);
+ 	return ret;
+ }
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index 29b9eddc4c7f..aec05f967d9d 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -152,6 +152,12 @@ i915_gem_object_is_proxy(const struct drm_i915_gem_object *obj)
+ 	return obj->ops->flags & I915_GEM_OBJECT_IS_PROXY;
+ }
+ 
++static inline bool
++i915_gem_object_never_bind_ggtt(const struct drm_i915_gem_object *obj)
++{
++	return obj->ops->flags & I915_GEM_OBJECT_NO_GGTT;
++}
++
+ static inline bool
+ i915_gem_object_needs_async_cancel(const struct drm_i915_gem_object *obj)
+ {
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+index d695f187b790..e1aab2fd1cd9 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -32,7 +32,8 @@ struct drm_i915_gem_object_ops {
+ #define I915_GEM_OBJECT_HAS_STRUCT_PAGE	BIT(0)
+ #define I915_GEM_OBJECT_IS_SHRINKABLE	BIT(1)
+ #define I915_GEM_OBJECT_IS_PROXY	BIT(2)
+-#define I915_GEM_OBJECT_ASYNC_CANCEL	BIT(3)
++#define I915_GEM_OBJECT_NO_GGTT		BIT(3)
++#define I915_GEM_OBJECT_ASYNC_CANCEL	BIT(4)
+ 
+ 	/* Interface between the GEM object and its backing storage.
+ 	 * get_pages() is called once prior to the use of the associated set
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 11b231c187c5..6b3b50f0f6d9 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -702,6 +702,7 @@ i915_gem_userptr_dmabuf_export(struct drm_i915_gem_object *obj)
+ static const struct drm_i915_gem_object_ops i915_gem_userptr_ops = {
+ 	.flags = I915_GEM_OBJECT_HAS_STRUCT_PAGE |
+ 		 I915_GEM_OBJECT_IS_SHRINKABLE |
++		 I915_GEM_OBJECT_NO_GGTT |
+ 		 I915_GEM_OBJECT_ASYNC_CANCEL,
+ 	.get_pages = i915_gem_userptr_get_pages,
+ 	.put_pages = i915_gem_userptr_put_pages,
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index 3d3fda4cae99..1426e506700d 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -970,6 +970,9 @@ i915_gem_object_ggtt_pin(struct drm_i915_gem_object *obj,
+ 
+ 	lockdep_assert_held(&obj->base.dev->struct_mutex);
+ 
++	if (i915_gem_object_never_bind_ggtt(obj))
++		return ERR_PTR(-ENODEV);
++
+ 	if (flags & PIN_MAPPABLE &&
+ 	    (!view || view->type == I915_GGTT_VIEW_NORMAL)) {
+ 		/* If the required space is larger than the available
+-- 
+2.23.0
+
