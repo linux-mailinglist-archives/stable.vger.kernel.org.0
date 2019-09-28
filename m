@@ -2,249 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFB8C1034
-	for <lists+stable@lfdr.de>; Sat, 28 Sep 2019 10:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1583C103D
+	for <lists+stable@lfdr.de>; Sat, 28 Sep 2019 10:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726560AbfI1IZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Sep 2019 04:25:54 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:62593 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725856AbfI1IZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Sep 2019 04:25:54 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 18647745-1500050 
-        for multiple; Sat, 28 Sep 2019 09:25:50 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915/userptr: Never allow userptr into the mappable GGTT
-Date:   Sat, 28 Sep 2019 09:25:46 +0100
-Message-Id: <20190928082546.3473-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190927163400.22767-1-chris@chris-wilson.co.uk>
-References: <20190927163400.22767-1-chris@chris-wilson.co.uk>
+        id S1725876AbfI1IqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Sep 2019 04:46:22 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:37552 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725872AbfI1IqW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Sep 2019 04:46:22 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 83ADD8980FF;
+        Sat, 28 Sep 2019 08:46:21 +0000 (UTC)
+Received: from [10.36.116.71] (ovpn-116-71.ams2.redhat.com [10.36.116.71])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 84B8960BE1;
+        Sat, 28 Sep 2019 08:46:19 +0000 (UTC)
+Subject: Re: [PATCH v1] xen/balloon: Set pages PageOffline() in
+ balloon_add_region()
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, xen-devel@lists.xenproject.org,
+        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
+        <marmarek@invisiblethingslab.com>, stable@vger.kernel.org,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>
+References: <20190927154628.8480-1-david@redhat.com>
+ <4d6a1f9b-15ff-6594-44e0-bc262e9347f7@oracle.com>
+From:   David Hildenbrand <david@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+ SE+xAvmumFBY
+Organization: Red Hat GmbH
+Message-ID: <f591f279-62c9-3d3d-39ad-090c2ad73c23@redhat.com>
+Date:   Sat, 28 Sep 2019 10:46:18 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
+In-Reply-To: <4d6a1f9b-15ff-6594-44e0-bc262e9347f7@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.67]); Sat, 28 Sep 2019 08:46:21 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Daniel Vetter uncovered a nasty cycle in using the mmu-notifiers to
-invalidate userptr objects which also happen to be pulled into GGTT
-mmaps. That is when we unbind the userptr object (on mmu invalidation),
-we revoke all CPU mmaps, which may then recurse into mmu invalidation.
+On 27.09.19 20:08, Boris Ostrovsky wrote:
+> On 9/27/19 11:46 AM, David Hildenbrand wrote:
+>> We are missing a __SetPageOffline(), which is why we can get
+>> !PageOffline() pages onto the balloon list, where
+>> alloc_xenballooned_pages() will complain:
+>>
+>> page:ffffea0003e7ffc0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0
+>> flags: 0xffffe00001000(reserved)
+>> raw: 000ffffe00001000 dead000000000100 dead000000000200 0000000000000000
+>> raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+>> page dumped because: VM_BUG_ON_PAGE(!PageOffline(page))
+>> ------------[ cut here ]------------
+>> kernel BUG at include/linux/page-flags.h:744!
+>> invalid opcode: 0000 [#1] SMP NOPTI
+>>
+>> Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+>> Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+>> Fixes: 77c4adf6a6df ("xen/balloon: mark inflated pages PG_offline")
+>> Cc: stable@vger.kernel.org # v5.1+
+>> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+>> Cc: Juergen Gross <jgross@suse.com>
+>> Cc: Stefano Stabellini <sstabellini@kernel.org>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>  drivers/xen/balloon.c | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+>> index 05b1f7e948ef..29f6256363db 100644
+>> --- a/drivers/xen/balloon.c
+>> +++ b/drivers/xen/balloon.c
+>> @@ -687,6 +687,7 @@ static void __init balloon_add_region(unsigned long start_pfn,
+>>  		/* totalram_pages and totalhigh_pages do not
+>>  		   include the boot-time balloon extension, so
+>>  		   don't subtract from it. */
+>> +		__SetPageOffline(page);
+>>  		__balloon_append(page);
+> 
+> 
+> Given that when a page is appended to balloon list need to be marked
+> offline and, conversely, when a page is retrieved the bit should be
+> cleared I wonder whether it's better to move Set/ClearPageOffline to
+> balloon_append/retrieve().
 
-We looked for ways of breaking the cycle, but the revocation on
-invalidation is required and cannot be avoided. The only solution we
-could see was to not allow such GGTT bindings of userptr objects in the
-first place. In practice, no one really wants to use a GGTT mmapping of
-a CPU pointer...
+Yes, we can do that as an addon patch (and also get rid of either
+__balloon_append() or balloon_append() if I remember correctly).
 
-Just before Daniel's explosive lockdep patches land in rc1, we got a
-genuine blip from CI:
-
-<4>[  246.793958] ======================================================
-<4>[  246.793972] WARNING: possible circular locking dependency detected
-<4>[  246.793989] 5.3.0-gbd6c56f50d15-drmtip_372+ #1 Tainted: G     U
-<4>[  246.794003] ------------------------------------------------------
-<4>[  246.794017] kswapd0/145 is trying to acquire lock:
-<4>[  246.794030] 000000003f565be6 (&dev->struct_mutex/1){+.+.}, at: userptr_mn_invalidate_range_start+0x18f/0x220 [i915]
-<4>[  246.794250]
-                  but task is already holding lock:
-<4>[  246.794263] 000000001799cef9 (&anon_vma->rwsem){++++}, at: page_lock_anon_vma_read+0xe6/0x2a0
-<4>[  246.794291]
-                  which lock already depends on the new lock.
-
-<4>[  246.794307]
-                  the existing dependency chain (in reverse order) is:
-<4>[  246.794322]
-                  -> #3 (&anon_vma->rwsem){++++}:
-<4>[  246.794344]        down_write+0x33/0x70
-<4>[  246.794357]        __vma_adjust+0x3d9/0x7b0
-<4>[  246.794370]        __split_vma+0x16a/0x180
-<4>[  246.794385]        mprotect_fixup+0x2a5/0x320
-<4>[  246.794399]        do_mprotect_pkey+0x208/0x2e0
-<4>[  246.794413]        __x64_sys_mprotect+0x16/0x20
-<4>[  246.794429]        do_syscall_64+0x55/0x1c0
-<4>[  246.794443]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4>[  246.794456]
-                  -> #2 (&mapping->i_mmap_rwsem){++++}:
-<4>[  246.794478]        down_write+0x33/0x70
-<4>[  246.794493]        unmap_mapping_pages+0x48/0x130
-<4>[  246.794519]        i915_vma_revoke_mmap+0x81/0x1b0 [i915]
-<4>[  246.794519]        i915_vma_unbind+0x11d/0x4a0 [i915]
-<4>[  246.794519]        i915_vma_destroy+0x31/0x300 [i915]
-<4>[  246.794519]        __i915_gem_free_objects+0xb8/0x4b0 [i915]
-<4>[  246.794519]        drm_file_free.part.0+0x1e6/0x290
-<4>[  246.794519]        drm_release+0xa6/0xe0
-<4>[  246.794519]        __fput+0xc2/0x250
-<4>[  246.794519]        task_work_run+0x82/0xb0
-<4>[  246.794519]        do_exit+0x35b/0xdb0
-<4>[  246.794519]        do_group_exit+0x34/0xb0
-<4>[  246.794519]        __x64_sys_exit_group+0xf/0x10
-<4>[  246.794519]        do_syscall_64+0x55/0x1c0
-<4>[  246.794519]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4>[  246.794519]
-                  -> #1 (&vm->mutex){+.+.}:
-<4>[  246.794519]        i915_gem_shrinker_taints_mutex+0x6d/0xe0 [i915]
-<4>[  246.794519]        i915_address_space_init+0x9f/0x160 [i915]
-<4>[  246.794519]        i915_ggtt_init_hw+0x55/0x170 [i915]
-<4>[  246.794519]        i915_driver_probe+0xc9f/0x1620 [i915]
-<4>[  246.794519]        i915_pci_probe+0x43/0x1b0 [i915]
-<4>[  246.794519]        pci_device_probe+0x9e/0x120
-<4>[  246.794519]        really_probe+0xea/0x3d0
-<4>[  246.794519]        driver_probe_device+0x10b/0x120
-<4>[  246.794519]        device_driver_attach+0x4a/0x50
-<4>[  246.794519]        __driver_attach+0x97/0x130
-<4>[  246.794519]        bus_for_each_dev+0x74/0xc0
-<4>[  246.794519]        bus_add_driver+0x13f/0x210
-<4>[  246.794519]        driver_register+0x56/0xe0
-<4>[  246.794519]        do_one_initcall+0x58/0x300
-<4>[  246.794519]        do_init_module+0x56/0x1f6
-<4>[  246.794519]        load_module+0x25bd/0x2a40
-<4>[  246.794519]        __se_sys_finit_module+0xd3/0xf0
-<4>[  246.794519]        do_syscall_64+0x55/0x1c0
-<4>[  246.794519]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4>[  246.794519]
-                  -> #0 (&dev->struct_mutex/1){+.+.}:
-<4>[  246.794519]        __lock_acquire+0x15d8/0x1e90
-<4>[  246.794519]        lock_acquire+0xa6/0x1c0
-<4>[  246.794519]        __mutex_lock+0x9d/0x9b0
-<4>[  246.794519]        userptr_mn_invalidate_range_start+0x18f/0x220 [i915]
-<4>[  246.794519]        __mmu_notifier_invalidate_range_start+0x85/0x110
-<4>[  246.794519]        try_to_unmap_one+0x76b/0x860
-<4>[  246.794519]        rmap_walk_anon+0x104/0x280
-<4>[  246.794519]        try_to_unmap+0xc0/0xf0
-<4>[  246.794519]        shrink_page_list+0x561/0xc10
-<4>[  246.794519]        shrink_inactive_list+0x220/0x440
-<4>[  246.794519]        shrink_node_memcg+0x36e/0x740
-<4>[  246.794519]        shrink_node+0xcb/0x490
-<4>[  246.794519]        balance_pgdat+0x241/0x580
-<4>[  246.794519]        kswapd+0x16c/0x530
-<4>[  246.794519]        kthread+0x119/0x130
-<4>[  246.794519]        ret_from_fork+0x24/0x50
-<4>[  246.794519]
-                  other info that might help us debug this:
-
-<4>[  246.794519] Chain exists of:
-                    &dev->struct_mutex/1 --> &mapping->i_mmap_rwsem --> &anon_vma->rwsem
-
-<4>[  246.794519]  Possible unsafe locking scenario:
-
-<4>[  246.794519]        CPU0                    CPU1
-<4>[  246.794519]        ----                    ----
-<4>[  246.794519]   lock(&anon_vma->rwsem);
-<4>[  246.794519]                                lock(&mapping->i_mmap_rwsem);
-<4>[  246.794519]                                lock(&anon_vma->rwsem);
-<4>[  246.794519]   lock(&dev->struct_mutex/1);
-<4>[  246.794519]
-                   *** DEADLOCK ***
-
-v2: Say no to mmap_ioctl
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111744
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/gem/i915_gem_mman.c         | 7 +++++++
- drivers/gpu/drm/i915/gem/i915_gem_object.h       | 6 ++++++
- drivers/gpu/drm/i915/gem/i915_gem_object_types.h | 3 ++-
- drivers/gpu/drm/i915/gem/i915_gem_userptr.c      | 1 +
- drivers/gpu/drm/i915/i915_gem.c                  | 3 +++
- 5 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-index 860b751c51f1..dd0c2840ba4d 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-@@ -343,6 +343,7 @@ vm_fault_t i915_gem_fault(struct vm_fault *vmf)
- 		/* fallthrough */
- 	case -EIO: /* shmemfs failure from swap device */
- 	case -EFAULT: /* purged object */
-+	case -ENODEV: /* bad object, how did you get here! */
- 		return VM_FAULT_SIGBUS;
- 
- 	case -ENOSPC: /* shmemfs allocation failure */
-@@ -466,10 +467,16 @@ i915_gem_mmap_gtt(struct drm_file *file,
- 	if (!obj)
- 		return -ENOENT;
- 
-+	if (i915_gem_object_never_bind_ggtt(obj)) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
- 	ret = create_mmap_offset(obj);
- 	if (ret == 0)
- 		*offset = drm_vma_node_offset_addr(&obj->base.vma_node);
- 
-+out:
- 	i915_gem_object_put(obj);
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-index 29b9eddc4c7f..aec05f967d9d 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-@@ -152,6 +152,12 @@ i915_gem_object_is_proxy(const struct drm_i915_gem_object *obj)
- 	return obj->ops->flags & I915_GEM_OBJECT_IS_PROXY;
- }
- 
-+static inline bool
-+i915_gem_object_never_bind_ggtt(const struct drm_i915_gem_object *obj)
-+{
-+	return obj->ops->flags & I915_GEM_OBJECT_NO_GGTT;
-+}
-+
- static inline bool
- i915_gem_object_needs_async_cancel(const struct drm_i915_gem_object *obj)
- {
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-index d695f187b790..e1aab2fd1cd9 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -32,7 +32,8 @@ struct drm_i915_gem_object_ops {
- #define I915_GEM_OBJECT_HAS_STRUCT_PAGE	BIT(0)
- #define I915_GEM_OBJECT_IS_SHRINKABLE	BIT(1)
- #define I915_GEM_OBJECT_IS_PROXY	BIT(2)
--#define I915_GEM_OBJECT_ASYNC_CANCEL	BIT(3)
-+#define I915_GEM_OBJECT_NO_GGTT		BIT(3)
-+#define I915_GEM_OBJECT_ASYNC_CANCEL	BIT(4)
- 
- 	/* Interface between the GEM object and its backing storage.
- 	 * get_pages() is called once prior to the use of the associated set
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-index 11b231c187c5..6b3b50f0f6d9 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-@@ -702,6 +702,7 @@ i915_gem_userptr_dmabuf_export(struct drm_i915_gem_object *obj)
- static const struct drm_i915_gem_object_ops i915_gem_userptr_ops = {
- 	.flags = I915_GEM_OBJECT_HAS_STRUCT_PAGE |
- 		 I915_GEM_OBJECT_IS_SHRINKABLE |
-+		 I915_GEM_OBJECT_NO_GGTT |
- 		 I915_GEM_OBJECT_ASYNC_CANCEL,
- 	.get_pages = i915_gem_userptr_get_pages,
- 	.put_pages = i915_gem_userptr_put_pages,
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index 3d3fda4cae99..1426e506700d 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -970,6 +970,9 @@ i915_gem_object_ggtt_pin(struct drm_i915_gem_object *obj,
- 
- 	lockdep_assert_held(&obj->base.dev->struct_mutex);
- 
-+	if (i915_gem_object_never_bind_ggtt(obj))
-+		return ERR_PTR(-ENODEV);
-+
- 	if (flags & PIN_MAPPABLE &&
- 	    (!view || view->type == I915_GGTT_VIEW_NORMAL)) {
- 		/* If the required space is larger than the available
 -- 
-2.23.0
 
+Thanks,
+
+David / dhildenb
