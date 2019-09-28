@@ -2,79 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44449C11BE
-	for <lists+stable@lfdr.de>; Sat, 28 Sep 2019 20:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F51DC1211
+	for <lists+stable@lfdr.de>; Sat, 28 Sep 2019 22:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbfI1SYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Sep 2019 14:24:33 -0400
-Received: from sauhun.de ([88.99.104.3]:36584 "EHLO pokefinder.org"
+        id S1728705AbfI1UCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Sep 2019 16:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726026AbfI1SYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 28 Sep 2019 14:24:33 -0400
-Received: from localhost (unknown [46.183.103.17])
-        by pokefinder.org (Postfix) with ESMTPSA id 4122B2C0489;
-        Sat, 28 Sep 2019 20:24:30 +0200 (CEST)
-Date:   Sat, 28 Sep 2019 20:24:29 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Chris Brandt <chris.brandt@renesas.com>
-Cc:     linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        stable@vger.kernel.org,
-        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-Subject: Re: [PATCH v2] i2c: riic: Clear NACK in tend isr
-Message-ID: <20190928182423.GC12219@kunai>
-References: <20190926121909.1795-1-chris.brandt@renesas.com>
+        id S1728617AbfI1UCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Sep 2019 16:02:15 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8023F20863;
+        Sat, 28 Sep 2019 20:02:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569700934;
+        bh=iBI4ADUUwpbjA+pmHsEfnTeue1a9adW21YpVKP9WhKE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=T2F5ar22dPjflJL9yIU58hu70yONBakpNONVOBBsTvNXDHVVGdyHdS1PDdcN/Q2yB
+         +XUqR8207O4FeHFf1saqEFOAxmexTHTj23wLC9UQ43DmmvdORzZpKjh10ipBAGqLVk
+         YQZea0UROJnoEp41s4cIDmuxBDLTJJx4BDk+yCgo=
+Date:   Sat, 28 Sep 2019 16:02:13 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Baolin Wang <baolin.wang@linaro.org>
+Cc:     stable@vger.kernel.org, peterz@infradead.org, mingo@redhat.com,
+        linus.walleij@linaro.org, natechancellor@gmail.com, sre@kernel.org,
+        longman@redhat.com, linux-gpio@vger.kernel.org,
+        david@lechnology.com, linux-pm@vger.kernel.org, arnd@arndb.de,
+        orsonzhai@gmail.com, vincent.guittot@linaro.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [BACKPORT 4.19.y 0/3] Candidates from Spreadtrum 4.14 product
+ kernel
+Message-ID: <20190927153055.GP8171@sasha-vm>
+References: <cover.1569404757.git.baolin.wang@linaro.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="SO98HVl1bnMOfKZd"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190926121909.1795-1-chris.brandt@renesas.com>
+In-Reply-To: <cover.1569404757.git.baolin.wang@linaro.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 25, 2019 at 05:52:26PM +0800, Baolin Wang wrote:
+>With Arnd's script [1] help, I found some bugfixes in Spreadtrum 4.14 product
+>kernel, but missing in v4.19.75:
+>
+>513e1073d52e locking/lockdep: Add debug_locks check in __lock_downgrade()
+>957063c92473 pinctrl: sprd: Use define directive for sprd_pinconf_params values
+>87a2b65fc855 power: supply: sysfs: ratelimit property read error message
+>
+>[1] https://lore.kernel.org/lkml/20190322154425.3852517-19-arnd@arndb.de/T/
+>
+>David Lechner (1):
+>  power: supply: sysfs: ratelimit property read error message
+>
+>Nathan Chancellor (1):
+>  pinctrl: sprd: Use define directive for sprd_pinconf_params values
+>
+>Waiman Long (1):
+>  locking/lockdep: Add debug_locks check in __lock_downgrade()
+>
+> drivers/pinctrl/sprd/pinctrl-sprd.c       |    6 ++----
+> drivers/power/supply/power_supply_sysfs.c |    3 ++-
+> kernel/locking/lockdep.c                  |    3 +++
+> 3 files changed, 7 insertions(+), 5 deletions(-)
 
---SO98HVl1bnMOfKZd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've queued these up for 4.19, 4.14 and some for 4.9 and 4.4. Thank you.
 
-On Thu, Sep 26, 2019 at 07:19:09AM -0500, Chris Brandt wrote:
-> The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
-> description in HW manual.
->=20
-> This issue shows up quickly when PREEMPT_RT is applied and a device is
-> probed that is not plugged in (like a touchscreen controller). The result
-> is endless interrupts that halt system boot.
->=20
-> Fixes: 310c18a41450 ("i2c: riic: add driver")
-> Cc: stable@vger.kernel.org
-> Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
->=20
-
-Applied to for-current, thanks!
-
-
---SO98HVl1bnMOfKZd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2PpVcACgkQFA3kzBSg
-KbZtXw/+LLgzjDx2AqGztOvytSm+LJzDaDWx5E1ZHDGJuAnuU167yv4u+4Uxcx9S
-4u3zG7ZlniHvRNu1fKz8/0QcRtiJMnwqupjHFRzf6v3xFluRsNPykYL9YipNgUgZ
-clNCGxJjhEeaqLxHCP9XR2LtZMbiukafQTp+bbaa1YJM4JwPIwGDc5QasdbdP4/0
-C6+KRSRkBhgL+VFtZUL21UwXxUkAem2q/pQtA08/Vrk3Uvu5tcLTJytn+kqOBPvh
-lcvRQ080lapDUVrLzsZqk7fHQvBpxwXAZliaGwmCGtqMDgeCHdyisblXqNFWO1bE
-jTqnm27un/h7SZxVhc1mRUv0uWSHn1V3fGP1yXGWhk1LfSAgJFefck/eZZovXjsh
-KUFR5lxn1y728z++2lI+djH419C0zpTkMWqgZO/0zT8H2Wc6zkC1BGGCxxSJe6Dc
-V2ZHEeZPgaQAngDeAGTU0zIzVYzhHcUUfi6L8JvemkEtYF+7H36aJhgjNyEz4/KT
-SvUOOfT9yg3havUBGkcFf/mFwb2vPe0+AdoNbvOhEN9zFO0GD3DQXPKwxZdHKNuJ
-Ah376vQkTWehzK9XBJl3GlzQKam+6YS6YeZHuhKo2QNEhiZ0e7/We09x99vgkzsX
-46OUdWg4dtMBCdJ4NYcfMdBYb9oeu7+LAB3qAomREPB9KrkCfd4=
-=sGSV
------END PGP SIGNATURE-----
-
---SO98HVl1bnMOfKZd--
+--
+Thanks,
+Sasha
