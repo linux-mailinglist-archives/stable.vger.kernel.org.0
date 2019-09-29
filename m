@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 311E0C1571
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0768C1570
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbfI2OEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:04:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47476 "EHLO mail.kernel.org"
+        id S1729473AbfI2OEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:04:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730442AbfI2OEJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:04:09 -0400
+        id S1730450AbfI2OEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:04:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DBD22082F;
-        Sun, 29 Sep 2019 14:04:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06D7E2082F;
+        Sun, 29 Sep 2019 14:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765848;
-        bh=6lhaPGgHzhf5iFA4NeDhhzK/tiPUcaiJONIzVETFzTk=;
+        s=default; t=1569765851;
+        bh=ycVtQSzkyz8L8hAEyRtDzR1Rj+c+zpn/rD+u8cVqfuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xweGs+vTv3jRqcyXMuHnJD0VtES93SIulJxeSz35ri9CHvfpP8dqt4tk4bcdd+kxd
-         zPr9KEVn8gvqYiOILyKWPilvDkSft6prgaBhRC5UGjg4sy0cn5pjuM8w/8Vzb/Po20
-         694FGd9kUZC+NoMpCtHWKv0YlsQXp5jY7zkTkfZ4=
+        b=1dNcP0nrqCqRJwgshrC3PgQRU7rDKaDmvGobGsoipJohxpGVY8LvuYUrh6kVGzOtK
+         2lFy4vLqUFlkDRa2jGRnW7m+aJ3LvjfGJ8DmED88rpuv5a4jVKF9rKNETWmv52DmnB
+         rKwLrzAsbmrUxhD6C/WnrrvO+HzRJqQDEJOVb5U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Dennis Padiernos <depadiernos@gmail.com>
-Subject: [PATCH 5.3 23/25] ALSA: hda - Apply AMD controller workaround for Raven platform
-Date:   Sun, 29 Sep 2019 15:56:26 +0200
-Message-Id: <20190929135017.786349926@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.3 24/25] platform/x86: i2c-multi-instantiate: Derive the device name from parent
+Date:   Sun, 29 Sep 2019 15:56:27 +0200
+Message-Id: <20190929135018.079215925@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
 References: <20190929135006.127269625@linuxfoundation.org>
@@ -43,37 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit d2c63b7dfd06788a466d5ec8a850491f084c5fc2 upstream.
+commit 24a8d78a9affb63e5ced313ccde6888fe96edc6e upstream.
 
-It's reported that the garbled sound on HP Envy x360 13z-ag000 (Ryzen
-Laptop) is fixed by the same workaround applied to other AMD chips.
-Update the driver_data entry for Raven (1022:15e3) to use the newly
-introduced preset, AZX_DCAPS_PRESET_AMD_SB.  Since it already contains
-AZX_DCAPS_PM_RUNTIME, we can drop that bit, too.
+When naming the new devices, instead of using the ACPI ID in
+the name as base, using the parent device's name. That makes
+it possible to support multiple multi-instance i2c devices
+of the same type in the same system.
 
-Reported-and-tested-by: Dennis Padiernos <depadiernos@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190920073040.31764-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This fixes an issue seen on some Intel Kaby Lake based
+boards:
+
+sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-INT3515-tps6598x.0'
+
+Fixes: 2336dfadfb1e ("platform/x86: i2c-multi-instantiate: Allow to have same slaves")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2517,8 +2517,7 @@ static const struct pci_device_id azx_id
- 			 AZX_DCAPS_PM_RUNTIME },
- 	/* AMD Raven */
- 	{ PCI_DEVICE(0x1022, 0x15e3),
--	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_SB |
--			 AZX_DCAPS_PM_RUNTIME },
-+	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_AMD_SB },
- 	/* ATI HDMI */
- 	{ PCI_DEVICE(0x1002, 0x0002),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -92,7 +92,7 @@ static int i2c_multi_inst_probe(struct p
+ 	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+-		snprintf(name, sizeof(name), "%s-%s.%d", match->id,
++		snprintf(name, sizeof(name), "%s-%s.%d", dev_name(dev),
+ 			 inst_data[i].type, i);
+ 		board_info.dev_name = name;
+ 		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
 
 
