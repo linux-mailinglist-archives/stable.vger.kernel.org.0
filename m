@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB06C17E1
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25EFC17DC
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729765AbfI2RkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:40:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46978 "EHLO mail.kernel.org"
+        id S1726838AbfI2RkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729567AbfI2Rex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:34:53 -0400
+        id S1730476AbfI2Rey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0092821928;
-        Sun, 29 Sep 2019 17:34:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21CBD2196E;
+        Sun, 29 Sep 2019 17:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778492;
-        bh=l7NP07G1Ea8ObzNjqXfvhMjFFJVuFFmr/gpg2A2d3/U=;
+        s=default; t=1569778493;
+        bh=SZIa8j9CJhCBRyj+SHTyx1EHRbuknY5E3dcb6CrkBkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGENUDyN67PgqZdWVnEfPUTCDNAZ6qkjMKY5BzufB64GNgSHNIqIN3AagC7wv6Dbn
-         K8nW3/ivqA0fOkLjISRD6HgxSxIOcEK/P1ZF6rMJUas6hIFIYHvkNSgPuDah/A3ZYl
-         YQKENQ0Ca8nsJ69bMvWclqLs1jfe53oghlhx3eAY=
+        b=vNCYxsOsSScyb6Uw2aIL/ruI8eQQ/HqNmRHsCzHHj4ju0/h/T2Kjr4rXaDjUZTDpY
+         JcqIOGZMpO4PDuCBH0QXtkOsldyLr0xAjX9I3ZaOLYJuBUY31xDajBRV+kUyVbPvrO
+         dP8iyxzbp788QZyXIpe5eJjvbgy51vEUOQ37+oTc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
+Cc:     Biwen Li <biwen.li@nxp.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/33] rtc: snvs: fix possible race condition
-Date:   Sun, 29 Sep 2019 13:34:02 -0400
-Message-Id: <20190929173424.9361-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 15/33] rtc: pcf85363/pcf85263: fix regmap error in set_time
+Date:   Sun, 29 Sep 2019 13:34:03 -0400
+Message-Id: <20190929173424.9361-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 References: <20190929173424.9361-1-sashal@kernel.org>
@@ -44,55 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Biwen Li <biwen.li@nxp.com>
 
-[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
+[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in IRQ handler.
+Issue:
+    - # hwclock -w
+      hwclock: RTC_SET_TIME: Invalid argument
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+Why:
+    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
+      writeable before writing operations"), this patch
+      will always check for unwritable registers, it will compare reg
+      with max_register in regmap_writeable.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
+    - The pcf85363/pcf85263 has the capability of address wrapping
+      which means if you access an address outside the allowed range
+      (0x00-0x2f) hardware actually wraps the access to a lower address.
+      The rtc-pcf85363 driver will use this feature to configure the time
+      and execute 2 actions in the same i2c write operation (stopping the
+      clock and configure the time). However the driver has also
+      configured the `regmap maxregister` protection mechanism that will
+      block accessing addresses outside valid range (0x00-0x2f).
+
+How:
+    - Split of writing regs to two parts, first part writes control
+      registers about stop_enable and resets, second part writes
+      RTC time and date registers.
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index b2483a749ac45..3cf011e120530 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -273,6 +273,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	if (!data)
- 		return -ENOMEM;
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index c04a1edcd5716..c3702684b3426 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -169,7 +169,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
  
-+	data->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(data->rtc))
-+		return PTR_ERR(data->rtc);
+ 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
+-				tmp, sizeof(tmp));
++				tmp, 2);
++	if (ret)
++		return ret;
 +
- 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
++	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
++				buf, sizeof(tmp) - 2);
+ 	if (ret)
+ 		return ret;
  
- 	if (IS_ERR(data->regmap)) {
-@@ -335,10 +339,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 		goto error_rtc_device_register;
- 	}
- 
--	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&snvs_rtc_ops, THIS_MODULE);
--	if (IS_ERR(data->rtc)) {
--		ret = PTR_ERR(data->rtc);
-+	data->rtc->ops = &snvs_rtc_ops;
-+	ret = rtc_register_device(data->rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
- 		goto error_rtc_device_register;
- 	}
 -- 
 2.20.1
 
