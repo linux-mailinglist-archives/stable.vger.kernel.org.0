@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B240AC154A
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DDFAC1564
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729678AbfI2OCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1730387AbfI2ODp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:03:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbfI2OCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:02:42 -0400
+        id S1728809AbfI2ODo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:03:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C36E52082F;
-        Sun, 29 Sep 2019 14:02:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 257A82082F;
+        Sun, 29 Sep 2019 14:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765761;
-        bh=vB8PEykiLTpJVoylB+3/isI7qp+NEDMc4CvjjxdfpbI=;
+        s=default; t=1569765823;
+        bh=oJ1DAPC6i1yD3poQaOwZoOjZyJqHHxMJuBpIZsKKyd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+FEns+uvSzJ3Pc+DP341+uhcgeg0XadkGt5XKlWYj4Sna3HXGHpAwL4gUyzkSef4
-         uyEAa0bxPZbksuZTj3wlwIoi+U240hXA9TfQ4luyDAqRtGClUIRH5/3/3ILGt+3pcc
-         ePpJLIfDJMm6cDgjm+N/NQly5E2U4xuI1PJaaBUM=
+        b=t0TfsCGa2+VWo2DrhAu7S6ynGWA/b43Bko8QQZE8jwqd6gh1orgmdbpF/EYs7YQwu
+         rdS8+hvMMM23SV/fBaJ6aIsbtDfrZI3YYwLzjha4rgkd/IUbFszSJChzKOErFghJHJ
+         jeF4vcwUdu/nM/QwjEg+NR4p9Wmt1NO6wTJKU7Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fernando Fernandez Mancera <ffmancera@riseup.net>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 42/45] netfilter: nft_socket: fix erroneous socket assignment
-Date:   Sun, 29 Sep 2019 15:56:10 +0200
-Message-Id: <20190929135033.655419389@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.3 08/25] powerpc/xive: Fix bogus error code returned by OPAL
+Date:   Sun, 29 Sep 2019 15:56:11 +0200
+Message-Id: <20190929135012.097592839@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
-References: <20190929135024.387033930@linuxfoundation.org>
+In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
+References: <20190929135006.127269625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fernando Fernandez Mancera <ffmancera@riseup.net>
+From: Greg Kurz <groug@kaod.org>
 
-[ Upstream commit 039b1f4f24ecc8493b6bb9d70b4b78750d1b35c2 ]
+commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8 upstream.
 
-The socket assignment is wrong, see skb_orphan():
-When skb->destructor callback is not set, but skb->sk is set, this hits BUG().
+There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
+to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
+Unfortunatelty, OPAL return values are signed 64-bit entities and
+errors are supposed to be negative. If that happens, the linux code
+confusingly treats 0xffffffff as a valid IRQ number and panics at some
+point.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1651813
-Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
-Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A fix was recently merged in skiboot:
+
+e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
+
+but we need a workaround anyway to support older skiboots already
+in the field.
+
+Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
+returned upon resource exhaustion.
+
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/nft_socket.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/opal.h            |    2 +-
+ arch/powerpc/platforms/powernv/opal-call.c |    2 +-
+ arch/powerpc/sysdev/xive/native.c          |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
-index d7f3776dfd719..637ce3e8c575c 100644
---- a/net/netfilter/nft_socket.c
-+++ b/net/netfilter/nft_socket.c
-@@ -47,9 +47,6 @@ static void nft_socket_eval(const struct nft_expr *expr,
- 		return;
- 	}
- 
--	/* So that subsequent socket matching not to require other lookups. */
--	skb->sk = sk;
--
- 	switch(priv->key) {
- 	case NFT_SOCKET_TRANSPARENT:
- 		nft_reg_store8(dest, inet_sk_transparent(sk));
-@@ -66,6 +63,9 @@ static void nft_socket_eval(const struct nft_expr *expr,
- 		WARN_ON(1);
- 		regs->verdict.code = NFT_BREAK;
- 	}
-+
-+	if (sk != skb->sk)
-+		sock_gen_put(sk);
+--- a/arch/powerpc/include/asm/opal.h
++++ b/arch/powerpc/include/asm/opal.h
+@@ -272,7 +272,7 @@ int64_t opal_xive_get_vp_info(uint64_t v
+ int64_t opal_xive_set_vp_info(uint64_t vp,
+ 			      uint64_t flags,
+ 			      uint64_t report_cl_pair);
+-int64_t opal_xive_allocate_irq(uint32_t chip_id);
++int64_t opal_xive_allocate_irq_raw(uint32_t chip_id);
+ int64_t opal_xive_free_irq(uint32_t girq);
+ int64_t opal_xive_sync(uint32_t type, uint32_t id);
+ int64_t opal_xive_dump(uint32_t type, uint32_t id);
+--- a/arch/powerpc/platforms/powernv/opal-call.c
++++ b/arch/powerpc/platforms/powernv/opal-call.c
+@@ -257,7 +257,7 @@ OPAL_CALL(opal_xive_set_queue_info,		OPA
+ OPAL_CALL(opal_xive_donate_page,		OPAL_XIVE_DONATE_PAGE);
+ OPAL_CALL(opal_xive_alloc_vp_block,		OPAL_XIVE_ALLOCATE_VP_BLOCK);
+ OPAL_CALL(opal_xive_free_vp_block,		OPAL_XIVE_FREE_VP_BLOCK);
+-OPAL_CALL(opal_xive_allocate_irq,		OPAL_XIVE_ALLOCATE_IRQ);
++OPAL_CALL(opal_xive_allocate_irq_raw,		OPAL_XIVE_ALLOCATE_IRQ);
+ OPAL_CALL(opal_xive_free_irq,			OPAL_XIVE_FREE_IRQ);
+ OPAL_CALL(opal_xive_get_vp_info,		OPAL_XIVE_GET_VP_INFO);
+ OPAL_CALL(opal_xive_set_vp_info,		OPAL_XIVE_SET_VP_INFO);
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -231,6 +231,17 @@ static bool xive_native_match(struct dev
+ 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
  }
  
- static const struct nla_policy nft_socket_policy[NFTA_SOCKET_MAX + 1] = {
--- 
-2.20.1
-
++static s64 opal_xive_allocate_irq(u32 chip_id)
++{
++	s64 irq = opal_xive_allocate_irq_raw(chip_id);
++
++	/*
++	 * Old versions of skiboot can incorrectly return 0xffffffff to
++	 * indicate no space, fix it up here.
++	 */
++	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
++}
++
+ #ifdef CONFIG_SMP
+ static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
+ {
 
 
