@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC3CC14F6
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1642C14DA
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729738AbfI2N7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:59:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40736 "EHLO mail.kernel.org"
+        id S1729517AbfI2N6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbfI2N7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:59:31 -0400
+        id S1729503AbfI2N6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:58:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C45AD21835;
-        Sun, 29 Sep 2019 13:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F2532082F;
+        Sun, 29 Sep 2019 13:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765570;
-        bh=kVAwFbfYiAnUCQrMyyQhRLe3JhsJ4MXJBC72Df8IfMI=;
+        s=default; t=1569765512;
+        bh=VKgeM9sNxxdUBkK3MBTRqUHENPhdRXiHCCA163TOKcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZ5AbhGXcxDktK93wQliFliZDHd+ajI3bVsGkHzEME9Rj0boGWrL1wtwjB0il3qTr
-         P49QfuBhbcVu1KAoVl9PqQuv2FcN8gws1WqvMf7VABZTSanvnMsPSmdYrqitJZk+Xs
-         zff39Pob/Fn3wl4sxFOMH3svSObHDCz9JzJDnrKQ=
+        b=zelsdYiRwiaYMGUf3ZvItdMTdwfHXfNtFnqVpowoW5eUbMljPQwiKj77oilhfqPIV
+         68oJc43eH/s0r7k4DdV/aZrEWWWXbKZRe9Tooq6gAgTHQ78ZdaWOr4hAl+dAkLzDcT
+         Wzpa5M8f6DYA5bviCNsiTKVbVR9pce1v4lGdRP8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/63] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-Date:   Sun, 29 Sep 2019 15:54:06 +0200
-Message-Id: <20190929135038.128262622@linuxfoundation.org>
+Subject: [PATCH 4.19 34/63] pinctrl: sprd: Use define directive for sprd_pinconf_params values
+Date:   Sun, 29 Sep 2019 15:54:07 +0200
+Message-Id: <20190929135038.255017606@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -45,47 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Sukhomlinov <sukhomlinov@google.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+[ Upstream commit 957063c924736d4341e5d588757b9f31e8f6fa24 ]
 
-TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-future TPM operations. TPM 1.2 behavior was different, future TPM
-operations weren't disabled, causing rare issues. This patch ensures
-that future TPM operations are disabled.
+Clang warns when one enumerated type is implicitly converted to another:
 
-Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-[dianders: resolved merge conflicts with mainline]
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+drivers/pinctrl/sprd/pinctrl-sprd.c:845:19: warning: implicit conversion
+from enumeration type 'enum sprd_pinconf_params' to different
+enumeration type 'enum pin_config_param' [-Wenum-conversion]
+        {"sprd,control", SPRD_PIN_CONFIG_CONTROL, 0},
+        ~                ^~~~~~~~~~~~~~~~~~~~~~~
+drivers/pinctrl/sprd/pinctrl-sprd.c:846:22: warning: implicit conversion
+from enumeration type 'enum sprd_pinconf_params' to different
+enumeration type 'enum pin_config_param' [-Wenum-conversion]
+        {"sprd,sleep-mode", SPRD_PIN_CONFIG_SLEEP_MODE, 0},
+        ~                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is expected that pinctrl drivers can extend pin_config_param because
+of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
+isn't an issue. Most drivers that take advantage of this define the
+PIN_CONFIG variables as constants, rather than enumerated values. Do the
+same thing here so that Clang no longer warns.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/138
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Baolin Wang <baolin.wang@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm-chip.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/sprd/pinctrl-sprd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 46caadca916a0..dccc61af9ffab 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -187,12 +187,15 @@ static int tpm_class_shutdown(struct device *dev)
- {
- 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
+diff --git a/drivers/pinctrl/sprd/pinctrl-sprd.c b/drivers/pinctrl/sprd/pinctrl-sprd.c
+index 78c2f548b25f1..8f3468d9f848d 100644
+--- a/drivers/pinctrl/sprd/pinctrl-sprd.c
++++ b/drivers/pinctrl/sprd/pinctrl-sprd.c
+@@ -159,10 +159,8 @@ struct sprd_pinctrl {
+ 	struct sprd_pinctrl_soc_info *info;
+ };
  
-+	down_write(&chip->ops_sem);
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
- 		down_write(&chip->ops_sem);
- 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
- 		chip->ops = NULL;
- 		up_write(&chip->ops_sem);
- 	}
-+	chip->ops = NULL;
-+	up_write(&chip->ops_sem);
+-enum sprd_pinconf_params {
+-	SPRD_PIN_CONFIG_CONTROL = PIN_CONFIG_END + 1,
+-	SPRD_PIN_CONFIG_SLEEP_MODE = PIN_CONFIG_END + 2,
+-};
++#define SPRD_PIN_CONFIG_CONTROL		(PIN_CONFIG_END + 1)
++#define SPRD_PIN_CONFIG_SLEEP_MODE	(PIN_CONFIG_END + 2)
  
- 	return 0;
- }
+ static int sprd_pinctrl_get_id_by_name(struct sprd_pinctrl *sprd_pctl,
+ 				       const char *name)
 -- 
 2.20.1
 
