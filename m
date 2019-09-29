@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDFAC1564
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F52C157D
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730387AbfI2ODp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46940 "EHLO mail.kernel.org"
+        id S1729716AbfI2OCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728809AbfI2ODo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:44 -0400
+        id S1729752AbfI2OCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 257A82082F;
-        Sun, 29 Sep 2019 14:03:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFE572082F;
+        Sun, 29 Sep 2019 14:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765823;
-        bh=oJ1DAPC6i1yD3poQaOwZoOjZyJqHHxMJuBpIZsKKyd8=;
+        s=default; t=1569765765;
+        bh=KKwCJ2Jhqo9yT3luONXGpSEQ/hHdZWM1lw6vCsJpMtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0TfsCGa2+VWo2DrhAu7S6ynGWA/b43Bko8QQZE8jwqd6gh1orgmdbpF/EYs7YQwu
-         rdS8+hvMMM23SV/fBaJ6aIsbtDfrZI3YYwLzjha4rgkd/IUbFszSJChzKOErFghJHJ
-         jeF4vcwUdu/nM/QwjEg+NR4p9Wmt1NO6wTJKU7Yc=
+        b=YNd4kdNJWUOHCYc2vW+w6v4VM+ZytLnU7VVhI0mYLzTDDcBR73mJdXH/T/Dxk20K8
+         fpWPDdmuQvXTotvl2fe/sCm//ZkeqvEWGRfUoYKZrEOWmoIJ8Xr+yCLkyo5Z2gEf9S
+         JqWFcYVZw0iJUaOsmju+T1jc0GHSvy5l1naNuIfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 08/25] powerpc/xive: Fix bogus error code returned by OPAL
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 43/45] Bluetooth: btrtl: Additional Realtek 8822CE Bluetooth devices
 Date:   Sun, 29 Sep 2019 15:56:11 +0200
-Message-Id: <20190929135012.097592839@linuxfoundation.org>
+Message-Id: <20190929135034.459828829@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
-References: <20190929135006.127269625@linuxfoundation.org>
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135024.387033930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kurz <groug@kaod.org>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8 upstream.
+[ Upstream commit 6d0762b19c5963ff9e178e8af3626532ee04d93d ]
 
-There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
-to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
-Unfortunatelty, OPAL return values are signed 64-bit entities and
-errors are supposed to be negative. If that happens, the linux code
-confusingly treats 0xffffffff as a valid IRQ number and panics at some
-point.
+The ASUS X412FA laptop contains a Realtek RTL8822CE device with an
+associated BT chip using a USB ID of 04ca:4005. This ID is added to the
+driver.
 
-A fix was recently merged in skiboot:
+The /sys/kernel/debug/usb/devices portion for this device is:
 
-e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
+T:  Bus=01 Lev=01 Prnt=01 Port=09 Cnt=04 Dev#=  4 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=04ca ProdID=4005 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-but we need a workaround anyway to support older skiboots already
-in the field.
-
-Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
-returned upon resource exhaustion.
-
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204707
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/opal.h            |    2 +-
- arch/powerpc/platforms/powernv/opal-call.c |    2 +-
- arch/powerpc/sysdev/xive/native.c          |   11 +++++++++++
- 3 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/bluetooth/btusb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/powerpc/include/asm/opal.h
-+++ b/arch/powerpc/include/asm/opal.h
-@@ -272,7 +272,7 @@ int64_t opal_xive_get_vp_info(uint64_t v
- int64_t opal_xive_set_vp_info(uint64_t vp,
- 			      uint64_t flags,
- 			      uint64_t report_cl_pair);
--int64_t opal_xive_allocate_irq(uint32_t chip_id);
-+int64_t opal_xive_allocate_irq_raw(uint32_t chip_id);
- int64_t opal_xive_free_irq(uint32_t girq);
- int64_t opal_xive_sync(uint32_t type, uint32_t id);
- int64_t opal_xive_dump(uint32_t type, uint32_t id);
---- a/arch/powerpc/platforms/powernv/opal-call.c
-+++ b/arch/powerpc/platforms/powernv/opal-call.c
-@@ -257,7 +257,7 @@ OPAL_CALL(opal_xive_set_queue_info,		OPA
- OPAL_CALL(opal_xive_donate_page,		OPAL_XIVE_DONATE_PAGE);
- OPAL_CALL(opal_xive_alloc_vp_block,		OPAL_XIVE_ALLOCATE_VP_BLOCK);
- OPAL_CALL(opal_xive_free_vp_block,		OPAL_XIVE_FREE_VP_BLOCK);
--OPAL_CALL(opal_xive_allocate_irq,		OPAL_XIVE_ALLOCATE_IRQ);
-+OPAL_CALL(opal_xive_allocate_irq_raw,		OPAL_XIVE_ALLOCATE_IRQ);
- OPAL_CALL(opal_xive_free_irq,			OPAL_XIVE_FREE_IRQ);
- OPAL_CALL(opal_xive_get_vp_info,		OPAL_XIVE_GET_VP_INFO);
- OPAL_CALL(opal_xive_set_vp_info,		OPAL_XIVE_SET_VP_INFO);
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -231,6 +231,17 @@ static bool xive_native_match(struct dev
- 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
- }
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 0f4750322864a..aa6e2f9d48617 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -378,6 +378,9 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x13d3, 0x3526), .driver_info = BTUSB_REALTEK },
+ 	{ USB_DEVICE(0x0b05, 0x185c), .driver_info = BTUSB_REALTEK },
  
-+static s64 opal_xive_allocate_irq(u32 chip_id)
-+{
-+	s64 irq = opal_xive_allocate_irq_raw(chip_id);
++	/* Additional Realtek 8822CE Bluetooth devices */
++	{ USB_DEVICE(0x04ca, 0x4005), .driver_info = BTUSB_REALTEK },
 +
-+	/*
-+	 * Old versions of skiboot can incorrectly return 0xffffffff to
-+	 * indicate no space, fix it up here.
-+	 */
-+	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
-+}
-+
- #ifdef CONFIG_SMP
- static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
- {
+ 	/* Silicon Wave based devices */
+ 	{ USB_DEVICE(0x0c10, 0x0000), .driver_info = BTUSB_SWAVE },
+ 
+-- 
+2.20.1
+
 
 
