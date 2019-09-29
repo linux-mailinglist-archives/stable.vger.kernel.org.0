@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16146C155E
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE77EC1586
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729003AbfI2ODe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46714 "EHLO mail.kernel.org"
+        id S1730220AbfI2OCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728809AbfI2ODe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:34 -0400
+        id S1730246AbfI2OCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9AE32082F;
-        Sun, 29 Sep 2019 14:03:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3530218DE;
+        Sun, 29 Sep 2019 14:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765813;
-        bh=xiOUHBKHsvXvkss4dduRDk/CwAhsptPTvK2WdmB5jcc=;
+        s=default; t=1569765754;
+        bh=u2leZk9+XL+R+jk69ue+zE6yJodzlmPNHZyk+UGg9oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAhAv2bAM2YbGLyWj/LEfzDeDWmaCBY5LR2jvy7LLZBKGucIHDZxKCqcg0vdxKBY6
-         wRD6yDdOGmIhqJYe3OqbknvXWLVFmfej8lw670CdKgKa580MtugAj7Nkaqapx8Pn+1
-         yh5qXBe4uKj6ZgP23ksNmiVzmdl4L0i+1gyLxBUI=
+        b=g5i4IX3Y4mFwMkmGq/tEU4PF/9MY/wCYEgnhS5pFEMm+94j8or2uWIZie7Ed+envc
+         EmzrzGgl5uP97aSkhU6or4oq0VG4u4+pSlk9FcsC1wgGW7JQIoSY8lcHNRmEu4m4Qt
+         1jGllU7B8cC7WYEZ05r08PNoeQqaTXjR9oU3zNMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        David Francis <david.francis@amd.com>
-Subject: [PATCH 5.3 05/25] drm/amd/display: Skip determining update type for async updates
+        stable@vger.kernel.org, Zorro Lang <zlang@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Bill ODonnell <billodo@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 40/45] xfs: dont crash on null attr fork xfs_bmapi_read
 Date:   Sun, 29 Sep 2019 15:56:08 +0200
-Message-Id: <20190929135010.311865952@linuxfoundation.org>
+Message-Id: <20190929135033.287691542@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
-References: <20190929135006.127269625@linuxfoundation.org>
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135024.387033930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 43d10d30df156f7834fa91aecb69614fefc8bb0a upstream.
+[ Upstream commit 8612de3f7ba6e900465e340516b8313806d27b2d ]
 
-[Why]
-By passing through the dm_determine_update_type_for_commit for atomic
-commits that can be done asynchronously we are incurring a
-performance penalty by locking access to the global private object
-and holding that access until the end of the programming sequence.
+Zorro Lang reported a crash in generic/475 if we try to inactivate a
+corrupt inode with a NULL attr fork (stack trace shortened somewhat):
 
-This is also allocating a new large dc_state on every access in addition
-to retaining all the references on each stream and plane until the end
-of the programming sequence.
+RIP: 0010:xfs_bmapi_read+0x311/0xb00 [xfs]
+RSP: 0018:ffff888047f9ed68 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888047f9f038 RCX: 1ffffffff5f99f51
+RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000012
+RBP: ffff888002a41f00 R08: ffffed10005483f0 R09: ffffed10005483ef
+R10: ffffed10005483ef R11: ffff888002a41f7f R12: 0000000000000004
+R13: ffffe8fff53b5768 R14: 0000000000000005 R15: 0000000000000001
+FS:  00007f11d44b5b80(0000) GS:ffff888114200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000ef6000 CR3: 000000002e176003 CR4: 00000000001606e0
+Call Trace:
+ xfs_dabuf_map.constprop.18+0x696/0xe50 [xfs]
+ xfs_da_read_buf+0xf5/0x2c0 [xfs]
+ xfs_da3_node_read+0x1d/0x230 [xfs]
+ xfs_attr_inactive+0x3cc/0x5e0 [xfs]
+ xfs_inactive+0x4c8/0x5b0 [xfs]
+ xfs_fs_destroy_inode+0x31b/0x8e0 [xfs]
+ destroy_inode+0xbc/0x190
+ xfs_bulkstat_one_int+0xa8c/0x1200 [xfs]
+ xfs_bulkstat_one+0x16/0x20 [xfs]
+ xfs_bulkstat+0x6fa/0xf20 [xfs]
+ xfs_ioc_bulkstat+0x182/0x2b0 [xfs]
+ xfs_file_ioctl+0xee0/0x12a0 [xfs]
+ do_vfs_ioctl+0x193/0x1000
+ ksys_ioctl+0x60/0x90
+ __x64_sys_ioctl+0x6f/0xb0
+ do_syscall_64+0x9f/0x4d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f11d39a3e5b
 
-[How]
-Shift the determination for async update before validation. Return early
-if it's going to be an async update.
+The "obvious" cause is that the attr ifork is null despite the inode
+claiming an attr fork having at least one extent, but it's not so
+obvious why we ended up with an inode in that state.
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: David Francis <david.francis@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Zorro Lang <zlang@redhat.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204031
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Bill O'Donnell <billodo@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   27 ++++++++++++++++------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7274,6 +7274,26 @@ static int amdgpu_dm_atomic_check(struct
- 	if (ret)
- 		goto fail;
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index 356ebd1cbe825..d6fbe487d91ad 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -3840,15 +3840,28 @@ xfs_bmapi_read(
+ 	XFS_STATS_INC(mp, xs_blk_mapr);
  
-+	if (state->legacy_cursor_update) {
-+		/*
-+		 * This is a fast cursor update coming from the plane update
-+		 * helper, check if it can be done asynchronously for better
-+		 * performance.
-+		 */
-+		state->async_update =
-+			!drm_atomic_helper_async_check(dev, state);
-+
-+		/*
-+		 * Skip the remaining global validation if this is an async
-+		 * update. Cursor updates can be done without affecting
-+		 * state or bandwidth calcs and this avoids the performance
-+		 * penalty of locking the private state object and
-+		 * allocating a new dc_state.
-+		 */
-+		if (state->async_update)
+ 	ifp = XFS_IFORK_PTR(ip, whichfork);
++	if (!ifp) {
++		/* No CoW fork?  Return a hole. */
++		if (whichfork == XFS_COW_FORK) {
++			mval->br_startoff = bno;
++			mval->br_startblock = HOLESTARTBLOCK;
++			mval->br_blockcount = len;
++			mval->br_state = XFS_EXT_NORM;
++			*nmap = 1;
 +			return 0;
-+	}
-+
- 	/* Check scaling and underscan changes*/
- 	/* TODO Removed scaling changes validation due to inability to commit
- 	 * new stream into context w\o causing full reset. Need to
-@@ -7326,13 +7346,6 @@ static int amdgpu_dm_atomic_check(struct
- 			ret = -EINVAL;
- 			goto fail;
- 		}
--	} else if (state->legacy_cursor_update) {
--		/*
--		 * This is a fast cursor update coming from the plane update
--		 * helper, check if it can be done asynchronously for better
--		 * performance.
--		 */
--		state->async_update = !drm_atomic_helper_async_check(dev, state);
++		}
+ 
+-	/* No CoW fork?  Return a hole. */
+-	if (whichfork == XFS_COW_FORK && !ifp) {
+-		mval->br_startoff = bno;
+-		mval->br_startblock = HOLESTARTBLOCK;
+-		mval->br_blockcount = len;
+-		mval->br_state = XFS_EXT_NORM;
+-		*nmap = 1;
+-		return 0;
++		/*
++		 * A missing attr ifork implies that the inode says we're in
++		 * extents or btree format but failed to pass the inode fork
++		 * verifier while trying to load it.  Treat that as a file
++		 * corruption too.
++		 */
++#ifdef DEBUG
++		xfs_alert(mp, "%s: inode %llu missing fork %d",
++				__func__, ip->i_ino, whichfork);
++#endif /* DEBUG */
++		return -EFSCORRUPTED;
  	}
  
- 	/* Must be success */
+ 	if (!(ifp->if_flags & XFS_IFEXTENTS)) {
+-- 
+2.20.1
+
 
 
