@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D911AC16B8
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B14C16BA
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729751AbfI2RcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43298 "EHLO mail.kernel.org"
+        id S1729765AbfI2Rc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729690AbfI2RcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:32:25 -0400
+        id S1729690AbfI2Rc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:32:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94A5B21920;
-        Sun, 29 Sep 2019 17:32:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 062CA2086A;
+        Sun, 29 Sep 2019 17:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778344;
-        bh=2phXe2I4hy0lD35uuWJUDpgHRLdxGNb60n5qMD4KcjA=;
+        s=default; t=1569778347;
+        bh=XYxWmfkrAOzZbg8dXacVi8SYdT7TPR48wH7ingN4Pwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sa0BQ1IGmNuoFwRkrvxhgqAe8UQXXMMSIRee3Qt29kiSFwEus8+GtTRU3ho+h9+mD
-         SPVTL3LqFXtKxvY72CUfdJyhyuP44zT+/bl/CsBUmr3RYYx7VevU8stEJFNrQgWybR
-         03RZBLjRv6jiFPmWtoaNSeD+X3CEaMx6nWVBCtSY=
+        b=stMcrQs9xTR+FRzpue4BjWa2auSN7SQz2nxyB4yZ5ug880pVEk5COP2ULS0F7KL6K
+         c4+DxqFonifIxj/AT0/EvCCcbto0dRysFzAiUbOnMC0ZiqIVIF9zijiy05eN0yZ1vf
+         CiWZZJzNOOeOBoqwit+ZFHpYTzxJTtYrz3C27Q8M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Boichat <drinkcat@chromium.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
+Cc:     Alexandre Ghiti <alex@ghiti.fr>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Kees Cook <keescook@chromium.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        James Hogan <jhogan@kernel.org>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will.deacon@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 45/49] kmemleak: increase DEBUG_KMEMLEAK_EARLY_LOG_SIZE default to 16K
-Date:   Sun, 29 Sep 2019 13:30:45 -0400
-Message-Id: <20190929173053.8400-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 46/49] arm64: consider stack randomization for mmap base only when necessary
+Date:   Sun, 29 Sep 2019 13:30:46 -0400
+Message-Id: <20190929173053.8400-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
@@ -56,55 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-[ Upstream commit b751c52bb587ae66f773b15204ef7a147467f4c7 ]
+[ Upstream commit e8d54b62c55ab6201de6d195fc2c276294c1f6ae ]
 
-The current default value (400) is too low on many systems (e.g.  some
-ARM64 platform takes up 1000+ entries).
+Do not offset mmap base address because of stack randomization if current
+task does not want randomization.  Note that x86 already implements this
+behaviour.
 
-syzbot uses 16000 as default value, and has proved to be enough on beefy
-configurations, so let's pick that value.
-
-This consumes more RAM on boot (each entry is 160 bytes, so in total
-~2.5MB of RAM), but the memory would later be freed (early_log is
-__initdata).
-
-Link: http://lkml.kernel.org/r/20190730154027.101525-1-drinkcat@chromium.org
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Link: http://lkml.kernel.org/r/20190730055113.23635-4-alex@ghiti.fr
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/mmap.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 5960e2980a8a0..4d39540011e2e 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -596,7 +596,7 @@ config DEBUG_KMEMLEAK_EARLY_LOG_SIZE
- 	int "Maximum kmemleak early log entries"
- 	depends on DEBUG_KMEMLEAK
- 	range 200 40000
--	default 400
-+	default 16000
- 	help
- 	  Kmemleak must track all the memory allocations to avoid
- 	  reporting false positives. Since memory may be allocated or
+diff --git a/arch/arm64/mm/mmap.c b/arch/arm64/mm/mmap.c
+index b050641b51392..8dac7110f0cb5 100644
+--- a/arch/arm64/mm/mmap.c
++++ b/arch/arm64/mm/mmap.c
+@@ -54,7 +54,11 @@ unsigned long arch_mmap_rnd(void)
+ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
+ {
+ 	unsigned long gap = rlim_stack->rlim_cur;
+-	unsigned long pad = (STACK_RND_MASK << PAGE_SHIFT) + stack_guard_gap;
++	unsigned long pad = stack_guard_gap;
++
++	/* Account for stack randomization if necessary */
++	if (current->flags & PF_RANDOMIZE)
++		pad += (STACK_RND_MASK << PAGE_SHIFT);
+ 
+ 	/* Values close to RLIM_INFINITY can overflow. */
+ 	if (gap + pad > gap)
 -- 
 2.20.1
 
