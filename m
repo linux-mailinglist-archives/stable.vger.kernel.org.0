@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F6CDC1735
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16851C1769
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbfI2Rgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49366 "EHLO mail.kernel.org"
+        id S1729744AbfI2Rh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729874AbfI2Rgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:42 -0400
+        id S1730898AbfI2Rgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:36:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97C1C21925;
-        Sun, 29 Sep 2019 17:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3D3721A4A;
+        Sun, 29 Sep 2019 17:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778601;
-        bh=4eaNuQxLr1w5o0NhWUUmaheT/80b1N1LXIoIfwwicSY=;
+        s=default; t=1569778602;
+        bh=b1pw3I7anKjMaltyEWcE2OML/koA6Q4UK/0WEWlOycg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fV5LFkzisGsHxMu+9GXewrK3qpsYGkdWxA1OJUtYXN9Ko5pvWRJP/DkAhgMgDM/qa
-         fGhVWHEVumpWC+leWHVgKZAEcydFP4dQ/WpT5wwR2aM/vyWy1+R8tNPnuVKnehmAMu
-         N+fDhpgdUD9wNfKdzNjT4MzDNLTSbaaC4CucU2Co=
+        b=clnhs5PJqyYhH6hIRV2Q7qwJAKMZacUsHlunyezk06Ko2jESMRv2FCVoT8A7HLyYF
+         W2u59s19TSOKXYJP1j/YsrrSMT2DtILfvZGg7x2ONiwgh7y0Z35JNaCXVOJ+5BueXJ
+         2iGAdzQyt4KJVr8x8Fy31+KovnACok+7R/QAjAOI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joao Moreno <mail@joaomoreno.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 07/13] HID: apple: Fix stuck function keys when using FN
-Date:   Sun, 29 Sep 2019 13:36:17 -0400
-Message-Id: <20190929173625.10003-7-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/13] security: smack: Fix possible null-pointer dereferences in smack_socket_sock_rcv_skb()
+Date:   Sun, 29 Sep 2019 13:36:18 -0400
+Message-Id: <20190929173625.10003-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173625.10003-1-sashal@kernel.org>
 References: <20190929173625.10003-1-sashal@kernel.org>
@@ -43,109 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Moreno <mail@joaomoreno.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit aec256d0ecd561036f188dbc8fa7924c47a9edfd ]
+[ Upstream commit 3f4287e7d98a2954f20bf96c567fdffcd2b63eb9 ]
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+In smack_socket_sock_rcv_skb(), there is an if statement
+on line 3920 to check whether skb is NULL:
+    if (skb && skb->secmark != 0)
 
-The repeated F5 key down events can be easily verified using xev.
+This check indicates skb can be NULL in some cases.
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
-Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+But on lines 3931 and 3932, skb is used:
+    ad.a.u.net->netif = skb->skb_iif;
+    ipv6_skb_to_auditdata(skb, &ad.a, NULL);
+
+Thus, possible null-pointer dereferences may occur when skb is NULL.
+
+To fix these possible bugs, an if statement is added to check skb.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ security/smack/smack_lsm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 65a0c79f212e1..31c087e1746d6 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -55,7 +55,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
--	DECLARE_BITMAP(pressed_fn, KEY_CNT);
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
- 
-@@ -182,6 +181,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- {
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
-+	bool do_translate;
-+	u16 code = 0;
- 
- 	if (usage->code == KEY_FN) {
- 		asc->fn_on = !!value;
-@@ -190,8 +191,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 	}
- 
- 	if (fnmode) {
--		int do_translate;
--
- 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
- 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
- 			table = macbookair_fn_keys;
-@@ -203,25 +202,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
- 
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
--			else
--				do_translate = asc->fn_on;
--
--			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
--				input_event(input, usage->type, trans->to,
--						value);
--
--				return 1;
-+			if (test_bit(trans->from, input->key))
-+				code = trans->from;
-+			else if (test_bit(trans->to, input->key))
-+				code = trans->to;
-+
-+			if (!code) {
-+				if (trans->flags & APPLE_FLAG_FKEY) {
-+					switch (fnmode) {
-+					case 1:
-+						do_translate = !asc->fn_on;
-+						break;
-+					case 2:
-+						do_translate = asc->fn_on;
-+						break;
-+					default:
-+						/* should never happen */
-+						do_translate = false;
-+					}
-+				} else {
-+					do_translate = asc->fn_on;
-+				}
-+
-+				code = do_translate ? trans->to : trans->from;
- 			}
-+
-+			input_event(input, usage->type, code, value);
-+			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index aeb3ba70f9077..19d1702aa9856 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4037,6 +4037,8 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 			skp = smack_ipv6host_label(&sadd);
+ 		if (skp == NULL)
+ 			skp = smack_net_ambient;
++		if (skb == NULL)
++			break;
+ #ifdef CONFIG_AUDIT
+ 		smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
+ 		ad.a.u.net->family = family;
 -- 
 2.20.1
 
