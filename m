@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F1CC1583
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1F0C1584
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbfI2ODM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
+        id S1729919AbfI2ODP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729223AbfI2ODL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:11 -0400
+        id S1729223AbfI2ODO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:03:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57FB42082F;
-        Sun, 29 Sep 2019 14:03:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3FAE21835;
+        Sun, 29 Sep 2019 14:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765790;
-        bh=c4Emmf62b9QMXx+axLNFOlNMCcRHCTFEmCCh3amIwI4=;
+        s=default; t=1569765793;
+        bh=4RpIUmaAfy9boE6eBfawdS14OQeP2tuTyRAyuCbuMkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0yuST4mamoDwvFbTRgT+pMxEHM5VIFO3D+QwQeirmcVqp5iBXrhTSIgBS92BeV1o
-         Vo5muRQJJaacvdR3sa8YVBKgP2dIiFc9z7Jh7EiPvJ54nGjYB92Bdsj5EjEgCrj91F
-         2Xt8zvRQHf19vei1qpwGSEWSv3M+yxRPW61Ddr7Q=
+        b=oISv7dhA+GHrNBq88NKCfHvIYTh6AwXZNjb2+1ch92xQExbIbpIN6vQqKuVOFdv3J
+         BGhQPQz9n5YyOXmzA2mWT5edllV6N0b641Llev9L6LBwY9rb2fsAj8VjNGHdkV6OGP
+         ffVCYPmcmks7Rrv80pGG7JzAfqBPqeQuxDtunkEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.3 14/25] HID: Add quirk for HP X500 PIXART OEM mouse
-Date:   Sun, 29 Sep 2019 15:56:17 +0200
-Message-Id: <20190929135014.773043738@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
+        linux-mtd@lists.infradead.org, Fabio Bettoni <fbettoni@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Tokunori Ikegami <ikegami.t@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Subject: [PATCH 5.3 15/25] mtd: cfi_cmdset_0002: Use chip_good() to retry in do_write_oneword()
+Date:   Sun, 29 Sep 2019 15:56:18 +0200
+Message-Id: <20190929135015.235296003@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
 References: <20190929135006.127269625@linuxfoundation.org>
@@ -43,46 +49,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Tokunori Ikegami <ikegami.t@gmail.com>
 
-commit 2acf40f0454d41b8d51c95d317283c20c931164d upstream.
+commit 37c673ade35c707d50583b5b25091ff8ebdeafd7 upstream.
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this one as well.
+As reported by the OpenWRT team, write requests sometimes fail on some
+platforms.
+Currently to check the state chip_ready() is used correctly as described by
+the flash memory S29GL256P11TFI01 datasheet.
+Also chip_good() is used to check if the write is succeeded and it was
+implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
+checking").
+But actually the write failure is caused on some platforms and also it can
+be fixed by using chip_good() to check the state and retry instead.
+Also it seems that it is caused after repeated about 1,000 times to retry
+the write one word with the reset command.
+By using chip_good() to check the state to be done it can be reduced the
+retry with reset.
+It is depended on the actual flash chip behavior so the root cause is
+unknown.
 
-Ville Viinikka (viinikv) reported and tested the quirk.
-Link: https://github.com/sriemer/fix-linux-mouse issue 15
-
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org # v4.16+
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: stable@vger.kernel.org
+Reported-by: Fabio Bettoni <fbettoni@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+[vigneshr@ti.com: Fix a checkpatch warning]
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/mtd/chips/cfi_cmdset_0002.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -568,6 +568,7 @@
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -1717,31 +1717,37 @@ static int __xipram do_write_oneword(str
+ 			continue;
+ 		}
  
- #define USB_VENDOR_ID_HUION		0x256c
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -92,6 +92,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
++		/*
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
++		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_ready(map, chip, adr)) {
++		    !chip_good(map, chip, adr, datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
++			ret = -EIO;
+ 			break;
+ 		}
+ 
+-		if (chip_ready(map, chip, adr))
++		if (chip_good(map, chip, adr, datum))
+ 			break;
+ 
+ 		/* Latency issues. Drop the lock, wait a while and retry */
+ 		UDELAY(map, chip, adr, 1);
+ 	}
++
+ 	/* Did we succeed? */
+-	if (!chip_good(map, chip, adr, datum)) {
++	if (ret) {
+ 		/* reset on all failures. */
+ 		cfi_check_err_status(map, chip, adr);
+ 		map_write(map, CMD(0xF0), chip->start);
+ 		/* FIXME - should have reset delay before continuing */
+ 
+-		if (++retry_cnt <= MAX_RETRIES)
++		if (++retry_cnt <= MAX_RETRIES) {
++			ret = 0;
+ 			goto retry;
+-
+-		ret = -EIO;
++		}
+ 	}
+ 	xip_enable(map, chip, adr);
+  op_done:
 
 
