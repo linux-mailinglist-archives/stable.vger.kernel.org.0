@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F4AC16FD
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA7FC16FF
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730406AbfI2Rei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:34:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
+        id S1730410AbfI2Rek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730403AbfI2Reh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:34:37 -0400
+        id S1729236AbfI2Rek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61C4221928;
-        Sun, 29 Sep 2019 17:34:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C19EE21D7A;
+        Sun, 29 Sep 2019 17:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778477;
-        bh=E69jPBhERz8zrUisDraYKLSEfmvI3riaLDoldYjcMW4=;
+        s=default; t=1569778479;
+        bh=28EPEBeuVuP6Khqm6zlfvXCAwy4C7eBB7QJBK6lTiqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRbw39HCNLXllpG7UsQaOE3jEvFPx4qibskLstarVNVZQqiLIZCUNMq3oiOIjau8p
-         sXTXj5FuWVCDn3Vpg7MNZUiLdBEE2wXRIaA+u9CCfV4m2m8woo8uXB/4Uv0I+BhJ3o
-         g7/P2Y8eoVz+u40eqVFqwSP3uLwrsNg4KllyGW9Y=
+        b=SFg7/nZQU19uettwodGd+pBvIjhjy0wvcoZaOQJBt9RSXMG8Wvtb2xq2WoibZhgs4
+         sIZwyX4qTEG2fq+Bu9HV/vubJWQFliCxNDTqN26/1Hr5c9SZtEy+2W+zRmprvevHlw
+         miRaTz4CYDaK0XtKRRG+YBiNLae9Xsajy5OcdvpU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nishka Dasgupta <nishkadg.linux@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/33] PCI: tegra: Fix OF node reference leak
-Date:   Sun, 29 Sep 2019 13:33:54 -0400
-Message-Id: <20190929173424.9361-6-sashal@kernel.org>
+Cc:     Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, live-patching@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 08/33] livepatch: Nullify obj->mod in klp_module_coming()'s error path
+Date:   Sun, 29 Sep 2019 13:33:56 -0400
+Message-Id: <20190929173424.9361-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 References: <20190929173424.9361-1-sashal@kernel.org>
@@ -44,99 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishka Dasgupta <nishkadg.linux@gmail.com>
+From: Miroslav Benes <mbenes@suse.cz>
 
-[ Upstream commit 9e38e690ace3e7a22a81fc02652fc101efb340cf ]
+[ Upstream commit 4ff96fb52c6964ad42e0a878be8f86a2e8052ddd ]
 
-Each iteration of for_each_child_of_node() executes of_node_put() on the
-previous node, but in some return paths in the middle of the loop
-of_node_put() is missing thus causing a reference leak.
+klp_module_coming() is called for every module appearing in the system.
+It sets obj->mod to a patched module for klp_object obj. Unfortunately
+it leaves it set even if an error happens later in the function and the
+patched module is not allowed to be loaded.
 
-Hence stash these mid-loop return values in a variable 'err' and add a
-new label err_node_put which executes of_node_put() on the previous node
-and returns 'err' on failure.
+klp_is_object_loaded() uses obj->mod variable and could currently give a
+wrong return value. The bug is probably harmless as of now.
 
-Change mid-loop return statements to point to jump to this label to
-fix the reference leak.
-
-Issue found with Coccinelle.
-
-Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
-[lorenzo.pieralisi@arm.com: rewrote commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Miroslav Benes <mbenes@suse.cz>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-tegra.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ kernel/livepatch/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
-index f4f53d092e005..976eaa9a9f266 100644
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -1975,14 +1975,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		err = of_pci_get_devfn(port);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse address: %d\n", err);
--			return err;
-+			goto err_node_put;
- 		}
+diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
+index 722c27c40e5b3..a1250ad591c1d 100644
+--- a/kernel/livepatch/core.c
++++ b/kernel/livepatch/core.c
+@@ -1027,6 +1027,7 @@ int klp_module_coming(struct module *mod)
+ 	pr_warn("patch '%s' failed for module '%s', refusing to load module '%s'\n",
+ 		patch->mod->name, obj->mod->name, obj->mod->name);
+ 	mod->klp_alive = false;
++	obj->mod = NULL;
+ 	klp_cleanup_module_patches_limited(mod, patch);
+ 	mutex_unlock(&klp_mutex);
  
- 		index = PCI_SLOT(err);
- 
- 		if (index < 1 || index > soc->num_ports) {
- 			dev_err(dev, "invalid port number: %d\n", index);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto err_node_put;
- 		}
- 
- 		index--;
-@@ -1991,12 +1992,13 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse # of lanes: %d\n",
- 				err);
--			return err;
-+			goto err_node_put;
- 		}
- 
- 		if (value > 16) {
- 			dev_err(dev, "invalid # of lanes: %u\n", value);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto err_node_put;
- 		}
- 
- 		lanes |= value << (index << 3);
-@@ -2010,13 +2012,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		lane += value;
- 
- 		rp = devm_kzalloc(dev, sizeof(*rp), GFP_KERNEL);
--		if (!rp)
--			return -ENOMEM;
-+		if (!rp) {
-+			err = -ENOMEM;
-+			goto err_node_put;
-+		}
- 
- 		err = of_address_to_resource(port, 0, &rp->regs);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse address: %d\n", err);
--			return err;
-+			goto err_node_put;
- 		}
- 
- 		INIT_LIST_HEAD(&rp->list);
-@@ -2043,6 +2047,10 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		return err;
- 
- 	return 0;
-+
-+err_node_put:
-+	of_node_put(port);
-+	return err;
- }
- 
- /*
 -- 
 2.20.1
 
