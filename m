@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3515C17B4
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A83BAC17B6
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730491AbfI2RfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:35:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47090 "EHLO mail.kernel.org"
+        id S1730501AbfI2RfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730485AbfI2Re7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:34:59 -0400
+        id S1730496AbfI2RfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:35:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB99021A4C;
-        Sun, 29 Sep 2019 17:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A329521925;
+        Sun, 29 Sep 2019 17:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778499;
-        bh=JXsJn0E61UtLuEWduYdvBlin/nEHZ4PJC+mbabp26Us=;
+        s=default; t=1569778500;
+        bh=fmz5hC3yBNgy6dgTbMASSrGRRvVOVbS1qhdGVdbjLH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2XMsOMJlYdc0NeRmUvu6NrZxKDTzc4um84kEx0Dv9GegCRLYoS2eSA+IL4i0BWuh
-         TyA837ORbJ1SdRvcTv7z80aIscgQs1+n41lcmVp51NfFIRQ3IvbrgohRnf9xzWLJ4l
-         nHkDyPyxYACgv1TKEn94ZzrhAHud21nE18dEyPOs=
+        b=cguj60YXczBAjkufClr0PoKDqcDOMHOJUsfiu9kj70ZIe/84d5tZIJgyQvZPoyoLu
+         he9lmtrspChI89oYpb9tKzAifWArSetKExqTHkNNQKE/sGCqPzHtPolmPFY24gamLV
+         z2ArLQkp6XpvOMP1kNj/ykPpMxVs99l08DqXKme0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thierry Reding <treding@nvidia.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Andrew Murray <andrew.murray@arm.com>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>, kernel@pengutronix.de,
-        linux-imx@nxp.com, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/33] PCI: imx6: Propagate errors for optional regulators
-Date:   Sun, 29 Sep 2019 13:34:07 -0400
-Message-Id: <20190929173424.9361-19-sashal@kernel.org>
+        Jingoo Han <jingoohan1@gmail.com>,
+        Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 20/33] PCI: exynos: Propagate errors for optional PHYs
+Date:   Sun, 29 Sep 2019 13:34:08 -0400
+Message-Id: <20190929173424.9361-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 References: <20190929173424.9361-1-sashal@kernel.org>
@@ -52,50 +49,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 2170a09fb4b0f66e06e5bcdcbc98c9ccbf353650 ]
+[ Upstream commit ddd6960087d4b45759434146d681a94bbb1c54ad ]
 
-regulator_get_optional() can fail for a number of reasons besides probe
+devm_of_phy_get() can fail for a number of reasons besides probe
 deferral. It can for example return -ENOMEM if it runs out of memory as
-it tries to allocate data structures. Propagating only -EPROBE_DEFER is
-problematic because it results in these legitimately fatal errors being
-treated as "regulator not specified in DT".
+it tries to allocate devres structures. Propagating only -EPROBE_DEFER
+is problematic because it results in these legitimately fatal errors
+being treated as "PHY not specified in DT".
 
-What we really want is to ignore the optional regulators only if they
-have not been specified in DT. regulator_get_optional() returns -ENODEV
-in this case, so that's the special case that we need to handle. So we
-propagate all errors, except -ENODEV, so that real failures will still
-cause the driver to fail probe.
+What we really want is to ignore the optional PHYs only if they have not
+been specified in DT. devm_of_phy_get() returns -ENODEV in this case, so
+that's the special case that we need to handle. So we propagate all
+errors, except -ENODEV, so that real failures will still cause the
+driver to fail probe.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Cc: Richard Zhu <hongxing.zhu@nxp.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: kernel@pengutronix.de
-Cc: linux-imx@nxp.com
+Cc: Jingoo Han <jingoohan1@gmail.com>
+Cc: Kukjin Kim <kgene@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-imx6.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pci-exynos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
-index 3826b444298c1..3b2ceb5667289 100644
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -807,8 +807,8 @@ static int imx6_pcie_probe(struct platform_device *pdev)
+diff --git a/drivers/pci/controller/dwc/pci-exynos.c b/drivers/pci/controller/dwc/pci-exynos.c
+index cee5f2f590e2d..14a6ba4067fbe 100644
+--- a/drivers/pci/controller/dwc/pci-exynos.c
++++ b/drivers/pci/controller/dwc/pci-exynos.c
+@@ -465,7 +465,7 @@ static int __init exynos_pcie_probe(struct platform_device *pdev)
  
- 	imx6_pcie->vpcie = devm_regulator_get_optional(&pdev->dev, "vpcie");
- 	if (IS_ERR(imx6_pcie->vpcie)) {
--		if (PTR_ERR(imx6_pcie->vpcie) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(imx6_pcie->vpcie) != -ENODEV)
-+			return PTR_ERR(imx6_pcie->vpcie);
- 		imx6_pcie->vpcie = NULL;
- 	}
+ 	ep->phy = devm_of_phy_get(dev, np, NULL);
+ 	if (IS_ERR(ep->phy)) {
+-		if (PTR_ERR(ep->phy) == -EPROBE_DEFER)
++		if (PTR_ERR(ep->phy) != -ENODEV)
+ 			return PTR_ERR(ep->phy);
  
+ 		ep->phy = NULL;
 -- 
 2.20.1
 
