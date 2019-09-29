@@ -2,35 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F28C16E5
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD0AC16F7
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730199AbfI2Rdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
+        id S1730294AbfI2ReH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730176AbfI2Rdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:52 -0400
+        id S1730286AbfI2ReF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B43521906;
-        Sun, 29 Sep 2019 17:33:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79AEA21928;
+        Sun, 29 Sep 2019 17:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778431;
-        bh=mqSyEFPTAyzBwMRSRdz3y61W0tMmYA/5+LdqDpAIF+M=;
+        s=default; t=1569778445;
+        bh=BU1jzN53PqmlJ8ONEqVVq43OmhXY/UNCrwZY04OTspg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeI3xufgURW6vE++d1hf09GV/Xdnd6NPCe0MZYAoHkpTkKuNBW7gfpPFFk6mQGg5T
-         bOSU5RvUUU2s6LSLELScEIlUddVQfhVzqfSIWJXTATIAm6N5fQzU0AN3/BTrShykaa
-         COuU7qEpP3JM0nsUsDRcHsGmLDZchoNv5x2Tvg60=
+        b=UDbKSYRh8dDLjeT2bEduwJFOnuyzLl4BFUskq03IaMKxTZPb7Iu/UFLUdrS5YW0AU
+         9yL7bNZdjBvvAWVcwDMIiAWPp4gKwwdT66N2uwenpQe1QvwpPnB9b0OgmA92VydS1h
+         4fQOdz/SlULwxCqAhMN/0M4sl5V9K/76/GArzojo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Anatoly Pugachev <matorola@gmail.com>,
+Cc:     Nicolas Boichat <drinkcat@chromium.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Kees Cook <keescook@chromium.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 33/42] pktcdvd: remove warning on attempting to register non-passthrough dev
-Date:   Sun, 29 Sep 2019 13:32:32 -0400
-Message-Id: <20190929173244.8918-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 38/42] kmemleak: increase DEBUG_KMEMLEAK_EARLY_LOG_SIZE default to 16K
+Date:   Sun, 29 Sep 2019 13:32:37 -0400
+Message-Id: <20190929173244.8918-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
 References: <20190929173244.8918-1-sashal@kernel.org>
@@ -43,85 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Nicolas Boichat <drinkcat@chromium.org>
 
-[ Upstream commit eb09b3cc464d2c3bbde9a6648603c8d599ea8582 ]
+[ Upstream commit b751c52bb587ae66f773b15204ef7a147467f4c7 ]
 
-Anatoly reports that he gets the below warning when booting -git on
-a sparc64 box on debian unstable:
+The current default value (400) is too low on many systems (e.g.  some
+ARM64 platform takes up 1000+ entries).
 
-...
-[   13.352975] aes_sparc64: Using sparc64 aes opcodes optimized AES
-implementation
-[   13.428002] ------------[ cut here ]------------
-[   13.428081] WARNING: CPU: 21 PID: 586 at
-drivers/block/pktcdvd.c:2597 pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
-[   13.428147] Attempt to register a non-SCSI queue
-[   13.428184] Modules linked in: pktcdvd libdes cdrom aes_sparc64
-n2_rng md5_sparc64 sha512_sparc64 rng_core sha256_sparc64 flash
-sha1_sparc64 ip_tables x_tables ipv6 crc_ccitt nf_defrag_ipv6 autofs4
-ext4 crc16 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy
-async_pq async_xor xor async_tx raid6_pq raid1 raid0 multipath linear
-md_mod crc32c_sparc64
-[   13.428452] CPU: 21 PID: 586 Comm: pktsetup Not tainted
-5.3.0-10169-g574cc4539762 #1234
-[   13.428507] Call Trace:
-[   13.428542]  [00000000004635c0] __warn+0xc0/0x100
-[   13.428582]  [0000000000463634] warn_slowpath_fmt+0x34/0x60
-[   13.428626]  [000000001045b244] pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
-[   13.428674]  [000000001045ccf4] pkt_ctl_ioctl+0x94/0x220 [pktcdvd]
-[   13.428724]  [00000000006b95c8] do_vfs_ioctl+0x628/0x6e0
-[   13.428764]  [00000000006b96c8] ksys_ioctl+0x48/0x80
-[   13.428803]  [00000000006b9714] sys_ioctl+0x14/0x40
-[   13.428847]  [0000000000406294] linux_sparc_syscall+0x34/0x44
-[   13.428890] irq event stamp: 4181
-[   13.428924] hardirqs last  enabled at (4189): [<00000000004e0a74>]
-console_unlock+0x634/0x6c0
-[   13.428984] hardirqs last disabled at (4196): [<00000000004e0540>]
-console_unlock+0x100/0x6c0
-[   13.429048] softirqs last  enabled at (3978): [<0000000000b2e2d8>]
-__do_softirq+0x498/0x520
-[   13.429110] softirqs last disabled at (3967): [<000000000042cfb4>]
-do_softirq_own_stack+0x34/0x60
-[   13.429172] ---[ end trace 2220ca468f32967d ]---
-[   13.430018] pktcdvd: setup of pktcdvd device failed
-[   13.455589] des_sparc64: Using sparc64 des opcodes optimized DES
-implementation
-[   13.515334] camellia_sparc64: Using sparc64 camellia opcodes
-optimized CAMELLIA implementation
-[   13.522856] pktcdvd: setup of pktcdvd device failed
-[   13.529327] pktcdvd: setup of pktcdvd device failed
-[   13.532932] pktcdvd: setup of pktcdvd device failed
-[   13.536165] pktcdvd: setup of pktcdvd device failed
-[   13.539372] pktcdvd: setup of pktcdvd device failed
-[   13.542834] pktcdvd: setup of pktcdvd device failed
-[   13.546536] pktcdvd: setup of pktcdvd device failed
-[   15.431071] XFS (dm-0): Mounting V5 Filesystem
-...
+syzbot uses 16000 as default value, and has proved to be enough on beefy
+configurations, so let's pick that value.
 
-Apparently debian auto-attaches any cdrom like device to pktcdvd, which
-can lead to the above warning. There's really no reason to warn for this
-situation, kill it.
+This consumes more RAM on boot (each entry is 160 bytes, so in total
+~2.5MB of RAM), but the memory would later be freed (early_log is
+__initdata).
 
-Reported-by: Anatoly Pugachev <matorola@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: http://lkml.kernel.org/r/20190730154027.101525-1-drinkcat@chromium.org
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/pktcdvd.c | 1 -
- 1 file changed, 1 deletion(-)
+ lib/Kconfig.debug | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index 024060165afa7..76457003f1406 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -2594,7 +2594,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
- 	if (ret)
- 		return ret;
- 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
--		WARN_ONCE(true, "Attempt to register a non-SCSI queue\n");
- 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
- 		return -EINVAL;
- 	}
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index cbdfae3798965..120ec6f64bbc3 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -599,7 +599,7 @@ config DEBUG_KMEMLEAK_EARLY_LOG_SIZE
+ 	int "Maximum kmemleak early log entries"
+ 	depends on DEBUG_KMEMLEAK
+ 	range 200 40000
+-	default 400
++	default 16000
+ 	help
+ 	  Kmemleak must track all the memory allocations to avoid
+ 	  reporting false positives. Since memory may be allocated or
 -- 
 2.20.1
 
