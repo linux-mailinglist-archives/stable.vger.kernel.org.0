@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D60C1749
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57406C1748
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730425AbfI2RhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:37:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
+        id S1729332AbfI2RhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730331AbfI2RhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:37:13 -0400
+        id S1730985AbfI2RhQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:37:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A90621928;
-        Sun, 29 Sep 2019 17:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0CF521D71;
+        Sun, 29 Sep 2019 17:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778632;
-        bh=KdLxUH6qvYbB69ICw68FT3oicUMQtxaIPY61uZ7EUg8=;
+        s=default; t=1569778635;
+        bh=WJKHsHBGnPsbTeLW4pe0ZnE9hwyn18ncCskMJuf8L3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCPutvXgo80MGLYP4mYYdNnVMgS/4qqLr3kOIGiM3NFRtYe+IhEU1oXdeFCpTonxJ
-         mDl56rJhGbViFviyWy3PWlshglwU54WbXCUpUDHDhH/AMc6yUaZYdjqb2lj3kKPqMZ
-         g2xXPKGsKz7zgOrtI6jA8ukd8rpaNFBX1w0Wm3G8=
+        b=BxvORwErbdZyPLt/+uIWOP925RbOdiQYGw04sbc2/KDDMvjttFMqsrPSeah7Vukew
+         riMHYl42qx45r7Xn4TIUBSFvMPi1b0XJ9KPQk47GogaE3/MHo7MS5pgZ9vTK8y2UfX
+         l6qDT3ssPAN7vkdbXf5aAnM98HwgUttcGjYV4UXk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Changwei Ge <gechangwei@live.cn>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
+Cc:     Nicolas Boichat <drinkcat@chromium.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Kees Cook <keescook@chromium.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 8/9] ocfs2: wait for recovering done after direct unlock request
-Date:   Sun, 29 Sep 2019 13:36:53 -0400
-Message-Id: <20190929173655.10178-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 9/9] kmemleak: increase DEBUG_KMEMLEAK_EARLY_LOG_SIZE default to 16K
+Date:   Sun, 29 Sep 2019 13:36:54 -0400
+Message-Id: <20190929173655.10178-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173655.10178-1-sashal@kernel.org>
 References: <20190929173655.10178-1-sashal@kernel.org>
@@ -48,92 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changwei Ge <gechangwei@live.cn>
+From: Nicolas Boichat <drinkcat@chromium.org>
 
-[ Upstream commit 0a3775e4f883912944481cf2ef36eb6383a9cc74 ]
+[ Upstream commit b751c52bb587ae66f773b15204ef7a147467f4c7 ]
 
-There is a scenario causing ocfs2 umount hang when multiple hosts are
-rebooting at the same time.
+The current default value (400) is too low on many systems (e.g.  some
+ARM64 platform takes up 1000+ entries).
 
-NODE1                           NODE2               NODE3
-send unlock requset to NODE2
-                                dies
-                                                    become recovery master
-                                                    recover NODE2
-find NODE2 dead
-mark resource RECOVERING
-directly remove lock from grant list
-calculate usage but RECOVERING marked
-**miss the window of purging
-clear RECOVERING
+syzbot uses 16000 as default value, and has proved to be enough on beefy
+configurations, so let's pick that value.
 
-To reproduce this issue, crash a host and then umount ocfs2
-from another node.
+This consumes more RAM on boot (each entry is 160 bytes, so in total
+~2.5MB of RAM), but the memory would later be freed (early_log is
+__initdata).
 
-To solve this, just let unlock progress wait for recovery done.
-
-Link: http://lkml.kernel.org/r/1550124866-20367-1-git-send-email-gechangwei@live.cn
-Signed-off-by: Changwei Ge <gechangwei@live.cn>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
+Link: http://lkml.kernel.org/r/20190730154027.101525-1-drinkcat@chromium.org
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlm/dlmunlock.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ lib/Kconfig.debug | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/dlm/dlmunlock.c b/fs/ocfs2/dlm/dlmunlock.c
-index 2e3c9dbab68c9..d137d4692b918 100644
---- a/fs/ocfs2/dlm/dlmunlock.c
-+++ b/fs/ocfs2/dlm/dlmunlock.c
-@@ -105,7 +105,8 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
- 	enum dlm_status status;
- 	int actions = 0;
- 	int in_use;
--        u8 owner;
-+	u8 owner;
-+	int recovery_wait = 0;
- 
- 	mlog(0, "master_node = %d, valblk = %d\n", master_node,
- 	     flags & LKM_VALBLK);
-@@ -208,9 +209,12 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
- 		}
- 		if (flags & LKM_CANCEL)
- 			lock->cancel_pending = 0;
--		else
--			lock->unlock_pending = 0;
--
-+		else {
-+			if (!lock->unlock_pending)
-+				recovery_wait = 1;
-+			else
-+				lock->unlock_pending = 0;
-+		}
- 	}
- 
- 	/* get an extra ref on lock.  if we are just switching
-@@ -244,6 +248,17 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
- 	spin_unlock(&res->spinlock);
- 	wake_up(&res->wq);
- 
-+	if (recovery_wait) {
-+		spin_lock(&res->spinlock);
-+		/* Unlock request will directly succeed after owner dies,
-+		 * and the lock is already removed from grant list. We have to
-+		 * wait for RECOVERING done or we miss the chance to purge it
-+		 * since the removement is much faster than RECOVERING proc.
-+		 */
-+		__dlm_wait_on_lockres_flags(res, DLM_LOCK_RES_RECOVERING);
-+		spin_unlock(&res->spinlock);
-+	}
-+
- 	/* let the caller's final dlm_lock_put handle the actual kfree */
- 	if (actions & DLM_UNLOCK_FREE_LOCK) {
- 		/* this should always be coupled with list removal */
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index fd1205a3dbdbc..7b9d7328f189e 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -521,7 +521,7 @@ config DEBUG_KMEMLEAK_EARLY_LOG_SIZE
+ 	int "Maximum kmemleak early log entries"
+ 	depends on DEBUG_KMEMLEAK
+ 	range 200 40000
+-	default 400
++	default 16000
+ 	help
+ 	  Kmemleak must track all the memory allocations to avoid
+ 	  reporting false positives. Since memory may be allocated or
 -- 
 2.20.1
 
