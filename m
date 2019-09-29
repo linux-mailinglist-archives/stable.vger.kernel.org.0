@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16AB8C14EF
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C502C15AE
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729687AbfI2N7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:59:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
+        id S1729017AbfI2OFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbfI2N7R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:59:17 -0400
+        id S1729649AbfI2N7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:59:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D04FC21882;
-        Sun, 29 Sep 2019 13:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F60921835;
+        Sun, 29 Sep 2019 13:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765556;
-        bh=7I/7TJjRXumpUmGCVVswASnOwdjkMxIlJxWCtUuC1XE=;
+        s=default; t=1569765560;
+        bh=YcWYCDKC6Ee+vr7KG353/saGlnzVkqNyB8m/RuJQEIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4nkGdLJhEpqV0Jzqc/GfwKyexri7ahTXIqghQQTEe0n7HRzQdxyNlkqxYSpv+mOc
-         jkUdEG07vxG+HXFPNBalfCZT4dGWIw/+Wm2YOOc9mHJMRyThvVSC9OE4wonyYsIMhZ
-         RdNXxIPsDiwhmSPKzvj2jcZTDuAculTmOph26yHY=
+        b=lP3lMCOkQ7KJkwBTSJvkIQoNAKNJoj7Ef9jLt055aa4zij6HkAF+FYzsyIvadCeZh
+         uNf5ANFH7arjoplRHMRtyct9MaWjovCv+2FoYBAzdToo2cwy6HelRU2vm/tQGDvgMj
+         f+Lz5s4Yq4e/gWb4dat6FD2MCh5ooTQienR7dXPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <quinn.tran@cavium.com>,
+        stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@cavium.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/63] scsi: qla2xxx: Remove all rports if fabric scan retry fails
-Date:   Sun, 29 Sep 2019 15:54:12 +0200
-Message-Id: <20190929135038.875619341@linuxfoundation.org>
+Subject: [PATCH 4.19 40/63] scsi: qla2xxx: Return switch command on a timeout
+Date:   Sun, 29 Sep 2019 15:54:13 +0200
+Message-Id: <20190929135038.992548017@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -45,210 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <quinn.tran@cavium.com>
+From: Himanshu Madhani <himanshu.madhani@cavium.com>
 
-[ Upstream commit 9ba1cb25c151de306d64647e545d34af64f30c19 ]
+[ Upstream commit ef801f07e7b3cc1786d8ab1b4fdf069cc2a136d2 ]
 
-When all fabric scan retries fail, remove all RPorts, DMA resources for the
-command. Otherwise we have stale Rports.
+This patch fixes commit bcc71cc3cde1 ("scsi: qla2xxx: Fix for double
+free of SRB structure") which placed code in wrong routines.
 
-Signed-off-by: Quinn Tran <quinn.tran@cavium.com>
+Also updated the use of WARN_ON() to WARN_ON_ONCE() to prevent
+flooding log messages.
+
+Fixes: bcc71cc3cde1 ("scsi: qla2xxx: Fix for double free of SRB structure")
 Signed-off-by: Himanshu Madhani <himanshu.madhani@cavium.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 128 +++++++++++++++++-----------------
- 1 file changed, 64 insertions(+), 64 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 98d936f18b65e..34ff4bbc8de10 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -4045,6 +4045,41 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 	}
- }
- 
-+static int qla2x00_post_gnnft_gpnft_done_work(struct scsi_qla_host *vha,
-+    srb_t *sp, int cmd)
-+{
-+	struct qla_work_evt *e;
-+
-+	if (cmd != QLA_EVT_GPNFT_DONE && cmd != QLA_EVT_GNNFT_DONE)
-+		return QLA_PARAMETER_ERROR;
-+
-+	e = qla2x00_alloc_work(vha, cmd);
-+	if (!e)
-+		return QLA_FUNCTION_FAILED;
-+
-+	e->u.iosb.sp = sp;
-+
-+	return qla2x00_post_work(vha, e);
-+}
-+
-+static int qla2x00_post_nvme_gpnft_done_work(struct scsi_qla_host *vha,
-+    srb_t *sp, int cmd)
-+{
-+	struct qla_work_evt *e;
-+
-+	if (cmd != QLA_EVT_GPNFT)
-+		return QLA_PARAMETER_ERROR;
-+
-+	e = qla2x00_alloc_work(vha, cmd);
-+	if (!e)
-+		return QLA_FUNCTION_FAILED;
-+
-+	e->u.gpnft.fc4_type = FC4_TYPE_NVME;
-+	e->u.gpnft.sp = sp;
-+
-+	return qla2x00_post_work(vha, e);
-+}
-+
- static void qla2x00_find_free_fcp_nvme_slot(struct scsi_qla_host *vha,
- 	struct srb *sp)
- {
-@@ -4145,22 +4180,36 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
- {
- 	struct srb *sp = s;
- 	struct scsi_qla_host *vha = sp->vha;
--	struct qla_work_evt *e;
- 	struct ct_sns_req *ct_req =
- 		(struct ct_sns_req *)sp->u.iocb_cmd.u.ctarg.req;
- 	u16 cmd = be16_to_cpu(ct_req->command);
- 	u8 fc4_type = sp->gen2;
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 39a8f4a671aaa..7c1f36b69bdc3 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -54,7 +54,7 @@ qla2x00_sp_timeout(struct timer_list *t)
  	unsigned long flags;
-+	int rc;
+ 	struct qla_hw_data *ha = sp->vha->hw;
  
- 	/* gen2 field is holding the fc4type */
- 	ql_dbg(ql_dbg_disc, vha, 0xffff,
- 	    "Async done-%s res %x FC4Type %x\n",
- 	    sp->name, res, sp->gen2);
+-	WARN_ON(irqs_disabled());
++	WARN_ON_ONCE(irqs_disabled());
+ 	spin_lock_irqsave(&ha->hardware_lock, flags);
+ 	req = sp->qpair->req;
+ 	req->outstanding_cmds[sp->handle] = NULL;
+@@ -796,6 +796,9 @@ qla24xx_async_gnl_sp_done(void *s, int res)
+ 	    sp->name, res, sp->u.iocb_cmd.u.mbx.in_mb[1],
+ 	    sp->u.iocb_cmd.u.mbx.in_mb[2]);
  
-+	sp->rc = res;
- 	if (res) {
- 		unsigned long flags;
-+		const char *name = sp->name;
++	if (res == QLA_FUNCTION_TIMEOUT)
++		return;
 +
-+		/*
-+		 * We are in an Interrupt context, queue up this
-+		 * sp for GNNFT_DONE work. This will allow all
-+		 * the resource to get freed up.
-+		 */
-+		rc = qla2x00_post_gnnft_gpnft_done_work(vha, sp,
-+		    QLA_EVT_GNNFT_DONE);
-+		if (rc) {
-+			/* Cleanup here to prevent memory leak */
-+			qla24xx_sp_unmap(vha, sp);
-+			sp->free(sp);
-+		}
+ 	memset(&ea, 0, sizeof(ea));
+ 	ea.sp = sp;
+ 	ea.rc = res;
+@@ -979,17 +982,13 @@ void qla24xx_async_gpdb_sp_done(void *s, int res)
+ 	    "Async done-%s res %x, WWPN %8phC mb[1]=%x mb[2]=%x \n",
+ 	    sp->name, res, fcport->port_name, mb[1], mb[2]);
  
--		sp->free(sp);
- 		spin_lock_irqsave(&vha->work_lock, flags);
- 		vha->scan.scan_flags &= ~SF_SCANNING;
- 		vha->scan.scan_retry++;
-@@ -4171,9 +4220,9 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
- 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
- 			qla2xxx_wake_dpc(vha);
- 		} else {
--			ql_dbg(ql_dbg_disc, sp->vha, 0xffff,
--			    "Async done-%s rescan failed on all retries\n",
--			    sp->name);
-+			ql_dbg(ql_dbg_disc, vha, 0xffff,
-+			    "Async done-%s rescan failed on all retries.\n",
-+			    name);
- 		}
- 		return;
- 	}
-@@ -4188,80 +4237,31 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
- 		vha->scan.scan_flags &= ~SF_SCANNING;
- 		spin_unlock_irqrestore(&vha->work_lock, flags);
- 
--		e = qla2x00_alloc_work(vha, QLA_EVT_GPNFT);
--		if (!e) {
--			/*
--			 * please ignore kernel warning. Otherwise,
--			 * we have mem leak.
--			 */
--			if (sp->u.iocb_cmd.u.ctarg.req) {
--				dma_free_coherent(&vha->hw->pdev->dev,
--				    sp->u.iocb_cmd.u.ctarg.req_allocated_size,
--				    sp->u.iocb_cmd.u.ctarg.req,
--				    sp->u.iocb_cmd.u.ctarg.req_dma);
--				sp->u.iocb_cmd.u.ctarg.req = NULL;
--			}
--			if (sp->u.iocb_cmd.u.ctarg.rsp) {
--				dma_free_coherent(&vha->hw->pdev->dev,
--				    sp->u.iocb_cmd.u.ctarg.rsp_allocated_size,
--				    sp->u.iocb_cmd.u.ctarg.rsp,
--				    sp->u.iocb_cmd.u.ctarg.rsp_dma);
--				sp->u.iocb_cmd.u.ctarg.rsp = NULL;
--			}
+-	fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
 -
--			ql_dbg(ql_dbg_disc, vha, 0xffff,
--			    "Async done-%s unable to alloc work element\n",
--			    sp->name);
--			sp->free(sp);
-+		sp->rc = res;
-+		rc = qla2x00_post_nvme_gpnft_done_work(vha, sp, QLA_EVT_GPNFT);
-+		if (!rc) {
-+			qla24xx_sp_unmap(vha, sp);
- 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
- 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
- 			return;
- 		}
--		e->u.gpnft.fc4_type = FC4_TYPE_NVME;
--		sp->rc = res;
--		e->u.gpnft.sp = sp;
--
--		qla2x00_post_work(vha, e);
+-	if (res == QLA_FUNCTION_TIMEOUT)
 -		return;
- 	}
- 
- 	if (cmd == GPN_FT_CMD) {
- 		del_timer(&sp->u.iocb_cmd.timer);
--		e = qla2x00_alloc_work(vha, QLA_EVT_GPNFT_DONE);
-+		rc = qla2x00_post_gnnft_gpnft_done_work(vha, sp,
-+		    QLA_EVT_GPNFT_DONE);
- 	} else {
--		e = qla2x00_alloc_work(vha, QLA_EVT_GNNFT_DONE);
-+		rc = qla2x00_post_gnnft_gpnft_done_work(vha, sp,
-+		    QLA_EVT_GNNFT_DONE);
- 	}
- 
--	if (!e) {
--		/* please ignore kernel warning. Otherwise, we have mem leak. */
--		if (sp->u.iocb_cmd.u.ctarg.req) {
--			dma_free_coherent(&vha->hw->pdev->dev,
--			    sp->u.iocb_cmd.u.ctarg.req_allocated_size,
--			    sp->u.iocb_cmd.u.ctarg.req,
--			    sp->u.iocb_cmd.u.ctarg.req_dma);
--			sp->u.iocb_cmd.u.ctarg.req = NULL;
--		}
--		if (sp->u.iocb_cmd.u.ctarg.rsp) {
--			dma_free_coherent(&vha->hw->pdev->dev,
--			    sp->u.iocb_cmd.u.ctarg.rsp_allocated_size,
--			    sp->u.iocb_cmd.u.ctarg.rsp,
--			    sp->u.iocb_cmd.u.ctarg.rsp_dma);
--			sp->u.iocb_cmd.u.ctarg.rsp = NULL;
--		}
 -
--		ql_dbg(ql_dbg_disc, vha, 0xffff,
--		    "Async done-%s unable to alloc work element\n",
--		    sp->name);
--		sp->free(sp);
-+	if (rc) {
-+		qla24xx_sp_unmap(vha, sp);
- 		set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
- 		set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+ 	if (res == QLA_FUNCTION_TIMEOUT) {
+ 		dma_pool_free(sp->vha->hw->s_dma_pool, sp->u.iocb_cmd.u.mbx.in,
+ 			sp->u.iocb_cmd.u.mbx.in_dma);
  		return;
  	}
--
--	sp->rc = res;
--	e->u.iosb.sp = sp;
--
--	qla2x00_post_work(vha, e);
- }
  
- /*
++	fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
+ 	memset(&ea, 0, sizeof(ea));
+ 	ea.event = FCME_GPDB_DONE;
+ 	ea.fcport = fcport;
 -- 
 2.20.1
 
