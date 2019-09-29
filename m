@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62052C1818
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C631EC1812
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729705AbfI2Rld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44896 "EHLO mail.kernel.org"
+        id S1730109AbfI2Rdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730093AbfI2Rdf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:35 -0400
+        id S1730098AbfI2Rdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:33:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF98A21A4C;
-        Sun, 29 Sep 2019 17:33:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE2F121925;
+        Sun, 29 Sep 2019 17:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778414;
-        bh=hkctlvyNTnBfIMJFghBmAj+o0d3mrZHtRkI+IrQdr+g=;
+        s=default; t=1569778415;
+        bh=fw70Y8GuPTIYaTwZ+t61VIeVfbkLgrEAuV3Y4OcKnl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Q8uY+6o8VguyrbJ6JIMG3iqjnQI9Yr654JhCIxz7dFz5lWefHxcP/TFoFxm3WpPb
-         W6mw3w/4ZsJgRoPxIT1fRlxM8vN6dgWRa6a87GmDqPA52sUvHKeO2DFFtyxIdoigfF
-         M2Ay8ARzoWBzY1ewS+R6aan08dpA+LOuYx84gkwY=
+        b=FWDz7P9TYcSRIB8Zb5MZvxV+SOF6caE5sHhnCWr5V3VnBr4nQgKMdYvBwrNADE+ke
+         EhhBVKBYs+lfyiGIanub4fiUuOLsFpdPZmagesxdIx6QPgx/V3Sn3NOKp7LZnaGgZg
+         6F96jQIkmb8o2zTSMI5bejXJguxoi9LErXUp79jU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Wilczynski <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 22/42] PCI: Add pci_info_ratelimited() to ratelimit PCI separately
-Date:   Sun, 29 Sep 2019 13:32:21 -0400
-Message-Id: <20190929173244.8918-22-sashal@kernel.org>
+Cc:     Joao Moreno <mail@joaomoreno.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 23/42] HID: apple: Fix stuck function keys when using FN
+Date:   Sun, 29 Sep 2019 13:32:22 -0400
+Message-Id: <20190929173244.8918-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
 References: <20190929173244.8918-1-sashal@kernel.org>
@@ -43,53 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczynski <kw@linux.com>
+From: Joao Moreno <mail@joaomoreno.com>
 
-[ Upstream commit 7f1c62c443a453deb6eb3515e3c05650ffe0dcf0 ]
+[ Upstream commit aec256d0ecd561036f188dbc8fa7924c47a9edfd ]
 
-Do not use printk_ratelimit() in drivers/pci/pci.c as it shares the rate
-limiting state with all other callers to the printk_ratelimit().
+This fixes an issue in which key down events for function keys would be
+repeatedly emitted even after the user has raised the physical key. For
+example, the driver fails to emit the F5 key up event when going through
+the following steps:
+- fnmode=1: hold FN, hold F5, release FN, release F5
+- fnmode=2: hold F5, hold FN, release F5, release FN
 
-Add pci_info_ratelimited() (similar to pci_notice_ratelimited() added in
-the commit a88a7b3eb076 ("vfio: Use dev_printk() when possible")) and use
-it instead of printk_ratelimit() + pci_info().
+The repeated F5 key down events can be easily verified using xev.
 
-Link: https://lore.kernel.org/r/20190825224616.8021-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Joao Moreno <mail@joaomoreno.com>
+Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c   | 4 ++--
- include/linux/pci.h | 3 +++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
+ 1 file changed, 28 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 088fcdc8d2b4d..f2ab112c0a71f 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -884,8 +884,8 @@ static int pci_raw_set_power_state(struct pci_dev *dev, pci_power_t state)
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 81df62f48c4c3..6ac8becc2372e 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -54,7 +54,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
+ struct apple_sc {
+ 	unsigned long quirks;
+ 	unsigned int fn_on;
+-	DECLARE_BITMAP(pressed_fn, KEY_CNT);
+ 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+ };
  
- 	pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
- 	dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	if (dev->current_state != state && printk_ratelimit())
--		pci_info(dev, "Refused to change power state, currently in D%d\n",
-+	if (dev->current_state != state)
-+		pci_info_ratelimited(dev, "Refused to change power state, currently in D%d\n",
- 			 dev->current_state);
+@@ -181,6 +180,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ {
+ 	struct apple_sc *asc = hid_get_drvdata(hid);
+ 	const struct apple_key_translation *trans, *table;
++	bool do_translate;
++	u16 code = 0;
  
- 	/*
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index dd436da7eccc1..9feb59ac85507 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2375,4 +2375,7 @@ void pci_uevent_ers(struct pci_dev *pdev, enum  pci_ers_result err_type);
- #define pci_notice_ratelimited(pdev, fmt, arg...) \
- 	dev_notice_ratelimited(&(pdev)->dev, fmt, ##arg)
+ 	if (usage->code == KEY_FN) {
+ 		asc->fn_on = !!value;
+@@ -189,8 +190,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 	}
  
-+#define pci_info_ratelimited(pdev, fmt, arg...) \
-+	dev_info_ratelimited(&(pdev)->dev, fmt, ##arg)
+ 	if (fnmode) {
+-		int do_translate;
+-
+ 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
+ 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
+ 			table = macbookair_fn_keys;
+@@ -202,25 +201,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		trans = apple_find_translation (table, usage->code);
+ 
+ 		if (trans) {
+-			if (test_bit(usage->code, asc->pressed_fn))
+-				do_translate = 1;
+-			else if (trans->flags & APPLE_FLAG_FKEY)
+-				do_translate = (fnmode == 2 && asc->fn_on) ||
+-					(fnmode == 1 && !asc->fn_on);
+-			else
+-				do_translate = asc->fn_on;
+-
+-			if (do_translate) {
+-				if (value)
+-					set_bit(usage->code, asc->pressed_fn);
+-				else
+-					clear_bit(usage->code, asc->pressed_fn);
+-
+-				input_event(input, usage->type, trans->to,
+-						value);
+-
+-				return 1;
++			if (test_bit(trans->from, input->key))
++				code = trans->from;
++			else if (test_bit(trans->to, input->key))
++				code = trans->to;
 +
- #endif /* LINUX_PCI_H */
++			if (!code) {
++				if (trans->flags & APPLE_FLAG_FKEY) {
++					switch (fnmode) {
++					case 1:
++						do_translate = !asc->fn_on;
++						break;
++					case 2:
++						do_translate = asc->fn_on;
++						break;
++					default:
++						/* should never happen */
++						do_translate = false;
++					}
++				} else {
++					do_translate = asc->fn_on;
++				}
++
++				code = do_translate ? trans->to : trans->from;
+ 			}
++
++			input_event(input, usage->type, code, value);
++			return 1;
+ 		}
+ 
+ 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
 -- 
 2.20.1
 
