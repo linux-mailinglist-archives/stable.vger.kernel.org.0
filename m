@@ -2,135 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BDE5C192A
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 21:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E3AC195D
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 22:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729340AbfI2TjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 15:39:21 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33640 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729217AbfI2TjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Sep 2019 15:39:21 -0400
-Received: by mail-pl1-f193.google.com with SMTP id d22so3026829pls.0;
-        Sun, 29 Sep 2019 12:39:20 -0700 (PDT)
+        id S1726360AbfI2UDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 16:03:20 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36587 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725948AbfI2UDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Sep 2019 16:03:20 -0400
+Received: by mail-wr1-f65.google.com with SMTP id y19so8727331wrd.3
+        for <stable@vger.kernel.org>; Sun, 29 Sep 2019 13:03:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=cWzyN/kk5zIsu98AByAT+qCphFKK3lgjqUy370laSJ4=;
-        b=QtAWw1m1CSD8Rp40KtFAtfv3dYr25cIprGMRAQVhF8jPjPpT23hhtxADKEZtnu8REF
-         C6bQSIBnmLr504LwkeqIUR6RThWPjAF6pQVzK3XtXJooJc41ar0Rcy4j2HZ80YXgiakx
-         y/+sAwhESf9Z7rGVZhtF7xVJU7RowIhF/z79l7eK8UvRxJBCLsDRhFM8XthihU48idGd
-         J9rOgfS298WcxWboFdkpL6IKYFFS51Rnz5yj6v0Rg+ywDt5WLPbeiApLhymX6kQhLApq
-         BpVsKe4x4q6CK/SkjdoJvUQccDtvpfFk1vVgiZoebbEgWEjKsjHCccy8/oRVS9iYgiUx
-         8JUg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/38/9Mhe4jl9DtZqofZUrv73uZCiiE1m4P0ihDxlmEs=;
+        b=J7iQ2h4L0sUkabTMzZeKfLHvm49CADTeDHzqTHQeXd8/JDZf1OgtcY1YscvZQDAoNw
+         OxHj9rYFzKr2QXtI6M1O97gpA3qXG12MR1K4rYUviK8NKPtDpqms7FBVzclvb98xy9JL
+         nEtTXalWXKMrdi3b3lUQGroDx0+cxB+QDspjMEFk3qOgNJlt+vtzv4CHYgeirH7bxEPq
+         ZEoXnLo84sjgXpRnZVx9iC7WPH5MmHGV24AN0Cg5KOZPEXP7BkgD9ju063Llw/He2TwJ
+         1f0OSOyb9TDl+xJcMNbG0isFz005rmy+OC2hTFgXgDzBAOaWdQbaijIXVP8RXhXwD1Nz
+         iQEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=cWzyN/kk5zIsu98AByAT+qCphFKK3lgjqUy370laSJ4=;
-        b=BlWozANw510e7bmmA5JaxaUIZYsH+TPt0m3oYydGeaizmwWmFV4tS/1qBFnHskMecU
-         /UQW87DSGL69AOcf+4JmvBG3V5Y2LQIAoweJbZz5HSrZf+3tWG/m/nNhwdcxG94OfnFY
-         rE+mZ8pJikbiLKIIlNxDuCMe71Iis/Vm09p6iYYut+IvL9Milx9VehfRqHZ8+lD3OtV4
-         hZHA4c9V9E7sqDkTgc4FHJWxtwURrsUCu5dh6U7XzhkjB2PC+gtUWfzDZndtQMLsaJBb
-         267rls+vGlTL4LdM8CdnlpDWGB12vvlEwMeU+iYSb/t3gY7OkY+tpcrajymNrQnREHSh
-         s2HA==
-X-Gm-Message-State: APjAAAV1upc/OAyaaMaCsnGw4prg+yb9Osoio4Lz9UA7SYUAKnGKuUK7
-        9RQ2iUNZKUEnnFa5Aau9vEErzKcu
-X-Google-Smtp-Source: APXvYqx3hRo7qRmfXjwZA1sflWvx1xzryy0SWuJwjsbpyCv4hSp8+/ComVDoxShk76M7DtWCwZahPw==
-X-Received: by 2002:a17:902:b48f:: with SMTP id y15mr9037039plr.168.1569785959926;
-        Sun, 29 Sep 2019 12:39:19 -0700 (PDT)
-Received: from [192.168.1.3] (ip68-111-84-250.oc.oc.cox.net. [68.111.84.250])
-        by smtp.gmail.com with ESMTPSA id v43sm26851393pjb.1.2019.09.29.12.39.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 29 Sep 2019 12:39:19 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 5.3 20/49] firmware: bcm47xx_nvram: Correct size_t
- printf format
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <f4bug@amsat.org>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@linux-mips.org,
-        joe@perches.com,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        linux-mips@vger.kernel.org
-References: <20190929173053.8400-1-sashal@kernel.org>
- <20190929173053.8400-20-sashal@kernel.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <feb780d4-c9f7-b662-729c-babd361b223e@gmail.com>
-Date:   Sun, 29 Sep 2019 12:39:05 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/38/9Mhe4jl9DtZqofZUrv73uZCiiE1m4P0ihDxlmEs=;
+        b=c9NN///tvz//l5135lLjR/JCqq/BFLTs43fG8Pqnj3SpC31pbgLxvDMeoC5zaXBxDH
+         wRMBhFcJpofjktasMxG8gY3EFd7zXsxbpbQRo8sqC7HBbVem/5WL+FzkOxO47Op6uVxh
+         6sLgoEZkuZPWMgv1Xn38uLiNVNQflXoXXqrF0CA16HBxqAxEGiTnZ6MuCNckRVldWnD9
+         n3ooBXCZ6N9AY4Fu8XUd/is5Fo+3j/64ozDzVdykH5GHn/ZInXI05c439nTiDDCYcmv0
+         B+Lb4hdc7jeRxNnQdmuKfFI/G4S2jmjcpSjuqrlKjB4w7e3J5+rdZlJhd+/P1KzbpQWK
+         5kow==
+X-Gm-Message-State: APjAAAXwgdyRyBjj6XKhQfIem7RfviKI7L3CoSbQ3RBMzK9/eaouPoJd
+        VusqlHQFMZ3fH7527OdTLrkrx4N3cUY=
+X-Google-Smtp-Source: APXvYqy+Tko6L1ICkl8sYzYBCknsyxtoaQ9sqWOYojgz+RmguN09y724OxqsAJfDDs42F3vkCY7R9w==
+X-Received: by 2002:adf:e3c4:: with SMTP id k4mr10229463wrm.157.1569787397732;
+        Sun, 29 Sep 2019 13:03:17 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id k9sm14476995wrd.7.2019.09.29.13.03.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 29 Sep 2019 13:03:16 -0700 (PDT)
+Message-ID: <5d910e04.1c69fb81.1e066.19b6@mx.google.com>
+Date:   Sun, 29 Sep 2019 13:03:16 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190929173053.8400-20-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.146-35-g97aab3ae4e09
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 75 boots: 0 failed,
+ 74 passed with 1 untried/unknown (v4.14.146-35-g97aab3ae4e09)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 75 boots: 0 failed, 74 passed with 1 untried/u=
+nknown (v4.14.146-35-g97aab3ae4e09)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.146-35-g97aab3ae4e09/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.146-35-g97aab3ae4e09/
 
-On 9/29/2019 10:30 AM, Sasha Levin wrote:
-> From: Florian Fainelli <f.fainelli@gmail.com>
-> 
-> [ Upstream commit feb4eb060c3aecc3c5076bebe699cd09f1133c41 ]
-> 
-> When building on a 64-bit host, we will get warnings like those:
-> 
-> drivers/firmware/broadcom/bcm47xx_nvram.c:103:3: note: in expansion of macro 'pr_err'
->    pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
->    ^~~~~~
-> drivers/firmware/broadcom/bcm47xx_nvram.c:103:28: note: format string is defined here
->    pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
->                            ~^
->                            %li
-> 
-> Use %zu instead for that purpose.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.146-35-g97aab3ae4e09
+Git Commit: 97aab3ae4e09a1c72533790721f393578f3b8d68
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 36 unique boards, 15 SoC families, 12 builds out of 201
 
-This is not a fix that should be backported as it was done only to allow
-the driver to the made buildable with COMPILE_TEST. Please drop it from
-your auto-selection.
+Boot Regressions Detected:
 
-> 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-> Signed-off-by: Paul Burton <paul.burton@mips.com>
-> Cc: linux-mips@linux-mips.org
-> Cc: joe@perches.com
-> Cc: Rafał Miłecki <zajec5@gmail.com>
-> Cc: linux-mips@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/firmware/broadcom/bcm47xx_nvram.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/firmware/broadcom/bcm47xx_nvram.c b/drivers/firmware/broadcom/bcm47xx_nvram.c
-> index 77eb74666ecbc..6d2820f6aca13 100644
-> --- a/drivers/firmware/broadcom/bcm47xx_nvram.c
-> +++ b/drivers/firmware/broadcom/bcm47xx_nvram.c
-> @@ -96,7 +96,7 @@ static int nvram_find_and_copy(void __iomem *iobase, u32 lim)
->  		nvram_len = size;
->  	}
->  	if (nvram_len >= NVRAM_SPACE) {
-> -		pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-> +		pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
->  		       nvram_len, NVRAM_SPACE - 1);
->  		nvram_len = NVRAM_SPACE - 1;
->  	}
-> @@ -148,7 +148,7 @@ static int nvram_init(void)
->  	    header.len > sizeof(header)) {
->  		nvram_len = header.len;
->  		if (nvram_len >= NVRAM_SPACE) {
-> -			pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-> +			pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
->  				header.len, NVRAM_SPACE);
->  			nvram_len = NVRAM_SPACE - 1;
->  		}
-> 
+arm64:
 
--- 
-Florian
+    defconfig:
+        gcc-8:
+          hip07-d05:
+              lab-collabora: new failure (last pass: v4.14.146-18-gf0e4f7af=
+6713)
+
+---
+For more info write to <info@kernelci.org>
