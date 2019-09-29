@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC096C155B
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2071C1546
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729925AbfI2OD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46568 "EHLO mail.kernel.org"
+        id S1730234AbfI2OCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729120AbfI2OD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:27 -0400
+        id S1730220AbfI2OCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 899EA21835;
-        Sun, 29 Sep 2019 14:03:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A06682082F;
+        Sun, 29 Sep 2019 14:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765807;
-        bh=GtHpxFOaDYYWQVsQM0RZkuCcKb7B2yjT8rUSga6pWtE=;
+        s=default; t=1569765751;
+        bh=M3/SmVArOA7JBk5QAHOoRMcoDkCTQfWxfBebZbq2kkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBrwWdZ2r5vscipcGu3Vbx0brKuvEKrzfsKQJIjn8/zvaZtngj6K6gp6TaGTtlqGt
-         VRySl9SV6u3L8s0fwoxxcauut2TumG0hEhPPKVj/ygi8anI8ey+IVh19fSiUm3I3Ma
-         OGofo0KyZBjs7Q0DypyoDK1JTO92+88qf+scqkSQ=
+        b=n643buitx5JwcLqG1egBPsXuca7rvCDU4dzb7TcgvgdfK/LM1J4uB4HDToWrOVuYC
+         VNONK/wtfFBfCxuflEGZSVe5XKHGmHnoFZ5/87ogMyaNB2pJmMIkA2Cghmzz3UyK3i
+         6lw+jk0i1HH28COAmvPqqtVhnr6bzyA1to6plLPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.3 03/25] clocksource/drivers: Do not warn on probe defer
-Date:   Sun, 29 Sep 2019 15:56:06 +0200
-Message-Id: <20190929135009.157837674@linuxfoundation.org>
+        stable@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 39/45] drm/nouveau/disp/nv50-: fix center/aspect-corrected scaling
+Date:   Sun, 29 Sep 2019 15:56:07 +0200
+Message-Id: <20190929135033.149716277@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
-References: <20190929135006.127269625@linuxfoundation.org>
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135024.387033930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Ilia Mirkin <imirkin@alum.mit.edu>
 
-commit 14e019df1e64c8b19ce8e0b3da25b6f40c8716be upstream.
+[ Upstream commit 533f4752407543f488a9118d817b8c504352b6fb ]
 
-Deferred probe is an expected return value on many platforms and so
-there's no need to output a warning that may potentially confuse users.
+Previously center scaling would get scaling applied to it (when it was
+only supposed to center the image), and aspect-corrected scaling did not
+always correctly pick whether to reduce width or height for a particular
+combination of inputs/outputs.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110660
+Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-probe.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/dispnv50/head.c | 28 +++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
---- a/drivers/clocksource/timer-probe.c
-+++ b/drivers/clocksource/timer-probe.c
-@@ -29,7 +29,9 @@ void __init timer_probe(void)
- 
- 		ret = init_func_ret(np);
- 		if (ret) {
--			pr_err("Failed to initialize '%pOF': %d\n", np, ret);
-+			if (ret != -EPROBE_DEFER)
-+				pr_err("Failed to initialize '%pOF': %d\n", np,
-+				       ret);
- 			continue;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+index 06ee23823a689..acfafc4bda0e1 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -169,14 +169,34 @@ nv50_head_atomic_check_view(struct nv50_head_atom *armh,
+ 	 */
+ 	switch (mode) {
+ 	case DRM_MODE_SCALE_CENTER:
+-		asyh->view.oW = min((u16)umode->hdisplay, asyh->view.oW);
+-		asyh->view.oH = min((u16)umode_vdisplay, asyh->view.oH);
+-		/* fall-through */
++		/* NOTE: This will cause scaling when the input is
++		 * larger than the output.
++		 */
++		asyh->view.oW = min(asyh->view.iW, asyh->view.oW);
++		asyh->view.oH = min(asyh->view.iH, asyh->view.oH);
++		break;
+ 	case DRM_MODE_SCALE_ASPECT:
+-		if (asyh->view.oH < asyh->view.oW) {
++		/* Determine whether the scaling should be on width or on
++		 * height. This is done by comparing the aspect ratios of the
++		 * sizes. If the output AR is larger than input AR, that means
++		 * we want to change the width (letterboxed on the
++		 * left/right), otherwise on the height (letterboxed on the
++		 * top/bottom).
++		 *
++		 * E.g. 4:3 (1.333) AR image displayed on a 16:10 (1.6) AR
++		 * screen will have letterboxes on the left/right. However a
++		 * 16:9 (1.777) AR image on that same screen will have
++		 * letterboxes on the top/bottom.
++		 *
++		 * inputAR = iW / iH; outputAR = oW / oH
++		 * outputAR > inputAR is equivalent to oW * iH > iW * oH
++		 */
++		if (asyh->view.oW * asyh->view.iH > asyh->view.iW * asyh->view.oH) {
++			/* Recompute output width, i.e. left/right letterbox */
+ 			u32 r = (asyh->view.iW << 19) / asyh->view.iH;
+ 			asyh->view.oW = ((asyh->view.oH * r) + (r / 2)) >> 19;
+ 		} else {
++			/* Recompute output height, i.e. top/bottom letterbox */
+ 			u32 r = (asyh->view.iH << 19) / asyh->view.iW;
+ 			asyh->view.oH = ((asyh->view.oW * r) + (r / 2)) >> 19;
  		}
- 
+-- 
+2.20.1
+
 
 
