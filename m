@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73409C171F
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E544C178C
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730698AbfI2Rf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:35:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
+        id S1729932AbfI2Rii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730693AbfI2Rf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:35:57 -0400
+        id S1730700AbfI2Rf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:35:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49F1621D7C;
-        Sun, 29 Sep 2019 17:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF46E2196E;
+        Sun, 29 Sep 2019 17:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778557;
-        bh=lEC7SU1gCm84VqYepEtvzNcy7DIGdmzDSTI2ZQ9SbzI=;
+        s=default; t=1569778558;
+        bh=QKRCG8f/z7TmRpXy/oFC4HCqvZVx9ImvcBK7A1PeQ10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRJDGig/EmARqdajswNJrGI+46wESXgPdCn/hUUTEmi6Ty5kQsVbKXX3cDMlJfLb9
-         uUek1P9A2CczaHyonZ6Y2KIZW+cpLelJ9L2/yanY/NHzPlI2iadwb+1ypkwLXzUg2U
-         abGn9XYRS13xSTyPqc1upi/AQkBU7mnKQb3gViBs=
+        b=qqQ8ghHx4M6wlN/IXfIAveqOirkpdoEs0z3Fg8lM309oUdct/siDHNb7ZdF494+Ed
+         DVL0UYFSkBq005gBf54dvQ+gBgNYYXs6BvFZENY4CVwgqQUW+1srxkyiHY2CHvBTig
+         zwvyRH6NWLiHh2CtvjDOaM9aC5HWtmfQLPeTpZyU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@linux-mips.org,
-        joe@perches.com,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 10/23] firmware: bcm47xx_nvram: Correct size_t printf format
-Date:   Sun, 29 Sep 2019 13:35:20 -0400
-Message-Id: <20190929173535.9744-10-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/23] rtc: snvs: fix possible race condition
+Date:   Sun, 29 Sep 2019 13:35:21 -0400
+Message-Id: <20190929173535.9744-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173535.9744-1-sashal@kernel.org>
 References: <20190929173535.9744-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,57 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit feb4eb060c3aecc3c5076bebe699cd09f1133c41 ]
+[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
 
-When building on a 64-bit host, we will get warnings like those:
+The RTC IRQ is requested before the struct rtc_device is allocated,
+this may lead to a NULL pointer dereference in IRQ handler.
 
-drivers/firmware/broadcom/bcm47xx_nvram.c:103:3: note: in expansion of macro 'pr_err'
-   pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-   ^~~~~~
-drivers/firmware/broadcom/bcm47xx_nvram.c:103:28: note: format string is defined here
-   pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-                           ~^
-                           %li
+To fix this issue, allocating the rtc_device struct before requesting
+the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
+to register the RTC device.
 
-Use %zu instead for that purpose.
-
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@linux-mips.org
-Cc: joe@perches.com
-Cc: Rafał Miłecki <zajec5@gmail.com>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/broadcom/bcm47xx_nvram.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-snvs.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/firmware/broadcom/bcm47xx_nvram.c b/drivers/firmware/broadcom/bcm47xx_nvram.c
-index 0b631e5b5b843..8632b952d77c5 100644
---- a/drivers/firmware/broadcom/bcm47xx_nvram.c
-+++ b/drivers/firmware/broadcom/bcm47xx_nvram.c
-@@ -100,7 +100,7 @@ static int nvram_find_and_copy(void __iomem *iobase, u32 lim)
- 		nvram_len = size;
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 71eee39520f0b..7aa2c5ea0de4f 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -280,6 +280,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 	if (!data)
+ 		return -ENOMEM;
+ 
++	data->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(data->rtc))
++		return PTR_ERR(data->rtc);
++
+ 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
+ 
+ 	if (IS_ERR(data->regmap)) {
+@@ -342,10 +346,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 		goto error_rtc_device_register;
  	}
- 	if (nvram_len >= NVRAM_SPACE) {
--		pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-+		pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
- 		       nvram_len, NVRAM_SPACE - 1);
- 		nvram_len = NVRAM_SPACE - 1;
+ 
+-	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					&snvs_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(data->rtc)) {
+-		ret = PTR_ERR(data->rtc);
++	data->rtc->ops = &snvs_rtc_ops;
++	ret = rtc_register_device(data->rtc);
++	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
+ 		goto error_rtc_device_register;
  	}
-@@ -152,7 +152,7 @@ static int nvram_init(void)
- 	    header.len > sizeof(header)) {
- 		nvram_len = header.len;
- 		if (nvram_len >= NVRAM_SPACE) {
--			pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
-+			pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
- 				header.len, NVRAM_SPACE);
- 			nvram_len = NVRAM_SPACE - 1;
- 		}
 -- 
 2.20.1
 
