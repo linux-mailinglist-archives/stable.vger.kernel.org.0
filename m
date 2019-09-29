@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5096C152A
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE847C1597
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729427AbfI2OBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43800 "EHLO mail.kernel.org"
+        id S1729452AbfI2OBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbfI2OBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:01:32 -0400
+        id S1729391AbfI2OBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:01:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DAEF2082F;
-        Sun, 29 Sep 2019 14:01:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B562F21835;
+        Sun, 29 Sep 2019 14:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765691;
-        bh=gsJ9MevCMoJdi7WNJxdX6xfWTX7QyQwP9gCc+FHWx0g=;
+        s=default; t=1569765695;
+        bh=qeigDGnQEqbq7eKGlPKF8Jz+DU+1KB141CmTPZDrkkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXJ3nnIEMTFYOf9IMpNRgaOk0OZGZXuNWG4VNp+fEZEGwBGt0PJfVwB2hhg+VrM/X
-         bqXc9RsrGWCc2Dwck0lMH/bPteBTIIuy0NMD9ClnYfcxEwOcLom2zzNlq5nMAAOGUg
-         aAIN2GT5C0kBwa57BX8TMtMoAmGkjDsqx7v6k0NE=
+        b=faFQdXr1Yl0VbiIJIZQ0788Ago7qto/7W2+uCJS4EQfQbR8dMF6sFqkuWQt7yNQYF
+         Fv8e2p/hhriIGgYT34H5ZZ4KB2koP+WV/sTRZu+AC/Wi/2698QdA/ZJ55K72CXFmpl
+         LIPLVJIL6+vO1HpRpF0dRdGVFyubKWx54wN02ZDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Juliet Kim <julietk@linux.vnet.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 31/45] dm zoned: fix invalid memory access
-Date:   Sun, 29 Sep 2019 15:55:59 +0200
-Message-Id: <20190929135032.102259596@linuxfoundation.org>
+Subject: [PATCH 5.2 32/45] net/ibmvnic: Fix missing { in __ibmvnic_reset
+Date:   Sun, 29 Sep 2019 15:56:00 +0200
+Message-Id: <20190929135032.225036483@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -45,57 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Michal Suchanek <msuchanek@suse.de>
 
-[ Upstream commit 0c8e9c2d668278652af028c3cc068c65f66342f4 ]
+[ Upstream commit c8dc55956b09b53ccffceb6e3146981210e27821 ]
 
-Commit 75d66ffb48efb30f2dd42f041ba8b39c5b2bd115 ("dm zoned: properly
-handle backing device failure") triggers a coverity warning:
+Commit 1c2977c09499 ("net/ibmvnic: free reset work of removed device from queue")
+adds a } without corresponding { causing build break.
 
-*** CID 1452808:  Memory - illegal accesses  (USE_AFTER_FREE)
-/drivers/md/dm-zoned-target.c: 137 in dmz_submit_bio()
-131             clone->bi_private = bioctx;
-132
-133             bio_advance(bio, clone->bi_iter.bi_size);
-134
-135             refcount_inc(&bioctx->ref);
-136             generic_make_request(clone);
->>>     CID 1452808:  Memory - illegal accesses  (USE_AFTER_FREE)
->>>     Dereferencing freed pointer "clone".
-137             if (clone->bi_status == BLK_STS_IOERR)
-138                     return -EIO;
-139
-140             if (bio_op(bio) == REQ_OP_WRITE && dmz_is_seq(zone))
-141                     zone->wp_block += nr_blocks;
-142
-
-The "clone" bio may be processed and freed before the check
-"clone->bi_status == BLK_STS_IOERR" - so this check can access invalid
-memory.
-
-Fixes: 75d66ffb48efb3 ("dm zoned: properly handle backing device failure")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 1c2977c09499 ("net/ibmvnic: free reset work of removed device from queue")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Reviewed-by: Juliet Kim <julietk@linux.vnet.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-zoned-target.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
-index ff3fd011796ed..3334f5865de77 100644
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -133,8 +133,6 @@ static int dmz_submit_bio(struct dmz_target *dmz, struct dm_zone *zone,
- 
- 	refcount_inc(&bioctx->ref);
- 	generic_make_request(clone);
--	if (clone->bi_status == BLK_STS_IOERR)
--		return -EIO;
- 
- 	if (bio_op(bio) == REQ_OP_WRITE && dmz_is_seq(zone))
- 		zone->wp_block += nr_blocks;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 6644cabc8e756..5cb55ea671e35 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1984,7 +1984,7 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 	rwi = get_next_rwi(adapter);
+ 	while (rwi) {
+ 		if (adapter->state == VNIC_REMOVING ||
+-		    adapter->state == VNIC_REMOVED)
++		    adapter->state == VNIC_REMOVED) {
+ 			kfree(rwi);
+ 			rc = EBUSY;
+ 			break;
 -- 
 2.20.1
 
