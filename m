@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E70C1592
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B19D9C1513
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729985AbfI2OBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+        id S1729235AbfI2OAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:00:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729975AbfI2OBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:01:11 -0400
+        id S1729899AbfI2OA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:00:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA990218DE;
-        Sun, 29 Sep 2019 14:01:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25FA821906;
+        Sun, 29 Sep 2019 14:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765670;
-        bh=Zhqt+ijLdkbbOgVShEyuhIXfz7EmFYOouXSeyX7XA3c=;
+        s=default; t=1569765626;
+        bh=9K5VrEJ5Mu18MwhovO++6lF5hDTZl5gGUGSNuOZvb0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=je4IbyuiDYUea4mreWGyERf7cLAOWaNLlycV8MpiaSNcCgq1Li4QtjYZUSyQiQkBY
-         VyBMa3f40yFz6VLOSzY+3wGUNm9rlv9gQyJu4bkCOz/Fv6Q6SaQ5n0sDBbC7NaTY31
-         vrv7noM2HCLQziq5eyhINCkEGR2l8iRcp7/Ab8qM=
+        b=QzMzGE3VtzLz1DkOMDQ+DfmywcxkbUXMQ+c/p/bh5SCBVUuhLZ/Kv1AwtpYpMkRC+
+         LYG9tUl3HmObjLobnE2cla/Fkwz7+EyTRzaBPYCq3YsLyJPpEEqJkzUk1NRkdZe+x8
+         h8qZe0n+23B+zDa5KUCqv07S4J5eW43V3Tn0lhK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Yonglong Liu <liuyonglong@huawei.com>
-Subject: [PATCH 5.2 11/45] Revert "net: hns: fix LED configuration for marvell phy"
-Date:   Sun, 29 Sep 2019 15:55:39 +0200
-Message-Id: <20190929135027.883053256@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
+Subject: [PATCH 5.2 12/45] HID: prodikeys: Fix general protection fault during probe
+Date:   Sun, 29 Sep 2019 15:55:40 +0200
+Message-Id: <20190929135028.034124300@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -43,75 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David S. Miller <davem@davemloft.net>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit b3e487c0cf425369a48049251af75593a5652dc1 upstream.
+commit 98375b86c79137416e9fd354177b85e768c16e56 upstream.
 
-This reverts commit f4e5f775db5a4631300dccd0de5eafb50a77c131.
+The syzbot fuzzer provoked a general protection fault in the
+hid-prodikeys driver:
 
-Andrew Lunn says this should be handled another way.
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  [inline]
+RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
+RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
+RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
+Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc
+48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f
+85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Yonglong Liu <liuyonglong@huawei.com>
+The problem is caused by the fact that pcmidi_get_output_report() will
+return an error if the HID device doesn't provide the right sort of
+output report, but pcmidi_set_operational() doesn't bother to check
+the return code and assumes the function call always succeeds.
+
+This patch adds the missing check and aborts the probe operation if
+necessary.
+
+Reported-and-tested-by: syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c |   23 +----------------------
- 1 file changed, 1 insertion(+), 22 deletions(-)
+ drivers/hid/hid-prodikeys.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -11,7 +11,6 @@
- #include <linux/io.h>
- #include <linux/ip.h>
- #include <linux/ipv6.h>
--#include <linux/marvell_phy.h>
- #include <linux/module.h>
- #include <linux/phy.h>
- #include <linux/platform_device.h>
-@@ -1150,13 +1149,6 @@ static void hns_nic_adjust_link(struct n
- 	}
+--- a/drivers/hid/hid-prodikeys.c
++++ b/drivers/hid/hid-prodikeys.c
+@@ -551,10 +551,14 @@ static void pcmidi_setup_extra_keys(
+ 
+ static int pcmidi_set_operational(struct pcmidi_snd *pm)
+ {
++	int rc;
++
+ 	if (pm->ifnum != 1)
+ 		return 0; /* only set up ONCE for interace 1 */
+ 
+-	pcmidi_get_output_report(pm);
++	rc = pcmidi_get_output_report(pm);
++	if (rc < 0)
++		return rc;
+ 	pcmidi_submit_output_report(pm, 0xc1);
+ 	return 0;
  }
+@@ -683,7 +687,11 @@ static int pcmidi_snd_initialise(struct
+ 	spin_lock_init(&pm->rawmidi_in_lock);
  
--static int hns_phy_marvell_fixup(struct phy_device *phydev)
--{
--	phydev->dev_flags |= MARVELL_PHY_LED0_LINK_LED1_ACTIVE;
--
--	return 0;
--}
--
- /**
-  *hns_nic_init_phy - init phy
-  *@ndev: net device
-@@ -1182,16 +1174,6 @@ int hns_nic_init_phy(struct net_device *
- 	if (h->phy_if != PHY_INTERFACE_MODE_XGMII) {
- 		phy_dev->dev_flags = 0;
+ 	init_sustain_timers(pm);
+-	pcmidi_set_operational(pm);
++	err = pcmidi_set_operational(pm);
++	if (err < 0) {
++		pk_error("failed to find output report\n");
++		goto fail_register;
++	}
  
--		/* register the PHY fixup (for Marvell 88E1510) */
--		ret = phy_register_fixup_for_uid(MARVELL_PHY_ID_88E1510,
--						 MARVELL_PHY_ID_MASK,
--						 hns_phy_marvell_fixup);
--		/* we can live without it, so just issue a warning */
--		if (ret)
--			netdev_warn(ndev,
--				    "Cannot register PHY fixup, ret=%d\n",
--				    ret);
--
- 		ret = phy_connect_direct(ndev, phy_dev, hns_nic_adjust_link,
- 					 h->phy_if);
- 	} else {
-@@ -2447,11 +2429,8 @@ static int hns_nic_dev_remove(struct pla
- 		hns_nic_uninit_ring_data(priv);
- 	priv->ring_data = NULL;
- 
--	if (ndev->phydev) {
--		phy_unregister_fixup_for_uid(MARVELL_PHY_ID_88E1510,
--					     MARVELL_PHY_ID_MASK);
-+	if (ndev->phydev)
- 		phy_disconnect(ndev->phydev);
--	}
- 
- 	if (!IS_ERR_OR_NULL(priv->ae_handle))
- 		hnae_put_handle(priv->ae_handle);
+ 	/* register it */
+ 	err = snd_card_register(card);
 
 
