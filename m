@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD57C15AB
+	by mail.lfdr.de (Postfix) with ESMTP id 84691C15AC
 	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbfI2N76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41440 "EHLO mail.kernel.org"
+        id S1729851AbfI2OAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:00:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729829AbfI2N75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:59:57 -0400
+        id S1729845AbfI2OAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:00:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 398F721835;
-        Sun, 29 Sep 2019 13:59:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D8B02082F;
+        Sun, 29 Sep 2019 13:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765597;
-        bh=lZJ9g3vN8/4CHNEIeGOta0sjNncUHLr4qa1CoclZ/p4=;
+        s=default; t=1569765600;
+        bh=n2ZPc5mWVXvVlYy8in4aeJCAQhA1LUx8eA4rG19ZCVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wiuw8Ma2PBTPGp+VFedchOssqeqEh8i47nn2aJYDVvYD9FJm/ZTSwMA7zJ+kcUypw
-         tyW1oQ7GKz9hLXQWtS3MAD7xAGk5+Gm/BFwbad3jkHDx2DlReFACvVLMc/VPpd3/SC
-         I/3gykLxT/SDJMHodApQAEk9Y9JTi4nfVWBpjvs0=
+        b=LYP/TEzdcIl4o1ry+BwDUk3CryEhgvMBoihPkQonZeulzcHEPLtmgoOdXA9hIMo7K
+         Px4OAeWhvuyDh+iCl6Tv0Caa1wtNaCTvCNq5I12pmM9gJXOFFWLcrA7inXb3t7eOhJ
+         7eV5NHwVibsz2O8+qhaT4qFv3BLGBPeearMFRpPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Kacper=20Piwi=C5=84ski?= <cosiekvfj@o2.pl>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/63] Bluetooth: btrtl: HCI reset on close for Realtek BT chip
-Date:   Sun, 29 Sep 2019 15:54:29 +0200
-Message-Id: <20190929135040.787343548@linuxfoundation.org>
+Subject: [PATCH 4.19 57/63] ACPI: video: Add new hw_changes_brightness quirk, set it on PB Easynote MZ35
+Date:   Sun, 29 Sep 2019 15:54:30 +0200
+Message-Id: <20190929135040.889718199@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -45,101 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7af3f558aca74f2ee47b173f1c27f6bb9a5b5561 ]
+[ Upstream commit 4f7f96453b462b3de0fa18d18fe983960bb5ee7f ]
 
-Realtek RTL8822BE BT chip on ASUS X420FA cannot be turned on correctly
-after on-off several times. Bluetooth daemon sets BT mode failed when
-this issue happens. Scanning must be active while turning off for this
-bug to be hit.
+Some machines change the brightness themselves when a brightness hotkey
+gets pressed, despite us telling them not to. This causes the brightness to
+go two steps up / down when the hotkey is pressed. This is esp. a problem
+on older machines with only a few brightness levels.
 
-bluetoothd[1576]: Failed to set mode: Failed (0x03)
+This commit adds a new hw_changes_brightness quirk which makes
+acpi_video_device_notify() only call backlight_force_update(...,
+BACKLIGHT_UPDATE_HOTKEY) and not do anything else, notifying userspace
+that the brightness was changed and leaving it at that fixing the dual
+step problem.
 
-If BT is turned off, then turned on again, it works correctly again.
-
-According to the vendor driver, the HCI_QUIRK_RESET_ON_CLOSE flag is set
-during probing. So, this patch makes Realtek's BT reset on close to fix
-this issue.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203429
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Reviewed-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204077
+Reported-by: Kacper Piwiński <cosiekvfj@o2.pl>
+Tested-by: Kacper Piwiński <cosiekvfj@o2.pl>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btrtl.c | 20 ++++++++++++++++++++
- drivers/bluetooth/btrtl.h |  6 ++++++
- drivers/bluetooth/btusb.c |  1 +
- 3 files changed, 27 insertions(+)
+ drivers/acpi/acpi_video.c | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/drivers/bluetooth/btrtl.c b/drivers/bluetooth/btrtl.c
-index 1342f8e6025cc..8d1cd2479e36f 100644
---- a/drivers/bluetooth/btrtl.c
-+++ b/drivers/bluetooth/btrtl.c
-@@ -639,6 +639,26 @@ int btrtl_setup_realtek(struct hci_dev *hdev)
- }
- EXPORT_SYMBOL_GPL(btrtl_setup_realtek);
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index d73afb562ad95..1a23e7aa74df7 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -73,6 +73,12 @@ module_param(report_key_events, int, 0644);
+ MODULE_PARM_DESC(report_key_events,
+ 	"0: none, 1: output changes, 2: brightness changes, 3: all");
  
-+int btrtl_shutdown_realtek(struct hci_dev *hdev)
++static int hw_changes_brightness = -1;
++module_param(hw_changes_brightness, int, 0644);
++MODULE_PARM_DESC(hw_changes_brightness,
++	"Set this to 1 on buggy hw which changes the brightness itself when "
++	"a hotkey is pressed: -1: auto, 0: normal 1: hw-changes-brightness");
++
+ /*
+  * Whether the struct acpi_video_device_attrib::device_id_scheme bit should be
+  * assumed even if not actually set.
+@@ -418,6 +424,14 @@ static int video_set_report_key_events(const struct dmi_system_id *id)
+ 	return 0;
+ }
+ 
++static int video_hw_changes_brightness(
++	const struct dmi_system_id *d)
 +{
-+	struct sk_buff *skb;
-+	int ret;
-+
-+	/* According to the vendor driver, BT must be reset on close to avoid
-+	 * firmware crash.
-+	 */
-+	skb = __hci_cmd_sync(hdev, HCI_OP_RESET, 0, NULL, HCI_INIT_TIMEOUT);
-+	if (IS_ERR(skb)) {
-+		ret = PTR_ERR(skb);
-+		bt_dev_err(hdev, "HCI reset during shutdown failed");
-+		return ret;
-+	}
-+	kfree_skb(skb);
-+
++	if (hw_changes_brightness == -1)
++		hw_changes_brightness = 1;
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(btrtl_shutdown_realtek);
 +
- static unsigned int btrtl_convert_baudrate(u32 device_baudrate)
- {
- 	switch (device_baudrate) {
-diff --git a/drivers/bluetooth/btrtl.h b/drivers/bluetooth/btrtl.h
-index f5e36f3993a81..852f27d4ee289 100644
---- a/drivers/bluetooth/btrtl.h
-+++ b/drivers/bluetooth/btrtl.h
-@@ -65,6 +65,7 @@ void btrtl_free(struct btrtl_device_info *btrtl_dev);
- int btrtl_download_firmware(struct hci_dev *hdev,
- 			    struct btrtl_device_info *btrtl_dev);
- int btrtl_setup_realtek(struct hci_dev *hdev);
-+int btrtl_shutdown_realtek(struct hci_dev *hdev);
- int btrtl_get_uart_settings(struct hci_dev *hdev,
- 			    struct btrtl_device_info *btrtl_dev,
- 			    unsigned int *controller_baudrate,
-@@ -93,6 +94,11 @@ static inline int btrtl_setup_realtek(struct hci_dev *hdev)
- 	return -EOPNOTSUPP;
- }
+ static const struct dmi_system_id video_dmi_table[] = {
+ 	/*
+ 	 * Broken _BQC workaround http://bugzilla.kernel.org/show_bug.cgi?id=13121
+@@ -542,6 +556,21 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
+ 		},
+ 	},
++	/*
++	 * Some machines change the brightness themselves when a brightness
++	 * hotkey gets pressed, despite us telling them not to. In this case
++	 * acpi_video_device_notify() should only call backlight_force_update(
++	 * BACKLIGHT_UPDATE_HOTKEY) and not do anything else.
++	 */
++	{
++	 /* https://bugzilla.kernel.org/show_bug.cgi?id=204077 */
++	 .callback = video_hw_changes_brightness,
++	 .ident = "Packard Bell EasyNote MZ35",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "EasyNote MZ35"),
++		},
++	},
+ 	{}
+ };
  
-+static inline int btrtl_shutdown_realtek(struct hci_dev *hdev)
-+{
-+	return -EOPNOTSUPP;
-+}
+@@ -1625,6 +1654,14 @@ static void acpi_video_device_notify(acpi_handle handle, u32 event, void *data)
+ 	bus = video_device->video;
+ 	input = bus->input;
+ 
++	if (hw_changes_brightness > 0) {
++		if (video_device->backlight)
++			backlight_force_update(video_device->backlight,
++					       BACKLIGHT_UPDATE_HOTKEY);
++		acpi_notifier_call_chain(device, event, 0);
++		return;
++	}
 +
- static inline int btrtl_get_uart_settings(struct hci_dev *hdev,
- 					  struct btrtl_device_info *btrtl_dev,
- 					  unsigned int *controller_baudrate,
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 09c83dc2ef677..96b8a00934c4a 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -3128,6 +3128,7 @@ static int btusb_probe(struct usb_interface *intf,
- #ifdef CONFIG_BT_HCIBTUSB_RTL
- 	if (id->driver_info & BTUSB_REALTEK) {
- 		hdev->setup = btrtl_setup_realtek;
-+		hdev->shutdown = btrtl_shutdown_realtek;
- 
- 		/* Realtek devices lose their updated firmware over suspend,
- 		 * but the USB hub doesn't notice any status change.
+ 	switch (event) {
+ 	case ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS:	/* Cycle brightness */
+ 		brightness_switch_event(video_device, event);
 -- 
 2.20.1
 
