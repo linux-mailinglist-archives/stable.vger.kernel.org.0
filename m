@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B386AC1563
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B240AC154A
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729483AbfI2ODo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46862 "EHLO mail.kernel.org"
+        id S1729678AbfI2OCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730374AbfI2ODl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:41 -0400
+        id S1729662AbfI2OCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5D302086A;
-        Sun, 29 Sep 2019 14:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C36E52082F;
+        Sun, 29 Sep 2019 14:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765820;
-        bh=6Aj5dbtLhd7kA0KmaquGmsU5Jz5yxPWzd2bJ84wED3A=;
+        s=default; t=1569765761;
+        bh=vB8PEykiLTpJVoylB+3/isI7qp+NEDMc4CvjjxdfpbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBXFe3yG/TN7SlLM8pY6P5KsTKDB1NZ9sdIQkNg+9f9essi9oMYlKvLKt6zUJGIUB
-         1ysg7DELg0/uvpDLfSanX4CRB2mSZ+/1l60lmfg0Y57PDqncqBkfitdg9Q++fmOsII
-         Ga0v3LEFL9atuyV7nudPS2RYAIZsDbKlwKqf2QFk=
+        b=v+FEns+uvSzJ3Pc+DP341+uhcgeg0XadkGt5XKlWYj4Sna3HXGHpAwL4gUyzkSef4
+         uyEAa0bxPZbksuZTj3wlwIoi+U240hXA9TfQ4luyDAqRtGClUIRH5/3/3ILGt+3pcc
+         ePpJLIfDJMm6cDgjm+N/NQly5E2U4xuI1PJaaBUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.3 07/25] drm/amd/display: readd -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 42/45] netfilter: nft_socket: fix erroneous socket assignment
 Date:   Sun, 29 Sep 2019 15:56:10 +0200
-Message-Id: <20190929135011.629505348@linuxfoundation.org>
+Message-Id: <20190929135033.655419389@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
-References: <20190929135006.127269625@linuxfoundation.org>
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135024.387033930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Fernando Fernandez Mancera <ffmancera@riseup.net>
 
-commit 0f0727d971f6fdf8f1077180d495ddb9928f0c8b upstream.
+[ Upstream commit 039b1f4f24ecc8493b6bb9d70b4b78750d1b35c2 ]
 
-arch/x86/Makefile disables SSE and SSE2 for the whole kernel.  The
-AMDGPU drivers modified in this patch re-enable SSE but not SSE2.  Turn
-on SSE2 to support emitting double precision floating point instructions
-rather than calls to non-existent (usually available from gcc_s or
-compiler_rt) floating point helper routines for Clang.
+The socket assignment is wrong, see skb_orphan():
+When skb->destructor callback is not set, but skb->sk is set, this hits BUG().
 
-This was originally landed in:
-commit 10117450735c ("drm/amd/display: add -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines")
-but reverted in:
-commit 193392ed9f69 ("Revert "drm/amd/display: add -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines"")
-due to bugreports from GCC builds. Add guards to only do so for Clang.
-
-Link: https://bugs.freedesktop.org/show_bug.cgi?id=109487
-Link: https://github.com/ClangBuiltLinux/linux/issues/327
-
-Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Suggested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1651813
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/calcs/Makefile |    4 ++++
- drivers/gpu/drm/amd/display/dc/dcn20/Makefile |    4 ++++
- drivers/gpu/drm/amd/display/dc/dml/Makefile   |    4 ++++
- drivers/gpu/drm/amd/display/dc/dsc/Makefile   |    4 ++++
- 4 files changed, 16 insertions(+)
+ net/netfilter/nft_socket.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/calcs/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/calcs/Makefile
-@@ -32,6 +32,10 @@ endif
+diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
+index d7f3776dfd719..637ce3e8c575c 100644
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -47,9 +47,6 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		return;
+ 	}
  
- calcs_ccflags := -mhard-float -msse $(cc_stack_align)
- 
-+ifdef CONFIG_CC_IS_CLANG
-+calcs_ccflags += -msse2
-+endif
+-	/* So that subsequent socket matching not to require other lookups. */
+-	skb->sk = sk;
+-
+ 	switch(priv->key) {
+ 	case NFT_SOCKET_TRANSPARENT:
+ 		nft_reg_store8(dest, inet_sk_transparent(sk));
+@@ -66,6 +63,9 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		WARN_ON(1);
+ 		regs->verdict.code = NFT_BREAK;
+ 	}
 +
- CFLAGS_dcn_calcs.o := $(calcs_ccflags)
- CFLAGS_dcn_calc_auto.o := $(calcs_ccflags)
- CFLAGS_dcn_calc_math.o := $(calcs_ccflags) -Wno-tautological-compare
---- a/drivers/gpu/drm/amd/display/dc/dcn20/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/Makefile
-@@ -18,6 +18,10 @@ endif
++	if (sk != skb->sk)
++		sock_gen_put(sk);
+ }
  
- CFLAGS_dcn20_resource.o := -mhard-float -msse $(cc_stack_align)
- 
-+ifdef CONFIG_CC_IS_CLANG
-+CFLAGS_dcn20_resource.o += -msse2
-+endif
-+
- AMD_DAL_DCN20 = $(addprefix $(AMDDALPATH)/dc/dcn20/,$(DCN20))
- 
- AMD_DISPLAY_FILES += $(AMD_DAL_DCN20)
---- a/drivers/gpu/drm/amd/display/dc/dml/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/dml/Makefile
-@@ -32,6 +32,10 @@ endif
- 
- dml_ccflags := -mhard-float -msse $(cc_stack_align)
- 
-+ifdef CONFIG_CC_IS_CLANG
-+dml_ccflags += -msse2
-+endif
-+
- CFLAGS_display_mode_lib.o := $(dml_ccflags)
- 
- ifdef CONFIG_DRM_AMD_DC_DCN2_0
---- a/drivers/gpu/drm/amd/display/dc/dsc/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/dsc/Makefile
-@@ -9,6 +9,10 @@ endif
- 
- dsc_ccflags := -mhard-float -msse $(cc_stack_align)
- 
-+ifdef CONFIG_CC_IS_CLANG
-+dsc_ccflags += -msse2
-+endif
-+
- CFLAGS_rc_calc.o := $(dsc_ccflags)
- CFLAGS_rc_calc_dpi.o := $(dsc_ccflags)
- CFLAGS_codec_main_amd.o := $(dsc_ccflags)
+ static const struct nla_policy nft_socket_policy[NFTA_SOCKET_MAX + 1] = {
+-- 
+2.20.1
+
 
 
