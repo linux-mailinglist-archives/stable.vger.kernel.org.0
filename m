@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 607BCC1509
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 402D0C150B
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728979AbfI2OAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:00:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41742 "EHLO mail.kernel.org"
+        id S1729114AbfI2OAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:00:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729861AbfI2OAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:00:08 -0400
+        id S1729871AbfI2OAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:00:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACD212082F;
-        Sun, 29 Sep 2019 14:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A724721835;
+        Sun, 29 Sep 2019 14:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765607;
-        bh=tKpXY8ElDAeEgxlJooPgCw+vML5MxqS6+d5E+GHMPlI=;
+        s=default; t=1569765610;
+        bh=vB8PEykiLTpJVoylB+3/isI7qp+NEDMc4CvjjxdfpbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veP+XsK6J0AdLybrVqeHZNm0SWp1QJHWbI0ooz2V5IPmoyGc7jpNkayqBeeZPG2H3
-         1drR4qLsSwH+lKPFV/GG1JqKBok+LP5A/wBxKJH0zP481NlLsssH6aOfm/qjWsaDYd
-         lbT8x74XFg2NFhTjxaFy6VkpYpoBMZyusyFumvIc=
+        b=Znd12XbFRjPjyEtophp9UappMkmtOqXTAFK26tfVblSDgP2CUkxuJxce7xZX3pPMt
+         S0ryJkrOGqEiN6qPvXKi1U3jn0QRxy07ga3xjMbV5NsDDL21KXOuFJ7EIQGxkJqf5W
+         d82KXGh7x73giEds0EKJ/rjN1qltP1DbsdUPXxfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zorro Lang <zlang@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Bill ODonnell <billodo@redhat.com>,
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/63] xfs: dont crash on null attr fork xfs_bmapi_read
-Date:   Sun, 29 Sep 2019 15:54:32 +0200
-Message-Id: <20190929135041.113693934@linuxfoundation.org>
+Subject: [PATCH 4.19 60/63] netfilter: nft_socket: fix erroneous socket assignment
+Date:   Sun, 29 Sep 2019 15:54:33 +0200
+Message-Id: <20190929135041.228856362@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -45,97 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Fernando Fernandez Mancera <ffmancera@riseup.net>
 
-[ Upstream commit 8612de3f7ba6e900465e340516b8313806d27b2d ]
+[ Upstream commit 039b1f4f24ecc8493b6bb9d70b4b78750d1b35c2 ]
 
-Zorro Lang reported a crash in generic/475 if we try to inactivate a
-corrupt inode with a NULL attr fork (stack trace shortened somewhat):
+The socket assignment is wrong, see skb_orphan():
+When skb->destructor callback is not set, but skb->sk is set, this hits BUG().
 
-RIP: 0010:xfs_bmapi_read+0x311/0xb00 [xfs]
-RSP: 0018:ffff888047f9ed68 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff888047f9f038 RCX: 1ffffffff5f99f51
-RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000012
-RBP: ffff888002a41f00 R08: ffffed10005483f0 R09: ffffed10005483ef
-R10: ffffed10005483ef R11: ffff888002a41f7f R12: 0000000000000004
-R13: ffffe8fff53b5768 R14: 0000000000000005 R15: 0000000000000001
-FS:  00007f11d44b5b80(0000) GS:ffff888114200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000ef6000 CR3: 000000002e176003 CR4: 00000000001606e0
-Call Trace:
- xfs_dabuf_map.constprop.18+0x696/0xe50 [xfs]
- xfs_da_read_buf+0xf5/0x2c0 [xfs]
- xfs_da3_node_read+0x1d/0x230 [xfs]
- xfs_attr_inactive+0x3cc/0x5e0 [xfs]
- xfs_inactive+0x4c8/0x5b0 [xfs]
- xfs_fs_destroy_inode+0x31b/0x8e0 [xfs]
- destroy_inode+0xbc/0x190
- xfs_bulkstat_one_int+0xa8c/0x1200 [xfs]
- xfs_bulkstat_one+0x16/0x20 [xfs]
- xfs_bulkstat+0x6fa/0xf20 [xfs]
- xfs_ioc_bulkstat+0x182/0x2b0 [xfs]
- xfs_file_ioctl+0xee0/0x12a0 [xfs]
- do_vfs_ioctl+0x193/0x1000
- ksys_ioctl+0x60/0x90
- __x64_sys_ioctl+0x6f/0xb0
- do_syscall_64+0x9f/0x4d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f11d39a3e5b
-
-The "obvious" cause is that the attr ifork is null despite the inode
-claiming an attr fork having at least one extent, but it's not so
-obvious why we ended up with an inode in that state.
-
-Reported-by: Zorro Lang <zlang@redhat.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204031
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Bill O'Donnell <billodo@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1651813
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ net/netfilter/nft_socket.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index 06a7da8dbda5c..38dc0b43c3665 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -3841,15 +3841,28 @@ xfs_bmapi_read(
- 	XFS_STATS_INC(mp, xs_blk_mapr);
- 
- 	ifp = XFS_IFORK_PTR(ip, whichfork);
-+	if (!ifp) {
-+		/* No CoW fork?  Return a hole. */
-+		if (whichfork == XFS_COW_FORK) {
-+			mval->br_startoff = bno;
-+			mval->br_startblock = HOLESTARTBLOCK;
-+			mval->br_blockcount = len;
-+			mval->br_state = XFS_EXT_NORM;
-+			*nmap = 1;
-+			return 0;
-+		}
- 
--	/* No CoW fork?  Return a hole. */
--	if (whichfork == XFS_COW_FORK && !ifp) {
--		mval->br_startoff = bno;
--		mval->br_startblock = HOLESTARTBLOCK;
--		mval->br_blockcount = len;
--		mval->br_state = XFS_EXT_NORM;
--		*nmap = 1;
--		return 0;
-+		/*
-+		 * A missing attr ifork implies that the inode says we're in
-+		 * extents or btree format but failed to pass the inode fork
-+		 * verifier while trying to load it.  Treat that as a file
-+		 * corruption too.
-+		 */
-+#ifdef DEBUG
-+		xfs_alert(mp, "%s: inode %llu missing fork %d",
-+				__func__, ip->i_ino, whichfork);
-+#endif /* DEBUG */
-+		return -EFSCORRUPTED;
+diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
+index d7f3776dfd719..637ce3e8c575c 100644
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -47,9 +47,6 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		return;
  	}
  
- 	if (!(ifp->if_flags & XFS_IFEXTENTS)) {
+-	/* So that subsequent socket matching not to require other lookups. */
+-	skb->sk = sk;
+-
+ 	switch(priv->key) {
+ 	case NFT_SOCKET_TRANSPARENT:
+ 		nft_reg_store8(dest, inet_sk_transparent(sk));
+@@ -66,6 +63,9 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		WARN_ON(1);
+ 		regs->verdict.code = NFT_BREAK;
+ 	}
++
++	if (sk != skb->sk)
++		sock_gen_put(sk);
+ }
+ 
+ static const struct nla_policy nft_socket_policy[NFTA_SOCKET_MAX + 1] = {
 -- 
 2.20.1
 
