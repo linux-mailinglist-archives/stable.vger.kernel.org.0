@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E751C16E6
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F28C16E5
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730203AbfI2Rdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730199AbfI2Rdx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 29 Sep 2019 13:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45226 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730185AbfI2Rdu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:50 -0400
+        id S1730176AbfI2Rdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:33:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5DA22196E;
-        Sun, 29 Sep 2019 17:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B43521906;
+        Sun, 29 Sep 2019 17:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778429;
-        bh=mEX6m77D5xfNKL3qk0Z81bvRU50ZjzXX9ZeCSI33gmo=;
+        s=default; t=1569778431;
+        bh=mqSyEFPTAyzBwMRSRdz3y61W0tMmYA/5+LdqDpAIF+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFAT/Oe6JRuYfY9ADkfdr/sQQ4hN/SX7AziXteBd3tQAlO8X6UmVz78HYlTpK49LR
-         DYjMEKu3OfyF59cbWfHIKU6FPGKPfItehZdiK3R2sxwsg7+5LK96x0vo1D9HJ97p+y
-         gviMbVwbXdD2p35ed+NvUTWswG57cey6I28Y+SNo=
+        b=XeI3xufgURW6vE++d1hf09GV/Xdnd6NPCe0MZYAoHkpTkKuNBW7gfpPFFk6mQGg5T
+         bOSU5RvUUU2s6LSLELScEIlUddVQfhVzqfSIWJXTATIAm6N5fQzU0AN3/BTrShykaa
+         COuU7qEpP3JM0nsUsDRcHsGmLDZchoNv5x2Tvg60=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Rapoport <mike.rapoport@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Anatoly Pugachev <matorola@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 31/42] ARM: 8903/1: ensure that usable memory in bank 0 starts from a PMD-aligned address
-Date:   Sun, 29 Sep 2019 13:32:30 -0400
-Message-Id: <20190929173244.8918-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 33/42] pktcdvd: remove warning on attempting to register non-passthrough dev
+Date:   Sun, 29 Sep 2019 13:32:32 -0400
+Message-Id: <20190929173244.8918-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
 References: <20190929173244.8918-1-sashal@kernel.org>
@@ -44,55 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <mike.rapoport@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 00d2ec1e6bd82c0538e6dd3e4a4040de93ba4fef ]
+[ Upstream commit eb09b3cc464d2c3bbde9a6648603c8d599ea8582 ]
 
-The calculation of memblock_limit in adjust_lowmem_bounds() assumes that
-bank 0 starts from a PMD-aligned address. However, the beginning of the
-first bank may be NOMAP memory and the start of usable memory
-will be not aligned to PMD boundary. In such case the memblock_limit will
-be set to the end of the NOMAP region, which will prevent any memblock
-allocations.
+Anatoly reports that he gets the below warning when booting -git on
+a sparc64 box on debian unstable:
 
-Mark the region between the end of the NOMAP area and the next PMD-aligned
-address as NOMAP as well, so that the usable memory will start at
-PMD-aligned address.
+...
+[   13.352975] aes_sparc64: Using sparc64 aes opcodes optimized AES
+implementation
+[   13.428002] ------------[ cut here ]------------
+[   13.428081] WARNING: CPU: 21 PID: 586 at
+drivers/block/pktcdvd.c:2597 pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428147] Attempt to register a non-SCSI queue
+[   13.428184] Modules linked in: pktcdvd libdes cdrom aes_sparc64
+n2_rng md5_sparc64 sha512_sparc64 rng_core sha256_sparc64 flash
+sha1_sparc64 ip_tables x_tables ipv6 crc_ccitt nf_defrag_ipv6 autofs4
+ext4 crc16 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy
+async_pq async_xor xor async_tx raid6_pq raid1 raid0 multipath linear
+md_mod crc32c_sparc64
+[   13.428452] CPU: 21 PID: 586 Comm: pktsetup Not tainted
+5.3.0-10169-g574cc4539762 #1234
+[   13.428507] Call Trace:
+[   13.428542]  [00000000004635c0] __warn+0xc0/0x100
+[   13.428582]  [0000000000463634] warn_slowpath_fmt+0x34/0x60
+[   13.428626]  [000000001045b244] pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428674]  [000000001045ccf4] pkt_ctl_ioctl+0x94/0x220 [pktcdvd]
+[   13.428724]  [00000000006b95c8] do_vfs_ioctl+0x628/0x6e0
+[   13.428764]  [00000000006b96c8] ksys_ioctl+0x48/0x80
+[   13.428803]  [00000000006b9714] sys_ioctl+0x14/0x40
+[   13.428847]  [0000000000406294] linux_sparc_syscall+0x34/0x44
+[   13.428890] irq event stamp: 4181
+[   13.428924] hardirqs last  enabled at (4189): [<00000000004e0a74>]
+console_unlock+0x634/0x6c0
+[   13.428984] hardirqs last disabled at (4196): [<00000000004e0540>]
+console_unlock+0x100/0x6c0
+[   13.429048] softirqs last  enabled at (3978): [<0000000000b2e2d8>]
+__do_softirq+0x498/0x520
+[   13.429110] softirqs last disabled at (3967): [<000000000042cfb4>]
+do_softirq_own_stack+0x34/0x60
+[   13.429172] ---[ end trace 2220ca468f32967d ]---
+[   13.430018] pktcdvd: setup of pktcdvd device failed
+[   13.455589] des_sparc64: Using sparc64 des opcodes optimized DES
+implementation
+[   13.515334] camellia_sparc64: Using sparc64 camellia opcodes
+optimized CAMELLIA implementation
+[   13.522856] pktcdvd: setup of pktcdvd device failed
+[   13.529327] pktcdvd: setup of pktcdvd device failed
+[   13.532932] pktcdvd: setup of pktcdvd device failed
+[   13.536165] pktcdvd: setup of pktcdvd device failed
+[   13.539372] pktcdvd: setup of pktcdvd device failed
+[   13.542834] pktcdvd: setup of pktcdvd device failed
+[   13.546536] pktcdvd: setup of pktcdvd device failed
+[   15.431071] XFS (dm-0): Mounting V5 Filesystem
+...
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Apparently debian auto-attaches any cdrom like device to pktcdvd, which
+can lead to the above warning. There's really no reason to warn for this
+situation, kill it.
+
+Reported-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/mmu.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/block/pktcdvd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 1aa2586fa597b..13233c7917fe7 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -1177,6 +1177,22 @@ void __init adjust_lowmem_bounds(void)
- 	 */
- 	vmalloc_limit = (u64)(uintptr_t)vmalloc_min - PAGE_OFFSET + PHYS_OFFSET;
- 
-+	/*
-+	 * The first usable region must be PMD aligned. Mark its start
-+	 * as MEMBLOCK_NOMAP if it isn't
-+	 */
-+	for_each_memblock(memory, reg) {
-+		if (!memblock_is_nomap(reg)) {
-+			if (!IS_ALIGNED(reg->base, PMD_SIZE)) {
-+				phys_addr_t len;
-+
-+				len = round_up(reg->base, PMD_SIZE) - reg->base;
-+				memblock_mark_nomap(reg->base, len);
-+			}
-+			break;
-+		}
-+	}
-+
- 	for_each_memblock(memory, reg) {
- 		phys_addr_t block_start = reg->base;
- 		phys_addr_t block_end = reg->base + reg->size;
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 024060165afa7..76457003f1406 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -2594,7 +2594,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	if (ret)
+ 		return ret;
+ 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
+-		WARN_ONCE(true, "Attempt to register a non-SCSI queue\n");
+ 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 		return -EINVAL;
+ 	}
 -- 
 2.20.1
 
