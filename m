@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E26C1766
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538EAC1733
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729911AbfI2Rgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49204 "EHLO mail.kernel.org"
+        id S1730882AbfI2Rgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729874AbfI2Rgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:35 -0400
+        id S1729874AbfI2Rgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:36:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A8E621A4C;
-        Sun, 29 Sep 2019 17:36:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 291A621A4C;
+        Sun, 29 Sep 2019 17:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778595;
-        bh=FQnyGHniUWZ8WUPvO966/aKiYAgXuWbjg5v6j5e9C98=;
+        s=default; t=1569778598;
+        bh=v1uxMpEy4OhIiDtMAhQTqznuWJsOzOI/p4DPGLEgCXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJXYAW2RPtZD6GNWgWu63uWK6KqU5NjH1P4mynAHwJK4koaM/aTXnsjYkaEq7eVzT
-         SsGuNboTApwoUmjUximiMM0yw95euKisPXcRF1gIxuNxmBuZQ1wUPIB0BPMtE40Ev9
-         +jn3Q4JLYTyK0XXaeI32uaz2Kx0IxpWqXxSzla6s=
+        b=u8woCgQC+QDTcIIrKrc6TsJMzDyO4Obku1bRQXFHeGoQBRFphfpVKOTkfx707bdOq
+         QPGb3tuT7hh7Z+0X2/CpWlFADt52b8xqBrZZkynsOz0iU5NP2KKuiRwr+ZiIQ/D9FH
+         tRbGcinb+QJcxxYn5NTz/jufssPyj3qka1/iyOQs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nishka Dasgupta <nishkadg.linux@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/13] PCI: tegra: Fix OF node reference leak
-Date:   Sun, 29 Sep 2019 13:36:14 -0400
-Message-Id: <20190929173625.10003-4-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Orion Hodson <oth@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 05/13] ARM: 8898/1: mm: Don't treat faults reported from cache maintenance as writes
+Date:   Sun, 29 Sep 2019 13:36:15 -0400
+Message-Id: <20190929173625.10003-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173625.10003-1-sashal@kernel.org>
 References: <20190929173625.10003-1-sashal@kernel.org>
@@ -44,99 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishka Dasgupta <nishkadg.linux@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 9e38e690ace3e7a22a81fc02652fc101efb340cf ]
+[ Upstream commit 834020366da9ab3fb87d1eb9a3160eb22dbed63a ]
 
-Each iteration of for_each_child_of_node() executes of_node_put() on the
-previous node, but in some return paths in the middle of the loop
-of_node_put() is missing thus causing a reference leak.
+Translation faults arising from cache maintenance instructions are
+rather unhelpfully reported with an FSR value where the WnR field is set
+to 1, indicating that the faulting access was a write. Since cache
+maintenance instructions on 32-bit ARM do not require any particular
+permissions, this can cause our private 'cacheflush' system call to fail
+spuriously if a translation fault is generated due to page aging when
+targetting a read-only VMA.
 
-Hence stash these mid-loop return values in a variable 'err' and add a
-new label err_node_put which executes of_node_put() on the previous node
-and returns 'err' on failure.
+In this situation, we will return -EFAULT to userspace, although this is
+unfortunately suppressed by the popular '__builtin___clear_cache()'
+intrinsic provided by GCC, which returns void.
 
-Change mid-loop return statements to point to jump to this label to
-fix the reference leak.
+Although it's tempting to write this off as a userspace issue, we can
+actually do a little bit better on CPUs that support LPAE, even if the
+short-descriptor format is in use. On these CPUs, cache maintenance
+faults additionally set the CM field in the FSR, which we can use to
+suppress the write permission checks in the page fault handler and
+succeed in performing cache maintenance to read-only areas even in the
+presence of a translation fault.
 
-Issue found with Coccinelle.
-
-Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
-[lorenzo.pieralisi@arm.com: rewrote commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reported-by: Orion Hodson <oth@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pci-tegra.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ arch/arm/mm/fault.c | 4 ++--
+ arch/arm/mm/fault.h | 1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
-index 8dfccf7332411..8e101b19c4d6f 100644
---- a/drivers/pci/host/pci-tegra.c
-+++ b/drivers/pci/host/pci-tegra.c
-@@ -1898,14 +1898,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		err = of_pci_get_devfn(port);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse address: %d\n", err);
--			return err;
-+			goto err_node_put;
- 		}
+diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
+index 5ca207ada8524..2539c8f9fb3fa 100644
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -214,7 +214,7 @@ static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
+ {
+ 	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
  
- 		index = PCI_SLOT(err);
+-	if (fsr & FSR_WRITE)
++	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
+ 		mask = VM_WRITE;
+ 	if (fsr & FSR_LNX_PF)
+ 		mask = VM_EXEC;
+@@ -284,7 +284,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
  
- 		if (index < 1 || index > soc->num_ports) {
- 			dev_err(dev, "invalid port number: %d\n", index);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto err_node_put;
- 		}
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+-	if (fsr & FSR_WRITE)
++	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
+ 		flags |= FAULT_FLAG_WRITE;
  
- 		index--;
-@@ -1914,12 +1915,13 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse # of lanes: %d\n",
- 				err);
--			return err;
-+			goto err_node_put;
- 		}
- 
- 		if (value > 16) {
- 			dev_err(dev, "invalid # of lanes: %u\n", value);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto err_node_put;
- 		}
- 
- 		lanes |= value << (index << 3);
-@@ -1933,13 +1935,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		lane += value;
- 
- 		rp = devm_kzalloc(dev, sizeof(*rp), GFP_KERNEL);
--		if (!rp)
--			return -ENOMEM;
-+		if (!rp) {
-+			err = -ENOMEM;
-+			goto err_node_put;
-+		}
- 
- 		err = of_address_to_resource(port, 0, &rp->regs);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse address: %d\n", err);
--			return err;
-+			goto err_node_put;
- 		}
- 
- 		INIT_LIST_HEAD(&rp->list);
-@@ -1966,6 +1970,10 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		return err;
- 
- 	return 0;
-+
-+err_node_put:
-+	of_node_put(port);
-+	return err;
- }
- 
- /*
+ 	/*
+diff --git a/arch/arm/mm/fault.h b/arch/arm/mm/fault.h
+index afc1f84e763b2..9bc272642d55a 100644
+--- a/arch/arm/mm/fault.h
++++ b/arch/arm/mm/fault.h
+@@ -5,6 +5,7 @@
+  * Fault status register encodings.  We steal bit 31 for our own purposes.
+  */
+ #define FSR_LNX_PF		(1 << 31)
++#define FSR_CM			(1 << 13)
+ #define FSR_WRITE		(1 << 11)
+ #define FSR_FS4			(1 << 10)
+ #define FSR_FS3_0		(15)
 -- 
 2.20.1
 
