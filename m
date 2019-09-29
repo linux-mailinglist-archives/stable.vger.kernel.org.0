@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15444C1572
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F08C1540
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbfI2ODy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47160 "EHLO mail.kernel.org"
+        id S1730198AbfI2OCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730400AbfI2ODx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:53 -0400
+        id S1730194AbfI2OCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEEA82082F;
-        Sun, 29 Sep 2019 14:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A73221835;
+        Sun, 29 Sep 2019 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765833;
-        bh=dQ/cnZf9Znd+YlFFWEkaZQE3GjRWqEoWkhJ1EVtpsOw=;
+        s=default; t=1569765741;
+        bh=cRcNa+IPSu9O6oUe7TD+cvUBa7ZY+zVpPPKdob/HPKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=He66AVuKt9gFwQ2MdNk7V3cy6ngZJ5+6mWLo7xnMUWsHAXYU+4AbXREji6Iymotya
-         Fqf/sZaCafT2ou3eUF08KBWvLwKHizmjOnXjm8kHIF1ImkVQaTfwonGP2KY8nJO+WR
-         FS788NYQcSP9M4ZVSHYVw1QHj9LvwRMi5z8PSyIQ=
+        b=nsuAVLN4A6omUDmL93oM5csYoTId3VEr9MY+UGnuY03qWbSgbSXN6EbwemHFG1S1A
+         YWgArlM9WhhN7gsLKE+VGdh56P+K4yLuojq/miOucAFp5Zs8F3ihe0EVxew66pCl16
+         FQX3yyAqdhZLZag21jUHGkN//umdLRmLm+2MxBmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Adam Borowski <kilobyte@angband.pl>
-Subject: [PATCH 5.3 01/25] netfilter: add missing IS_ENABLED(CONFIG_NF_TABLES) check to header-file.
+        stable@vger.kernel.org,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 36/45] net: dont warn in inet diag when IPV6 is disabled
 Date:   Sun, 29 Sep 2019 15:56:04 +0200
-Message-Id: <20190929135007.174891957@linuxfoundation.org>
+Message-Id: <20190929135032.777210777@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
-References: <20190929135006.127269625@linuxfoundation.org>
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135024.387033930@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,45 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Stephen Hemminger <stephen@networkplumber.org>
 
-commit 47e640af2e492cc28778dd6f894d50313f7fba75 upstream.
+[ Upstream commit 1e64d7cbfdce4887008314d5b367209582223f27 ]
 
-nf_tables.h defines an API comprising several inline functions and
-macros that depend on the nft member of struct net.  However, this is
-only defined is CONFIG_NF_TABLES is enabled.  Added preprocessor checks
-to ensure that nf_tables.h will compile if CONFIG_NF_TABLES is disabled.
+If IPV6 was disabled, then ss command would cause a kernel warning
+because the command was attempting to dump IPV6 socket information.
+The fix is to just remove the warning.
 
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Link: https://lore.kernel.org/netfilter-devel/20190920094925.aw7actk4tdnk3rke@salvia/T/
-Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
-Reported-by: Adam Borowski <kilobyte@angband.pl>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202249
+Fixes: 432490f9d455 ("net: ip, diag -- Add diag interface for raw sockets")
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/raw_diag.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -1206,6 +1206,8 @@ void nft_trace_notify(struct nft_tracein
- #define MODULE_ALIAS_NFT_OBJ(type) \
- 	MODULE_ALIAS("nft-obj-" __stringify(type))
- 
-+#if IS_ENABLED(CONFIG_NF_TABLES)
-+
- /*
-  * The gencursor defines two generations, the currently active and the
-  * next one. Objects contain a bitmask of 2 bits specifying the generations
-@@ -1279,6 +1281,8 @@ static inline void nft_set_elem_change_a
- 	ext->genmask ^= nft_genmask_next(net);
+diff --git a/net/ipv4/raw_diag.c b/net/ipv4/raw_diag.c
+index 899e34ceb5602..e35736b993003 100644
+--- a/net/ipv4/raw_diag.c
++++ b/net/ipv4/raw_diag.c
+@@ -24,9 +24,6 @@ raw_get_hashinfo(const struct inet_diag_req_v2 *r)
+ 		return &raw_v6_hashinfo;
+ #endif
+ 	} else {
+-		pr_warn_once("Unexpected inet family %d\n",
+-			     r->sdiag_family);
+-		WARN_ON_ONCE(1);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  }
- 
-+#endif /* IS_ENABLED(CONFIG_NF_TABLES) */
-+
- /*
-  * We use a free bit in the genmask field to indicate the element
-  * is busy, meaning it is currently being processed either by
+-- 
+2.20.1
+
 
 
