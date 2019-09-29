@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59154C14D2
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFB1C14D4
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729294AbfI2N6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38952 "EHLO mail.kernel.org"
+        id S1729461AbfI2N6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729461AbfI2N6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:58:19 -0400
+        id S1729473AbfI2N6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:58:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5034721906;
-        Sun, 29 Sep 2019 13:58:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8680421882;
+        Sun, 29 Sep 2019 13:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765499;
-        bh=PkXjBr9+cpxtf25fZEakENcrT1468XWH7Wv7LDd+vmg=;
+        s=default; t=1569765502;
+        bh=4+kZGCbJLxhcOOFJQC0TqsQIxXAH4owJOsplLFhJJPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/TkdMdPh/4AEZ6Cn4LcnitXFrzE1l5v4MI4cxEb4Xv4mBPCc7zCIrTUgxn8DSwi8
-         jgscfck3j1W9BaBVEHbt/XBxcytwh8+bupwujaHFRQLNv5w7j/1uCvChtDthyg2M0O
-         a7z3IBYNjWite13hSUDiipx77ms9OGWOcIbqvS6c=
+        b=uP3Jw5RQfNWbe9HG6LWAPrAHowyzZNCjSPhdYR2zuuYh8Lxg9dkCAefEOeNtmvZ/T
+         eGnUVLaR/9gW0EbB8oiRlxHlt9duHNdbK9Lvi85CawItt6M9J+RS7YVEzyh5rPovEk
+         cRxa4IONnj3FT5+5h8xuSHrYuKumtT3NOOMayW4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Naftali Goldstein <naftali.goldstein@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 4.19 22/63] iwlwifi: mvm: send BCAST management frames to the right station
-Date:   Sun, 29 Sep 2019 15:53:55 +0200
-Message-Id: <20190929135036.583424206@linuxfoundation.org>
+Subject: [PATCH 4.19 23/63] iwlwifi: mvm: always init rs_fw with 20MHz bandwidth rates
+Date:   Sun, 29 Sep 2019 15:53:56 +0200
+Message-Id: <20190929135036.697281866@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -44,36 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Naftali Goldstein <naftali.goldstein@intel.com>
 
-commit 65c3b582ecab7a403efdf08babbf87fdbe27369c upstream.
+commit 2859de7637b541dc7191f4d3fce4a1adba80fb3e upstream.
 
-Probe responses were sent to the multicast station while
-they should be routed to the broadcast station.
-This has no negative effect since the frame was still
-routed to the right queue, but it looked very fishy
-to send a frame to a (queue, station) tuple where
-'queue' is not mapped to 'station'.
+As with the non-offloaded rs case, during assoc on the ap side the phy
+context is set to 20MHz until authorization of a client that supports
+wider channel-widths. Support this by sending the initial
+tlc_config_cmd with max supported channel width of 20MHz until
+authorization succeeds.
 
-Fixes: 7c305de2b954 ("iwlwifi: mvm: Direct multicast frames to the correct station")
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Fixes: 6b7a5aea71b3 ("iwlwifi: mvm: always init rs with 20mhz bandwidth rates")
+Signed-off-by: Naftali Goldstein <naftali.goldstein@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c |    5 +++--
+ drivers/net/wireless/intel/iwlwifi/mvm/rs.c    |    2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/rs.h    |    2 +-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -671,7 +671,7 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mv
- 		if (info.control.vif->type == NL80211_IFTYPE_P2P_DEVICE ||
- 		    info.control.vif->type == NL80211_IFTYPE_AP ||
- 		    info.control.vif->type == NL80211_IFTYPE_ADHOC) {
--			if (info.control.vif->type == NL80211_IFTYPE_P2P_DEVICE)
-+			if (!ieee80211_is_data(hdr->frame_control))
- 				sta_id = mvmvif->bcast_sta.sta_id;
- 			else
- 				sta_id = mvmvif->mcast_sta.sta_id;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+@@ -315,7 +315,7 @@ out:
+ }
+ 
+ void rs_fw_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+-		     enum nl80211_band band)
++		     enum nl80211_band band, bool update)
+ {
+ 	struct ieee80211_hw *hw = mvm->hw;
+ 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+@@ -324,7 +324,8 @@ void rs_fw_rate_init(struct iwl_mvm *mvm
+ 	struct ieee80211_supported_band *sband;
+ 	struct iwl_tlc_config_cmd cfg_cmd = {
+ 		.sta_id = mvmsta->sta_id,
+-		.max_ch_width = rs_fw_bw_from_sta_bw(sta),
++		.max_ch_width = update ?
++			rs_fw_bw_from_sta_bw(sta) : RATE_MCS_CHAN_WIDTH_20,
+ 		.flags = cpu_to_le16(rs_fw_set_config_flags(mvm, sta)),
+ 		.chains = rs_fw_set_active_chains(iwl_mvm_get_valid_tx_ant(mvm)),
+ 		.max_mpdu_len = cpu_to_le16(sta->max_amsdu_len),
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs.c
+@@ -4113,7 +4113,7 @@ void iwl_mvm_rs_rate_init(struct iwl_mvm
+ 			  enum nl80211_band band, bool update)
+ {
+ 	if (iwl_mvm_has_tlc_offload(mvm))
+-		rs_fw_rate_init(mvm, sta, band);
++		rs_fw_rate_init(mvm, sta, band, update);
+ 	else
+ 		rs_drv_rate_init(mvm, sta, band, update);
+ }
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs.h
+@@ -461,7 +461,7 @@ void rs_remove_sta_debugfs(void *mvm, vo
+ 
+ void iwl_mvm_rs_add_sta(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta);
+ void rs_fw_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+-		     enum nl80211_band band);
++		     enum nl80211_band band, bool update);
+ int rs_fw_tx_protection(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta,
+ 			bool enable);
+ void iwl_mvm_tlc_update_notif(struct iwl_mvm *mvm,
 
 
