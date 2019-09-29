@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B7EC1770
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DADFC1728
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbfI2RgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48696 "EHLO mail.kernel.org"
+        id S1730759AbfI2RgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730759AbfI2RgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:15 -0400
+        id S1730790AbfI2RgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:36:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED59A21906;
-        Sun, 29 Sep 2019 17:36:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5237421925;
+        Sun, 29 Sep 2019 17:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778574;
-        bh=CZ9cCbOXBPrhHs4OeUR95IOMxTutnCR8uQ3Lcew8luw=;
+        s=default; t=1569778577;
+        bh=p/RHvbDV/1tIo8Or4RuVoQrBkcui4L3WwhNnxozAR/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Wx9vYxaDVxVF/ryku0sy3tWUkwvP9ym9it5fonU8qgbUYktwLz2wAin0sNUQfQ3J
-         u8k3LmFhiq29QtnBRZ92fVwtpmCANpMM/9i67LhP4CKzXU35KT+UFemiEcbVD2WqMB
-         F9AzYOC+Y6homqUOHmS4qNoQ1Rs7LwNl788Jij3w=
+        b=2cXsXTZHLItGsLQkD8zDMI8nae8l0qTCojHXcTfxGnVxeaGBBtOhOSt8n5zHebitm
+         FVvj6AEv86/4TUwwR1OFF55Brz/bzh637KEg+usEPwx2qBj8xXsYHgclqyUgBwhq7c
+         DCBJ31d7xyeL6s0rVR/ZlAyd4mzUmB4xEs5T/BHA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+Cc:     Greg Thelen <gthelen@google.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 20/23] hypfs: Fix error number left in struct pointer member
-Date:   Sun, 29 Sep 2019 13:35:30 -0400
-Message-Id: <20190929173535.9744-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 21/23] kbuild: clean compressed initramfs image
+Date:   Sun, 29 Sep 2019 13:35:31 -0400
+Message-Id: <20190929173535.9744-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173535.9744-1-sashal@kernel.org>
 References: <20190929173535.9744-1-sashal@kernel.org>
@@ -45,55 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Greg Thelen <gthelen@google.com>
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+[ Upstream commit 6279eb3dd7946c69346a3b98473ed13d3a44adb5 ]
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+Since 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
+"make clean" leaves behind compressed initramfs images.  Example:
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
+  $ make defconfig
+  $ sed -i 's|CONFIG_INITRAMFS_SOURCE=""|CONFIG_INITRAMFS_SOURCE="/tmp/ir.cpio"|' .config
+  $ make olddefconfig
+  $ make -s
+  $ make -s clean
+  $ git clean -ndxf | grep initramfs
+  Would remove usr/initramfs_data.cpio.gz
 
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+clean rules do not have CONFIG_* context so they do not know which
+compression format was used.  Thus they don't know which files to delete.
+
+Tell clean to delete all possible compression formats.
+
+Once patched usr/initramfs_data.cpio.gz and friends are deleted by
+"make clean".
+
+Link: http://lkml.kernel.org/r/20190722063251.55541-1-gthelen@google.com
+Fixes: 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ usr/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 45eb5999110be..32f5b3fb069f3 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
+diff --git a/usr/Makefile b/usr/Makefile
+index 237a028693ce9..5f1bc5b23b14c 100644
+--- a/usr/Makefile
++++ b/usr/Makefile
+@@ -11,6 +11,9 @@ datafile_y = initramfs_data.cpio$(suffix_y)
+ datafile_d_y = .$(datafile_y).d
+ AFLAGS_initramfs_data.o += -DINITRAMFS_IMAGE="usr/$(datafile_y)"
  
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
++# clean rules do not have CONFIG_INITRAMFS_COMPRESSION.  So clean up after all
++# possible compression formats.
++clean-files += initramfs_data.cpio*
+ 
+ # Generate builtin.o based on initramfs_data.o
+ obj-$(CONFIG_BLK_DEV_INITRD) := initramfs_data.o
 -- 
 2.20.1
 
