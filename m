@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45538C14DD
+	by mail.lfdr.de (Postfix) with ESMTP id AEC69C14DE
 	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729533AbfI2N6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:58:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
+        id S1729531AbfI2N6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729567AbfI2N6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:58:39 -0400
+        id S1729530AbfI2N6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:58:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A7422082F;
-        Sun, 29 Sep 2019 13:58:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D104218DE;
+        Sun, 29 Sep 2019 13:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765519;
-        bh=tMeytRh19/5JwBBfiNuzCT9ZIvcUn/hRqRtQ3c1g+Xg=;
+        s=default; t=1569765522;
+        bh=o3LJsIv4ejrSMRZyry6Gv9gFeMdkXt4FuLD2PHuDnDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8B2wJzYr+uu9vGpqGSG40obWIUUempDXzC/KgCwV2H7nVjtUZuX6FGk34r2xrI3X
-         uc2AmdejDvDQleDE5TsEKt2fts1e6VJcLr5zj1ah2PavunSD1w5s7xXlReMpor19Kh
-         EyN5+MAspi3GIUEYobw7wELvlJuTCO/8kF2m0oJc=
+        b=OLMZ2kkPGmdNzxGQYU7LH3E3QBrEFQMGZN5yTrhjn01lX+aGL6h+QXoXhqljLvcPo
+         YE7uxj08odetnw/P1xlVyEGKc9Dcp97nR938lKn+GOSrWkc0px1g41gbktmpC8hSJm
+         bxfuI/8SvZGZU6DPnfhfl/q8GG1Wy8I0V5VwxjQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Surbhi Palande <csurbhi@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/63] f2fs: check all the data segments against all node ones
-Date:   Sun, 29 Sep 2019 15:54:17 +0200
-Message-Id: <20190929135039.441288123@linuxfoundation.org>
+Subject: [PATCH 4.19 45/63] PCI: hv: Avoid use of hv_pci_dev->pci_slot after freeing it
+Date:   Sun, 29 Sep 2019 15:54:18 +0200
+Message-Id: <20190929135039.530989431@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -44,42 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surbhi Palande <f2fsnewbie@gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 1166c1f2f69117ad254189ca781287afa6e550b6 ]
+[ Upstream commit 533ca1feed98b0bf024779a14760694c7cb4d431 ]
 
-As a part of the sanity checking while mounting, distinct segment number
-assignment to data and node segments is verified. Fixing a small bug in
-this verification between node and data segments. We need to check all
-the data segments with all the node segments.
+The slot must be removed before the pci_dev is removed, otherwise a panic
+can happen due to use-after-free.
 
-Fixes: 042be0f849e5f ("f2fs: fix to do sanity check with current segment number")
-Signed-off-by: Surbhi Palande <csurbhi@gmail.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 15becc2b56c6 ("PCI: hv: Add hv_pci_remove_slots() when we unload the driver")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-hyperv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 1871031e2d5eb..e9ab4b39d4eef 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2413,11 +2413,11 @@ int f2fs_sanity_check_ckpt(struct f2fs_sb_info *sbi)
- 		}
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index 5dadc964ad3b4..5c28498466415 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -2706,8 +2706,8 @@ static int hv_pci_remove(struct hv_device *hdev)
+ 		/* Remove the bus from PCI's point of view. */
+ 		pci_lock_rescan_remove();
+ 		pci_stop_root_bus(hbus->pci_bus);
+-		pci_remove_root_bus(hbus->pci_bus);
+ 		hv_pci_remove_slots(hbus);
++		pci_remove_root_bus(hbus->pci_bus);
+ 		pci_unlock_rescan_remove();
+ 		hbus->state = hv_pcibus_removed;
  	}
- 	for (i = 0; i < NR_CURSEG_NODE_TYPE; i++) {
--		for (j = i; j < NR_CURSEG_DATA_TYPE; j++) {
-+		for (j = 0; j < NR_CURSEG_DATA_TYPE; j++) {
- 			if (le32_to_cpu(ckpt->cur_node_segno[i]) ==
- 				le32_to_cpu(ckpt->cur_data_segno[j])) {
- 				f2fs_msg(sbi->sb, KERN_ERR,
--					"Data segment (%u) and Data segment (%u)"
-+					"Node segment (%u) and Data segment (%u)"
- 					" has the same segno: %u", i, j,
- 					le32_to_cpu(ckpt->cur_node_segno[i]));
- 				return 1;
 -- 
 2.20.1
 
