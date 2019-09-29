@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA029C14C5
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F8DC15A1
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729378AbfI2N6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S1729188AbfI2N5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:57:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbfI2N57 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:57:59 -0400
+        id S1729183AbfI2N5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:57:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A0C2082F;
-        Sun, 29 Sep 2019 13:57:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0B7021924;
+        Sun, 29 Sep 2019 13:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765479;
-        bh=fJRIE1yXHyuEXQ+irInj0w2AxnLqI9dVf+67QWo0nfc=;
+        s=default; t=1569765434;
+        bh=xz6fq+e565hRXWS3BW/XA1jFAOeFGRe1j0x31ClGlGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FaZ/K4LgOiJsEo8OeKkU2eS3Ozm0/c2doXYIw7BNgWOKpPxTYBpIUn9KBThn/5VL7
-         K7UR/pNDJew0NUsVLDUG4IDXGLWqzCIN3gMuFWgRF6q5fflswtc4UkW1P8vz/0dPQ/
-         rVGeim5Tbl0bTWAQymB5sbiVsIULWOq6zMv4fRRU=
+        b=nn4RSYriQOSxAh6LArSxEteziKvguSB/M2oPmt/mWGCkcgXW0lEZn0F7vLFHN/uEA
+         5eaEzEQ0Swzdo+wf0Cjw8SPcDxdvTyzWQ6+NXHJiGuQrjWbTnQ6SBFCpafBHkRTF7Y
+         mU+aq+zZRbh7Q6Y1bwk83lJ7OKsJvkESjOAEpm3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.19 32/63] objtool: Clobber user CFLAGS variable
-Date:   Sun, 29 Sep 2019 15:54:05 +0200
-Message-Id: <20190929135038.001975830@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.m>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 06/63] IB/core: Add an unbound WQ type to the new CQ API
+Date:   Sun, 29 Sep 2019 15:53:39 +0200
+Message-Id: <20190929135032.386458998@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -48,40 +46,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-commit f73b3cc39c84220e6dccd463b5c8279b03514646 upstream.
+commit f794809a7259dfaa3d47d90ef5a86007cf48b1ce upstream.
 
-If the build user has the CFLAGS variable set in their environment,
-objtool blindly appends to it, which can cause unexpected behavior.
+The upstream kernel commit cited below modified the workqueue in the
+new CQ API to be bound to a specific CPU (instead of being unbound).
+This caused ALL users of the new CQ API to use the same bound WQ.
 
-Clobber CFLAGS to ensure consistent objtool compilation behavior.
+Specifically, MAD handling was severely delayed when the CPU bound
+to the WQ was busy handling (higher priority) interrupts.
 
-Reported-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Tested-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/83a276df209962e6058fcb6c615eef9d401c21bc.1567121311.git.jpoimboe@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-CC: Nathan Chancellor <natechancellor@gmail.com>
+This caused a delay in the MAD "heartbeat" response handling,
+which resulted in ports being incorrectly classified as "down".
+
+To fix this, add a new "unbound" WQ type to the new CQ API, so that users
+have the option to choose either a bound WQ or an unbound WQ.
+
+For MADs, choose the new "unbound" WQ.
+
+Fixes: b7363e67b23e ("IB/device: Convert ib-comp-wq to be CPU-bound")
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.m>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/objtool/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cq.c     |    8 ++++++--
+ drivers/infiniband/core/device.c |   15 ++++++++++++++-
+ drivers/infiniband/core/mad.c    |    2 +-
+ include/rdma/ib_verbs.h          |    9 ++++++---
+ 4 files changed, 27 insertions(+), 7 deletions(-)
 
---- a/tools/objtool/Makefile
-+++ b/tools/objtool/Makefile
-@@ -35,7 +35,7 @@ INCLUDES := -I$(srctree)/tools/include \
- 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
- 	    -I$(srctree)/tools/objtool/arch/$(ARCH)/include
- WARNINGS := $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -Wno-packed
--CFLAGS   += -Werror $(WARNINGS) $(KBUILD_HOSTCFLAGS) -g $(INCLUDES) $(LIBELF_FLAGS)
-+CFLAGS   := -Werror $(WARNINGS) $(KBUILD_HOSTCFLAGS) -g $(INCLUDES) $(LIBELF_FLAGS)
- LDFLAGS  += $(LIBELF_LIBS) $(LIBSUBCMD) $(KBUILD_HOSTLDFLAGS)
+--- a/drivers/infiniband/core/cq.c
++++ b/drivers/infiniband/core/cq.c
+@@ -112,12 +112,12 @@ static void ib_cq_poll_work(struct work_
+ 				    IB_POLL_BATCH);
+ 	if (completed >= IB_POLL_BUDGET_WORKQUEUE ||
+ 	    ib_req_notify_cq(cq, IB_POLL_FLAGS) > 0)
+-		queue_work(ib_comp_wq, &cq->work);
++		queue_work(cq->comp_wq, &cq->work);
+ }
  
- # Allow old libelf to be used:
+ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
+ {
+-	queue_work(ib_comp_wq, &cq->work);
++	queue_work(cq->comp_wq, &cq->work);
+ }
+ 
+ /**
+@@ -175,9 +175,12 @@ struct ib_cq *__ib_alloc_cq(struct ib_de
+ 		ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
+ 		break;
+ 	case IB_POLL_WORKQUEUE:
++	case IB_POLL_UNBOUND_WORKQUEUE:
+ 		cq->comp_handler = ib_cq_completion_workqueue;
+ 		INIT_WORK(&cq->work, ib_cq_poll_work);
+ 		ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
++		cq->comp_wq = (cq->poll_ctx == IB_POLL_WORKQUEUE) ?
++				ib_comp_wq : ib_comp_unbound_wq;
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -213,6 +216,7 @@ void ib_free_cq(struct ib_cq *cq)
+ 		irq_poll_disable(&cq->iop);
+ 		break;
+ 	case IB_POLL_WORKQUEUE:
++	case IB_POLL_UNBOUND_WORKQUEUE:
+ 		cancel_work_sync(&cq->work);
+ 		break;
+ 	default:
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -61,6 +61,7 @@ struct ib_client_data {
+ };
+ 
+ struct workqueue_struct *ib_comp_wq;
++struct workqueue_struct *ib_comp_unbound_wq;
+ struct workqueue_struct *ib_wq;
+ EXPORT_SYMBOL_GPL(ib_wq);
+ 
+@@ -1166,10 +1167,19 @@ static int __init ib_core_init(void)
+ 		goto err;
+ 	}
+ 
++	ib_comp_unbound_wq =
++		alloc_workqueue("ib-comp-unb-wq",
++				WQ_UNBOUND | WQ_HIGHPRI | WQ_MEM_RECLAIM |
++				WQ_SYSFS, WQ_UNBOUND_MAX_ACTIVE);
++	if (!ib_comp_unbound_wq) {
++		ret = -ENOMEM;
++		goto err_comp;
++	}
++
+ 	ret = class_register(&ib_class);
+ 	if (ret) {
+ 		pr_warn("Couldn't create InfiniBand device class\n");
+-		goto err_comp;
++		goto err_comp_unbound;
+ 	}
+ 
+ 	ret = rdma_nl_init();
+@@ -1218,6 +1228,8 @@ err_ibnl:
+ 	rdma_nl_exit();
+ err_sysfs:
+ 	class_unregister(&ib_class);
++err_comp_unbound:
++	destroy_workqueue(ib_comp_unbound_wq);
+ err_comp:
+ 	destroy_workqueue(ib_comp_wq);
+ err:
+@@ -1236,6 +1248,7 @@ static void __exit ib_core_cleanup(void)
+ 	addr_cleanup();
+ 	rdma_nl_exit();
+ 	class_unregister(&ib_class);
++	destroy_workqueue(ib_comp_unbound_wq);
+ 	destroy_workqueue(ib_comp_wq);
+ 	/* Make sure that any pending umem accounting work is done. */
+ 	destroy_workqueue(ib_wq);
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -3190,7 +3190,7 @@ static int ib_mad_port_open(struct ib_de
+ 	}
+ 
+ 	port_priv->cq = ib_alloc_cq(port_priv->device, port_priv, cq_size, 0,
+-			IB_POLL_WORKQUEUE);
++			IB_POLL_UNBOUND_WORKQUEUE);
+ 	if (IS_ERR(port_priv->cq)) {
+ 		dev_err(&device->dev, "Couldn't create ib_mad CQ\n");
+ 		ret = PTR_ERR(port_priv->cq);
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -71,6 +71,7 @@
+ 
+ extern struct workqueue_struct *ib_wq;
+ extern struct workqueue_struct *ib_comp_wq;
++extern struct workqueue_struct *ib_comp_unbound_wq;
+ 
+ union ib_gid {
+ 	u8	raw[16];
+@@ -1576,9 +1577,10 @@ struct ib_ah {
+ typedef void (*ib_comp_handler)(struct ib_cq *cq, void *cq_context);
+ 
+ enum ib_poll_context {
+-	IB_POLL_DIRECT,		/* caller context, no hw completions */
+-	IB_POLL_SOFTIRQ,	/* poll from softirq context */
+-	IB_POLL_WORKQUEUE,	/* poll from workqueue */
++	IB_POLL_DIRECT,		   /* caller context, no hw completions */
++	IB_POLL_SOFTIRQ,	   /* poll from softirq context */
++	IB_POLL_WORKQUEUE,	   /* poll from workqueue */
++	IB_POLL_UNBOUND_WORKQUEUE, /* poll from unbound workqueue */
+ };
+ 
+ struct ib_cq {
+@@ -1595,6 +1597,7 @@ struct ib_cq {
+ 		struct irq_poll		iop;
+ 		struct work_struct	work;
+ 	};
++	struct workqueue_struct *comp_wq;
+ 	/*
+ 	 * Implementation details of the RDMA core, don't use in drivers:
+ 	 */
 
 
