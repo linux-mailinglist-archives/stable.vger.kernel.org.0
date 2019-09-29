@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE04C1820
+	by mail.lfdr.de (Postfix) with ESMTP id DA4F1C1821
 	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730038AbfI2RdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:33:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44652 "EHLO mail.kernel.org"
+        id S1730053AbfI2Rd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbfI2RdY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:24 -0400
+        id S1730049AbfI2Rd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:33:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7312521A4C;
-        Sun, 29 Sep 2019 17:33:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80DD21925;
+        Sun, 29 Sep 2019 17:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778404;
-        bh=Wm5o5GS0w1SM6itP8Ry0jGS2hvCfJY2Z44Hswv46aDc=;
+        s=default; t=1569778407;
+        bh=WpjyyY71nhJF7zkpi9tYH3ElZc5ciQj8cn5tx4hB88s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aS5Uraf15tWhq3zUGY3GxMziOgm5BaS44aDzt9gZJ9tQ1a7uRgBM8K98GS+CzQIr3
-         IwluwFLtAeBY+RHU7HZdCZV9Vs6Di97yWSBambmCdykPqKtcwbzmUPCqjzgfoIKo1M
-         IIV8yIX0O9Y2c4ujWZVCnNl43sr0bJ/dq2dP+Res=
+        b=0doKzfb4XUix2IciR5buGKq7hOHTkjq1WUQqTDPwSd9I0HcEDEo9wkWUqWmAaH/F8
+         48k38/vLju7Tc/AP+8MeTWBc977+zh4pxaPwKIAx6ri9Q3VjEOmnFbLqAIOTTAuQtB
+         4iBPnODvsxWcqaYTNsAzFidTuJVWmsWBdqRa5nIM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.2 16/42] ARM: 8875/1: Kconfig: default to AEABI w/ Clang
-Date:   Sun, 29 Sep 2019 13:32:15 -0400
-Message-Id: <20190929173244.8918-16-sashal@kernel.org>
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, john@phrozen.org, kishon@ti.com,
+        ralf@linux-mips.org, robh+dt@kernel.org, hauke@hauke-m.de,
+        mark.rutland@arm.com, ms@dev.tdt.de,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 17/42] MIPS: lantiq: update the clock alias' for the mainline PCIe PHY driver
+Date:   Sun, 29 Sep 2019 13:32:16 -0400
+Message-Id: <20190929173244.8918-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
 References: <20190929173244.8918-1-sashal@kernel.org>
@@ -46,48 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit a05b9608456e0d4464c6f7ca8572324ace57a3f4 ]
+[ Upstream commit ed90302be64a53d9031c8ce05428c358b16a5d96 ]
 
-Clang produces references to __aeabi_uidivmod and __aeabi_idivmod for
-arm-linux-gnueabi and arm-linux-gnueabihf targets incorrectly when AEABI
-is not selected (such as when OABI_COMPAT is selected).
+The mainline PCIe PHY driver has it's own devicetree node. Update the
+clock alias so the mainline driver finds the clocks.
 
-While this means that OABI userspaces wont be able to upgraded to
-kernels built with Clang, it means that boards that don't enable AEABI
-like s3c2410_defconfig will stop failing to link in KernelCI when built
-with Clang.
+The first PCIe PHY is located at 0x1f106800 and exists on VRX200, ARX300
+and GRX390.
+The second PCIe PHY is located at 0x1f700400 and exists on ARX300 and
+GRX390.
+The third PCIe PHY is located at 0x1f106a00 and exists onl on GRX390.
+Lantiq's board support package (called "UGW") names these registers
+"PDI".
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/482
-Link: https://groups.google.com/forum/#!msg/clang-built-linux/yydsAAux5hk/GxjqJSW-AQAJ
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: john@phrozen.org
+Cc: kishon@ti.com
+Cc: ralf@linux-mips.org
+Cc: robh+dt@kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: hauke@hauke-m.de
+Cc: mark.rutland@arm.com
+Cc: ms@dev.tdt.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/xway/sysctrl.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 8869742a85df1..3539be8700558 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1545,8 +1545,9 @@ config ARM_PATCH_IDIV
- 	  code to do integer division.
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index b4323b2214e20..156a95ac5c725 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -468,14 +468,14 @@ void __init ltq_soc_init(void)
+ 		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB0_P);
+ 		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB1_P);
+ 		/* rc 0 */
+-		clkdev_add_pmu("1d900000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
++		clkdev_add_pmu("1f106800.phy", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
+ 		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+-		clkdev_add_pmu("1d900000.pcie", "pdi", 1, 1, PMU1_PCIE_PDI);
++		clkdev_add_pmu("1f106800.phy", "pdi", 1, 1, PMU1_PCIE_PDI);
+ 		clkdev_add_pmu("1d900000.pcie", "ctl", 1, 1, PMU1_PCIE_CTL);
+ 		/* rc 1 */
+-		clkdev_add_pmu("19000000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE1_P);
++		clkdev_add_pmu("1f700400.phy", "phy", 1, 2, PMU_ANALOG_PCIE1_P);
+ 		clkdev_add_pmu("19000000.pcie", "msi", 1, 1, PMU1_PCIE1_MSI);
+-		clkdev_add_pmu("19000000.pcie", "pdi", 1, 1, PMU1_PCIE1_PDI);
++		clkdev_add_pmu("1f700400.phy", "pdi", 1, 1, PMU1_PCIE1_PDI);
+ 		clkdev_add_pmu("19000000.pcie", "ctl", 1, 1, PMU1_PCIE1_CTL);
+ 	}
  
- config AEABI
--	bool "Use the ARM EABI to compile the kernel" if !CPU_V7 && !CPU_V7M && !CPU_V6 && !CPU_V6K
--	default CPU_V7 || CPU_V7M || CPU_V6 || CPU_V6K
-+	bool "Use the ARM EABI to compile the kernel" if !CPU_V7 && \
-+		!CPU_V7M && !CPU_V6 && !CPU_V6K && !CC_IS_CLANG
-+	default CPU_V7 || CPU_V7M || CPU_V6 || CPU_V6K || CC_IS_CLANG
- 	help
- 	  This option allows for the kernel to be compiled using the latest
- 	  ARM ABI (aka EABI).  This is only useful if you are using a user
+@@ -499,9 +499,9 @@ void __init ltq_soc_init(void)
+ 		clkdev_add_pmu("1e101000.usb", "otg", 1, 0, PMU_USB0);
+ 		clkdev_add_pmu("1e106000.usb", "otg", 1, 0, PMU_USB1);
+ 		/* rc 2 */
+-		clkdev_add_pmu("1a800000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE2_P);
++		clkdev_add_pmu("1f106a00.pcie", "phy", 1, 2, PMU_ANALOG_PCIE2_P);
+ 		clkdev_add_pmu("1a800000.pcie", "msi", 1, 1, PMU1_PCIE2_MSI);
+-		clkdev_add_pmu("1a800000.pcie", "pdi", 1, 1, PMU1_PCIE2_PDI);
++		clkdev_add_pmu("1f106a00.pcie", "pdi", 1, 1, PMU1_PCIE2_PDI);
+ 		clkdev_add_pmu("1a800000.pcie", "ctl", 1, 1, PMU1_PCIE2_CTL);
+ 		clkdev_add_pmu("1e10b308.eth", NULL, 0, 0, PMU_SWITCH | PMU_PPE_DP);
+ 		clkdev_add_pmu("1da00000.usif", "NULL", 1, 0, PMU_USIF);
+@@ -526,10 +526,10 @@ void __init ltq_soc_init(void)
+ 		clkdev_add_pmu("1e101000.usb", "otg", 1, 0, PMU_USB0 | PMU_AHBM);
+ 		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 0, PMU_USB1_P);
+ 		clkdev_add_pmu("1e106000.usb", "otg", 1, 0, PMU_USB1 | PMU_AHBM);
+-		clkdev_add_pmu("1d900000.pcie", "phy", 1, 1, PMU1_PCIE_PHY);
++		clkdev_add_pmu("1f106800.phy", "phy", 1, 1, PMU1_PCIE_PHY);
+ 		clkdev_add_pmu("1d900000.pcie", "bus", 1, 0, PMU_PCIE_CLK);
+ 		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
+-		clkdev_add_pmu("1d900000.pcie", "pdi", 1, 1, PMU1_PCIE_PDI);
++		clkdev_add_pmu("1f106800.phy", "pdi", 1, 1, PMU1_PCIE_PDI);
+ 		clkdev_add_pmu("1d900000.pcie", "ctl", 1, 1, PMU1_PCIE_CTL);
+ 		clkdev_add_pmu(NULL, "ahb", 1, 0, PMU_AHBM | PMU_AHBS);
+ 
 -- 
 2.20.1
 
