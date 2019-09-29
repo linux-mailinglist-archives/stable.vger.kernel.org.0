@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27714C1560
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16146C155E
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729120AbfI2ODb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
+        id S1729003AbfI2ODe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:03:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728809AbfI2ODb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:03:31 -0400
+        id S1728809AbfI2ODe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:03:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B2592082F;
-        Sun, 29 Sep 2019 14:03:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9AE32082F;
+        Sun, 29 Sep 2019 14:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765810;
-        bh=bj76BUU3zGruNkD2UrUM4J6IyIrJxprftoOAKp+ZfhQ=;
+        s=default; t=1569765813;
+        bh=xiOUHBKHsvXvkss4dduRDk/CwAhsptPTvK2WdmB5jcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRwU8/M7I7jxtusiyXWdKpFQND0RTQST09J2AoYkiGEWjNuk3UQY0hNMH5y6JaI1V
-         O5ntLuFjK11J+HG5mp7h9jCUZ801yY7Pia0U5GhodYHUCoSwU4Wtq+h7pTSDyvGNG4
-         aVTgpN7e5jm1zD+Xd02LCbCDhC+pcibwlMNyitbU=
+        b=IAhAv2bAM2YbGLyWj/LEfzDeDWmaCBY5LR2jvy7LLZBKGucIHDZxKCqcg0vdxKBY6
+         wRD6yDdOGmIhqJYe3OqbknvXWLVFmfej8lw670CdKgKa580MtugAj7Nkaqapx8Pn+1
+         yh5qXBe4uKj6ZgP23ksNmiVzmdl4L0i+1gyLxBUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         David Francis <david.francis@amd.com>
-Subject: [PATCH 5.3 04/25] drm/amd/display: Allow cursor async updates for framebuffer swaps
-Date:   Sun, 29 Sep 2019 15:56:07 +0200
-Message-Id: <20190929135009.846777225@linuxfoundation.org>
+Subject: [PATCH 5.3 05/25] drm/amd/display: Skip determining update type for async updates
+Date:   Sun, 29 Sep 2019 15:56:08 +0200
+Message-Id: <20190929135010.311865952@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
 References: <20190929135006.127269625@linuxfoundation.org>
@@ -47,26 +47,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit e16e37efb4c9eb7bcb9dab756c975040c5257e98 upstream.
+commit 43d10d30df156f7834fa91aecb69614fefc8bb0a upstream.
 
 [Why]
-We previously allowed framebuffer swaps as async updates for cursor
-planes but had to disable them due to a bug in DRM with async update
-handling and incorrect ref counting. The check to block framebuffer
-swaps has been added to DRM for a while now, so this check is redundant.
+By passing through the dm_determine_update_type_for_commit for atomic
+commits that can be done asynchronously we are incurring a
+performance penalty by locking access to the global private object
+and holding that access until the end of the programming sequence.
 
-The real fix that allows this to properly in DRM has also finally been
-merged and is getting backported into stable branches, so dropping
-this now seems to be the right time to do so.
+This is also allocating a new large dc_state on every access in addition
+to retaining all the references on each stream and plane until the end
+of the programming sequence.
 
 [How]
-Drop the redundant check for old_fb != new_fb.
-
-With the proper fix in DRM, this should also fix some cursor stuttering
-issues with xf86-video-amdgpu since it double buffers the cursor.
-
-IGT tests that swap framebuffers (-varying-size for example) should
-also pass again.
+Shift the determination for async update before validation. Return early
+if it's going to be an async update.
 
 Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 Acked-by: Alex Deucher <alexander.deucher@amd.com>
@@ -75,31 +70,51 @@ Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   27 ++++++++++++++++------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4548,20 +4548,10 @@ static int dm_plane_atomic_check(struct
- static int dm_plane_atomic_async_check(struct drm_plane *plane,
- 				       struct drm_plane_state *new_plane_state)
- {
--	struct drm_plane_state *old_plane_state =
--		drm_atomic_get_old_plane_state(new_plane_state->state, plane);
--
- 	/* Only support async updates on cursor planes. */
- 	if (plane->type != DRM_PLANE_TYPE_CURSOR)
- 		return -EINVAL;
+@@ -7274,6 +7274,26 @@ static int amdgpu_dm_atomic_check(struct
+ 	if (ret)
+ 		goto fail;
  
--	/*
--	 * DRM calls prepare_fb and cleanup_fb on new_plane_state for
--	 * async commits so don't allow fb changes.
--	 */
--	if (old_plane_state->fb != new_plane_state->fb)
--		return -EINVAL;
--
- 	return 0;
- }
++	if (state->legacy_cursor_update) {
++		/*
++		 * This is a fast cursor update coming from the plane update
++		 * helper, check if it can be done asynchronously for better
++		 * performance.
++		 */
++		state->async_update =
++			!drm_atomic_helper_async_check(dev, state);
++
++		/*
++		 * Skip the remaining global validation if this is an async
++		 * update. Cursor updates can be done without affecting
++		 * state or bandwidth calcs and this avoids the performance
++		 * penalty of locking the private state object and
++		 * allocating a new dc_state.
++		 */
++		if (state->async_update)
++			return 0;
++	}
++
+ 	/* Check scaling and underscan changes*/
+ 	/* TODO Removed scaling changes validation due to inability to commit
+ 	 * new stream into context w\o causing full reset. Need to
+@@ -7326,13 +7346,6 @@ static int amdgpu_dm_atomic_check(struct
+ 			ret = -EINVAL;
+ 			goto fail;
+ 		}
+-	} else if (state->legacy_cursor_update) {
+-		/*
+-		 * This is a fast cursor update coming from the plane update
+-		 * helper, check if it can be done asynchronously for better
+-		 * performance.
+-		 */
+-		state->async_update = !drm_atomic_helper_async_check(dev, state);
+ 	}
  
+ 	/* Must be success */
 
 
