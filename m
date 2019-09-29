@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B40C149A
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DD3C14A5
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725948AbfI2N4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:56:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36710 "EHLO mail.kernel.org"
+        id S1729103AbfI2N5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725974AbfI2N4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:56:42 -0400
+        id S1729095AbfI2N5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:57:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 118A62082F;
-        Sun, 29 Sep 2019 13:56:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E81A21882;
+        Sun, 29 Sep 2019 13:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765401;
-        bh=pQnPTaXWlv1+WPL9VBSNvzL6JYxtjDaI93PENrp7EaI=;
+        s=default; t=1569765421;
+        bh=WrvyVyj4M4v/rne0mfh1sqmxz50lE70Md4srZcaKLdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpR/5+fOnrFGNhTcNkW9qopuHBOgQqbOykk2UU9PZgh+98vQaaTRD9f4GFjPZPPpB
-         vJylT+PQWykwig+YPXsMHk47t+UmOYD/roaxcnT+nlLpBZfy7HLknPKf7GrPChmVzG
-         yzgzEwJwxN02UcPug8WDLJFVjBUBIlEPzMAqqfHU=
+        b=keRrnXXrCzHBetAKP8ZEmNTylfKk9BLHgKAsJ7v9ZV+VSghasA1zQMr8Z3fzNEgZQ
+         X9Ezfj3N7zSMXkLpfRzPiJRLlsGku1yLyH/aBUQvxKjcquvGuq7Gig3NPIQ/h4aU6I
+         +F7yHITM0pDHhD18NWMviF1zTmGGAQln8tcMaveA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>,
+        stable@vger.kernel.org, Juliet Kim <julietk@linux.vnet.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/63] Revert "Bluetooth: validate BLE connection interval updates"
-Date:   Sun, 29 Sep 2019 15:53:34 +0200
-Message-Id: <20190929135031.579923557@linuxfoundation.org>
+Subject: [PATCH 4.19 02/63] net/ibmvnic: free reset work of removed device from queue
+Date:   Sun, 29 Sep 2019 15:53:35 +0200
+Message-Id: <20190929135031.743944541@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,60 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Juliet Kim <julietk@linux.vnet.ibm.com>
 
-[ Upstream commit 68d19d7d995759b96169da5aac313363f92a9075 ]
+[ Upstream commit 1c2977c094998de032fee6e898c88b4a05483d08 ]
 
-This reverts commit c49a8682fc5d298d44e8d911f4fa14690ea9485e.
+Commit 36f1031c51a2 ("ibmvnic: Do not process reset during or after
+ device removal") made the change to exit reset if the driver has been
+removed, but does not free reset work items of the adapter from queue.
 
-There are devices which require low connection intervals for usable operation
-including keyboards and mice. Forcing a static connection interval for
-these types of devices has an impact in latency and causes a regression.
+Ensure all reset work items are freed when breaking out of the loop early.
 
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Fixes: 36f1031c51a2 ("ibmnvic: Do not process reset during or after device removal”)
+Signed-off-by: Juliet Kim <julietk@linux.vnet.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c  | 5 -----
- net/bluetooth/l2cap_core.c | 9 +--------
- 2 files changed, 1 insertion(+), 13 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 0adcddb211fa5..3e7badb3ac2d5 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5545,11 +5545,6 @@ static void hci_le_remote_conn_param_req_evt(struct hci_dev *hdev,
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_UNKNOWN_CONN_ID);
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 5a57be66a4872..f232943c818bf 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2000,7 +2000,10 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 	while (rwi) {
+ 		if (adapter->state == VNIC_REMOVING ||
+ 		    adapter->state == VNIC_REMOVED)
+-			goto out;
++			kfree(rwi);
++			rc = EBUSY;
++			break;
++		}
  
--	if (min < hcon->le_conn_min_interval ||
--	    max > hcon->le_conn_max_interval)
--		return send_conn_param_neg_reply(hdev, handle,
--						 HCI_ERROR_INVALID_LL_PARAMS);
--
- 	if (hci_check_conn_params(min, max, latency, timeout))
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_INVALID_LL_PARAMS);
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index a54dadf4a6ca0..260ef5426e0ca 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -5287,14 +5287,7 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
- 
- 	memset(&rsp, 0, sizeof(rsp));
- 
--	if (min < hcon->le_conn_min_interval ||
--	    max > hcon->le_conn_max_interval) {
--		BT_DBG("requested connection interval exceeds current bounds.");
--		err = -EINVAL;
--	} else {
--		err = hci_check_conn_params(min, max, latency, to_multiplier);
--	}
--
-+	err = hci_check_conn_params(min, max, latency, to_multiplier);
- 	if (err)
- 		rsp.result = cpu_to_le16(L2CAP_CONN_PARAM_REJECTED);
- 	else
+ 		if (adapter->force_reset_recovery) {
+ 			adapter->force_reset_recovery = false;
+@@ -2026,7 +2029,7 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 		netdev_dbg(adapter->netdev, "Reset failed\n");
+ 		free_all_rwi(adapter);
+ 	}
+-out:
++
+ 	adapter->resetting = false;
+ 	if (we_lock_rtnl)
+ 		rtnl_unlock();
 -- 
 2.20.1
 
