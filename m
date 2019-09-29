@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16851C1769
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:38:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B60C175D
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729744AbfI2Rh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49416 "EHLO mail.kernel.org"
+        id S1730913AbfI2Rgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730898AbfI2Rgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:43 -0400
+        id S1730910AbfI2Rgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:36:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3D3721A4A;
-        Sun, 29 Sep 2019 17:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC18B21925;
+        Sun, 29 Sep 2019 17:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778602;
-        bh=b1pw3I7anKjMaltyEWcE2OML/koA6Q4UK/0WEWlOycg=;
+        s=default; t=1569778604;
+        bh=CQnZku+V2XYvD/uLD2B3L9n+D2PqQKOkNufdS9zUJCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clnhs5PJqyYhH6hIRV2Q7qwJAKMZacUsHlunyezk06Ko2jESMRv2FCVoT8A7HLyYF
-         W2u59s19TSOKXYJP1j/YsrrSMT2DtILfvZGg7x2ONiwgh7y0Z35JNaCXVOJ+5BueXJ
-         2iGAdzQyt4KJVr8x8Fy31+KovnACok+7R/QAjAOI=
+        b=XyOonkMEzzJ8UUG3S2tMT/jUSBJGK/HsYEQW9hzjTHe+bM7IbW1V9LIxbxBuU7/aT
+         ukV725zmHokb5TW6dim9Fey58a4ii9WQ3k6uReuPuz/dqE2FyOQc20h0wSVlD7YiCS
+         MdCL9hwS7y7YfwlBVwa4nnLKiKPyeOZwyobBEBdw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/13] security: smack: Fix possible null-pointer dereferences in smack_socket_sock_rcv_skb()
-Date:   Sun, 29 Sep 2019 13:36:18 -0400
-Message-Id: <20190929173625.10003-8-sashal@kernel.org>
+Cc:     Mike Rapoport <mike.rapoport@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/13] ARM: 8903/1: ensure that usable memory in bank 0 starts from a PMD-aligned address
+Date:   Sun, 29 Sep 2019 13:36:19 -0400
+Message-Id: <20190929173625.10003-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173625.10003-1-sashal@kernel.org>
 References: <20190929173625.10003-1-sashal@kernel.org>
@@ -44,46 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Mike Rapoport <mike.rapoport@gmail.com>
 
-[ Upstream commit 3f4287e7d98a2954f20bf96c567fdffcd2b63eb9 ]
+[ Upstream commit 00d2ec1e6bd82c0538e6dd3e4a4040de93ba4fef ]
 
-In smack_socket_sock_rcv_skb(), there is an if statement
-on line 3920 to check whether skb is NULL:
-    if (skb && skb->secmark != 0)
+The calculation of memblock_limit in adjust_lowmem_bounds() assumes that
+bank 0 starts from a PMD-aligned address. However, the beginning of the
+first bank may be NOMAP memory and the start of usable memory
+will be not aligned to PMD boundary. In such case the memblock_limit will
+be set to the end of the NOMAP region, which will prevent any memblock
+allocations.
 
-This check indicates skb can be NULL in some cases.
+Mark the region between the end of the NOMAP area and the next PMD-aligned
+address as NOMAP as well, so that the usable memory will start at
+PMD-aligned address.
 
-But on lines 3931 and 3932, skb is used:
-    ad.a.u.net->netif = skb->skb_iif;
-    ipv6_skb_to_auditdata(skb, &ad.a, NULL);
-
-Thus, possible null-pointer dereferences may occur when skb is NULL.
-
-To fix these possible bugs, an if statement is added to check skb.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smack_lsm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mm/mmu.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index aeb3ba70f9077..19d1702aa9856 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4037,6 +4037,8 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 			skp = smack_ipv6host_label(&sadd);
- 		if (skp == NULL)
- 			skp = smack_net_ambient;
-+		if (skb == NULL)
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index f7c741358f37e..241bf898adf5b 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -1168,6 +1168,22 @@ void __init adjust_lowmem_bounds(void)
+ 	 */
+ 	vmalloc_limit = (u64)(uintptr_t)vmalloc_min - PAGE_OFFSET + PHYS_OFFSET;
+ 
++	/*
++	 * The first usable region must be PMD aligned. Mark its start
++	 * as MEMBLOCK_NOMAP if it isn't
++	 */
++	for_each_memblock(memory, reg) {
++		if (!memblock_is_nomap(reg)) {
++			if (!IS_ALIGNED(reg->base, PMD_SIZE)) {
++				phys_addr_t len;
++
++				len = round_up(reg->base, PMD_SIZE) - reg->base;
++				memblock_mark_nomap(reg->base, len);
++			}
 +			break;
- #ifdef CONFIG_AUDIT
- 		smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
- 		ad.a.u.net->family = family;
++		}
++	}
++
+ 	for_each_memblock(memory, reg) {
+ 		phys_addr_t block_start = reg->base;
+ 		phys_addr_t block_end = reg->base + reg->size;
 -- 
 2.20.1
 
