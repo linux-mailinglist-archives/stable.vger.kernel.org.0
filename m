@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA86C186F
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DDEC186A
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729397AbfI2Rbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S1729479AbfI2RnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:43:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729384AbfI2Rbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:41 -0400
+        id S1729417AbfI2Rbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:31:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 350D121925;
-        Sun, 29 Sep 2019 17:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6208221D71;
+        Sun, 29 Sep 2019 17:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778301;
-        bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
+        s=default; t=1569778303;
+        bh=IMFn1tzxwb26dMf9wGqGPU6excEbDGy+Ynd8rhWb8Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMPy7x/UDj+MvvtLl/NY2ZuRqc9JYwUMUQG7LoxRCU1KbISvu2igF+zqDiT/nTl6a
-         Xu5GFq61xrVSaMEL5N3FY3/vAEeveWSLqjgek7tiIgCUkkh6vgJhhcFC6OkxnM8tbr
-         uzXuQa6/3cjQwW8wn9BAak7WqSsEHp8pdClMrXMQ=
+        b=kQBCfKWWfKLDeFRBW58iECTh2eMdyjKU0NpYkBFRQ5t5M9CIOP4eINrWF1NxRb/wu
+         H67JCkHIGjdw3SAwaN60QlBUftz+IomCETtBIKrrv4Ty4y8J+Qed9Wsoub8Uxj8wWw
+         ga3igSLJG4eCbCmWz/gr91gNCh9DPqpiSjHGDeQQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 21/49] rtc: snvs: fix possible race condition
-Date:   Sun, 29 Sep 2019 13:30:21 -0400
-Message-Id: <20190929173053.8400-21-sashal@kernel.org>
+Cc:     Romain Izard <romain.izard.pro@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 23/49] power: supply: register HWMON devices with valid names
+Date:   Sun, 29 Sep 2019 13:30:23 -0400
+Message-Id: <20190929173053.8400-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
@@ -44,55 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Romain Izard <romain.izard.pro@gmail.com>
 
-[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
+[ Upstream commit f1b937cc86bedf94dbc3478c2c0dc79471081fff ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in IRQ handler.
+With the introduction of the HWMON compatibility layer to the power
+supply framework in Linux 5.3, all power supply devices' names can be
+used directly to create HWMON devices with the same names.
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+But HWMON has rules on allowable names that are different from those
+used in the power supply framework. The dash character is forbidden, as
+it is used by the libsensors library in userspace as a separator,
+whereas this character is used in the device names in more than half of
+the existing power supply drivers. This last case is consistent with the
+typical naming usage with MFD and Device Tree.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+This leads to warnings in the kernel log, with the format:
+
+power_supply gpio-charger: hwmon: \
+	'gpio-charger' is not a valid name attribute, please fix
+
+Add a protection to power_supply_add_hwmon_sysfs() that replaces any
+dash in the device name with an underscore when registering with the
+HWMON framework. Other forbidden characters (star, slash, space, tab,
+newline) are not replaced, as they are not in common use.
+
+Fixes: e67d4dfc9ff1 ("power: supply: Add HWMON compatibility layer")
+Signed-off-by: Romain Izard <romain.izard.pro@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/power/supply/power_supply_hwmon.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 7ee673a25fd0a..4f9a107a04277 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -279,6 +279,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	if (!data)
- 		return -ENOMEM;
+diff --git a/drivers/power/supply/power_supply_hwmon.c b/drivers/power/supply/power_supply_hwmon.c
+index 51fe60440d125..75cf861ba492d 100644
+--- a/drivers/power/supply/power_supply_hwmon.c
++++ b/drivers/power/supply/power_supply_hwmon.c
+@@ -284,6 +284,7 @@ int power_supply_add_hwmon_sysfs(struct power_supply *psy)
+ 	struct device *dev = &psy->dev;
+ 	struct device *hwmon;
+ 	int ret, i;
++	const char *name;
  
-+	data->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(data->rtc))
-+		return PTR_ERR(data->rtc);
+ 	if (!devres_open_group(dev, power_supply_add_hwmon_sysfs,
+ 			       GFP_KERNEL))
+@@ -334,7 +335,19 @@ int power_supply_add_hwmon_sysfs(struct power_supply *psy)
+ 		}
+ 	}
+ 
+-	hwmon = devm_hwmon_device_register_with_info(dev, psy->desc->name,
++	name = psy->desc->name;
++	if (strchr(name, '-')) {
++		char *new_name;
 +
- 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
- 
- 	if (IS_ERR(data->regmap)) {
-@@ -343,10 +347,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 		goto error_rtc_device_register;
- 	}
- 
--	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&snvs_rtc_ops, THIS_MODULE);
--	if (IS_ERR(data->rtc)) {
--		ret = PTR_ERR(data->rtc);
-+	data->rtc->ops = &snvs_rtc_ops;
-+	ret = rtc_register_device(data->rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
- 		goto error_rtc_device_register;
- 	}
++		new_name = devm_kstrdup(dev, name, GFP_KERNEL);
++		if (!new_name) {
++			ret = -ENOMEM;
++			goto error;
++		}
++		strreplace(new_name, '-', '_');
++		name = new_name;
++	}
++	hwmon = devm_hwmon_device_register_with_info(dev, name,
+ 						psyhw,
+ 						&power_supply_hwmon_chip_info,
+ 						NULL);
 -- 
 2.20.1
 
