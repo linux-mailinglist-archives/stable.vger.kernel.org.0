@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D27BC169E
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA08C16A7
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729414AbfI2Rbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
+        id S1729557AbfI2Rb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbfI2Rbm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:42 -0400
+        id S1729547AbfI2Rb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:31:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55EDC21927;
-        Sun, 29 Sep 2019 17:31:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3539C21D7C;
+        Sun, 29 Sep 2019 17:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778302;
-        bh=YDlb7eJfsCJYSe+W+bAGfQM6oR+1wKO4K2sY+007I9Y=;
+        s=default; t=1569778316;
+        bh=kZEPCmBzfnruGMTP4vMPzELIRnJc++Rbxcjejt8mrIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ck8SwxTPB0FMQOPifGumC2DFFe0amVNVrz4g2yvnkH9zuScnQABJE5iwLQRtb/Uwq
-         U5kpjExtM4B15kIhkZKUY42yXIqmBNFOjJciabpFf3bfJin9ybVJl3AOPBDwJ/XL91
-         3if0Nq44qb5ip+GkM5SAG2NAGODxY4HLSoC6jyfA=
+        b=FLHYu64U6DklqKKxtnl8uwnXg930oS2e/YaIw1h785cK8qm0Z3USup6pnzWuoVLnn
+         SKLR5bQ+/1pmHregJGU5PpvOt0I1rHq5SUj5Fv80svTXUucynrFuP64TVjRa/NffRI
+         n3CjITuhUxQA+R39OTC5VPHC05O8IqS9z/Emws3U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biwen Li <biwen.li@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 22/49] rtc: pcf85363/pcf85263: fix regmap error in set_time
-Date:   Sun, 29 Sep 2019 13:30:22 -0400
-Message-Id: <20190929173053.8400-22-sashal@kernel.org>
+Cc:     Krzysztof Wilczynski <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 32/49] PCI: Use static const struct, not const static struct
+Date:   Sun, 29 Sep 2019 13:30:32 -0400
+Message-Id: <20190929173053.8400-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,60 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+From: Krzysztof Wilczynski <kw@linux.com>
 
-[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
+[ Upstream commit 8050f3f6645ae0f7e4c1304593f6f7eb2ee7d85c ]
 
-Issue:
-    - # hwclock -w
-      hwclock: RTC_SET_TIME: Invalid argument
+Move the static keyword to the front of declarations of pci_regs_behavior[]
+and pcie_cap_regs_behavior[], which resolves compiler warnings when
+building with "W=1":
 
-Why:
-    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
-      writeable before writing operations"), this patch
-      will always check for unwritable registers, it will compare reg
-      with max_register in regmap_writeable.
+  drivers/pci/pci-bridge-emul.c:41:1: warning: ‘static’ is not at beginning of
+  declaration [-Wold-style-declaration]
+   const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+   ^
+  drivers/pci/pci-bridge-emul.c:176:1: warning: ‘static’ is not at beginning of
+  declaration [-Wold-style-declaration]
+   const static struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+   ^
 
-    - The pcf85363/pcf85263 has the capability of address wrapping
-      which means if you access an address outside the allowed range
-      (0x00-0x2f) hardware actually wraps the access to a lower address.
-      The rtc-pcf85363 driver will use this feature to configure the time
-      and execute 2 actions in the same i2c write operation (stopping the
-      clock and configure the time). However the driver has also
-      configured the `regmap maxregister` protection mechanism that will
-      block accessing addresses outside valid range (0x00-0x2f).
-
-How:
-    - Split of writing regs to two parts, first part writes control
-      registers about stop_enable and resets, second part writes
-      RTC time and date registers.
-
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20190826151436.4672-1-kw@linux.com
+Link: https://lore.kernel.org/r/20190828131733.5817-1-kw@linux.com
+Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf85363.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pci/pci-bridge-emul.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index a075e77617dcb..3450d615974d5 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -166,7 +166,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
+diff --git a/drivers/pci/pci-bridge-emul.c b/drivers/pci/pci-bridge-emul.c
+index 06083b86d4f45..5fd90105510d9 100644
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -38,7 +38,7 @@ struct pci_bridge_reg_behavior {
+ 	u32 rsvd;
+ };
  
- 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
--				tmp, sizeof(tmp));
-+				tmp, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
-+				buf, sizeof(tmp) - 2);
- 	if (ret)
- 		return ret;
+-const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
++static const struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+ 	[PCI_VENDOR_ID / 4] = { .ro = ~0 },
+ 	[PCI_COMMAND / 4] = {
+ 		.rw = (PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
+@@ -173,7 +173,7 @@ const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+ 	},
+ };
  
+-const static struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
++static const struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+ 	[PCI_CAP_LIST_ID / 4] = {
+ 		/*
+ 		 * Capability ID, Next Capability Pointer and
 -- 
 2.20.1
 
