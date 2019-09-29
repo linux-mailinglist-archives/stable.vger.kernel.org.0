@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1607C1849
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23858C184C
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729660AbfI2RcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
+        id S1729669AbfI2RcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729617AbfI2RcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:32:09 -0400
+        id S1729662AbfI2RcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:32:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E5972086A;
-        Sun, 29 Sep 2019 17:32:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AF3921928;
+        Sun, 29 Sep 2019 17:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778329;
-        bh=9DqCLIXw3OgaPQz/yyOp5nMdkQ0mojVShjTJc+3CrmU=;
+        s=default; t=1569778330;
+        bh=BEnfgb96q4UyJzbI8cOPcJZOQlozNTSU2+Qi33Sg6eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihDZQ4LngJV25XTuAHl1rtq0iL0u2d9jVXlaGGdtSyRGmvxe3NjL7kpru7aee63HA
-         rjnGBEyXL2ZmxbRMPu3Fi5pH6lmc4EqmGVQfpYUs9KE60dzRWT0mBNBg/CvuQtG/v2
-         KnkTN20604j7K3JvUYcKQCrCRNiqDfFJ2Iu+qFxc=
+        b=GUWQdNzkezozomdseBJU/lyal1lO7XmQVIg9iyWxnB4JAcvJ9kwGuCdh2LZbJrRMO
+         pnBEmU8P0WO5ndKPrE7AN6cxyOtquFAGPoIDMnUMsQHEj0SMKnKnUaGfaoiN3tPz0d
+         ZoxOw4ziiFt9MC36aQoeUUYgdBeGa4q0to9av6GM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 39/49] hypfs: Fix error number left in struct pointer member
-Date:   Sun, 29 Sep 2019 13:30:39 -0400
-Message-Id: <20190929173053.8400-39-sashal@kernel.org>
+Cc:     Youquan Song <youquan.song@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 40/49] tools/power/x86/intel-speed-select: Fix high priority core mask over count
+Date:   Sun, 29 Sep 2019 13:30:40 -0400
+Message-Id: <20190929173053.8400-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
@@ -45,55 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Youquan Song <youquan.song@intel.com>
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+[ Upstream commit 44460efe44e05eae2f21e57d06d542bbbb792e65 ]
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+If the CPU package has the less logical CPU than topo_max_cpus, but un-present
+CPU's punit_cpu_core will be initiated to 0 and they will be count to core 0
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
+Like below, there are only 10 high priority cores (20 logical CPUs) in the CPU
+package, but it count to 27 logic CPUs.
 
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+./intel-speed-select base-freq info -l 0 | grep mask
+        high-priority-cpu-mask:7f000179,f000179f
+
+With the fix patch:
+./intel-speed-select base-freq info -l 0
+        high-priority-cpu-mask:00000179,f000179f
+
+Signed-off-by: Youquan Song <youquan.song@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ tools/power/x86/intel-speed-select/isst-config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index ccad1398abd40..b5cfcad953c2e 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index 91c5ad1685a15..a6b1487b5f0f6 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -402,6 +402,9 @@ void set_cpu_mask_from_punit_coremask(int cpu, unsigned long long core_mask,
+ 			int j;
  
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
+ 			for (j = 0; j < topo_max_cpus; ++j) {
++				if (!CPU_ISSET_S(j, present_cpumask_size, present_cpumask))
++					continue;
++
+ 				if (cpu_map[j].pkg_id == pkg_id &&
+ 				    cpu_map[j].die_id == die_id &&
+ 				    cpu_map[j].punit_cpu_core == i) {
 -- 
 2.20.1
 
