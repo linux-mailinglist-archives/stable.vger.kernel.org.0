@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B066C14FE
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C29C15AA
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729037AbfI2N7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:59:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
+        id S1729039AbfI2N7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:59:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729138AbfI2N7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:59:48 -0400
+        id S1729090AbfI2N7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:59:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7A4A2082F;
-        Sun, 29 Sep 2019 13:59:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE84121835;
+        Sun, 29 Sep 2019 13:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765587;
-        bh=nW5R02Lp0r8+FlCjCcLSXf0yuWMCeAZTIDDQu+f5wXo=;
+        s=default; t=1569765590;
+        bh=8IVM02gMiLXMo8OXqgT2UGDutlMwjslKlVYEEZCt8oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uuLXOu9xhnCBPWrD1N9IsHTky7RaV8xsyyO3cyVS4i6pxlkt6ozGlNuKTcYq4Ju+q
-         g2AgBHlobvomxBulCCBPH1qSOEHIvJVowZoc3zAGV5aKnE684fKYFoNJflueY0fMIJ
-         4to6xcGg57ISyDYlLXNrp+V2mla7zqz9HnvKE3qU=
+        b=2T2yhRew5+djQ6owcAjsyIZBlfkxOQ5JQgzoMBz57kLUIZQTpZE7TABc4xDTSH0vi
+         An7QXrQnqaP2qw8i2ix3eU9LcerNgL5P078xRz4Wz4i/YEs/sIal0YlDGnTuhZryLg
+         RSpntgXxJ8/mgnZmgl33X4G1Kahtiff72yBwsQwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Imre Deak <imre.deak@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/63] f2fs: fix to do sanity check on segment bitmap of LFS curseg
-Date:   Sun, 29 Sep 2019 15:54:26 +0200
-Message-Id: <20190929135040.450358370@linuxfoundation.org>
+Subject: [PATCH 4.19 54/63] drm: Flush output polling on shutdown
+Date:   Sun, 29 Sep 2019 15:54:27 +0200
+Message-Id: <20190929135040.552213048@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -44,108 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit c854f4d681365498f53ba07843a16423625aa7e9 ]
+[ Upstream commit 3b295cb1a411d9c82bbfaa66bc17a8508716ed07 ]
 
-As Jungyeon Reported in bugzilla:
+We need to mark the output polling as disabled to prevent concurrent
+irqs from queuing new work as shutdown the probe -- causing that work to
+execute after we have freed the structs:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203233
+<4> [341.846490] DEBUG_LOCKS_WARN_ON(mutex_is_locked(lock))
+<4> [341.846497] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
+<4> [341.846508] Modules linked in: i915(-) vgem thunderbolt snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic mei_hdcp x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec snd_hwdep snd_hda_core snd_pcm mcs7830 btusb usbnet btrtl mii btbcm btintel bluetooth ecdh_generic ecc mei_me mei prime_numbers i2c_hid pinctrl_sunrisepoint pinctrl_intel [last unloaded: i915]
+<4> [341.846546] CPU: 3 PID: 3300 Comm: i915_module_loa Tainted: G     U            5.2.0-rc2-CI-CI_DRM_6175+ #1
+<4> [341.846553] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
+<4> [341.846560] RIP: 0010:mutex_destroy+0x49/0x50
+<4> [341.846565] Code: 00 00 5b c3 e8 a8 9f 3b 00 85 c0 74 ed 8b 05 3e 55 23 01 85 c0 75 e3 48 c7 c6 00 d0 08 82 48 c7 c7 a8 aa 07 82 e8 e7 08 fa ff <0f> 0b eb cc 0f 1f 00 48 b8 11 11 11 11 11 11 11 11 48 89 76 20 48
+<4> [341.846578] RSP: 0018:ffffc900006cfdb0 EFLAGS: 00010286
+<4> [341.846583] RAX: 0000000000000000 RBX: ffff88826759a168 RCX: 0000000000000000
+<4> [341.846589] RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffffffff8112844c
+<4> [341.846595] RBP: ffff8882708fa548 R08: 0000000000000000 R09: 0000000000039600
+<4> [341.846601] R10: 0000000000000000 R11: 0000000000000ce4 R12: ffffffffa07de1e0
+<4> [341.846607] R13: 0000000000000000 R14: 0000000000000000 R15: ffffffffa07de2d0
+<4> [341.846613] FS:  00007f62b5ae0e40(0000) GS:ffff888276380000(0000) knlGS:0000000000000000
+<4> [341.846620] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [341.846626] CR2: 000055a4e064f4a0 CR3: 0000000266b16006 CR4: 00000000003606e0
+<4> [341.846632] Call Trace:
+<4> [341.846639]  drm_fb_helper_fini.part.17+0xb3/0x100
+<4> [341.846682]  intel_fbdev_fini+0x20/0x80 [i915]
+<4> [341.846722]  intel_modeset_cleanup+0x9a/0x140 [i915]
+<4> [341.846750]  i915_driver_unload+0xa3/0x100 [i915]
+<4> [341.846778]  i915_pci_remove+0x19/0x30 [i915]
+<4> [341.846784]  pci_device_remove+0x36/0xb0
+<4> [341.846790]  device_release_driver_internal+0xd3/0x1b0
+<4> [341.846795]  driver_detach+0x3f/0x80
+<4> [341.846800]  bus_remove_driver+0x53/0xd0
+<4> [341.846805]  pci_unregister_driver+0x25/0xa0
+<4> [341.846843]  i915_exit+0x16/0x1c [i915]
+<4> [341.846849]  __se_sys_delete_module+0x162/0x210
+<4> [341.846855]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+<4> [341.846859]  ? do_syscall_64+0xd/0x1c0
+<4> [341.846864]  do_syscall_64+0x55/0x1c0
+<4> [341.846869]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4> [341.846875] RIP: 0033:0x7f62b51871b7
+<4> [341.846881] Code: 73 01 c3 48 8b 0d d1 8c 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a1 8c 2c 00 f7 d8 64 89 01 48
+<4> [341.846897] RSP: 002b:00007ffe7a227138 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+<4> [341.846904] RAX: ffffffffffffffda RBX: 00007ffe7a2272b0 RCX: 00007f62b51871b7
+<4> [341.846910] RDX: 0000000000000001 RSI: 0000000000000800 RDI: 0000557cd6b55948
+<4> [341.846916] RBP: 0000557cd6b558e0 R08: 0000557cd6b5594c R09: 00007ffe7a227160
+<4> [341.846922] R10: 00007ffe7a226134 R11: 0000000000000206 R12: 0000000000000000
+<4> [341.846927] R13: 00007ffe7a227820 R14: 0000000000000000 R15: 0000000000000000
+<4> [341.846936] irq event stamp: 3547847
+<4> [341.846940] hardirqs last  enabled at (3547847): [<ffffffff819aad2c>] _raw_spin_unlock_irqrestore+0x4c/0x60
+<4> [341.846949] hardirqs last disabled at (3547846): [<ffffffff819aab9d>] _raw_spin_lock_irqsave+0xd/0x50
+<4> [341.846957] softirqs last  enabled at (3547376): [<ffffffff81c0033a>] __do_softirq+0x33a/0x4b9
+<4> [341.846966] softirqs last disabled at (3547367): [<ffffffff810b6379>] irq_exit+0xa9/0xc0
+<4> [341.846973] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
+<4> [341.846980] ---[ end trace ba94ca8952ba970e ]---
+<7> [341.866547] [drm:intel_dp_detect [i915]] MST support? port A: no, sink: no, modparam: yes
+<7> [341.890480] [drm:drm_add_display_info] non_desktop set to 0
+<7> [341.890530] [drm:drm_add_edid_modes] ELD: no CEA Extension found
+<7> [341.890537] [drm:drm_add_display_info] non_desktop set to 0
+<7> [341.890578] [drm:drm_helper_probe_single_connector_modes] [CONNECTOR:86:eDP-1] probed modes :
+<7> [341.890589] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 60 373250 3200 3248 3280 3360 1800 1803 1808 1852 0x48 0xa
+<7> [341.890602] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 48 298600 3200 3248 3280 3360 1800 1803 1808 1852 0x40 0xa
+<4> [341.890628] general protection fault: 0000 [#1] PREEMPT SMP PTI
+<4> [341.890636] CPU: 0 PID: 508 Comm: kworker/0:4 Tainted: G     U  W         5.2.0-rc2-CI-CI_DRM_6175+ #1
+<4> [341.890646] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
+<4> [341.890655] Workqueue: events output_poll_execute
+<4> [341.890663] RIP: 0010:drm_setup_crtcs+0x13e/0xbe0
+<4> [341.890669] Code: 00 41 8b 44 24 58 85 c0 0f 8e f9 01 00 00 44 8b 6c 24 20 44 8b 74 24 28 31 db 31 ed 49 8b 44 24 60 48 63 d5 44 89 ee 83 c5 01 <48> 8b 04 d0 44 89 f2 48 8b 38 48 8b 87 88 01 00 00 48 8b 40 20 e8
+<4> [341.890686] RSP: 0018:ffffc9000033fd40 EFLAGS: 00010202
+<4> [341.890692] RAX: 6b6b6b6b6b6b6b6b RBX: 0000000000000002 RCX: 0000000000000000
+<4> [341.890700] RDX: 0000000000000001 RSI: 0000000000000c80 RDI: 00000000ffffffff
+<4> [341.890707] RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+<4> [341.890715] R10: 0000000000000c80 R11: 0000000000000000 R12: ffff888267599fe8
+<4> [341.890722] R13: 0000000000000c80 R14: 0000000000000708 R15: 0000000000000007
+<4> [341.890730] FS:  0000000000000000(0000) GS:ffff888276200000(0000) knlGS:0000000000000000
+<4> [341.890739] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [341.890745] CR2: 000055a4e064f4a0 CR3: 000000026d234003 CR4: 00000000003606f0
+<4> [341.890752] Call Trace:
+<4> [341.890760]  drm_fb_helper_hotplug_event.part.24+0x89/0xb0
+<4> [341.890768]  drm_kms_helper_hotplug_event+0x21/0x30
+<4> [341.890774]  output_poll_execute+0x9d/0x1a0
+<4> [341.890782]  process_one_work+0x245/0x610
+<4> [341.890790]  worker_thread+0x37/0x380
+<4> [341.890796]  ? process_one_work+0x610/0x610
+<4> [341.890802]  kthread+0x119/0x130
+<4> [341.890808]  ? kthread_park+0x80/0x80
+<4> [341.890815]  ret_from_fork+0x3a/0x50
 
-- Reproduces
-gcc poc_13.c
-./run.sh f2fs
-
-- Kernel messages
- F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
- kernel BUG at fs/f2fs/segment.c:2133!
- RIP: 0010:update_sit_entry+0x35d/0x3e0
- Call Trace:
-  f2fs_allocate_data_block+0x16c/0x5a0
-  do_write_page+0x57/0x100
-  f2fs_do_write_node_page+0x33/0xa0
-  __write_node_page+0x270/0x4e0
-  f2fs_sync_node_pages+0x5df/0x670
-  f2fs_write_checkpoint+0x364/0x13a0
-  f2fs_sync_fs+0xa3/0x130
-  f2fs_do_sync_file+0x1a6/0x810
-  do_fsync+0x33/0x60
-  __x64_sys_fsync+0xb/0x10
-  do_syscall_64+0x43/0x110
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The testcase fails because that, in fuzzed image, current segment was
-allocated with LFS type, its .next_blkoff should point to an unused
-block address, but actually, its bitmap shows it's not. So during
-allocation, f2fs crash when setting bitmap.
-
-Introducing sanity_check_curseg() to check such inconsistence of
-current in-used segment.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109964
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190603135910.15979-2-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/gpu/drm/drm_probe_helper.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 8fc3edb6760c2..da7af7822e595 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -4098,6 +4098,41 @@ static int build_dirty_segmap(struct f2fs_sb_info *sbi)
- 	return init_victim_secmap(sbi);
- }
+diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+index d18b7e27ef64c..c0b26135dbd5b 100644
+--- a/drivers/gpu/drm/drm_probe_helper.c
++++ b/drivers/gpu/drm/drm_probe_helper.c
+@@ -581,6 +581,9 @@ static void output_poll_execute(struct work_struct *work)
+ 	enum drm_connector_status old_status;
+ 	bool repoll = false, changed;
  
-+static int sanity_check_curseg(struct f2fs_sb_info *sbi)
-+{
-+	int i;
++	if (!dev->mode_config.poll_enabled)
++		return;
 +
-+	/*
-+	 * In LFS/SSR curseg, .next_blkoff should point to an unused blkaddr;
-+	 * In LFS curseg, all blkaddr after .next_blkoff should be unused.
-+	 */
-+	for (i = 0; i < NO_CHECK_TYPE; i++) {
-+		struct curseg_info *curseg = CURSEG_I(sbi, i);
-+		struct seg_entry *se = get_seg_entry(sbi, curseg->segno);
-+		unsigned int blkofs = curseg->next_blkoff;
-+
-+		if (f2fs_test_bit(blkofs, se->cur_valid_map))
-+			goto out;
-+
-+		if (curseg->alloc_type == SSR)
-+			continue;
-+
-+		for (blkofs += 1; blkofs < sbi->blocks_per_seg; blkofs++) {
-+			if (!f2fs_test_bit(blkofs, se->cur_valid_map))
-+				continue;
-+out:
-+			f2fs_msg(sbi->sb, KERN_ERR,
-+				"Current segment's next free block offset is "
-+				"inconsistent with bitmap, logtype:%u, "
-+				"segno:%u, type:%u, next_blkoff:%u, blkofs:%u",
-+				i, curseg->segno, curseg->alloc_type,
-+				curseg->next_blkoff, blkofs);
-+			return -EINVAL;
-+		}
-+	}
-+	return 0;
-+}
-+
- /*
-  * Update min, max modified time for cost-benefit GC algorithm
+ 	/* Pick up any changes detected by the probe functions. */
+ 	changed = dev->mode_config.delayed_event;
+ 	dev->mode_config.delayed_event = false;
+@@ -735,7 +738,11 @@ EXPORT_SYMBOL(drm_kms_helper_poll_init);
   */
-@@ -4193,6 +4228,10 @@ int f2fs_build_segment_manager(struct f2fs_sb_info *sbi)
- 	if (err)
- 		return err;
- 
-+	err = sanity_check_curseg(sbi);
-+	if (err)
-+		return err;
+ void drm_kms_helper_poll_fini(struct drm_device *dev)
+ {
+-	drm_kms_helper_poll_disable(dev);
++	if (!dev->mode_config.poll_enabled)
++		return;
 +
- 	init_min_max_mtime(sbi);
- 	return 0;
++	dev->mode_config.poll_enabled = false;
++	cancel_delayed_work_sync(&dev->mode_config.output_poll_work);
  }
+ EXPORT_SYMBOL(drm_kms_helper_poll_fini);
+ 
 -- 
 2.20.1
 
