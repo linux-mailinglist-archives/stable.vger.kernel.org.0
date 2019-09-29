@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75ACBC151E
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF53FC1521
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729244AbfI2OBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:01:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43078 "EHLO mail.kernel.org"
+        id S1729384AbfI2OBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:01:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729954AbfI2OBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:01:01 -0400
+        id S1729385AbfI2OBE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:01:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD6F42082F;
-        Sun, 29 Sep 2019 14:00:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A402086A;
+        Sun, 29 Sep 2019 14:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765660;
-        bh=jZ1ynH8cHoy6h5UeSxVTkPfxVFRyTDW1B9UepsKgozc=;
+        s=default; t=1569765663;
+        bh=oJ1DAPC6i1yD3poQaOwZoOjZyJqHHxMJuBpIZsKKyd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6zHBu9cdpWj6E57NWyOxDmxQ+oqaTrGJh5FvpeaJgBy1nUB/fktMFBJIhnEEQt6r
-         EDpyJW90xb+3RO28igDvqpM3x6YQkYy4tZayeThS8j6OTiDhFNP0e8ZNPvIZcYqszi
-         OHKOz92Xh/84vznIDwPNOkzz+B4r27bFIfN2R/NI=
+        b=cQcC/DjJaYmi1gQ3xBcboEjgX7ZdS72RIPbnVMM4dcrt3XZ4qTNYu12nvz17/VeTw
+         /xU5qPN62JRXERVptZoPqSv/FA9F3LEL1jgpZWWKfctevF5dkSzjfVt2lHHl6Ckdme
+         kUW2R2pq0u7ooWzsCcqGaYB5GshgSOhJl3afrnak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        David Francis <david.francis@amd.com>
-Subject: [PATCH 5.2 08/45] drm/amd/display: Dont replace the dc_state for fast updates
-Date:   Sun, 29 Sep 2019 15:55:36 +0200
-Message-Id: <20190929135027.241231535@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.2 09/45] powerpc/xive: Fix bogus error code returned by OPAL
+Date:   Sun, 29 Sep 2019 15:55:37 +0200
+Message-Id: <20190929135027.480058711@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -45,103 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Greg Kurz <groug@kaod.org>
 
-commit bd200d190f45b62c006d1ad0a63eeffd87db7a47 upstream.
+commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8 upstream.
 
-[Why]
-DRM private objects have no hw_done/flip_done fencing mechanism on their
-own and cannot be used to sequence commits accordingly.
+There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
+to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
+Unfortunatelty, OPAL return values are signed 64-bit entities and
+errors are supposed to be negative. If that happens, the linux code
+confusingly treats 0xffffffff as a valid IRQ number and panics at some
+point.
 
-When issuing commits that don't touch the same set of hardware resources
-like page-flips on different CRTCs we can run into the issue below
-because of this:
+A fix was recently merged in skiboot:
 
-1. Client requests non-blocking Commit #1, has a new dc_state #1,
-state is swapped, commit tail is deferred to work queue
+e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
 
-2. Client requests non-blocking Commit #2, has a new dc_state #2,
-state is swapped, commit tail is deferred to work queue
+but we need a workaround anyway to support older skiboots already
+in the field.
 
-3. Commit #2 work starts, commit tail finishes,
-atomic state is cleared, dc_state #1 is freed
+Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
+returned upon resource exhaustion.
 
-4. Commit #1 work starts,
-commit tail encounters null pointer deref on dc_state #1
-
-In order to change the DC state as in the private object we need to
-ensure that we wait for all outstanding commits to finish and that
-any other pending commits must wait for the current one to finish as
-well.
-
-We do this for MEDIUM and FULL updates. But not for FAST updates, nor
-would we want to since it would cause stuttering from the delays.
-
-FAST updates that go through dm_determine_update_type_for_commit always
-create a new dc_state and lock the DRM private object if there are
-any changed planes.
-
-We need the old state to validate, but we don't actually need the new
-state here.
-
-[How]
-If the commit isn't a full update then the use after free can be
-resolved by simply discarding the new state entirely and retaining
-the existing one instead.
-
-With this change the sequence above can be reexamined. Commit #2 will
-still free Commit #1's reference, but before this happens we actually
-added an additional reference as part of Commit #2.
-
-If an update comes in during this that needs to change the dc_state
-it will need to wait on Commit #1 and Commit #2 to finish. Then it'll
-swap the state, finish the work in commit tail and drop the last
-reference on Commit #2's dc_state.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204181
-Fixes: 004b3938e637 ("drm/amd/display: Check scaling info when determing update type")
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: David Francis <david.francis@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/powerpc/include/asm/opal.h            |    2 +-
+ arch/powerpc/platforms/powernv/opal-call.c |    2 +-
+ arch/powerpc/sysdev/xive/native.c          |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -6860,6 +6860,29 @@ static int amdgpu_dm_atomic_check(struct
- 			ret = -EINVAL;
- 			goto fail;
- 		}
-+	} else {
-+		/*
-+		 * The commit is a fast update. Fast updates shouldn't change
-+		 * the DC context, affect global validation, and can have their
-+		 * commit work done in parallel with other commits not touching
-+		 * the same resource. If we have a new DC context as part of
-+		 * the DM atomic state from validation we need to free it and
-+		 * retain the existing one instead.
-+		 */
-+		struct dm_atomic_state *new_dm_state, *old_dm_state;
-+
-+		new_dm_state = dm_atomic_get_new_state(state);
-+		old_dm_state = dm_atomic_get_old_state(state);
-+
-+		if (new_dm_state && old_dm_state) {
-+			if (new_dm_state->context)
-+				dc_release_state(new_dm_state->context);
-+
-+			new_dm_state->context = old_dm_state->context;
-+
-+			if (old_dm_state->context)
-+				dc_retain_state(old_dm_state->context);
-+		}
- 	}
+--- a/arch/powerpc/include/asm/opal.h
++++ b/arch/powerpc/include/asm/opal.h
+@@ -272,7 +272,7 @@ int64_t opal_xive_get_vp_info(uint64_t v
+ int64_t opal_xive_set_vp_info(uint64_t vp,
+ 			      uint64_t flags,
+ 			      uint64_t report_cl_pair);
+-int64_t opal_xive_allocate_irq(uint32_t chip_id);
++int64_t opal_xive_allocate_irq_raw(uint32_t chip_id);
+ int64_t opal_xive_free_irq(uint32_t girq);
+ int64_t opal_xive_sync(uint32_t type, uint32_t id);
+ int64_t opal_xive_dump(uint32_t type, uint32_t id);
+--- a/arch/powerpc/platforms/powernv/opal-call.c
++++ b/arch/powerpc/platforms/powernv/opal-call.c
+@@ -257,7 +257,7 @@ OPAL_CALL(opal_xive_set_queue_info,		OPA
+ OPAL_CALL(opal_xive_donate_page,		OPAL_XIVE_DONATE_PAGE);
+ OPAL_CALL(opal_xive_alloc_vp_block,		OPAL_XIVE_ALLOCATE_VP_BLOCK);
+ OPAL_CALL(opal_xive_free_vp_block,		OPAL_XIVE_FREE_VP_BLOCK);
+-OPAL_CALL(opal_xive_allocate_irq,		OPAL_XIVE_ALLOCATE_IRQ);
++OPAL_CALL(opal_xive_allocate_irq_raw,		OPAL_XIVE_ALLOCATE_IRQ);
+ OPAL_CALL(opal_xive_free_irq,			OPAL_XIVE_FREE_IRQ);
+ OPAL_CALL(opal_xive_get_vp_info,		OPAL_XIVE_GET_VP_INFO);
+ OPAL_CALL(opal_xive_set_vp_info,		OPAL_XIVE_SET_VP_INFO);
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -231,6 +231,17 @@ static bool xive_native_match(struct dev
+ 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
+ }
  
- 	/* Must be success */
++static s64 opal_xive_allocate_irq(u32 chip_id)
++{
++	s64 irq = opal_xive_allocate_irq_raw(chip_id);
++
++	/*
++	 * Old versions of skiboot can incorrectly return 0xffffffff to
++	 * indicate no space, fix it up here.
++	 */
++	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
++}
++
+ #ifdef CONFIG_SMP
+ static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
+ {
 
 
