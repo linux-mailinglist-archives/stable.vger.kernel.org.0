@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54040C187A
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DADDCC1879
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729320AbfI2Rbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729328AbfI2Rbc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 29 Sep 2019 13:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41926 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729316AbfI2Rbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:31 -0400
+        id S1729317AbfI2Rbc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:31:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24FCD21927;
-        Sun, 29 Sep 2019 17:31:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39084218AC;
+        Sun, 29 Sep 2019 17:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778290;
-        bh=fDMWIJ2q2yQifpis9eqvA9OLwFuD2uX2kyQjV7oQPDc=;
+        s=default; t=1569778291;
+        bh=RElNQWC1sL5bV1os5V5P26hwdNH57/88suKAzPs2f5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFGSbHj1w8WvVx0F3r0ndzVhUy3ZAL2Iiu+np/L4kwDB9fuIUitJhF+JZqpR5bwsm
-         ExEYwE1S06iD2HK5TLfJfmah09QvhcBWgAE9QmyFMQkSpryZGEvDeisSLmhsorDNBQ
-         jmMRTPG0zznnhTYzhuhazWXeIboDbA1o1sBbj0DA=
+        b=K/GJKK+Vi+s1t0WdGsuwa2jWJyruhHmPYVczYU3TgV0PLA01cafTVwQRBPShlyfqx
+         5z1Sop0W+u8dFUl4qCkh/rG9pp7/VlISVbo7x/qnCaedUYV/Oni7jqRkBrgyame0jU
+         MR6ANyqoYnAH0SfIuWQpa2GN1FBlDJEBWGzj/8J0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>, Orion Hodson <oth@google.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 15/49] ARM: 8898/1: mm: Don't treat faults reported from cache maintenance as writes
-Date:   Sun, 29 Sep 2019 13:30:15 -0400
-Message-Id: <20190929173053.8400-15-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 16/49] soundwire: intel: fix channel number reported by hardware
+Date:   Sun, 29 Sep 2019 13:30:16 -0400
+Message-Id: <20190929173053.8400-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
@@ -43,73 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 834020366da9ab3fb87d1eb9a3160eb22dbed63a ]
+[ Upstream commit 18046335643de6d21327f5ae034c8fb8463f6715 ]
 
-Translation faults arising from cache maintenance instructions are
-rather unhelpfully reported with an FSR value where the WnR field is set
-to 1, indicating that the faulting access was a write. Since cache
-maintenance instructions on 32-bit ARM do not require any particular
-permissions, this can cause our private 'cacheflush' system call to fail
-spuriously if a translation fault is generated due to page aging when
-targetting a read-only VMA.
+On all released Intel controllers (CNL/CML/ICL), PDI2 reports an
+invalid count, force the correct hardware-supported value
 
-In this situation, we will return -EFAULT to userspace, although this is
-unfortunately suppressed by the popular '__builtin___clear_cache()'
-intrinsic provided by GCC, which returns void.
+This may have to be revisited with platform-specific values if the
+hardware changes, but for now this is good enough.
 
-Although it's tempting to write this off as a userspace issue, we can
-actually do a little bit better on CPUs that support LPAE, even if the
-short-descriptor format is in use. On these CPUs, cache maintenance
-faults additionally set the CM field in the FSR, which we can use to
-suppress the write permission checks in the page fault handler and
-succeed in performing cache maintenance to read-only areas even in the
-presence of a translation fault.
-
-Reported-by: Orion Hodson <oth@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190806005522.22642-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/fault.c | 4 ++--
- arch/arm/mm/fault.h | 1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/soundwire/intel.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index 890eeaac3cbba..bd0f4821f7e11 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -191,7 +191,7 @@ static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
- {
- 	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index 317873bc0555d..ec25a71d08873 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -289,6 +289,16 @@ intel_pdi_get_ch_cap(struct sdw_intel *sdw, unsigned int pdi_num, bool pcm)
  
--	if (fsr & FSR_WRITE)
-+	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
- 		mask = VM_WRITE;
- 	if (fsr & FSR_LNX_PF)
- 		mask = VM_EXEC;
-@@ -262,7 +262,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
--	if (fsr & FSR_WRITE)
-+	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
- 		flags |= FAULT_FLAG_WRITE;
- 
- 	/*
-diff --git a/arch/arm/mm/fault.h b/arch/arm/mm/fault.h
-index c063708fa5032..9ecc2097a87a0 100644
---- a/arch/arm/mm/fault.h
-+++ b/arch/arm/mm/fault.h
-@@ -6,6 +6,7 @@
-  * Fault status register encodings.  We steal bit 31 for our own purposes.
-  */
- #define FSR_LNX_PF		(1 << 31)
-+#define FSR_CM			(1 << 13)
- #define FSR_WRITE		(1 << 11)
- #define FSR_FS4			(1 << 10)
- #define FSR_FS3_0		(15)
+ 	if (pcm) {
+ 		count = intel_readw(shim, SDW_SHIM_PCMSYCHC(link_id, pdi_num));
++
++		/*
++		 * WORKAROUND: on all existing Intel controllers, pdi
++		 * number 2 reports channel count as 1 even though it
++		 * supports 8 channels. Performing hardcoding for pdi
++		 * number 2.
++		 */
++		if (pdi_num == 2)
++			count = 7;
++
+ 	} else {
+ 		count = intel_readw(shim, SDW_SHIM_PDMSCAP(link_id));
+ 		count = ((count & SDW_SHIM_PDMSCAP_CPSS) >>
 -- 
 2.20.1
 
