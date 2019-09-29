@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 438FAC14AE
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB50C14B1
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729175AbfI2N5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
+        id S1729205AbfI2N5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:57:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729171AbfI2N5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:57:13 -0400
+        id S1729195AbfI2N5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:57:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8277E21835;
-        Sun, 29 Sep 2019 13:57:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBF8521882;
+        Sun, 29 Sep 2019 13:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765431;
-        bh=g4EIyYRYGSUWt9y0XJmLdDFQ6tAcVEVuhUhDrId1rQk=;
+        s=default; t=1569765437;
+        bh=U/xQk/O39tGlQl/7kP1ZY7R0dx9/CTG4sHjuJmqXJ0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHx7bcUzCX9WVS6L5VttP3mu+uFcbOKh/fHWl5hl5pIPeP9OTiO07+xWUnFx2lYTt
-         p6Z22xbC2fW3gYPBD7i34KjVOwM4Mm6L4r6vK/IwZ+rUGG2uKpwfRmw4zr/j3cB2nG
-         ggy4QU7DKl2k22rZPM77Af9Zrk5PU4K56sNJMpqY=
+        b=Sw5juGp7EPk0MT8ER4OHrYf99sMvtfxta/1BGIGcP/kjI5Inmd2MJSqmJ4s5xe3tA
+         qJvYYwjfvQnlowOqA2TDBLUDdNLHmkPHUKYlqickMTmXlgDZ1PQ5BOBZAq5Y89O6sm
+         ao8TEQXXc8N3guEtAF2EzD18itik+fnFtRm0nmwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/63] drm/amd/display: readd -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines
-Date:   Sun, 29 Sep 2019 15:53:38 +0200
-Message-Id: <20190929135032.251344843@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 07/63] HID: prodikeys: Fix general protection fault during probe
+Date:   Sun, 29 Sep 2019 15:53:40 +0200
+Message-Id: <20190929135032.554173527@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -46,67 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 0f0727d971f6fdf8f1077180d495ddb9928f0c8b ]
+commit 98375b86c79137416e9fd354177b85e768c16e56 upstream.
 
-arch/x86/Makefile disables SSE and SSE2 for the whole kernel.  The
-AMDGPU drivers modified in this patch re-enable SSE but not SSE2.  Turn
-on SSE2 to support emitting double precision floating point instructions
-rather than calls to non-existent (usually available from gcc_s or
-compiler_rt) floating point helper routines for Clang.
+The syzbot fuzzer provoked a general protection fault in the
+hid-prodikeys driver:
 
-This was originally landed in:
-commit 10117450735c ("drm/amd/display: add -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines")
-but reverted in:
-commit 193392ed9f69 ("Revert "drm/amd/display: add -msse2 to prevent Clang from emitting libcalls to undefined SW FP routines"")
-due to bugreports from GCC builds. Add guards to only do so for Clang.
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  [inline]
+RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
+RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
+RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
+Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc
+48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f
+85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
 
-Link: https://bugs.freedesktop.org/show_bug.cgi?id=109487
-Link: https://github.com/ClangBuiltLinux/linux/issues/327
+The problem is caused by the fact that pcmidi_get_output_report() will
+return an error if the HID device doesn't provide the right sort of
+output report, but pcmidi_set_operational() doesn't bother to check
+the return code and assumes the function call always succeeds.
 
-Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Suggested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds the missing check and aborts the probe operation if
+necessary.
+
+Reported-and-tested-by: syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/calcs/Makefile | 4 ++++
- drivers/gpu/drm/amd/display/dc/dml/Makefile   | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/hid/hid-prodikeys.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/Makefile b/drivers/gpu/drm/amd/display/dc/calcs/Makefile
-index 95f332ee3e7e6..16614d73a5fcf 100644
---- a/drivers/gpu/drm/amd/display/dc/calcs/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/calcs/Makefile
-@@ -32,6 +32,10 @@ endif
+--- a/drivers/hid/hid-prodikeys.c
++++ b/drivers/hid/hid-prodikeys.c
+@@ -555,10 +555,14 @@ static void pcmidi_setup_extra_keys(
  
- calcs_ccflags := -mhard-float -msse $(cc_stack_align)
- 
-+ifdef CONFIG_CC_IS_CLANG
-+calcs_ccflags += -msse2
-+endif
+ static int pcmidi_set_operational(struct pcmidi_snd *pm)
+ {
++	int rc;
 +
- CFLAGS_dcn_calcs.o := $(calcs_ccflags)
- CFLAGS_dcn_calc_auto.o := $(calcs_ccflags)
- CFLAGS_dcn_calc_math.o := $(calcs_ccflags) -Wno-tautological-compare
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/Makefile b/drivers/gpu/drm/amd/display/dc/dml/Makefile
-index d97ca6528f9d9..934ffe1b4b00e 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/dml/Makefile
-@@ -32,6 +32,10 @@ endif
+ 	if (pm->ifnum != 1)
+ 		return 0; /* only set up ONCE for interace 1 */
  
- dml_ccflags := -mhard-float -msse $(cc_stack_align)
+-	pcmidi_get_output_report(pm);
++	rc = pcmidi_get_output_report(pm);
++	if (rc < 0)
++		return rc;
+ 	pcmidi_submit_output_report(pm, 0xc1);
+ 	return 0;
+ }
+@@ -687,7 +691,11 @@ static int pcmidi_snd_initialise(struct
+ 	spin_lock_init(&pm->rawmidi_in_lock);
  
-+ifdef CONFIG_CC_IS_CLANG
-+dml_ccflags += -msse2
-+endif
-+
- CFLAGS_display_mode_lib.o := $(dml_ccflags)
- CFLAGS_display_pipe_clocks.o := $(dml_ccflags)
- CFLAGS_dml1_display_rq_dlg_calc.o := $(dml_ccflags)
--- 
-2.20.1
-
+ 	init_sustain_timers(pm);
+-	pcmidi_set_operational(pm);
++	err = pcmidi_set_operational(pm);
++	if (err < 0) {
++		pk_error("failed to find output report\n");
++		goto fail_register;
++	}
+ 
+ 	/* register it */
+ 	err = snd_card_register(card);
 
 
