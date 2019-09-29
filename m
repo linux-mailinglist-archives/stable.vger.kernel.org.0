@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51803C1800
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D5AC17FD
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730243AbfI2Rd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45424 "EHLO mail.kernel.org"
+        id S1729724AbfI2Rk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:40:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730239AbfI2Rd7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:59 -0400
+        id S1730260AbfI2ReD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F186D21928;
-        Sun, 29 Sep 2019 17:33:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CA8921906;
+        Sun, 29 Sep 2019 17:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778438;
-        bh=UjF/+zrMh2A8WpMuI+am8+4yCtxPltsqQNNdz86765Q=;
+        s=default; t=1569778441;
+        bh=nVXqpg3EWzWrGx+Rt5GKZFcx6da05pFj5oeiYDJ0CU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8fsH67TJPJjal1tgb4NxjrAty4MJFIpZ7lThNoyamWnaU3Nw0OaQaaDdZU9WC02T
-         asD5k5UwQJn3B6G6K0t1HhDdZvdTeIedjzTedHK7lEnSpMbutwKavF9QDNXyoXzSWp
-         63wzoGTkBlMzzFrBXFUuzSZ6kuuCU1FB1T8gzdhE=
+        b=1zgTuFWw7yo4EaMooO0nX5eBZYMwno8HA9ZJw4LSnWVd8wauaExlz8F9OmDYfkOkF
+         pbV9c1OVg12eueEy8J+cNC7DZA4Utp/Ml4Upty/TW0b4qw+OCXB63fo59hjk4mG4k8
+         kBsxbkTBf1CWbl4UDiXioFgAG65myxSl/M7vOwbk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Thelen <gthelen@google.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
+Cc:     Changwei Ge <gechangwei@live.cn>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 36/42] kbuild: clean compressed initramfs image
-Date:   Sun, 29 Sep 2019 13:32:35 -0400
-Message-Id: <20190929173244.8918-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 37/42] ocfs2: wait for recovering done after direct unlock request
+Date:   Sun, 29 Sep 2019 13:32:36 -0400
+Message-Id: <20190929173244.8918-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
 References: <20190929173244.8918-1-sashal@kernel.org>
@@ -45,54 +48,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Thelen <gthelen@google.com>
+From: Changwei Ge <gechangwei@live.cn>
 
-[ Upstream commit 6279eb3dd7946c69346a3b98473ed13d3a44adb5 ]
+[ Upstream commit 0a3775e4f883912944481cf2ef36eb6383a9cc74 ]
 
-Since 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
-"make clean" leaves behind compressed initramfs images.  Example:
+There is a scenario causing ocfs2 umount hang when multiple hosts are
+rebooting at the same time.
 
-  $ make defconfig
-  $ sed -i 's|CONFIG_INITRAMFS_SOURCE=""|CONFIG_INITRAMFS_SOURCE="/tmp/ir.cpio"|' .config
-  $ make olddefconfig
-  $ make -s
-  $ make -s clean
-  $ git clean -ndxf | grep initramfs
-  Would remove usr/initramfs_data.cpio.gz
+NODE1                           NODE2               NODE3
+send unlock requset to NODE2
+                                dies
+                                                    become recovery master
+                                                    recover NODE2
+find NODE2 dead
+mark resource RECOVERING
+directly remove lock from grant list
+calculate usage but RECOVERING marked
+**miss the window of purging
+clear RECOVERING
 
-clean rules do not have CONFIG_* context so they do not know which
-compression format was used.  Thus they don't know which files to delete.
+To reproduce this issue, crash a host and then umount ocfs2
+from another node.
 
-Tell clean to delete all possible compression formats.
+To solve this, just let unlock progress wait for recovery done.
 
-Once patched usr/initramfs_data.cpio.gz and friends are deleted by
-"make clean".
-
-Link: http://lkml.kernel.org/r/20190722063251.55541-1-gthelen@google.com
-Fixes: 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
-Signed-off-by: Greg Thelen <gthelen@google.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
+Link: http://lkml.kernel.org/r/1550124866-20367-1-git-send-email-gechangwei@live.cn
+Signed-off-by: Changwei Ge <gechangwei@live.cn>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- usr/Makefile | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/dlm/dlmunlock.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/usr/Makefile b/usr/Makefile
-index 4a70ae43c9cb5..bdb3f52fadc44 100644
---- a/usr/Makefile
-+++ b/usr/Makefile
-@@ -11,6 +11,9 @@ datafile_y = initramfs_data.cpio$(suffix_y)
- datafile_d_y = .$(datafile_y).d
- AFLAGS_initramfs_data.o += -DINITRAMFS_IMAGE="usr/$(datafile_y)"
+diff --git a/fs/ocfs2/dlm/dlmunlock.c b/fs/ocfs2/dlm/dlmunlock.c
+index e78657742bd89..3883633e82eb9 100644
+--- a/fs/ocfs2/dlm/dlmunlock.c
++++ b/fs/ocfs2/dlm/dlmunlock.c
+@@ -90,7 +90,8 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
+ 	enum dlm_status status;
+ 	int actions = 0;
+ 	int in_use;
+-        u8 owner;
++	u8 owner;
++	int recovery_wait = 0;
  
-+# clean rules do not have CONFIG_INITRAMFS_COMPRESSION.  So clean up after all
-+# possible compression formats.
-+clean-files += initramfs_data.cpio*
+ 	mlog(0, "master_node = %d, valblk = %d\n", master_node,
+ 	     flags & LKM_VALBLK);
+@@ -193,9 +194,12 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
+ 		}
+ 		if (flags & LKM_CANCEL)
+ 			lock->cancel_pending = 0;
+-		else
+-			lock->unlock_pending = 0;
+-
++		else {
++			if (!lock->unlock_pending)
++				recovery_wait = 1;
++			else
++				lock->unlock_pending = 0;
++		}
+ 	}
  
- # Generate builtin.o based on initramfs_data.o
- obj-$(CONFIG_BLK_DEV_INITRD) := initramfs_data.o
+ 	/* get an extra ref on lock.  if we are just switching
+@@ -229,6 +233,17 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
+ 	spin_unlock(&res->spinlock);
+ 	wake_up(&res->wq);
+ 
++	if (recovery_wait) {
++		spin_lock(&res->spinlock);
++		/* Unlock request will directly succeed after owner dies,
++		 * and the lock is already removed from grant list. We have to
++		 * wait for RECOVERING done or we miss the chance to purge it
++		 * since the removement is much faster than RECOVERING proc.
++		 */
++		__dlm_wait_on_lockres_flags(res, DLM_LOCK_RES_RECOVERING);
++		spin_unlock(&res->spinlock);
++	}
++
+ 	/* let the caller's final dlm_lock_put handle the actual kfree */
+ 	if (actions & DLM_UNLOCK_FREE_LOCK) {
+ 		/* this should always be coupled with list removal */
 -- 
 2.20.1
 
