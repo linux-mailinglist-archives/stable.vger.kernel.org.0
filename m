@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D1D9C17E3
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC56DC17AC
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730459AbfI2Rev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:34:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46908 "EHLO mail.kernel.org"
+        id S1730468AbfI2Rew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:34:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730450AbfI2Rev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:34:51 -0400
+        id S1730463AbfI2Rew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD3EB21925;
-        Sun, 29 Sep 2019 17:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BCA221906;
+        Sun, 29 Sep 2019 17:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778490;
-        bh=1F6bt5RpTUbDNunG2NjSi17pPf5izSSykKUzr/Z4S1A=;
+        s=default; t=1569778491;
+        bh=083q+yZ0ZAmFQlK1Ja7FPWGtT4oivjOlDpFQKWeB3Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=16mh7X8BDLhhT2SnfrpihSS4KE6YMu+g8KxxWyjQoB9T9OT1r5hpYgF9pXr372fVd
-         HXw1vCwH2zbFZouq7hym/oLTVeVX0AHehtoolj6QAGgr5GkoPdVU28Q2ILA0ehOlAG
-         YPyXORqAwEpZZejsNyxRlhj+UTAtpYHj12fRTzNU=
+        b=xRlL51JnvpQ5RbOV+XDAuP3+28I1kZ99pl4Z4RDZBLcfMylvj7W7nRpDNTJKg3b3q
+         9mecIzQCEHUMIIN/fzVGiID68fyMKXYwXZKRXY7RJ3eF9c8UkpC3DiE6RP/Enmc5Pc
+         RG/1whwZjIy2WQ2AAfWSSQeJqqFjajtElgy3A/Ls=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, john@phrozen.org, kishon@ti.com,
-        ralf@linux-mips.org, robh+dt@kernel.org, hauke@hauke-m.de,
-        mark.rutland@arm.com, ms@dev.tdt.de,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 12/33] MIPS: lantiq: update the clock alias' for the mainline PCIe PHY driver
-Date:   Sun, 29 Sep 2019 13:34:00 -0400
-Message-Id: <20190929173424.9361-12-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@linux-mips.org,
+        joe@perches.com,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/33] firmware: bcm47xx_nvram: Correct size_t printf format
+Date:   Sun, 29 Sep 2019 13:34:01 -0400
+Message-Id: <20190929173424.9361-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 References: <20190929173424.9361-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,86 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit ed90302be64a53d9031c8ce05428c358b16a5d96 ]
+[ Upstream commit feb4eb060c3aecc3c5076bebe699cd09f1133c41 ]
 
-The mainline PCIe PHY driver has it's own devicetree node. Update the
-clock alias so the mainline driver finds the clocks.
+When building on a 64-bit host, we will get warnings like those:
 
-The first PCIe PHY is located at 0x1f106800 and exists on VRX200, ARX300
-and GRX390.
-The second PCIe PHY is located at 0x1f700400 and exists on ARX300 and
-GRX390.
-The third PCIe PHY is located at 0x1f106a00 and exists onl on GRX390.
-Lantiq's board support package (called "UGW") names these registers
-"PDI".
+drivers/firmware/broadcom/bcm47xx_nvram.c:103:3: note: in expansion of macro 'pr_err'
+   pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
+   ^~~~~~
+drivers/firmware/broadcom/bcm47xx_nvram.c:103:28: note: format string is defined here
+   pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
+                           ~^
+                           %li
 
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Use %zu instead for that purpose.
+
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
 Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@linux-mips.org
+Cc: joe@perches.com
+Cc: Rafał Miłecki <zajec5@gmail.com>
 Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: john@phrozen.org
-Cc: kishon@ti.com
-Cc: ralf@linux-mips.org
-Cc: robh+dt@kernel.org
 Cc: linux-kernel@vger.kernel.org
-Cc: hauke@hauke-m.de
-Cc: mark.rutland@arm.com
-Cc: ms@dev.tdt.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/xway/sysctrl.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/firmware/broadcom/bcm47xx_nvram.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index e0af39b33e287..4334d83784dab 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -470,14 +470,14 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1f203018.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB0_P);
- 		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 2, PMU_ANALOG_USB1_P);
- 		/* rc 0 */
--		clkdev_add_pmu("1d900000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
-+		clkdev_add_pmu("1f106800.phy", "phy", 1, 2, PMU_ANALOG_PCIE0_P);
- 		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
--		clkdev_add_pmu("1d900000.pcie", "pdi", 1, 1, PMU1_PCIE_PDI);
-+		clkdev_add_pmu("1f106800.phy", "pdi", 1, 1, PMU1_PCIE_PDI);
- 		clkdev_add_pmu("1d900000.pcie", "ctl", 1, 1, PMU1_PCIE_CTL);
- 		/* rc 1 */
--		clkdev_add_pmu("19000000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE1_P);
-+		clkdev_add_pmu("1f700400.phy", "phy", 1, 2, PMU_ANALOG_PCIE1_P);
- 		clkdev_add_pmu("19000000.pcie", "msi", 1, 1, PMU1_PCIE1_MSI);
--		clkdev_add_pmu("19000000.pcie", "pdi", 1, 1, PMU1_PCIE1_PDI);
-+		clkdev_add_pmu("1f700400.phy", "pdi", 1, 1, PMU1_PCIE1_PDI);
- 		clkdev_add_pmu("19000000.pcie", "ctl", 1, 1, PMU1_PCIE1_CTL);
+diff --git a/drivers/firmware/broadcom/bcm47xx_nvram.c b/drivers/firmware/broadcom/bcm47xx_nvram.c
+index d25f080fcb0d8..8698c5dd29d9c 100644
+--- a/drivers/firmware/broadcom/bcm47xx_nvram.c
++++ b/drivers/firmware/broadcom/bcm47xx_nvram.c
+@@ -100,7 +100,7 @@ static int nvram_find_and_copy(void __iomem *iobase, u32 lim)
+ 		nvram_len = size;
  	}
- 
-@@ -501,9 +501,9 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e101000.usb", "otg", 1, 0, PMU_USB0);
- 		clkdev_add_pmu("1e106000.usb", "otg", 1, 0, PMU_USB1);
- 		/* rc 2 */
--		clkdev_add_pmu("1a800000.pcie", "phy", 1, 2, PMU_ANALOG_PCIE2_P);
-+		clkdev_add_pmu("1f106a00.pcie", "phy", 1, 2, PMU_ANALOG_PCIE2_P);
- 		clkdev_add_pmu("1a800000.pcie", "msi", 1, 1, PMU1_PCIE2_MSI);
--		clkdev_add_pmu("1a800000.pcie", "pdi", 1, 1, PMU1_PCIE2_PDI);
-+		clkdev_add_pmu("1f106a00.pcie", "pdi", 1, 1, PMU1_PCIE2_PDI);
- 		clkdev_add_pmu("1a800000.pcie", "ctl", 1, 1, PMU1_PCIE2_CTL);
- 		clkdev_add_pmu("1e108000.eth", NULL, 0, 0, PMU_SWITCH | PMU_PPE_DP);
- 		clkdev_add_pmu("1da00000.usif", "NULL", 1, 0, PMU_USIF);
-@@ -528,10 +528,10 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e101000.usb", "otg", 1, 0, PMU_USB0 | PMU_AHBM);
- 		clkdev_add_pmu("1f203034.usb2-phy", "phy", 1, 0, PMU_USB1_P);
- 		clkdev_add_pmu("1e106000.usb", "otg", 1, 0, PMU_USB1 | PMU_AHBM);
--		clkdev_add_pmu("1d900000.pcie", "phy", 1, 1, PMU1_PCIE_PHY);
-+		clkdev_add_pmu("1f106800.phy", "phy", 1, 1, PMU1_PCIE_PHY);
- 		clkdev_add_pmu("1d900000.pcie", "bus", 1, 0, PMU_PCIE_CLK);
- 		clkdev_add_pmu("1d900000.pcie", "msi", 1, 1, PMU1_PCIE_MSI);
--		clkdev_add_pmu("1d900000.pcie", "pdi", 1, 1, PMU1_PCIE_PDI);
-+		clkdev_add_pmu("1f106800.phy", "pdi", 1, 1, PMU1_PCIE_PDI);
- 		clkdev_add_pmu("1d900000.pcie", "ctl", 1, 1, PMU1_PCIE_CTL);
- 		clkdev_add_pmu(NULL, "ahb", 1, 0, PMU_AHBM | PMU_AHBS);
- 
+ 	if (nvram_len >= NVRAM_SPACE) {
+-		pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
++		pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
+ 		       nvram_len, NVRAM_SPACE - 1);
+ 		nvram_len = NVRAM_SPACE - 1;
+ 	}
+@@ -152,7 +152,7 @@ static int nvram_init(void)
+ 	    header.len > sizeof(header)) {
+ 		nvram_len = header.len;
+ 		if (nvram_len >= NVRAM_SPACE) {
+-			pr_err("nvram on flash (%i bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
++			pr_err("nvram on flash (%zu bytes) is bigger than the reserved space in memory, will just copy the first %i bytes\n",
+ 				header.len, NVRAM_SPACE);
+ 			nvram_len = NVRAM_SPACE - 1;
+ 		}
 -- 
 2.20.1
 
